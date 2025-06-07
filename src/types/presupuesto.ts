@@ -62,5 +62,5 @@ export interface PresupuestoFormData {
 
   // Paso 4 (Cálculos y resumen)
   resumen?: Presupuesto; // El presupuesto final calculado
-  notas?: string;
+  notas: string; // Se inicializa vacío
 }

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Save, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Send, Loader2, ClipboardCopy } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +14,7 @@ import Paso3Servicios from '@/components/presupuestos/paso-3-servicios';
 import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
 import type { PresupuestoFormData, PlatoPresupuesto, ServicioAdicional, Presupuesto } from '@/types/presupuesto';
-import { getPlatos, savePresupuesto } from '@/app/actions/presupuestos'; // Simuladas
+import { getPlatos, savePresupuesto } from '@/app/actions/presupuestos'; 
 
 const TOTAL_PASOS = 4;
 
@@ -53,9 +53,9 @@ export default function NuevoPresupuestoPage() {
     invitadosCantidad: null,
     platosDisponibles: [],
     platosSeleccionadosIds: new Set(),
-    serviciosDisponibles: serviciosDisponiblesMock.map(s => ({...s})),
+    serviciosDisponibles: serviciosDisponiblesMock.map(s => ({...s, seleccionado: false })),
     serviciosSeleccionadosIds: new Set(),
-    notas: '',
+    notas: '', // Inicializar notas
   });
 
   useEffect(() => {
@@ -73,7 +73,6 @@ export default function NuevoPresupuestoPage() {
 
   const handleNext = () => {
     if (formData.pasoActual < TOTAL_PASOS) {
-      // Validaciones por paso (simplificado)
       if (formData.pasoActual === 1) {
         if (!formData.clienteNombre || !formData.eventoTipo || !formData.eventoFecha || !formData.invitadosCantidad || formData.invitadosCantidad <= 0) {
           toast({ title: "Campos incompletos", description: "Por favor, completa todos los datos generales del evento.", variant: "destructive" });
@@ -125,7 +124,7 @@ export default function NuevoPresupuestoPage() {
     const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
 
     return {
-      id: new Date().toISOString(), // ID temporal para el resumen, se reemplazará al guardar
+      id: `temp_${Date.now()}`, 
       clienteNombre: formData.clienteNombre,
       eventoTipo: formData.eventoTipo,
       eventoFecha: formData.eventoFecha.toISOString(),
@@ -146,7 +145,7 @@ export default function NuevoPresupuestoPage() {
       const resumenCalculado = calcularResumen();
       setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
     }
-  }, [formData.pasoActual, formData.platosSeleccionadosIds, formData.serviciosSeleccionadosIds, formData.invitadosCantidad, calcularResumen]);
+  }, [formData.pasoActual, formData.platosSeleccionadosIds, formData.serviciosSeleccionadosIds, formData.invitadosCantidad, formData.notas, calcularResumen]);
 
 
   const handleSave = async () => {
@@ -157,10 +156,12 @@ export default function NuevoPresupuestoPage() {
     }
     setIsSaving(true);
     try {
-      const result = await savePresupuesto(resumen);
+      // El ID real se asignará en savePresupuesto
+      const {id, ...presupuestoParaGuardar} = resumen;
+      const result = await savePresupuesto(presupuestoParaGuardar as Presupuesto); // Cast para quitar el ID temporal
       if (result.success) {
         toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumen.clienteNombre} ha sido guardado con éxito.` });
-        router.push('/presupuestos'); // O a la página de detalle del presupuesto si la hubiera
+        router.push('/presupuestos'); 
       } else {
         throw new Error(result.error || "Error desconocido al guardar.");
       }
@@ -192,19 +193,19 @@ export default function NuevoPresupuestoPage() {
     "Datos Generales del Evento",
     "Selección de Menú y Platos",
     "Servicios Adicionales",
-    "Resumen del Presupuesto"
+    "Resumen y Notas del Presupuesto"
   ];
   const descripcionesPasos = [
     "Completá la información básica de tu evento.",
     "Elegí los platos que formarán parte de tu menú.",
     "Añadí servicios opcionales para complementar tu fiesta.",
-    "Revisá todos los detalles y el costo final estimado."
+    "Revisá todos los detalles, añadí notas y el costo final estimado."
   ];
 
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-0">
-      <Card className="shadow-xl overflow-hidden">
+      <Card className="shadow-xl overflow-hidden border-primary/20">
         <CardHeader className="bg-primary/10 p-6">
           <Progress value={progreso} className="w-full h-2 mb-4" />
           <CardTitle className="font-headline text-3xl text-primary">
@@ -214,30 +215,27 @@ export default function NuevoPresupuestoPage() {
             {descripcionesPasos[formData.pasoActual - 1]} (Paso {formData.pasoActual} de {TOTAL_PASOS})
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-6 md:p-8 min-h-[300px]">
+        <CardContent className="p-6 md:p-8 min-h-[400px]">
           {renderPaso()}
         </CardContent>
-        <CardFooter className="flex justify-between p-6 bg-muted/50">
-          <Button variant="outline" onClick={handlePrev} disabled={formData.pasoActual === 1 || isSaving}>
+        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 bg-muted/50 border-t">
+          <Button variant="outline" onClick={handlePrev} disabled={formData.pasoActual === 1 || isSaving} className="w-full sm:w-auto">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Anterior
           </Button>
           {formData.pasoActual < TOTAL_PASOS && (
-            <Button onClick={handleNext} disabled={isSaving}>
+            <Button onClick={handleNext} disabled={isSaving} className="w-full sm:w-auto">
               Siguiente
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           )}
           {formData.pasoActual === TOTAL_PASOS && (
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => { /* Lógica para enviar por WhatsApp */ }} disabled={isSaving || !formData.resumen}>
-                <Send className="w-4 h-4 mr-2" />
-                Enviar por WhatsApp
-              </Button>
-              <Button onClick={handleSave} disabled={isSaving || !formData.resumen}>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button onClick={handleSave} disabled={isSaving || !formData.resumen} className="w-full sm:w-auto order-last sm:order-first">
                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 {isSaving ? 'Guardando...' : 'Guardar Presupuesto'}
               </Button>
+              {/* Los botones de WhatsApp y Copiar están ahora en Paso4Resumen */}
             </div>
           )}
         </CardFooter>
@@ -245,4 +243,3 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
-
