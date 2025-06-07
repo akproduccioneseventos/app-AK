@@ -1,22 +1,35 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UploadCloud, Palette, Save } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+
 
 export default function TemplateCustomizationPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight font-headline">
-        Personalizar Plantilla de Factura
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight font-headline">
+          Personalizar Plantilla de Documentos
+        </h1>
+        <Link href="/settings" passHref>
+          <Button variant="outline">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Volver a Configuración
+          </Button>
+        </Link>
+      </div>
+
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Apariencia de la Factura</CardTitle>
+          <CardTitle className="font-headline">Apariencia de Facturas y Presupuestos</CardTitle>
           <CardDescription>
-            Ajusta el logo y los colores para que tus facturas reflejen tu marca.
+            Ajusta el logo y los colores para que tus documentos reflejen tu marca.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
@@ -24,10 +37,9 @@ export default function TemplateCustomizationPage() {
             <h3 className="text-lg font-medium font-headline">Logotipo</h3>
             <div className="flex items-center gap-4">
               <div className="w-24 h-24 border rounded-md flex items-center justify-center bg-muted overflow-hidden">
-                {/* Placeholder for current logo */}
                 <Image 
                   src="https://placehold.co/100x100.png" 
-                  alt="Logo" 
+                  alt="Logo Actual" 
                   width={96} 
                   height={96} 
                   className="object-contain"
@@ -54,16 +66,16 @@ export default function TemplateCustomizationPage() {
               <div className="space-y-2">
                 <Label htmlFor="primary-color">Color Principal</Label>
                 <div className="flex items-center gap-2">
-                  <Input id="primary-color" type="color" defaultValue="#FF0000" className="w-12 h-10 p-1" />
-                  <Input type="text" defaultValue="#FF0000" className="flex-1" />
+                  <Input id="primary-color" type="color" defaultValue="#EF4444" className="w-12 h-10 p-1" />
+                  <Input type="text" defaultValue="#EF4444" className="flex-1" />
                 </div>
                 <p className="text-xs text-muted-foreground">Usado para encabezados y elementos destacados.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="accent-color">Color de Acento</Label>
                  <div className="flex items-center gap-2">
-                  <Input id="accent-color" type="color" defaultValue="#FF0000" className="w-12 h-10 p-1" />
-                  <Input type="text" defaultValue="#FF0000" className="flex-1" />
+                  <Input id="accent-color" type="color" defaultValue="#EF4444" className="w-12 h-10 p-1" />
+                  <Input type="text" defaultValue="#EF4444" className="flex-1" />
                 </div>
                 <p className="text-xs text-muted-foreground">Usado para detalles y llamadas a la acción.</p>
               </div>
@@ -75,7 +87,7 @@ export default function TemplateCustomizationPage() {
             <div className="p-4 border rounded-md aspect-[210/297] bg-muted flex items-center justify-center">
                <Image 
                   src="https://placehold.co/420x594.png" 
-                  alt="Vista Previa de Factura" 
+                  alt="Vista Previa de Documento" 
                   width={210} 
                   height={297}
                   className="object-contain border shadow-md"

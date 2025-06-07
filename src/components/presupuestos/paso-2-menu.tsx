@@ -1,6 +1,7 @@
+
 'use client';
 
-import type { PresupuestoFormData, PlatoPresupuesto } from '@/types/presupuesto';
+import type { PresupuestoFormData } from '@/types/presupuesto';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

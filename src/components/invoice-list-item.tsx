@@ -1,3 +1,4 @@
+
 import type { Invoice } from '@/types/invoice';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -33,16 +34,16 @@ export function InvoiceListItem({ invoice }: InvoiceListItemProps) {
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           <Link href={`/invoices/${invoice.id}`} passHref>
-            <Button variant="outline" size="icon" aria-label="Ver Factura">
+            <Button variant="outline" size="icon" aria-label={`Ver Factura ${invoice.invoiceNumber}`}>
               <Eye className="w-4 h-4" />
             </Button>
           </Link>
           <Link href={`/invoices/${invoice.id}/edit`} passHref>
-            <Button variant="outline" size="icon" aria-label="Editar Factura">
+            <Button variant="outline" size="icon" aria-label={`Editar Factura ${invoice.invoiceNumber}`}>
               <Edit className="w-4 h-4" />
             </Button>
           </Link>
-          <Button variant="destructive" size="icon" aria-label="Eliminar Factura">
+          <Button variant="destructive" size="icon" aria-label={`Eliminar Factura ${invoice.invoiceNumber}`}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>

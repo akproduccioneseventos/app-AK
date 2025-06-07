@@ -2,7 +2,7 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit } from 'lucide-react'; // Removed Trash2 for now
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 
@@ -38,18 +38,20 @@ export default function PresupuestoCard({ presupuesto }: PresupuestoCardProps) {
       </CardContent>
       <CardFooter className="flex justify-end gap-2 pt-4">
         <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" aria-label={`Ver presupuesto de ${presupuesto.clienteNombre}`}>
             <Eye className="w-4 h-4 mr-1" /> Ver
           </Button>
         </Link>
         <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" aria-label={`Editar presupuesto de ${presupuesto.clienteNombre}`}>
             <Edit className="w-4 h-4 mr-1" /> Editar
           </Button>
         </Link>
-        {/* <Button variant="destructive" size="sm">
+        {/* 
+        <Button variant="destructive" size="sm" aria-label={`Eliminar presupuesto de ${presupuesto.clienteNombre}`}>
           <Trash2 className="w-4 h-4 mr-1" /> Eliminar
-        </Button> */}
+        </Button> 
+        */}
       </CardFooter>
     </Card>
   );

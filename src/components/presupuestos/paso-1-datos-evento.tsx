@@ -1,10 +1,11 @@
+
 'use client';
 
 import type { PresupuestoFormData, TipoEvento } from '@/types/presupuesto';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerDemo } from '@/components/date-picker-demo'; // Asumiendo que este ya está bien
+import { DatePickerDemo } from '@/components/date-picker-demo'; 
 import type { Dispatch, SetStateAction } from 'react';
 
 interface Paso1Props {
@@ -12,7 +13,7 @@ interface Paso1Props {
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }
 
-const tiposEvento: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Baby Shower'];
+const tiposEvento: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
 
 export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
   
@@ -26,8 +27,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
   
   const handleTipoEventoChange = (value: string) => {
      if (value === "Otro") {
-        // Podrías mostrar un input adicional o manejarlo de otra forma
-        handleChange('eventoTipo', ''); // Dejar que el usuario escriba
+        handleChange('eventoTipo', ''); 
       } else {
         handleChange('eventoTipo', value as TipoEvento);
       }
@@ -63,7 +63,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
               <SelectItem value="Otro" className="text-base">Otro (especificar)</SelectItem>
             </SelectContent>
           </Select>
-          {formData.eventoTipo === '' || !tiposEvento.includes(formData.eventoTipo as TipoEvento) && formData.eventoTipo !== 'Otro' && (
+          {formData.eventoTipo === '' || (!tiposEvento.includes(formData.eventoTipo as TipoEvento) && formData.eventoTipo !== 'Otro') && (
              <Input 
                 id="eventoTipoOtro" 
                 placeholder="Especificá el tipo de evento" 
@@ -98,21 +98,3 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     </div>
   );
 }
-
-// Modificar DatePickerDemo para aceptar props
-// En src/components/date-picker-demo.tsx
-// export function DatePickerDemo({ selectedDate, onDateChange }: { selectedDate?: Date; onDateChange: (date?: Date) => void }) {
-//   const [date, setDate] = React.useState<Date | undefined>(selectedDate);
-//   React.useEffect(() => { setDate(selectedDate); }, [selectedDate]);
-//   const handleSelect = (newDate?: Date) => {
-//     setDate(newDate);
-//     onDateChange(newDate);
-//   }
-//   return (
-//     <Popover>
-//       ...
-//       <Calendar ... selected={date} onSelect={handleSelect} ... />
-//       ...
-//     </Popover>
-//   )
-// }

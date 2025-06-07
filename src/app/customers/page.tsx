@@ -25,7 +25,7 @@ const mockCustomers: Customer[] = [
   { 
     id: 'cust_2', 
     companyName: 'ABBA TRANSLATION SL', 
-    email: undefined, // Not visible in image
+    email: undefined, 
     phone: '+34 917021038',
     taxId: 'B83622025',
     address: { 
@@ -38,13 +38,13 @@ const mockCustomers: Customer[] = [
   { 
     id: 'cust_3', 
     companyName: 'ADOLFO DOMINGUEZ S.A.', 
-    email: undefined, // Not visible in image
+    email: undefined, 
     phone: '+34 915097000',
     taxId: 'A32023539',
     address: { 
       street: 'CALLE CUATRO 5 POLIGONO INDUSTRIAL SAN CIPRIAN', 
       city: 'SAN CIPRIAN DE VIÑAS', 
-      state: 'OURENSE', // Assuming from context
+      state: 'OURENSE', 
       zipCode: '32911', 
       country: 'ESPAÑA'
     }
@@ -122,11 +122,11 @@ export default function CustomersPage() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/customers/${customer.id}/edit`} passHref>
-                          <Button variant="outline" size="icon" aria-label="Editar Cliente">
+                          <Button variant="outline" size="icon" aria-label={`Editar Cliente ${customer.companyName || customer.name}`}>
                             <Edit className="w-4 h-4" />
                           </Button>
                         </Link>
-                        <Button variant="destructive" size="icon" aria-label="Eliminar Cliente">
+                        <Button variant="destructive" size="icon" aria-label={`Eliminar Cliente ${customer.companyName || customer.name}`}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

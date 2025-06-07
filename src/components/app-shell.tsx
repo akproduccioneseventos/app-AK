@@ -34,49 +34,50 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/') return 'Dashboard';
   
   // Presupuestos
-  if (pathname === '/presupuestos') return 'Presupuestos y Pagos';
-  if (pathname === '/presupuestos/nuevo') return 'Crear Nuevo Presupuesto';
+  if (pathname === '/presupuestos') return 'Presupuestos';
+  if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${pathSegments[1]}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${pathSegments[1]}`;
   
   // Facturas
   if (pathname === '/invoices') return 'Facturas';
-  if (pathname === '/invoices/new') return 'Crear Nueva Factura';
+  if (pathname === '/invoices/new') return 'Nueva Factura';
   if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${pathSegments[1]}`;
-  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2) return `Factura #${pathSegments[1]}`;
+  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${pathSegments[1]}`;
 
 
   // Clientes
   if (pathname === '/customers') return 'Clientes';
-  if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
+  if (pathname === '/customers/new') return 'Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
 
   // Configuración
-  if (pathname === '/settings') return 'Configuración General';
+  if (pathname === '/settings') return 'Configuración';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
-  if (pathname === '/settings/company') return 'Información de Empresa';
+  if (pathname === '/settings/company') return 'Info. Empresa';
   if (pathname === '/settings/notifications') return 'Notificaciones';
-  if (pathname === '/settings/account') return 'Seguridad y Cuenta';
+  if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   
   // Rutas Generales (menos específicas)
   if (pathname.startsWith('/eventos')) return 'Eventos';
   if (pathname.startsWith('/proveedores')) return 'Proveedores';
   if (pathname.startsWith('/empleados')) return 'Empleados';
-  if (pathname.startsWith('/compras')) return 'Compras y Checklist';
+  if (pathname.startsWith('/compras')) return 'Compras';
   if (pathname.startsWith('/calendario')) return 'Calendario';
   if (pathname.startsWith('/notas')) return 'Notas';
   
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
-    // Capitalize first letter and replace hyphens
     const title = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
-    // If it's a dynamic segment that wasn't caught above, it might be an ID.
-    // For now, we'll just use the capitalized segment.
-    // A more robust solution might involve fetching data to get a name.
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
-        return `${parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ')}: ${title}`;
+        const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
+        // Evitar mostrar IDs directamente como título si es posible
+        if (!isNaN(Number(title))) {
+            return `${parentTitle}: #${title}`;
+        }
+        return `${parentTitle}: ${title}`;
     }
     return title;
   }
@@ -103,7 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="w-full justify-start text-left p-2 hover:bg-sidebar-accent focus:bg-sidebar-accent">
                 <Avatar className="w-8 h-8 mr-2">
-                  <AvatarImage src="https://placehold.co/40x40.png" alt="User Avatar" data-ai-hint="user avatar" />
+                  <AvatarImage src="https://placehold.co/40x40.png" alt="Avatar de Usuario" data-ai-hint="user avatar" />
                   <AvatarFallback className="bg-sidebar-accent-foreground text-sidebar-background">U</AvatarFallback>
                 </Avatar>
                 <div className="group-data-[collapsible=icon]:hidden text-sidebar-foreground">

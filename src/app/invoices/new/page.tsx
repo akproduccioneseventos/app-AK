@@ -1,11 +1,17 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { DatePickerDemo } from '@/components/date-picker-demo'; // Placeholder for a date picker component
+import { DatePickerDemo } from '@/components/date-picker-demo'; 
 
 export default function NewInvoicePage() {
+  // TODO: Implement state and handlers for date pickers
+  const handleDateChange = (date?: Date) => {
+    // console.log("Selected date:", date);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold tracking-tight font-headline">
@@ -44,11 +50,11 @@ export default function NewInvoicePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="issue-date">Fecha de Emisión</Label>
-                  <DatePickerDemo /> {/* Replace with actual DatePicker */}
+                  <DatePickerDemo onDateChange={handleDateChange} /> 
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="due-date">Fecha de Vencimiento</Label>
-                  <DatePickerDemo /> {/* Replace with actual DatePicker */}
+                  <DatePickerDemo onDateChange={handleDateChange} /> 
                 </div>
               </div>
             </div>
