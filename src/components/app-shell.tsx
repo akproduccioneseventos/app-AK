@@ -30,31 +30,47 @@ import Link from 'next/link';
 // Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
   if (pathname === '/') return 'Dashboard';
-  if (pathname.startsWith('/eventos')) return 'Eventos';
-  if (pathname.startsWith('/clientes')) return 'Clientes';
-  if (pathname.startsWith('/proveedores')) return 'Proveedores';
-  if (pathname.startsWith('/empleados')) return 'Empleados';
+  
+  // Rutas Módulo Presupuestos
   if (pathname.startsWith('/presupuestos/nuevo')) return 'Crear Nuevo Presupuesto';
+  if (pathname.startsWith('/presupuestos/[id]/editar')) return 'Editar Presupuesto';
+  if (pathname.startsWith('/presupuestos/[id]/ver')) return 'Ver Presupuesto';
   if (pathname.startsWith('/presupuestos')) return 'Presupuestos y Pagos';
-  if (pathname.startsWith('/compras')) return 'Compras y Checklist';
-  if (pathname.startsWith('/calendario')) return 'Calendario';
-  if (pathname.startsWith('/notas')) return 'Notas';
-
-  // Old routes, for reference or if needed
+  
+  // Rutas Módulo Facturas (si se mantiene)
   if (pathname.startsWith('/invoices/new')) return 'Crear Nueva Factura';
+  if (pathname.startsWith('/invoices/[id]/edit')) return 'Editar Factura';
+  if (pathname.startsWith('/invoices/[id]')) return 'Detalle de Factura';
   if (pathname.startsWith('/invoices')) return 'Facturas';
+
+  // Rutas Módulo Clientes
   if (pathname.startsWith('/customers/new')) return 'Añadir Nuevo Cliente';
-  if (pathname.startsWith('/customers')) return 'Clientes Antiguo';
+  if (pathname.startsWith('/customers/[id]/edit')) return 'Editar Cliente';
+  if (pathname.startsWith('/customers')) return 'Clientes';
 
-
+  // Rutas Módulo Configuración
   if (pathname.startsWith('/settings/templates')) return 'Personalizar Plantillas';
   if (pathname.startsWith('/settings/company')) return 'Información de Empresa';
   if (pathname.startsWith('/settings/notifications')) return 'Notificaciones';
   if (pathname.startsWith('/settings/account')) return 'Seguridad y Cuenta';
   if (pathname.startsWith('/settings')) return 'Configuración';
+
+  // Rutas Generales (deben ir después de las más específicas)
+  if (pathname.startsWith('/eventos')) return 'Eventos';
+  if (pathname.startsWith('/proveedores')) return 'Proveedores';
+  if (pathname.startsWith('/empleados')) return 'Empleados';
+  if (pathname.startsWith('/compras')) return 'Compras y Checklist';
+  if (pathname.startsWith('/calendario')) return 'Calendario';
+  if (pathname.startsWith('/notas')) return 'Notas';
   
-  const capitalizedPath = pathname.substring(1).charAt(0).toUpperCase() + pathname.substring(2);
-  return capitalizedPath.replace('-', ' ') || 'AK Producciones';
+  // Fallback para rutas no definidas explícitamente
+  const pathSegments = pathname.split('/').filter(Boolean);
+  if (pathSegments.length > 0) {
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
+  }
+  
+  return 'AK Producciones';
 };
 
 
@@ -76,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="w-full justify-start text-left p-2 hover:bg-sidebar-accent focus:bg-sidebar-accent">
                 <Avatar className="w-8 h-8 mr-2">
-                  <AvatarImage src="https://placehold.co/40x40.png?text=U" alt="User Avatar" data-ai-hint="user avatar" />
+                  <AvatarImage src="https://placehold.co/40x40.png" alt="User Avatar" data-ai-hint="user avatar" />
                   <AvatarFallback className="bg-sidebar-accent-foreground text-sidebar-background">U</AvatarFallback>
                 </Avatar>
                 <div className="group-data-[collapsible=icon]:hidden text-sidebar-foreground">

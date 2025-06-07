@@ -26,7 +26,7 @@ export default function TemplateCustomizationPage() {
               <div className="w-24 h-24 border rounded-md flex items-center justify-center bg-muted overflow-hidden">
                 {/* Placeholder for current logo */}
                 <Image 
-                  src="https://placehold.co/100x100.png?text=Logo" 
+                  src="https://placehold.co/100x100.png" 
                   alt="Logo" 
                   width={96} 
                   height={96} 
@@ -74,7 +74,7 @@ export default function TemplateCustomizationPage() {
             <h3 className="text-lg font-medium font-headline">Previsualización de Plantilla</h3>
             <div className="p-4 border rounded-md aspect-[210/297] bg-muted flex items-center justify-center">
                <Image 
-                  src="https://placehold.co/420x594.png?text=Factura+Ejemplo" 
+                  src="https://placehold.co/420x594.png" 
                   alt="Vista Previa de Factura" 
                   width={210} 
                   height={297}

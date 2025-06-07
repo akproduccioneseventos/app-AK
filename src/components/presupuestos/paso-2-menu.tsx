@@ -47,7 +47,7 @@ export default function Paso2Menu({ formData, setFormData }: Paso2Props) {
             <Card key={plato.id} className={`overflow-hidden transition-all hover:shadow-lg ${formData.platosSeleccionadosIds.has(plato.id) ? 'ring-2 ring-primary' : ''}`}>
               <CardHeader className="p-0 relative">
                 <Image 
-                  src={plato.imagenUrl || "https://placehold.co/300x200.png?text=Plato"} 
+                  src={plato.imagenUrl || "https://placehold.co/300x200.png"} 
                   alt={plato.nombre} 
                   width={300} 
                   height={200} 

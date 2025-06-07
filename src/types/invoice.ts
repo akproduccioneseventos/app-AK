@@ -24,6 +24,8 @@ export interface Invoice {
   status: InvoiceStatus;
   notes?: string;
   currency: string; // e.g., 'USD', 'EUR'
-  vendorName?: string; // Extracted from receipt
+  vendorName: string; 
+  vendorAddress?: string; // Address of the company issuing the invoice
+  vendorTaxId?: string; // Tax ID of the company issuing the invoice
   receiptImageUrl?: string; // Optional URL of the uploaded receipt
 }

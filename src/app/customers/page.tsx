@@ -5,31 +5,33 @@ import { UserPlus, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import type { Customer } from '@/types/customer';
 
-// Mock customer data
+// Mock customer data with more details
 const mockCustomers: Customer[] = [
   { 
     id: 'cust_1', 
-    name: 'Cliente Ejemplo S.L.', 
-    email: 'contacto@cliente.es', 
-    phone: '+34 912345678',
-    companyName: 'Cliente Ejemplo S.L.',
+    name: 'Ana García Pérez', 
+    email: 'ana.garcia@example.com', 
+    phone: '+34 611223344',
+    companyName: 'Soluciones Creativas S.L.',
     taxId: 'B12345678',
-    address: { street: 'Calle Falsa 123', city: 'Madrid', zipCode: '28001', country: 'España'}
+    address: { street: 'Calle de la Innovación 123', city: 'Madrid', zipCode: '28001', country: 'España'}
   },
   { 
     id: 'cust_2', 
-    name: 'Diseños Creativos Co.', 
-    email: 'hola@disenos.com', 
-    phone: '+34 987654321',
-    companyName: 'Diseños Creativos Co.',
+    name: 'Luis Fernández', 
+    email: 'luis.fernandez@email.com', 
+    phone: '+34 699887766',
+    companyName: 'TecnoAvanzada Ltda.',
     taxId: 'A87654321',
-    address: { street: 'Avenida Principal 45', city: 'Barcelona', zipCode: '08001', country: 'España'}
+    address: { street: 'Avenida de la Tecnología 45', city: 'Barcelona', zipCode: '08001', country: 'España'}
   },
   { 
     id: 'cust_3', 
-    name: 'Eventos AKM', 
+    name: 'Eventos AKM (Contacto: Marta Soler)', 
     email: 'info@eventosakm.com',
+    phone: '+34 912345678',
     companyName: 'Eventos AKM',
+    taxId: 'G12345670',
     address: { street: 'Plaza Mayor 1', city: 'Sevilla', zipCode: '41001', country: 'España'}
   },
 ];
@@ -63,6 +65,7 @@ export default function CustomersPage() {
                   <TableHead>Nombre / Empresa</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Teléfono</TableHead>
+                  <TableHead>NIF/CIF</TableHead>
                   <TableHead>Ciudad</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
@@ -73,6 +76,7 @@ export default function CustomersPage() {
                     <TableCell className="font-medium">{customer.companyName || customer.name}</TableCell>
                     <TableCell>{customer.email || '-'}</TableCell>
                     <TableCell>{customer.phone || '-'}</TableCell>
+                    <TableCell>{customer.taxId || '-'}</TableCell>
                     <TableCell>{customer.address?.city || '-'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

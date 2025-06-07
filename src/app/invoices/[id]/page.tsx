@@ -4,7 +4,7 @@ import { ArrowLeft, Download, Send, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/status-badge';
-import type { Invoice, Customer, InvoiceItem } from '@/types/invoice'; // Make sure types are correctly imported
+import type { Invoice, Customer, InvoiceItem } from '@/types/invoice'; 
 
 // Mock data for a single invoice
 const mockCustomer: Customer = {
@@ -40,7 +40,9 @@ const mockInvoice: Invoice = {
   status: 'Paid',
   currency: 'EUR',
   notes: 'Pago mediante transferencia bancaria. Gracias por su confianza.',
-  vendorName: 'Presupuestador AK Producciones', // Your company name
+  vendorName: 'Presupuestador AK Producciones',
+  vendorAddress: 'Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España',
+  vendorTaxId: 'A08123456',
 };
 
 // Helper function for formatting currency
@@ -91,7 +93,8 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold font-headline text-primary">{invoice.vendorName}</h1>
-              <p className="text-sm text-muted-foreground">Calle de Ejemplo 456, 28002 Madrid</p> {/* Vendor address */}
+              {invoice.vendorAddress && <p className="text-sm text-muted-foreground">{invoice.vendorAddress}</p>}
+              {invoice.vendorTaxId && <p className="text-sm text-muted-foreground">NIF: {invoice.vendorTaxId}</p>}
             </div>
             <div className="text-right">
               <h2 className="text-2xl font-semibold font-headline text-foreground">FACTURA</h2>
@@ -103,14 +106,18 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <h3 className="mb-2 text-sm font-semibold tracking-wider uppercase text-muted-foreground">Facturar a:</h3>
-              <p className="font-medium text-foreground">{invoice.customer.name}</p>
-              <p className="text-sm text-muted-foreground">{invoice.customer.address?.street}</p>
-              <p className="text-sm text-muted-foreground">
-                {invoice.customer.address?.city}, {invoice.customer.address?.zipCode}
-              </p>
-              <p className="text-sm text-muted-foreground">{invoice.customer.address?.country}</p>
+              <p className="font-medium text-foreground">{invoice.customer.companyName || invoice.customer.name}</p>
+              {invoice.customer.address && (
+                <>
+                  <p className="text-sm text-muted-foreground">{invoice.customer.address.street}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {invoice.customer.address.zipCode} {invoice.customer.address.city}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{invoice.customer.address.country}</p>
+                </>
+              )}
               {invoice.customer.email && <p className="text-sm text-muted-foreground">Email: {invoice.customer.email}</p>}
-              {invoice.customer.taxId && <p className="text-sm text-muted-foreground">NIF: {invoice.customer.taxId}</p>}
+              {invoice.customer.taxId && <p className="text-sm text-muted-foreground">NIF/CIF: {invoice.customer.taxId}</p>}
             </div>
             <div className="md:text-right">
               <h3 className="mb-1 text-sm font-semibold tracking-wider uppercase text-muted-foreground">Fecha Emisión:</h3>
@@ -153,7 +160,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
           <Separator />
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-0">
-            <div className="md:col-span-2"> {/* Empty col or for notes */}
+            <div className="md:col-span-2">
              {invoice.notes && (
                 <div>
                     <h4 className="text-sm font-semibold text-muted-foreground mb-1">Notas:</h4>

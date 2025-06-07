@@ -3,18 +3,17 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Construction } from 'lucide-react';
 import Link from 'next/link';
 
-export default function EditarPresupuestoPage({ params }: { params: { id: string } }) {
-  // En una aplicación real, aquí se buscarían los datos del presupuesto por params.id
-  // y se poblaría un formulario similar al de 'nuevo presupuesto'.
-  // const presupuesto = await getPresupuestoById(params.id);
-
+export default function EditCustomerPage({ params }: { params: { id: string } }) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/presupuestos" passHref>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Editar Cliente #{params.id}
+          </h1>
+        <Link href="/customers" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Presupuestos
+            Volver a Clientes
           </Button>
         </Link>
       </div>
@@ -22,20 +21,20 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
       <Card className="shadow-lg">
         <CardHeader className="text-center">
           <Construction className="w-16 h-16 mx-auto text-primary mb-4" />
-          <CardTitle className="font-headline text-2xl">Editar Presupuesto #{params.id}</CardTitle>
+          <CardTitle className="font-headline text-2xl">Página en Construcción</CardTitle>
           <CardDescription className="text-lg">
-            Funcionalidad en desarrollo.
+            La edición de clientes estará disponible próximamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-muted-foreground">
-            Próximamente podrás editar aquí los detalles del presupuesto seleccionado.
+            Estamos trabajando para que puedas modificar los datos de tus clientes directamente desde aquí.
           </p>
           <img 
             src="https://placehold.co/600x400.png" 
             alt="Formulario de edición en construcción" 
             className="mt-6 rounded-md shadow-md mx-auto"
-            data-ai-hint="form construction"
+            data-ai-hint="form under construction"
           />
         </CardContent>
       </Card>

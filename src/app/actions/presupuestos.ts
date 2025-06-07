@@ -48,14 +48,14 @@ let mockPresupuestos: Presupuesto[] = [
 ];
 
 const mockPlatos: PlatoPresupuesto[] = [
-  { id: 'pizza', nombre: 'Pizza Variada', descripcion: 'Muzzarella, napolitana, fugazzeta.', imagenUrl: 'https://placehold.co/300x200.png?text=Pizza', costoPorPersona: 10 },
-  { id: 'empanadas', nombre: 'Empanadas Surtidas', descripcion: 'Carne, pollo, jamón y queso.', imagenUrl: 'https://placehold.co/300x200.png?text=Empanadas', costoPorPersona: 5 },
-  { id: 'asado', nombre: 'Asado Completo', descripcion: 'Tira, vacío, chorizo, morcilla.', imagenUrl: 'https://placehold.co/300x200.png?text=Asado', costoPorPersona: 25 },
-  { id: 'sushi', nombre: 'Sushi Variado (30 piezas)', descripcion: 'Rolls clásicos y especiales.', imagenUrl: 'https://placehold.co/300x200.png?text=Sushi', costoPorPersona: 30 },
-  { id: 'pasta', nombre: 'Pasta Casera con Salsa', descripcion: 'A elección: Fileto, bolognesa, crema.', imagenUrl: 'https://placehold.co/300x200.png?text=Pasta', costoPorPersona: 18 },
-  { id: 'tacos', nombre: 'Tacos Mexicanos (3u)', descripcion: 'Carne, pollo o vegetarianos.', imagenUrl: 'https://placehold.co/300x200.png?text=Tacos', costoPorPersona: 12 },
-  { id: 'ensalada_premium', nombre: 'Ensalada Premium', descripcion: 'Verdes, cherry, parmesano, nueces.', imagenUrl: 'https://placehold.co/300x200.png?text=Ensalada', costoPorPersona: 8 },
-  { id: 'mesa_dulce', nombre: 'Mesa Dulce Clásica', descripcion: 'Variedad de tortas y postres.', imagenUrl: 'https://placehold.co/300x200.png?text=Mesa+Dulce', costoPorPersona: 15 },
+  { id: 'pizza', nombre: 'Pizza Variada', descripcion: 'Muzzarella, napolitana, fugazzeta.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 10 },
+  { id: 'empanadas', nombre: 'Empanadas Surtidas', descripcion: 'Carne, pollo, jamón y queso.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 5 },
+  { id: 'asado', nombre: 'Asado Completo', descripcion: 'Tira, vacío, chorizo, morcilla.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 25 },
+  { id: 'sushi', nombre: 'Sushi Variado (30 piezas)', descripcion: 'Rolls clásicos y especiales.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 30 },
+  { id: 'pasta', nombre: 'Pasta Casera con Salsa', descripcion: 'A elección: Fileto, bolognesa, crema.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 18 },
+  { id: 'tacos', nombre: 'Tacos Mexicanos (3u)', descripcion: 'Carne, pollo o vegetarianos.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 12 },
+  { id: 'ensalada_premium', nombre: 'Ensalada Premium', descripcion: 'Verdes, cherry, parmesano, nueces.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 8 },
+  { id: 'mesa_dulce', nombre: 'Mesa Dulce Clásica', descripcion: 'Variedad de tortas y postres.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 15 },
 ];
 
 // Simula la obtención de platos desde Firestore (colección platos_presupuesto)

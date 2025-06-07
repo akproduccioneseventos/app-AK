@@ -31,7 +31,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
             Próximamente podrás ver aquí todos los detalles del presupuesto seleccionado.
           </p>
           <img 
-            src="https://placehold.co/600x400.png?text=Detalle+Presupuesto" 
+            src="https://placehold.co/600x400.png" 
             alt="Detalle de Presupuesto en construcción" 
             className="mt-6 rounded-md shadow-md mx-auto"
             data-ai-hint="document construction"
