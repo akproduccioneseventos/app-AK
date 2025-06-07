@@ -1,41 +1,45 @@
+// src/components/main-nav.tsx
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FileText, Users, Settings, Palette, Building, Bell, ShieldCheck, ClipboardList, CalendarClock, ShoppingBag, StickyNote, Briefcase, UserCheck, HandCoins } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  CalendarClock, 
+  Users, 
+  Briefcase, 
+  ContactRound, // Changed from UserCheck
+  CircleDollarSign, // Changed from ClipboardList/HandCoins
+  ListChecks, // Changed from ShoppingBag
+  CalendarDays, // Changed from CalendarClock (for a more general calendar icon)
+  StickyNote,
+  Settings
+} from 'lucide-react';
 import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
+  // Removed Sub menu items for now as per image
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import * as Accordion from "@radix-ui/react-accordion"; 
+// Removed Accordion as sub-menu for settings is not in the image's main nav
 
 const navItems = [
-  { href: '/', label: 'Panel Principal', icon: LayoutDashboard },
+  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/eventos', label: 'Eventos', icon: CalendarClock },
-  { href: '/clientes', label: 'Clientes', icon: Users },
+  { href: '/clientes', label: 'Clientes', icon: Users }, // Was /customers
   { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
-  { href: '/empleados', label: 'Empleados', icon: UserCheck },
-  { href: '/presupuestos', label: 'Presupuestos', icon: ClipboardList }, // Updated from /invoices
-  { href: '/pagos', label: 'Pagos', icon: HandCoins },
-  { href: '/compras', label: 'Compras', icon: ShoppingBag },
-  { href: '/calendario', label: 'Calendario', icon: CalendarClock }, // Consider a more distinct calendar icon if available
+  { href: '/empleados', label: 'Empleados', icon: ContactRound },
+  { href: '/presupuestos', label: 'Presupuestos y pagos', icon: CircleDollarSign }, // Path might need to be /presupuestos-y-pagos
+  { href: '/compras', label: 'Compras y checklist', icon: ListChecks }, // Path might need to be /compras-y-checklist
+  { href: '/calendario', label: 'Calendario', icon: CalendarDays },
   { href: '/notas', label: 'Notas', icon: StickyNote },
-  {
-    href: '/settings',
-    label: 'Configuración',
-    icon: Settings,
-    subItems: [
-      { href: '/settings/templates', label: 'Plantillas', icon: Palette },
-      { href: '/settings/company', label: 'Empresa', icon: Building },
-      { href: '/settings/notifications', label: 'Notificaciones', icon: Bell },
-      { href: '/settings/account', label: 'Cuenta', icon: ShieldCheck },
-    ],
-  },
+  // Settings is usually in user dropdown, not main nav as per image
+  // {
+  //   href: '/settings',
+  //   label: 'Configuración',
+  //   icon: Settings,
+  // },
 ];
 
 export function MainNav() {
@@ -43,65 +47,35 @@ export function MainNav() {
 
   const isActiveParent = (itemHref: string) => {
     if (itemHref === '/') return pathname === '/';
-    return pathname.startsWith(itemHref);
-  }
+    // For items like /presupuestos, make sure /presupuestos/nuevo is also active
+    if (pathname.startsWith(itemHref + '/') || pathname === itemHref) {
+        // Handle special case for dashboard to avoid it being active for all sub-routes
+        if (itemHref === '/' && pathname !== '/') return false;
+        return true;
+    }
+    return false;
+  };
 
 
   return (
-    <Accordion.Root type="single" collapsible className="w-full" defaultValue={navItems.find(item => item.subItems && isActiveParent(item.href))?.href}>
       <SidebarMenu>
-        {navItems.map((item) =>
-          item.subItems ? (
-            <Accordion.Item value={item.href} key={item.href} className="border-none">
-              <SidebarMenuItem>
-                <Accordion.Trigger asChild>
-                  <SidebarMenuButton
-                    className="justify-between w-full"
-                    isActive={isActiveParent(item.href) && !item.subItems.some(sub => pathname === sub.href)}
-                    aria-expanded={isActiveParent(item.href)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </div>
-                  </SidebarMenuButton>
-                </Accordion.Trigger>
-              </SidebarMenuItem>
-              <Accordion.Content>
-                <SidebarMenuSub>
-                  {item.subItems.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} legacyBehavior passHref>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={pathname === subItem.href}
-                          className={cn(
-                            'w-full justify-start',
-                            pathname === subItem.href ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                          )}
-                        >
-                          <a> 
-                            <subItem.icon className="w-4 h-4 mr-2" />
-                            {subItem.label}
-                          </a>
-                        </SidebarMenuSubButton>
-                      </Link>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </Accordion.Content>
-            </Accordion.Item>
-          ) : (
+        {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton
                   asChild
                   isActive={isActiveParent(item.href)}
-                  className={cn(isActiveParent(item.href) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}
+                  className={cn(
+                    isActiveParent(item.href) 
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold' 
+                      : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                    'group-data-[collapsible=icon]:justify-center' // Center icon when collapsed
+                  )}
+                  tooltip={item.label} // Add tooltip for collapsed state
                 >
                   <a> 
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    <item.icon className="w-5 h-5" /> {/* Slightly larger icons */}
+                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                   </a>
                 </SidebarMenuButton>
               </Link>
@@ -109,6 +83,5 @@ export function MainNav() {
           )
         )}
       </SidebarMenu>
-    </Accordion.Root>
   );
 }
