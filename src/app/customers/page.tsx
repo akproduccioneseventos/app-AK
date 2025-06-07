@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -5,34 +6,74 @@ import { UserPlus, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import type { Customer } from '@/types/customer';
 
-// Mock customer data with more details
+// Mock customer data based on the provided image
 const mockCustomers: Customer[] = [
   { 
     id: 'cust_1', 
-    name: 'Ana García Pérez', 
-    email: 'ana.garcia@example.com', 
-    phone: '+34 611223344',
-    companyName: 'Soluciones Creativas S.L.',
-    taxId: 'B12345678',
-    address: { street: 'Calle de la Innovación 123', city: 'Madrid', zipCode: '28001', country: 'España'}
+    companyName: '2A SERVICIOS AUDIOVISUALES S.L.', 
+    email: 'administracion@2aproducciones.com', 
+    phone: '+34 918729072',
+    taxId: 'B85333874',
+    address: { 
+      street: 'C/ CAÑADA REAL DE LA MERINERA 19 P.I. EL GUIJAR', 
+      city: 'ARGANDA DEL REY', 
+      state: 'MADRID', 
+      zipCode: '28500', 
+      country: 'ESPAÑA'
+    }
   },
   { 
     id: 'cust_2', 
-    name: 'Luis Fernández', 
-    email: 'luis.fernandez@email.com', 
-    phone: '+34 699887766',
-    companyName: 'TecnoAvanzada Ltda.',
-    taxId: 'A87654321',
-    address: { street: 'Avenida de la Tecnología 45', city: 'Barcelona', zipCode: '08001', country: 'España'}
+    companyName: 'ABBA TRANSLATION SL', 
+    email: undefined, // Not visible in image
+    phone: '+34 917021038',
+    taxId: 'B83622025',
+    address: { 
+      street: 'PASEO DE LA CASTELLANA 40, 8 PLANTA', 
+      city: 'MADRID', 
+      zipCode: '28046', 
+      country: 'ESPAÑA'
+    }
   },
   { 
     id: 'cust_3', 
-    name: 'Eventos AKM (Contacto: Marta Soler)', 
-    email: 'info@eventosakm.com',
-    phone: '+34 912345678',
-    companyName: 'Eventos AKM',
-    taxId: 'G12345670',
-    address: { street: 'Plaza Mayor 1', city: 'Sevilla', zipCode: '41001', country: 'España'}
+    companyName: 'ADOLFO DOMINGUEZ S.A.', 
+    email: undefined, // Not visible in image
+    phone: '+34 915097000',
+    taxId: 'A32023539',
+    address: { 
+      street: 'CALLE CUATRO 5 POLIGONO INDUSTRIAL SAN CIPRIAN', 
+      city: 'SAN CIPRIAN DE VIÑAS', 
+      state: 'OURENSE', // Assuming from context
+      zipCode: '32911', 
+      country: 'ESPAÑA'
+    }
+  },
+  {
+    id: 'cust_4',
+    companyName: 'AG PRODUCCIONES S.L.',
+    email: 'info@agproducciones.com',
+    phone: '+34 934876660',
+    taxId: 'B64726594',
+    address: {
+      street: 'RAMBLA DE CATALUÑA 115 BIS, 3 PLANTA',
+      city: 'BARCELONA',
+      zipCode: '08008',
+      country: 'ESPAÑA',
+    }
+  },
+  {
+    id: 'cust_5',
+    companyName: 'AI ASESORES Y CONSULTORES DE EMPRESAS S.L.',
+    email: 'fiscal3@aiasesores.com',
+    phone: '+34 914111030',
+    taxId: 'B85499972',
+    address: {
+      street: 'C/ SANCHEZ PACHECO 83 BAJO',
+      city: 'MADRID',
+      zipCode: '28002',
+      country: 'ESPAÑA',
+    }
   },
 ];
 
