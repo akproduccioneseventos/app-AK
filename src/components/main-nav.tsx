@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FileText, Users, Settings, Palette, Building, Bell, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Settings, Palette, Building, Bell, ShieldCheck, ClipboardList, CalendarClock, ShoppingBag, StickyNote, Briefcase, UserCheck, HandCoins } from 'lucide-react';
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -16,8 +16,15 @@ import * as Accordion from "@radix-ui/react-accordion";
 
 const navItems = [
   { href: '/', label: 'Panel Principal', icon: LayoutDashboard },
-  { href: '/invoices', label: 'Facturas', icon: FileText },
-  { href: '/customers', label: 'Clientes', icon: Users },
+  { href: '/eventos', label: 'Eventos', icon: CalendarClock },
+  { href: '/clientes', label: 'Clientes', icon: Users },
+  { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
+  { href: '/empleados', label: 'Empleados', icon: UserCheck },
+  { href: '/presupuestos', label: 'Presupuestos', icon: ClipboardList }, // Updated from /invoices
+  { href: '/pagos', label: 'Pagos', icon: HandCoins },
+  { href: '/compras', label: 'Compras', icon: ShoppingBag },
+  { href: '/calendario', label: 'Calendario', icon: CalendarClock }, // Consider a more distinct calendar icon if available
+  { href: '/notas', label: 'Notas', icon: StickyNote },
   {
     href: '/settings',
     label: 'Configuración',
@@ -34,8 +41,14 @@ const navItems = [
 export function MainNav() {
   const pathname = usePathname();
 
+  const isActiveParent = (itemHref: string) => {
+    if (itemHref === '/') return pathname === '/';
+    return pathname.startsWith(itemHref);
+  }
+
+
   return (
-    <Accordion.Root type="single" collapsible className="w-full" defaultValue={navItems.find(item => item.subItems && pathname.startsWith(item.href))?.href}>
+    <Accordion.Root type="single" collapsible className="w-full" defaultValue={navItems.find(item => item.subItems && isActiveParent(item.href))?.href}>
       <SidebarMenu>
         {navItems.map((item) =>
           item.subItems ? (
@@ -44,8 +57,8 @@ export function MainNav() {
                 <Accordion.Trigger asChild>
                   <SidebarMenuButton
                     className="justify-between w-full"
-                    isActive={pathname.startsWith(item.href) && !item.subItems.some(sub => pathname === sub.href)}
-                    aria-expanded={pathname.startsWith(item.href)}
+                    isActive={isActiveParent(item.href) && !item.subItems.some(sub => pathname === sub.href)}
+                    aria-expanded={isActiveParent(item.href)}
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="w-4 h-4" />
@@ -67,7 +80,7 @@ export function MainNav() {
                             pathname === subItem.href ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                           )}
                         >
-                          <a> {/*<a> tag is required by legacyBehavior with asChild and SidebarMenuSubButton */}
+                          <a> 
                             <subItem.icon className="w-4 h-4 mr-2" />
                             {subItem.label}
                           </a>
@@ -83,10 +96,10 @@ export function MainNav() {
               <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === item.href}
-                  className={cn(pathname === item.href ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}
+                  isActive={isActiveParent(item.href)}
+                  className={cn(isActiveParent(item.href) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}
                 >
-                  <a> {/*<a> tag is required by legacyBehavior with asChild and SidebarMenuButton */}
+                  <a> 
                     <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </a>

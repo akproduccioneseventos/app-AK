@@ -2,11 +2,12 @@ import Link from 'next/link';
 
 export function AppLogo() {
   return (
-    <Link href="/" className="flex items-center gap-2">
-      {/* Placeholder for a visual logo if available */}
-      {/* <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-primary"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg> */}
-      <span className="text-xl font-bold font-headline text-primary">
-        AK Producciones
+    <Link href="/" className="flex flex-col items-start group">
+      <span className="text-2xl font-bold font-headline text-primary group-hover:text-primary/80 transition-colors">
+        AK PRODUCCIONES
+      </span>
+      <span className="text-xs font-body text-muted-foreground tracking-wider group-hover:text-foreground transition-colors">
+        MEDIA PROSUTEE
       </span>
     </Link>
   );
