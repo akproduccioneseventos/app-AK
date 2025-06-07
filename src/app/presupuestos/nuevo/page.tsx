@@ -19,12 +19,27 @@ import { getPlatos, savePresupuesto } from '@/app/actions/presupuestos'; // Simu
 const TOTAL_PASOS = 4;
 
 const serviciosDisponiblesMock: ServicioAdicional[] = [
-  { id: 'foto', nombre: 'Fotografía', costo: 300, seleccionado: false },
-  { id: 'dj', nombre: 'DJ / Sonido', costo: 400, seleccionado: false },
-  { id: 'deco', nombre: 'Decoración Temática', costo: 500, seleccionado: false },
-  { id: 'anim', nombre: 'Animación', costo: 250, seleccionado: false },
-  { id: 'pantalla', nombre: 'Pantalla Gigante', costo: 150, seleccionado: false },
+  { id: 'grab_video_hd', nombre: 'Grabación de Video (Full HD)', costo: 450, seleccionado: false },
+  { id: 'grab_video_4k', nombre: 'Grabación de Video (4K)', costo: 650, seleccionado: false },
+  { id: 'edit_video_pro', nombre: 'Edición de Video Profesional', costo: 300, seleccionado: false },
+  { id: 'streaming_live', nombre: 'Streaming en Vivo para Eventos', costo: 550, seleccionado: false },
+  { id: 'sonido_basico', nombre: 'Alquiler de Equipo de Sonido Básico', costo: 150, seleccionado: false },
+  { id: 'sonido_completo', nombre: 'Alquiler de Equipo de Sonido Completo', costo: 350, seleccionado: false },
+  { id: 'ilum_basica', nombre: 'Alquiler de Iluminación Básica', costo: 100, seleccionado: false },
+  { id: 'ilum_pro', nombre: 'Alquiler de Iluminación Profesional', costo: 280, seleccionado: false },
+  { id: 'foto_evento', nombre: 'Cobertura Fotográfica de Eventos', costo: 400, seleccionado: false },
+  { id: 'foto_producto', nombre: 'Sesión Fotográfica de Producto', costo: 350, seleccionado: false },
+  { id: 'video_corp', nombre: 'Video Corporativo / Institucional', costo: 700, seleccionado: false },
+  { id: 'cobertura_completa', nombre: 'Cobertura Completa (Video y Foto)', costo: 900, seleccionado: false },
+  { id: 'drone_servicio', nombre: 'Servicio de Drone (Video y Foto)', costo: 450, seleccionado: false },
+  { id: 'motion_graphics', nombre: 'Creación de Motion Graphics', costo: 300, seleccionado: false },
+  { id: 'diseno_grafico_evento', nombre: 'Diseño Gráfico para Eventos', costo: 200, seleccionado: false },
+  { id: 'dj_sonido', nombre: 'DJ / Sonido para Eventos', costo: 400, seleccionado: false },
+  { id: 'deco_tematica', nombre: 'Decoración Temática', costo: 500, seleccionado: false },
+  { id: 'animacion_evento', nombre: 'Animación para Eventos', costo: 250, seleccionado: false },
+  { id: 'pantalla_gigante', nombre: 'Pantalla Gigante y Proyector', costo: 180, seleccionado: false },
 ];
+
 
 export default function NuevoPresupuestoPage() {
   const router = useRouter();
@@ -230,3 +245,4 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
+
