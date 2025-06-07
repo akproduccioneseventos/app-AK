@@ -33,16 +33,16 @@ export function InvoiceListItem({ invoice }: InvoiceListItemProps) {
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           <Link href={`/invoices/${invoice.id}`} passHref>
-            <Button variant="outline" size="icon" aria-label="View Invoice">
+            <Button variant="outline" size="icon" aria-label="Ver Factura">
               <Eye className="w-4 h-4" />
             </Button>
           </Link>
           <Link href={`/invoices/${invoice.id}/edit`} passHref>
-            <Button variant="outline" size="icon" aria-label="Edit Invoice">
+            <Button variant="outline" size="icon" aria-label="Editar Factura">
               <Edit className="w-4 h-4" />
             </Button>
           </Link>
-          <Button variant="destructive" size="icon" aria-label="Delete Invoice">
+          <Button variant="destructive" size="icon" aria-label="Eliminar Factura">
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>

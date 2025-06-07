@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings } from 'lucide-react'; // Added Settings import
+import { UserCircle, LogOut, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -25,15 +25,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 // Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
-  if (pathname === '/') return 'Dashboard';
-  if (pathname.startsWith('/invoices/new')) return 'Create New Invoice';
-  if (pathname.startsWith('/invoices')) return 'Invoices';
-  if (pathname.startsWith('/customers')) return 'Customers';
-  if (pathname.startsWith('/settings/templates')) return 'Customize Templates';
-  if (pathname.startsWith('/settings')) return 'Settings';
+  if (pathname === '/') return 'Panel Principal';
+  if (pathname.startsWith('/invoices/new')) return 'Crear Nueva Factura';
+  if (pathname.startsWith('/invoices')) return 'Facturas';
+  if (pathname.startsWith('/customers/new')) return 'Añadir Nuevo Cliente';
+  if (pathname.startsWith('/customers')) return 'Clientes';
+  if (pathname.startsWith('/settings/templates')) return 'Personalizar Plantillas';
+  if (pathname.startsWith('/settings/company')) return 'Información de Empresa';
+  if (pathname.startsWith('/settings/notifications')) return 'Notificaciones';
+  if (pathname.startsWith('/settings/account')) return 'Seguridad y Cuenta';
+  if (pathname.startsWith('/settings')) return 'Configuración';
   return 'Presupuestador AK';
 };
 
@@ -66,20 +71,22 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <UserCircle className="w-4 h-4 mr-2" />
-                Profile
+                Perfil
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </DropdownMenuItem>
+              <Link href="/settings" passHref>
+                <DropdownMenuItem>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Configuración
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <LogOut className="w-4 h-4 mr-2" />
-                Log out
+                Cerrar Sesión
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

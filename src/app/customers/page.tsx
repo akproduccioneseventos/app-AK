@@ -77,11 +77,11 @@ export default function CustomersPage() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/customers/${customer.id}/edit`} passHref>
-                          <Button variant="outline" size="icon" aria-label="Edit Customer">
+                          <Button variant="outline" size="icon" aria-label="Editar Cliente">
                             <Edit className="w-4 h-4" />
                           </Button>
                         </Link>
-                        <Button variant="destructive" size="icon" aria-label="Delete Customer">
+                        <Button variant="destructive" size="icon" aria-label="Eliminar Cliente">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

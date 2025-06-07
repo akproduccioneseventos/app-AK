@@ -27,7 +27,7 @@ export default function TemplateCustomizationPage() {
                 {/* Placeholder for current logo */}
                 <Image 
                   src="https://placehold.co/100x100.png?text=Logo" 
-                  alt="Current Logo" 
+                  alt="Logo" 
                   width={96} 
                   height={96} 
                   className="object-contain"
@@ -75,7 +75,7 @@ export default function TemplateCustomizationPage() {
             <div className="p-4 border rounded-md aspect-[210/297] bg-muted flex items-center justify-center">
                <Image 
                   src="https://placehold.co/420x594.png?text=Factura+Ejemplo" 
-                  alt="Invoice Preview" 
+                  alt="Vista Previa de Factura" 
                   width={210} 
                   height={297}
                   className="object-contain border shadow-md"

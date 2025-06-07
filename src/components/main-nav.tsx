@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FileText, Users, Settings, Palette } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Settings, Palette, Building, Bell, ShieldCheck } from 'lucide-react';
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -12,19 +12,21 @@ import {
   SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import * as Accordion from "@radix-ui/react-accordion"; // Using shadcn accordion as an example for collapsible menu
+import * as Accordion from "@radix-ui/react-accordion"; 
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/invoices', label: 'Invoices', icon: FileText },
-  { href: '/customers', label: 'Customers', icon: Users },
+  { href: '/', label: 'Panel Principal', icon: LayoutDashboard },
+  { href: '/invoices', label: 'Facturas', icon: FileText },
+  { href: '/customers', label: 'Clientes', icon: Users },
   {
     href: '/settings',
-    label: 'Settings',
+    label: 'Configuración',
     icon: Settings,
     subItems: [
-      { href: '/settings/templates', label: 'Templates', icon: Palette },
-      // Add other settings sub-items here
+      { href: '/settings/templates', label: 'Plantillas', icon: Palette },
+      { href: '/settings/company', label: 'Empresa', icon: Building },
+      { href: '/settings/notifications', label: 'Notificaciones', icon: Bell },
+      { href: '/settings/account', label: 'Cuenta', icon: ShieldCheck },
     ],
   },
 ];
@@ -33,7 +35,7 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <Accordion.Root type="single" collapsible className="w-full">
+    <Accordion.Root type="single" collapsible className="w-full" defaultValue={navItems.find(item => item.subItems && pathname.startsWith(item.href))?.href}>
       <SidebarMenu>
         {navItems.map((item) =>
           item.subItems ? (
@@ -42,7 +44,7 @@ export function MainNav() {
                 <Accordion.Trigger asChild>
                   <SidebarMenuButton
                     className="justify-between w-full"
-                    isActive={pathname.startsWith(item.href)}
+                    isActive={pathname.startsWith(item.href) && !item.subItems.some(sub => pathname === sub.href)}
                     aria-expanded={pathname.startsWith(item.href)}
                   >
                     <div className="flex items-center gap-2">

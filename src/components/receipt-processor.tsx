@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,17 +22,29 @@ export function ReceiptProcessor() {
       setFile(selectedFile);
       setError(null);
       setExtractedData(null);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
+      const newPreviewUrl = URL.createObjectURL(selectedFile);
+      setPreviewUrl(newPreviewUrl);
     } else {
       setFile(null);
       setPreviewUrl(null);
     }
   };
 
+  // Clean up object URL when component unmounts or previewUrl changes
+  useEffect(() => {
+    const currentPreviewUrl = previewUrl;
+    return () => {
+      if (currentPreviewUrl) {
+        URL.revokeObjectURL(currentPreviewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!file) {
-      setError('Please select a receipt image to upload.');
+      setError('Por favor, selecciona una imagen de recibo para subir.');
       return;
     }
 
@@ -46,56 +58,55 @@ export function ReceiptProcessor() {
       reader.onloadend = async () => {
         const base64data = reader.result as string;
         if (!base64data) {
-            setError('Could not read file.');
+            setError('No se pudo leer el archivo.');
             setIsLoading(false);
             return;
         }
-        const result = await extractReceiptData({ receiptDataUri: base64data });
-        setExtractedData(result);
+        try {
+          const result = await extractReceiptData({ receiptDataUri: base64data });
+          setExtractedData(result);
+        } catch (e: any) {
+          console.error('Error extracting receipt data:', e);
+          setError(e.message || 'Ocurrió un error inesperado durante la extracción.');
+        } finally {
+          setIsLoading(false);
+        }
       };
       reader.onerror = () => {
-        setError('Failed to read file.');
+        setError('Error al leer el archivo.');
         setIsLoading(false);
       };
-    } catch (e: any) {
-      console.error('Error extracting receipt data:', e);
-      setError(e.message || 'An unexpected error occurred during extraction.');
-    } finally {
-      // Wait for onloadend or onerror to complete
-      // setIsLoading(false); // This is now handled in onloadend/onerror
+    } catch (e: any) { // This catch block might be redundant if all async ops are within onloadend
+      console.error('Error processing file:', e);
+      setError(e.message || 'Ocurrió un error inesperado al procesar el archivo.');
+      setIsLoading(false);
     }
   };
   
-  // Effect to set loading to false when data is extracted or error occurs
-  useState(() => {
-    if (extractedData || error) setIsLoading(false);
-  });
-
-
   return (
     <Card className="w-full max-w-lg">
       <CardHeader>
-        <CardTitle className="font-headline">Receipt Auto-Fill</CardTitle>
-        <CardDescription>Upload a receipt image, and we&apos;ll try to extract the details.</CardDescription>
+        <CardTitle className="font-headline">Auto-Completar Recibo</CardTitle>
+        <CardDescription>Sube una imagen de recibo e intentaremos extraer los detalles.</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="receipt-upload">Upload Receipt Image</Label>
+            <Label htmlFor="receipt-upload">Subir Imagen de Recibo</Label>
             <Input id="receipt-upload" type="file" accept="image/*" onChange={handleFileChange} />
           </div>
           {previewUrl && (
             <div className="mt-4">
-              <img src={previewUrl} alt="Receipt preview" className="max-w-full h-auto rounded-md border" data-ai-hint="receipt scan" />
+              <img src={previewUrl} alt="Vista previa del recibo" className="max-w-full h-auto rounded-md border" data-ai-hint="receipt scan" />
             </div>
           )}
           {isLoading && (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="ml-2">Processing receipt...</p>
+              <p className="ml-2">Procesando recibo...</p>
             </div>
           )}
-          {error && (
+          {error && !isLoading && (
             <Alert variant="destructive">
               <AlertTriangle className="w-4 h-4" />
               <AlertTitle>Error</AlertTitle>
@@ -105,12 +116,12 @@ export function ReceiptProcessor() {
           {extractedData && !isLoading && (
             <Alert variant="default" className="bg-green-50 border-green-300 text-green-700 dark:bg-green-900/50 dark:border-green-700 dark:text-green-300">
               <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400" />
-              <AlertTitle className="text-green-800 dark:text-green-200">Extraction Successful!</AlertTitle>
+              <AlertTitle className="text-green-800 dark:text-green-200">¡Extracción Exitosa!</AlertTitle>
               <AlertDescription className="text-green-700 dark:text-green-300">
                 <ul className="mt-2 space-y-1 list-disc list-inside">
-                  <li><strong>Vendor:</strong> {extractedData.vendor}</li>
-                  <li><strong>Date:</strong> {new Date(extractedData.date).toLocaleDateString()}</li>
-                  <li><strong>Amount:</strong> {extractedData.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                  <li><strong>Proveedor:</strong> {extractedData.vendor}</li>
+                  <li><strong>Fecha:</strong> {new Date(extractedData.date).toLocaleDateString('es-ES')}</li>
+                  <li><strong>Importe:</strong> {extractedData.amount.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
                 </ul>
               </AlertDescription>
             </Alert>
@@ -121,10 +132,10 @@ export function ReceiptProcessor() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Extracting...
+                Extrayendo...
               </>
             ) : (
-              'Extract Information'
+              'Extraer Información'
             )}
           </Button>
         </CardFooter>
