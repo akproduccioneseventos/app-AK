@@ -29,33 +29,36 @@ import Link from 'next/link';
 
 // Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
+  const pathSegments = pathname.split('/').filter(Boolean);
+
   if (pathname === '/') return 'Dashboard';
   
-  // Rutas Módulo Presupuestos
-  if (pathname.startsWith('/presupuestos/nuevo')) return 'Crear Nuevo Presupuesto';
-  if (pathname.startsWith('/presupuestos/[id]/editar')) return 'Editar Presupuesto';
-  if (pathname.startsWith('/presupuestos/[id]/ver')) return 'Ver Presupuesto';
-  if (pathname.startsWith('/presupuestos')) return 'Presupuestos y Pagos';
+  // Presupuestos
+  if (pathname === '/presupuestos') return 'Presupuestos y Pagos';
+  if (pathname === '/presupuestos/nuevo') return 'Crear Nuevo Presupuesto';
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${pathSegments[1]}`;
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${pathSegments[1]}`;
   
-  // Rutas Módulo Facturas (si se mantiene)
-  if (pathname.startsWith('/invoices/new')) return 'Crear Nueva Factura';
-  if (pathname.startsWith('/invoices/[id]/edit')) return 'Editar Factura';
-  if (pathname.startsWith('/invoices/[id]')) return 'Detalle de Factura';
-  if (pathname.startsWith('/invoices')) return 'Facturas';
+  // Facturas
+  if (pathname === '/invoices') return 'Facturas';
+  if (pathname === '/invoices/new') return 'Crear Nueva Factura';
+  if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${pathSegments[1]}`;
+  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2) return `Factura #${pathSegments[1]}`;
 
-  // Rutas Módulo Clientes
-  if (pathname.startsWith('/customers/new')) return 'Añadir Nuevo Cliente';
-  if (pathname.startsWith('/customers/[id]/edit')) return 'Editar Cliente';
-  if (pathname.startsWith('/customers')) return 'Clientes';
 
-  // Rutas Módulo Configuración
-  if (pathname.startsWith('/settings/templates')) return 'Personalizar Plantillas';
-  if (pathname.startsWith('/settings/company')) return 'Información de Empresa';
-  if (pathname.startsWith('/settings/notifications')) return 'Notificaciones';
-  if (pathname.startsWith('/settings/account')) return 'Seguridad y Cuenta';
-  if (pathname.startsWith('/settings')) return 'Configuración';
+  // Clientes
+  if (pathname === '/customers') return 'Clientes';
+  if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
+  if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
 
-  // Rutas Generales (deben ir después de las más específicas)
+  // Configuración
+  if (pathname === '/settings') return 'Configuración General';
+  if (pathname === '/settings/templates') return 'Personalizar Plantillas';
+  if (pathname === '/settings/company') return 'Información de Empresa';
+  if (pathname === '/settings/notifications') return 'Notificaciones';
+  if (pathname === '/settings/account') return 'Seguridad y Cuenta';
+  
+  // Rutas Generales (menos específicas)
   if (pathname.startsWith('/eventos')) return 'Eventos';
   if (pathname.startsWith('/proveedores')) return 'Proveedores';
   if (pathname.startsWith('/empleados')) return 'Empleados';
@@ -64,13 +67,21 @@ const getPageTitle = (pathname: string): string => {
   if (pathname.startsWith('/notas')) return 'Notas';
   
   // Fallback para rutas no definidas explícitamente
-  const pathSegments = pathname.split('/').filter(Boolean);
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
-    return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
+    // Capitalize first letter and replace hyphens
+    const title = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
+    // If it's a dynamic segment that wasn't caught above, it might be an ID.
+    // For now, we'll just use the capitalized segment.
+    // A more robust solution might involve fetching data to get a name.
+    if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
+        const parentSegment = pathSegments[pathSegments.length-2];
+        return `${parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ')}: ${title}`;
+    }
+    return title;
   }
   
-  return 'AK Producciones';
+  return 'AK Producciones'; // Default fallback
 };
 
 

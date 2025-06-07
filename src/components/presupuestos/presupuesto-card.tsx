@@ -1,8 +1,10 @@
+
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 
 interface PresupuestoCardProps {
   presupuesto: Presupuesto;
@@ -27,10 +29,12 @@ export default function PresupuestoCard({ presupuesto }: PresupuestoCardProps) {
           {presupuesto.eventoTipo} - {formatDate(presupuesto.eventoFecha)}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-1">
-        <p className="text-sm text-muted-foreground">Invitados: {presupuesto.invitadosCantidad}</p>
+      <CardContent className="space-y-2">
+        <div className="flex justify-between items-center">
+            <p className="text-sm text-muted-foreground">Invitados: {presupuesto.invitadosCantidad}</p>
+            {presupuesto.estado && <PresupuestoStatusBadge status={presupuesto.estado} />}
+        </div>
         <p className="text-lg font-semibold">{formatCurrency(presupuesto.costoTotalEstimado)}</p>
-        {presupuesto.estado && <p className="text-xs"><span className={`px-2 py-0.5 rounded-full ${presupuesto.estado === 'Aceptado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{presupuesto.estado}</span></p>}
       </CardContent>
       <CardFooter className="flex justify-end gap-2 pt-4">
         <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
