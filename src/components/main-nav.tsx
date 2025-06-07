@@ -1,3 +1,4 @@
+
 // src/components/main-nav.tsx
 'use client';
 
@@ -13,7 +14,7 @@ import {
   ListChecks, // Changed from ShoppingBag
   CalendarDays, // Changed from CalendarClock (for a more general calendar icon)
   StickyNote,
-  Settings
+  Settings as SettingsIcon // Added missing import if settings were to be in main nav
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -27,18 +28,18 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/eventos', label: 'Eventos', icon: CalendarClock },
-  { href: '/clientes', label: 'Clientes', icon: Users }, // Was /customers
+  { href: '/customers', label: 'Clientes', icon: Users }, // Corrected href
   { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
   { href: '/empleados', label: 'Empleados', icon: ContactRound },
-  { href: '/presupuestos', label: 'Presupuestos y pagos', icon: CircleDollarSign }, // Path might need to be /presupuestos-y-pagos
-  { href: '/compras', label: 'Compras y checklist', icon: ListChecks }, // Path might need to be /compras-y-checklist
+  { href: '/presupuestos', label: 'Presupuestos y pagos', icon: CircleDollarSign }, 
+  { href: '/compras', label: 'Compras y checklist', icon: ListChecks }, 
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
   { href: '/notas', label: 'Notas', icon: StickyNote },
   // Settings is usually in user dropdown, not main nav as per image
   // {
   //   href: '/settings',
   //   label: 'Configuración',
-  //   icon: Settings,
+  //   icon: SettingsIcon,
   // },
 ];
 
@@ -85,3 +86,4 @@ export function MainNav() {
       </SidebarMenu>
   );
 }
+
