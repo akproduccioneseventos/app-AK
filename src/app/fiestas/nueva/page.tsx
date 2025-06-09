@@ -1,16 +1,81 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Construction } from 'lucide-react';
+import { ArrowLeft, ListChecks, DollarSign, Users, Truck, Palette, Settings2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function CrearNuevaFiestaPage() {
+interface PlanningModule {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  href?: string; // En el futuro, cada módulo tendrá su propia página
+  status: "Disponible" | "Próximamente" | "En Desarrollo";
+  actionLabel: string;
+}
+
+const planningModules: PlanningModule[] = [
+  { 
+    title: "Lista de Tareas del Evento", 
+    description: "Organiza y sigue el progreso de todas las tareas pendientes para tu fiesta.", 
+    icon: ListChecks, 
+    href: "/fiestas/nueva/tareas", // Ruta futura
+    status: "Próximamente",
+    actionLabel: "Gestionar Tareas"
+  },
+  { 
+    title: "Presupuesto Detallado", 
+    description: "Lleva un control exhaustivo de tus ingresos y gastos para el evento.", 
+    icon: DollarSign, 
+    href: "/fiestas/nueva/presupuesto", // Ruta futura
+    status: "Próximamente",
+    actionLabel: "Controlar Presupuesto"
+  },
+  { 
+    title: "Gestión de Invitados", 
+    description: "Administra tu lista de invitados, envía invitaciones y gestiona confirmaciones.", 
+    icon: Users, 
+    href: "/fiestas/nueva/invitados", // Ruta futura
+    status: "Próximamente",
+    actionLabel: "Administrar Invitados"
+  },
+  { 
+    title: "Proveedores y Servicios", 
+    description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.", 
+    icon: Truck, 
+    href: "/fiestas/nueva/proveedores", // Ruta futura
+    status: "Próximamente",
+    actionLabel: "Buscar Proveedores"
+  },
+  {
+    title: "Diseño y Decoración",
+    description: "Planifica la estética, temática y decoración de tu evento.",
+    icon: Palette,
+    href: "/fiestas/nueva/decoracion", // Ruta futura
+    status: "Próximamente",
+    actionLabel: "Definir Diseño"
+  },
+  {
+    title: "Configuración del Evento",
+    description: "Define detalles generales, fecha, lugar y tipo de celebración.",
+    icon: Settings2,
+    href: "/fiestas/nueva/configuracion", // Ruta futura
+    status: "Próximamente",
+    actionLabel: "Configurar Evento"
+  }
+];
+
+export default function PlanificarFiestaHubPage() {
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Crear Nueva Fiesta
-        </h1>
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Planificador de Fiestas
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Organiza cada detalle de tu próximo evento desde aquí.
+          </p>
+        </div>
         <Link href="/" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -19,24 +84,61 @@ export default function CrearNuevaFiestaPage() {
         </Link>
       </div>
 
-      <Card className="shadow-lg">
-        <CardHeader className="text-center">
-          <Construction className="w-16 h-16 mx-auto text-primary mb-4" />
-          <CardTitle className="font-headline text-2xl">Página en Construcción</CardTitle>
-          <CardDescription className="text-lg">
-            La creación de fiestas estará disponible próximamente.
-          </CardDescription>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {planningModules.map((module) => (
+          <Card key={module.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="flex-row items-start gap-4 space-y-0">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <module.icon className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="font-headline text-xl mb-1">{module.title}</CardTitle>
+                <CardDescription className="text-sm line-clamp-2">{module.description}</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow flex flex-col justify-end">
+              {/* <p className="text-xs text-muted-foreground mb-3">Estado: {module.status}</p> */}
+              {module.href ? (
+                <Link href={module.href} passHref className="mt-auto">
+                  <Button 
+                    className="w-full" 
+                    variant={module.status === "Disponible" ? "default" : "secondary"}
+                    disabled={module.status !== "Disponible"}
+                  >
+                    {module.actionLabel}
+                    {module.status !== "Disponible" && <span className="ml-2 text-xs opacity-70">({module.status})</span>}
+                  </Button>
+                </Link>
+              ) : (
+                <Button 
+                  className="w-full mt-auto" 
+                  variant="secondary" 
+                  disabled
+                >
+                  {module.actionLabel}
+                  <span className="ml-2 text-xs opacity-70">({module.status})</span>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      
+      <Card className="bg-muted/50 border-dashed">
+        <CardHeader>
+            <CardTitle className="font-headline">Próximos Pasos</CardTitle>
         </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-muted-foreground">
-            Estamos trabajando para que puedas planificar y presupuestar tus fiestas directamente desde aquí.
-          </p>
-          <img
-            src="https://placehold.co/600x400.png"
-            alt="Página de creación de fiesta en construcción"
-            className="mt-6 rounded-md shadow-md mx-auto"
-            data-ai-hint="party planning construction"
-          />
+        <CardContent>
+            <p className="text-muted-foreground">
+                Este es el nuevo centro de planificación para tus fiestas. Iremos habilitando cada uno de estos módulos progresivamente. 
+                Por favor, indícame cuál de estas secciones te gustaría que desarrollemos primero.
+            </p>
+            <img 
+              src="https://placehold.co/600x300.png" 
+              alt="Planificación de eventos" 
+              className="mt-4 rounded-md shadow-md mx-auto"
+              data-ai-hint="event planning blueprint"
+            />
         </CardContent>
       </Card>
     </div>

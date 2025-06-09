@@ -47,17 +47,17 @@ const getPageTitle = (pathname: string): string => {
 
   // Clientes
   if (pathname === '/customers') return 'Clientes';
-  if (pathname === '/customers/new') return 'Nuevo Cliente';
+  if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
 
   // Fiestas
-  if (pathname === '/fiestas/nueva') return 'Crear Nueva Fiesta';
+  if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas'; // Actualizado
 
   // Configuración
-  if (pathname === '/settings') return 'Configuración';
+  if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
-  if (pathname === '/settings/company') return 'Info. Empresa';
-  if (pathname === '/settings/notifications') return 'Notificaciones';
+  if (pathname === '/settings/company') return 'Información de la Empresa';
+  if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   
   // Rutas Generales (menos específicas)
@@ -71,14 +71,27 @@ const getPageTitle = (pathname: string): string => {
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
-    const title = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
+    let title = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) {
+        if (!isNaN(Number(title))) { // Es un ID
+            // Casos especiales para IDs
+            if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
+            if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
+            if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             return `${parentTitle}: #${title}`;
         }
-        return `${parentTitle}: ${title}`;
+        // Si no es un ID, puede ser una subpágina con nombre
+        if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
+        if(title.toLowerCase() === 'new' || title.toLowerCase() === 'nuevo' || title.toLowerCase() === 'nueva') title = "Nuevo";
+        
+        // Evitar duplicar el título padre si es muy similar
+        if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())){
+             return title;
+        }
+
+        return `${parentTitle} - ${title}`;
     }
     return title;
   }
