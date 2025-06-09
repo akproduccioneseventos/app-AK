@@ -66,7 +66,7 @@ export default function NuevoPresupuestoPage() {
     async function cargarDatosIniciales() {
       setIsLoadingInitialData(true);
       try {
-        const [platos, fiestaActual] = await Promise.all([
+        const [platos, fiestaActualData] = await Promise.all([
           getPlatos(),
           getFiestaActual()
         ]);
@@ -77,12 +77,12 @@ export default function NuevoPresupuestoPage() {
           let newEventoFecha = prev.eventoFecha;
           let newInvitadosCantidad = prev.invitadosCantidad;
 
-          if (fiestaActual && fiestaActual.configuracion) {
-            const config = fiestaActual.configuracion;
-            if (!prev.clienteNombre && config.nombreEvento) { // Solo pre-rellenar si está vacío
-              newClienteNombre = config.nombreEvento; // Usamos el nombre del evento como posible nombre de cliente
+          if (fiestaActualData && fiestaActualData.configuracion) {
+            const config = fiestaActualData.configuracion;
+            if (!prev.clienteNombre && config.nombreEvento) {
+              newClienteNombre = config.nombreEvento; 
             }
-            if (prev.eventoTipo === 'Cumpleaños' && config.tipoCelebracion) { // Solo si es el default y hay config
+            if (prev.eventoTipo === 'Cumpleaños' && config.tipoCelebracion) { 
               newEventoTipo = config.tipoCelebracion;
             }
             if (!prev.eventoFecha && config.fechaEvento) {
@@ -96,7 +96,7 @@ export default function NuevoPresupuestoPage() {
               newInvitadosCantidad = parseInt(config.invitadosEstimados, 10);
             }
           }
-
+          
           return { 
             ...prev, 
             platosDisponibles: platos.map(p => ({...p, seleccionado: false})),
@@ -296,3 +296,4 @@ export default function NuevoPresupuestoPage() {
   );
 }
 
+    
