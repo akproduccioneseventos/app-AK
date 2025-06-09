@@ -1,40 +1,107 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Edit, List, Loader2, NotebookText } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, List, Loader2, NotebookText, CheckCircle, XCircle, LinkIcon, FileText } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu } from '@/types/catering';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
+import { getFiestaActual, updateMenuAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
 
 export default function CateringEventoHubPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [savedMenus, setSavedMenus] = useState<FullMenu[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
+  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
+  const [isLoadingFiesta, setIsLoadingFiesta] = useState(true);
+  const [assigningMenuId, setAssigningMenuId] = useState<string | null | undefined>(null);
+
+
+  const loadData = useCallback(async () => {
+    setIsLoadingMenus(true);
+    setIsLoadingFiesta(true);
+    try {
+      const [menusData, fiestaData] = await Promise.all([
+        getMenus(),
+        getFiestaActual()
+      ]);
+      setSavedMenus(menusData);
+      setFiestaActual(fiestaData);
+    } catch (error) {
+      console.error("Error al cargar datos de catering:", error);
+      toast({
+        title: 'Error al Cargar Datos',
+        description: 'No se pudieron obtener los menús o la información de la fiesta actual.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingMenus(false);
+      setIsLoadingFiesta(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    async function loadMenus() {
-      setIsLoadingMenus(true);
-      try {
-        const menus = await getMenus();
-        setSavedMenus(menus);
-      } catch (error) {
-        console.error("Error al cargar menús:", error);
+    loadData();
+  }, [loadData]);
+
+  const handleAssignMenu = async (menuId: string) => {
+    setAssigningMenuId(menuId);
+    try {
+      const result = await updateMenuAsignadoFiestaActual(menuId);
+      if (result.success) {
         toast({
-          title: 'Error al Cargar Menús',
-          description: 'No se pudieron obtener los menús guardados.',
-          variant: 'destructive',
+          title: 'Menú Asignado',
+          description: `El menú ha sido asignado a la fiesta actual.`,
         });
-      } finally {
-        setIsLoadingMenus(false);
+        await loadData(); // Recargar datos para reflejar el cambio
+      } else {
+        throw new Error(result.error || "No se pudo asignar el menú.");
       }
+    } catch (error: any) {
+      toast({
+        title: 'Error al Asignar Menú',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setAssigningMenuId(null);
     }
-    loadMenus();
-  }, [toast]);
+  };
+
+  const handleUnassignMenu = async () => {
+    setAssigningMenuId(fiestaActual?.menuAsignadoId); // Visually indicate which menu is being processed
+    try {
+      const result = await updateMenuAsignadoFiestaActual(undefined);
+      if (result.success) {
+        toast({
+          title: 'Menú Desasignado',
+          description: 'Se ha quitado el menú de la fiesta actual.',
+        });
+         await loadData(); // Recargar datos
+      } else {
+        throw new Error(result.error || "No se pudo desasignar el menú.");
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error al Desasignar Menú',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setAssigningMenuId(null);
+    }
+  };
+
+  const assignedMenuName = fiestaActual?.menuAsignadoId 
+    ? savedMenus.find(m => m.id === fiestaActual.menuAsignadoId)?.name 
+    : null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -49,6 +116,46 @@ export default function CateringEventoHubPage() {
           </Button>
         </Link>
       </div>
+
+      <Card className="shadow-lg bg-primary/5 border-primary/20">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <FileText className="w-8 h-8 text-primary" />
+            <div>
+              <CardTitle className="font-headline text-xl">Menú Asignado a la Fiesta Actual</CardTitle>
+              <CardDescription>
+                Este es el menú seleccionado para el evento que estás planificando.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoadingFiesta ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <p className="ml-2 text-muted-foreground">Cargando menú asignado...</p>
+            </div>
+          ) : assignedMenuName ? (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md flex flex-col sm:flex-row justify-between items-center gap-3">
+              <div>
+                <p className="text-sm text-green-700">Menú actual:</p>
+                <p className="font-semibold text-lg text-green-800">{assignedMenuName}</p>
+              </div>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleUnassignMenu}
+                disabled={assigningMenuId === fiestaActual?.menuAsignadoId}
+              >
+                {assigningMenuId === fiestaActual?.menuAsignadoId && fiestaActual?.menuAsignadoId !== null ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <XCircle className="w-4 h-4 mr-2" />}
+                Quitar Selección
+              </Button>
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-center py-4">Aún no has asignado un menú a esta fiesta. Selecciona uno de la lista de abajo o crea uno nuevo.</p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="shadow-lg">
         <CardHeader>
@@ -80,7 +187,7 @@ export default function CateringEventoHubPage() {
                 <List className="w-8 h-8 text-primary" />
                 <div>
                     <CardTitle className="font-headline text-xl">Mis Menús Guardados</CardTitle>
-                    <CardDescription>Visualiza, edita o elimina los menús que has creado previamente.</CardDescription>
+                    <CardDescription>Visualiza, edita, elimina o asigna menús a tu fiesta actual.</CardDescription>
                 </div>
             </div>
         </CardHeader>
@@ -93,15 +200,44 @@ export default function CateringEventoHubPage() {
           ) : savedMenus.length > 0 ? (
             <div className="space-y-3 mb-4">
               {savedMenus.map((menu) => (
-                <Link key={menu.id} href={`/fiestas/nueva/catering/menu/${menu.id}/editar`} passHref>
-                  <div className="p-4 border rounded-md bg-muted/50 hover:bg-muted/70 transition-colors cursor-pointer flex justify-between items-center">
-                    <div>
-                      <h4 className="font-medium text-foreground">{menu.name}</h4>
-                      <p className="text-sm text-muted-foreground">{menu.description || 'Sin descripción.'}</p>
-                    </div>
-                    <NotebookText className="w-5 h-5 text-primary/70"/>
+                <div key={menu.id} className="p-4 border rounded-md bg-muted/30 hover:bg-muted/50 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="flex-grow">
+                    <h4 className="font-medium text-foreground">{menu.name}</h4>
+                    <p className="text-sm text-muted-foreground">{menu.description || 'Sin descripción.'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Actualizado: {menu.updatedAt ? new Date(menu.updatedAt).toLocaleDateString() : 'N/A'}
+                    </p>
                   </div>
-                </Link>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
+                    <Link href={`/fiestas/nueva/catering/menu/${menu.id}/editar`} passHref className="w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar
+                      </Button>
+                    </Link>
+                    {fiestaActual?.menuAsignadoId === menu.id ? (
+                       <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700" 
+                          disabled
+                        >
+                         <CheckCircle className="w-4 h-4 mr-2"/> Seleccionado
+                       </Button>
+                    ) : (
+                       <Button 
+                          variant="default" 
+                          size="sm" 
+                          className="w-full" 
+                          onClick={() => handleAssignMenu(menu.id)}
+                          disabled={assigningMenuId === menu.id || isLoadingFiesta}
+                        >
+                         {assigningMenuId === menu.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <LinkIcon className="w-4 h-4 mr-2"/>}
+                         Asignar a Fiesta
+                       </Button>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
@@ -114,14 +250,14 @@ export default function CateringEventoHubPage() {
           )}
             <Link href="/fiestas/nueva/catering/modificar-menu" passHref>
                 <Button variant="secondary" className="w-full sm:w-auto">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Ver y Modificar Menús Existentes
+                    <List className="w-4 h-4 mr-2" />
+                    Ver Todos y Modificar Menús Existentes
                 </Button>
             </Link>
         </CardContent>
         <CardFooter>
             <p className="text-xs text-muted-foreground">
-                Los menús se guardan en una base de datos simulada.
+                Los menús se guardan en un archivo JSON local.
             </p>
         </CardFooter>
       </Card>

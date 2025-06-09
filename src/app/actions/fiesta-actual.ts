@@ -26,6 +26,7 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   id: 'fiesta-en-curso', // Static ID for the single planned fiesta
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
+  menuAsignadoId: undefined, // Initialize menuAsignadoId
   // Initialize other modules with their defaults later
   // tareas: defaultTareas, // example
 };
@@ -42,10 +43,21 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
   await ensureDataDirectoryExists();
   try {
     const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
-    const data = JSON.parse(fileContent);
+    const data = JSON.parse(fileContent) as FiestaEnPlanificacion;
     // Basic validation to ensure it's somewhat like FiestaEnPlanificacion
     if (data && data.id === 'fiesta-en-curso' && data.configuracion) {
-        return data;
+        // Ensure all potential new fields have defaults if missing from old JSON
+        const validatedData: FiestaEnPlanificacion = {
+            ...initialFiestaActualData, // provides defaults for all fields
+            ...data, // overrides defaults with what's in the file
+            configuracion: {
+                ...initialFiestaActualData.configuracion,
+                ...(data.configuracion || {}),
+            },
+            personalAsignado: data.personalAsignado || [],
+            menuAsignadoId: data.menuAsignadoId || undefined,
+        };
+        return validatedData;
     }
     // If not valid, reset to initial
     await writeFiestaActualFile(initialFiestaActualData);
@@ -106,11 +118,25 @@ export async function updatePersonalFiestaActual(
   }
 }
 
+export async function updateMenuAsignadoFiestaActual(
+  menuId?: string
+): Promise<{ success: boolean; menuId?: string; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    fiestaActual.menuAsignadoId = menuId;
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, menuId: menuId };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar el menú asignado." };
+  }
+}
+
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
-        // Directly write initial data, effectively resetting it
-        await writeFiestaActualFile(initialFiestaActualData);
-        return { success: true, initialData: JSON.parse(JSON.stringify(initialFiestaActualData)) };
+        // Ensure initial data always includes menuAsignadoId as undefined on reset
+        const resetData = { ...initialFiestaActualData, menuAsignadoId: undefined };
+        await writeFiestaActualFile(resetData);
+        return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
     } catch (e: any) {
         return { success: false, error: e.message || "Error al reiniciar la fiesta." };
     }
