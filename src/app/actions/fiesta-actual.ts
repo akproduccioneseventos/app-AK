@@ -2,6 +2,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, DecorationItem } from '@/types/fiesta';
+import type { Invitado, NuevoInvitadoData } from '@/types/invitado'; // Importar tipos de invitado
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -19,7 +20,7 @@ const defaultConfiguracion: ConfigEventoDataStorage = {
   invitadosEstimados: 80,
   presupuestoEstimado: 156000,
   notasAdicionales: '',
-  clienteId: undefined, // Nuevo campo
+  clienteId: undefined, 
 };
 
 const defaultTareas: Tarea[] = [
@@ -73,6 +74,7 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
     items: [], 
     paletaColores: { ...defaultColorPalette } 
   },
+  invitados: [], // Inicializar lista de invitados
 };
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -144,6 +146,15 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             tema: data.decoracion?.tema === undefined ? defaultDecoracion.tema : data.decoracion.tema,
             moodboardImageUrl: data.decoracion?.moodboardImageUrl === undefined ? defaultDecoracion.moodboardImageUrl : data.decoracion.moodboardImageUrl,
         },
+        invitados: (data.invitados || []).map(inv => ({ // Validar invitados
+          id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+          nombre: inv.nombre || 'Invitado sin nombre',
+          contacto: inv.contacto || undefined,
+          rsvp: inv.rsvp || 'Pendiente',
+          partySize: inv.partySize === undefined ? 1 : (Number(inv.partySize) || 1),
+          tableNumber: inv.tableNumber || undefined,
+          notes: inv.notes || undefined,
+        })),
     };
     return validatedData;
 
@@ -401,15 +412,87 @@ export async function updateDecoracionFiestaActual(
   }
 }
 
+// Funciones para CRUD de Invitados
+export async function getInvitadosFiestaActual(): Promise<Invitado[]> {
+  const fiesta = await readFiestaActualFile();
+  return JSON.parse(JSON.stringify(fiesta.invitados || []));
+}
+
+export async function addInvitadoFiestaActual(
+  invitadoData: NuevoInvitadoData
+): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    const nuevoInvitado: Invitado = {
+      ...invitadoData,
+      id: `inv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
+    };
+    if (!fiestaActual.invitados) {
+      fiestaActual.invitados = [];
+    }
+    fiestaActual.invitados.push(nuevoInvitado);
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, invitado: JSON.parse(JSON.stringify(nuevoInvitado)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al añadir el invitado." };
+  }
+}
+
+export async function updateInvitadoFiestaActual(
+  invitadoData: Invitado
+): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    if (!fiestaActual.invitados) {
+      fiestaActual.invitados = [];
+    }
+    const index = fiestaActual.invitados.findIndex(inv => inv.id === invitadoData.id);
+    if (index !== -1) {
+      fiestaActual.invitados[index] = { 
+        ...invitadoData, 
+        partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
+      };
+      await writeFiestaActualFile(fiestaActual);
+      return { success: true, invitado: JSON.parse(JSON.stringify(fiestaActual.invitados[index])) };
+    } else {
+      return { success: false, error: `Invitado con ID ${invitadoData.id} no encontrado para actualizar.` };
+    }
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar el invitado." };
+  }
+}
+
+export async function deleteInvitadoFiestaActual(
+  invitadoId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    if (fiestaActual.invitados) {
+      const initialLength = fiestaActual.invitados.length;
+      fiestaActual.invitados = fiestaActual.invitados.filter(inv => inv.id !== invitadoId);
+      if (fiestaActual.invitados.length < initialLength) {
+        await writeFiestaActualFile(fiestaActual);
+        return { success: true };
+      } else {
+        return { success: false, error: `Invitado con ID ${invitadoId} no encontrado para eliminar.` };
+      }
+    }
+    return { success: false, error: 'No hay invitados para eliminar.' };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al eliminar el invitado." };
+  }
+}
 
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
         const resetData = { 
           ...initialFiestaActualData,
-          configuracion: { ...defaultConfiguracion, clienteId: undefined }, // Reset clienteId too
+          configuracion: { ...defaultConfiguracion, clienteId: undefined },
           tareas: [...defaultTareas.map(t => ({...t}))], 
           decoracion: { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} },
           salonLayout: { ...defaultSalonLayout, elements: [] },
+          invitados: [], // Resetear invitados
         };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
@@ -428,11 +511,9 @@ async function initializeFiestaData() {
         if (!currentData.configuracion) {
             currentData.configuracion = { ...defaultConfiguracion };
             needsUpdate = true;
-        } else if (currentData.configuracion.clienteId === undefined) { // Check specifically for clienteId
-            currentData.configuracion.clienteId = undefined; // Ensure it's explicitly undefined if not present
-            // needsUpdate = true; // Only set to true if it was missing and now we are adding it with a default
+        } else if (currentData.configuracion.clienteId === undefined) { 
+            currentData.configuracion.clienteId = undefined; 
         }
-
 
         if (!currentData.tareas || currentData.tareas.length === 0) {
             currentData.tareas = [...defaultTareas.map(t => ({...t}))];
@@ -491,6 +572,21 @@ async function initializeFiestaData() {
             }));
             currentData.salonLayout.backgroundImageUrl = currentData.salonLayout.backgroundImageUrl || '';
             currentData.salonLayout.generalNotes = currentData.salonLayout.generalNotes || '';
+        }
+
+        if (!currentData.invitados) { // Asegurar que exista el array de invitados
+            currentData.invitados = [];
+            needsUpdate = true;
+        } else { // Validar invitados existentes
+            currentData.invitados = currentData.invitados.map(inv => ({
+              id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+              nombre: inv.nombre || 'Invitado sin nombre',
+              contacto: inv.contacto || undefined,
+              rsvp: inv.rsvp || 'Pendiente',
+              partySize: inv.partySize === undefined ? 1 : (Number(inv.partySize) || 1),
+              tableNumber: inv.tableNumber || undefined,
+              notes: inv.notes || undefined,
+            }));
         }
         
         if (needsUpdate) {

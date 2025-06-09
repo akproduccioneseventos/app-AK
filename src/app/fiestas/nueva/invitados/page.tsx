@@ -1,91 +1,169 @@
 
 'use client';
 
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2 } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-
-type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Quizás';
-
-interface Invitado {
-  id: string;
-  nombre: string;
-  contacto?: string; // Email o teléfono
-  rsvp: RsvpStatus;
-}
+import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
+import { getInvitadosFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
-  const [invitados, setInvitados] = useState<Invitado[]>([
-    { id: '1', nombre: 'Juan Pérez', contacto: 'juan@example.com', rsvp: 'Confirmado' },
-    { id: '2', nombre: 'Ana García', rsvp: 'Pendiente' },
-    { id: '3', nombre: 'Luis Fernández', contacto: '600111222', rsvp: 'Rechazado' },
-  ]);
+  const [invitados, setInvitados] = useState<Invitado[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false); // Para guardado general o acciones individuales que tarden
+  const [error, setError] = useState<string |null>(null);
+
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoContacto, setNuevoContacto] = useState('');
+  const [nuevoPartySize, setNuevoPartySize] = useState<number>(1);
+  const [nuevoNotes, setNuevoNotes] = useState('');
 
-  const handleAddInvitado = (e: FormEvent) => {
+  const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const fetchInvitados = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getInvitadosFiestaActual();
+      setInvitados(data.sort((a,b) => a.nombre.localeCompare(b.nombre)));
+    } catch (e: any) {
+      setError("No se pudieron cargar los invitados.");
+      toast({ title: "Error al cargar invitados", description: e.message, variant: "destructive"});
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchInvitados();
+  }, [fetchInvitados]);
+
+  const handleAddInvitado = async (e: FormEvent) => {
     e.preventDefault();
     if (!nuevoNombre.trim()) {
-      toast({
-        title: "Nombre Requerido",
-        description: "Por favor, ingresa el nombre del invitado.",
-        variant: "destructive",
-      });
+      toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del invitado.", variant: "destructive" });
       return;
     }
-    const nuevoInvitado: Invitado = {
-      id: Date.now().toString(),
+    setIsSaving(true);
+    const nuevoInvitadoData: NuevoInvitadoData = {
       nombre: nuevoNombre.trim(),
       contacto: nuevoContacto.trim() || undefined,
       rsvp: 'Pendiente',
+      partySize: Number(nuevoPartySize) || 1,
+      notes: nuevoNotes.trim() || undefined,
     };
-    setInvitados(prev => [nuevoInvitado, ...prev]);
-    setNuevoNombre('');
-    setNuevoContacto('');
-    toast({
-      title: "Invitado Añadido",
-      description: `${nuevoInvitado.nombre} ha sido añadido a la lista.`,
-    });
+    const result = await addInvitadoFiestaActual(nuevoInvitadoData);
+    if (result.success && result.invitado) {
+      //setInvitados(prev => [result.invitado!, ...prev].sort((a,b) => a.nombre.localeCompare(b.nombre)));
+      await fetchInvitados(); // Recargar para asegurar el orden y IDs correctos
+      setNuevoNombre('');
+      setNuevoContacto('');
+      setNuevoPartySize(1);
+      setNuevoNotes('');
+      toast({ title: "Invitado Añadido", description: `${result.invitado.nombre} ha sido añadido.` });
+    } else {
+      toast({ title: "Error al Añadir", description: result.error || "No se pudo añadir el invitado.", variant: "destructive" });
+    }
+    setIsSaving(false);
   };
 
-  const handleRsvpChange = (invitadoId: string, newRsvp: RsvpStatus) => {
+  const handleFieldChange = async (invitadoId: string, field: keyof Invitado, value: any) => {
+    const invitadoOriginal = invitados.find(inv => inv.id === invitadoId);
+    if(!invitadoOriginal) return;
+
+    // Optimistic update
     setInvitados(prev =>
-      prev.map(inv => (inv.id === invitadoId ? { ...inv, rsvp: newRsvp } : inv))
+      prev.map(inv => (inv.id === invitadoId ? { ...inv, [field]: value } : inv))
     );
-  };
-
-  const handleDeleteInvitado = (invitadoId: string) => {
-    const invitadoAEliminar = invitados.find(inv => inv.id === invitadoId);
-    setInvitados(prev => prev.filter(inv => inv.id !== invitadoId));
-    if (invitadoAEliminar) {
-      toast({
-        title: "Invitado Eliminado",
-        description: `${invitadoAEliminar.nombre} ha sido eliminado de la lista.`,
-        variant: "destructive",
-      });
+    
+    // Persist change
+    const invitadoActualizado = { ...invitadoOriginal, [field]: value };
+     if (field === 'partySize' || field === 'tableNumber') { // Ensure numeric conversion for these
+        invitadoActualizado[field] = value === '' ? undefined : Number(value) || (field === 'partySize' ? 1 : undefined);
+     }
+    
+    const result = await updateInvitadoFiestaActual(invitadoActualizado);
+    if (!result.success) {
+      toast({ title: "Error al Actualizar", description: result.error || `No se pudo actualizar ${field}.`, variant: "destructive" });
+      setInvitados(prev => prev.map(inv => (inv.id === invitadoId ? invitadoOriginal : inv))); // Revert optimistic update
     }
   };
 
-  const getRsvpCounts = () => {
-    const counts = { Pendiente: 0, Confirmado: 0, Rechazado: 0, Quizás: 0, Total: invitados.length };
-    invitados.forEach(inv => {
-      counts[inv.rsvp]++;
-    });
-    return counts;
+  const handleDeleteInvitado = async (invitadoId: string) => {
+    const invitadoAEliminar = invitados.find(inv => inv.id === invitadoId);
+    if (!invitadoAEliminar) return;
+    
+    // Optimistic update
+    // setInvitados(prev => prev.filter(inv => inv.id !== invitadoId));
+
+    const result = await deleteInvitadoFiestaActual(invitadoId);
+    if (result.success) {
+      await fetchInvitados(); // Recargar
+      toast({ title: "Invitado Eliminado", description: `${invitadoAEliminar.nombre} ha sido eliminado.`, variant: "destructive" });
+    } else {
+      toast({ title: "Error al Eliminar", description: result.error || "No se pudo eliminar el invitado.", variant: "destructive" });
+      // setInvitados(prev => [...prev, invitadoAEliminar].sort((a,b)=>a.nombre.localeCompare(b.nombre))); // Revert
+    }
   };
 
-  const rsvpCounts = getRsvpCounts();
+  const openEditModal = (invitado: Invitado) => {
+    setEditingInvitado({ ...invitado }); // Clonar para evitar modificar el estado directamente
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEditModal = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingInvitado) return;
+    if (!editingInvitado.nombre.trim()) {
+      toast({ title: "Nombre Requerido", description: "El nombre no puede estar vacío.", variant: "destructive" });
+      return;
+    }
+    setIsSaving(true);
+    const result = await updateInvitadoFiestaActual(editingInvitado);
+    if (result.success && result.invitado) {
+      await fetchInvitados(); // Recargar
+      setIsEditModalOpen(false);
+      setEditingInvitado(null);
+      toast({ title: "Invitado Actualizado", description: `${result.invitado.nombre} guardado.` });
+    } else {
+      toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar.", variant: "destructive" });
+    }
+    setIsSaving(false);
+  };
+
+
+  const rsvpCounts = invitados.reduce((acc, inv) => {
+    acc[inv.rsvp] = (acc[inv.rsvp] || 0) + (inv.partySize || 1);
+    acc.TotalPersonas = (acc.TotalPersonas || 0) + (inv.partySize || 1);
+    acc.TotalInvitaciones = (acc.TotalInvitaciones || 0) + 1;
+    return acc;
+  }, {} as Record<RsvpStatus | 'TotalPersonas' | 'TotalInvitaciones', number>);
+
+  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /> <p className="ml-2">Cargando invitados...</p></div>;
+  if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Gestión de Invitados
@@ -104,27 +182,28 @@ export default function InvitadosEventoPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddInvitado} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombre-invitado">Nombre Completo del Invitado</Label>
-              <Input
-                id="nombre-invitado"
-                value={nuevoNombre}
-                onChange={(e) => setNuevoNombre(e.target.value)}
-                placeholder="Ej: Laura Martínez"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                <Label htmlFor="nombre-invitado">Nombre Completo</Label>
+                <Input id="nombre-invitado" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} placeholder="Ej: Laura Martínez" required />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="contacto-invitado">Email o Teléfono (Opcional)</Label>
+                <Input id="contacto-invitado" value={nuevoContacto} onChange={(e) => setNuevoContacto(e.target.value)} placeholder="laura@ejemplo.com o 600..." />
+                </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="contacto-invitado">Email o Teléfono (Opcional)</Label>
-              <Input
-                id="contacto-invitado"
-                value={nuevoContacto}
-                onChange={(e) => setNuevoContacto(e.target.value)}
-                placeholder="Ej: laura@example.com o 600..."
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                <Label htmlFor="partysize-invitado">Nº Personas (Invitación)</Label>
+                <Input id="partysize-invitado" type="number" value={nuevoPartySize} onChange={(e) => setNuevoPartySize(Number(e.target.value))} min="1" />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="notes-invitado">Notas (Alergias, etc.)</Label>
+                    <Input id="notes-invitado" value={nuevoNotes} onChange={(e) => setNuevoNotes(e.target.value)} placeholder="Ej: Alergia al maní" />
+                </div>
             </div>
-            <Button type="submit" className="w-full sm:w-auto">
-              <Plus className="w-4 h-4 mr-2" />
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus2 className="w-4 h-4 mr-2" />}
               Añadir Invitado
             </Button>
           </form>
@@ -134,74 +213,128 @@ export default function InvitadosEventoPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl flex items-center gap-2">
-            <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.Total})
+            <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.TotalInvitaciones || 0} invitaciones / {rsvpCounts.TotalPersonas || 0} personas)
           </CardTitle>
           <CardDescription>
-            Confirmados: {rsvpCounts.Confirmado}, Pendientes: {rsvpCounts.Pendiente}, Rechazados: {rsvpCounts.Rechazado}, Quizás: {rsvpCounts.Quizás}.
+            Confirmados: {rsvpCounts.Confirmado || 0} personas. Pendientes: {rsvpCounts.Pendiente || 0} personas.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {invitados.length > 0 ? (
-            <ScrollArea className="h-[350px] pr-3">
-              <ul className="space-y-3">
+            <ScrollArea className="h-auto max-h-[500px] pr-1">
+              <div className="space-y-3">
                 {invitados.map((invitado) => (
-                  <li
-                    key={invitado.id}
-                    className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 border rounded-md hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex-grow space-y-1">
-                      <p className="font-medium text-foreground">{invitado.nombre}</p>
-                      {invitado.contacto && (
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          {invitado.contacto.includes('@') ? <Mail className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
-                          {invitado.contacto}
+                  <Card key={invitado.id} className="p-3 hover:shadow-md transition-shadow bg-muted/30">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <div className="flex-grow space-y-0.5">
+                        <p className="font-semibold text-foreground">{invitado.nombre}</p>
+                        {invitado.contacto && (
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            {invitado.contacto.includes('@') ? <Mail className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
+                            {invitado.contacto}
+                          </div>
+                        )}
+                        <p className="text-xs text-muted-foreground">Personas: {invitado.partySize || 1}</p>
+                        {invitado.notes && <p className="text-xs text-muted-foreground italic">Notas: {invitado.notes}</p>}
+                      </div>
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
+                        <div className="flex-1 sm:flex-none sm:w-[120px]">
+                            <Label htmlFor={`rsvp-${invitado.id}`} className="sr-only">RSVP</Label>
+                            <Select value={invitado.rsvp} onValueChange={(value: RsvpStatus) => handleFieldChange(invitado.id, 'rsvp', value)}>
+                                <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                {(['Pendiente', 'Confirmado', 'Rechazado', 'Quizás'] as RsvpStatus[]).map(status => (
+                                    <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                      )}
+                         <div className="flex-1 sm:flex-none sm:w-[100px]">
+                           <Label htmlFor={`table-${invitado.id}`} className="sr-only">Mesa</Label>
+                           <Input
+                              id={`table-${invitado.id}`}
+                              placeholder="Mesa"
+                              value={invitado.tableNumber || ''}
+                              onChange={(e) => handleFieldChange(invitado.id, 'tableNumber', e.target.value)}
+                              className="h-8 text-xs"
+                              disabled={invitado.rsvp !== 'Confirmado'}
+                            />
+                        </div>
+                        <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteInvitado(invitado.id)} className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                      <Select
-                        value={invitado.rsvp}
-                        onValueChange={(value: RsvpStatus) => handleRsvpChange(invitado.id, value)}
-                      >
-                        <SelectTrigger className="w-full sm:w-[130px] h-9 text-xs">
-                          <SelectValue placeholder="Estado RSVP" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(['Pendiente', 'Confirmado', 'Rechazado', 'Quizás'] as RsvpStatus[]).map(status => (
-                            <SelectItem key={status} value={status} className="text-xs">
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteInvitado(invitado.id)}
-                        className="text-muted-foreground hover:text-destructive flex-shrink-0"
-                        aria-label={`Eliminar invitado ${invitado.nombre}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </li>
+                  </Card>
                 ))}
-              </ul>
+              </div>
             </ScrollArea>
           ) : (
             <div className="text-center py-8">
-              <Users className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+              <NotebookText className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground">Aún no has añadido ningún invitado.</p>
-              <p className="text-sm text-muted-foreground mt-1">Comienza añadiendo el primer nombre a tu lista.</p>
             </div>
           )}
         </CardContent>
-        {invitados.length > 0 && (
-             <CardFooter className="text-sm text-muted-foreground">
-                Total de invitados en la lista: {invitados.length}
+         {invitados.length > 0 && (
+            <CardFooter className="text-xs text-muted-foreground border-t pt-3">
+                Gestiona el estado de confirmación, número de asistentes por invitación, mesa asignada y notas.
             </CardFooter>
         )}
       </Card>
+
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-xl">Editar Invitado</DialogTitle>
+            <DialogDescription>Modifica los detalles de {editingInvitado?.nombre || 'este invitado'}.</DialogDescription>
+          </DialogHeader>
+          {editingInvitado && (
+            <form onSubmit={handleSaveEditModal} className="space-y-3 py-2">
+              <div className="space-y-1">
+                <Label htmlFor="edit-nombre">Nombre</Label>
+                <Input id="edit-nombre" value={editingInvitado.nombre} onChange={(e) => setEditingInvitado(p => p ? {...p, nombre: e.target.value} : null)} required />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="edit-contacto">Contacto</Label>
+                <Input id="edit-contacto" value={editingInvitado.contacto || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, contacto: e.target.value} : null)} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="edit-partySize">Nº Personas</Label>
+                <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => setEditingInvitado(p => p ? {...p, partySize: Number(e.target.value) || 1} : null)} min="1" />
+              </div>
+               <div className="space-y-1">
+                <Label htmlFor="edit-rsvp">Estado RSVP</Label>
+                 <Select value={editingInvitado.rsvp} onValueChange={(value: RsvpStatus) => setEditingInvitado(p => p ? {...p, rsvp: value} : null)}>
+                    <SelectTrigger id="edit-rsvp"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                    {(['Pendiente', 'Confirmado', 'Rechazado', 'Quizás'] as RsvpStatus[]).map(status => (
+                        <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="edit-tableNumber">Nº Mesa</Label>
+                <Input id="edit-tableNumber" value={editingInvitado.tableNumber || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, tableNumber: e.target.value} : null)} disabled={editingInvitado.rsvp !== 'Confirmado'}/>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="edit-notes">Notas</Label>
+                <Textarea id="edit-notes" value={editingInvitado.notes || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, notes: e.target.value} : null)} rows={3} />
+              </div>
+              <DialogFooter className="pt-3">
+                <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                  Guardar Cambios
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

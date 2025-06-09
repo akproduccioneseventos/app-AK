@@ -1,5 +1,6 @@
 
 import type { TipoEvento } from './presupuesto';
+import type { Invitado } from './invitado'; // Importar Invitado
 
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
@@ -94,4 +95,5 @@ export interface FiestaEnPlanificacion {
   salonLayout?: SalonLayoutData;
   tareas?: Tarea[];
   decoracion?: DecoracionData;
+  invitados?: Invitado[]; // Añadir lista de invitados aquí
 }
