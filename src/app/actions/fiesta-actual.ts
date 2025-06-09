@@ -65,9 +65,13 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   presupuestoId: undefined,
   invoiceIds: [],
   reuniones: [],
-  salonLayout: { ...defaultSalonLayout },
+  salonLayout: { ...defaultSalonLayout, elements: [] },
   tareas: [...defaultTareas.map(t => ({...t}))],
-  decoracion: { ...defaultDecoracion },
+  decoracion: { 
+    ...defaultDecoracion, 
+    items: [], 
+    paletaColores: { ...defaultColorPalette } 
+  },
 };
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -100,12 +104,21 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             ...(initialFiestaActualData.salonLayout || defaultSalonLayout),
             ...(data.salonLayout || {}), 
              elements: (data.salonLayout?.elements || []).map(el => ({
-                ...el,
+                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`, // Ensure ID
+                name: el.name || 'Elemento sin nombre',
+                quantity: el.quantity === undefined ? 1 : el.quantity,
+                notes: el.notes || undefined,
+                imageUrl: el.imageUrl || undefined,
                 x: el.x ?? 0,
                 y: el.y ?? 0,
+                width: el.width ?? 50,
+                height: el.height ?? 50,
                 rotation: el.rotation ?? 0,
                 type: el.type ?? 'custom',
+                category: el.category || undefined,
              })),
+             backgroundImageUrl: data.salonLayout?.backgroundImageUrl || '',
+             generalNotes: data.salonLayout?.generalNotes || '',
         },
         tareas: (data.tareas && data.tareas.length > 0) ? data.tareas : [...defaultTareas.map(t => ({...t}))],
         decoracion: {
@@ -115,7 +128,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
               ...(initialFiestaActualData.decoracion?.paletaColores || defaultColorPalette),
               ...(data.decoracion?.paletaColores || {}),
             },
-            items: data.decoracion?.items || [],
+            items: (data.decoracion?.items || []).map(item => ({ ...item, quantity: item.quantity || 1 })),
             generalNotes: data.decoracion?.generalNotes || defaultDecoracion.generalNotes,
         },
     };
@@ -302,16 +315,26 @@ export async function updateSalonLayoutFiestaActual(
 ): Promise<{ success: boolean; updatedData?: SalonLayoutData; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    // Ensure all elements have default x, y, rotation, type if not provided
     const validatedElements = (layoutData.elements || []).map(el => ({
-      ...el,
+      id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+      name: el.name || 'Elemento sin nombre',
+      quantity: el.quantity === undefined ? 1 : el.quantity,
+      notes: el.notes || undefined,
+      imageUrl: el.imageUrl || undefined,
       x: el.x ?? 0,
       y: el.y ?? 0,
+      width: el.width ?? 50,
+      height: el.height ?? 50,
       rotation: el.rotation ?? 0,
       type: el.type ?? 'custom',
-      // quantity should exist from creation
+      category: el.category || undefined,
     }));
-    fiestaActual.salonLayout = { ...layoutData, elements: validatedElements };
+    fiestaActual.salonLayout = { 
+        ...layoutData, 
+        elements: validatedElements,
+        backgroundImageUrl: layoutData.backgroundImageUrl || '',
+        generalNotes: layoutData.generalNotes || ''
+    };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.salonLayout)) };
   } catch (e: any) {
@@ -338,13 +361,14 @@ export async function updateDecoracionFiestaActual(
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.decoracion = { 
-        ...defaultDecoracion, // ensure all default fields are present
+        ...defaultDecoracion, 
         ...decoracionData,
-        items: decoracionData.items || [], // ensure items is always an array
+        items: (decoracionData.items || []).map(item => ({ ...item, quantity: item.quantity || 1 })),
         paletaColores: {
             ...defaultColorPalette,
             ...(decoracionData.paletaColores || {})
-        }
+        },
+        generalNotes: decoracionData.generalNotes === undefined ? defaultDecoracion.generalNotes : decoracionData.generalNotes,
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
@@ -359,8 +383,8 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
         const resetData = { 
           ...initialFiestaActualData,
           tareas: [...defaultTareas.map(t => ({...t}))], 
-          decoracion: { ...defaultDecoracion },
-          salonLayout: { ...defaultSalonLayout },
+          decoracion: { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} },
+          salonLayout: { ...defaultSalonLayout, elements: [] },
         };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
@@ -372,39 +396,52 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
 async function initializeFiestaData() {
     await ensureDataDirectoryExists();
     try {
-        await fs.access(fiestaActualFilePath);
-        const currentData = await readFiestaActualFile(); // This already ensures defaults
+        // Attempt to access, if it fails (ENOENT), it will be handled by read or created in catch
+        await fs.access(fiestaActualFilePath); 
+        const currentData = await readFiestaActualFile(); // This already ensures defaults for top-level
         let needsUpdate = false;
 
+        // Ensure 'tareas' array is correctly initialized with defaults if empty or missing
         if (!currentData.tareas || currentData.tareas.length === 0) {
             currentData.tareas = [...defaultTareas.map(t => ({...t}))];
             needsUpdate = true;
         }
 
+        // Ensure 'decoracion' object and its sub-properties are initialized
         if (!currentData.decoracion) {
-            currentData.decoracion = { ...defaultDecoracion };
+            currentData.decoracion = { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} };
             needsUpdate = true;
         } else {
             currentData.decoracion.paletaColores = {
                 ...defaultColorPalette,
                 ...(currentData.decoracion.paletaColores || {})
             };
-            currentData.decoracion.items = currentData.decoracion.items || [];
+            currentData.decoracion.items = (currentData.decoracion.items || []).map(item => ({...item, quantity: item.quantity || 1}));
             currentData.decoracion.generalNotes = currentData.decoracion.generalNotes === undefined ? defaultDecoracion.generalNotes : currentData.decoracion.generalNotes;
             if (currentData.decoracion.tema === undefined) currentData.decoracion.tema = defaultDecoracion.tema;
         }
         
+        // Ensure 'salonLayout' object and its elements are initialized with all fields
         if(!currentData.salonLayout){
-            currentData.salonLayout = { ...defaultSalonLayout };
+            currentData.salonLayout = { ...defaultSalonLayout, elements: [] };
             needsUpdate = true;
         } else {
             currentData.salonLayout.elements = (currentData.salonLayout.elements || []).map(el => ({
-                ...el,
+                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+                name: el.name || 'Elemento sin nombre',
+                quantity: el.quantity === undefined ? 1 : el.quantity,
+                notes: el.notes || undefined,
+                imageUrl: el.imageUrl || undefined,
                 x: el.x ?? 0,
                 y: el.y ?? 0,
+                width: el.width ?? 50,
+                height: el.height ?? 50,
                 rotation: el.rotation ?? 0,
                 type: el.type ?? 'custom',
+                category: el.category || undefined,
             }));
+            currentData.salonLayout.backgroundImageUrl = currentData.salonLayout.backgroundImageUrl || '';
+            currentData.salonLayout.generalNotes = currentData.salonLayout.generalNotes || '';
         }
         
         if (needsUpdate) {
@@ -415,9 +452,12 @@ async function initializeFiestaData() {
         if (error.code === 'ENOENT') {
             console.log('Archivo fiesta-actual.json no encontrado, creando con datos iniciales...');
             await writeFiestaActualFile(initialFiestaActualData);
+        } else {
+            // Log other errors but don't necessarily overwrite if file exists but is malformed,
+            // readFiestaActualFile's catch will handle returning defaults in that case.
+            console.error("Error during fiesta data initialization:", error);
         }
     }
 }
 
 initializeFiestaData();
-

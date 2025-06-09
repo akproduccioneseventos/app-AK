@@ -27,24 +27,24 @@ export interface Reunion {
 }
 
 export interface LayoutElement {
-  id: string; 
-  name: string; 
-  quantity: number; // Aunque para un plano visual 1 elemento = 1 visualización, quantity podría ser informativo. Para el visual, cada "unidad" se añade como un elemento individual.
-  notes?: string; 
+  id: string;
+  name: string;
+  quantity: number; // Usado para inventario/lista, el canvas muestra 1 instancia por elemento
+  notes?: string;
   imageUrl?: string; // URL de la imagen para este elemento
-  x: number; // Coordenada X en el plano
-  y: number; // Coordenada Y en el plano
-  width?: number; // Ancho del elemento en el plano (en px, por ejemplo)
-  height?: number; // Alto del elemento en el plano (en px)
-  rotation?: number; // Rotación en grados
-  type: 'predefined' | 'custom'; // Para diferenciar si es de una biblioteca o algo añadido por el usuario
-  category?: string; // Ej: 'Mobiliario', 'Decoración', 'Equipamiento'
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  type: 'predefined' | 'custom';
+  category?: string;
 }
 
 export interface SalonLayoutData {
-  backgroundImageUrl?: string; 
-  elements: LayoutElement[]; 
-  generalNotes?: string; 
+  backgroundImageUrl?: string;
+  elements: LayoutElement[];
+  generalNotes?: string;
 }
 
 export interface Tarea {
@@ -76,21 +76,20 @@ export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
-  items?: DecorationItem[]; // Cambiado de notas a una lista de items
-  generalNotes?: string; // Se puede mantener para notas generales de decoración
+  items?: DecorationItem[];
+  generalNotes?: string;
 }
 
 
 export interface FiestaEnPlanificacion {
-  id: string; 
+  id: string;
   configuracion: ConfigEventoDataStorage;
   personalAsignado: PersonalAsignadoDetalleStorage[];
-  menuAsignadoId?: string; 
-  presupuestoId?: string; 
-  invoiceIds?: string[]; 
+  menuAsignadoId?: string;
+  presupuestoId?: string;
+  invoiceIds?: string[];
   reuniones?: Reunion[];
   salonLayout?: SalonLayoutData;
   tareas?: Tarea[];
   decoracion?: DecoracionData;
 }
-

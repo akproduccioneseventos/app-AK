@@ -38,13 +38,13 @@ import {
 
 
 const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
-  { name: 'Mesa Redonda (8 pax)', imageUrl: 'https://placehold.co/80x80/E0E0E0/B0B0B0.png?text=Mesa', width: 80, height: 80, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Mesa Rectangular (6 pax)', imageUrl: 'https://placehold.co/120x60/E0E0E0/B0B0B0.png?text=Mesa L', width: 120, height: 60, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Silla', imageUrl: 'https://placehold.co/30x30/F0F0F0/C0C0C0.png?text=S', width: 30, height: 30, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Pista de Baile (Pequeña)', imageUrl: 'https://placehold.co/150x150/D0D0D0/A0A0A0.png?text=Pista', width: 150, height: 150, type: 'predefined', category: 'Zona' },
-  { name: 'Barra de Bebidas', imageUrl: 'https://placehold.co/100x40/C8C8C8/989898.png?text=Bar', width: 100, height: 40, type: 'predefined', category: 'Equipamiento' },
-  { name: 'Escenario (Pequeño)', imageUrl: 'https://placehold.co/120x80/BDBDBD/8D8D8D.png?text=Escenario', width: 120, height: 80, type: 'predefined', category: 'Equipamiento' },
-  { name: 'Planta Decorativa', imageUrl: 'https://placehold.co/40x40/A9A9A9/797979.png?text=Planta', width: 40, height: 40, type: 'predefined', category: 'Decoración' },
+  { name: 'Mesa Redonda (8 pax)', imageUrl: 'https://placehold.co/80x80/E0E0E0/B0B0B0.png?text=Mesa', width: 80, height: 80, rotation: 0, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Mesa Rectangular (6 pax)', imageUrl: 'https://placehold.co/120x60/E0E0E0/B0B0B0.png?text=Mesa L', width: 120, height: 60, rotation: 0, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Silla', imageUrl: 'https://placehold.co/30x30/F0F0F0/C0C0C0.png?text=S', width: 30, height: 30, rotation: 0, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Pista de Baile (Pequeña)', imageUrl: 'https://placehold.co/150x150/D0D0D0/A0A0A0.png?text=Pista', width: 150, height: 150, rotation: 0, type: 'predefined', category: 'Zona' },
+  { name: 'Barra de Bebidas', imageUrl: 'https://placehold.co/100x40/C8C8C8/989898.png?text=Bar', width: 100, height: 40, rotation: 0, type: 'predefined', category: 'Equipamiento' },
+  { name: 'Escenario (Pequeño)', imageUrl: 'https://placehold.co/120x80/BDBDBD/8D8D8D.png?text=Escenario', width: 120, height: 80, rotation: 0, type: 'predefined', category: 'Equipamiento' },
+  { name: 'Planta Decorativa', imageUrl: 'https://placehold.co/40x40/A9A9A9/797979.png?text=Planta', width: 40, height: 40, rotation: 0, type: 'predefined', category: 'Decoración' },
 ];
 
 export default function DisenoSalonPage() {
@@ -66,18 +66,25 @@ export default function DisenoSalonPage() {
       const fiestaData = await getFiestaActual();
       if (fiestaData.salonLayout) {
         setLayoutData({
-            ...fiestaData.salonLayout,
+            backgroundImageUrl: fiestaData.salonLayout.backgroundImageUrl || '',
             elements: (fiestaData.salonLayout.elements || []).map(el => ({
-                ...el,
+                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+                name: el.name || 'Elemento sin nombre',
+                quantity: el.quantity === undefined ? 1 : el.quantity,
+                notes: el.notes || undefined,
+                imageUrl: el.imageUrl || undefined,
                 x: el.x ?? 0,
                 y: el.y ?? 0,
+                width: el.width ?? 50,
+                height: el.height ?? 50,
                 rotation: el.rotation ?? 0,
                 type: el.type ?? 'custom',
-                width: el.width ?? 50, // Default width if not set
-                height: el.height ?? 50, // Default height if not set
-            }))
+                category: el.category || undefined,
+            })),
+            generalNotes: fiestaData.salonLayout.generalNotes || ''
         });
       } else {
+        // Esto no debería ocurrir si la inicialización del backend es correcta
         setLayoutData({ backgroundImageUrl: '', elements: [], generalNotes: '' });
       }
     } catch (err: any) {
@@ -95,13 +102,13 @@ export default function DisenoSalonPage() {
   const openFormModal = (element?: LayoutElement) => {
     if (element) {
       setCurrentElement({ ...element });
-    } else {
+    } else { // Nuevo elemento personalizado
       setCurrentElement({ 
         name: '', 
         quantity: 1, 
         type: 'custom', 
-        x: 50, y: 50, // Default position
-        width: 100, height: 50, // Default size
+        x: 50, y: 50,
+        width: 100, height: 50,
         rotation: 0,
         imageUrl: '',
         notes: '',
@@ -112,20 +119,20 @@ export default function DisenoSalonPage() {
   };
   
   const addFromPalette = (paletteItem: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>) => {
-     setCurrentElement({
+     setCurrentElement({ // Pre-rellena para añadir, no para editar uno existente
         name: paletteItem.name,
-        quantity: 1, // Each visual item is one, quantity handled by multiple items
+        quantity: 1,
         type: 'predefined',
-        x: Math.floor(Math.random() * 200) + 50, // Random initial position
+        x: Math.floor(Math.random() * 200) + 50,
         y: Math.floor(Math.random() * 200) + 50,
         width: paletteItem.width || 50,
         height: paletteItem.height || 50,
-        rotation: 0,
+        rotation: paletteItem.rotation || 0,
         imageUrl: paletteItem.imageUrl,
         notes: '',
         category: paletteItem.category
      });
-     setIsFormModalOpen(true);
+     setIsFormModalOpen(true); // Abrir modal para confirmar/ajustar y añadir
   };
 
   const handleFormSubmit = (e: FormEvent) => {
@@ -138,7 +145,7 @@ export default function DisenoSalonPage() {
     const newElementData: LayoutElement = {
       id: currentElement.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: currentElement.name.trim(),
-      quantity: currentElement.quantity || 1, // Default to 1 if not set, though form has it
+      quantity: Number(currentElement.quantity) || 1,
       x: Number(currentElement.x) || 0,
       y: Number(currentElement.y) || 0,
       width: Number(currentElement.width) || 50,
@@ -147,7 +154,7 @@ export default function DisenoSalonPage() {
       imageUrl: currentElement.imageUrl?.trim() || undefined,
       notes: currentElement.notes?.trim() || undefined,
       type: currentElement.type || 'custom',
-      category: currentElement.category?.trim() || undefined,
+      category: currentElement.category?.trim() || 'Otro',
     };
     
     let updatedElements;
@@ -164,7 +171,7 @@ export default function DisenoSalonPage() {
     setCurrentElement(null);
   };
   
-  const handleElementFieldChange = (field: keyof LayoutElement, value: string | number) => {
+  const handleElementFieldChange = (field: keyof LayoutElement | 'quantity', value: string | number) => {
     setCurrentElement(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
 
@@ -179,17 +186,35 @@ export default function DisenoSalonPage() {
   const handleSaveLayout = async () => {
     setIsSaving(true);
     try {
-      const result = await updateSalonLayoutFiestaActual(layoutData);
+      // Ensure all elements have defaults before saving, matching read logic
+      const validatedLayoutData: SalonLayoutData = {
+        ...layoutData,
+        elements: layoutData.elements.map(el => ({
+          id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+          name: el.name || 'Elemento sin nombre',
+          quantity: el.quantity === undefined ? 1 : el.quantity,
+          notes: el.notes || undefined,
+          imageUrl: el.imageUrl || undefined,
+          x: el.x ?? 0,
+          y: el.y ?? 0,
+          width: el.width ?? 50,
+          height: el.height ?? 50,
+          rotation: el.rotation ?? 0,
+          type: el.type ?? 'custom',
+          category: el.category || undefined,
+        }))
+      };
+      const result = await updateSalonLayoutFiestaActual(validatedLayoutData);
       if (result.success && result.updatedData) {
         toast({ title: "¡Diseño Guardado!", description: "La configuración del diseño del salón ha sido guardada." });
-        // Ensure local state reflects validated server data, especially default values
-        setLayoutData({
-            ...result.updatedData,
+        setLayoutData({ // Update local state with validated data from server
+            backgroundImageUrl: result.updatedData.backgroundImageUrl || '',
             elements: (result.updatedData.elements || []).map(el => ({
-                ...el,
-                x: el.x ?? 0, y: el.y ?? 0, rotation: el.rotation ?? 0, type: el.type ?? 'custom',
-                width: el.width ?? 50, height: el.height ?? 50
-            }))
+                id: el.id, name: el.name, quantity: el.quantity, notes: el.notes, imageUrl: el.imageUrl,
+                x: el.x ?? 0, y: el.y ?? 0, width: el.width ?? 50, height: el.height ?? 50,
+                rotation: el.rotation ?? 0, type: el.type ?? 'custom', category: el.category
+            })),
+            generalNotes: result.updatedData.generalNotes || ''
         });
       } else {
         throw new Error(result.error || "Error desconocido al guardar el diseño del salón.");
@@ -227,7 +252,6 @@ export default function DisenoSalonPage() {
         </Link>
       </div>
 
-      {/* Main Layout Config Card */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Configuración del Plano del Salón</CardTitle>
@@ -264,7 +288,6 @@ export default function DisenoSalonPage() {
         </CardContent>
       </Card>
 
-      {/* Element Palette and Canvas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-1 shadow-lg">
           <CardHeader>
@@ -285,7 +308,7 @@ export default function DisenoSalonPage() {
                     onClick={() => addFromPalette(item)}
                     disabled={isSaving}
                   >
-                    <Image src={item.imageUrl || "https://placehold.co/40x40.png"} alt={item.name} width={30} height={30} className="mr-2 rounded-sm" data-ai-hint="icon element" />
+                    <Image src={item.imageUrl || "https://placehold.co/40x40.png"} alt={item.name} width={30} height={30} className="mr-2 rounded-sm object-contain" data-ai-hint="icon element" />
                     <span className="text-xs">{item.name}</span>
                   </Button>
                 ))}
@@ -307,13 +330,13 @@ export default function DisenoSalonPage() {
           </CardHeader>
           <CardContent>
             <div 
-              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-auto" // overflow-auto to allow scrolling if content exceeds
+              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-auto"
               style={{ 
                 backgroundImage: layoutData.backgroundImageUrl ? `url(${layoutData.backgroundImageUrl})` : 'none',
-                backgroundSize: 'contain', // or 'cover' depending on desired effect
+                backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
-                minHeight: '300px', // Ensure a minimum height
+                minHeight: '300px',
               }}
             >
               {!layoutData.backgroundImageUrl && (
@@ -326,20 +349,21 @@ export default function DisenoSalonPage() {
                 <div
                   key={el.id}
                   title={`${el.name} (x:${el.x}, y:${el.y})`}
-                  className="absolute border border-primary/50 bg-primary/10 hover:bg-primary/20 cursor-default flex items-center justify-center text-xs text-primary-foreground p-1 rounded"
+                  className="absolute border border-primary/50 bg-primary/20 hover:bg-primary/30 cursor-pointer flex items-center justify-center text-xs p-1 rounded-sm"
                   style={{
-                    left: `${el.x}px`,
-                    top: `${el.y}px`,
+                    left: `${el.x ?? 0}px`,
+                    top: `${el.y ?? 0}px`,
                     width: `${el.width || 50}px`,
                     height: `${el.height || 50}px`,
                     transform: `rotate(${el.rotation || 0}deg)`,
+                    color: 'hsl(var(--primary-foreground))', // Ensures text is visible on primary bg
                   }}
-                  onClick={() => openFormModal(el)} // Open edit modal on click
+                  onClick={() => openFormModal(el)} 
                 >
                   {el.imageUrl ? (
-                    <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm" data-ai-hint="object floor" />
+                    <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm" data-ai-hint="object floor element"/>
                   ) : (
-                    <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px] text-black dark:text-white">{el.name}</span>
+                    <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px]">{el.name}</span>
                   )}
                 </div>
               ))}
@@ -348,7 +372,6 @@ export default function DisenoSalonPage() {
         </Card>
       </div>
 
-      {/* List of Added Elements */}
       <Card className="shadow-lg">
         <CardHeader>
             <div className="flex items-center gap-2">
@@ -363,7 +386,7 @@ export default function DisenoSalonPage() {
                 {layoutData.elements.map(el => (
                   <li key={el.id} className="flex justify-between items-center p-2 border rounded-md hover:bg-muted/50">
                     <div className="flex items-center gap-2">
-                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm" data-ai-hint="icon element"/> : <LayoutGrid className="w-4 h-4 text-muted-foreground"/>}
+                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain" data-ai-hint="icon element"/> : <LayoutGrid className="w-4 h-4 text-muted-foreground"/>}
                         <div>
                             <p className="font-medium text-sm">{el.name} <span className="text-xs text-muted-foreground">({el.type})</span></p>
                             <p className="text-xs text-muted-foreground">
@@ -411,7 +434,6 @@ export default function DisenoSalonPage() {
         </CardFooter>
       </Card>
 
-      {/* Element Form Modal */}
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -433,16 +455,16 @@ export default function DisenoSalonPage() {
                 </SelectContent>
               </Select>
             </div>
-            {currentElement?.type === 'custom' && (
+            {(currentElement?.type === 'custom' || (currentElement?.type === 'predefined' && !predefinedElementsPalette.find(p => p.name === currentElement.name)?.imageUrl) ) && (
                  <div className="space-y-1">
-                    <Label htmlFor="el-imageUrl">URL de Imagen (para tipo Personalizado)</Label>
+                    <Label htmlFor="el-imageUrl">URL de Imagen</Label>
                     <Input id="el-imageUrl" type="url" placeholder="https://ejemplo.com/imagen.png" value={currentElement?.imageUrl || ''} onChange={(e) => handleElementFieldChange('imageUrl', e.target.value)} />
                 </div>
             )}
-            {currentElement?.type === 'predefined' && currentElement.imageUrl && (
+            {currentElement?.type === 'predefined' && currentElement.imageUrl && predefinedElementsPalette.find(p => p.name === currentElement.name)?.imageUrl && (
                 <div className="space-y-1">
                     <Label>Imagen Predefinida</Label>
-                    <Image src={currentElement.imageUrl} alt={currentElement.name || "preview"} width={40} height={40} className="border rounded-sm" data-ai-hint="icon predefined"/>
+                    <Image src={currentElement.imageUrl} alt={currentElement.name || "preview"} width={40} height={40} className="border rounded-sm object-contain" data-ai-hint="icon predefined"/>
                 </div>
             )}
              <div className="grid grid-cols-2 gap-3">
@@ -473,6 +495,10 @@ export default function DisenoSalonPage() {
                 <Label htmlFor="el-category">Categoría</Label>
                 <Input id="el-category" value={currentElement?.category || ''} onChange={(e) => handleElementFieldChange('category', e.target.value)} placeholder="Ej: Mobiliario, Decoración"/>
             </div>
+             <div className="space-y-1">
+              <Label htmlFor="el-quantity">Cantidad (Informativo)</Label>
+              <Input id="el-quantity" type="number" value={currentElement?.quantity ?? 1} onChange={(e) => handleElementFieldChange('quantity', Number(e.target.value))} min="1" />
+            </div>
             <div className="space-y-1">
               <Label htmlFor="el-notes">Notas Específicas (opcional)</Label>
               <Textarea id="el-notes" value={currentElement?.notes || ''} onChange={(e) => handleElementFieldChange('notes', e.target.value)} rows={2} />
@@ -487,4 +513,3 @@ export default function DisenoSalonPage() {
     </div>
   );
 }
-
