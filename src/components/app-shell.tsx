@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -62,6 +62,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
   if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores y Servicios';
   if (pathname === '/fiestas/nueva/decoracion') return 'Diseño y Decoración';
+  if (pathname === '/fiestas/nueva/diseno-salon') return 'Diseño del Salón';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
@@ -123,6 +124,7 @@ const getPageTitle = (pathname: string): string => {
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/personal') return UserCheck;
   if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
+  if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
   // Add other icons for other pages if needed
   return null;
 }
@@ -195,4 +197,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </SidebarProvider>
   );
 }
-

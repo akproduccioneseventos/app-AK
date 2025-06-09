@@ -1,18 +1,17 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, Tarea } from '@/types/fiesta';
 import fs from 'fs/promises';
 import path from 'path';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const fiestaActualFilePath = path.join(dataDirectory, 'fiesta-actual.json');
 
-// Default data for configuration (from "6 de junio" example)
 const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Boda Noelia Damaceno',
   tipoCelebracion: 'Boda',
-  fechaEvento: new Date(2025, 5, 6).toISOString(), // Month is 0-indexed (June is 5)
+  fechaEvento: new Date(2025, 5, 6).toISOString(), 
   horaInicio: '',
   horaFin: '',
   nombreLugar: 'Bonsai',
@@ -22,16 +21,35 @@ const defaultConfiguracion: ConfigEventoDataStorage = {
   notasAdicionales: '',
 };
 
+const defaultTareas: Tarea[] = [
+  { id: 'task_default_1', texto: 'Gestionar Vajilla y Mantelería', completada: false },
+  { id: 'task_default_2', texto: 'Coordinar Mobiliario', completada: false },
+  { id: 'task_default_3', texto: 'Contratar Mozos (4) y Mozos de cocina (4)', completada: false },
+  { id: 'task_default_4', texto: 'Contratar Fotografía de fiesta y exteriores', completada: false },
+  { id: 'task_default_5', texto: 'Contratar Plataforma 360 y Fotocabina', completada: false },
+  { id: 'task_default_6', texto: 'Organizar Mesa de postres y Torta principal', completada: false },
+  { id: 'task_default_7', texto: 'Contratar Barra de tragos', completada: false },
+  { id: 'task_default_8', texto: 'Definir Decoración Básica', completada: false },
+  { id: 'task_default_9', texto: 'Definir Discoteca Básica', completada: false },
+  { id: 'task_default_10', texto: 'Crear Invitación digital', completada: false },
+  { id: 'task_default_11', texto: 'Organizar Coffee Break', completada: false },
+  { id: 'task_default_12', texto: 'Asegurar Hielo', completada: false },
+];
+
 const initialFiestaActualData: FiestaEnPlanificacion = {
-  id: 'fiesta-en-curso', // Static ID for the single planned fiesta
+  id: 'fiesta-en-curso', 
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
   menuAsignadoId: undefined,
   presupuestoId: undefined,
   invoiceIds: [],
-  reuniones: [], // Inicializar reuniones
-  // Initialize other modules with their defaults later
-  // tareas: defaultTareas, // example
+  reuniones: [],
+  salonLayout: {
+    backgroundImageUrl: '',
+    elements: [],
+    generalNotes: '',
+  },
+  tareas: [...defaultTareas.map(t => ({...t}))], // Deep copy default tasks
 };
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -46,35 +64,38 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
   await ensureDataDirectoryExists();
   try {
     const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
-    const data = JSON.parse(fileContent) as FiestaEnPlanificacion;
-    // Basic validation to ensure it's somewhat like FiestaEnPlanificacion
-    if (data && data.id === 'fiesta-en-curso' && data.configuracion) {
-        // Ensure all potential new fields have defaults if missing from old JSON
-        const validatedData: FiestaEnPlanificacion = {
-            ...initialFiestaActualData, // provides defaults for all fields
-            ...data, // overrides defaults with what's in the file
-            configuracion: {
-                ...initialFiestaActualData.configuracion,
-                ...(data.configuracion || {}),
-            },
-            personalAsignado: data.personalAsignado || [],
-            menuAsignadoId: data.menuAsignadoId || undefined,
-            presupuestoId: data.presupuestoId || undefined,
-            invoiceIds: data.invoiceIds || [],
-            reuniones: data.reuniones || [], // Asegurar que reuniones exista
-        };
-        return validatedData;
-    }
-    // If not valid, reset to initial
-    await writeFiestaActualFile(initialFiestaActualData);
-    return { ...initialFiestaActualData };
+    let data = JSON.parse(fileContent) as FiestaEnPlanificacion;
+    
+    const validatedData: FiestaEnPlanificacion = {
+        ...initialFiestaActualData, 
+        ...data, 
+        configuracion: {
+            ...initialFiestaActualData.configuracion,
+            ...(data.configuracion || {}),
+        },
+        personalAsignado: data.personalAsignado || [],
+        menuAsignadoId: data.menuAsignadoId || undefined,
+        presupuestoId: data.presupuestoId || undefined,
+        invoiceIds: data.invoiceIds || [],
+        reuniones: data.reuniones || [],
+        salonLayout: { 
+            ...(initialFiestaActualData.salonLayout || { elements: [], backgroundImageUrl: '', generalNotes: '' }),
+            ...(data.salonLayout || {}), 
+             elements: (data.salonLayout?.elements || []), 
+        },
+        // Ensure tareas are initialized, if missing or empty in saved file, use defaults
+        tareas: (data.tareas && data.tareas.length > 0) ? data.tareas : [...defaultTareas.map(t => ({...t}))],
+    };
+    // If the data read had NO tareas field at all, or an empty array, this ensures it gets the defaults.
+    // If it had tasks, those are kept.
+    return validatedData;
+
   } catch (error: any) {
     if (error.code === 'ENOENT') {
       await writeFiestaActualFile(initialFiestaActualData);
       return { ...initialFiestaActualData };
     }
     console.error('Error leyendo el archivo de fiesta actual, usando datos iniciales:', error);
-    // Attempt to write initial data if file is corrupt
     try {
         await writeFiestaActualFile(initialFiestaActualData);
     } catch (writeError) {
@@ -95,7 +116,7 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   const fiesta = await readFiestaActualFile();
-  return JSON.parse(JSON.stringify(fiesta)); // Return a deep copy
+  return JSON.parse(JSON.stringify(fiesta)); 
 }
 
 export async function updateConfiguracionFiestaActual(
@@ -183,7 +204,6 @@ export async function removeInvoiceIdFromFiestaActual(
   }
 }
 
-// --- Acciones para Reuniones ---
 export async function addReunionToFiestaActual(
   reunionData: Omit<Reunion, 'id'>
 ): Promise<{ success: boolean; reunion?: Reunion; error?: string }> {
@@ -245,16 +265,70 @@ export async function deleteReunionFromFiestaActual(
     return { success: false, error: e.message || "Error al eliminar la reunión." };
   }
 }
-// --- Fin Acciones para Reuniones ---
+
+export async function updateSalonLayoutFiestaActual(
+  layoutData: SalonLayoutData
+): Promise<{ success: boolean; updatedData?: SalonLayoutData; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    fiestaActual.salonLayout = { ...layoutData };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.salonLayout)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar el diseño del salón." };
+  }
+}
+
+export async function updateTareasFiestaActual(
+  nuevasTareas: Tarea[]
+): Promise<{ success: boolean; updatedData?: Tarea[]; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    fiestaActual.tareas = [...nuevasTareas];
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.tareas)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar las tareas." };
+  }
+}
 
 
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
-        // Ensure initial data always includes all fields with their defaults on reset
-        const resetData = { ...initialFiestaActualData };
+        const resetData = { 
+          ...initialFiestaActualData,
+          tareas: [...defaultTareas.map(t => ({...t}))] // Ensure tasks are reset to default on full reset
+        };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
     } catch (e: any) {
         return { success: false, error: e.message || "Error al reiniciar la fiesta." };
     }
 }
+
+// Ensure the fiesta-actual.json file exists and has default tasks if empty/new
+async function initializeFiestaData() {
+    await ensureDataDirectoryExists();
+    try {
+        await fs.access(fiestaActualFilePath);
+        // If file exists, read it to ensure it's in good shape and has defaults if needed
+        const currentData = await readFiestaActualFile();
+        let needsUpdate = false;
+        if (!currentData.tareas || currentData.tareas.length === 0) {
+            currentData.tareas = [...defaultTareas.map(t => ({...t}))];
+            needsUpdate = true;
+        }
+        // You can add more checks here for other potentially missing default fields
+        if (needsUpdate) {
+            await writeFiestaActualFile(currentData);
+        }
+
+    } catch (error: any) {
+        if (error.code === 'ENOENT') {
+            console.log('Archivo fiesta-actual.json no encontrado, creando con datos iniciales (incluyendo tareas)...');
+            await writeFiestaActualFile(initialFiestaActualData);
+        }
+    }
+}
+
+initializeFiestaData();

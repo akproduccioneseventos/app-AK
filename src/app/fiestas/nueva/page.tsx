@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -57,6 +57,14 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Definir Diseño"
   },
   {
+    title: "Diseño del Salón / Plano",
+    description: "Organiza la disposición de mesas, pista de baile y otros elementos del salón.",
+    icon: LayoutGrid, // Nuevo ícono
+    href: "/fiestas/nueva/diseno-salon", // Nueva ruta
+    status: "Disponible",
+    actionLabel: "Diseñar Salón"
+  },
+  {
     title: "Catering y Menú",
     description: "Crea y gestiona menús personalizados, detallando platos e ingredientes con costos.",
     icon: UtensilsCrossed,
@@ -91,9 +99,9 @@ const planningModules: PlanningModule[] = [
   {
     title: "Reuniones con Cliente",
     description: "Registra y organiza las notas y acuerdos de las reuniones de planificación.",
-    icon: MessageSquareText, // Nuevo ícono para reuniones
-    href: "/fiestas/nueva/reuniones", // Nueva ruta para reuniones
-    status: "Disponible", // Marcar como disponible una vez creada la página
+    icon: MessageSquareText,
+    href: "/fiestas/nueva/reuniones", 
+    status: "Disponible", 
     actionLabel: "Gestionar Reuniones"
   }
 ];

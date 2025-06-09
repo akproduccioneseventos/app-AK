@@ -26,17 +26,36 @@ export interface Reunion {
   notas: string;
 }
 
-// This will grow to include Tareas, Invitados, Decoracion, etc.
+export interface LayoutElement {
+  id: string; 
+  name: string; 
+  quantity: number;
+  notes?: string; 
+}
+
+export interface SalonLayoutData {
+  backgroundImageUrl?: string; 
+  elements: LayoutElement[]; 
+  generalNotes?: string; 
+}
+
+export interface Tarea {
+  id: string;
+  texto: string;
+  completada: boolean;
+  fechaLimite?: string; // ISO string, opcional
+  asignadaA?: string;   // Opcional
+}
+
 export interface FiestaEnPlanificacion {
   id: string; 
-  configuracion: ConfigEventoDataStorage; // Non-optional after initialization
+  configuracion: ConfigEventoDataStorage;
   personalAsignado: PersonalAsignadoDetalleStorage[];
-  menuAsignadoId?: string; // ID of the FullMenu assigned to this party
-  presupuestoId?: string; // ID of the Presupuesto assigned to this party
-  invoiceIds?: string[]; // IDs of Invoices assigned to this party
-  reuniones?: Reunion[]; // Nuevo campo para reuniones
-  // tareas?: Tarea[]; // Future: Define Tarea type
-  // invitados?: Invitado[]; // Future: Define Invitado type
-  // decoracion?: DecoracionData; // Future
+  menuAsignadoId?: string; 
+  presupuestoId?: string; 
+  invoiceIds?: string[]; 
+  reuniones?: Reunion[];
+  salonLayout?: SalonLayoutData;
+  tareas?: Tarea[];
 }
 
