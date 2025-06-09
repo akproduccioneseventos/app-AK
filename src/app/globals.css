@@ -86,3 +86,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .canvas-grid-background {
+    background-image:
+      linear-gradient(to right, hsl(var(--border)/0.2) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border)/0.2) 1px, transparent 1px);
+    background-size: 20px 20px; /* Corresponds to GRID_SNAP_SIZE * 2 */
+  }
+}

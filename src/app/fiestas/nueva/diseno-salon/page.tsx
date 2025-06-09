@@ -3,14 +3,14 @@
 
 import { useState, useEffect, useCallback, type FormEvent, type CSSProperties, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from 'next/image'; // Using NextImage alias for clarity
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize, Move, PackageSearch, Sofa, Lightbulb, Flower2, Droplets, Music2, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Copy } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize, Move, PackageSearch, Sofa, Lightbulb, Flower2, Droplets, Music2, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Copy, ImageIcon as ImageIconLucide } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SalonLayoutData, LayoutElement } from '@/types/fiesta';
 import { getFiestaActual, updateSalonLayoutFiestaActual } from '@/app/actions/fiesta-actual';
@@ -73,6 +73,8 @@ if (!uniqueCategories.includes('Otro')) {
   uniqueCategories.push('Otro');
 }
 
+const GRID_SNAP_SIZE = 10;
+
 
 export default function DisenoSalonPage() {
   const { toast } = useToast();
@@ -88,6 +90,9 @@ export default function DisenoSalonPage() {
   const [currentElement, setCurrentElement] = useState<Partial<LayoutElement> & { tempId?: string } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(new Set());
+  const [failedModalImageUrl, setFailedModalImageUrl] = useState<boolean>(false);
+
 
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -105,7 +110,7 @@ export default function DisenoSalonPage() {
             elements: (fiestaData.salonLayout.elements || []).map(el => ({
                 id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
                 name: el.name || 'Elemento sin nombre',
-                quantity: el.quantity === undefined ? 1 : el.quantity,
+                quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
                 notes: el.notes || undefined,
                 imageUrl: el.imageUrl || undefined,
                 x: el.x ?? 0,
@@ -162,6 +167,7 @@ export default function DisenoSalonPage() {
       });
       setSelectedElementId(null);
     }
+    setFailedModalImageUrl(false); // Reset modal image error state
     setIsFormModalOpen(true);
   };
   
@@ -170,8 +176,8 @@ export default function DisenoSalonPage() {
         name: paletteItem.name,
         quantity: 1,
         type: 'predefined',
-        x: Math.floor(Math.random() * 200) + 50, 
-        y: Math.floor(Math.random() * 200) + 50,
+        x: Math.round((Math.random() * 200 + 50)/GRID_SNAP_SIZE)*GRID_SNAP_SIZE, 
+        y: Math.round((Math.random() * 200 + 50)/GRID_SNAP_SIZE)*GRID_SNAP_SIZE,
         width: paletteItem.width || 50,
         height: paletteItem.height || 50,
         rotation: paletteItem.rotation || 0,
@@ -180,6 +186,7 @@ export default function DisenoSalonPage() {
         category: paletteItem.category || 'Otro'
      });
      setSelectedElementId(null); 
+     setFailedModalImageUrl(false);
      setIsFormModalOpen(true);
   };
 
@@ -203,16 +210,18 @@ export default function DisenoSalonPage() {
           processedValue = 1;
         }
       }
+      if (field === 'imageUrl') {
+        setFailedModalImageUrl(false); // Reset error on new URL
+      }
       
       const updatedModalElement = { ...prevModalElement, [field]: processedValue } as Partial<LayoutElement>;
 
-      // Live update the main layoutData if editing an existing element
       if (prevModalElement.id && layoutData.elements.find(el => el.id === prevModalElement.id)) {
         setLayoutData(prevLayoutData => ({
           ...prevLayoutData,
           elements: prevLayoutData.elements.map(el =>
             el.id === prevModalElement.id
-              ? { ...el, [field as keyof LayoutElement]: processedValue } // Use field from outer scope
+              ? { ...el, [field as keyof LayoutElement]: processedValue } 
               : el
           ),
         }));
@@ -232,18 +241,15 @@ export default function DisenoSalonPage() {
     const isEditing = !!currentElement.id && layoutData.elements.find(el => el.id === currentElement.id);
 
     if (isEditing) {
-      // The element in layoutData.elements is already updated by live updates (handleElementFieldChange).
-      // We just need to ensure the currentElement state itself is fully typed if we were to use it directly.
-      // Or simply rely on the fact that layoutData.elements has the latest.
       const updatedElementInLayout = layoutData.elements.find(el => el.id === currentElement.id);
       toast({ title: "Elemento Actualizado", description: `${updatedElementInLayout?.name || 'El elemento'} ha sido actualizado.` });
-    } else { // Adding a new element
+    } else { 
       const newElementData: LayoutElement = {
         id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         name: currentElement.name.trim(),
         quantity: Number(currentElement.quantity) || 1,
-        x: Number(currentElement.x) || 0,
-        y: Number(currentElement.y) || 0,
+        x: Math.round(Number(currentElement.x || 0) / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
+        y: Math.round(Number(currentElement.y || 0) / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
         width: Number(currentElement.width) || 50,
         height: Number(currentElement.height) || 50,
         rotation: Number(currentElement.rotation) || 0,
@@ -258,7 +264,6 @@ export default function DisenoSalonPage() {
     
     setIsFormModalOpen(false);
     setCurrentElement(null);
-    setSelectedElementId(null);
   };
   
   const handleRemoveElement = (elementId?: string) => {
@@ -273,6 +278,7 @@ export default function DisenoSalonPage() {
   };
 
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
+    // x and y are already snapped by react-draggable's grid prop
     setLayoutData(prev => ({
       ...prev,
       elements: prev.elements.map(el => 
@@ -290,8 +296,8 @@ export default function DisenoSalonPage() {
       const duplicatedElement: LayoutElement = {
         ...JSON.parse(JSON.stringify(elementToDuplicate)), 
         id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        x: (elementToDuplicate.x || 0) + 20, 
-        y: (elementToDuplicate.y || 0) + 20,
+        x: Math.round(((elementToDuplicate.x || 0) + GRID_SNAP_SIZE * 2) / GRID_SNAP_SIZE) * GRID_SNAP_SIZE, 
+        y: Math.round(((elementToDuplicate.y || 0) + GRID_SNAP_SIZE * 2) / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
       };
       setLayoutData(prev => ({
         ...prev,
@@ -343,7 +349,7 @@ export default function DisenoSalonPage() {
         elements: layoutData.elements.map(el => ({
           id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
           name: el.name || 'Elemento sin nombre',
-          quantity: el.quantity === undefined ? 1 : el.quantity,
+          quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
           notes: el.notes || undefined,
           imageUrl: el.imageUrl || undefined,
           x: el.x ?? 0,
@@ -405,6 +411,14 @@ export default function DisenoSalonPage() {
   
   const targetElementForContextMenu = contextMenuTargetId ? layoutData.elements.find(el => el.id === contextMenuTargetId) : null;
 
+  const canvasGridStyle: CSSProperties = !layoutData.backgroundImageUrl ? {
+    backgroundImage: `
+      linear-gradient(to right, hsl(var(--border)/0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border)/0.4) 1px, transparent 1px)
+    `,
+    backgroundSize: `${GRID_SNAP_SIZE*2}px ${GRID_SNAP_SIZE*2}px, ${GRID_SNAP_SIZE*2}px ${GRID_SNAP_SIZE*2}px`,
+  } : {};
+
 
   if (isLoading) {
     return (
@@ -444,7 +458,10 @@ export default function DisenoSalonPage() {
               id="background-image-url"
               type="url"
               value={layoutData.backgroundImageUrl || ''}
-              onChange={(e) => setLayoutData(prev => ({...prev, backgroundImageUrl: e.target.value}))}
+              onChange={(e) => {
+                setLayoutData(prev => ({...prev, backgroundImageUrl: e.target.value}));
+                setFailedImageUrls(prev => { const newSet = new Set(prev); newSet.delete(e.target.value); return newSet; });
+              }}
               placeholder="Pega aquí la URL de una imagen del plano (ej: https://.../plano.jpg)"
               className="text-base p-3"
               disabled={isSaving}
@@ -510,25 +527,26 @@ export default function DisenoSalonPage() {
                 <Maximize className="w-6 h-6 text-primary"/>
                 <CardTitle className="font-headline text-lg">Lienzo del Salón (Interactivo)</CardTitle>
             </div>
-             <CardDescription className="text-xs">Arrastra los elementos para posicionarlos. Haz clic para editar o clic derecho para más opciones.</CardDescription>
+             <CardDescription className="text-xs">Arrastra los elementos para posicionarlos (ajuste a grilla de {GRID_SNAP_SIZE}px). Haz clic para editar o clic derecho para más opciones.</CardDescription>
           </CardHeader>
           <CardContent>
             <div 
               ref={canvasRef}
-              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-hidden select-none group"
+              className={`relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-hidden select-none group ${!layoutData.backgroundImageUrl ? 'canvas-grid-background' : ''}`}
               style={{ 
-                backgroundImage: layoutData.backgroundImageUrl ? `url(${layoutData.backgroundImageUrl})` : 'none',
+                backgroundImage: layoutData.backgroundImageUrl && !failedImageUrls.has(layoutData.backgroundImageUrl) ? `url(${layoutData.backgroundImageUrl})` : 'none',
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
                 minHeight: '450px', 
+                ...canvasGridStyle,
               }}
               onClick={() => setContextMenuOpen(false)}
             >
-              {!layoutData.backgroundImageUrl && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+              {(!layoutData.backgroundImageUrl || failedImageUrls.has(layoutData.backgroundImageUrl ?? '')) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground pointer-events-none">
                   <ImageOff className="w-16 h-16 mb-2 opacity-50" />
-                  <p className="text-sm">Sin plano de fondo. Añade una URL arriba.</p>
+                  <p className="text-sm">{layoutData.backgroundImageUrl ? 'Error al cargar plano de fondo.' : 'Sin plano de fondo. Añade una URL arriba.'}</p>
                 </div>
               )}
               {layoutData.elements.map(el => (
@@ -537,7 +555,7 @@ export default function DisenoSalonPage() {
                     axis="both"
                     handle=".handle" 
                     position={{ x: el.x ?? 0, y: el.y ?? 0 }}
-                    grid={[5, 5]} 
+                    grid={[GRID_SNAP_SIZE, GRID_SNAP_SIZE]} 
                     scale={1} 
                     bounds="parent" 
                     onStop={(e, data) => handleDragStop(e, data, el.id)}
@@ -550,7 +568,7 @@ export default function DisenoSalonPage() {
                         transition-all duration-150 ease-in-out
                         ${selectedElementId === el.id 
                           ? 'border-2 border-accent ring-2 ring-accent shadow-xl z-10' 
-                          : 'border-primary/50 bg-primary/10 hover:border-primary hover:ring-2 hover:ring-primary/50 hover:shadow-md'
+                          : 'border-primary/50 bg-primary/10 hover:border-primary hover:ring-1 hover:ring-primary/50 hover:shadow-md'
                         }
                       `}
                       style={{
@@ -569,10 +587,19 @@ export default function DisenoSalonPage() {
                       }}
                       onContextMenu={(e) => handleContextMenu(e, el.id)}
                     >
-                       {el.imageUrl ? (
-                        <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm pointer-events-none" data-ai-hint="object floor element"/>
+                       {el.imageUrl && !failedImageUrls.has(el.imageUrl) ? (
+                        <Image 
+                            src={el.imageUrl} 
+                            alt={el.name} 
+                            layout="fill" 
+                            objectFit="contain" 
+                            className="rounded-sm pointer-events-none" 
+                            data-ai-hint="object floor element"
+                            onError={() => setFailedImageUrls(prev => new Set(prev).add(el.imageUrl!))}
+                        />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-primary/20 pointer-events-none text-center p-0.5">
+                        <div className={`w-full h-full flex flex-col items-center justify-center ${failedImageUrls.has(el.imageUrl!) ? 'bg-destructive/10' : 'bg-primary/20'} pointer-events-none text-center p-0.5`}>
+                            {failedImageUrls.has(el.imageUrl!) && <ImageOff className="w-4 h-4 mb-0.5 text-destructive"/>}
                             <span className="truncate text-[8px] sm:text-[10px] font-medium text-primary-foreground leading-tight">{el.name}</span>
                             <span className="text-[7px] sm:text-[9px] text-primary-foreground/80 leading-tight">({el.width}x{el.height}px)</span>
                         </div>
@@ -601,7 +628,11 @@ export default function DisenoSalonPage() {
                 {layoutData.elements.map((el, index) => (
                   <li key={el.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 border rounded-md hover:bg-muted/50">
                     <div className="flex items-center gap-2 flex-grow mb-2 sm:mb-0">
-                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain border" data-ai-hint="icon element"/> : getPaletteIcon(el.category)}
+                       {el.imageUrl && !failedImageUrls.has(el.imageUrl) ? 
+                         <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain border" data-ai-hint="icon element" onError={() => setFailedImageUrls(prev => new Set(prev).add(el.imageUrl!))}/> 
+                         : (el.imageUrl && failedImageUrls.has(el.imageUrl)) ? <ImageOff className="w-6 h-6 text-destructive"/> 
+                         : getPaletteIcon(el.category)
+                       }
                         <div>
                             <p className="font-medium text-sm">{el.name} <span className="text-xs text-muted-foreground">({el.category || 'Otro'})</span></p>
                             <p className="text-xs text-muted-foreground">
@@ -734,12 +765,32 @@ export default function DisenoSalonPage() {
                     <Input id="el-imageUrl" type="url" placeholder="https://ejemplo.com/imagen.png" value={currentElement?.imageUrl || ''} onChange={(e) => handleElementFieldChange('imageUrl', e.target.value)} />
                 </div>
             )}
-            {currentElement?.type === 'predefined' && currentElement.imageUrl && predefinedElementsPalette.find(p => p.name === currentElement.name)?.imageUrl && (
-                <div className="space-y-1">
-                    <Label>Imagen Predefinida</Label>
-                    <Image src={currentElement.imageUrl} alt={currentElement.name || "preview"} width={40} height={40} className="border rounded-sm object-contain" data-ai-hint="icon predefined"/>
+            {currentElement?.imageUrl && (
+                <div className="space-y-1 mt-2">
+                    <Label>Vista Previa de Imagen:</Label>
+                    {failedModalImageUrl ? (
+                         <div className="p-2 border border-dashed rounded-md flex flex-col items-center justify-center text-muted-foreground h-[100px] bg-destructive/10">
+                            <ImageOff className="w-8 h-8 mb-1 text-destructive" /> <p className="text-xs">No se pudo cargar la imagen.</p>
+                        </div>
+                    ): (
+                        <Image 
+                            src={currentElement.imageUrl} 
+                            alt={currentElement.name || "Vista previa del elemento"} 
+                            width={100} 
+                            height={100} 
+                            className="border rounded-sm object-contain bg-muted/30"
+                            data-ai-hint="element preview"
+                            onError={() => setFailedModalImageUrl(true)}
+                        />
+                    )}
                 </div>
             )}
+            {!currentElement?.imageUrl && currentElement?.type === 'custom' && (
+                 <div className="p-2 border border-dashed rounded-md flex flex-col items-center justify-center text-muted-foreground h-[100px] bg-muted/30">
+                    <ImageIconLucide className="w-8 h-8 mb-1" /> <p className="text-xs text-center">Pega una URL para la imagen del elemento personalizado.</p>
+                </div>
+            )}
+
              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label htmlFor="el-x">Posición X (px)</Label>
@@ -798,3 +849,4 @@ export default function DisenoSalonPage() {
     </div>
   );
 }
+
