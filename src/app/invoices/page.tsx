@@ -1,57 +1,54 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FilePlus2, Loader2, AlertTriangle, SearchX, Trash2 } from 'lucide-react';
+import { FilePlus2, Loader2, AlertTriangle, SearchX } from 'lucide-react';
 import { InvoiceListItem } from '@/components/invoice-list-item';
 import type { Invoice } from '@/types/invoice';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getInvoices, deleteInvoice as deleteInvoiceAction } from '@/app/actions/invoices';
+import { getFiestaActual, addInvoiceIdToFiestaActual, removeInvoiceIdFromFiestaActual } from '@/app/actions/fiesta-actual';
 import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [assigningInvoiceId, setAssigningInvoiceId] = useState<string | null>(null);
 
-  const fetchInvoices = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getInvoices();
-      setInvoices(data);
+      const [invoicesData, fiestaData] = await Promise.all([
+        getInvoices(),
+        getFiestaActual()
+      ]);
+      setInvoices(invoicesData);
+      setFiestaActual(fiestaData);
     } catch (err: any) {
-      console.error("Error fetching invoices:", err);
-      setError("No se pudieron cargar las facturas. Intenta de nuevo más tarde.");
+      console.error("Error fetching data:", err);
+      setError("No se pudieron cargar los datos. Intenta de nuevo más tarde.");
       toast({
-        title: "Error al Cargar Facturas",
+        title: "Error al Cargar Datos",
         description: err.message || "Ocurrió un problema inesperado.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
-    fetchInvoices();
-  }, [toast]); // Removed fetchInvoices from dependency array as it's stable
+    fetchData();
+  }, [fetchData]);
 
   const handleDeleteInvoice = async (invoiceId: string, invoiceNumber?: string) => {
     setDeletingId(invoiceId);
@@ -59,7 +56,7 @@ export default function InvoicesPage() {
       const result = await deleteInvoiceAction(invoiceId);
       if (result.success) {
         toast({ title: "Factura Eliminada", description: `La factura "${invoiceNumber || invoiceId}" ha sido eliminada.` });
-        await fetchInvoices(); // Recargar la lista de facturas
+        await fetchData(); 
       } else {
         throw new Error(result.error || "Error desconocido al eliminar la factura.");
       }
@@ -69,6 +66,33 @@ export default function InvoicesPage() {
       setDeletingId(null);
     }
   };
+
+  const handleToggleAssignInvoice = async (invoiceId: string) => {
+    if (!fiestaActual) return;
+    setAssigningInvoiceId(invoiceId);
+    const isCurrentlyAssigned = fiestaActual.invoiceIds?.includes(invoiceId);
+
+    try {
+      const result = isCurrentlyAssigned 
+        ? await removeInvoiceIdFromFiestaActual(invoiceId)
+        : await addInvoiceIdToFiestaActual(invoiceId);
+
+      if (result.success) {
+        toast({
+          title: isCurrentlyAssigned ? "Factura Desasignada" : "Factura Asignada",
+          description: `La factura ha sido ${isCurrentlyAssigned ? 'desasignada de' : 'asignada a'} la fiesta actual.`,
+        });
+        await fetchData(); // Recargar datos para reflejar el cambio
+      } else {
+        throw new Error(result.error || "Error al actualizar la asignación de la factura.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setAssigningInvoiceId(null);
+    }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -87,7 +111,7 @@ export default function InvoicesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline">Listado de Facturas</CardTitle>
-          <CardDescription>Gestiona y haz seguimiento de todas tus facturas.</CardDescription>
+          <CardDescription>Gestiona, haz seguimiento y asigna facturas a tu fiesta actual.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -112,6 +136,7 @@ export default function InvoicesPage() {
                     <TableHead>Fecha Vencimiento</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead>Estado</TableHead>
+                    <TableHead className="text-center">Asignar</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -122,6 +147,9 @@ export default function InvoicesPage() {
                       invoice={invoice} 
                       onDelete={() => handleDeleteInvoice(invoice.id, invoice.invoiceNumber)}
                       isDeleting={deletingId === invoice.id}
+                      isAssignedToCurrentFiesta={fiestaActual?.invoiceIds?.includes(invoice.id)}
+                      onToggleAssign={() => handleToggleAssignInvoice(invoice.id)}
+                      isAssigning={assigningInvoiceId === invoice.id}
                     />
                   ))}
                 </TableBody>

@@ -4,7 +4,7 @@ import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from './status-badge';
 import Link from 'next/link';
-import { Eye, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Eye, Edit, Trash2, Loader2, Link as LinkIcon, Link2Off } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,9 +21,19 @@ interface InvoiceListItemProps {
   invoice: Invoice;
   onDelete: (id: string, invoiceNumber?:string) => void;
   isDeleting: boolean;
+  isAssignedToCurrentFiesta?: boolean;
+  onToggleAssign?: () => void;
+  isAssigning?: boolean;
 }
 
-export function InvoiceListItem({ invoice, onDelete, isDeleting }: InvoiceListItemProps) {
+export function InvoiceListItem({ 
+  invoice, 
+  onDelete, 
+  isDeleting,
+  isAssignedToCurrentFiesta,
+  onToggleAssign,
+  isAssigning
+}: InvoiceListItemProps) {
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('es-ES', {
@@ -47,6 +57,26 @@ export function InvoiceListItem({ invoice, onDelete, isDeleting }: InvoiceListIt
       </TableCell>
       <TableCell>
         <StatusBadge status={invoice.status} />
+      </TableCell>
+      <TableCell className="text-center">
+        {onToggleAssign && (
+          <Button 
+            variant={isAssignedToCurrentFiesta ? "secondary" : "outline"} 
+            size="sm" 
+            onClick={onToggleAssign}
+            disabled={isAssigning}
+            className="w-full max-w-[150px] text-xs"
+          >
+            {isAssigning ? (
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+            ) : isAssignedToCurrentFiesta ? (
+              <Link2Off className="w-3 h-3 mr-1" />
+            ) : (
+              <LinkIcon className="w-3 h-3 mr-1" />
+            )}
+            {isAssigning ? (isAssignedToCurrentFiesta ? 'Quitando...' : 'Asignando...') : (isAssignedToCurrentFiesta ? 'Quitar' : 'Asignar')}
+          </Button>
+        )}
       </TableCell>
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
