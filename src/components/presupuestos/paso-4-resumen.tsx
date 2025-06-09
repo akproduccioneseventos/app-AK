@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Presupuesto, PresupuestoFormData } from '@/types/presupuesto';
@@ -6,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle, ClipboardCopy, Send } from 'lucide-react';
+import { AlertTriangle, ClipboardCopy, Send, Printer } from 'lucide-react'; // Added Printer
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -98,12 +99,13 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   
   const handleWhatsAppSend = () => {
     const texto = generarTextoWhatsApp();
-    // Aquí podrías pedir el número de teléfono del cliente si no lo tienes
-    // Por ahora, abre WhatsApp con el texto pre-cargado para que el usuario elija el contacto
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(texto)}`;
     window.open(whatsappUrl, '_blank');
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div className="space-y-6">
@@ -191,7 +193,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
       <Card className="shadow-md border-primary/20">
         <CardHeader  className="bg-primary/5 p-6">
           <CardTitle className="font-headline text-xl text-primary">Acciones y Compartir</CardTitle>
-          <CardDescription>Copiá el resumen o envialo directamente por WhatsApp.</CardDescription>
+          <CardDescription>Copiá el resumen, imprímelo o envialo directamente por WhatsApp.</CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-3">
            <Textarea 
@@ -201,12 +203,15 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
             className="text-xs bg-muted/30 border-dashed h-auto resize-none"
             aria-label="Texto del presupuesto para WhatsApp"
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Button variant="outline" onClick={handleCopyToClipboard} className="w-full">
               <ClipboardCopy className="w-4 h-4 mr-2" /> Copiar Texto
             </Button>
             <Button onClick={handleWhatsAppSend} className="w-full bg-green-500 hover:bg-green-600 text-white">
               <Send className="w-4 h-4 mr-2" /> Enviar por WhatsApp
+            </Button>
+            <Button variant="outline" onClick={handlePrint} className="w-full">
+              <Printer className="w-4 h-4 mr-2" /> Imprimir / Guardar PDF
             </Button>
           </div>
         </CardContent>
@@ -215,3 +220,4 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     </div>
   );
 }
+
