@@ -19,6 +19,13 @@ export interface PersonalAsignadoDetalleStorage {
   eventSalary: number;
 }
 
+export interface Reunion {
+  id: string;
+  titulo: string;
+  fecha?: string; // ISO string, opcional
+  notas: string;
+}
+
 // This will grow to include Tareas, Invitados, Decoracion, etc.
 export interface FiestaEnPlanificacion {
   id: string; 
@@ -27,7 +34,9 @@ export interface FiestaEnPlanificacion {
   menuAsignadoId?: string; // ID of the FullMenu assigned to this party
   presupuestoId?: string; // ID of the Presupuesto assigned to this party
   invoiceIds?: string[]; // IDs of Invoices assigned to this party
+  reuniones?: Reunion[]; // Nuevo campo para reuniones
   // tareas?: Tarea[]; // Future: Define Tarea type
   // invitados?: Invitado[]; // Future: Define Invitado type
   // decoracion?: DecoracionData; // Future
 }
+

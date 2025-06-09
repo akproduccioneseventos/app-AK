@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -87,6 +87,14 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/pagina-web",
     status: "Disponible",
     actionLabel: "Personalizar Web"
+  },
+  {
+    title: "Reuniones con Cliente",
+    description: "Registra y organiza las notas y acuerdos de las reuniones de planificación.",
+    icon: MessageSquareText, // Nuevo ícono para reuniones
+    href: "/fiestas/nueva/reuniones", // Nueva ruta para reuniones
+    status: "Disponible", // Marcar como disponible una vez creada la página
+    actionLabel: "Gestionar Reuniones"
   }
 ];
 
@@ -143,12 +151,23 @@ export default function PlanificarFiestaHubPage() {
     fetchData();
   }, [loadLinkedDocuments]);
 
+  // Calculamos el total de pagos de todas las facturas vinculadas
+  const totalPaidForParty = linkedInvoices.reduce((sum, invoice) => {
+    const paymentsTotal = invoice.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
+    return sum + paymentsTotal;
+  }, 0);
+
+  const totalBudgetAmount = linkedBudget?.costoTotalEstimado || 0;
+  // Podríamos calcular también un total facturado si fuera relevante aquí.
+  // const totalInvoicedAmount = linkedInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
+
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Planificador de Fiestas
+            Planificador de Fiestas: {fiestaActual?.configuracion.nombreEvento || "Evento Actual"}
           </h1>
           <p className="text-muted-foreground mt-1">
             Organiza cada detalle de tu próximo evento desde aquí.
@@ -162,15 +181,15 @@ export default function PlanificarFiestaHubPage() {
         </Link>
       </div>
 
-      {/* Linked Documents Card */}
+      {/* Accounting Overview Card */}
       <Card className="shadow-lg bg-primary/5 border-primary/20">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <LinkIcon className="w-7 h-7 text-primary" />
+            <FileText className="w-7 h-7 text-primary" />
             <div>
-              <CardTitle className="font-headline text-xl">Documentos Vinculados al Evento</CardTitle>
+              <CardTitle className="font-headline text-xl">Resumen Contable del Evento</CardTitle>
               <CardDescription>
-                Presupuesto y facturas asociadas a {fiestaActual?.configuracion.nombreEvento || 'esta fiesta'}.
+                Presupuesto, facturas y pagos asociados a {fiestaActual?.configuracion.nombreEvento || 'esta fiesta'}.
               </CardDescription>
             </div>
           </div>
@@ -179,7 +198,7 @@ export default function PlanificarFiestaHubPage() {
           {isLoading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="ml-3 text-muted-foreground">Cargando documentos...</p>
+              <p className="ml-3 text-muted-foreground">Cargando datos contables...</p>
             </div>
           ) : error ? (
              <div className="flex flex-col items-center justify-center py-6 text-destructive">
@@ -188,47 +207,49 @@ export default function PlanificarFiestaHubPage() {
             </div>
           ) : (
             <div className="space-y-4">
+              {/* Presupuesto */}
               <div>
                 <h4 className="font-semibold text-md mb-1">Presupuesto Asignado:</h4>
                 {linkedBudget ? (
                   <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-center">
-                      <div>
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                      <div className="flex-grow">
                         <p className="font-medium text-primary">{linkedBudget.clienteNombre} - {linkedBudget.eventoTipo}</p>
                         <p className="text-sm text-muted-foreground">
-                          Total: {formatCurrency(linkedBudget.costoTotalEstimado)}
+                          Total Presupuestado: {formatCurrency(linkedBudget.costoTotalEstimado)}
                         </p>
                       </div>
                       <Link href={`/presupuestos/${linkedBudget.id}/ver`} passHref>
-                        <Button variant="outline" size="sm">
-                          Ver <ExternalLink className="w-3 h-3 ml-1.5" />
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                          Ver Presupuesto <ExternalLink className="w-3 h-3 ml-1.5" />
                         </Button>
                       </Link>
                     </div>
                   </Card>
                 ) : (
                   <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                    No hay ningún presupuesto asignado a esta fiesta. <Link href="/presupuestos" className="text-primary underline">Asignar uno</Link>.
+                    No hay ningún presupuesto asignado. <Link href="/presupuestos" className="text-primary underline">Asignar uno</Link>.
                   </p>
                 )}
               </div>
               <Separator />
+              {/* Facturas */}
               <div>
                 <h4 className="font-semibold text-md mb-2">Facturas Asignadas: ({linkedInvoices.length})</h4>
                 {linkedInvoices.length > 0 ? (
                   <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                     {linkedInvoices.map(invoice => (
                       <Card key={invoice.id} className="p-3 bg-background hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium">Factura #{invoice.invoiceNumber}</p>
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                          <div className="flex-grow">
+                            <p className="font-medium">Factura #{invoice.invoiceNumber} <span className="text-xs text-muted-foreground">({invoice.status})</span></p>
                             <p className="text-xs text-muted-foreground">
                               Para: {invoice.customer.name} - Total: {formatCurrency(invoice.totalAmount, invoice.currency)}
                             </p>
                           </div>
                           <Link href={`/invoices/${invoice.id}`} passHref>
-                            <Button variant="outline" size="sm">
-                              Ver <ExternalLink className="w-3 h-3 ml-1.5" />
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                              Ver Factura <ExternalLink className="w-3 h-3 ml-1.5" />
                             </Button>
                           </Link>
                         </div>
@@ -237,16 +258,37 @@ export default function PlanificarFiestaHubPage() {
                   </div>
                 ) : (
                    <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                    No hay facturas asignadas a esta fiesta. <Link href="/invoices" className="text-primary underline">Asignar alguna</Link>.
+                    No hay facturas asignadas. <Link href="/invoices" className="text-primary underline">Asignar alguna</Link>.
                   </p>
                 )}
               </div>
+              <Separator />
+              {/* Resumen de Pagos */}
+              <div>
+                <h4 className="font-semibold text-md mb-1">Resumen de Pagos Recibidos (sobre facturas vinculadas):</h4>
+                <Card className="p-3 bg-green-50 border-green-200">
+                    <p className="text-lg font-semibold text-green-700">
+                        Total Pagado: {formatCurrency(totalPaidForParty)}
+                    </p>
+                    {totalBudgetAmount > 0 && (
+                        <p className="text-sm text-green-600">
+                            (Representa un {((totalPaidForParty / totalBudgetAmount) * 100).toFixed(1)}% del presupuesto total de {formatCurrency(totalBudgetAmount)})
+                        </p>
+                    )}
+                     {totalBudgetAmount === 0 && linkedInvoices.length > 0 && (
+                        <p className="text-sm text-muted-foreground">
+                            No hay presupuesto asignado para calcular porcentaje.
+                        </p>
+                    )}
+                </Card>
+              </div>
+
             </div>
           )}
         </CardContent>
          <CardFooter>
             <p className="text-xs text-muted-foreground">
-                Puedes asignar o cambiar los documentos desde las secciones de Presupuestos y Facturas.
+                Puedes asignar o cambiar los documentos desde las secciones de Presupuestos y Facturas. Los pagos se registran en el detalle de cada factura.
             </p>
         </CardFooter>
       </Card>

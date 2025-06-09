@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion } from '@/types/fiesta';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -29,6 +29,7 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   menuAsignadoId: undefined,
   presupuestoId: undefined,
   invoiceIds: [],
+  reuniones: [], // Inicializar reuniones
   // Initialize other modules with their defaults later
   // tareas: defaultTareas, // example
 };
@@ -60,6 +61,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             menuAsignadoId: data.menuAsignadoId || undefined,
             presupuestoId: data.presupuestoId || undefined,
             invoiceIds: data.invoiceIds || [],
+            reuniones: data.reuniones || [], // Asegurar que reuniones exista
         };
         return validatedData;
     }
@@ -180,6 +182,71 @@ export async function removeInvoiceIdFromFiestaActual(
     return { success: false, error: e.message || "Error al quitar ID de factura." };
   }
 }
+
+// --- Acciones para Reuniones ---
+export async function addReunionToFiestaActual(
+  reunionData: Omit<Reunion, 'id'>
+): Promise<{ success: boolean; reunion?: Reunion; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    const newReunion: Reunion = {
+      ...reunionData,
+      id: `reunion_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    };
+    if (!fiestaActual.reuniones) {
+      fiestaActual.reuniones = [];
+    }
+    fiestaActual.reuniones.push(newReunion);
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, reunion: JSON.parse(JSON.stringify(newReunion)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al añadir la reunión." };
+  }
+}
+
+export async function updateReunionInFiestaActual(
+  reunionData: Reunion
+): Promise<{ success: boolean; reunion?: Reunion; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    if (!fiestaActual.reuniones) {
+      fiestaActual.reuniones = [];
+    }
+    const index = fiestaActual.reuniones.findIndex(r => r.id === reunionData.id);
+    if (index !== -1) {
+      fiestaActual.reuniones[index] = { ...reunionData };
+      await writeFiestaActualFile(fiestaActual);
+      return { success: true, reunion: JSON.parse(JSON.stringify(fiestaActual.reuniones[index])) };
+    } else {
+      return { success: false, error: `Reunión con ID ${reunionData.id} no encontrada para actualizar.` };
+    }
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la reunión." };
+  }
+}
+
+export async function deleteReunionFromFiestaActual(
+  reunionId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    if (fiestaActual.reuniones) {
+      const initialLength = fiestaActual.reuniones.length;
+      fiestaActual.reuniones = fiestaActual.reuniones.filter(r => r.id !== reunionId);
+      if (fiestaActual.reuniones.length < initialLength) {
+        await writeFiestaActualFile(fiestaActual);
+        return { success: true };
+      } else {
+        return { success: false, error: `Reunión con ID ${reunionId} no encontrada para eliminar.` };
+      }
+    }
+    return { success: false, error: 'No hay reuniones para eliminar.' };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al eliminar la reunión." };
+  }
+}
+// --- Fin Acciones para Reuniones ---
+
 
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
