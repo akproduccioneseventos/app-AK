@@ -13,6 +13,8 @@ import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle } from 'lucid
 import { getEmpleados } from '@/app/actions/empleados';
 import type { Empleado } from '@/types/empleado';
 import { useToast } from '@/hooks/use-toast';
+import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
@@ -30,21 +32,41 @@ export default function AsignarPersonalEventoPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const fetchEmpleados = useCallback(async () => {
+  const fetchInitialData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getEmpleados();
-      setAllEmpleados(data);
+      const [empleadosData, fiestaActualData] = await Promise.all([
+        getEmpleados(),
+        getFiestaActual()
+      ]);
+      
+      setAllEmpleados(empleadosData);
+
+      const initialAssignedMap = new Map<string, AssignedStaffDetail>();
+      if (fiestaActualData.personalAsignado && empleadosData.length > 0) {
+        fiestaActualData.personalAsignado.forEach(assigned => {
+          const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
+          if (empleadoDetail) {
+            initialAssignedMap.set(assigned.empleadoId, {
+              empleado: empleadoDetail,
+              eventSalary: assigned.eventSalary
+            });
+          }
+        });
+      }
+      setAssignedStaff(initialAssignedMap);
+
     } catch (error) {
-      toast({ title: "Error", description: "No se pudieron cargar los empleados.", variant: "destructive" });
+      console.error("Error loading initial data for staff assignment:", error);
+      toast({ title: "Error", description: "No se pudieron cargar los datos iniciales para la asignación de personal.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   }, [toast]);
 
   useEffect(() => {
-    fetchEmpleados();
-  }, [fetchEmpleados]);
+    fetchInitialData();
+  }, [fetchInitialData]);
 
   const handleToggleAssign = (empleado: Empleado, isAssigned: boolean) => {
     setAssignedStaff(prev => {
@@ -60,7 +82,7 @@ export default function AsignarPersonalEventoPage() {
 
   const handleEventSalaryChange = (empleadoId: string, newSalary: string) => {
     const salaryNum = parseFloat(newSalary);
-    if (isNaN(salaryNum) && newSalary !== '') return; // Allow clearing the input
+    if (isNaN(salaryNum) && newSalary !== '') return; 
 
     setAssignedStaff(prev => {
       const newMap = new Map(prev);
@@ -68,7 +90,7 @@ export default function AsignarPersonalEventoPage() {
       if (currentAssignment) {
         newMap.set(empleadoId, { 
           ...currentAssignment, 
-          eventSalary: newSalary === '' ? 0 : salaryNum // Store 0 if empty, otherwise the number
+          eventSalary: newSalary === '' ? 0 : salaryNum 
         });
       }
       return newMap;
@@ -80,7 +102,6 @@ export default function AsignarPersonalEventoPage() {
         const newMap = new Map(prev);
         const currentAssignment = newMap.get(empleadoId);
         if (currentAssignment && (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary))) {
-            // If salary was cleared or became NaN, revert to base salary
              newMap.set(empleadoId, { ...currentAssignment, eventSalary: currentAssignment.empleado.sueldoBase });
         }
         return newMap;
@@ -93,15 +114,26 @@ export default function AsignarPersonalEventoPage() {
 
   const handleSaveChanges = async () => {
     setIsSaving(true);
-    // Simulate saving
-    console.log("Personal Asignado:", Array.from(assignedStaff.values()));
-    console.log("Costo Total de Personal:", totalEventCost);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast({
-      title: "Asignaciones Guardadas (Simulación)",
-      description: `Se asignaron ${totalAssignedCount} empleado(s) con un costo total de ${formatCurrency(totalEventCost)}.`,
-    });
-    setIsSaving(false);
+    const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(assignedStaff.values()).map(item => ({
+      empleadoId: item.empleado.id,
+      eventSalary: item.eventSalary
+    }));
+
+    try {
+      const result = await updatePersonalFiestaActual(personalToSave);
+      if (result.success) {
+        toast({
+          title: "¡Personal Guardado!",
+          description: `Se guardaron las asignaciones de ${totalAssignedCount} empleado(s) con un costo total de ${formatCurrency(totalEventCost)}.`,
+        });
+      } else {
+        throw new Error(result.error || "Error desconocido al guardar el personal asignado.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -223,7 +255,7 @@ export default function AsignarPersonalEventoPage() {
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button onClick={handleSaveChanges} disabled={isSaving || totalAssignedCount === 0} className="w-full sm:w-auto">
+            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Asignaciones de Personal'}
             </Button>
