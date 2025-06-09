@@ -10,15 +10,14 @@ import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getMenuById } from '@/app/actions/menus-catering';
-// El personal asignado ya se procesa dentro de fiestaActual, no necesitamos getEmpleadoById aquí directamente.
-import type { FiestaEnPlanificacion, Tarea, Reunion, SalonLayoutData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Reunion, SalonLayoutData, DecoracionData } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import type { FullMenu } from '@/types/catering';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge'; // Asegúrate que esta ruta es correcta
-import { StatusBadge } from '@/components/status-badge'; // Para estado de factura
+import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
+import { StatusBadge } from '@/components/status-badge';
 
 interface PlanningModule {
   title: string;
@@ -89,7 +88,7 @@ const planningModules: PlanningModule[] = [
   {
     title: "Proveedores y Servicios",
     description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.",
-    icon: Users2, // Changed icon for variety, Truck could also work
+    icon: Users2, 
     href: "/fiestas/nueva/proveedores",
     status: "Disponible",
     actionLabel: "Buscar Proveedores"
@@ -134,6 +133,12 @@ interface SalonLayoutSummary {
   hasBackground: boolean;
   elementCount: number;
 }
+interface DecoracionSummary {
+  temaDefinido: boolean;
+  paletaDefinida: boolean;
+  moodboardUrl?: string;
+}
+
 
 export default function PlanificarFiestaHubPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
@@ -145,6 +150,8 @@ export default function PlanificarFiestaHubPage() {
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
   const [meetingCount, setMeetingCount] = useState<number>(0);
   const [salonLayoutSummary, setSalonLayoutSummary] = useState<SalonLayoutSummary | null>(null);
+  const [decoracionSummary, setDecoracionSummary] = useState<DecoracionSummary | null>(null);
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +164,6 @@ export default function PlanificarFiestaHubPage() {
       setFiestaActual(fiesta);
 
       if (fiesta) {
-        // Presupuesto
         if (fiesta.presupuestoId) {
           const budget = await getPresupuestoById(fiesta.presupuestoId);
           setLinkedBudget(budget);
@@ -165,7 +171,6 @@ export default function PlanificarFiestaHubPage() {
           setLinkedBudget(null);
         }
 
-        // Facturas
         if (fiesta.invoiceIds && fiesta.invoiceIds.length > 0) {
           const invoiceDetailsPromises = fiesta.invoiceIds.map(id => getInvoiceById(id));
           const invoicesDetails = (await Promise.all(invoiceDetailsPromises)).filter(inv => inv !== null) as Invoice[];
@@ -174,7 +179,6 @@ export default function PlanificarFiestaHubPage() {
           setLinkedInvoices([]);
         }
 
-        // Menú
         if (fiesta.menuAsignadoId) {
           const menu = await getMenuById(fiesta.menuAsignadoId);
           setAssignedMenu(menu);
@@ -182,7 +186,6 @@ export default function PlanificarFiestaHubPage() {
           setAssignedMenu(null);
         }
 
-        // Personal
         if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
           const totalCost = fiesta.personalAsignado.reduce((sum, staff) => sum + staff.eventSalary, 0);
           setAssignedStaffSummary({ count: fiesta.personalAsignado.length, totalCost });
@@ -190,7 +193,6 @@ export default function PlanificarFiestaHubPage() {
           setAssignedStaffSummary(null);
         }
 
-        // Tareas
         if (fiesta.tareas) {
           const completed = fiesta.tareas.filter(t => t.completada).length;
           const total = fiesta.tareas.length;
@@ -199,10 +201,8 @@ export default function PlanificarFiestaHubPage() {
           setTaskSummary({ completed: 0, total: 0, progress: 0 });
         }
 
-        // Reuniones
         setMeetingCount(fiesta.reuniones?.length || 0);
 
-        // Diseño Salón
         if (fiesta.salonLayout) {
           setSalonLayoutSummary({
             hasBackground: !!fiesta.salonLayout.backgroundImageUrl,
@@ -211,6 +211,17 @@ export default function PlanificarFiestaHubPage() {
         } else {
           setSalonLayoutSummary({ hasBackground: false, elementCount: 0 });
         }
+
+        if (fiesta.decoracion) {
+          setDecoracionSummary({
+            temaDefinido: !!fiesta.decoracion.tema && fiesta.decoracion.tema.trim() !== '',
+            paletaDefinida: !!fiesta.decoracion.paletaColores && Object.values(fiesta.decoracion.paletaColores).some(c => c !== '#FFFFFF' && c.trim() !== ''),
+            moodboardUrl: fiesta.decoracion.moodboardImageUrl,
+          });
+        } else {
+          setDecoracionSummary({ temaDefinido: false, paletaDefinida: false });
+        }
+
       }
     } catch (e: any) {
       console.error("Error loading fiesta data:", e);
@@ -263,7 +274,6 @@ export default function PlanificarFiestaHubPage() {
         </div>
       ) : (
         <>
-          {/* Resumen Contable */}
           <Card className="shadow-lg bg-primary/5 border-primary/20">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -281,7 +291,7 @@ export default function PlanificarFiestaHubPage() {
                     <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2">
                       <div className="flex-grow">
                         <p className="font-medium text-primary">{linkedBudget.clienteNombre} - {linkedBudget.eventoTipo}</p>
-                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
                            <span>Total: {formatCurrency(linkedBudget.costoTotalEstimado)}</span>
                            {linkedBudget.estado && <PresupuestoStatusBadge status={linkedBudget.estado} />}
                         </div>
@@ -327,7 +337,6 @@ export default function PlanificarFiestaHubPage() {
             </CardContent>
           </Card>
 
-          {/* Resumen Operativo y de Planificación */}
           <Card className="shadow-lg">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -350,7 +359,6 @@ export default function PlanificarFiestaHubPage() {
               )}
               <Separator/>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Menú Asignado */}
                 <div>
                   <h4 className="font-semibold text-md mb-1">Menú Asignado:</h4>
                   {assignedMenu ? (
@@ -370,7 +378,6 @@ export default function PlanificarFiestaHubPage() {
                     </p>
                   )}
                 </div>
-                {/* Personal Asignado */}
                 <div>
                   <h4 className="font-semibold text-md mb-1">Personal Asignado:</h4>
                   {assignedStaffSummary ? (
@@ -395,7 +402,6 @@ export default function PlanificarFiestaHubPage() {
                     </p>
                   )}
                 </div>
-                 {/* Tareas */}
                 <div>
                   <h4 className="font-semibold text-md mb-1">Tareas:</h4>
                    {taskSummary ? (
@@ -416,7 +422,6 @@ export default function PlanificarFiestaHubPage() {
                     <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando tareas...</p>
                   )}
                 </div>
-                {/* Reuniones */}
                 <div>
                   <h4 className="font-semibold text-md mb-1">Reuniones:</h4>
                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
@@ -430,17 +435,16 @@ export default function PlanificarFiestaHubPage() {
                       </div>
                     </Card>
                 </div>
-                {/* Diseño Salón */}
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <h4 className="font-semibold text-md mb-1">Diseño del Salón:</h4>
                   {salonLayoutSummary ? (
                     <Card className="p-3 bg-background hover:shadow-md transition-shadow">
                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                         <div className="flex items-center gap-3">
-                          <ImageIcon className={`w-5 h-5 ${salonLayoutSummary.hasBackground ? 'text-green-500' : 'text-muted-foreground'}`} />
+                          <LayoutGrid className={`w-5 h-5 ${salonLayoutSummary.hasBackground || salonLayoutSummary.elementCount > 0 ? 'text-green-500' : 'text-muted-foreground'}`} />
                           <p className="text-sm">
-                            {salonLayoutSummary.hasBackground ? "Plano de fondo cargado. " : "Sin plano de fondo. "}
-                            {salonLayoutSummary.elementCount > 0 ? `${salonLayoutSummary.elementCount} elemento(s) definidos.` : "Sin elementos definidos."}
+                            {salonLayoutSummary.hasBackground ? "Plano cargado. " : "Sin plano. "}
+                            {salonLayoutSummary.elementCount > 0 ? `${salonLayoutSummary.elementCount} elemento(s).` : "Sin elementos."}
                           </p>
                         </div>
                         <Link href="/fiestas/nueva/diseno-salon" passHref>
@@ -454,6 +458,29 @@ export default function PlanificarFiestaHubPage() {
                      <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando diseño...</p>
                   )}
                 </div>
+                <div className="md:col-span-1">
+                   <h4 className="font-semibold text-md mb-1">Decoración:</h4>
+                  {decoracionSummary ? (
+                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <div className="flex items-center gap-3">
+                          <Palette className={`w-5 h-5 ${decoracionSummary.temaDefinido || decoracionSummary.paletaDefinida ? 'text-green-500' : 'text-muted-foreground'}`} />
+                           <p className="text-sm">
+                            {decoracionSummary.temaDefinido ? "Tema definido. " : "Sin tema. "}
+                            {decoracionSummary.paletaDefinida ? "Paleta colores. " : "Sin paleta."}
+                          </p>
+                        </div>
+                        <Link href="/fiestas/nueva/decoracion" passHref>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            Ver Decoración <ExternalLink className="w-3 h-3 ml-1.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </Card>
+                  ) : (
+                     <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando decoración...</p>
+                  )}
+                </div>
               </div>
             </CardContent>
              <CardFooter>
@@ -463,7 +490,6 @@ export default function PlanificarFiestaHubPage() {
             </CardFooter>
           </Card>
           
-          {/* Módulos de Planificación */}
           <Card className="shadow-lg">
             <CardHeader>
                 <div className="flex items-center gap-3">

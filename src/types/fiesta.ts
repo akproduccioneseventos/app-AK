@@ -47,6 +47,19 @@ export interface Tarea {
   asignadaA?: string;   // Opcional
 }
 
+export interface ColorPalette {
+  primary: string;
+  secondary: string;
+  accent: string;
+}
+
+export interface DecoracionData {
+  tema?: string;
+  paletaColores?: ColorPalette;
+  moodboardImageUrl?: string;
+  notas?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string; 
   configuracion: ConfigEventoDataStorage;
@@ -57,5 +70,5 @@ export interface FiestaEnPlanificacion {
   reuniones?: Reunion[];
   salonLayout?: SalonLayoutData;
   tareas?: Tarea[];
+  decoracion?: DecoracionData;
 }
-

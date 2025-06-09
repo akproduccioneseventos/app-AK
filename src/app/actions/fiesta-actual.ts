@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, Tarea } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, Tarea, DecoracionData, ColorPalette } from '@/types/fiesta';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -36,6 +36,21 @@ const defaultTareas: Tarea[] = [
   { id: 'task_default_12', texto: 'Asegurar Hielo', completada: false },
 ];
 
+const defaultColorPalette: ColorPalette = {
+  primary: '#FFFFFF',
+  secondary: '#FFFFFF',
+  accent: '#FFFFFF',
+};
+
+const defaultNotasDecoracion = "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.";
+
+const defaultDecoracion: DecoracionData = {
+  tema: 'Boda Noelia Damaceno', // Default from Excel in decoracion/page.tsx
+  paletaColores: { ...defaultColorPalette },
+  moodboardImageUrl: '',
+  notas: defaultNotasDecoracion,
+};
+
 const initialFiestaActualData: FiestaEnPlanificacion = {
   id: 'fiesta-en-curso', 
   configuracion: { ...defaultConfiguracion },
@@ -49,7 +64,8 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
     elements: [],
     generalNotes: '',
   },
-  tareas: [...defaultTareas.map(t => ({...t}))], // Deep copy default tasks
+  tareas: [...defaultTareas.map(t => ({...t}))],
+  decoracion: { ...defaultDecoracion },
 };
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -83,11 +99,16 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             ...(data.salonLayout || {}), 
              elements: (data.salonLayout?.elements || []), 
         },
-        // Ensure tareas are initialized, if missing or empty in saved file, use defaults
         tareas: (data.tareas && data.tareas.length > 0) ? data.tareas : [...defaultTareas.map(t => ({...t}))],
+        decoracion: {
+            ...initialFiestaActualData.decoracion, // Start with full default decoracion
+            ...(data.decoracion || {}), // Spread saved decoracion, potentially overriding defaults
+            paletaColores: { // Ensure paletaColores always exists and merges correctly
+              ...(initialFiestaActualData.decoracion?.paletaColores || defaultColorPalette),
+              ...(data.decoracion?.paletaColores || {}),
+            }
+        },
     };
-    // If the data read had NO tareas field at all, or an empty array, this ensures it gets the defaults.
-    // If it had tasks, those are kept.
     return validatedData;
 
   } catch (error: any) {
@@ -292,12 +313,26 @@ export async function updateTareasFiestaActual(
   }
 }
 
+export async function updateDecoracionFiestaActual(
+  decoracionData: DecoracionData
+): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    fiestaActual.decoracion = { ...decoracionData };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la decoración." };
+  }
+}
+
 
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
         const resetData = { 
           ...initialFiestaActualData,
-          tareas: [...defaultTareas.map(t => ({...t}))] // Ensure tasks are reset to default on full reset
+          tareas: [...defaultTareas.map(t => ({...t}))], 
+          decoracion: { ...defaultDecoracion } 
         };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
@@ -306,26 +341,36 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
     }
 }
 
-// Ensure the fiesta-actual.json file exists and has default tasks if empty/new
 async function initializeFiestaData() {
     await ensureDataDirectoryExists();
     try {
         await fs.access(fiestaActualFilePath);
-        // If file exists, read it to ensure it's in good shape and has defaults if needed
         const currentData = await readFiestaActualFile();
         let needsUpdate = false;
         if (!currentData.tareas || currentData.tareas.length === 0) {
             currentData.tareas = [...defaultTareas.map(t => ({...t}))];
             needsUpdate = true;
         }
-        // You can add more checks here for other potentially missing default fields
+        if (!currentData.decoracion || !currentData.decoracion.paletaColores || !currentData.decoracion.notas) { 
+            currentData.decoracion = { 
+                ...defaultDecoracion, 
+                ...(currentData.decoracion || {}),
+                paletaColores: {
+                    ...defaultColorPalette,
+                    ...(currentData.decoracion?.paletaColores || {})
+                },
+                notas: currentData.decoracion?.notas || defaultNotasDecoracion //Ensure notes has default if missing
+            };
+            needsUpdate = true;
+        }
+        
         if (needsUpdate) {
             await writeFiestaActualFile(currentData);
         }
 
     } catch (error: any) {
         if (error.code === 'ENOENT') {
-            console.log('Archivo fiesta-actual.json no encontrado, creando con datos iniciales (incluyendo tareas)...');
+            console.log('Archivo fiesta-actual.json no encontrado, creando con datos iniciales...');
             await writeFiestaActualFile(initialFiestaActualData);
         }
     }
