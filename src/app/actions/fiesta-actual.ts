@@ -2,7 +2,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, DecorationItem, EventWebPageSettings } from '@/types/fiesta';
-import type { Invitado, NuevoInvitadoData } from '@/types/invitado'; // Importar tipos de invitado
+import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado'; // Importar tipos de invitado
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -497,6 +497,59 @@ export async function deleteInvitadoFiestaActual(
   }
 }
 
+interface RsvpSubmissionData {
+  nombreCompleto: string;
+  email?: string;
+  confirmacion: 'si' | 'no' | 'quizas' | '';
+  numeroAsistentes: number;
+  mensaje?: string;
+}
+
+export async function handleRsvpSubmission(
+  submissionData: RsvpSubmissionData
+): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    if (!fiestaActual.invitados) {
+      fiestaActual.invitados = [];
+    }
+
+    const guestNameLower = submissionData.nombreCompleto.trim().toLowerCase();
+    const guestIndex = fiestaActual.invitados.findIndex(
+      (inv) => inv.nombre.toLowerCase() === guestNameLower
+    );
+
+    if (guestIndex === -1) {
+      return { success: false, error: "Invitación no encontrada. Por favor, verifica el nombre o contacta al organizador." };
+    }
+
+    const invitadoActual = fiestaActual.invitados[guestIndex];
+    let newRsvpStatus: RsvpStatus = 'Pendiente';
+    if (submissionData.confirmacion === 'si') newRsvpStatus = 'Confirmado';
+    else if (submissionData.confirmacion === 'no') newRsvpStatus = 'Rechazado';
+    else if (submissionData.confirmacion === 'quizas') newRsvpStatus = 'Quizás';
+
+    const updatedInvitado: Invitado = {
+      ...invitadoActual,
+      rsvp: newRsvpStatus,
+      partySize: submissionData.numeroAsistentes,
+      contacto: submissionData.email || invitadoActual.contacto, // Preserve original contact if email is not provided
+      notes: submissionData.mensaje 
+        ? `${submissionData.mensaje}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}` 
+        : invitadoActual.notes,
+    };
+
+    fiestaActual.invitados[guestIndex] = updatedInvitado;
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, invitado: JSON.parse(JSON.stringify(updatedInvitado)) };
+
+  } catch (e: any) {
+    console.error('Error procesando RSVP:', e);
+    return { success: false, error: e.message || "Error al procesar la confirmación." };
+  }
+}
+
+
 export async function updateWebPageSettingsFiestaActual(
   settings: EventWebPageSettings
 ): Promise<{ success: boolean; updatedData?: EventWebPageSettings; error?: string }> {
@@ -641,3 +694,4 @@ async function initializeFiestaData() {
 }
 
 initializeFiestaData();
+
