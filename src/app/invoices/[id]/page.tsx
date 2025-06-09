@@ -1,50 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Send, Edit } from 'lucide-react';
+import { ArrowLeft, Download, Send, Edit, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/status-badge';
-import type { Invoice, Customer, InvoiceItem } from '@/types/invoice'; 
-
-// Mock data for a single invoice
-const mockCustomer: Customer = {
-  id: 'cust_1',
-  name: 'Cliente Ejemplo S.L.',
-  email: 'contacto@cliente.es',
-  address: {
-    street: 'Calle Falsa 123',
-    city: 'Madrid',
-    zipCode: '28001',
-    country: 'España',
-  },
-  taxId: 'B12345678',
-};
-
-const mockItems: InvoiceItem[] = [
-  { id: 'item_1', description: 'Servicio de Diseño Web Completo', quantity: 1, unitPrice: 1200, total: 1200 },
-  { id: 'item_2', description: 'Dominio y Hosting Anual', quantity: 1, unitPrice: 75, total: 75 },
-  { id: 'item_3', description: 'Soporte Técnico (5 horas)', quantity: 5, unitPrice: 50, total: 250 },
-];
-
-const mockInvoice: Invoice = {
-  id: 'inv_001',
-  invoiceNumber: 'FACT2024-001',
-  customer: mockCustomer,
-  issueDate: '2024-07-15',
-  dueDate: '2024-08-14',
-  items: mockItems,
-  subtotal: 1525,
-  taxRate: 21,
-  taxAmount: 320.25,
-  totalAmount: 1845.25,
-  status: 'Paid',
-  currency: 'EUR',
-  notes: 'Pago mediante transferencia bancaria. Gracias por su confianza.',
-  vendorName: 'Presupuestador AK Producciones',
-  vendorAddress: 'Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España',
-  vendorTaxId: 'A08123456',
-};
+import type { Invoice as InvoiceType, Customer, InvoiceItem } from '@/types/invoice'; 
+import { getInvoiceById } from '@/app/actions/invoices'; // Importar la nueva acción
 
 // Helper function for formatting currency
 const formatCurrency = (amount: number, currency: string) => {
@@ -53,25 +15,46 @@ const formatCurrency = (amount: number, currency: string) => {
 
 // Helper function for formatting date
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('es-ES', {
-    day: 'numeric', month: 'long', year: 'numeric'
-  });
+  try {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+  } catch (e) {
+    return "Fecha inválida";
+  }
 };
 
-export default function ViewInvoicePage({ params }: { params: { id: string } }) {
-  // In a real app, you would fetch invoice data based on params.id
-  const invoice = mockInvoice; // Using mock data
+export default async function ViewInvoicePage({ params }: { params: { id: string } }) {
+  const invoice: InvoiceType | null = await getInvoiceById(params.id);
+
+  if (!invoice) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 text-center py-10">
+        <AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" />
+        <h1 className="text-2xl font-bold">Factura no Encontrada</h1>
+        <p className="text-muted-foreground">
+          La factura con ID <span className="font-mono bg-muted px-1 rounded">{params.id}</span> no pudo ser encontrada.
+        </p>
+        <Link href="/invoices" passHref>
+          <Button variant="outline" className="mt-6">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Volver a Todas las Facturas
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <Link href="/invoices" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver a Facturas
           </Button>
         </Link>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline">
             <Send className="w-4 h-4 mr-2" />
             Enviar por Email
