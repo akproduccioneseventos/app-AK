@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, UploadCloud, Image as ImageIcon, Globe, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, UploadCloud, Image as ImageIcon, Globe, Trash2, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import NextImage from 'next/image'; // Renamed to avoid conflict
+import NextImage from 'next/image'; 
 import type { FiestaEnPlanificacion, EventWebPageSettings } from '@/types/fiesta';
 import { getFiestaActual, updateWebPageSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 
@@ -24,7 +24,6 @@ export default function PaginaWebEventoPage() {
     galleryImageUrls: [],
   });
   
-  // For local file handling before "saving" (which converts them to data URIs)
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
   
@@ -40,13 +39,12 @@ export default function PaginaWebEventoPage() {
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
-      setFiestaId(fiestaData.id);
+      setFiestaId(fiestaData.id); // Assuming fiestaData.id is 'fiesta-en-curso' or similar
       if (fiestaData.webPageSettings) {
         setPageSettings(fiestaData.webPageSettings);
         setCoverImagePreview(fiestaData.webPageSettings.coverImageUrl || null);
         setGalleryPreviews(fiestaData.webPageSettings.galleryImageUrls || []);
       } else {
-        // Initialize with defaults if no settings exist
         setPageSettings({ 
           pageTitle: fiestaData.configuracion.nombreEvento || 'Mi Evento Especial', 
           welcomeMessage: '¡Bienvenidos a la celebración!',
@@ -84,7 +82,7 @@ export default function PaginaWebEventoPage() {
       reader.readAsDataURL(file);
     } else {
       setCoverImageFile(null);
-      setCoverImagePreview(pageSettings.coverImageUrl || null); // Revert to saved if deselected
+      setCoverImagePreview(pageSettings.coverImageUrl || null); 
     }
   };
 
@@ -92,7 +90,9 @@ export default function PaginaWebEventoPage() {
     const files = event.target.files;
     if (files && files.length > 0) {
       const newFilesArray = Array.from(files);
-      setGalleryImageFiles(prev => [...prev, ...newFilesArray]);
+      // Do not add to existing galleryImageFiles, replace or manage carefully.
+      // For now, let's just focus on generating previews for newly selected files.
+      // setGalleryImageFiles(prev => [...prev, ...newFilesArray]); // This might lead to duplicates if user selects more files
 
       const newPreviewsArray: string[] = [];
       let processedCount = 0;
@@ -102,7 +102,8 @@ export default function PaginaWebEventoPage() {
           newPreviewsArray.push(reader.result as string);
           processedCount++;
           if (processedCount === newFilesArray.length) {
-            setGalleryPreviews(prev => [...prev, ...newPreviewsArray]);
+             // Replace previews with newly selected ones for simplicity, or merge carefully
+            setGalleryPreviews(prevOriginalPreviews => [...prevOriginalPreviews, ...newPreviewsArray].slice(-10)); // Limit gallery for demo
           }
         };
         reader.readAsDataURL(file);
@@ -111,21 +112,8 @@ export default function PaginaWebEventoPage() {
   };
   
   const removeGalleryImage = (indexToRemove: number) => {
-    // This logic needs to carefully handle removal from both file list and preview list
-    // For simplicity, if it's a preview from a saved URL, we remove it from pageSettings.galleryImageUrls
-    // If it's a new file upload preview, we remove from galleryImageFiles and galleryPreviews
-    
-    // This is a simplified removal for previews; robust logic would track original URLs vs new file previews
     setGalleryPreviews(prev => prev.filter((_, index) => index !== indexToRemove));
-    
-    // If you were also tracking uploaded files separately:
-    // setGalleryImageFiles(prev => prev.filter((_, index) => {
-    //    // This logic would need to map preview index to file index, which can be complex
-    //    // For now, just removing from previews is a visual fix. Persisting this correctly is key.
-    //    return index !== indexToRemove; 
-    // }));
-
-    // When saving, ensure the galleryImageUrls in pageSettings reflects the current galleryPreviews
+    // Also adjust galleryImageFiles if they are being tracked separately for actual upload
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -134,8 +122,8 @@ export default function PaginaWebEventoPage() {
     
     const settingsToSave: EventWebPageSettings = {
       ...pageSettings,
-      coverImageUrl: coverImagePreview || undefined, // Save the data URI or existing URL
-      galleryImageUrls: galleryPreviews.length > 0 ? galleryPreviews : undefined, // Save data URIs or existing URLs
+      coverImageUrl: coverImagePreview || undefined,
+      galleryImageUrls: galleryPreviews.length > 0 ? galleryPreviews : [],
     };
 
     try {
@@ -145,10 +133,10 @@ export default function PaginaWebEventoPage() {
           title: "¡Configuración Guardada!",
           description: "Los detalles de la página web del evento se han actualizado.",
         });
-        setPageSettings(result.updatedData); // Re-sync with saved data
+        setPageSettings(result.updatedData);
         setCoverImagePreview(result.updatedData.coverImageUrl || null);
         setGalleryPreviews(result.updatedData.galleryImageUrls || []);
-        setCoverImageFile(null); // Reset file inputs after successful save
+        setCoverImageFile(null); 
         setGalleryImageFiles([]);
       } else {
         throw new Error(result.error || "Error desconocido al guardar la configuración.");
@@ -161,24 +149,17 @@ export default function PaginaWebEventoPage() {
   };
 
   const handleCopyLink = () => {
-    if (!fiestaId) {
-        toast({title: "Error", description: "ID de la fiesta no disponible para generar el enlace.", variant: "destructive"});
-        return;
-    }
-    // This would be the URL to the public-facing event page, which doesn't exist yet.
-    // We'll use a placeholder.
-    const eventPageUrl = `${window.location.origin}/evento/${fiestaId}`; 
+    // The public page will be at /evento/actual
+    const eventPageUrl = `${window.location.origin}/evento/actual`; 
     navigator.clipboard.writeText(eventPageUrl)
       .then(() => {
-        toast({ title: "Enlace Copiado", description: "Enlace de invitación copiado al portapapeles (Simulado)." });
+        toast({ title: "Enlace Copiado", description: "Enlace a la página del evento copiado al portapapeles." });
       })
       .catch(err => {
         toast({ title: "Error al Copiar", description: "No se pudo copiar el enlace.", variant: "destructive" });
       });
   };
   
-  const pagePrimaryColor = fiestaActual?.decoracion?.paletaColores?.primary || 'hsl(var(--primary))';
-
 
   if (isLoading) {
     return (
@@ -199,13 +180,16 @@ export default function PaginaWebEventoPage() {
       </div>
     );
   }
+  
+  const publicEventUrl = fiestaId ? `${window.location.origin}/evento/actual` : '';
+
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
          <div className="flex items-center gap-3">
           <Globe className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline" style={{ color: pagePrimaryColor }}>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
             Personalizar Página Web del Evento
           </h1>
         </div>
@@ -333,9 +317,18 @@ export default function PaginaWebEventoPage() {
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
-            <Button type="button" variant="outline" onClick={handleCopyLink} className="w-full sm:w-auto" disabled={isSaving || isLoading || !fiestaId}>
-                Copiar Enlace de Invitación (Simulado)
-            </Button>
+             <div className="flex gap-2 w-full sm:w-auto">
+                <Button type="button" variant="outline" onClick={handleCopyLink} className="flex-1 sm:flex-initial" disabled={isSaving || isLoading || !publicEventUrl}>
+                    Copiar Enlace
+                </Button>
+                {publicEventUrl && (
+                  <a href={publicEventUrl} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-initial">
+                    <Button type="button" variant="secondary" className="w-full" disabled={isSaving || isLoading}>
+                        <ExternalLink className="w-4 h-4 mr-2" /> Ver Página
+                    </Button>
+                  </a>
+                )}
+            </div>
           </CardFooter>
         </Card>
       </form>

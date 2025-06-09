@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -49,7 +49,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
-  if (pathname === '/sales-funnel') return 'Embudo de Ventas'; // New
+  if (pathname === '/sales-funnel') return 'Embudo de Ventas'; 
 
   // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
@@ -82,6 +82,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/company') return 'Información de la Empresa';
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
+
+  // Página Pública del Evento (si se accede dentro del shell)
+  if (pathname === '/evento/actual') return 'Página del Evento';
   
   // Rutas Generales (menos específicas)
   if (pathname.startsWith('/eventos')) return 'Eventos';
@@ -97,19 +100,16 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) { // Es un ID
-            // Casos especiales para IDs
+        if (!isNaN(Number(title))) { 
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
             return `${parentTitle}: #${title}`;
         }
-        // Si no es un ID, puede ser una subpágina con nombre
         if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
         if(title.toLowerCase() === 'new' || title.toLowerCase() === 'nuevo' || title.toLowerCase() === 'nueva') title = "Nuevo";
         
-        // Evitar duplicar el título padre si es muy similar
         if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())){
              return title;
         }
@@ -119,7 +119,7 @@ const getPageTitle = (pathname: string): string => {
     return title;
   }
   
-  return 'AK Producciones'; // Default fallback
+  return 'AK Producciones'; 
 };
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
@@ -128,8 +128,11 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
   if (pathname === '/fiestas/nueva/decoracion') return Palette;
   if (pathname === '/fiestas/nueva/catering') return ChefHat;
-  if (pathname === '/sales-funnel') return FilterIcon; // New
-  // Add other icons for other pages if needed
+  if (pathname === '/sales-funnel') return FilterIcon;
+  if (pathname === '/evento/actual') return Globe;
+  if (pathname === '/fiestas/nueva/pagina-web') return Globe;
+
+
   return null;
 }
 
@@ -201,4 +204,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </SidebarProvider>
   );
 }
-
