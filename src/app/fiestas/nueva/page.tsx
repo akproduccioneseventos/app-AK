@@ -4,19 +4,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2 } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getMenuById } from '@/app/actions/menus-catering';
-import { getEmpleadoById } from '@/app/actions/empleados';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+// El personal asignado ya se procesa dentro de fiestaActual, no necesitamos getEmpleadoById aquí directamente.
+import type { FiestaEnPlanificacion, Tarea, Reunion, SalonLayoutData } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import type { FullMenu } from '@/types/catering';
-import type { Empleado } from '@/types/empleado';
 import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
+import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge'; // Asegúrate que esta ruta es correcta
+import { StatusBadge } from '@/components/status-badge'; // Para estado de factura
 
 interface PlanningModule {
   title: string;
@@ -87,7 +89,7 @@ const planningModules: PlanningModule[] = [
   {
     title: "Proveedores y Servicios",
     description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.",
-    icon: Truck,
+    icon: Users2, // Changed icon for variety, Truck could also work
     href: "/fiestas/nueva/proveedores",
     status: "Disponible",
     actionLabel: "Buscar Proveedores"
@@ -114,6 +116,25 @@ const formatCurrency = (amount: number, currency: string = 'ARS') => {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: currency }).format(amount);
 };
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "N/A";
+  try {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+  } catch (e) { return "Fecha inválida"; }
+};
+
+interface TaskSummary {
+  completed: number;
+  total: number;
+  progress: number;
+}
+interface SalonLayoutSummary {
+  hasBackground: boolean;
+  elementCount: number;
+}
+
 export default function PlanificarFiestaHubPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [linkedBudget, setLinkedBudget] = useState<Presupuesto | null>(null);
@@ -121,6 +142,10 @@ export default function PlanificarFiestaHubPage() {
   const [assignedMenu, setAssignedMenu] = useState<FullMenu | null>(null);
   const [assignedStaffSummary, setAssignedStaffSummary] = useState<{ count: number; totalCost: number } | null>(null);
   
+  const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
+  const [meetingCount, setMeetingCount] = useState<number>(0);
+  const [salonLayoutSummary, setSalonLayoutSummary] = useState<SalonLayoutSummary | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -132,7 +157,7 @@ export default function PlanificarFiestaHubPage() {
       setFiestaActual(fiesta);
 
       if (fiesta) {
-        // Cargar presupuesto
+        // Presupuesto
         if (fiesta.presupuestoId) {
           const budget = await getPresupuestoById(fiesta.presupuestoId);
           setLinkedBudget(budget);
@@ -140,7 +165,7 @@ export default function PlanificarFiestaHubPage() {
           setLinkedBudget(null);
         }
 
-        // Cargar facturas
+        // Facturas
         if (fiesta.invoiceIds && fiesta.invoiceIds.length > 0) {
           const invoiceDetailsPromises = fiesta.invoiceIds.map(id => getInvoiceById(id));
           const invoicesDetails = (await Promise.all(invoiceDetailsPromises)).filter(inv => inv !== null) as Invoice[];
@@ -149,7 +174,7 @@ export default function PlanificarFiestaHubPage() {
           setLinkedInvoices([]);
         }
 
-        // Cargar menú asignado
+        // Menú
         if (fiesta.menuAsignadoId) {
           const menu = await getMenuById(fiesta.menuAsignadoId);
           setAssignedMenu(menu);
@@ -157,12 +182,34 @@ export default function PlanificarFiestaHubPage() {
           setAssignedMenu(null);
         }
 
-        // Calcular resumen de personal asignado
+        // Personal
         if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
           const totalCost = fiesta.personalAsignado.reduce((sum, staff) => sum + staff.eventSalary, 0);
           setAssignedStaffSummary({ count: fiesta.personalAsignado.length, totalCost });
         } else {
           setAssignedStaffSummary(null);
+        }
+
+        // Tareas
+        if (fiesta.tareas) {
+          const completed = fiesta.tareas.filter(t => t.completada).length;
+          const total = fiesta.tareas.length;
+          setTaskSummary({ completed, total, progress: total > 0 ? (completed / total) * 100 : 0 });
+        } else {
+          setTaskSummary({ completed: 0, total: 0, progress: 0 });
+        }
+
+        // Reuniones
+        setMeetingCount(fiesta.reuniones?.length || 0);
+
+        // Diseño Salón
+        if (fiesta.salonLayout) {
+          setSalonLayoutSummary({
+            hasBackground: !!fiesta.salonLayout.backgroundImageUrl,
+            elementCount: fiesta.salonLayout.elements?.length || 0,
+          });
+        } else {
+          setSalonLayoutSummary({ hasBackground: false, elementCount: 0 });
         }
       }
     } catch (e: any) {
@@ -177,12 +224,11 @@ export default function PlanificarFiestaHubPage() {
     loadFiestaData();
   }, [loadFiestaData]);
 
+  const totalInvoicedAmount = linkedInvoices.reduce((sum, invoice) => sum + invoice.totalAmount, 0);
   const totalPaidForParty = linkedInvoices.reduce((sum, invoice) => {
     const paymentsTotal = invoice.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
     return sum + paymentsTotal;
   }, 0);
-
-  const totalBudgetAmount = linkedBudget?.costoTotalEstimado || 0;
 
   return (
     <div className="space-y-8">
@@ -224,9 +270,6 @@ export default function PlanificarFiestaHubPage() {
                 <FileText className="w-7 h-7 text-primary" />
                 <div>
                   <CardTitle className="font-headline text-xl">Resumen Contable del Evento</CardTitle>
-                  <CardDescription>
-                    Presupuesto, facturas y pagos asociados a {fiestaActual?.configuracion.nombreEvento || 'esta fiesta'}.
-                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -235,15 +278,16 @@ export default function PlanificarFiestaHubPage() {
                 <h4 className="font-semibold text-md mb-1">Presupuesto Asignado:</h4>
                 {linkedBudget ? (
                   <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2">
                       <div className="flex-grow">
                         <p className="font-medium text-primary">{linkedBudget.clienteNombre} - {linkedBudget.eventoTipo}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Total Presupuestado: {formatCurrency(linkedBudget.costoTotalEstimado)}
-                        </p>
+                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                           <span>Total: {formatCurrency(linkedBudget.costoTotalEstimado)}</span>
+                           {linkedBudget.estado && <PresupuestoStatusBadge status={linkedBudget.estado} />}
+                        </div>
                       </div>
                       <Link href={`/presupuestos/${linkedBudget.id}/ver`} passHref>
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto mt-1 sm:mt-0">
                           Ver Presupuesto <ExternalLink className="w-3 h-3 ml-1.5" />
                         </Button>
                       </Link>
@@ -257,181 +301,219 @@ export default function PlanificarFiestaHubPage() {
               </div>
               <Separator />
               <div>
-                <h4 className="font-semibold text-md mb-2">Facturas Asignadas: ({linkedInvoices.length})</h4>
+                <h4 className="font-semibold text-md mb-2">Facturas ({linkedInvoices.length}):</h4>
                 {linkedInvoices.length > 0 ? (
-                  <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                    {linkedInvoices.map(invoice => (
-                      <Card key={invoice.id} className="p-3 bg-background hover:shadow-md transition-shadow">
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                          <div className="flex-grow">
-                            <p className="font-medium">Factura #{invoice.invoiceNumber} <span className="text-xs text-muted-foreground">({invoice.status})</span></p>
-                            <p className="text-xs text-muted-foreground">
-                              Para: {invoice.customer.name} - Total: {formatCurrency(invoice.totalAmount, invoice.currency)}
-                            </p>
-                          </div>
-                          <Link href={`/invoices/${invoice.id}`} passHref>
-                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                              Ver Factura <ExternalLink className="w-3 h-3 ml-1.5" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
+                  <Card className="p-3 bg-background">
+                    <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm text-muted-foreground">Total Facturado:</span>
+                        <span className="font-medium">{formatCurrency(totalInvoicedAmount)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Total Pagado:</span>
+                        <span className="font-medium text-green-600">{formatCurrency(totalPaidForParty)}</span>
+                    </div>
+                     <Link href="/invoices" passHref className="mt-3 block">
+                        <Button variant="outline" size="sm" className="w-full">
+                          Gestionar Facturas <ExternalLink className="w-3 h-3 ml-1.5" />
+                        </Button>
+                      </Link>
+                  </Card>
                 ) : (
                   <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                    No hay facturas asignadas. <Link href="/invoices" className="text-primary underline hover:text-primary/80">Asignar alguna</Link>.
+                    No hay facturas asignadas. <Link href="/invoices" className="text-primary underline hover:text-primary/80">Asignar o crear facturas</Link>.
                   </p>
                 )}
               </div>
-              <Separator />
-              <div>
-                <h4 className="font-semibold text-md mb-1">Resumen de Pagos Recibidos (sobre facturas vinculadas):</h4>
-                <Card className="p-3 bg-green-50 border-green-200">
-                    <p className="text-lg font-semibold text-green-700">
-                        Total Pagado: {formatCurrency(totalPaidForParty)}
-                    </p>
-                    {totalBudgetAmount > 0 && (
-                        <p className="text-sm text-green-600">
-                            (Representa un {((totalPaidForParty / totalBudgetAmount) * 100).toFixed(1)}% del presupuesto total de {formatCurrency(totalBudgetAmount)})
-                        </p>
-                    )}
-                     {totalBudgetAmount === 0 && linkedInvoices.length > 0 && (
-                        <p className="text-sm text-muted-foreground">
-                            No hay presupuesto asignado para calcular porcentaje.
-                        </p>
-                    )}
-                </Card>
-              </div>
             </CardContent>
-            <CardFooter>
-                <p className="text-xs text-muted-foreground">
-                    Puedes asignar o cambiar los documentos desde las secciones de Presupuestos y Facturas. Los pagos se registran en el detalle de cada factura.
-                </p>
-            </CardFooter>
           </Card>
 
-          {/* Resumen Operativo (Menú y Personal) */}
+          {/* Resumen Operativo y de Planificación */}
           <Card className="shadow-lg">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <ChefHat className="w-7 h-7 text-primary" />
-                <CardTitle className="font-headline text-xl">Resumen Operativo del Evento</CardTitle>
+                <Milestone className="w-7 h-7 text-primary" />
+                <CardTitle className="font-headline text-xl">Progreso y Configuración del Evento</CardTitle>
               </div>
-              <CardDescription>
-                Menú seleccionado y personal asignado para la fiesta.
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Menú Asignado */}
-              <div>
-                <h4 className="font-semibold text-md mb-1">Menú Asignado:</h4>
-                {assignedMenu ? (
-                  <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                      <p className="font-medium text-primary">{assignedMenu.name}</p>
-                      <Link href="/fiestas/nueva/catering" passHref>
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                          Gestionar Menú <ExternalLink className="w-3 h-3 ml-1.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </Card>
-                ) : (
-                  <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                    No hay ningún menú asignado. <Link href="/fiestas/nueva/catering" className="text-primary underline hover:text-primary/80">Seleccionar menú</Link>.
-                  </p>
-                )}
-              </div>
-              <Separator />
-              {/* Personal Asignado */}
-              <div>
-                <h4 className="font-semibold text-md mb-1">Personal Asignado:</h4>
-                {assignedStaffSummary ? (
-                  <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                      <div>
-                        <p className="font-medium">{assignedStaffSummary.count} persona(s) asignada(s)</p>
-                        <p className="text-sm text-muted-foreground">
-                          Costo Total Personal: {formatCurrency(assignedStaffSummary.totalCost)}
-                        </p>
+              {fiestaActual?.configuracion && (
+                <div className="p-3 bg-muted/30 rounded-md">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <CalendarDays className="w-4 h-4"/>
+                    <span>Fecha del Evento: <span className="font-medium text-foreground">{formatDate(fiestaActual.configuracion.fechaEvento)}</span></span>
+                  </div>
+                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="w-4 h-4"/>
+                    <span>Invitados Estimados: <span className="font-medium text-foreground">{fiestaActual.configuracion.invitadosEstimados}</span></span>
+                  </div>
+                </div>
+              )}
+              <Separator/>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Menú Asignado */}
+                <div>
+                  <h4 className="font-semibold text-md mb-1">Menú Asignado:</h4>
+                  {assignedMenu ? (
+                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <p className="font-medium text-primary truncate">{assignedMenu.name}</p>
+                        <Link href="/fiestas/nueva/catering" passHref>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            Gestionar <ExternalLink className="w-3 h-3 ml-1.5" />
+                          </Button>
+                        </Link>
                       </div>
-                      <Link href="/fiestas/nueva/personal" passHref>
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                          Gestionar Personal <ExternalLink className="w-3 h-3 ml-1.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </Card>
-                ) : (
-                   <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                    No hay personal asignado. <Link href="/fiestas/nueva/personal" className="text-primary underline hover:text-primary/80">Asignar personal</Link>.
-                  </p>
-                )}
+                    </Card>
+                  ) : (
+                    <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
+                      Sin menú asignado. <Link href="/fiestas/nueva/catering" className="text-primary underline">Seleccionar</Link>.
+                    </p>
+                  )}
+                </div>
+                {/* Personal Asignado */}
+                <div>
+                  <h4 className="font-semibold text-md mb-1">Personal Asignado:</h4>
+                  {assignedStaffSummary ? (
+                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <div>
+                          <p className="font-medium">{assignedStaffSummary.count} persona(s)</p>
+                          <p className="text-xs text-muted-foreground">
+                            Costo Total: {formatCurrency(assignedStaffSummary.totalCost)}
+                          </p>
+                        </div>
+                        <Link href="/fiestas/nueva/personal" passHref>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            Gestionar <ExternalLink className="w-3 h-3 ml-1.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </Card>
+                  ) : (
+                     <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
+                      Sin personal asignado. <Link href="/fiestas/nueva/personal" className="text-primary underline">Asignar</Link>.
+                    </p>
+                  )}
+                </div>
+                 {/* Tareas */}
+                <div>
+                  <h4 className="font-semibold text-md mb-1">Tareas:</h4>
+                   {taskSummary ? (
+                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <div>
+                           <p className="font-medium">{taskSummary.completed} de {taskSummary.total} completadas</p>
+                           <Progress value={taskSummary.progress} className="h-2 mt-1" />
+                        </div>
+                        <Link href="/fiestas/nueva/tareas" passHref>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            Ver Tareas <ExternalLink className="w-3 h-3 ml-1.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </Card>
+                  ) : (
+                    <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando tareas...</p>
+                  )}
+                </div>
+                {/* Reuniones */}
+                <div>
+                  <h4 className="font-semibold text-md mb-1">Reuniones:</h4>
+                   <Card className="p-3 bg-background hover:shadow-md transition-shadow">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <p className="font-medium">{meetingCount} reunión(es) registrada(s)</p>
+                        <Link href="/fiestas/nueva/reuniones" passHref>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            Ver Reuniones <ExternalLink className="w-3 h-3 ml-1.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </Card>
+                </div>
+                {/* Diseño Salón */}
+                <div className="md:col-span-2">
+                  <h4 className="font-semibold text-md mb-1">Diseño del Salón:</h4>
+                  {salonLayoutSummary ? (
+                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <div className="flex items-center gap-3">
+                          <ImageIcon className={`w-5 h-5 ${salonLayoutSummary.hasBackground ? 'text-green-500' : 'text-muted-foreground'}`} />
+                          <p className="text-sm">
+                            {salonLayoutSummary.hasBackground ? "Plano de fondo cargado. " : "Sin plano de fondo. "}
+                            {salonLayoutSummary.elementCount > 0 ? `${salonLayoutSummary.elementCount} elemento(s) definidos.` : "Sin elementos definidos."}
+                          </p>
+                        </div>
+                        <Link href="/fiestas/nueva/diseno-salon" passHref>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            Ver Diseño <ExternalLink className="w-3 h-3 ml-1.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </Card>
+                  ) : (
+                     <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando diseño...</p>
+                  )}
+                </div>
               </div>
             </CardContent>
-            <CardFooter>
+             <CardFooter>
                 <p className="text-xs text-muted-foreground">
-                    Puedes asignar el menú y el personal desde sus respectivas secciones en el planificador.
+                    Gestiona cada aspecto desde los módulos dedicados a continuación.
                 </p>
             </CardFooter>
           </Card>
           
           {/* Módulos de Planificación */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {planningModules.map((module) => (
-              <Card key={module.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader className="flex-row items-start gap-4 space-y-0">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <module.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="font-headline text-xl mb-1">{module.title}</CardTitle>
-                    <CardDescription className="text-sm line-clamp-2">{module.description}</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow flex flex-col justify-end">
-                  {module.href ? (
-                    <Link href={module.href} passHref className="mt-auto">
-                      <Button
-                        className="w-full"
-                        variant={module.status === "Disponible" ? "default" : "secondary"}
-                        disabled={module.status !== "Disponible"}
-                      >
-                        {module.actionLabel}
-                        {module.status !== "Disponible" && <span className="ml-2 text-xs opacity-70">({module.status})</span>}
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button
-                      className="w-full mt-auto"
-                      variant="secondary"
-                      disabled
-                    >
-                      {module.actionLabel}
-                      <span className="ml-2 text-xs opacity-70">({module.status})</span>
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <Card className="bg-muted/50 border-dashed">
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="font-headline">Próximos Pasos</CardTitle>
+                <div className="flex items-center gap-3">
+                    <ListChecks className="w-7 h-7 text-primary" />
+                    <CardTitle className="font-headline text-xl">Módulos de Planificación</CardTitle>
+                </div>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
-                Este es el centro de planificación para tus fiestas. Selecciona un módulo para comenzar a detallar tu evento.
-                La información que configures aquí (como tareas, invitados, menú) se aplicará a la "fiesta tipo" que estás planificando.
-              </p>
-              <img
-                src="https://placehold.co/600x300.png"
-                alt="Planificación de eventos"
-                className="mt-4 rounded-md shadow-md mx-auto"
-                data-ai-hint="event planning dashboard"
-              />
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {planningModules.map((module) => (
+                    <Card key={module.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300 bg-card">
+                        <CardHeader className="flex-row items-start gap-3 space-y-0 pb-3">
+                        <div className="p-2.5 bg-primary/10 rounded-md">
+                            <module.icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                            <CardTitle className="font-semibold text-md mb-0.5">{module.title}</CardTitle>
+                        </div>
+                        </CardHeader>
+                        <CardContent className="flex-grow pb-3">
+                            <p className="text-xs text-muted-foreground line-clamp-2">{module.description}</p>
+                        </CardContent>
+                        <CardFooter className="pt-0">
+                        {module.href ? (
+                            <Link href={module.href} passHref className="w-full">
+                            <Button
+                                className="w-full text-sm"
+                                variant={module.status === "Disponible" ? "default" : "secondary"}
+                                size="sm"
+                                disabled={module.status !== "Disponible"}
+                            >
+                                {module.actionLabel}
+                                {module.status !== "Disponible" && <span className="ml-1.5 text-xs opacity-70">({module.status})</span>}
+                            </Button>
+                            </Link>
+                        ) : (
+                            <Button
+                            className="w-full mt-auto text-sm"
+                            variant="secondary"
+                            size="sm"
+                            disabled
+                            >
+                            {module.actionLabel}
+                            <span className="ml-1.5 text-xs opacity-70">({module.status})</span>
+                            </Button>
+                        )}
+                        </CardFooter>
+                    </Card>
+                    ))}
+                </div>
             </CardContent>
           </Card>
         </>
