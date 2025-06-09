@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2 } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe } from 'lucide-react';
 import Link from 'next/link';
 
 interface PlanningModule {
@@ -53,6 +53,14 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/configuracion",
     status: "Disponible",
     actionLabel: "Configurar Evento"
+  },
+  {
+    title: "Página Web del Evento",
+    description: "Crea y personaliza una página web para compartir detalles de tu fiesta.",
+    icon: Globe,
+    href: "/fiestas/nueva/pagina-web",
+    status: "Disponible", // Marcar como disponible para acceder a la página de configuración
+    actionLabel: "Personalizar Web"
   }
 ];
 
