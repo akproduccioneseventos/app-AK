@@ -2,49 +2,38 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
-
-interface Ingredient {
-  id: string;
-  name: string;
-  quantity: string; // Keep as string for form input, parse on calculation
-  unit: string;
-  cost: string; // Keep as string for form input, parse on calculation
-}
-
-interface MenuItem {
-  id: string;
-  name: string;
-  type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | '';
-  ingredients: Ingredient[];
-  totalDishCost: number;
-}
+import type { Ingredient, MenuItem, NewMenuFormData } from '@/types/catering';
+import { saveMenu } from '@/app/actions/menus-catering';
 
 export default function NuevoMenuPersonalizadoPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [menuName, setMenuName] = useState('');
+  const [menuDescription, setMenuDescription] = useState('');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   
-  // For the "Add Item" (Dish) form
   const [newItemName, setNewItemName] = useState('');
-  const [newItemType, setNewItemType] = useState<'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | ''>('');
+  const [newItemType, setNewItemType] = useState<MenuItem['type']>('');
   
-  // For ingredients of the current dish being added
   const [currentDishIngredients, setCurrentDishIngredients] = useState<Ingredient[]>([]);
   const [ingredientName, setIngredientName] = useState('');
   const [ingredientQuantity, setIngredientQuantity] = useState('');
   const [ingredientUnit, setIngredientUnit] = useState('');
   const [ingredientCost, setIngredientCost] = useState('');
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleAddIngredientToCurrentDish = () => {
     if (!ingredientName || !ingredientQuantity || !ingredientUnit || !ingredientCost) {
@@ -66,11 +55,11 @@ export default function NuevoMenuPersonalizadoPage() {
     }
 
     const newIngredient: Ingredient = {
-      id: Date.now().toString(),
+      id: `ing_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: ingredientName,
       quantity: ingredientQuantity,
       unit: ingredientUnit,
-      cost: ingredientCost,
+      cost: costValue.toFixed(2),
     };
     setCurrentDishIngredients(prev => [...prev, newIngredient]);
     setIngredientName('');
@@ -104,7 +93,7 @@ export default function NuevoMenuPersonalizadoPage() {
     const totalDishCost = currentDishIngredients.reduce((sum, ing) => sum + parseFloat(ing.cost || '0'), 0);
 
     const newDish: MenuItem = {
-      id: Date.now().toString(),
+      id: `dish_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: newItemName,
       type: newItemType,
       ingredients: [...currentDishIngredients],
@@ -112,7 +101,6 @@ export default function NuevoMenuPersonalizadoPage() {
     };
     setMenuItems(prevItems => [...prevItems, newDish]);
     
-    // Reset form
     setNewItemName('');
     setNewItemType('');
     setCurrentDishIngredients([]);
@@ -138,7 +126,7 @@ export default function NuevoMenuPersonalizadoPage() {
     }
   };
 
-  const handleSaveMenu = () => {
+  const handleSaveFullMenu = async () => {
     if (!menuName.trim()) {
         toast({
             title: 'Nombre del Menú Requerido',
@@ -155,12 +143,34 @@ export default function NuevoMenuPersonalizadoPage() {
         });
         return;
     }
-    // Simulate saving
-    console.log('Guardando Menú:', { menuName, menuItems });
-    toast({
-      title: 'Menú Guardado (Simulación)',
-      description: `El menú "${menuName}" con ${menuItems.length} plato(s) ha sido guardado. Los detalles de ingredientes también están incluidos.`,
-    });
+    
+    setIsSaving(true);
+    const menuToSave: NewMenuFormData = {
+      name: menuName,
+      description: menuDescription || `Menú personalizado creado el ${new Date().toLocaleDateString()}`,
+      items: menuItems,
+    };
+
+    try {
+      const result = await saveMenu(menuToSave);
+      if (result.success && result.id) {
+        toast({
+          title: '¡Menú Guardado!',
+          description: `El menú "${menuToSave.name}" ha sido guardado con éxito con ID: ${result.id}.`,
+        });
+        router.push('/fiestas/nueva/catering/modificar-menu'); // Redirigir a la lista de menús
+      } else {
+        throw new Error(result.error || "Error desconocido al guardar el menú.");
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error al Guardar Menú',
+        description: error.message || 'Ocurrió un problema al intentar guardar el menú.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const totalMenuCost = menuItems.reduce((sum, item) => sum + item.totalDishCost, 0);
@@ -172,7 +182,7 @@ export default function NuevoMenuPersonalizadoPage() {
           Crear Nuevo Menú Personalizado
         </h1>
         <Link href="/fiestas/nueva/catering" passHref>
-          <Button variant="outline">
+          <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver a Catering
           </Button>
@@ -183,14 +193,24 @@ export default function NuevoMenuPersonalizadoPage() {
         <CardHeader>
           <CardTitle className="font-headline text-xl">Información General del Menú</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="menu-name" className="text-base">Nombre del Menú</Label>
             <Input
               id="menu-name"
               value={menuName}
               onChange={(e) => setMenuName(e.target.value)}
-              placeholder="Ej: Menú Primavera, Menú Fiesta Infantil"
+              placeholder="Ej: Menú Casamiento de Lujo, Brunch Empresarial"
+              className="text-base p-3"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="menu-description" className="text-base">Descripción Corta (Opcional)</Label>
+            <Input
+              id="menu-description"
+              value={menuDescription}
+              onChange={(e) => setMenuDescription(e.target.value)}
+              placeholder="Ej: Deliciosa selección de platos para eventos especiales."
               className="text-base p-3"
             />
           </div>
@@ -203,7 +223,6 @@ export default function NuevoMenuPersonalizadoPage() {
           <CardDescription>Define el nombre, tipo y los ingredientes de cada plato.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Dish Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="new-item-name">Nombre del Plato</Label>
@@ -232,7 +251,6 @@ export default function NuevoMenuPersonalizadoPage() {
 
           <Separator />
 
-          {/* Ingredients for the current dish */}
           <div>
             <h3 className="text-lg font-medium mb-3 font-headline">Ingredientes para "{newItemName || 'este Plato'}"</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-3 items-end">
@@ -290,7 +308,6 @@ export default function NuevoMenuPersonalizadoPage() {
         </CardContent>
       </Card>
       
-
       <Card className="shadow-lg">
         <CardHeader>
             <CardTitle className="font-headline text-xl">Platos en "{menuName || 'Nuevo Menú'}"</CardTitle>
@@ -356,13 +373,12 @@ export default function NuevoMenuPersonalizadoPage() {
             )}
         </CardContent>
         <CardFooter className="border-t pt-6">
-          <Button onClick={handleSaveMenu} size="lg" className="w-full sm:w-auto">
-            <Save className="w-5 h-5 mr-2" />
-            Guardar Menú Completo (Simulación)
+          <Button onClick={handleSaveFullMenu} size="lg" className="w-full sm:w-auto" disabled={isSaving}>
+            {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+            {isSaving ? 'Guardando Menú...' : 'Guardar Menú Completo'}
           </Button>
         </CardFooter>
       </Card>
     </div>
   );
 }
-

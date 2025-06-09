@@ -1,19 +1,40 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Edit, List, BookOpen } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, List, Loader2, NotebookText } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-const mockSavedMenus = [
-  { id: 'menu1', name: 'Menú Clásico Casamiento', description: 'Entrada, principal y postre tradicionales.' },
-  { id: 'menu2', name: 'Menú Cumpleaños Infantil', description: 'Opciones divertidas y adaptadas para niños.' },
-  { id: 'menu3', name: 'Menú Degustación Gourmet', description: 'Pequeñas porciones de alta cocina.' },
-];
+import { useToast } from '@/hooks/use-toast';
+import type { FullMenu } from '@/types/catering';
+import { getMenus } from '@/app/actions/menus-catering';
 
 export default function CateringEventoHubPage() {
+  const { toast } = useToast();
+  const [savedMenus, setSavedMenus] = useState<FullMenu[]>([]);
+  const [isLoadingMenus, setIsLoadingMenus] = useState(true);
+
+  useEffect(() => {
+    async function loadMenus() {
+      setIsLoadingMenus(true);
+      try {
+        const menus = await getMenus();
+        setSavedMenus(menus);
+      } catch (error) {
+        console.error("Error al cargar menús:", error);
+        toast({
+          title: 'Error al Cargar Menús',
+          description: 'No se pudieron obtener los menús guardados.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoadingMenus(false);
+      }
+    }
+    loadMenus();
+  }, [toast]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -64,13 +85,23 @@ export default function CateringEventoHubPage() {
             </div>
         </CardHeader>
         <CardContent>
-          {mockSavedMenus.length > 0 ? (
+          {isLoadingMenus ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="ml-3 text-muted-foreground">Cargando tus menús...</p>
+            </div>
+          ) : savedMenus.length > 0 ? (
             <div className="space-y-3 mb-4">
-              {mockSavedMenus.map((menu) => (
-                <div key={menu.id} className="p-3 border rounded-md bg-muted/50 hover:bg-muted/70 transition-colors">
-                  <h4 className="font-medium text-foreground">{menu.name}</h4>
-                  <p className="text-sm text-muted-foreground">{menu.description}</p>
-                </div>
+              {savedMenus.map((menu) => (
+                <Link key={menu.id} href={`/fiestas/nueva/catering/menu/${menu.id}/editar`} passHref>
+                  <div className="p-4 border rounded-md bg-muted/50 hover:bg-muted/70 transition-colors cursor-pointer flex justify-between items-center">
+                    <div>
+                      <h4 className="font-medium text-foreground">{menu.name}</h4>
+                      <p className="text-sm text-muted-foreground">{menu.description || 'Sin descripción.'}</p>
+                    </div>
+                    <NotebookText className="w-5 h-5 text-primary/70"/>
+                  </div>
+                </Link>
               ))}
             </div>
           ) : (
@@ -84,13 +115,13 @@ export default function CateringEventoHubPage() {
             <Link href="/fiestas/nueva/catering/modificar-menu" passHref>
                 <Button variant="secondary" className="w-full sm:w-auto">
                     <Edit className="w-4 h-4 mr-2" />
-                    Modificar Menú Existente
+                    Ver y Modificar Menús Existentes
                 </Button>
             </Link>
         </CardContent>
         <CardFooter>
             <p className="text-xs text-muted-foreground">
-                La funcionalidad completa para listar y modificar menús existentes se está implementando.
+                Los menús se guardan en una base de datos simulada.
             </p>
         </CardFooter>
       </Card>

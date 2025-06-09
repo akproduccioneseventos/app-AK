@@ -1,22 +1,41 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Edit, NotebookPen } from 'lucide-react';
+import { ArrowLeft, Edit, NotebookPen, Loader2, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-// Re-usamos la misma estructura de mock que en la página de catering principal
-const mockSavedMenus = [
-  { id: 'menu1', name: 'Menú Clásico Casamiento', description: 'Entrada, principal y postre tradicionales.' },
-  { id: 'menu2', name: 'Menú Cumpleaños Infantil', description: 'Opciones divertidas y adaptadas para niños.' },
-  { id: 'menu3', name: 'Menú Degustación Gourmet', description: 'Pequeñas porciones de alta cocina.' },
-  { id: 'menu_vegetariano_boda', name: 'Menú Vegetariano Boda de Lujo', description: 'Alta cocina vegetariana para eventos especiales.' },
-  { id: 'menu_brunch_corporativo', name: 'Brunch Corporativo Energizante', description: 'Opciones ligeras y nutritivas para reuniones de trabajo.' },
-];
+import { useToast } from '@/hooks/use-toast';
+import type { FullMenu } from '@/types/catering';
+import { getMenus } from '@/app/actions/menus-catering';
 
 export default function SeleccionarMenuParaModificarPage() {
+  const { toast } = useToast();
+  const [savedMenus, setSavedMenus] = useState<FullMenu[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMenus() {
+      setIsLoading(true);
+      try {
+        const menus = await getMenus();
+        setSavedMenus(menus);
+      } catch (error) {
+        console.error("Error al cargar menús:", error);
+        toast({
+          title: 'Error al Cargar Menús',
+          description: 'No se pudieron obtener los menús guardados. Intenta de nuevo más tarde.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadMenus();
+  }, [toast]);
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -31,7 +50,12 @@ export default function SeleccionarMenuParaModificarPage() {
         </Link>
       </div>
 
-      {mockSavedMenus.length > 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Cargando menús guardados...</p>
+        </div>
+      ) : savedMenus.length > 0 ? (
         <div className="space-y-4">
           <Card className="bg-muted/30 border-dashed">
             <CardHeader>
@@ -44,15 +68,18 @@ export default function SeleccionarMenuParaModificarPage() {
                 </div>
             </CardHeader>
           </Card>
-          {mockSavedMenus.map((menu) => (
+          {savedMenus.map((menu) => (
             <Card key={menu.id} className="shadow-md hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="font-headline text-lg">{menu.name}</CardTitle>
-                <CardDescription>{menu.description}</CardDescription>
+                <CardDescription>{menu.description || 'Sin descripción.'}</CardDescription>
               </CardHeader>
-              <CardFooter>
+              <CardFooter className="flex justify-between items-center">
+                 <p className="text-xs text-muted-foreground">
+                    Actualizado: {menu.updatedAt ? new Date(menu.updatedAt).toLocaleDateString() : 'N/A'}
+                 </p>
                 <Link href={`/fiestas/nueva/catering/menu/${menu.id}/editar`} passHref className="w-full sm:w-auto">
-                  <Button className="w-full">
+                  <Button className="w-full sm:w-auto">
                     <Edit className="w-4 h-4 mr-2" />
                     Editar este Menú
                   </Button>
@@ -85,7 +112,10 @@ export default function SeleccionarMenuParaModificarPage() {
               data-ai-hint="empty list illustration"
             />
             <Link href="/fiestas/nueva/catering/nuevo-menu" passHref className="inline-block mt-4">
-                <Button>Crear tu Primer Menú</Button>
+                <Button size="lg"> 
+                    <PlusCircle className="w-5 h-5 mr-2" />
+                    Crear tu Primer Menú
+                </Button>
             </Link>
           </CardContent>
         </Card>
