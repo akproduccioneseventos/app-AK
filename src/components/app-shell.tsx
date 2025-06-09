@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -71,6 +71,7 @@ const getPageTitle = (pathname: string): string => {
     return `Editando Menú: ${pathSegments[4]}`;
   }
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
+  if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
 
 
   // Configuración
@@ -83,7 +84,6 @@ const getPageTitle = (pathname: string): string => {
   // Rutas Generales (menos específicas)
   if (pathname.startsWith('/eventos')) return 'Eventos';
   if (pathname.startsWith('/proveedores')) return 'Proveedores';
-  // if (pathname.startsWith('/empleados')) return 'Empleados'; // Ya cubierto arriba
   if (pathname.startsWith('/compras')) return 'Compras';
   if (pathname.startsWith('/calendario')) return 'Calendario';
   if (pathname.startsWith('/notas')) return 'Notas';
@@ -122,6 +122,7 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/personal') return UserCheck;
+  if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
   // Add other icons for other pages if needed
   return null;
 }
@@ -194,3 +195,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </SidebarProvider>
   );
 }
+
