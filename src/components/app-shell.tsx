@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -70,6 +70,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') {
     return `Editando Menú: ${pathSegments[4]}`;
   }
+  if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
 
 
   // Configuración
@@ -119,10 +120,17 @@ const getPageTitle = (pathname: string): string => {
   return 'AK Producciones'; // Default fallback
 };
 
+const getPageIcon = (pathname: string): React.ElementType | null => {
+  if (pathname === '/fiestas/nueva/personal') return UserCheck;
+  // Add other icons for other pages if needed
+  return null;
+}
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
+  const PageIcon = getPageIcon(pathname);
 
   return (
     <SidebarProvider defaultOpen={true} >
@@ -173,6 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 border-b">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="lg:hidden" /> 
+             {PageIcon && <PageIcon className="w-6 h-6 md:w-7 md:h-7 text-primary hidden sm:block" />}
             <h1 className="text-2xl md:text-3xl font-bold font-headline text-foreground">
               {pageTitle}
             </h1>

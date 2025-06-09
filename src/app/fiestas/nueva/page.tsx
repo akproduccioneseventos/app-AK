@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 
 interface PlanningModule {
@@ -14,6 +14,14 @@ interface PlanningModule {
 }
 
 const planningModules: PlanningModule[] = [
+  { 
+    title: "Configuración del Evento",
+    description: "Define detalles generales, fecha, lugar y tipo de celebración.",
+    icon: Settings2,
+    href: "/fiestas/nueva/configuracion",
+    status: "Disponible",
+    actionLabel: "Configurar Evento"
+  },
   { 
     title: "Lista de Tareas del Evento", 
     description: "Organiza y sigue el progreso de todas las tareas pendientes para tu fiesta.", 
@@ -30,14 +38,6 @@ const planningModules: PlanningModule[] = [
     status: "Disponible",
     actionLabel: "Administrar Invitados"
   },
-  { 
-    title: "Proveedores y Servicios", 
-    description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.", 
-    icon: Truck, 
-    href: "/fiestas/nueva/proveedores",
-    status: "Disponible",
-    actionLabel: "Buscar Proveedores"
-  },
   {
     title: "Diseño y Decoración",
     description: "Planifica la estética, temática y decoración de tu evento.",
@@ -47,12 +47,28 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Definir Diseño"
   },
   {
-    title: "Configuración del Evento",
-    description: "Define detalles generales, fecha, lugar y tipo de celebración.",
-    icon: Settings2,
-    href: "/fiestas/nueva/configuracion",
+    title: "Catering y Menú",
+    description: "Crea y gestiona menús personalizados, detallando platos e ingredientes con costos.",
+    icon: UtensilsCrossed,
+    href: "/fiestas/nueva/catering",
     status: "Disponible",
-    actionLabel: "Configurar Evento"
+    actionLabel: "Gestionar Menús"
+  },
+  { 
+    title: "Gestión de Personal del Evento", 
+    description: "Asigna personal de tu equipo al evento y gestiona sus roles y costos.", 
+    icon: Users, // Using Users icon for consistency with main "Empleados"
+    href: "/fiestas/nueva/personal",
+    status: "Disponible",
+    actionLabel: "Asignar Personal"
+  },
+  { 
+    title: "Proveedores y Servicios", 
+    description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.", 
+    icon: Truck, 
+    href: "/fiestas/nueva/proveedores",
+    status: "Disponible",
+    actionLabel: "Buscar Proveedores"
   },
   {
     title: "Página Web del Evento",
@@ -61,14 +77,6 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/pagina-web",
     status: "Disponible",
     actionLabel: "Personalizar Web"
-  },
-  {
-    title: "Catering y Menú",
-    description: "Selecciona platos y calcula el costo del catering para tu evento.",
-    icon: UtensilsCrossed,
-    href: "/fiestas/nueva/catering",
-    status: "Disponible",
-    actionLabel: "Definir Menú"
   }
 ];
 
@@ -138,7 +146,7 @@ export default function PlanificarFiestaHubPage() {
         <CardContent>
             <p className="text-muted-foreground">
                 Este es el centro de planificación para tus fiestas. Selecciona un módulo para comenzar a detallar tu evento.
-                Iremos habilitando funcionalidades más avanzadas en cada sección progresivamente.
+                La información que configures aquí (como tareas, invitados, menú) se aplicará a la "fiesta tipo" que estás planificando.
             </p>
             <img 
               src="https://placehold.co/600x300.png" 
