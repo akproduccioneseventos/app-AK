@@ -14,7 +14,8 @@ import {
   ListChecks,
   CalendarDays,
   StickyNote,
-  PartyPopper // Added icon for Crear Fiesta
+  PartyPopper,
+  Filter // Added Filter icon
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -26,8 +27,9 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/eventos', label: 'Eventos', icon: CalendarClock },
-  { href: '/fiestas/nueva', label: 'Crear Fiesta', icon: PartyPopper }, // New Item
+  { href: '/fiestas/nueva', label: 'Crear Fiesta', icon: PartyPopper }, 
   { href: '/customers', label: 'Clientes', icon: Users },
+  { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter }, // New Sales Funnel link
   { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
   { href: '/empleados', label: 'Empleados', icon: ContactRound },
   { href: '/presupuestos', label: 'Presupuestos y pagos', icon: CircleDollarSign }, 

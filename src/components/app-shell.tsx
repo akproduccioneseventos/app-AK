@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -49,6 +49,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
+  if (pathname === '/sales-funnel') return 'Embudo de Ventas'; // New
 
   // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
@@ -127,6 +128,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
   if (pathname === '/fiestas/nueva/decoracion') return Palette;
   if (pathname === '/fiestas/nueva/catering') return ChefHat;
+  if (pathname === '/sales-funnel') return FilterIcon; // New
   // Add other icons for other pages if needed
   return null;
 }
@@ -199,3 +201,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </SidebarProvider>
   );
 }
+
