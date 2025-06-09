@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -125,6 +125,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/personal') return UserCheck;
   if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
   if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
+  if (pathname === '/fiestas/nueva/decoracion') return Palette;
+  if (pathname === '/fiestas/nueva/catering') return ChefHat;
   // Add other icons for other pages if needed
   return null;
 }

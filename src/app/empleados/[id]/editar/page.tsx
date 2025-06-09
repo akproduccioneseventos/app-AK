@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getEmpleadoById, saveEmpleado, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
@@ -201,6 +202,16 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
                 step="any"
                 className="text-base p-3"
                 disabled={isSaving || isDeleting}
+              />
+            </div>
+            <div className="pt-4">
+              <Image 
+                src="https://placehold.co/600x200.png" 
+                alt="Employee data update" 
+                width={600}
+                height={200}
+                className="rounded-md shadow-sm mx-auto"
+                data-ai-hint="employee data team"
               />
             </div>
           </CardContent>

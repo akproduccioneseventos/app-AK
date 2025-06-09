@@ -55,7 +55,7 @@ export default function DashboardPage() {
               <div className="space-y-1">
                 {eventosPendientesData.length > 0 ? eventosPendientesData.map((item, index) => (
                   <div key={index} className="flex items-center gap-3 py-3 px-2 border-b last:border-b-0 hover:bg-muted/50 rounded-md -mx-2 transition-colors">
-                    <Info className="h-5 w-5 text-primary flex-shrink-0" /> {/* Changed icon for pending */}
+                    <ClipboardList className="h-5 w-5 text-yellow-500 flex-shrink-0" /> {/* Changed icon for pending */}
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-foreground truncate">{item.evento}</p>
                       <p className="text-xs text-muted-foreground truncate">Cliente: {item.cliente}</p>
@@ -75,14 +75,14 @@ export default function DashboardPage() {
             <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="flex flex-col gap-1 rounded-lg bg-muted/30 p-4 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-2 mb-1">
-                  <DollarSign className="h-5 w-5 text-muted-foreground" />
+                  <DollarSign className="h-5 w-5 text-green-500" />
                   <h3 className="text-sm font-medium text-muted-foreground">Costo Estimado Total</h3>
                 </div>
                 <p className="text-2xl font-semibold text-foreground">$13.500</p>
               </div>
               <div className="flex flex-col gap-1 rounded-lg bg-muted/30 p-4 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-2 mb-1">
-                  <CreditCard className="h-5 w-5 text-muted-foreground" />
+                  <CreditCard className="h-5 w-5 text-red-500" />
                   <h3 className="text-sm font-medium text-muted-foreground">Pagos Pendientes</h3>
                 </div>
                 <p className="text-2xl font-semibold text-foreground">$4.200</p>

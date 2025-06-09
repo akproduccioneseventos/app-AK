@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
@@ -240,6 +241,16 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                 <Label htmlFor="country">País</Label>
                 <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ej: España" disabled={isSaving || isDeleting}/>
               </div>
+            </div>
+            <div className="pt-4">
+              <Image 
+                src="https://placehold.co/600x300.png" 
+                alt="Customer relationship management" 
+                width={600}
+                height={300}
+                className="rounded-md shadow-sm mx-auto"
+                data-ai-hint="customer data update"
+              />
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">

@@ -72,7 +72,7 @@ const planningModules: PlanningModule[] = [
   {
     title: "Catering y Menú",
     description: "Crea y gestiona menús personalizados, detallando platos e ingredientes con costos.",
-    icon: UtensilsCrossed,
+    icon: ChefHat, // Changed Icon
     href: "/fiestas/nueva/catering",
     status: "Disponible",
     actionLabel: "Gestionar Menús"
@@ -111,9 +111,13 @@ const planningModules: PlanningModule[] = [
   }
 ];
 
-const formatCurrency = (amount: number, currency: string = 'ARS') => {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: currency }).format(amount);
+const formatCurrency = (amount?: number | string, currency: string = 'ARS') => {
+  if (amount === undefined || amount === null || amount === '') return "N/A";
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numericAmount)) return "N/A";
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: currency }).format(numericAmount);
 };
+
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "N/A";
@@ -341,19 +345,27 @@ export default function PlanificarFiestaHubPage() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Milestone className="w-7 h-7 text-primary" />
-                <CardTitle className="font-headline text-xl">Progreso y Configuración del Evento</CardTitle>
+                <CardTitle className="font-headline text-xl">Resumen General del Evento</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {fiestaActual?.configuracion && (
-                <div className="p-3 bg-muted/30 rounded-md">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                <div className="p-3 bg-muted/30 rounded-md space-y-1">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Info className="w-4 h-4"/>
+                    <span>Tipo de Evento: <span className="font-medium text-foreground">{fiestaActual.configuracion.tipoCelebracion || 'No especificado'}</span></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CalendarDays className="w-4 h-4"/>
                     <span>Fecha del Evento: <span className="font-medium text-foreground">{formatDate(fiestaActual.configuracion.fechaEvento)}</span></span>
                   </div>
                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="w-4 h-4"/>
-                    <span>Invitados Estimados: <span className="font-medium text-foreground">{fiestaActual.configuracion.invitadosEstimados}</span></span>
+                    <span>Invitados Estimados: <span className="font-medium text-foreground">{fiestaActual.configuracion.invitadosEstimados || 'N/A'}</span></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <DollarSign className="w-4 h-4"/>
+                    <span>Presupuesto Estimado: <span className="font-medium text-foreground">{formatCurrency(fiestaActual.configuracion.presupuestoEstimado)}</span></span>
                   </div>
                 </div>
               )}

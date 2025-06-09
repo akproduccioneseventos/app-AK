@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveEmpleado } from '@/app/actions/empleados';
@@ -114,6 +115,16 @@ export default function NuevoEmpleadoPage() {
                 step="any"
                 className="text-base p-3"
                 disabled={isSaving}
+              />
+            </div>
+             <div className="pt-4">
+              <Image 
+                src="https://placehold.co/600x200.png" 
+                alt="Employee management" 
+                width={600}
+                height={200}
+                className="rounded-md shadow-sm mx-auto"
+                data-ai-hint="employee management team"
               />
             </div>
           </CardContent>
