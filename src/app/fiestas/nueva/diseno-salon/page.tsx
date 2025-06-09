@@ -1,16 +1,16 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent, type CSSProperties } from 'react';
+import { useState, useEffect, useCallback, type FormEvent, type CSSProperties, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // Using NextImage for optimized images where appropriate
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize, Move } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SalonLayoutData, LayoutElement } from '@/types/fiesta';
 import { getFiestaActual, updateSalonLayoutFiestaActual } from '@/app/actions/fiesta-actual';
@@ -35,6 +35,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 
 
 const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
@@ -58,7 +59,9 @@ export default function DisenoSalonPage() {
   const [isSaving, setIsSaving] = useState(false);
   
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [currentElement, setCurrentElement] = useState<Partial<LayoutElement> & { tempId?: string } | null>(null); // For editing or adding new
+  const [currentElement, setCurrentElement] = useState<Partial<LayoutElement> & { tempId?: string } | null>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
 
   const loadLayoutData = useCallback(async () => {
     setIsLoading(true);
@@ -84,7 +87,6 @@ export default function DisenoSalonPage() {
             generalNotes: fiestaData.salonLayout.generalNotes || ''
         });
       } else {
-        // Esto no debería ocurrir si la inicialización del backend es correcta
         setLayoutData({ backgroundImageUrl: '', elements: [], generalNotes: '' });
       }
     } catch (err: any) {
@@ -102,7 +104,7 @@ export default function DisenoSalonPage() {
   const openFormModal = (element?: LayoutElement) => {
     if (element) {
       setCurrentElement({ ...element });
-    } else { // Nuevo elemento personalizado
+    } else { 
       setCurrentElement({ 
         name: '', 
         quantity: 1, 
@@ -119,7 +121,7 @@ export default function DisenoSalonPage() {
   };
   
   const addFromPalette = (paletteItem: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>) => {
-     setCurrentElement({ // Pre-rellena para añadir, no para editar uno existente
+     setCurrentElement({ 
         name: paletteItem.name,
         quantity: 1,
         type: 'predefined',
@@ -132,7 +134,7 @@ export default function DisenoSalonPage() {
         notes: '',
         category: paletteItem.category
      });
-     setIsFormModalOpen(true); // Abrir modal para confirmar/ajustar y añadir
+     setIsFormModalOpen(true);
   };
 
   const handleFormSubmit = (e: FormEvent) => {
@@ -158,10 +160,10 @@ export default function DisenoSalonPage() {
     };
     
     let updatedElements;
-    if (currentElement.id) { // Editing existing
+    if (currentElement.id) { 
         updatedElements = layoutData.elements.map(el => el.id === currentElement.id ? newElementData : el);
         toast({ title: "Elemento Actualizado", description: `${newElementData.name} ha sido actualizado.` });
-    } else { // Adding new
+    } else { 
         updatedElements = [...layoutData.elements, newElementData];
         toast({ title: "Elemento Añadido", description: `${newElementData.name} añadido al diseño.` });
     }
@@ -183,10 +185,18 @@ export default function DisenoSalonPage() {
     toast({ title: "Elemento Eliminado", variant: "destructive" });
   };
 
+  const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
+    setLayoutData(prev => ({
+      ...prev,
+      elements: prev.elements.map(el => 
+        el.id === elementId ? { ...el, x: data.x, y: data.y } : el
+      ),
+    }));
+  };
+
   const handleSaveLayout = async () => {
     setIsSaving(true);
     try {
-      // Ensure all elements have defaults before saving, matching read logic
       const validatedLayoutData: SalonLayoutData = {
         ...layoutData,
         elements: layoutData.elements.map(el => ({
@@ -207,7 +217,7 @@ export default function DisenoSalonPage() {
       const result = await updateSalonLayoutFiestaActual(validatedLayoutData);
       if (result.success && result.updatedData) {
         toast({ title: "¡Diseño Guardado!", description: "La configuración del diseño del salón ha sido guardada." });
-        setLayoutData({ // Update local state with validated data from server
+        setLayoutData({ 
             backgroundImageUrl: result.updatedData.backgroundImageUrl || '',
             elements: (result.updatedData.elements || []).map(el => ({
                 id: el.id, name: el.name, quantity: el.quantity, notes: el.notes, imageUrl: el.imageUrl,
@@ -308,7 +318,7 @@ export default function DisenoSalonPage() {
                     onClick={() => addFromPalette(item)}
                     disabled={isSaving}
                   >
-                    <Image src={item.imageUrl || "https://placehold.co/40x40.png"} alt={item.name} width={30} height={30} className="mr-2 rounded-sm object-contain" data-ai-hint="icon element" />
+                    <Image src={item.imageUrl || "https://placehold.co/40x40.png"} alt={item.name} width={30} height={30} className="mr-2 rounded-sm object-contain" data-ai-hint="icon element"/>
                     <span className="text-xs">{item.name}</span>
                   </Button>
                 ))}
@@ -324,19 +334,20 @@ export default function DisenoSalonPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
                 <Maximize className="w-6 h-6 text-primary"/>
-                <CardTitle className="font-headline text-lg">Lienzo del Salón (Previsualización)</CardTitle>
+                <CardTitle className="font-headline text-lg">Lienzo del Salón (Interactivo)</CardTitle>
             </div>
-             <CardDescription className="text-xs">Los elementos se posicionan según sus coordenadas. El Drag & Drop se implementará en el futuro.</CardDescription>
+             <CardDescription className="text-xs">Arrastra los elementos para posicionarlos. Haz clic para editar.</CardDescription>
           </CardHeader>
           <CardContent>
             <div 
-              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-auto"
+              ref={canvasRef}
+              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-hidden select-none"
               style={{ 
                 backgroundImage: layoutData.backgroundImageUrl ? `url(${layoutData.backgroundImageUrl})` : 'none',
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
-                minHeight: '300px',
+                minHeight: '400px', // Increased minHeight for better usability
               }}
             >
               {!layoutData.backgroundImageUrl && (
@@ -346,26 +357,42 @@ export default function DisenoSalonPage() {
                 </div>
               )}
               {layoutData.elements.map(el => (
-                <div
-                  key={el.id}
-                  title={`${el.name} (x:${el.x}, y:${el.y})`}
-                  className="absolute border border-primary/50 bg-primary/20 hover:bg-primary/30 cursor-pointer flex items-center justify-center text-xs p-1 rounded-sm"
-                  style={{
-                    left: `${el.x ?? 0}px`,
-                    top: `${el.y ?? 0}px`,
-                    width: `${el.width || 50}px`,
-                    height: `${el.height || 50}px`,
-                    transform: `rotate(${el.rotation || 0}deg)`,
-                    color: 'hsl(var(--primary-foreground))', // Ensures text is visible on primary bg
-                  }}
-                  onClick={() => openFormModal(el)} 
-                >
-                  {el.imageUrl ? (
-                    <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm" data-ai-hint="object floor element"/>
-                  ) : (
-                    <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px]">{el.name}</span>
-                  )}
-                </div>
+                 <Draggable
+                    key={el.id}
+                    axis="both"
+                    handle=".handle" // Define a handle if you want specific drag areas, otherwise whole element is draggable
+                    defaultPosition={{ x: el.x ?? 0, y: el.y ?? 0 }} // Use defaultPosition for uncontrolled if not updating state during drag
+                    position={{ x: el.x ?? 0, y: el.y ?? 0 }} // Use position for controlled component
+                    grid={[5, 5]} // Snap to grid (optional)
+                    scale={1} // Scale (optional)
+                    bounds="parent" // Restrict to parent bounds
+                    onStop={(e, data) => handleDragStop(e, data, el.id)}
+                  >
+                    <div
+                      title={`${el.name} (x:${el.x}, y:${el.y})`}
+                      className="absolute border border-primary/50 bg-primary/20 hover:bg-primary/30 cursor-grab active:cursor-grabbing flex items-center justify-center text-xs p-1 rounded-sm handle" // Added handle class
+                      style={{
+                        width: `${el.width || 50}px`,
+                        height: `${el.height || 50}px`,
+                        transform: `rotate(${el.rotation || 0}deg)`,
+                        color: 'hsl(var(--primary-foreground))',
+                        touchAction: 'none', // Important for touch devices
+                      }}
+                      onClick={(e) => {
+                        // Prevent modal from opening if it was a drag action (simple check)
+                        const target = e.target as HTMLElement;
+                        if (target.closest('.react-draggable-dragging')) return;
+                        openFormModal(el);
+                      }}
+                    >
+                       {el.imageUrl ? (
+                        <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm pointer-events-none" data-ai-hint="object floor element"/>
+                      ) : (
+                        <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px] pointer-events-none">{el.name}</span>
+                      )}
+                       <Move className="absolute top-0 right-0 w-3 h-3 text-primary-foreground/50 opacity-50 group-hover:opacity-100 transition-opacity handle"/>
+                    </div>
+                  </Draggable>
               ))}
             </div>
           </CardContent>
@@ -513,3 +540,4 @@ export default function DisenoSalonPage() {
     </div>
   );
 }
+
