@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -15,6 +16,8 @@ import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
 import type { PresupuestoFormData, PlatoPresupuesto, ServicioAdicional, Presupuesto } from '@/types/presupuesto';
 import { getPlatos, savePresupuesto } from '@/app/actions/presupuestos'; 
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import type { ConfigEventoDataStorage } from '@/types/fiesta';
 
 const TOTAL_PASOS = 4;
 
@@ -45,6 +48,7 @@ export default function NuevoPresupuestoPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
   const [formData, setFormData] = useState<PresupuestoFormData>({
     pasoActual: 1,
     clienteNombre: '',
@@ -55,20 +59,61 @@ export default function NuevoPresupuestoPage() {
     platosSeleccionadosIds: new Set(),
     serviciosDisponibles: serviciosDisponiblesMock.map(s => ({...s, seleccionado: false })),
     serviciosSeleccionadosIds: new Set(),
-    notas: '', // Inicializar notas
+    notas: '',
   });
 
   useEffect(() => {
-    async function cargarPlatos() {
+    async function cargarDatosIniciales() {
+      setIsLoadingInitialData(true);
       try {
-        const platos = await getPlatos();
-        setFormData(prev => ({ ...prev, platosDisponibles: platos.map(p => ({...p, seleccionado: false})) }));
+        const [platos, fiestaActual] = await Promise.all([
+          getPlatos(),
+          getFiestaActual()
+        ]);
+
+        setFormData(prev => {
+          let newClienteNombre = prev.clienteNombre;
+          let newEventoTipo = prev.eventoTipo;
+          let newEventoFecha = prev.eventoFecha;
+          let newInvitadosCantidad = prev.invitadosCantidad;
+
+          if (fiestaActual && fiestaActual.configuracion) {
+            const config = fiestaActual.configuracion;
+            if (!prev.clienteNombre && config.nombreEvento) { // Solo pre-rellenar si está vacío
+              newClienteNombre = config.nombreEvento; // Usamos el nombre del evento como posible nombre de cliente
+            }
+            if (prev.eventoTipo === 'Cumpleaños' && config.tipoCelebracion) { // Solo si es el default y hay config
+              newEventoTipo = config.tipoCelebracion;
+            }
+            if (!prev.eventoFecha && config.fechaEvento) {
+              try {
+                newEventoFecha = new Date(config.fechaEvento);
+              } catch (e) { console.error("Fecha de evento inválida en config:", config.fechaEvento); }
+            }
+            if (prev.invitadosCantidad === null && typeof config.invitadosEstimados === 'number' && config.invitadosEstimados > 0) {
+              newInvitadosCantidad = config.invitadosEstimados;
+            } else if (prev.invitadosCantidad === null && typeof config.invitadosEstimados === 'string' && parseInt(config.invitadosEstimados, 10) > 0) {
+              newInvitadosCantidad = parseInt(config.invitadosEstimados, 10);
+            }
+          }
+
+          return { 
+            ...prev, 
+            platosDisponibles: platos.map(p => ({...p, seleccionado: false})),
+            clienteNombre: newClienteNombre,
+            eventoTipo: newEventoTipo,
+            eventoFecha: newEventoFecha,
+            invitadosCantidad: newInvitadosCantidad,
+          };
+        });
       } catch (error) {
-        console.error("Error al cargar platos:", error);
-        toast({ title: "Error", description: "No se pudieron cargar los platos.", variant: "destructive" });
+        console.error("Error al cargar datos iniciales:", error);
+        toast({ title: "Error", description: "No se pudieron cargar los datos iniciales para el presupuesto.", variant: "destructive" });
+      } finally {
+        setIsLoadingInitialData(false);
       }
     }
-    cargarPlatos();
+    cargarDatosIniciales();
   }, [toast]);
 
   const handleNext = () => {
@@ -123,6 +168,7 @@ export default function NuevoPresupuestoPage() {
     
     const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
 
+    // Los datos del vendor se añadirán en la acción savePresupuesto
     return {
       id: `temp_${Date.now()}`, 
       clienteNombre: formData.clienteNombre,
@@ -156,9 +202,8 @@ export default function NuevoPresupuestoPage() {
     }
     setIsSaving(true);
     try {
-      // El ID real se asignará en savePresupuesto
       const {id, ...presupuestoParaGuardar} = resumen;
-      const result = await savePresupuesto(presupuestoParaGuardar as Presupuesto); // Cast para quitar el ID temporal
+      const result = await savePresupuesto(presupuestoParaGuardar as Presupuesto);
       if (result.success) {
         toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumen.clienteNombre} ha sido guardado con éxito.` });
         router.push('/presupuestos'); 
@@ -175,6 +220,14 @@ export default function NuevoPresupuestoPage() {
   const progreso = (formData.pasoActual / TOTAL_PASOS) * 100;
 
   const renderPaso = () => {
+    if (isLoadingInitialData && formData.pasoActual === 1) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="ml-3 text-muted-foreground">Cargando datos iniciales...</p>
+        </div>
+      );
+    }
     switch (formData.pasoActual) {
       case 1:
         return <Paso1DatosEvento formData={formData} setFormData={setFormData} />;
@@ -219,23 +272,22 @@ export default function NuevoPresupuestoPage() {
           {renderPaso()}
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 bg-muted/50 border-t">
-          <Button variant="outline" onClick={handlePrev} disabled={formData.pasoActual === 1 || isSaving} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={handlePrev} disabled={formData.pasoActual === 1 || isSaving || isLoadingInitialData} className="w-full sm:w-auto">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Anterior
           </Button>
           {formData.pasoActual < TOTAL_PASOS && (
-            <Button onClick={handleNext} disabled={isSaving} className="w-full sm:w-auto">
+            <Button onClick={handleNext} disabled={isSaving || isLoadingInitialData} className="w-full sm:w-auto">
               Siguiente
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           )}
           {formData.pasoActual === TOTAL_PASOS && (
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <Button onClick={handleSave} disabled={isSaving || !formData.resumen} className="w-full sm:w-auto order-last sm:order-first">
+              <Button onClick={handleSave} disabled={isSaving || isLoadingInitialData || !formData.resumen} className="w-full sm:w-auto order-last sm:order-first">
                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 {isSaving ? 'Guardando...' : 'Guardar Presupuesto'}
               </Button>
-              {/* Los botones de WhatsApp y Copiar están ahora en Paso4Resumen */}
             </div>
           )}
         </CardFooter>
@@ -243,3 +295,4 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
+
