@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, Tarea, DecoracionData, ColorPalette } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, DecorationItem } from '@/types/fiesta';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -42,14 +42,20 @@ const defaultColorPalette: ColorPalette = {
   accent: '#FFFFFF',
 };
 
-const defaultNotasDecoracion = "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.";
-
 const defaultDecoracion: DecoracionData = {
-  tema: 'Boda Noelia Damaceno', // Default from Excel in decoracion/page.tsx
+  tema: 'Boda Noelia Damaceno', 
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
-  notas: defaultNotasDecoracion,
+  items: [],
+  generalNotes: "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.",
 };
+
+const defaultSalonLayout: SalonLayoutData = {
+    backgroundImageUrl: '',
+    elements: [],
+    generalNotes: '',
+};
+
 
 const initialFiestaActualData: FiestaEnPlanificacion = {
   id: 'fiesta-en-curso', 
@@ -59,11 +65,7 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   presupuestoId: undefined,
   invoiceIds: [],
   reuniones: [],
-  salonLayout: {
-    backgroundImageUrl: '',
-    elements: [],
-    generalNotes: '',
-  },
+  salonLayout: { ...defaultSalonLayout },
   tareas: [...defaultTareas.map(t => ({...t}))],
   decoracion: { ...defaultDecoracion },
 };
@@ -95,18 +97,26 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         invoiceIds: data.invoiceIds || [],
         reuniones: data.reuniones || [],
         salonLayout: { 
-            ...(initialFiestaActualData.salonLayout || { elements: [], backgroundImageUrl: '', generalNotes: '' }),
+            ...(initialFiestaActualData.salonLayout || defaultSalonLayout),
             ...(data.salonLayout || {}), 
-             elements: (data.salonLayout?.elements || []), 
+             elements: (data.salonLayout?.elements || []).map(el => ({
+                ...el,
+                x: el.x ?? 0,
+                y: el.y ?? 0,
+                rotation: el.rotation ?? 0,
+                type: el.type ?? 'custom',
+             })),
         },
         tareas: (data.tareas && data.tareas.length > 0) ? data.tareas : [...defaultTareas.map(t => ({...t}))],
         decoracion: {
-            ...initialFiestaActualData.decoracion, // Start with full default decoracion
-            ...(data.decoracion || {}), // Spread saved decoracion, potentially overriding defaults
-            paletaColores: { // Ensure paletaColores always exists and merges correctly
+            ...(initialFiestaActualData.decoracion || defaultDecoracion),
+            ...(data.decoracion || {}),
+            paletaColores: {
               ...(initialFiestaActualData.decoracion?.paletaColores || defaultColorPalette),
               ...(data.decoracion?.paletaColores || {}),
-            }
+            },
+            items: data.decoracion?.items || [],
+            generalNotes: data.decoracion?.generalNotes || defaultDecoracion.generalNotes,
         },
     };
     return validatedData;
@@ -292,7 +302,16 @@ export async function updateSalonLayoutFiestaActual(
 ): Promise<{ success: boolean; updatedData?: SalonLayoutData; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.salonLayout = { ...layoutData };
+    // Ensure all elements have default x, y, rotation, type if not provided
+    const validatedElements = (layoutData.elements || []).map(el => ({
+      ...el,
+      x: el.x ?? 0,
+      y: el.y ?? 0,
+      rotation: el.rotation ?? 0,
+      type: el.type ?? 'custom',
+      // quantity should exist from creation
+    }));
+    fiestaActual.salonLayout = { ...layoutData, elements: validatedElements };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.salonLayout)) };
   } catch (e: any) {
@@ -318,7 +337,15 @@ export async function updateDecoracionFiestaActual(
 ): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.decoracion = { ...decoracionData };
+    fiestaActual.decoracion = { 
+        ...defaultDecoracion, // ensure all default fields are present
+        ...decoracionData,
+        items: decoracionData.items || [], // ensure items is always an array
+        paletaColores: {
+            ...defaultColorPalette,
+            ...(decoracionData.paletaColores || {})
+        }
+    };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
   } catch (e: any) {
@@ -332,7 +359,8 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
         const resetData = { 
           ...initialFiestaActualData,
           tareas: [...defaultTareas.map(t => ({...t}))], 
-          decoracion: { ...defaultDecoracion } 
+          decoracion: { ...defaultDecoracion },
+          salonLayout: { ...defaultSalonLayout },
         };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
@@ -345,23 +373,38 @@ async function initializeFiestaData() {
     await ensureDataDirectoryExists();
     try {
         await fs.access(fiestaActualFilePath);
-        const currentData = await readFiestaActualFile();
+        const currentData = await readFiestaActualFile(); // This already ensures defaults
         let needsUpdate = false;
+
         if (!currentData.tareas || currentData.tareas.length === 0) {
             currentData.tareas = [...defaultTareas.map(t => ({...t}))];
             needsUpdate = true;
         }
-        if (!currentData.decoracion || !currentData.decoracion.paletaColores || !currentData.decoracion.notas) { 
-            currentData.decoracion = { 
-                ...defaultDecoracion, 
-                ...(currentData.decoracion || {}),
-                paletaColores: {
-                    ...defaultColorPalette,
-                    ...(currentData.decoracion?.paletaColores || {})
-                },
-                notas: currentData.decoracion?.notas || defaultNotasDecoracion //Ensure notes has default if missing
-            };
+
+        if (!currentData.decoracion) {
+            currentData.decoracion = { ...defaultDecoracion };
             needsUpdate = true;
+        } else {
+            currentData.decoracion.paletaColores = {
+                ...defaultColorPalette,
+                ...(currentData.decoracion.paletaColores || {})
+            };
+            currentData.decoracion.items = currentData.decoracion.items || [];
+            currentData.decoracion.generalNotes = currentData.decoracion.generalNotes === undefined ? defaultDecoracion.generalNotes : currentData.decoracion.generalNotes;
+            if (currentData.decoracion.tema === undefined) currentData.decoracion.tema = defaultDecoracion.tema;
+        }
+        
+        if(!currentData.salonLayout){
+            currentData.salonLayout = { ...defaultSalonLayout };
+            needsUpdate = true;
+        } else {
+            currentData.salonLayout.elements = (currentData.salonLayout.elements || []).map(el => ({
+                ...el,
+                x: el.x ?? 0,
+                y: el.y ?? 0,
+                rotation: el.rotation ?? 0,
+                type: el.type ?? 'custom',
+            }));
         }
         
         if (needsUpdate) {
@@ -377,3 +420,4 @@ async function initializeFiestaData() {
 }
 
 initializeFiestaData();
+

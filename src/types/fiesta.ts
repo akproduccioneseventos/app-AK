@@ -29,8 +29,16 @@ export interface Reunion {
 export interface LayoutElement {
   id: string; 
   name: string; 
-  quantity: number;
+  quantity: number; // Aunque para un plano visual 1 elemento = 1 visualización, quantity podría ser informativo. Para el visual, cada "unidad" se añade como un elemento individual.
   notes?: string; 
+  imageUrl?: string; // URL de la imagen para este elemento
+  x: number; // Coordenada X en el plano
+  y: number; // Coordenada Y en el plano
+  width?: number; // Ancho del elemento en el plano (en px, por ejemplo)
+  height?: number; // Alto del elemento en el plano (en px)
+  rotation?: number; // Rotación en grados
+  type: 'predefined' | 'custom'; // Para diferenciar si es de una biblioteca o algo añadido por el usuario
+  category?: string; // Ej: 'Mobiliario', 'Decoración', 'Equipamiento'
 }
 
 export interface SalonLayoutData {
@@ -53,12 +61,25 @@ export interface ColorPalette {
   accent: string;
 }
 
+export interface DecorationItem {
+  id: string;
+  name: string;
+  category?: string;
+  quantity: number;
+  estimatedCost?: number;
+  supplier?: string;
+  notes?: string;
+  imageUrl?: string;
+}
+
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
-  notas?: string;
+  items?: DecorationItem[]; // Cambiado de notas a una lista de items
+  generalNotes?: string; // Se puede mantener para notas generales de decoración
 }
+
 
 export interface FiestaEnPlanificacion {
   id: string; 
@@ -72,3 +93,4 @@ export interface FiestaEnPlanificacion {
   tareas?: Tarea[];
   decoracion?: DecoracionData;
 }
+

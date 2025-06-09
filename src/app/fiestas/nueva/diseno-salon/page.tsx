@@ -1,24 +1,54 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, type FormEvent, type CSSProperties } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from 'next/image'; // Using NextImage for optimized images where appropriate
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, SalonLayoutData, LayoutElement } from '@/types/fiesta';
+import type { SalonLayoutData, LayoutElement } from '@/types/fiesta';
 import { getFiestaActual, updateSalonLayoutFiestaActual } from '@/app/actions/fiesta-actual';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+
+const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
+  { name: 'Mesa Redonda (8 pax)', imageUrl: 'https://placehold.co/80x80/E0E0E0/B0B0B0.png?text=Mesa', width: 80, height: 80, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Mesa Rectangular (6 pax)', imageUrl: 'https://placehold.co/120x60/E0E0E0/B0B0B0.png?text=Mesa L', width: 120, height: 60, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Silla', imageUrl: 'https://placehold.co/30x30/F0F0F0/C0C0C0.png?text=S', width: 30, height: 30, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Pista de Baile (Pequeña)', imageUrl: 'https://placehold.co/150x150/D0D0D0/A0A0A0.png?text=Pista', width: 150, height: 150, type: 'predefined', category: 'Zona' },
+  { name: 'Barra de Bebidas', imageUrl: 'https://placehold.co/100x40/C8C8C8/989898.png?text=Bar', width: 100, height: 40, type: 'predefined', category: 'Equipamiento' },
+  { name: 'Escenario (Pequeño)', imageUrl: 'https://placehold.co/120x80/BDBDBD/8D8D8D.png?text=Escenario', width: 120, height: 80, type: 'predefined', category: 'Equipamiento' },
+  { name: 'Planta Decorativa', imageUrl: 'https://placehold.co/40x40/A9A9A9/797979.png?text=Planta', width: 40, height: 40, type: 'predefined', category: 'Decoración' },
+];
 
 export default function DisenoSalonPage() {
   const { toast } = useToast();
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [layoutData, setLayoutData] = useState<SalonLayoutData>({
     backgroundImageUrl: '',
     elements: [],
@@ -27,20 +57,27 @@ export default function DisenoSalonPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
-  // For adding new elements
-  const [newElementName, setNewElementName] = useState('');
-  const [newElementQuantity, setNewElementQuantity] = useState<number | string>(1);
-  const [newElementNotes, setNewElementNotes] = useState('');
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [currentElement, setCurrentElement] = useState<Partial<LayoutElement> & { tempId?: string } | null>(null); // For editing or adding new
 
   const loadLayoutData = useCallback(async () => {
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaActual();
-      setFiesta(fiestaData);
       if (fiestaData.salonLayout) {
-        setLayoutData(fiestaData.salonLayout);
+        setLayoutData({
+            ...fiestaData.salonLayout,
+            elements: (fiestaData.salonLayout.elements || []).map(el => ({
+                ...el,
+                x: el.x ?? 0,
+                y: el.y ?? 0,
+                rotation: el.rotation ?? 0,
+                type: el.type ?? 'custom',
+                width: el.width ?? 50, // Default width if not set
+                height: el.height ?? 50, // Default height if not set
+            }))
+        });
       } else {
-        // Initialize with default if not present
         setLayoutData({ backgroundImageUrl: '', elements: [], generalNotes: '' });
       }
     } catch (err: any) {
@@ -55,26 +92,80 @@ export default function DisenoSalonPage() {
     loadLayoutData();
   }, [loadLayoutData]);
 
-  const handleInputChange = (field: keyof SalonLayoutData, value: string) => {
-    setLayoutData(prev => ({ ...prev, [field]: value }));
+  const openFormModal = (element?: LayoutElement) => {
+    if (element) {
+      setCurrentElement({ ...element });
+    } else {
+      setCurrentElement({ 
+        name: '', 
+        quantity: 1, 
+        type: 'custom', 
+        x: 50, y: 50, // Default position
+        width: 100, height: 50, // Default size
+        rotation: 0,
+        imageUrl: '',
+        notes: '',
+        category: 'Otro'
+      });
+    }
+    setIsFormModalOpen(true);
+  };
+  
+  const addFromPalette = (paletteItem: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>) => {
+     setCurrentElement({
+        name: paletteItem.name,
+        quantity: 1, // Each visual item is one, quantity handled by multiple items
+        type: 'predefined',
+        x: Math.floor(Math.random() * 200) + 50, // Random initial position
+        y: Math.floor(Math.random() * 200) + 50,
+        width: paletteItem.width || 50,
+        height: paletteItem.height || 50,
+        rotation: 0,
+        imageUrl: paletteItem.imageUrl,
+        notes: '',
+        category: paletteItem.category
+     });
+     setIsFormModalOpen(true);
   };
 
-  const handleAddElement = () => {
-    if (!newElementName.trim() || (typeof newElementQuantity === 'string' && !newElementQuantity.trim()) || Number(newElementQuantity) <= 0) {
-      toast({ title: "Datos del Elemento Inválidos", description: "El nombre no puede estar vacío y la cantidad debe ser un número positivo.", variant: "destructive" });
+  const handleFormSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentElement || !currentElement.name?.trim()) {
+      toast({ title: "Datos Inválidos", description: "El nombre del elemento no puede estar vacío.", variant: "destructive" });
       return;
     }
-    const newElement: LayoutElement = {
-      id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      name: newElementName.trim(),
-      quantity: Number(newElementQuantity),
-      notes: newElementNotes.trim() || undefined,
+
+    const newElementData: LayoutElement = {
+      id: currentElement.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      name: currentElement.name.trim(),
+      quantity: currentElement.quantity || 1, // Default to 1 if not set, though form has it
+      x: Number(currentElement.x) || 0,
+      y: Number(currentElement.y) || 0,
+      width: Number(currentElement.width) || 50,
+      height: Number(currentElement.height) || 50,
+      rotation: Number(currentElement.rotation) || 0,
+      imageUrl: currentElement.imageUrl?.trim() || undefined,
+      notes: currentElement.notes?.trim() || undefined,
+      type: currentElement.type || 'custom',
+      category: currentElement.category?.trim() || undefined,
     };
-    setLayoutData(prev => ({ ...prev, elements: [...prev.elements, newElement] }));
-    setNewElementName('');
-    setNewElementQuantity(1);
-    setNewElementNotes('');
-    toast({ title: "Elemento Añadido", description: `${newElement.name} (x${newElement.quantity}) añadido a la lista.`});
+    
+    let updatedElements;
+    if (currentElement.id) { // Editing existing
+        updatedElements = layoutData.elements.map(el => el.id === currentElement.id ? newElementData : el);
+        toast({ title: "Elemento Actualizado", description: `${newElementData.name} ha sido actualizado.` });
+    } else { // Adding new
+        updatedElements = [...layoutData.elements, newElementData];
+        toast({ title: "Elemento Añadido", description: `${newElementData.name} añadido al diseño.` });
+    }
+    
+    setLayoutData(prev => ({ ...prev, elements: updatedElements }));
+    setIsFormModalOpen(false);
+    setCurrentElement(null);
+  };
+  
+  const handleElementFieldChange = (field: keyof LayoutElement, value: string | number) => {
+    setCurrentElement(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
 
   const handleRemoveElement = (elementId: string) => {
@@ -85,14 +176,21 @@ export default function DisenoSalonPage() {
     toast({ title: "Elemento Eliminado", variant: "destructive" });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSaveLayout = async () => {
     setIsSaving(true);
     try {
       const result = await updateSalonLayoutFiestaActual(layoutData);
       if (result.success && result.updatedData) {
         toast({ title: "¡Diseño Guardado!", description: "La configuración del diseño del salón ha sido guardada." });
-        setLayoutData(result.updatedData); // Update local state with potentially processed data
+        // Ensure local state reflects validated server data, especially default values
+        setLayoutData({
+            ...result.updatedData,
+            elements: (result.updatedData.elements || []).map(el => ({
+                ...el,
+                x: el.x ?? 0, y: el.y ?? 0, rotation: el.rotation ?? 0, type: el.type ?? 'custom',
+                width: el.width ?? 50, height: el.height ?? 50
+            }))
+        });
       } else {
         throw new Error(result.error || "Error desconocido al guardar el diseño del salón.");
       }
@@ -113,8 +211,8 @@ export default function DisenoSalonPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <LayoutGrid className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
@@ -129,123 +227,264 @@ export default function DisenoSalonPage() {
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl">Configuración del Plano del Salón</CardTitle>
-            <CardDescription>Sube una imagen del plano, añade elementos y notas para la disposición.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Imagen de Fondo */}
-            <div className="space-y-2">
-              <Label htmlFor="background-image-url" className="text-base">URL de Imagen del Plano del Salón</Label>
-              <Input
-                id="background-image-url"
-                type="url"
-                value={layoutData.backgroundImageUrl || ''}
-                onChange={(e) => handleInputChange('backgroundImageUrl', e.target.value)}
-                placeholder="Pega aquí la URL de una imagen del plano (ej: https://.../plano.jpg)"
-                className="text-base p-3"
-                disabled={isSaving}
-              />
-              <p className="text-xs text-muted-foreground">
-                Sube tu imagen a un servicio como Imgur o Google Photos y pega el enlace directo aquí. La subida directa de archivos se implementará en el futuro.
-              </p>
-              {layoutData.backgroundImageUrl && (
-                <div className="mt-3 p-2 border rounded-md inline-block bg-muted/50 max-w-full overflow-hidden">
-                  <Image
-                    src={layoutData.backgroundImageUrl}
-                    alt="Vista previa del plano del salón"
-                    width={600}
-                    height={400}
-                    className="rounded object-contain max-h-[400px] w-auto"
-                    data-ai-hint="floor plan layout"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; /* Hide broken image icon */ }}
-                  />
-                </div>
-              )}
-               {!layoutData.backgroundImageUrl && (
-                <div className="mt-3 p-4 border border-dashed rounded-md flex flex-col items-center justify-center text-muted-foreground h-[200px] bg-muted/30">
-                    <ImageOff className="w-12 h-12 mb-2" />
-                    <p className="text-sm">Pega una URL para ver la imagen del plano aquí.</p>
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Elementos del Salón */}
-            <div>
-              <h3 className="text-lg font-medium mb-3 font-headline">Elementos del Salón</h3>
-              <Card className="p-4 bg-muted/20">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-end">
-                  <div className="space-y-1 md:col-span-2">
-                    <Label htmlFor="new-element-name" className="text-xs">Nombre del Elemento</Label>
-                    <Input id="new-element-name" value={newElementName} onChange={(e) => setNewElementName(e.target.value)} placeholder="Ej: Mesa Redonda (8 pax), Pista de Baile" className="h-9" disabled={isSaving}/>
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="new-element-qty" className="text-xs">Cantidad</Label>
-                    <Input id="new-element-qty" type="number" value={newElementQuantity} onChange={(e) => setNewElementQuantity(e.target.value === '' ? '' : parseInt(e.target.value))} min="1" className="h-9" disabled={isSaving}/>
-                  </div>
-                  <div className="md:col-span-3 space-y-1">
-                    <Label htmlFor="new-element-notes" className="text-xs">Notas para este Elemento (Opcional)</Label>
-                    <Input id="new-element-notes" value={newElementNotes} onChange={(e) => setNewElementNotes(e.target.value)} placeholder="Ej: Ubicar cerca de la entrada, Necesita toma de corriente" className="h-9" disabled={isSaving}/>
-                  </div>
-                </div>
-                <Button type="button" onClick={handleAddElement} variant="outline" size="sm" disabled={isSaving}>
-                  <PlusCircle className="w-4 h-4 mr-1.5" />Añadir Elemento a la Lista
-                </Button>
-              </Card>
-
-              {layoutData.elements.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <h4 className="text-sm font-medium">Lista de Elementos Añadidos:</h4>
-                  <ScrollArea className="h-[200px] border rounded-md p-2 bg-muted/30">
-                    <ul className="text-sm divide-y divide-border">
-                      {layoutData.elements.map(el => (
-                        <li key={el.id} className="flex justify-between items-start py-2">
-                          <div>
-                            <p className="font-medium">{el.name} (x{el.quantity})</p>
-                            {el.notes && <p className="text-xs text-muted-foreground pl-2">- {el.notes}</p>}
-                          </div>
-                          <Button variant="ghost" size="icon" onClick={() => handleRemoveElement(el.id)} className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={isSaving} aria-label={`Eliminar ${el.name}`}>
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </div>
-              )}
-               {layoutData.elements.length === 0 && (
-                 <p className="text-sm text-muted-foreground mt-3 text-center py-3 bg-muted/20 rounded-md">No hay elementos añadidos a la lista.</p>
-               )}
-            </div>
-            
-            <Separator />
-
-            {/* Notas Generales */}
-            <div className="space-y-2">
+      {/* Main Layout Config Card */}
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="font-headline text-xl">Configuración del Plano del Salón</CardTitle>
+          <CardDescription>Sube una imagen del plano, añade elementos y notas para la disposición.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="background-image-url" className="text-base">URL de Imagen del Plano del Salón</Label>
+            <Input
+              id="background-image-url"
+              type="url"
+              value={layoutData.backgroundImageUrl || ''}
+              onChange={(e) => setLayoutData(prev => ({...prev, backgroundImageUrl: e.target.value}))}
+              placeholder="Pega aquí la URL de una imagen del plano (ej: https://.../plano.jpg)"
+              className="text-base p-3"
+              disabled={isSaving}
+            />
+            <p className="text-xs text-muted-foreground">
+              Sube tu imagen a un servicio como Imgur o Google Photos y pega el enlace directo aquí.
+            </p>
+          </div>
+          <div className="space-y-2">
               <Label htmlFor="general-layout-notes" className="text-base">Notas Generales de Disposición</Label>
               <Textarea
                 id="general-layout-notes"
                 value={layoutData.generalNotes || ''}
-                onChange={(e) => handleInputChange('generalNotes', e.target.value)}
-                placeholder="Describe aquí la distribución general, zonas importantes, flujos de movimiento, etc."
-                rows={5}
+                onChange={(e) =>setLayoutData(prev => ({...prev, generalNotes: e.target.value}))}
+                placeholder="Describe aquí la distribución general, zonas importantes, etc."
+                rows={3}
                 className="text-base p-3"
                 disabled={isSaving}
               />
             </div>
+        </CardContent>
+      </Card>
+
+      {/* Element Palette and Canvas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1 shadow-lg">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Wand2 className="w-6 h-6 text-primary"/>
+              <CardTitle className="font-headline text-lg">Paleta de Elementos</CardTitle>
+            </div>
+            <CardDescription className="text-xs">Haz clic para pre-rellenar el formulario y añadir al plano.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[400px] pr-3">
+              <div className="space-y-2">
+                {predefinedElementsPalette.map((item, idx) => (
+                  <Button
+                    key={idx}
+                    variant="outline"
+                    className="w-full justify-start h-auto py-2"
+                    onClick={() => addFromPalette(item)}
+                    disabled={isSaving}
+                  >
+                    <Image src={item.imageUrl || "https://placehold.co/40x40.png"} alt={item.name} width={30} height={30} className="mr-2 rounded-sm" data-ai-hint="icon element" />
+                    <span className="text-xs">{item.name}</span>
+                  </Button>
+                ))}
+                <Button variant="default" className="w-full mt-4" onClick={() => openFormModal()} disabled={isSaving}>
+                    <PlusCircle className="w-4 h-4 mr-2" />Añadir Elemento Personalizado
+                </Button>
+              </div>
+            </ScrollArea>
           </CardContent>
-          <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoading}>
+        </Card>
+
+        <Card className="lg:col-span-2 shadow-lg">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+                <Maximize className="w-6 h-6 text-primary"/>
+                <CardTitle className="font-headline text-lg">Lienzo del Salón (Previsualización)</CardTitle>
+            </div>
+             <CardDescription className="text-xs">Los elementos se posicionan según sus coordenadas. El Drag & Drop se implementará en el futuro.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-auto" // overflow-auto to allow scrolling if content exceeds
+              style={{ 
+                backgroundImage: layoutData.backgroundImageUrl ? `url(${layoutData.backgroundImageUrl})` : 'none',
+                backgroundSize: 'contain', // or 'cover' depending on desired effect
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                minHeight: '300px', // Ensure a minimum height
+              }}
+            >
+              {!layoutData.backgroundImageUrl && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+                  <ImageOff className="w-16 h-16 mb-2 opacity-50" />
+                  <p className="text-sm">Sin plano de fondo. Añade una URL arriba.</p>
+                </div>
+              )}
+              {layoutData.elements.map(el => (
+                <div
+                  key={el.id}
+                  title={`${el.name} (x:${el.x}, y:${el.y})`}
+                  className="absolute border border-primary/50 bg-primary/10 hover:bg-primary/20 cursor-default flex items-center justify-center text-xs text-primary-foreground p-1 rounded"
+                  style={{
+                    left: `${el.x}px`,
+                    top: `${el.y}px`,
+                    width: `${el.width || 50}px`,
+                    height: `${el.height || 50}px`,
+                    transform: `rotate(${el.rotation || 0}deg)`,
+                  }}
+                  onClick={() => openFormModal(el)} // Open edit modal on click
+                >
+                  {el.imageUrl ? (
+                    <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm" data-ai-hint="object floor" />
+                  ) : (
+                    <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px] text-black dark:text-white">{el.name}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* List of Added Elements */}
+      <Card className="shadow-lg">
+        <CardHeader>
+            <div className="flex items-center gap-2">
+                <LayoutGrid className="w-6 h-6 text-primary" />
+                <CardTitle className="font-headline text-lg">Elementos en el Diseño ({layoutData.elements.length})</CardTitle>
+            </div>
+        </CardHeader>
+        <CardContent>
+          {layoutData.elements.length > 0 ? (
+            <ScrollArea className="h-[250px] pr-3">
+              <ul className="space-y-2">
+                {layoutData.elements.map(el => (
+                  <li key={el.id} className="flex justify-between items-center p-2 border rounded-md hover:bg-muted/50">
+                    <div className="flex items-center gap-2">
+                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm" data-ai-hint="icon element"/> : <LayoutGrid className="w-4 h-4 text-muted-foreground"/>}
+                        <div>
+                            <p className="font-medium text-sm">{el.name} <span className="text-xs text-muted-foreground">({el.type})</span></p>
+                            <p className="text-xs text-muted-foreground">
+                                X:{el.x}, Y:{el.y} | W:{el.width}px, H:{el.height}px | Rot: {el.rotation}°
+                                {el.notes && ` | Notas: ${el.notes.substring(0,30)}...`}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex gap-1">
+                        <Button variant="outline" size="icon" onClick={() => openFormModal(el)} className="h-7 w-7" aria-label="Editar Elemento">
+                            <Edit3 className="w-3.5 h-3.5"/>
+                        </Button>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="icon" className="h-7 w-7" aria-label="Eliminar Elemento" disabled={isSaving}>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleRemoveElement(el.id)} className="bg-destructive hover:bg-destructive/90">
+                                    Sí, eliminar
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4 bg-muted/20 rounded-md">No hay elementos añadidos al diseño. Utiliza la paleta o el botón "Añadir Elemento Personalizado".</p>
+          )}
+        </CardContent>
+        <CardFooter className="border-t pt-6">
+            <Button onClick={handleSaveLayout} className="w-full sm:w-auto" disabled={isSaving || isLoading}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando Diseño...' : 'Guardar Diseño del Salón'}
             </Button>
-          </CardFooter>
-        </Card>
-      </form>
+        </CardFooter>
+      </Card>
+
+      {/* Element Form Modal */}
+      <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-xl">{currentElement?.id ? 'Editar Elemento del Diseño' : 'Añadir Nuevo Elemento al Diseño'}</DialogTitle>
+            <DialogDescription>Define las propiedades del elemento.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleFormSubmit} className="space-y-3 py-2 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="space-y-1">
+              <Label htmlFor="el-name">Nombre del Elemento</Label>
+              <Input id="el-name" value={currentElement?.name || ''} onChange={(e) => handleElementFieldChange('name', e.target.value)} required />
+            </div>
+             <div className="space-y-1">
+              <Label htmlFor="el-type">Tipo</Label>
+              <Select value={currentElement?.type || 'custom'} onValueChange={(val) => handleElementFieldChange('type', val as 'predefined' | 'custom')}>
+                <SelectTrigger id="el-type"><SelectValue/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="custom">Personalizado (URL propia)</SelectItem>
+                  <SelectItem value="predefined">Predefinido (de la paleta)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {currentElement?.type === 'custom' && (
+                 <div className="space-y-1">
+                    <Label htmlFor="el-imageUrl">URL de Imagen (para tipo Personalizado)</Label>
+                    <Input id="el-imageUrl" type="url" placeholder="https://ejemplo.com/imagen.png" value={currentElement?.imageUrl || ''} onChange={(e) => handleElementFieldChange('imageUrl', e.target.value)} />
+                </div>
+            )}
+            {currentElement?.type === 'predefined' && currentElement.imageUrl && (
+                <div className="space-y-1">
+                    <Label>Imagen Predefinida</Label>
+                    <Image src={currentElement.imageUrl} alt={currentElement.name || "preview"} width={40} height={40} className="border rounded-sm" data-ai-hint="icon predefined"/>
+                </div>
+            )}
+             <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="el-x">Posición X (px)</Label>
+                  <Input id="el-x" type="number" value={currentElement?.x ?? 0} onChange={(e) => handleElementFieldChange('x', Number(e.target.value))} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="el-y">Posición Y (px)</Label>
+                  <Input id="el-y" type="number" value={currentElement?.y ?? 0} onChange={(e) => handleElementFieldChange('y', Number(e.target.value))} />
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="el-width">Ancho (px)</Label>
+                  <Input id="el-width" type="number" placeholder="Ej: 100" value={currentElement?.width ?? ''} onChange={(e) => handleElementFieldChange('width', Number(e.target.value))} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="el-height">Alto (px)</Label>
+                  <Input id="el-height" type="number" placeholder="Ej: 50" value={currentElement?.height ?? ''} onChange={(e) => handleElementFieldChange('height', Number(e.target.value))} />
+                </div>
+            </div>
+             <div className="space-y-1">
+              <Label htmlFor="el-rotation">Rotación (grados)</Label>
+              <Input id="el-rotation" type="number" placeholder="Ej: 0" value={currentElement?.rotation ?? 0} onChange={(e) => handleElementFieldChange('rotation', Number(e.target.value))} />
+            </div>
+            <div className="space-y-1">
+                <Label htmlFor="el-category">Categoría</Label>
+                <Input id="el-category" value={currentElement?.category || ''} onChange={(e) => handleElementFieldChange('category', e.target.value)} placeholder="Ej: Mobiliario, Decoración"/>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="el-notes">Notas Específicas (opcional)</Label>
+              <Textarea id="el-notes" value={currentElement?.notes || ''} onChange={(e) => handleElementFieldChange('notes', e.target.value)} rows={2} />
+            </div>
+            <DialogFooter className="pt-3">
+                <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+                <Button type="submit">{currentElement?.id ? 'Guardar Cambios' : 'Añadir Elemento'}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
