@@ -53,6 +53,52 @@ let mockMenuDatabase: FullMenu[] = [
     createdAt: new Date(2023, 11, 1).toISOString(),
     updatedAt: new Date(2023, 11, 1).toISOString(),
   },
+  // Default Menu based on "6 de junio" Excel
+  {
+    id: 'menu_base_boda_noelia',
+    name: 'Menú Base Boda Noelia',
+    description: 'Menú tipo basado en la fiesta del 6 de junio para Noelia Damaceno.',
+    items: [
+      {
+        id: 'dish_tabla_fiambres_noelia',
+        name: 'Tabla de fiambres',
+        type: 'Entrada',
+        ingredients: [
+          { id: 'ing_fiambres_varios', name: 'Fiambres surtidos', quantity: '1', unit: 'global', cost: '3200.00' }
+        ],
+        totalDishCost: 3200.00, // For 80 guests at $40
+      },
+      {
+        id: 'dish_sandwiches_saladitos_noelia',
+        name: 'Sandwiches y saladitos',
+        type: 'Entrada',
+        ingredients: [
+          { id: 'ing_sandwiches_varios', name: 'Sandwiches y saladitos surtidos', quantity: '1', unit: 'global', cost: '6400.00' }
+        ],
+        totalDishCost: 6400.00, // For 80 guests at $80
+      },
+      {
+        id: 'dish_pollo_buffet_noelia',
+        name: 'Pollo con mesa buffet',
+        type: 'Plato Principal',
+        ingredients: [
+          { id: 'ing_pollo_buffet_completo', name: 'Pollo y acompañamientos buffet', quantity: '1', unit: 'global', cost: '9100.00' }
+        ],
+        totalDishCost: 9100.00, // For 70 guests at $130
+      },
+      {
+        id: 'dish_hamburguesas_fritas_noelia',
+        name: 'Hamburguesas c/ fritas (Menú Personal)',
+        type: 'Plato Principal',
+        ingredients: [
+          { id: 'ing_hamburguesas_combo', name: 'Combo hamburguesa y fritas', quantity: '1', unit: 'global', cost: '3375.00' }
+        ],
+        totalDishCost: 3375.00, // For 25 guests at $135
+      },
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
 ];
 // --- FIN SIMULACIÓN BASE DE DATOS ---
 

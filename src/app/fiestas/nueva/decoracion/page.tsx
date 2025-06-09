@@ -18,15 +18,17 @@ interface ColorPalette {
   accent: string;
 }
 
+const defaultNotasDecoracion = "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.";
+
 export default function DecoracionEventoPage() {
   const { toast } = useToast();
-  const [tema, setTema] = useState('');
+  const [tema, setTema] = useState('Boda Noelia Damaceno'); // Default from Excel
   const [colorPalette, setColorPalette] = useState<ColorPalette>({
-    primary: '#FFFFFF',
-    secondary: '#FFFFFF',
-    accent: '#FFFFFF',
+    primary: '#FFFFFF', // Default, user can change
+    secondary: '#FFFFFF', // Default, user can change
+    accent: '#FFFFFF', // Default, user can change
   });
-  const [notas, setNotas] = useState('');
+  const [notas, setNotas] = useState(defaultNotasDecoracion); // Default from Excel
   const [moodboardImage, setMoodboardImage] = useState<File | null>(null);
   const [moodboardPreview, setMoodboardPreview] = useState<string | null>(null);
 

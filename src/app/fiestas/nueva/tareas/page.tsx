@@ -22,12 +22,23 @@ interface Task {
   assignedTo?: string;
 }
 
+const defaultTasks: Task[] = [
+  { id: 'default_1', text: 'Gestionar Vajilla y Mantelería', completed: false },
+  { id: 'default_2', text: 'Coordinar Mobiliario', completed: false },
+  { id: 'default_3', text: 'Contratar Mozos (4) y Mozos de cocina (4)', completed: false },
+  { id: 'default_4', text: 'Contratar Fotografía de fiesta y exteriores', completed: false },
+  { id: 'default_5', text: 'Contratar Plataforma 360 y Fotocabina', completed: false },
+  { id: 'default_6', text: 'Organizar Mesa de postres y Torta principal', completed: false },
+  { id: 'default_7', text: 'Contratar Barra de tragos', completed: false },
+  { id: 'default_8', text: 'Definir Decoración Básica', completed: false },
+  { id: 'default_9', text: 'Definir Discoteca Básica', completed: false },
+  { id: 'default_10', text: 'Crear Invitación digital', completed: false },
+  { id: 'default_11', text: 'Organizar Coffee Break', completed: false },
+  { id: 'default_12', text: 'Asegurar Hielo', completed: false },
+];
+
 export default function TareasEventoPage() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', text: 'Reservar salón de fiestas', completed: true, dueDate: new Date(2024, 4, 10), assignedTo: 'Ana' },
-    { id: '2', text: 'Enviar invitaciones', completed: false, dueDate: new Date(2024, 4, 20) },
-    { id: '3', text: 'Contratar catering', completed: false, assignedTo: 'Carlos' },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>(defaultTasks);
   const [newTaskText, setNewTaskText] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState<Date | undefined>();
   const [newTaskAssignedTo, setNewTaskAssignedTo] = useState('');
@@ -198,5 +209,3 @@ export default function TareasEventoPage() {
     </div>
   );
 }
-
-    

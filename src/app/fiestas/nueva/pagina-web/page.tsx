@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, UploadCloud, Image as ImageIcon, Globe } from 'lucide-react';
+import { ArrowLeft, Save, UploadCloud, Image as ImageIcon, Globe, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import NextImage from 'next/image'; // Renamed to avoid conflict
@@ -24,8 +24,8 @@ interface EventWebPageData {
 export default function PaginaWebEventoPage() {
   const { toast } = useToast();
   const [pageData, setPageData] = useState<EventWebPageData>({
-    pageTitle: '',
-    welcomeMessage: '',
+    pageTitle: 'Boda Noelia Damaceno', // Default from Excel
+    welcomeMessage: '¡Estamos muy felices de celebrar nuestra boda con ustedes! Aquí encontrarán todos los detalles del evento.', // Default example
     coverImage: null,
     coverImagePreview: null,
     galleryImages: [],
@@ -61,18 +61,19 @@ export default function PaginaWebEventoPage() {
     const files = event.target.files;
     if (files && files.length > 0) {
       const newGalleryFiles: File[] = Array.from(files);
-      const newGalleryPreviews: string[] = [];
+      const newGalleryPreviewsHolder: string[] = []; // Temp array to ensure all previews are collected
 
+      let filesProcessed = 0;
       newGalleryFiles.forEach(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          newGalleryPreviews.push(reader.result as string);
-          // This check is important to update state only after all files are read
-          if (newGalleryPreviews.length === newGalleryFiles.length) {
+          newGalleryPreviewsHolder.push(reader.result as string);
+          filesProcessed++;
+          if (filesProcessed === newGalleryFiles.length) {
             setPageData(prev => ({
               ...prev,
               galleryImages: [...prev.galleryImages, ...newGalleryFiles],
-              galleryPreviews: [...prev.galleryPreviews, ...newGalleryPreviews],
+              galleryPreviews: [...prev.galleryPreviews, ...newGalleryPreviewsHolder],
             }));
           }
         };
@@ -208,7 +209,7 @@ export default function PaginaWebEventoPage() {
                         onClick={() => removeGalleryImage(index)}
                         aria-label={`Eliminar imagen ${index + 1}`}
                        >
-                         <UploadCloud className="w-3 h-3" /> {/* Placeholder, replace with Trash icon if available */}
+                         <Trash2 className="w-3 h-3" />
                       </Button>
                     </div>
                   ))}

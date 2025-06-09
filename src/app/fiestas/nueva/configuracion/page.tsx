@@ -24,23 +24,23 @@ interface EventConfigData {
   horaFin: string;
   nombreLugar: string;
   direccionLugar: string;
-  invitadosEstimados: number | string; // string to allow empty input initially
-  presupuestoEstimado: number | string; // string to allow empty input initially
+  invitadosEstimados: number | string;
+  presupuestoEstimado: number | string;
   notasAdicionales: string;
 }
 
 export default function ConfiguracionEventoPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<EventConfigData>({
-    nombreEvento: '',
-    tipoCelebracion: tiposEventoDisponibles[0],
-    fechaEvento: undefined,
+    nombreEvento: 'Boda Noelia Damaceno', // Default from Excel
+    tipoCelebracion: 'Boda', // Default from Excel
+    fechaEvento: new Date(2025, 5, 6), // Default from Excel (06/06/25, month is 0-indexed)
     horaInicio: '',
     horaFin: '',
-    nombreLugar: '',
+    nombreLugar: 'Bonsai', // Default from Excel
     direccionLugar: '',
-    invitadosEstimados: '',
-    presupuestoEstimado: '',
+    invitadosEstimados: 80, // Default from Excel
+    presupuestoEstimado: 156000, // Default from Excel
     notasAdicionales: '',
   });
 
