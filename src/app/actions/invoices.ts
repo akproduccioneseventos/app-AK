@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { Invoice } from '@/types/invoice';
+import type { Invoice, InvoiceItem, Customer } from '@/types/invoice';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -9,12 +9,10 @@ const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const invoicesFilePath = path.join(dataDirectory, 'invoices.json');
 
 const initialMockInvoices: Invoice[] = [
-  // Esta data inicial se usará solo si invoices.json no existe o está vacío.
-  // Es la misma que está ahora en invoices.json.
   {
     id: 'inv_img_1',
     invoiceNumber: '2342',
-    customer: { id: 'cust_1', name: 'INTERNACIONAL DE RECURSOS HUM. SOLUC. S.L.' },
+    customer: { id: 'cust_1', name: 'INTERNACIONAL DE RECURSOS HUM. SOLUC. S.L.' } as Customer, // Cast for type compatibility
     issueDate: '2022-01-01',
     dueDate: '2022-01-01',
     items: [{ id: 'item_img_1_1', description: 'ALQUILER EQUIPO AUDIOVISUAL', quantity: 1, unitPrice: 300.00, total: 300.00 }],
@@ -29,8 +27,6 @@ const initialMockInvoices: Invoice[] = [
     vendorTaxId: 'A08123456',
     notes: 'Gracias por su negocio.'
   }
-  // ... (podrías añadir más si quieres que el fallback sea más completo,
-  // pero idealmente invoices.json siempre existirá)
 ];
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -46,16 +42,14 @@ async function readInvoicesFile(): Promise<Invoice[]> {
   try {
     const fileContent = await fs.readFile(invoicesFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
-    // Basic validation: check if it's an array.
     return Array.isArray(data) ? data : [...initialMockInvoices];
   } catch (error: any) {
     if (error.code === 'ENOENT') {
-      // If file doesn't exist, create it with initial/empty data
-      await writeInvoicesFile([...initialMockInvoices]); // O un array vacío [] si prefieres
-      return [...initialMockInvoices]; // O []
+      await writeInvoicesFile([...initialMockInvoices]);
+      return [...initialMockInvoices];
     }
     console.error('Error leyendo el archivo de facturas, usando datos iniciales de fallback:', error);
-    return [...initialMockInvoices]; // Fallback a datos en memoria si hay error
+    return [...initialMockInvoices]; 
   }
 }
 
@@ -70,28 +64,67 @@ async function writeInvoicesFile(data: Invoice[]): Promise<void> {
 
 export async function getInvoices(): Promise<Invoice[]> {
   const invoices = await readInvoicesFile();
-  // Ordenar por fecha de emisión descendente (más recientes primero)
   return invoices.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
 }
 
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
   const invoices = await readInvoicesFile();
   const invoice = invoices.find(inv => inv.id === id);
-  return invoice ? JSON.parse(JSON.stringify(invoice)) : null; // Deep copy
+  return invoice ? JSON.parse(JSON.stringify(invoice)) : null;
 }
 
-// Placeholder para futuras funciones de guardar y eliminar
-// export async function saveInvoice(invoiceData: Omit<Invoice, 'id'> | Invoice): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
-//   // Lógica para guardar (crear o actualizar)
-//   return { success: false, error: "Not implemented" };
-// }
+export async function saveInvoice(
+  invoiceData: Omit<Invoice, 'id' | 'items'> & { items: Omit<InvoiceItem, 'id'>[] } | Invoice
+): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
+  let invoices = await readInvoicesFile();
+  
+  if ('id' in invoiceData && invoiceData.id) {
+    // Update existing invoice - Placeholder for future edit functionality
+    const index = invoices.findIndex(inv => inv.id === invoiceData.id);
+    if (index !== -1) {
+      // Ensure items have IDs
+      const updatedItems = invoiceData.items.map((item, idx) => ({
+        ...item,
+        id: (item as InvoiceItem).id || `item_${invoiceData.id}_${idx + 1}_${Date.now()}`
+      }));
+      invoices[index] = { ...invoiceData, items: updatedItems as InvoiceItem[] };
+      await writeInvoicesFile(invoices);
+      return { success: true, id: invoiceData.id, invoice: JSON.parse(JSON.stringify(invoices[index])) };
+    } else {
+      return { success: false, error: `Factura con ID ${invoiceData.id} no encontrada para actualizar.` };
+    }
+  } else {
+    // Create new invoice
+    const newInvoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const itemsWithIds: InvoiceItem[] = invoiceData.items.map((item, index) => ({
+      ...item,
+      id: `item_${newInvoiceId}_${index + 1}_${Date.now()}`
+    }));
 
-// export async function deleteInvoice(id: string): Promise<{ success: boolean; error?: string }> {
-//   // Lógica para eliminar
-//   return { success: false, error: "Not implemented" };
-// }
+    const newInvoice: Invoice = {
+      ...(invoiceData as Omit<Invoice, 'id' | 'items'> & { items: Omit<InvoiceItem, 'id'>[] }), // Type assertion
+      id: newInvoiceId,
+      items: itemsWithIds,
+    };
+    invoices.push(newInvoice);
+    await writeInvoicesFile(invoices);
+    return { success: true, id: newInvoice.id, invoice: JSON.parse(JSON.stringify(newInvoice)) };
+  }
+}
 
-// Inicializar el archivo de datos si no existe al cargar este módulo
+export async function deleteInvoice(id: string): Promise<{ success: boolean; error?: string }> {
+  let invoices = await readInvoicesFile();
+  const initialLength = invoices.length;
+  invoices = invoices.filter(inv => inv.id !== id);
+  
+  if (invoices.length < initialLength) {
+    await writeInvoicesFile(invoices);
+    return { success: true };
+  } else {
+    return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
+  }
+}
+
 async function initializeInvoiceData() {
     await ensureDataDirectoryExists();
     try {
@@ -99,8 +132,6 @@ async function initializeInvoiceData() {
     } catch (error: any) {
         if (error.code === 'ENOENT') {
             console.log('Archivo invoices.json no encontrado, creando con datos iniciales...');
-            // Los datos iniciales se copian de src/data/invoices.json si existe, o del mock de este archivo.
-            // readInvoicesFile() se encarga de esto.
             await readInvoicesFile(); 
         }
     }

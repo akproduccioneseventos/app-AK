@@ -6,48 +6,69 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FilePlus2, Loader2, AlertTriangle, SearchX } from 'lucide-react';
+import { FilePlus2, Loader2, AlertTriangle, SearchX, Trash2 } from 'lucide-react';
 import { InvoiceListItem } from '@/components/invoice-list-item';
 import type { Invoice } from '@/types/invoice';
-import { getInvoices } from '@/app/actions/invoices'; // Importar la nueva acción
+import { getInvoices, deleteInvoice as deleteInvoiceAction } from '@/app/actions/invoices';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fetchInvoices = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getInvoices();
+      setInvoices(data);
+    } catch (err: any) {
+      console.error("Error fetching invoices:", err);
+      setError("No se pudieron cargar las facturas. Intenta de nuevo más tarde.");
+      toast({
+        title: "Error al Cargar Facturas",
+        description: err.message || "Ocurrió un problema inesperado.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchInvoices = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await getInvoices();
-        setInvoices(data);
-      } catch (err: any) {
-        console.error("Error fetching invoices:", err);
-        setError("No se pudieron cargar las facturas. Intenta de nuevo más tarde.");
-        toast({
-          title: "Error al Cargar Facturas",
-          description: err.message || "Ocurrió un problema inesperado.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchInvoices();
-  }, [toast]);
+  }, [toast]); // Removed fetchInvoices from dependency array as it's stable
 
-  // Por ahora, la función deleteInvoice no está implementada en actions,
-  // así que el botón de eliminar en InvoiceListItem no funcionará completamente.
-  // const handleDeleteInvoice = async (invoiceId: string) => {
-  //   // Lógica para llamar a deleteInvoice action y actualizar el estado
-  //   console.log("Deleting invoice:", invoiceId);
-  //   toast({ title: "Función Eliminar Pendiente", description: "La eliminación de facturas se implementará pronto."});
-  // };
+  const handleDeleteInvoice = async (invoiceId: string, invoiceNumber?: string) => {
+    setDeletingId(invoiceId);
+    try {
+      const result = await deleteInvoiceAction(invoiceId);
+      if (result.success) {
+        toast({ title: "Factura Eliminada", description: `La factura "${invoiceNumber || invoiceId}" ha sido eliminada.` });
+        await fetchInvoices(); // Recargar la lista de facturas
+      } else {
+        throw new Error(result.error || "Error desconocido al eliminar la factura.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -96,7 +117,12 @@ export default function InvoicesPage() {
                 </TableHeader>
                 <TableBody>
                   {invoices.map((invoice) => (
-                    <InvoiceListItem key={invoice.id} invoice={invoice} />
+                    <InvoiceListItem 
+                      key={invoice.id} 
+                      invoice={invoice} 
+                      onDelete={() => handleDeleteInvoice(invoice.id, invoice.invoiceNumber)}
+                      isDeleting={deletingId === invoice.id}
+                    />
                   ))}
                 </TableBody>
               </Table>
