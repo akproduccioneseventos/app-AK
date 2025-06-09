@@ -46,7 +46,7 @@ const defaultDecoracion: DecoracionData = {
   tema: 'Boda Noelia Damaceno', 
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
-  items: [],
+  items: [], // Inicializar items como array vacío
   generalNotes: "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.",
 };
 
@@ -104,7 +104,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             ...(initialFiestaActualData.salonLayout || defaultSalonLayout),
             ...(data.salonLayout || {}), 
              elements: (data.salonLayout?.elements || []).map(el => ({
-                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`, // Ensure ID
+                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`, 
                 name: el.name || 'Elemento sin nombre',
                 quantity: el.quantity === undefined ? 1 : el.quantity,
                 notes: el.notes || undefined,
@@ -129,7 +129,9 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
               ...(data.decoracion?.paletaColores || {}),
             },
             items: (data.decoracion?.items || []).map(item => ({ ...item, quantity: item.quantity || 1 })),
-            generalNotes: data.decoracion?.generalNotes || defaultDecoracion.generalNotes,
+            generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : data.decoracion.generalNotes,
+            tema: data.decoracion?.tema === undefined ? defaultDecoracion.tema : data.decoracion.tema,
+            moodboardImageUrl: data.decoracion?.moodboardImageUrl === undefined ? defaultDecoracion.moodboardImageUrl : data.decoracion.moodboardImageUrl,
         },
     };
     return validatedData;
@@ -361,14 +363,21 @@ export async function updateDecoracionFiestaActual(
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.decoracion = { 
-        ...defaultDecoracion, 
-        ...decoracionData,
-        items: (decoracionData.items || []).map(item => ({ ...item, quantity: item.quantity || 1 })),
+        ...defaultDecoracion, // Start with defaults to ensure all fields are present
+        ...decoracionData, // Override with provided data
+        items: (decoracionData.items || []).map(item => ({ 
+            ...item, 
+            id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`, // Ensure ID
+            quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
+            estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
+        })),
         paletaColores: {
             ...defaultColorPalette,
             ...(decoracionData.paletaColores || {})
         },
         generalNotes: decoracionData.generalNotes === undefined ? defaultDecoracion.generalNotes : decoracionData.generalNotes,
+        tema: decoracionData.tema === undefined ? defaultDecoracion.tema : decoracionData.tema,
+        moodboardImageUrl: decoracionData.moodboardImageUrl === undefined ? defaultDecoracion.moodboardImageUrl : decoracionData.moodboardImageUrl,
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
@@ -398,30 +407,43 @@ async function initializeFiestaData() {
     try {
         // Attempt to access, if it fails (ENOENT), it will be handled by read or created in catch
         await fs.access(fiestaActualFilePath); 
-        const currentData = await readFiestaActualFile(); // This already ensures defaults for top-level
+        const currentData = await readFiestaActualFile(); 
         let needsUpdate = false;
 
-        // Ensure 'tareas' array is correctly initialized with defaults if empty or missing
         if (!currentData.tareas || currentData.tareas.length === 0) {
             currentData.tareas = [...defaultTareas.map(t => ({...t}))];
             needsUpdate = true;
         }
-
-        // Ensure 'decoracion' object and its sub-properties are initialized
+        
         if (!currentData.decoracion) {
             currentData.decoracion = { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} };
             needsUpdate = true;
         } else {
+            // Ensure nested properties of decoracion have defaults
             currentData.decoracion.paletaColores = {
                 ...defaultColorPalette,
                 ...(currentData.decoracion.paletaColores || {})
             };
-            currentData.decoracion.items = (currentData.decoracion.items || []).map(item => ({...item, quantity: item.quantity || 1}));
-            currentData.decoracion.generalNotes = currentData.decoracion.generalNotes === undefined ? defaultDecoracion.generalNotes : currentData.decoracion.generalNotes;
-            if (currentData.decoracion.tema === undefined) currentData.decoracion.tema = defaultDecoracion.tema;
+            currentData.decoracion.items = (currentData.decoracion.items || []).map(item => ({
+                ...item, 
+                id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+                quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
+                estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
+            }));
+            if (currentData.decoracion.generalNotes === undefined) {
+                 currentData.decoracion.generalNotes = defaultDecoracion.generalNotes;
+                 needsUpdate = true;
+            }
+            if (currentData.decoracion.tema === undefined) {
+                currentData.decoracion.tema = defaultDecoracion.tema;
+                needsUpdate = true;
+            }
+            if (currentData.decoracion.moodboardImageUrl === undefined) {
+                currentData.decoracion.moodboardImageUrl = defaultDecoracion.moodboardImageUrl;
+                 needsUpdate = true;
+            }
         }
         
-        // Ensure 'salonLayout' object and its elements are initialized with all fields
         if(!currentData.salonLayout){
             currentData.salonLayout = { ...defaultSalonLayout, elements: [] };
             needsUpdate = true;
@@ -453,8 +475,6 @@ async function initializeFiestaData() {
             console.log('Archivo fiesta-actual.json no encontrado, creando con datos iniciales...');
             await writeFiestaActualFile(initialFiestaActualData);
         } else {
-            // Log other errors but don't necessarily overwrite if file exists but is malformed,
-            // readFiestaActualFile's catch will handle returning defaults in that case.
             console.error("Error during fiesta data initialization:", error);
         }
     }

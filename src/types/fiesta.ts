@@ -29,9 +29,9 @@ export interface Reunion {
 export interface LayoutElement {
   id: string;
   name: string;
-  quantity: number; // Usado para inventario/lista, el canvas muestra 1 instancia por elemento
+  quantity: number; 
   notes?: string;
-  imageUrl?: string; // URL de la imagen para este elemento
+  imageUrl?: string; 
   x: number;
   y: number;
   width: number;
@@ -77,7 +77,7 @@ export interface DecoracionData {
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
   items?: DecorationItem[];
-  generalNotes?: string;
+  generalNotes?: string; // Renombrado de 'notas' para evitar confusión con notas de DecorationItem
 }
 
 
@@ -93,3 +93,4 @@ export interface FiestaEnPlanificacion {
   tareas?: Tarea[];
   decoracion?: DecoracionData;
 }
+
