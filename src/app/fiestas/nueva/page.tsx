@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2 } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -73,15 +73,23 @@ const planningModules: PlanningModule[] = [
   {
     title: "Catering y Menú",
     description: "Crea y gestiona menús personalizados, detallando platos e ingredientes con costos.",
-    icon: ChefHat, 
+    icon: ChefHat,
     href: "/fiestas/nueva/catering",
     status: "Disponible",
     actionLabel: "Gestionar Menús"
   },
   {
+    title: "Música de la Fiesta",
+    description: "Define las canciones clave, la playlist principal y la lista de exclusión.",
+    icon: Music2,
+    href: "/fiestas/nueva/musica",
+    status: "Disponible",
+    actionLabel: "Definir Música"
+  },
+  {
     title: "Gestión de Personal del Evento",
     description: "Asigna personal de tu equipo al evento y gestiona sus roles y costos.",
-    icon: UserCheck, 
+    icon: UserCheck,
     href: "/fiestas/nueva/personal",
     status: "Disponible",
     actionLabel: "Asignar Personal"
@@ -89,7 +97,7 @@ const planningModules: PlanningModule[] = [
   {
     title: "Proveedores y Servicios",
     description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.",
-    icon: Users2, 
+    icon: Users2,
     href: "/fiestas/nueva/proveedores",
     status: "Disponible",
     actionLabel: "Buscar Proveedores"
@@ -106,8 +114,8 @@ const planningModules: PlanningModule[] = [
     title: "Reuniones con Cliente",
     description: "Registra y organiza las notas y acuerdos de las reuniones de planificación.",
     icon: MessageSquareText,
-    href: "/fiestas/nueva/reuniones", 
-    status: "Disponible", 
+    href: "/fiestas/nueva/reuniones",
+    status: "Disponible",
     actionLabel: "Gestionar Reuniones"
   }
 ];
@@ -141,7 +149,7 @@ export default function PlanificarFiestaHubPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [linkedInvoices, setLinkedInvoices] = useState<Invoice[]>([]);
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -180,7 +188,7 @@ export default function PlanificarFiestaHubPage() {
   useEffect(() => {
     loadFiestaData();
   }, [loadFiestaData]);
-  
+
   const presupuestoEstimado = fiestaActual?.configuracion?.presupuestoEstimado ?? 0;
   const totalPagado = linkedInvoices.reduce((sum, invoice) => {
     const paymentsTotal = invoice.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
@@ -244,7 +252,7 @@ export default function PlanificarFiestaHubPage() {
                 </div>
             </CardContent>
           </Card>
-          
+
           {/* Task & Financial Summary Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="md:col-span-1 hover:shadow-md transition-shadow">
@@ -295,7 +303,7 @@ export default function PlanificarFiestaHubPage() {
                 </CardContent>
             </Card>
           </div>
-          
+
           <Card className="shadow-lg">
             <CardHeader>
                 <div className="flex items-center gap-3">

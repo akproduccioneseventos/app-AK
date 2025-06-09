@@ -31,9 +31,9 @@ export interface Reunion {
 export interface LayoutElement {
   id: string;
   name: string;
-  quantity: number; 
+  quantity: number;
   notes?: string;
-  imageUrl?: string; 
+  imageUrl?: string;
   x: number;
   y: number;
   width: number;
@@ -80,7 +80,7 @@ export interface DecoracionData {
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
   items?: DecorationItem[];
-  generalNotes?: string; 
+  generalNotes?: string;
 }
 
 export interface EventWebPageSettings {
@@ -88,9 +88,13 @@ export interface EventWebPageSettings {
   welcomeMessage?: string;
   coverImageUrl?: string; // Stores URL or data URI
   galleryImageUrls?: string[]; // Stores URLs or data URIs
-  // Future RSVP settings
-  // showRsvpForm?: boolean;
-  // rsvpDeadline?: string;
+}
+
+export interface MusicaFiesta {
+  cancionEntrada?: string;
+  cancionVals?: string;
+  playlistFiesta?: string; // Usar Textarea para lista o enlace
+  listaNoReproducir?: string; // Usar Textarea
 }
 
 export interface FiestaEnPlanificacion {
@@ -105,5 +109,6 @@ export interface FiestaEnPlanificacion {
   tareas?: Tarea[];
   decoracion?: DecoracionData;
   invitados?: Invitado[];
-  webPageSettings?: EventWebPageSettings; // Added web page settings
+  webPageSettings?: EventWebPageSettings;
+  musica?: MusicaFiesta; // Nueva sección de música
 }

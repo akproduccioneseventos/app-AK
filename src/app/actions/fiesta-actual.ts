@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, DecorationItem, EventWebPageSettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, DecorationItem, EventWebPageSettings, MusicaFiesta } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado'; // Importar tipos de invitado
 import fs from 'fs/promises';
 import path from 'path';
@@ -12,7 +12,7 @@ const fiestaActualFilePath = path.join(dataDirectory, 'fiesta-actual.json');
 const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Boda Noelia Damaceno',
   tipoCelebracion: 'Boda',
-  fechaEvento: new Date(2025, 5, 6).toISOString(), 
+  fechaEvento: new Date(2025, 5, 6).toISOString(),
   horaInicio: '',
   horaFin: '',
   nombreLugar: 'Bonsai',
@@ -20,7 +20,7 @@ const defaultConfiguracion: ConfigEventoDataStorage = {
   invitadosEstimados: 80,
   presupuestoEstimado: 156000,
   notasAdicionales: '',
-  clienteId: undefined, 
+  clienteId: undefined,
 };
 
 const defaultTareas: Tarea[] = [
@@ -45,10 +45,10 @@ const defaultColorPalette: ColorPalette = {
 };
 
 const defaultDecoracion: DecoracionData = {
-  tema: 'Boda Noelia Damaceno', 
+  tema: 'Boda Noelia Damaceno',
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
-  items: [], 
+  items: [],
   generalNotes: "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.",
 };
 
@@ -65,9 +65,16 @@ const defaultWebPageSettings: EventWebPageSettings = {
   galleryImageUrls: [],
 };
 
+const defaultMusicaFiesta: MusicaFiesta = {
+  cancionEntrada: '',
+  cancionVals: '',
+  playlistFiesta: '',
+  listaNoReproducir: '',
+};
+
 
 const initialFiestaActualData: FiestaEnPlanificacion = {
-  id: 'fiesta-en-curso', 
+  id: 'fiesta-en-curso',
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
   menuAsignadoId: undefined,
@@ -76,13 +83,14 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   reuniones: [],
   salonLayout: { ...defaultSalonLayout, elements: [] },
   tareas: [...defaultTareas.map(t => ({...t}))],
-  decoracion: { 
-    ...defaultDecoracion, 
-    items: [], 
-    paletaColores: { ...defaultColorPalette } 
+  decoracion: {
+    ...defaultDecoracion,
+    items: [],
+    paletaColores: { ...defaultColorPalette }
   },
   invitados: [],
   webPageSettings: { ...defaultWebPageSettings },
+  musica: { ...defaultMusicaFiesta },
 };
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -98,10 +106,10 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
   try {
     const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
     let data = JSON.parse(fileContent) as FiestaEnPlanificacion;
-    
+
     const validatedData: FiestaEnPlanificacion = {
-        ...initialFiestaActualData, 
-        ...data, 
+        ...initialFiestaActualData,
+        ...data,
         configuracion: {
             ...initialFiestaActualData.configuracion,
             ...(data.configuracion || {}),
@@ -112,11 +120,11 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         presupuestoId: data.presupuestoId || undefined,
         invoiceIds: data.invoiceIds || [],
         reuniones: data.reuniones || [],
-        salonLayout: { 
+        salonLayout: {
             ...(initialFiestaActualData.salonLayout || defaultSalonLayout),
-            ...(data.salonLayout || {}), 
+            ...(data.salonLayout || {}),
              elements: (data.salonLayout?.elements || []).map(el => ({
-                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`, 
+                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
                 name: el.name || 'Elemento sin nombre',
                 quantity: el.quantity === undefined ? 1 : el.quantity,
                 notes: el.notes || undefined,
@@ -168,6 +176,10 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
           ...(data.webPageSettings || {}),
           galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
         },
+        musica: {
+          ...(initialFiestaActualData.musica || defaultMusicaFiesta),
+          ...(data.musica || {}),
+        },
     };
     return validatedData;
 
@@ -197,7 +209,7 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   const fiesta = await readFiestaActualFile();
-  return JSON.parse(JSON.stringify(fiesta)); 
+  return JSON.parse(JSON.stringify(fiesta));
 }
 
 export async function updateConfiguracionFiestaActual(
@@ -366,8 +378,8 @@ export async function updateSalonLayoutFiestaActual(
       type: el.type ?? 'custom',
       category: el.category || 'Otro',
     }));
-    fiestaActual.salonLayout = { 
-        ...layoutData, 
+    fiestaActual.salonLayout = {
+        ...layoutData,
         elements: validatedElements,
         backgroundImageUrl: layoutData.backgroundImageUrl || '',
         generalNotes: layoutData.generalNotes || ''
@@ -397,10 +409,10 @@ export async function updateDecoracionFiestaActual(
 ): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.decoracion = { 
-        ...defaultDecoracion, 
-        ...decoracionData, 
-        items: (decoracionData.items || []).map(item => ({ 
+    fiestaActual.decoracion = {
+        ...defaultDecoracion,
+        ...decoracionData,
+        items: (decoracionData.items || []).map(item => ({
             id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
             name: item.name || 'Ítem sin nombre',
             category: item.category || 'Otro',
@@ -462,8 +474,8 @@ export async function updateInvitadoFiestaActual(
     }
     const index = fiestaActual.invitados.findIndex(inv => inv.id === invitadoData.id);
     if (index !== -1) {
-      fiestaActual.invitados[index] = { 
-        ...invitadoData, 
+      fiestaActual.invitados[index] = {
+        ...invitadoData,
         partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
       };
       await writeFiestaActualFile(fiestaActual);
@@ -533,9 +545,9 @@ export async function handleRsvpSubmission(
       ...invitadoActual,
       rsvp: newRsvpStatus,
       partySize: submissionData.numeroAsistentes,
-      contacto: submissionData.email || invitadoActual.contacto, // Preserve original contact if email is not provided
-      notes: submissionData.mensaje 
-        ? `${submissionData.mensaje}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}` 
+      contacto: submissionData.email || invitadoActual.contacto, 
+      notes: submissionData.mensaje
+        ? `${submissionData.mensaje}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}`
         : invitadoActual.notes,
     };
 
@@ -555,9 +567,9 @@ export async function updateWebPageSettingsFiestaActual(
 ): Promise<{ success: boolean; updatedData?: EventWebPageSettings; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.webPageSettings = { 
-      ...(fiestaActual.webPageSettings || defaultWebPageSettings), 
-      ...settings 
+    fiestaActual.webPageSettings = {
+      ...(fiestaActual.webPageSettings || defaultWebPageSettings),
+      ...settings
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.webPageSettings)) };
@@ -566,16 +578,34 @@ export async function updateWebPageSettingsFiestaActual(
   }
 }
 
+export async function updateMusicaFiestaActual(
+  musicaData: MusicaFiesta
+): Promise<{ success: boolean; updatedData?: MusicaFiesta; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    fiestaActual.musica = {
+        ...(fiestaActual.musica || defaultMusicaFiesta),
+        ...musicaData
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.musica)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la música de la fiesta." };
+  }
+}
+
+
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
-        const resetData = { 
+        const resetData = {
           ...initialFiestaActualData,
           configuracion: { ...defaultConfiguracion, clienteId: undefined },
-          tareas: [...defaultTareas.map(t => ({...t}))], 
+          tareas: [...defaultTareas.map(t => ({...t}))],
           decoracion: { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} },
           salonLayout: { ...defaultSalonLayout, elements: [] },
           invitados: [],
           webPageSettings: { ...defaultWebPageSettings },
+          musica: { ...defaultMusicaFiesta },
         };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
@@ -587,22 +617,22 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
 async function initializeFiestaData() {
     await ensureDataDirectoryExists();
     try {
-        await fs.access(fiestaActualFilePath); 
-        const currentData = await readFiestaActualFile(); 
+        await fs.access(fiestaActualFilePath);
+        const currentData = await readFiestaActualFile();
         let needsUpdate = false;
 
         if (!currentData.configuracion) {
             currentData.configuracion = { ...defaultConfiguracion };
             needsUpdate = true;
-        } else if (currentData.configuracion.clienteId === undefined) { 
-            currentData.configuracion.clienteId = undefined; 
+        } else if (currentData.configuracion.clienteId === undefined) {
+            currentData.configuracion.clienteId = undefined;
         }
 
         if (!currentData.tareas || currentData.tareas.length === 0) {
             currentData.tareas = [...defaultTareas.map(t => ({...t}))];
             needsUpdate = true;
         }
-        
+
         if (!currentData.decoracion) {
             currentData.decoracion = { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} };
             needsUpdate = true;
@@ -634,7 +664,7 @@ async function initializeFiestaData() {
                  needsUpdate = true;
             }
         }
-        
+
         if(!currentData.salonLayout){
             currentData.salonLayout = { ...defaultSalonLayout, elements: [] };
             needsUpdate = true;
@@ -660,7 +690,7 @@ async function initializeFiestaData() {
         if (!currentData.invitados) {
             currentData.invitados = [];
             needsUpdate = true;
-        } else { 
+        } else {
             currentData.invitados = currentData.invitados.map(inv => ({
               id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
               nombre: inv.nombre || 'Invitado sin nombre',
@@ -678,7 +708,12 @@ async function initializeFiestaData() {
         } else {
           currentData.webPageSettings.galleryImageUrls = currentData.webPageSettings.galleryImageUrls || [];
         }
-        
+
+        if (!currentData.musica) {
+            currentData.musica = { ...defaultMusicaFiesta };
+            needsUpdate = true;
+        }
+
         if (needsUpdate) {
             await writeFiestaActualFile(currentData);
         }
@@ -694,4 +729,3 @@ async function initializeFiestaData() {
 }
 
 initializeFiestaData();
-

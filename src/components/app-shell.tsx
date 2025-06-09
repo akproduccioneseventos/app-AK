@@ -1,5 +1,5 @@
 
-'use client'; 
+'use client';
 
 import type { ReactNode } from 'react';
 import {
@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -32,13 +32,13 @@ const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
 
   if (pathname === '/') return 'Dashboard';
-  
+
   // Presupuestos
   if (pathname === '/presupuestos') return 'Presupuestos';
   if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${pathSegments[1]}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${pathSegments[1]}`;
-  
+
   // Facturas
   if (pathname === '/invoices') return 'Facturas';
   if (pathname === '/invoices/new') return 'Nueva Factura';
@@ -49,7 +49,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
-  if (pathname === '/sales-funnel') return 'Embudo de Ventas'; 
+  if (pathname === '/sales-funnel') return 'Embudo de Ventas';
 
   // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
@@ -74,6 +74,7 @@ const getPageTitle = (pathname: string): string => {
   }
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
+  if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
 
 
   // Configuración
@@ -85,14 +86,16 @@ const getPageTitle = (pathname: string): string => {
 
   // Página Pública del Evento (si se accede dentro del shell)
   if (pathname === '/evento/actual') return 'Página del Evento';
-  
+  if (pathname === '/evento/actual/mesa') return 'Consulta de Mesa';
+
+
   // Rutas Generales (menos específicas)
   if (pathname.startsWith('/eventos')) return 'Eventos';
   if (pathname.startsWith('/proveedores')) return 'Proveedores';
   if (pathname.startsWith('/compras')) return 'Compras';
   if (pathname.startsWith('/calendario')) return 'Calendario';
   if (pathname.startsWith('/notas')) return 'Notas';
-  
+
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
@@ -100,7 +103,7 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) { 
+        if (!isNaN(Number(title))) {
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
@@ -109,7 +112,7 @@ const getPageTitle = (pathname: string): string => {
         }
         if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
         if(title.toLowerCase() === 'new' || title.toLowerCase() === 'nuevo' || title.toLowerCase() === 'nueva') title = "Nuevo";
-        
+
         if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())){
              return title;
         }
@@ -118,8 +121,8 @@ const getPageTitle = (pathname: string): string => {
     }
     return title;
   }
-  
-  return 'AK Producciones'; 
+
+  return 'AK Producciones';
 };
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
@@ -131,6 +134,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/sales-funnel') return FilterIcon;
   if (pathname === '/evento/actual') return Globe;
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
+  if (pathname === '/fiestas/nueva/musica') return Music2;
 
 
   return null;
@@ -190,7 +194,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <SidebarInset>
         <header className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 border-b">
           <div className="flex items-center gap-2">
-            <SidebarTrigger className="lg:hidden" /> 
+            <SidebarTrigger className="lg:hidden" />
              {PageIcon && <PageIcon className="w-6 h-6 md:w-7 md:h-7 text-primary hidden sm:block" />}
             <h1 className="text-2xl md:text-3xl font-bold font-headline text-foreground">
               {pageTitle}
