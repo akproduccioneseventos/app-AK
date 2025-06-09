@@ -2,9 +2,14 @@
 'use server';
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
+import fs from 'fs/promises';
+import path from 'path';
 
-// --- SIMULACIÓN DE BASE DE DATOS EN MEMORIA ---
-let mockMenuDatabase: FullMenu[] = [
+const dataDirectory = path.join(process.cwd(), 'src', 'data');
+const menusFilePath = path.join(dataDirectory, 'menus-catering.json');
+
+// Datos iniciales si el archivo no existe o está vacío
+const initialMockMenuDatabase: FullMenu[] = [
   {
     id: 'menu_clasico_casamiento_1',
     name: 'Menú Clásico Casamiento',
@@ -53,7 +58,6 @@ let mockMenuDatabase: FullMenu[] = [
     createdAt: new Date(2023, 11, 1).toISOString(),
     updatedAt: new Date(2023, 11, 1).toISOString(),
   },
-  // Default Menu based on "6 de junio" Excel
   {
     id: 'menu_base_boda_noelia',
     name: 'Menú Base Boda Noelia',
@@ -64,82 +68,105 @@ let mockMenuDatabase: FullMenu[] = [
         name: 'Tabla de fiambres',
         type: 'Entrada',
         ingredients: [
-          { id: 'ing_fiambres_varios', name: 'Fiambres surtidos', quantity: '1', unit: 'global', cost: '3200.00' }
+          { id: 'ing_fiambres_varios', name: 'Fiambres surtidos (costo total para 80 pax)', quantity: '1', unit: 'global', cost: '3200.00' }
         ],
-        totalDishCost: 3200.00, // For 80 guests at $40
+        totalDishCost: 3200.00,
       },
       {
         id: 'dish_sandwiches_saladitos_noelia',
         name: 'Sandwiches y saladitos',
         type: 'Entrada',
         ingredients: [
-          { id: 'ing_sandwiches_varios', name: 'Sandwiches y saladitos surtidos', quantity: '1', unit: 'global', cost: '6400.00' }
+          { id: 'ing_sandwiches_varios', name: 'Sandwiches y saladitos surtidos (costo total para 80 pax)', quantity: '1', unit: 'global', cost: '6400.00' }
         ],
-        totalDishCost: 6400.00, // For 80 guests at $80
+        totalDishCost: 6400.00,
       },
       {
         id: 'dish_pollo_buffet_noelia',
         name: 'Pollo con mesa buffet',
         type: 'Plato Principal',
         ingredients: [
-          { id: 'ing_pollo_buffet_completo', name: 'Pollo y acompañamientos buffet', quantity: '1', unit: 'global', cost: '9100.00' }
+          { id: 'ing_pollo_buffet_completo', name: 'Pollo y acompañamientos buffet (costo total para 70 pax)', quantity: '1', unit: 'global', cost: '9100.00' }
         ],
-        totalDishCost: 9100.00, // For 70 guests at $130
+        totalDishCost: 9100.00,
       },
       {
         id: 'dish_hamburguesas_fritas_noelia',
         name: 'Hamburguesas c/ fritas (Menú Personal)',
         type: 'Plato Principal',
         ingredients: [
-          { id: 'ing_hamburguesas_combo', name: 'Combo hamburguesa y fritas', quantity: '1', unit: 'global', cost: '3375.00' }
+          { id: 'ing_hamburguesas_combo', name: 'Combo hamburguesa y fritas (costo total para 25 pax)', quantity: '1', unit: 'global', cost: '3375.00' }
         ],
-        totalDishCost: 3375.00, // For 25 guests at $135
+        totalDishCost: 3375.00,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
 ];
-// --- FIN SIMULACIÓN BASE DE DATOS ---
 
+async function ensureDataDirectoryExists(): Promise<void> {
+  try {
+    await fs.mkdir(dataDirectory, { recursive: true });
+  } catch (error) {
+    console.error('Error creando el directorio de datos para menús:', error);
+  }
+}
+
+async function readMenusFile(): Promise<FullMenu[]> {
+  await ensureDataDirectoryExists();
+  try {
+    const fileContent = await fs.readFile(menusFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return Array.isArray(data) ? data : [...initialMockMenuDatabase];
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      await writeMenusFile(initialMockMenuDatabase);
+      return [...initialMockMenuDatabase];
+    }
+    console.error('Error leyendo el archivo de menús, usando datos iniciales:', error);
+    return [...initialMockMenuDatabase];
+  }
+}
+
+async function writeMenusFile(data: FullMenu[]): Promise<void> {
+  await ensureDataDirectoryExists();
+  try {
+    await fs.writeFile(menusFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error escribiendo en el archivo de menús:', error);
+  }
+}
 
 export async function getMenus(): Promise<FullMenu[]> {
-  // Simulación con delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  // Devolver una copia para evitar mutaciones directas del array mock
-  return JSON.parse(JSON.stringify(mockMenuDatabase.sort((a,b) => 
+  const menus = await readMenusFile();
+  return menus.sort((a,b) => 
     new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-  )));
+  );
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  // Simulación con delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  const menu = mockMenuDatabase.find(m => m.id === id);
+  const menus = await readMenusFile();
+  const menu = menus.find(m => m.id === id);
   return menu ? JSON.parse(JSON.stringify(menu)) : null;
 }
 
 export async function saveMenu(
   menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
-  // Simulación con delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Simular un error aleatorio para pruebas
-  // if (Math.random() > 0.8) {
-  //   return { success: false, error: "Error simulado al guardar el menú en la 'base de datos'." };
-  // }
-
+  let menus = await readMenusFile();
+  
   if ('id' in menuData && menuData.id) {
     // Actualizar menú existente
-    const index = mockMenuDatabase.findIndex(m => m.id === menuData.id);
+    const index = menus.findIndex(m => m.id === menuData.id);
     if (index !== -1) {
-      mockMenuDatabase[index] = { 
-        ...mockMenuDatabase[index], 
+      menus[index] = { 
+        ...menus[index], 
         ...menuData, 
         updatedAt: new Date().toISOString() 
       };
-      return { success: true, id: menuData.id, menu: JSON.parse(JSON.stringify(mockMenuDatabase[index])) };
+      await writeMenusFile(menus);
+      return { success: true, id: menuData.id, menu: JSON.parse(JSON.stringify(menus[index])) };
     } else {
       return { success: false, error: `Menú con ID ${menuData.id} no encontrado para actualizar.` };
     }
@@ -151,18 +178,19 @@ export async function saveMenu(
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    mockMenuDatabase.push(newMenu);
+    menus.push(newMenu);
+    await writeMenusFile(menus);
     return { success: true, id: newMenu.id, menu: JSON.parse(JSON.stringify(newMenu)) };
   }
 }
 
 export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
-  // Simulación con delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  const initialLength = mockMenuDatabase.length;
-  mockMenuDatabase = mockMenuDatabase.filter(m => m.id !== id);
+  let menus = await readMenusFile();
+  const initialLength = menus.length;
+  menus = menus.filter(m => m.id !== id);
   
-  if (mockMenuDatabase.length < initialLength) {
+  if (menus.length < initialLength) {
+    await writeMenusFile(menus);
     return { success: true };
   } else {
     return { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };

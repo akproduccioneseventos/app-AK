@@ -2,8 +2,13 @@
 'use server';
 
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import fs from 'fs/promises';
+import path from 'path';
 
-// Default data based on "6 de junio" for configuration
+const dataDirectory = path.join(process.cwd(), 'src', 'data');
+const fiestaActualFilePath = path.join(dataDirectory, 'fiesta-actual.json');
+
+// Default data for configuration (from "6 de junio" example)
 const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Boda Noelia Damaceno',
   tipoCelebracion: 'Boda',
@@ -17,9 +22,7 @@ const defaultConfiguracion: ConfigEventoDataStorage = {
   notasAdicionales: '',
 };
 
-// This will hold the single "fiesta en planificación"
-// It's initialized with default configuration and empty personal.
-let fiestaActual: FiestaEnPlanificacion = {
+const initialFiestaActualData: FiestaEnPlanificacion = {
   id: 'fiesta-en-curso', // Static ID for the single planned fiesta
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
@@ -27,19 +30,63 @@ let fiestaActual: FiestaEnPlanificacion = {
   // tareas: defaultTareas, // example
 };
 
+async function ensureDataDirectoryExists(): Promise<void> {
+  try {
+    await fs.mkdir(dataDirectory, { recursive: true });
+  } catch (error) {
+    console.error('Error creando el directorio de datos para fiesta actual:', error);
+  }
+}
+
+async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
+  await ensureDataDirectoryExists();
+  try {
+    const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    // Basic validation to ensure it's somewhat like FiestaEnPlanificacion
+    if (data && data.id === 'fiesta-en-curso' && data.configuracion) {
+        return data;
+    }
+    // If not valid, reset to initial
+    await writeFiestaActualFile(initialFiestaActualData);
+    return { ...initialFiestaActualData };
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      await writeFiestaActualFile(initialFiestaActualData);
+      return { ...initialFiestaActualData };
+    }
+    console.error('Error leyendo el archivo de fiesta actual, usando datos iniciales:', error);
+    // Attempt to write initial data if file is corrupt
+    try {
+        await writeFiestaActualFile(initialFiestaActualData);
+    } catch (writeError) {
+        console.error('Error escribiendo datos iniciales de fiesta actual después de un error de lectura:', writeError);
+    }
+    return { ...initialFiestaActualData };
+  }
+}
+
+async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void> {
+  await ensureDataDirectoryExists();
+  try {
+    await fs.writeFile(fiestaActualFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error escribiendo en el archivo de fiesta actual:', error);
+  }
+}
+
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  // Simulate async operation
-  await new Promise(resolve => setTimeout(resolve, 50)); // Shorter delay for getters
-  // Return a deep copy to prevent direct mutation of the server-side object from client-side cached versions
-  return JSON.parse(JSON.stringify(fiestaActual)); 
+  const fiesta = await readFiestaActualFile();
+  return JSON.parse(JSON.stringify(fiesta)); // Return a deep copy
 }
 
 export async function updateConfiguracionFiestaActual(
   configData: ConfigEventoDataStorage
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
-  await new Promise(resolve => setTimeout(resolve, 300));
   try {
+    let fiestaActual = await readFiestaActualFile();
     fiestaActual.configuracion = { ...configData };
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.configuracion)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la configuración." };
@@ -49,26 +96,21 @@ export async function updateConfiguracionFiestaActual(
 export async function updatePersonalFiestaActual(
   personalData: PersonalAsignadoDetalleStorage[]
 ): Promise<{ success: boolean; updatedData?: PersonalAsignadoDetalleStorage[]; error?: string }> {
-  await new Promise(resolve => setTimeout(resolve, 300));
   try {
+    let fiestaActual = await readFiestaActualFile();
     fiestaActual.personalAsignado = [...personalData];
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.personalAsignado)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el personal." };
   }
 }
 
-// Function to reset the current fiesta planning data to defaults
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
-    await new Promise(resolve => setTimeout(resolve, 100));
     try {
-        fiestaActual = {
-            id: 'fiesta-en-curso',
-            configuracion: { ...defaultConfiguracion },
-            personalAsignado: [],
-            // TODO: Reset other modules like Tareas, Invitados etc. with their defaults when added
-        };
-        return { success: true, initialData: JSON.parse(JSON.stringify(fiestaActual)) };
+        // Directly write initial data, effectively resetting it
+        await writeFiestaActualFile(initialFiestaActualData);
+        return { success: true, initialData: JSON.parse(JSON.stringify(initialFiestaActualData)) };
     } catch (e: any) {
         return { success: false, error: e.message || "Error al reiniciar la fiesta." };
     }

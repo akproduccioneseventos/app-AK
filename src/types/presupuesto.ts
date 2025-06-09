@@ -1,10 +1,12 @@
-export type TipoEvento = 'Cumpleaños' | 'Boda' | 'Fiesta de 15' | 'Baby Shower' | 'Otro';
+
+export type TipoEvento = 'Cumpleaños' | 'Boda' | 'Fiesta de 15' | 'Baby Shower' | 'Evento Corporativo' | 'Conferencia' | 'Lanzamiento de Producto' | 'Otro';
 
 export interface PlatoPresupuesto {
   id: string;
   nombre: string;
   descripcion?: string;
   imagenUrl?: string; // URL de la imagen del plato
+  dataAiHint?: string; // Para la búsqueda de imágenes
   costoPorPersona: number;
   seleccionado?: boolean; // Para UI
 }
@@ -17,7 +19,7 @@ export interface ServicioAdicional {
 }
 
 export interface Presupuesto {
-  id: string; // ID del documento en Firestore
+  id: string; // ID del documento
   clienteNombre: string;
   eventoTipo: TipoEvento | string; // string para 'Otro'
   eventoFecha: string; // ISO date string
@@ -38,7 +40,7 @@ export interface Presupuesto {
   costoSubtotalServicios: number;
   costoTotalEstimado: number;
   timestamp: string; // ISO date string del momento de creación/actualización
-  estado?: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado'; // Opcional
+  estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado';
   notas?: string;
 }
 
@@ -53,7 +55,7 @@ export interface PresupuestoFormData {
   invitadosCantidad: number | null;
 
   // Paso 2
-  platosDisponibles: PlatoPresupuesto[]; // Cargados de Firestore (simulado)
+  platosDisponibles: PlatoPresupuesto[]; // Cargados
   platosSeleccionadosIds: Set<string>; // IDs de platos seleccionados
 
   // Paso 3
@@ -62,5 +64,5 @@ export interface PresupuestoFormData {
 
   // Paso 4 (Cálculos y resumen)
   resumen?: Presupuesto; // El presupuesto final calculado
-  notas: string; // Se inicializa vacío
+  notas: string;
 }
