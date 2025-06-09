@@ -83,6 +83,15 @@ export interface DecoracionData {
   generalNotes?: string; 
 }
 
+export interface EventWebPageSettings {
+  pageTitle?: string;
+  welcomeMessage?: string;
+  coverImageUrl?: string; // Stores URL or data URI
+  galleryImageUrls?: string[]; // Stores URLs or data URIs
+  // Future RSVP settings
+  // showRsvpForm?: boolean;
+  // rsvpDeadline?: string;
+}
 
 export interface FiestaEnPlanificacion {
   id: string;
@@ -95,5 +104,6 @@ export interface FiestaEnPlanificacion {
   salonLayout?: SalonLayoutData;
   tareas?: Tarea[];
   decoracion?: DecoracionData;
-  invitados?: Invitado[]; // Añadir lista de invitados aquí
+  invitados?: Invitado[];
+  webPageSettings?: EventWebPageSettings; // Added web page settings
 }

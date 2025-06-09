@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, DecorationItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, DecorationItem, EventWebPageSettings } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData } from '@/types/invitado'; // Importar tipos de invitado
 import fs from 'fs/promises';
 import path from 'path';
@@ -58,6 +58,13 @@ const defaultSalonLayout: SalonLayoutData = {
     generalNotes: '',
 };
 
+const defaultWebPageSettings: EventWebPageSettings = {
+  pageTitle: 'Mi Evento Especial',
+  welcomeMessage: '¡Bienvenidos a la celebración!',
+  coverImageUrl: '',
+  galleryImageUrls: [],
+};
+
 
 const initialFiestaActualData: FiestaEnPlanificacion = {
   id: 'fiesta-en-curso', 
@@ -74,7 +81,8 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
     items: [], 
     paletaColores: { ...defaultColorPalette } 
   },
-  invitados: [], // Inicializar lista de invitados
+  invitados: [],
+  webPageSettings: { ...defaultWebPageSettings },
 };
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -146,7 +154,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             tema: data.decoracion?.tema === undefined ? defaultDecoracion.tema : data.decoracion.tema,
             moodboardImageUrl: data.decoracion?.moodboardImageUrl === undefined ? defaultDecoracion.moodboardImageUrl : data.decoracion.moodboardImageUrl,
         },
-        invitados: (data.invitados || []).map(inv => ({ // Validar invitados
+        invitados: (data.invitados || []).map(inv => ({
           id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
           nombre: inv.nombre || 'Invitado sin nombre',
           contacto: inv.contacto || undefined,
@@ -155,6 +163,11 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
           tableNumber: inv.tableNumber || undefined,
           notes: inv.notes || undefined,
         })),
+        webPageSettings: {
+          ...(initialFiestaActualData.webPageSettings || defaultWebPageSettings),
+          ...(data.webPageSettings || {}),
+          galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
+        },
     };
     return validatedData;
 
@@ -484,6 +497,22 @@ export async function deleteInvitadoFiestaActual(
   }
 }
 
+export async function updateWebPageSettingsFiestaActual(
+  settings: EventWebPageSettings
+): Promise<{ success: boolean; updatedData?: EventWebPageSettings; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    fiestaActual.webPageSettings = { 
+      ...(fiestaActual.webPageSettings || defaultWebPageSettings), 
+      ...settings 
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.webPageSettings)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la configuración de la página web." };
+  }
+}
+
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
         const resetData = { 
@@ -492,7 +521,8 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
           tareas: [...defaultTareas.map(t => ({...t}))], 
           decoracion: { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} },
           salonLayout: { ...defaultSalonLayout, elements: [] },
-          invitados: [], // Resetear invitados
+          invitados: [],
+          webPageSettings: { ...defaultWebPageSettings },
         };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
@@ -574,10 +604,10 @@ async function initializeFiestaData() {
             currentData.salonLayout.generalNotes = currentData.salonLayout.generalNotes || '';
         }
 
-        if (!currentData.invitados) { // Asegurar que exista el array de invitados
+        if (!currentData.invitados) {
             currentData.invitados = [];
             needsUpdate = true;
-        } else { // Validar invitados existentes
+        } else { 
             currentData.invitados = currentData.invitados.map(inv => ({
               id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
               nombre: inv.nombre || 'Invitado sin nombre',
@@ -587,6 +617,13 @@ async function initializeFiestaData() {
               tableNumber: inv.tableNumber || undefined,
               notes: inv.notes || undefined,
             }));
+        }
+
+        if (!currentData.webPageSettings) {
+          currentData.webPageSettings = { ...defaultWebPageSettings };
+          needsUpdate = true;
+        } else {
+          currentData.webPageSettings.galleryImageUrls = currentData.webPageSettings.galleryImageUrls || [];
         }
         
         if (needsUpdate) {
