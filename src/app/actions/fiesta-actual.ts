@@ -89,7 +89,7 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
     paletaColores: { ...defaultColorPalette }
   },
   invitados: [],
-  webPageSettings: { ...defaultWebPageSettings },
+  webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },
   musica: { ...defaultMusicaFiesta },
 };
 
@@ -105,13 +105,12 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
   await ensureDataDirectoryExists();
   try {
     const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
-    let data = JSON.parse(fileContent) as FiestaEnPlanificacion;
+    let data = JSON.parse(fileContent) as Partial<FiestaEnPlanificacion>; // Parse as Partial to handle missing fields
 
     const validatedData: FiestaEnPlanificacion = {
-        ...initialFiestaActualData,
-        ...data,
+        id: data.id || initialFiestaActualData.id,
         configuracion: {
-            ...initialFiestaActualData.configuracion,
+            ...defaultConfiguracion,
             ...(data.configuracion || {}),
             clienteId: data.configuracion?.clienteId || undefined,
         },
@@ -119,14 +118,18 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         menuAsignadoId: data.menuAsignadoId || undefined,
         presupuestoId: data.presupuestoId || undefined,
         invoiceIds: data.invoiceIds || [],
-        reuniones: data.reuniones || [],
+        reuniones: (data.reuniones || []).map(r => ({
+            id: r.id || `reunion_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+            titulo: r.titulo || 'Reunión sin título',
+            fecha: r.fecha,
+            notas: r.notas || ''
+        })),
         salonLayout: {
-            ...(initialFiestaActualData.salonLayout || defaultSalonLayout),
-            ...(data.salonLayout || {}),
-             elements: (data.salonLayout?.elements || []).map(el => ({
+            backgroundImageUrl: data.salonLayout?.backgroundImageUrl || defaultSalonLayout.backgroundImageUrl || '',
+            elements: (data.salonLayout?.elements || []).map(el => ({
                 id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
                 name: el.name || 'Elemento sin nombre',
-                quantity: el.quantity === undefined ? 1 : el.quantity,
+                quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
                 notes: el.notes || undefined,
                 imageUrl: el.imageUrl || undefined,
                 x: el.x ?? 0,
@@ -136,18 +139,24 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
                 rotation: el.rotation ?? 0,
                 type: el.type ?? 'custom',
                 category: el.category || 'Otro',
-             })),
-             backgroundImageUrl: data.salonLayout?.backgroundImageUrl || '',
-             generalNotes: data.salonLayout?.generalNotes || '',
+                dataAiHint: el.dataAiHint
+            })),
+            generalNotes: data.salonLayout?.generalNotes || defaultSalonLayout.generalNotes || '',
         },
-        tareas: (data.tareas && data.tareas.length > 0) ? data.tareas : [...defaultTareas.map(t => ({...t}))],
+        tareas: (data.tareas && data.tareas.length > 0 ? data.tareas : [...defaultTareas.map(t => ({...t}))]).map(t => ({
+            id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+            texto: t.texto || 'Tarea sin descripción',
+            completada: t.completada || false,
+            fechaLimite: t.fechaLimite,
+            asignadaA: t.asignadaA
+        })),
         decoracion: {
-            ...(initialFiestaActualData.decoracion || defaultDecoracion),
-            ...(data.decoracion || {}),
+            tema: data.decoracion?.tema || defaultDecoracion.tema || '',
             paletaColores: {
-              ...(initialFiestaActualData.decoracion?.paletaColores || defaultColorPalette),
+              ...defaultColorPalette,
               ...(data.decoracion?.paletaColores || {}),
             },
+            moodboardImageUrl: data.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl || '',
             items: (data.decoracion?.items || []).map(item => ({
                 id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
                 name: item.name || 'Ítem sin nombre',
@@ -158,9 +167,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
                 notes: item.notes || undefined,
                 imageUrl: item.imageUrl || undefined,
             })),
-            generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : data.decoracion.generalNotes,
-            tema: data.decoracion?.tema === undefined ? defaultDecoracion.tema : data.decoracion.tema,
-            moodboardImageUrl: data.decoracion?.moodboardImageUrl === undefined ? defaultDecoracion.moodboardImageUrl : data.decoracion.moodboardImageUrl,
+            generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : (data.decoracion.generalNotes || ''),
         },
         invitados: (data.invitados || []).map(inv => ({
           id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
@@ -172,13 +179,16 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
           notes: inv.notes || undefined,
         })),
         webPageSettings: {
-          ...(initialFiestaActualData.webPageSettings || defaultWebPageSettings),
-          ...(data.webPageSettings || {}),
+          pageTitle: data.webPageSettings?.pageTitle || defaultWebPageSettings.pageTitle || '',
+          welcomeMessage: data.webPageSettings?.welcomeMessage || defaultWebPageSettings.welcomeMessage || '',
+          coverImageUrl: data.webPageSettings?.coverImageUrl || defaultWebPageSettings.coverImageUrl || '',
           galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
         },
         musica: {
-          ...(initialFiestaActualData.musica || defaultMusicaFiesta),
-          ...(data.musica || {}),
+          cancionEntrada: data.musica?.cancionEntrada || defaultMusicaFiesta.cancionEntrada || '',
+          cancionVals: data.musica?.cancionVals || defaultMusicaFiesta.cancionVals || '',
+          playlistFiesta: data.musica?.playlistFiesta || defaultMusicaFiesta.playlistFiesta || '',
+          listaNoReproducir: data.musica?.listaNoReproducir || defaultMusicaFiesta.listaNoReproducir || '',
         },
     };
     return validatedData;
@@ -189,6 +199,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
       return { ...initialFiestaActualData };
     }
     console.error('Error leyendo el archivo de fiesta actual, usando datos iniciales:', error);
+    // Attempt to write initial data if reading/parsing failed for other reasons
     try {
         await writeFiestaActualFile(initialFiestaActualData);
     } catch (writeError) {
@@ -209,15 +220,22 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   const fiesta = await readFiestaActualFile();
+  // Return a deep copy to prevent direct modification of the in-memory cache if any
   return JSON.parse(JSON.stringify(fiesta));
 }
 
 export async function updateConfiguracionFiestaActual(
-  configData: ConfigEventoDataStorage
+  configData: Partial<ConfigEventoDataStorage> // Allow partial updates
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.configuracion = { ...fiestaActual.configuracion, ...configData };
+    fiestaActual.configuracion = { 
+        ...fiestaActual.configuracion, 
+        ...configData,
+        // Ensure numeric fields are numbers or default
+        invitadosEstimados: configData.invitadosEstimados !== undefined ? Number(configData.invitadosEstimados) || 0 : fiestaActual.configuracion.invitadosEstimados,
+        presupuestoEstimado: configData.presupuestoEstimado !== undefined ? Number(configData.presupuestoEstimado) || 0 : fiestaActual.configuracion.presupuestoEstimado,
+    };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.configuracion)) };
   } catch (e: any) {
@@ -230,7 +248,7 @@ export async function updatePersonalFiestaActual(
 ): Promise<{ success: boolean; updatedData?: PersonalAsignadoDetalleStorage[]; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.personalAsignado = [...personalData];
+    fiestaActual.personalAsignado = [...personalData]; // Replace entire array
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.personalAsignado)) };
   } catch (e: any) {
@@ -303,13 +321,12 @@ export async function addReunionToFiestaActual(
   try {
     let fiestaActual = await readFiestaActualFile();
     const newReunion: Reunion = {
-      ...reunionData,
       id: `reunion_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      titulo: reunionData.titulo || 'Reunión sin título',
+      fecha: reunionData.fecha,
+      notas: reunionData.notas || '',
     };
-    if (!fiestaActual.reuniones) {
-      fiestaActual.reuniones = [];
-    }
-    fiestaActual.reuniones.push(newReunion);
+    fiestaActual.reuniones = [...(fiestaActual.reuniones || []), newReunion];
     await writeFiestaActualFile(fiestaActual);
     return { success: true, reunion: JSON.parse(JSON.stringify(newReunion)) };
   } catch (e: any) {
@@ -322,17 +339,12 @@ export async function updateReunionInFiestaActual(
 ): Promise<{ success: boolean; reunion?: Reunion; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    if (!fiestaActual.reuniones) {
-      fiestaActual.reuniones = [];
-    }
-    const index = fiestaActual.reuniones.findIndex(r => r.id === reunionData.id);
-    if (index !== -1) {
-      fiestaActual.reuniones[index] = { ...reunionData };
-      await writeFiestaActualFile(fiestaActual);
-      return { success: true, reunion: JSON.parse(JSON.stringify(fiestaActual.reuniones[index])) };
-    } else {
-      return { success: false, error: `Reunión con ID ${reunionData.id} no encontrada para actualizar.` };
-    }
+    fiestaActual.reuniones = (fiestaActual.reuniones || []).map(r =>
+      r.id === reunionData.id ? { ...reunionData } : r
+    );
+    await writeFiestaActualFile(fiestaActual);
+    const updatedReunion = fiestaActual.reuniones.find(r => r.id === reunionData.id);
+    return { success: true, reunion: updatedReunion ? JSON.parse(JSON.stringify(updatedReunion)) : undefined };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la reunión." };
   }
@@ -343,46 +355,42 @@ export async function deleteReunionFromFiestaActual(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    if (fiestaActual.reuniones) {
-      const initialLength = fiestaActual.reuniones.length;
-      fiestaActual.reuniones = fiestaActual.reuniones.filter(r => r.id !== reunionId);
-      if (fiestaActual.reuniones.length < initialLength) {
-        await writeFiestaActualFile(fiestaActual);
-        return { success: true };
-      } else {
-        return { success: false, error: `Reunión con ID ${reunionId} no encontrada para eliminar.` };
-      }
+    const initialLength = (fiestaActual.reuniones || []).length;
+    fiestaActual.reuniones = (fiestaActual.reuniones || []).filter(r => r.id !== reunionId);
+    if ((fiestaActual.reuniones || []).length < initialLength) {
+      await writeFiestaActualFile(fiestaActual);
+      return { success: true };
+    } else {
+      return { success: false, error: `Reunión con ID ${reunionId} no encontrada para eliminar.` };
     }
-    return { success: false, error: 'No hay reuniones para eliminar.' };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al eliminar la reunión." };
   }
 }
 
 export async function updateSalonLayoutFiestaActual(
-  layoutData: SalonLayoutData
+  layoutData: Partial<SalonLayoutData>
 ): Promise<{ success: boolean; updatedData?: SalonLayoutData; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    const validatedElements = (layoutData.elements || []).map(el => ({
-      id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-      name: el.name || 'Elemento sin nombre',
-      quantity: el.quantity === undefined ? 1 : el.quantity,
-      notes: el.notes || undefined,
-      imageUrl: el.imageUrl || undefined,
-      x: el.x ?? 0,
-      y: el.y ?? 0,
-      width: el.width ?? 50,
-      height: el.height ?? 50,
-      rotation: el.rotation ?? 0,
-      type: el.type ?? 'custom',
-      category: el.category || 'Otro',
-    }));
     fiestaActual.salonLayout = {
-        ...layoutData,
-        elements: validatedElements,
-        backgroundImageUrl: layoutData.backgroundImageUrl || '',
-        generalNotes: layoutData.generalNotes || ''
+        backgroundImageUrl: layoutData.backgroundImageUrl || fiestaActual.salonLayout?.backgroundImageUrl || '',
+        elements: (layoutData.elements || fiestaActual.salonLayout?.elements || []).map(el => ({
+            id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+            name: el.name || 'Elemento sin nombre',
+            quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
+            notes: el.notes || undefined,
+            imageUrl: el.imageUrl || undefined,
+            x: el.x ?? 0,
+            y: el.y ?? 0,
+            width: el.width ?? 50,
+            height: el.height ?? 50,
+            rotation: el.rotation ?? 0,
+            type: el.type ?? 'custom',
+            category: el.category || 'Otro',
+            dataAiHint: el.dataAiHint
+        })),
+        generalNotes: layoutData.generalNotes || fiestaActual.salonLayout?.generalNotes || ''
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.salonLayout)) };
@@ -396,7 +404,13 @@ export async function updateTareasFiestaActual(
 ): Promise<{ success: boolean; updatedData?: Tarea[]; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.tareas = [...nuevasTareas];
+    fiestaActual.tareas = nuevasTareas.map(t => ({
+        id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        texto: t.texto || 'Tarea sin descripción',
+        completada: t.completada || false,
+        fechaLimite: t.fechaLimite,
+        asignadaA: t.asignadaA
+    }));
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.tareas)) };
   } catch (e: any) {
@@ -405,14 +419,19 @@ export async function updateTareasFiestaActual(
 }
 
 export async function updateDecoracionFiestaActual(
-  decoracionData: DecoracionData
+  decoracionData: Partial<DecoracionData>
 ): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.decoracion = {
-        ...defaultDecoracion,
-        ...decoracionData,
-        items: (decoracionData.items || []).map(item => ({
+        tema: decoracionData.tema || fiestaActual.decoracion?.tema || defaultDecoracion.tema,
+        paletaColores: {
+            ...defaultColorPalette,
+            ...(fiestaActual.decoracion?.paletaColores || {}),
+            ...(decoracionData.paletaColores || {})
+        },
+        moodboardImageUrl: decoracionData.moodboardImageUrl || fiestaActual.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl,
+        items: (decoracionData.items || fiestaActual.decoracion?.items || []).map(item => ({
             id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
             name: item.name || 'Ítem sin nombre',
             category: item.category || 'Otro',
@@ -422,13 +441,7 @@ export async function updateDecoracionFiestaActual(
             notes: item.notes || undefined,
             imageUrl: item.imageUrl || undefined,
         })),
-        paletaColores: {
-            ...defaultColorPalette,
-            ...(decoracionData.paletaColores || {})
-        },
-        generalNotes: decoracionData.generalNotes === undefined ? defaultDecoracion.generalNotes : decoracionData.generalNotes,
-        tema: decoracionData.tema === undefined ? defaultDecoracion.tema : decoracionData.tema,
-        moodboardImageUrl: decoracionData.moodboardImageUrl === undefined ? defaultDecoracion.moodboardImageUrl : decoracionData.moodboardImageUrl,
+        generalNotes: decoracionData.generalNotes === undefined ? (fiestaActual.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : fiestaActual.decoracion.generalNotes) : decoracionData.generalNotes,
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
@@ -437,7 +450,6 @@ export async function updateDecoracionFiestaActual(
   }
 }
 
-// Funciones para CRUD de Invitados
 export async function getInvitadosFiestaActual(): Promise<Invitado[]> {
   const fiesta = await readFiestaActualFile();
   return JSON.parse(JSON.stringify(fiesta.invitados || []));
@@ -449,14 +461,15 @@ export async function addInvitadoFiestaActual(
   try {
     let fiestaActual = await readFiestaActualFile();
     const nuevoInvitado: Invitado = {
-      ...invitadoData,
       id: `inv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      nombre: invitadoData.nombre || 'Invitado sin nombre',
+      contacto: invitadoData.contacto || undefined,
+      rsvp: invitadoData.rsvp || 'Pendiente',
       partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
+      tableNumber: invitadoData.tableNumber || undefined,
+      notes: invitadoData.notes || undefined,
     };
-    if (!fiestaActual.invitados) {
-      fiestaActual.invitados = [];
-    }
-    fiestaActual.invitados.push(nuevoInvitado);
+    fiestaActual.invitados = [...(fiestaActual.invitados || []), nuevoInvitado];
     await writeFiestaActualFile(fiestaActual);
     return { success: true, invitado: JSON.parse(JSON.stringify(nuevoInvitado)) };
   } catch (e: any) {
@@ -469,20 +482,26 @@ export async function updateInvitadoFiestaActual(
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    if (!fiestaActual.invitados) {
-      fiestaActual.invitados = [];
+    let invitadoEncontrado = false;
+    fiestaActual.invitados = (fiestaActual.invitados || []).map(inv => {
+      if (inv.id === invitadoData.id) {
+        invitadoEncontrado = true;
+        return {
+          ...inv,
+          ...invitadoData,
+          partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
+        };
+      }
+      return inv;
+    });
+
+    if (!invitadoEncontrado) {
+        return { success: false, error: `Invitado con ID ${invitadoData.id} no encontrado para actualizar.` };
     }
-    const index = fiestaActual.invitados.findIndex(inv => inv.id === invitadoData.id);
-    if (index !== -1) {
-      fiestaActual.invitados[index] = {
-        ...invitadoData,
-        partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
-      };
-      await writeFiestaActualFile(fiestaActual);
-      return { success: true, invitado: JSON.parse(JSON.stringify(fiestaActual.invitados[index])) };
-    } else {
-      return { success: false, error: `Invitado con ID ${invitadoData.id} no encontrado para actualizar.` };
-    }
+    
+    await writeFiestaActualFile(fiestaActual);
+    const updatedInvitado = fiestaActual.invitados.find(inv => inv.id === invitadoData.id);
+    return { success: true, invitado: updatedInvitado ? JSON.parse(JSON.stringify(updatedInvitado)) : undefined };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el invitado." };
   }
@@ -493,17 +512,14 @@ export async function deleteInvitadoFiestaActual(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    if (fiestaActual.invitados) {
-      const initialLength = fiestaActual.invitados.length;
-      fiestaActual.invitados = fiestaActual.invitados.filter(inv => inv.id !== invitadoId);
-      if (fiestaActual.invitados.length < initialLength) {
-        await writeFiestaActualFile(fiestaActual);
-        return { success: true };
-      } else {
-        return { success: false, error: `Invitado con ID ${invitadoId} no encontrado para eliminar.` };
-      }
+    const initialLength = (fiestaActual.invitados || []).length;
+    fiestaActual.invitados = (fiestaActual.invitados || []).filter(inv => inv.id !== invitadoId);
+    if ((fiestaActual.invitados || []).length < initialLength) {
+      await writeFiestaActualFile(fiestaActual);
+      return { success: true };
+    } else {
+      return { success: false, error: `Invitado con ID ${invitadoId} no encontrado para eliminar.` };
     }
-    return { success: false, error: 'No hay invitados para eliminar.' };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al eliminar el invitado." };
   }
@@ -544,10 +560,10 @@ export async function handleRsvpSubmission(
     const updatedInvitado: Invitado = {
       ...invitadoActual,
       rsvp: newRsvpStatus,
-      partySize: submissionData.numeroAsistentes,
-      contacto: submissionData.email || invitadoActual.contacto, 
-      notes: submissionData.mensaje
-        ? `${submissionData.mensaje}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}`
+      partySize: Number(submissionData.numeroAsistentes) || invitadoActual.partySize || 1,
+      contacto: submissionData.email?.trim() || invitadoActual.contacto, 
+      notes: submissionData.mensaje?.trim()
+        ? `${submissionData.mensaje.trim()}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}`
         : invitadoActual.notes,
     };
 
@@ -563,13 +579,15 @@ export async function handleRsvpSubmission(
 
 
 export async function updateWebPageSettingsFiestaActual(
-  settings: EventWebPageSettings
+  settings: Partial<EventWebPageSettings>
 ): Promise<{ success: boolean; updatedData?: EventWebPageSettings; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.webPageSettings = {
-      ...(fiestaActual.webPageSettings || defaultWebPageSettings),
-      ...settings
+      pageTitle: settings.pageTitle || fiestaActual.webPageSettings?.pageTitle || defaultWebPageSettings.pageTitle,
+      welcomeMessage: settings.welcomeMessage || fiestaActual.webPageSettings?.welcomeMessage || defaultWebPageSettings.welcomeMessage,
+      coverImageUrl: settings.coverImageUrl || fiestaActual.webPageSettings?.coverImageUrl || defaultWebPageSettings.coverImageUrl,
+      galleryImageUrls: settings.galleryImageUrls || fiestaActual.webPageSettings?.galleryImageUrls || [],
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.webPageSettings)) };
@@ -579,13 +597,15 @@ export async function updateWebPageSettingsFiestaActual(
 }
 
 export async function updateMusicaFiestaActual(
-  musicaData: MusicaFiesta
+  musicaData: Partial<MusicaFiesta>
 ): Promise<{ success: boolean; updatedData?: MusicaFiesta; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.musica = {
-        ...(fiestaActual.musica || defaultMusicaFiesta),
-        ...musicaData
+        cancionEntrada: musicaData.cancionEntrada || fiestaActual.musica?.cancionEntrada || defaultMusicaFiesta.cancionEntrada,
+        cancionVals: musicaData.cancionVals || fiestaActual.musica?.cancionVals || defaultMusicaFiesta.cancionVals,
+        playlistFiesta: musicaData.playlistFiesta || fiestaActual.musica?.playlistFiesta || defaultMusicaFiesta.playlistFiesta,
+        listaNoReproducir: musicaData.listaNoReproducir || fiestaActual.musica?.listaNoReproducir || defaultMusicaFiesta.listaNoReproducir,
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.musica)) };
@@ -597,135 +617,37 @@ export async function updateMusicaFiestaActual(
 
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
-        const resetData = {
-          ...initialFiestaActualData,
-          configuracion: { ...defaultConfiguracion, clienteId: undefined },
-          tareas: [...defaultTareas.map(t => ({...t}))],
-          decoracion: { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} },
-          salonLayout: { ...defaultSalonLayout, elements: [] },
-          invitados: [],
-          webPageSettings: { ...defaultWebPageSettings },
-          musica: { ...defaultMusicaFiesta },
-        };
+        // Create a deep copy of initialFiestaActualData to avoid modifying the constant
+        const resetData = JSON.parse(JSON.stringify(initialFiestaActualData));
         await writeFiestaActualFile(resetData);
-        return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
+        return { success: true, initialData: resetData };
     } catch (e: any) {
         return { success: false, error: e.message || "Error al reiniciar la fiesta." };
     }
 }
 
-async function initializeFiestaData() {
+// Initialize data file if it doesn't exist or is malformed
+// This function is called when the module is loaded.
+async function initializeDataFile() {
     await ensureDataDirectoryExists();
     try {
-        await fs.access(fiestaActualFilePath);
-        const currentData = await readFiestaActualFile();
-        let needsUpdate = false;
-
-        if (!currentData.configuracion) {
-            currentData.configuracion = { ...defaultConfiguracion };
-            needsUpdate = true;
-        } else if (currentData.configuracion.clienteId === undefined) {
-            currentData.configuracion.clienteId = undefined;
-        }
-
-        if (!currentData.tareas || currentData.tareas.length === 0) {
-            currentData.tareas = [...defaultTareas.map(t => ({...t}))];
-            needsUpdate = true;
-        }
-
-        if (!currentData.decoracion) {
-            currentData.decoracion = { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} };
-            needsUpdate = true;
-        } else {
-            currentData.decoracion.paletaColores = {
-                ...defaultColorPalette,
-                ...(currentData.decoracion.paletaColores || {})
-            };
-            currentData.decoracion.items = (currentData.decoracion.items || []).map(item => ({
-                id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
-                name: item.name || 'Ítem sin nombre',
-                category: item.category || 'Otro',
-                quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
-                estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
-                supplier: item.supplier || undefined,
-                notes: item.notes || undefined,
-                imageUrl: item.imageUrl || undefined,
-            }));
-            if (currentData.decoracion.generalNotes === undefined) {
-                 currentData.decoracion.generalNotes = defaultDecoracion.generalNotes;
-                 needsUpdate = true;
-            }
-            if (currentData.decoracion.tema === undefined) {
-                currentData.decoracion.tema = defaultDecoracion.tema;
-                needsUpdate = true;
-            }
-            if (currentData.decoracion.moodboardImageUrl === undefined) {
-                currentData.decoracion.moodboardImageUrl = defaultDecoracion.moodboardImageUrl;
-                 needsUpdate = true;
-            }
-        }
-
-        if(!currentData.salonLayout){
-            currentData.salonLayout = { ...defaultSalonLayout, elements: [] };
-            needsUpdate = true;
-        } else {
-            currentData.salonLayout.elements = (currentData.salonLayout.elements || []).map(el => ({
-                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-                name: el.name || 'Elemento sin nombre',
-                quantity: el.quantity === undefined ? 1 : el.quantity,
-                notes: el.notes || undefined,
-                imageUrl: el.imageUrl || undefined,
-                x: el.x ?? 0,
-                y: el.y ?? 0,
-                width: el.width ?? 50,
-                height: el.height ?? 50,
-                rotation: el.rotation ?? 0,
-                type: el.type ?? 'custom',
-                category: el.category || 'Otro',
-            }));
-            currentData.salonLayout.backgroundImageUrl = currentData.salonLayout.backgroundImageUrl || '';
-            currentData.salonLayout.generalNotes = currentData.salonLayout.generalNotes || '';
-        }
-
-        if (!currentData.invitados) {
-            currentData.invitados = [];
-            needsUpdate = true;
-        } else {
-            currentData.invitados = currentData.invitados.map(inv => ({
-              id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
-              nombre: inv.nombre || 'Invitado sin nombre',
-              contacto: inv.contacto || undefined,
-              rsvp: inv.rsvp || 'Pendiente',
-              partySize: inv.partySize === undefined ? 1 : (Number(inv.partySize) || 1),
-              tableNumber: inv.tableNumber || undefined,
-              notes: inv.notes || undefined,
-            }));
-        }
-
-        if (!currentData.webPageSettings) {
-          currentData.webPageSettings = { ...defaultWebPageSettings };
-          needsUpdate = true;
-        } else {
-          currentData.webPageSettings.galleryImageUrls = currentData.webPageSettings.galleryImageUrls || [];
-        }
-
-        if (!currentData.musica) {
-            currentData.musica = { ...defaultMusicaFiesta };
-            needsUpdate = true;
-        }
-
-        if (needsUpdate) {
-            await writeFiestaActualFile(currentData);
-        }
-
-    } catch (error: any) {
-        if (error.code === 'ENOENT') {
-            console.log('Archivo fiesta-actual.json no encontrado, creando con datos iniciales...');
+        // Attempt to read the file to ensure it's valid and contains all necessary default structures.
+        // readFiestaActualFile itself handles creation with defaults if ENOENT or other read errors.
+        await readFiestaActualFile(); 
+        console.log("Fiesta actual data file checked/initialized successfully.");
+    } catch (error) {
+        console.error("Critical error during initial data file check/initialization:", error);
+        // If readFiestaActualFile throws an error that it doesn't handle by writing defaults (should not happen),
+        // we might try one more time to write the absolute defaults.
+        try {
             await writeFiestaActualFile(initialFiestaActualData);
-        } else {
-            console.error("Error during fiesta data initialization:", error);
+            console.log("Fiesta actual data file forcefully reset to initial defaults due to critical error.");
+        } catch (writeError) {
+            console.error("Failed to forcefully reset fiesta actual data file:", writeError);
         }
     }
 }
 
-initializeFiestaData();
+initializeDataFile();
+
+    

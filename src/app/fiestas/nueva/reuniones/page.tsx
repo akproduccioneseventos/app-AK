@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,8 +34,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog"; // AlertDialogTrigger was removed as it was unused
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -289,8 +288,8 @@ export default function GestionReunionesPage() {
                     </CardHeader>
                     <CardContent>
                       {reunion.notas && reunion.notas.trim() !== "" ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none bg-background p-3 rounded-md border text-sm">
-                           <ReactMarkdownWithBreaks text={reunion.notas} />
+                        <div className="prose prose-sm dark:prose-invert max-w-none bg-background p-3 rounded-md border text-sm whitespace-pre-wrap">
+                           {reunion.notas}
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground italic p-3 bg-background rounded-md border">No hay notas detalladas para esta reunión.</p>
@@ -316,19 +315,4 @@ export default function GestionReunionesPage() {
   );
 }
 
-// Helper component to render markdown with line breaks preserved
-function ReactMarkdownWithBreaks({ text }: { text: string }) {
-  // Replace newlines with <br /> for display, then split into paragraphs for safety if needed
-  // This is a simplified approach. For full markdown, use a library like react-markdown.
-  return (
-    <div>
-      {text.split('\n').map((paragraph, index, array) => (
-        <React.Fragment key={index}>
-          {paragraph}
-          {index < array.length - 1 && <br />}
-        </React.Fragment>
-      ))}
-    </div>
-  );
-}
-
+    
