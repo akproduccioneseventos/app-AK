@@ -4,11 +4,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
-import { CalendarDays, DollarSign, CreditCard, Landmark, PiggyBank, AlertTriangle, Loader2, BarChart3, Info } from 'lucide-react';
+import { CalendarDays, DollarSign, CreditCard, Landmark, PiggyBank, AlertTriangle, Loader2, BarChart3, Info, Users as UsersIcon, UserPlus, CalendarClock, CheckCircle2, PartyPopper, MapPin, FileText, ContactRound } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Invoice } from '@/types/invoice';
+import type { Customer } from '@/types/customer';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getInvoiceById } from '@/app/actions/invoices';
+import { getCustomers } from '@/app/actions/customers'; // Importar getCustomers
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -39,6 +41,7 @@ export default function DashboardPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [financialSummary, setFinancialSummary] = useState<FinancialSummary | null>(null);
   const [eventDateForCalendar, setEventDateForCalendar] = useState<Date | undefined>(undefined);
+  const [customerCount, setCustomerCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,8 +49,13 @@ export default function DashboardPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const fiesta = await getFiestaActual();
+      const [fiesta, customersData] = await Promise.all([
+        getFiestaActual(),
+        getCustomers()
+      ]);
+      
       setFiestaActual(fiesta);
+      setCustomerCount(customersData.length);
 
       if (fiesta?.configuracion?.fechaEvento) {
         try {
@@ -125,6 +133,13 @@ export default function DashboardPage() {
     );
   }
 
+  const generalStats = [
+    { title: "Total Clientes", value: customerCount.toString(), icon: UsersIcon, description: "Clientes registrados." },
+    { title: "Total Prospectos", value: "N/A", icon: UserPlus, description: "Seguimiento de clientes potenciales. (Próximamente)" },
+    { title: "Fiestas por Realizar", value: "N/A", icon: CalendarClock, description: "Eventos futuros planificados. (Próximamente)" },
+    { title: "Fiestas Realizadas", value: "N/A", icon: CheckCircle2, description: "Historial de eventos completados. (Próximamente)" },
+  ];
+
 
   return (
     <div className="space-y-6">
@@ -158,67 +173,96 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Financial Summaries */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Presupuesto Estimado</CardTitle>
-            <DollarSign className="h-5 w-5 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(financialSummary?.presupuestoEstimado)}
+      {/* Financial Summaries (Fiesta Actual) */}
+      <Card>
+        <CardHeader>
+            <CardTitle className="font-headline text-xl">Resumen Financiero del Evento Actual</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Presupuesto Estimado</CardTitle>
+                    <DollarSign className="h-5 w-5 text-primary" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">
+                    {formatCurrency(financialSummary?.presupuestoEstimado)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                    Costo total proyectado para el evento.
+                    </p>
+                </CardContent>
+                </Card>
+                <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Facturado</CardTitle>
+                    <Landmark className="h-5 w-5 text-blue-500" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">
+                    {formatCurrency(financialSummary?.totalFacturado)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                    Suma de facturas de este evento.
+                    </p>
+                </CardContent>
+                </Card>
+                <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Pagado</CardTitle>
+                    <PiggyBank className="h-5 w-5 text-green-500" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold text-green-600">
+                    {formatCurrency(financialSummary?.totalPagado)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                    Suma de pagos recibidos de este evento.
+                    </p>
+                </CardContent>
+                </Card>
+                <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Pendiente</CardTitle>
+                    <CreditCard className="h-5 w-5 text-red-500" />
+                </CardHeader>
+                <CardContent>
+                    <div className={`text-2xl font-bold ${financialSummary && financialSummary.saldoPendiente > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                    {formatCurrency(financialSummary?.saldoPendiente)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                    {financialSummary && financialSummary.saldoPendiente <= 0 ? 'Todo al día' : 'Facturado menos pagado.'}
+                    </p>
+                </CardContent>
+                </Card>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Costo total proyectado para el evento.
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Facturado</CardTitle>
-            <Landmark className="h-5 w-5 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(financialSummary?.totalFacturado)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Suma de todas las facturas generadas.
-            </p>
-          </CardContent>
-        </Card>
-         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Pagado</CardTitle>
-            <PiggyBank className="h-5 w-5 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(financialSummary?.totalPagado)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Suma de todos los pagos recibidos.
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Pendiente</CardTitle>
-            <CreditCard className="h-5 w-5 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${financialSummary && financialSummary.saldoPendiente > 0 ? 'text-destructive' : 'text-green-600'}`}>
-              {formatCurrency(financialSummary?.saldoPendiente)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {financialSummary && financialSummary.saldoPendiente <= 0 ? 'Todo al día' : 'Facturado menos pagado.'}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Calendar Section */}
+      {/* General Statistics Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-xl">Estadísticas Generales del Negocio</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {generalStats.map((stat) => (
+            <Card key={stat.title} className="hover:shadow-md transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+                <stat.icon className="h-5 w-5 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </CardContent>
+      </Card>
+      
+
+      {/* Calendar and Quick Links Section */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
             <Card className="shadow-md">
@@ -246,7 +290,7 @@ export default function DashboardPage() {
                      <Link href="/customers" passHref>
                         <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <Users className="w-6 h-6 text-primary"/>
+                                <UsersIcon className="w-6 h-6 text-primary"/>
                                 <p className="font-medium">Directorio de Clientes</p>
                             </div>
                         </Card>
@@ -282,6 +326,4 @@ export default function DashboardPage() {
   );
 }
 
-// Added MapPin for location, PartyPopper for current party title
-// Adjusted DashboardCalendar to be centered with mx-auto
-import { PartyPopper, MapPin, Users, ContactRound, FileText } from 'lucide-react';
+    
