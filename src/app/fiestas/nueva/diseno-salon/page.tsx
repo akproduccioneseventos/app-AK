@@ -31,11 +31,20 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
@@ -61,7 +70,11 @@ const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantit
   { name: 'Parlante/Altavoz Grande', imageUrl: 'https://placehold.co/40x60/B0B0B0/808080.png?text=Audio', width: 40, height: 60, rotation: 0, type: 'predefined', category: 'Equipamiento' },
 ];
 
-const paletteCategories = Array.from(new Set(predefinedElementsPalette.map(el => el.category || 'Otro')));
+const uniqueCategories = Array.from(new Set(predefinedElementsPalette.map(el => el.category || 'Otro'))).sort();
+if (!uniqueCategories.includes('Otro')) {
+  uniqueCategories.push('Otro');
+}
+
 
 export default function DisenoSalonPage() {
   const { toast } = useToast();
@@ -76,6 +89,12 @@ export default function DisenoSalonPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [currentElement, setCurrentElement] = useState<Partial<LayoutElement> & { tempId?: string } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [contextMenuTargetId, setContextMenuTargetId] = useState<string | null>(null);
+  const contextMenuTriggerRef = useRef<HTMLDivElement>(null);
 
 
   const loadLayoutData = useCallback(async () => {
@@ -115,10 +134,24 @@ export default function DisenoSalonPage() {
   useEffect(() => {
     loadLayoutData();
   }, [loadLayoutData]);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (contextMenuOpen) {
+        // Check if the click is outside the context menu content
+        // This logic might need refinement depending on how DropdownMenu handles its portal
+        setContextMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [contextMenuOpen]);
+
 
   const openFormModal = (element?: LayoutElement) => {
     if (element) {
       setCurrentElement({ ...element });
+      setSelectedElementId(element.id);
     } else { 
       setCurrentElement({ 
         name: '', 
@@ -131,6 +164,7 @@ export default function DisenoSalonPage() {
         notes: '',
         category: 'Otro'
       });
+      setSelectedElementId(null);
     }
     setIsFormModalOpen(true);
   };
@@ -149,6 +183,7 @@ export default function DisenoSalonPage() {
         notes: '',
         category: paletteItem.category || 'Otro'
      });
+     setSelectedElementId(null); // No existing element is selected when adding from palette
      setIsFormModalOpen(true);
   };
 
@@ -186,18 +221,22 @@ export default function DisenoSalonPage() {
     setLayoutData(prev => ({ ...prev, elements: updatedElements }));
     setIsFormModalOpen(false);
     setCurrentElement(null);
+    setSelectedElementId(null);
   };
   
   const handleElementFieldChange = (field: keyof LayoutElement | 'quantity', value: string | number) => {
     setCurrentElement(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
 
-  const handleRemoveElement = (elementId: string) => {
+  const handleRemoveElement = (elementId?: string) => {
+    const idToRemove = elementId || contextMenuTargetId;
+    if (!idToRemove) return;
     setLayoutData(prev => ({
       ...prev,
-      elements: prev.elements.filter(el => el.id !== elementId),
+      elements: prev.elements.filter(el => el.id !== idToRemove),
     }));
     toast({ title: "Elemento Eliminado", variant: "destructive" });
+    setContextMenuOpen(false); 
   };
 
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
@@ -209,14 +248,17 @@ export default function DisenoSalonPage() {
     }));
   };
 
-  const handleDuplicateElement = (elementId: string) => {
-    const elementToDuplicate = layoutData.elements.find(el => el.id === elementId);
+  const handleDuplicateElement = (elementId?: string) => {
+    const idToDuplicate = elementId || contextMenuTargetId;
+    if(!idToDuplicate) return;
+
+    const elementToDuplicate = layoutData.elements.find(el => el.id === idToDuplicate);
     if (elementToDuplicate) {
       const duplicatedElement: LayoutElement = {
-        ...JSON.parse(JSON.stringify(elementToDuplicate)), // Deep copy
+        ...JSON.parse(JSON.stringify(elementToDuplicate)), 
         id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        x: (elementToDuplicate.x || 0) + 10,
-        y: (elementToDuplicate.y || 0) + 10,
+        x: (elementToDuplicate.x || 0) + 20, // Offset slightly
+        y: (elementToDuplicate.y || 0) + 20,
       };
       setLayoutData(prev => ({
         ...prev,
@@ -224,34 +266,39 @@ export default function DisenoSalonPage() {
       }));
       toast({ title: "Elemento Duplicado", description: `${duplicatedElement.name} ha sido duplicado.` });
     }
+    setContextMenuOpen(false);
   };
 
-  const moveElement = (elementId: string, direction: 'up' | 'down' | 'front' | 'back') => {
+  const moveElement = (elementId: string | null, direction: 'up' | 'down' | 'front' | 'back') => {
+    const idToMove = elementId || contextMenuTargetId;
+    if(!idToMove) return;
+
     setLayoutData(prev => {
       const elements = [...prev.elements];
-      const index = elements.findIndex(el => el.id === elementId);
+      const index = elements.findIndex(el => el.id === idToMove);
       if (index === -1) return prev;
 
       const item = elements.splice(index, 1)[0];
 
       switch (direction) {
-        case 'up':
+        case 'up': // Bring forward
           if (index < elements.length) elements.splice(index + 1, 0, item);
-          else elements.push(item); // Already last or list was empty after splice
+          else elements.push(item); 
           break;
-        case 'down':
+        case 'down': // Send backward
           if (index > 0) elements.splice(index - 1, 0, item);
-          else elements.unshift(item); // Already first or list was empty
+          else elements.unshift(item); 
           break;
-        case 'front':
+        case 'front': // Bring to front
           elements.push(item);
           break;
-        case 'back':
+        case 'back': // Send to back
           elements.unshift(item);
           break;
       }
       return { ...prev, elements };
     });
+    setContextMenuOpen(false);
   };
 
 
@@ -309,6 +356,22 @@ export default function DisenoSalonPage() {
         default: return <Wand2 className="w-4 h-4 mr-2 text-primary/80" />;
     }
   };
+
+  const handleContextMenu = (event: React.MouseEvent, elementId: string) => {
+    event.preventDefault();
+    setContextMenuTargetId(elementId);
+    setContextMenuPosition({ x: event.clientX, y: event.clientY });
+    // This timeout is a trick to ensure DropdownMenuTrigger has time to mount if it depends on contextMenuOpen
+    setTimeout(() => {
+      setContextMenuOpen(true);
+       if (contextMenuTriggerRef.current) {
+        contextMenuTriggerRef.current.style.left = `${event.clientX}px`;
+        contextMenuTriggerRef.current.style.top = `${event.clientY}px`;
+      }
+    }, 0);
+  };
+  
+  const targetElementForContextMenu = contextMenuTargetId ? layoutData.elements.find(el => el.id === contextMenuTargetId) : null;
 
 
   if (isLoading) {
@@ -415,7 +478,7 @@ export default function DisenoSalonPage() {
                 <Maximize className="w-6 h-6 text-primary"/>
                 <CardTitle className="font-headline text-lg">Lienzo del Salón (Interactivo)</CardTitle>
             </div>
-             <CardDescription className="text-xs">Arrastra los elementos para posicionarlos. Haz clic para editar.</CardDescription>
+             <CardDescription className="text-xs">Arrastra los elementos para posicionarlos. Haz clic para editar o clic derecho para más opciones.</CardDescription>
           </CardHeader>
           <CardContent>
             <div 
@@ -428,6 +491,7 @@ export default function DisenoSalonPage() {
                 backgroundPosition: 'center',
                 minHeight: '450px', 
               }}
+              onClick={() => setContextMenuOpen(false)} // Close context menu on canvas click
             >
               {!layoutData.backgroundImageUrl && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
@@ -448,7 +512,15 @@ export default function DisenoSalonPage() {
                   >
                     <div
                       title={`${el.name} (x:${el.x}, y:${el.y})`}
-                      className="absolute border border-primary/50 bg-primary/20 hover:bg-primary/30 cursor-grab active:cursor-grabbing flex items-center justify-center text-xs p-1 rounded-sm handle"
+                      className={`
+                        absolute border cursor-grab active:cursor-grabbing 
+                        flex items-center justify-center text-xs p-1 rounded-sm handle
+                        transition-all duration-150 ease-in-out
+                        ${selectedElementId === el.id 
+                          ? 'border-2 border-accent ring-2 ring-accent shadow-xl z-10' 
+                          : 'border-primary/50 bg-primary/10 hover:border-primary hover:ring-2 hover:ring-primary/50 hover:shadow-md'
+                        }
+                      `}
                       style={{
                         width: `${el.width || 50}px`,
                         height: `${el.height || 50}px`,
@@ -457,20 +529,28 @@ export default function DisenoSalonPage() {
                         touchAction: 'none', 
                       }}
                       onClick={(e) => {
-                        const target = e.target as HTMLElement;
-                        if (target.closest('.react-draggable-dragging') || (e.target as HTMLElement).classList.contains('handle-icon')) return;
+                        if ((e.target as HTMLElement).closest('.react-draggable-dragging') || (e.target as HTMLElement).classList.contains('handle-icon')) return;
+                        if (e.ctrlKey || e.metaKey) return; // Allow context menu on ctrl/meta + click if needed
+                        e.stopPropagation(); // Prevent canvas click from closing context menu immediately
                         openFormModal(el);
+                        setContextMenuOpen(false);
                       }}
+                      onContextMenu={(e) => handleContextMenu(e, el.id)}
                     >
                        {el.imageUrl ? (
                         <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm pointer-events-none" data-ai-hint="object floor element"/>
                       ) : (
-                        <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px] pointer-events-none">{el.name}</span>
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-primary/20 pointer-events-none">
+                            <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px] font-medium text-primary-foreground">{el.name}</span>
+                            <span className="text-[7px] sm:text-[9px] text-primary-foreground/80">({el.width}x{el.height}px)</span>
+                        </div>
                       )}
-                       <Move className="handle-icon absolute top-0 right-0 w-3 h-3 text-primary-foreground/70 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab"/>
+                       <Move className="handle-icon absolute top-0 right-0 w-3 h-3 text-primary-foreground/70 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab p-0.5 bg-black/20 rounded-bl-sm"/>
                     </div>
                   </Draggable>
               ))}
+                {/* Invisible trigger for the context menu */}
+                <div ref={contextMenuTriggerRef} style={{ position: 'fixed', zIndex: 1000 }} />
             </div>
           </CardContent>
         </Card>
@@ -490,7 +570,7 @@ export default function DisenoSalonPage() {
                 {layoutData.elements.map((el, index) => (
                   <li key={el.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 border rounded-md hover:bg-muted/50">
                     <div className="flex items-center gap-2 flex-grow mb-2 sm:mb-0">
-                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain" data-ai-hint="icon element"/> : getPaletteIcon(el.category)}
+                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain border" data-ai-hint="icon element"/> : getPaletteIcon(el.category)}
                         <div>
                             <p className="font-medium text-sm">{el.name} <span className="text-xs text-muted-foreground">({el.category || 'Otro'})</span></p>
                             <p className="text-xs text-muted-foreground">
@@ -537,7 +617,64 @@ export default function DisenoSalonPage() {
         </CardFooter>
       </Card>
 
-      <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
+      <DropdownMenu open={contextMenuOpen} onOpenChange={setContextMenuOpen}>
+        <DropdownMenuTrigger ref={contextMenuTriggerRef} className="fixed opacity-0 pointer-events-none" />
+         {targetElementForContextMenu && (
+            <DropdownMenuContent 
+                className="w-56"
+                style={{
+                    // Position fixed is handled by DropdownMenuContent itself when open
+                    // We just need to trigger it near the mouse
+                }}
+                onCloseAutoFocus={(e) => e.preventDefault()} // Prevent focus shift on close
+            >
+                <DropdownMenuItem onClick={() => { openFormModal(targetElementForContextMenu); setContextMenuOpen(false); }}>
+                    <Edit3 className="mr-2 h-4 w-4" /> Editar Propiedades
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDuplicateElement()}>
+                    <Copy className="mr-2 h-4 w-4" /> Duplicar Elemento
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => moveElement(null, 'front')}>
+                    <ChevronsUp className="mr-2 h-4 w-4" /> Traer al Frente
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => moveElement(null, 'up')}>
+                    <ArrowUp className="mr-2 h-4 w-4" /> Mover Adelante
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => moveElement(null, 'down')}>
+                    <ArrowDown className="mr-2 h-4 w-4" /> Mover Atrás
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => moveElement(null, 'back')}>
+                    <ChevronsDown className="mr-2 h-4 w-4" /> Enviar al Fondo
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                           <Trash2 className="mr-2 h-4 w-4" /> Eliminar Elemento
+                        </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                El elemento "{targetElementForContextMenu.name}" será eliminado permanentemente.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setContextMenuOpen(false)}>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleRemoveElement()} className="bg-destructive hover:bg-destructive/90">
+                                Sí, eliminar
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </DropdownMenuContent>
+         )}
+      </DropdownMenu>
+
+
+      <Dialog open={isFormModalOpen} onOpenChange={(isOpen) => { setIsFormModalOpen(isOpen); if (!isOpen) setSelectedElementId(null); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-headline text-xl">{currentElement?.id ? 'Editar Elemento del Diseño' : 'Añadir Nuevo Elemento al Diseño'}</DialogTitle>
@@ -596,7 +733,19 @@ export default function DisenoSalonPage() {
             </div>
             <div className="space-y-1">
                 <Label htmlFor="el-category">Categoría</Label>
-                <Input id="el-category" value={currentElement?.category || 'Otro'} onChange={(e) => handleElementFieldChange('category', e.target.value)} placeholder="Ej: Mobiliario, Decoración, Equipamiento"/>
+                 <Select
+                    value={currentElement?.category || 'Otro'}
+                    onValueChange={(value) => handleElementFieldChange('category', value)}
+                  >
+                    <SelectTrigger id="el-category">
+                      <SelectValue placeholder="Seleccionar categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {uniqueCategories.map(cat => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
             </div>
              <div className="space-y-1">
               <Label htmlFor="el-quantity">Cantidad (Informativo)</Label>
@@ -607,7 +756,7 @@ export default function DisenoSalonPage() {
               <Textarea id="el-notes" value={currentElement?.notes || ''} onChange={(e) => handleElementFieldChange('notes', e.target.value)} rows={2} />
             </div>
             <DialogFooter className="pt-3">
-                <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+                <DialogClose asChild><Button type="button" variant="outline" onClick={() => setSelectedElementId(null)}>Cancelar</Button></DialogClose>
                 <Button type="submit">{currentElement?.id ? 'Guardar Cambios' : 'Añadir Elemento'}</Button>
             </DialogFooter>
           </form>
