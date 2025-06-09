@@ -45,11 +45,13 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${pathSegments[1]}`;
   if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${pathSegments[1]}`;
 
-
   // Clientes
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
+
+  // Fiestas
+  if (pathname === '/fiestas/nueva') return 'Crear Nueva Fiesta';
 
   // Configuración
   if (pathname === '/settings') return 'Configuración';
@@ -73,7 +75,6 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        // Evitar mostrar IDs directamente como título si es posible
         if (!isNaN(Number(title))) {
             return `${parentTitle}: #${title}`;
         }
