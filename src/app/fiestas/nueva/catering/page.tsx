@@ -3,9 +3,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Edit, List } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, List, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+const mockSavedMenus = [
+  { id: 'menu1', name: 'Menú Clásico Casamiento', description: 'Entrada, principal y postre tradicionales.' },
+  { id: 'menu2', name: 'Menú Cumpleaños Infantil', description: 'Opciones divertidas y adaptadas para niños.' },
+  { id: 'menu3', name: 'Menú Degustación Gourmet', description: 'Pequeñas porciones de alta cocina.' },
+];
 
 export default function CateringEventoHubPage() {
 
@@ -35,7 +41,7 @@ export default function CateringEventoHubPage() {
         </CardHeader>
         <CardContent>
             <p className="text-muted-foreground mb-4">
-                Crea menús desde cero, especificando entradas, platos principales y todos los ingredientes necesarios.
+                Crea menús desde cero, especificando entradas, platos principales, postres, bebidas y todos los ingredientes necesarios.
                 Calcula costos precisos basados en tus recetas.
             </p>
             <Link href="/fiestas/nueva/catering/nuevo-menu" passHref>
@@ -58,20 +64,33 @@ export default function CateringEventoHubPage() {
             </div>
         </CardHeader>
         <CardContent>
-            <div className="text-center py-8 bg-muted/30 rounded-md">
-                <Image src="https://placehold.co/300x200.png" alt="Icono de lista de menús" width={100} height={80} className="mx-auto mb-4 opacity-50" data-ai-hint="menu list icon" />
-                <p className="text-muted-foreground mb-3">
-                    Aquí aparecerán tus menús guardados.
-                </p>
-                <Button variant="secondary" disabled>
-                    <Edit className="w-4 h-4 mr-2" />
-                    Modificar Menú Existente (Próximamente)
-                </Button>
+          {mockSavedMenus.length > 0 ? (
+            <div className="space-y-3 mb-4">
+              {mockSavedMenus.map((menu) => (
+                <div key={menu.id} className="p-3 border rounded-md bg-muted/50 hover:bg-muted/70 transition-colors">
+                  <h4 className="font-medium text-foreground">{menu.name}</h4>
+                  <p className="text-sm text-muted-foreground">{menu.description}</p>
+                </div>
+              ))}
             </div>
+          ) : (
+            <div className="text-center py-8 bg-muted/30 rounded-md mb-4">
+                <Image src="https://placehold.co/300x200.png" alt="Icono de lista de menús vacía" width={100} height={80} className="mx-auto mb-4 opacity-50" data-ai-hint="empty menu list" />
+                <p className="text-muted-foreground mb-3">
+                    Aún no has creado ningún menú personalizado.
+                </p>
+            </div>
+          )}
+            <Link href="/fiestas/nueva/catering/modificar-menu" passHref>
+                <Button variant="secondary" className="w-full sm:w-auto">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Modificar Menú Existente
+                </Button>
+            </Link>
         </CardContent>
         <CardFooter>
             <p className="text-xs text-muted-foreground">
-                La funcionalidad para modificar menús existentes se implementará pronto.
+                La funcionalidad completa para listar y modificar menús existentes se está implementando.
             </p>
         </CardFooter>
       </Card>
