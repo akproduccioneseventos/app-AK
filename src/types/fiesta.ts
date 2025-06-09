@@ -39,6 +39,7 @@ export interface LayoutElement {
   rotation: number;
   type: 'predefined' | 'custom';
   category?: string; // Ej: 'Mobiliario', 'Decoración Floral', 'Iluminación', 'Equipamiento', 'Zona', 'Otro'
+  dataAiHint?: string; // Para la búsqueda de imágenes de Unsplash u otros
 }
 
 export interface SalonLayoutData {

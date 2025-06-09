@@ -43,35 +43,48 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 
 const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
-  { name: 'Mesa Redonda (8 pax)', imageUrl: 'https://placehold.co/80x80/E0E0E0/B0B0B0.png?text=Mesa', width: 80, height: 80, rotation: 0, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Mesa Rectangular (6 pax)', imageUrl: 'https://placehold.co/120x60/E0E0E0/B0B0B0.png?text=Mesa+L', width: 120, height: 60, rotation: 0, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Silla', imageUrl: 'https://placehold.co/30x30/F0F0F0/C0C0C0.png?text=S', width: 30, height: 30, rotation: 0, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Pista de Baile (Pequeña)', imageUrl: 'https://placehold.co/150x150/D0D0D0/A0A0A0.png?text=Pista', width: 150, height: 150, rotation: 0, type: 'predefined', category: 'Zona' },
-  { name: 'Pista de Baile (Grande)', imageUrl: 'https://placehold.co/250x250/D0D0D0/A0A0A0.png?text=Pista+G', width: 250, height: 250, rotation: 0, type: 'predefined', category: 'Zona' },
-  { name: 'Barra de Bebidas', imageUrl: 'https://placehold.co/100x40/C8C8C8/989898.png?text=Bar', width: 100, height: 40, rotation: 0, type: 'predefined', category: 'Equipamiento' },
-  { name: 'Escenario (Pequeño)', imageUrl: 'https://placehold.co/120x80/BDBDBD/8D8D8D.png?text=Escenario', width: 120, height: 80, rotation: 0, type: 'predefined', category: 'Equipamiento' },
-  { name: 'DJ Booth', imageUrl: 'https://placehold.co/70x50/BDBDBD/8D8D8D.png?text=DJ', width: 70, height: 50, rotation: 0, type: 'predefined', category: 'Equipamiento' },
-  { name: 'Planta Decorativa Grande', imageUrl: 'https://placehold.co/60x60/A9A9A9/797979.png?text=Planta+G', width: 60, height: 60, rotation: 0, type: 'predefined', category: 'Decoración' },
-  { name: 'Arco Floral', imageUrl: 'https://placehold.co/80x120/A9A9A9/797979.png?text=Arco+Floral', width: 80, height: 120, rotation: 0, type: 'predefined', category: 'Decoración Floral' },
-  { name: 'Panel de Fondo (Backdrop)', imageUrl: 'https://placehold.co/150x100/BFBFBF/8F8F8F.png?text=Backdrop', width: 150, height: 100, rotation: 0, type: 'predefined', category: 'Estructuras' },
-  { name: 'Mesa de Dulces/Torta', imageUrl: 'https://placehold.co/120x50/D1D1D1/A1A1A1.png?text=Mesa+Dulce', width: 120, height: 50, rotation: 0, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Letras Luminosas (LOVE)', imageUrl: 'https://placehold.co/160x60/EAEAEA/BABABA.png?text=LOVE', width: 160, height: 60, rotation: 0, type: 'predefined', category: 'Iluminación' },
-  { name: 'Centro de Mesa Alto', imageUrl: 'https://placehold.co/30x50/C0C0C0/909090.png?text=CentroM', width: 30, height: 50, rotation: 0, type: 'predefined', category: 'Decoración Floral' },
-  { name: 'Guirnalda de Luces', imageUrl: 'https://placehold.co/100x20/F5F5F5/C5C5C5.png?text=Luces', width: 100, height: 20, rotation: 0, type: 'predefined', category: 'Iluminación' },
-  { name: 'Alfombra Roja', imageUrl: 'https://placehold.co/80x200/E0B0B0/B08080.png?text=Alfombra', width: 80, height: 200, rotation: 0, type: 'predefined', category: 'Decoración' },
-  { name: 'Set de Sillones (Lounge)', imageUrl: 'https://placehold.co/140x70/DCDCDC/ADADAD.png?text=Lounge', width: 140, height: 70, rotation: 0, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Photocall / Fotocabina', imageUrl: 'https://placehold.co/100x120/C8C8C8/989898.png?text=Photocall', width: 100, height: 120, rotation: 0, type: 'predefined', category: 'Estructuras' },
-  { name: 'Fuente de Agua Decorativa', imageUrl: 'https://placehold.co/70x70/ADD8E6/7DA8B6.png?text=Fuente', width: 70, height: 70, rotation: 0, type: 'predefined', category: 'Decoración' },
-  { name: 'Parlante/Altavoz Grande', imageUrl: 'https://placehold.co/40x60/B0B0B0/808080.png?text=Audio', width: 40, height: 60, rotation: 0, type: 'predefined', category: 'Equipamiento' },
+  { name: 'Mesa Redonda (8 pax)', imageUrl: 'https://placehold.co/80x80/E0E0E0/B0B0B0.png?text=Mesa', width: 80, height: 80, rotation: 0, type: 'predefined', category: 'Mobiliario', dataAiHint: 'round table' },
+  { name: 'Mesa Rectangular (6 pax)', imageUrl: 'https://placehold.co/120x60/E0E0E0/B0B0B0.png?text=Mesa+L', width: 120, height: 60, rotation: 0, type: 'predefined', category: 'Mobiliario', dataAiHint: 'rectangle table' },
+  { name: 'Silla', imageUrl: 'https://placehold.co/30x30/F0F0F0/C0C0C0.png?text=S', width: 30, height: 30, rotation: 0, type: 'predefined', category: 'Mobiliario', dataAiHint: 'chair' },
+  { name: 'Pista de Baile (Pequeña)', imageUrl: 'https://placehold.co/150x150/D0D0D0/A0A0A0.png?text=Pista', width: 150, height: 150, rotation: 0, type: 'predefined', category: 'Zona', dataAiHint: 'dance floor' },
+  { name: 'Pista de Baile (Grande)', imageUrl: 'https://placehold.co/250x250/D0D0D0/A0A0A0.png?text=Pista+G', width: 250, height: 250, rotation: 0, type: 'predefined', category: 'Zona', dataAiHint: 'large dance floor' },
+  { name: 'Barra de Bebidas', imageUrl: 'https://placehold.co/100x40/C8C8C8/989898.png?text=Bar', width: 100, height: 40, rotation: 0, type: 'predefined', category: 'Equipamiento', dataAiHint: 'bar counter' },
+  { name: 'Escenario (Pequeño)', imageUrl: 'https://placehold.co/120x80/BDBDBD/8D8D8D.png?text=Escenario', width: 120, height: 80, rotation: 0, type: 'predefined', category: 'Equipamiento', dataAiHint: 'small stage' },
+  { name: 'DJ Booth', imageUrl: 'https://placehold.co/70x50/BDBDBD/8D8D8D.png?text=DJ', width: 70, height: 50, rotation: 0, type: 'predefined', category: 'Equipamiento', dataAiHint: 'DJ booth' },
+  { name: 'Planta Decorativa Grande', imageUrl: 'https://placehold.co/60x60/A9A9A9/797979.png?text=Planta+G', width: 60, height: 60, rotation: 0, type: 'predefined', category: 'Decoración', dataAiHint: 'large plant' },
+  { name: 'Arco Floral', imageUrl: 'https://placehold.co/80x120/A9A9A9/797979.png?text=Arco+Floral', width: 80, height: 120, rotation: 0, type: 'predefined', category: 'Decoración Floral', dataAiHint: 'floral arch' },
+  { name: 'Panel de Fondo (Backdrop)', imageUrl: 'https://placehold.co/150x100/BFBFBF/8F8F8F.png?text=Backdrop', width: 150, height: 100, rotation: 0, type: 'predefined', category: 'Estructuras', dataAiHint: 'backdrop panel' },
+  { name: 'Mesa de Dulces/Torta', imageUrl: 'https://placehold.co/120x50/D1D1D1/A1A1A1.png?text=Mesa+Dulce', width: 120, height: 50, rotation: 0, type: 'predefined', category: 'Mobiliario', dataAiHint: 'dessert table' },
+  { name: 'Letras Luminosas (LOVE)', imageUrl: 'https://placehold.co/160x60/EAEAEA/BABABA.png?text=LOVE', width: 160, height: 60, rotation: 0, type: 'predefined', category: 'Iluminación', dataAiHint: 'marquee letters' },
+  { name: 'Centro de Mesa Alto', imageUrl: 'https://placehold.co/30x50/C0C0C0/909090.png?text=CentroM', width: 30, height: 50, rotation: 0, type: 'predefined', category: 'Decoración Floral', dataAiHint: 'tall centerpiece' },
+  { name: 'Guirnalda de Luces', imageUrl: 'https://placehold.co/100x20/F5F5F5/C5C5C5.png?text=Luces', width: 100, height: 20, rotation: 0, type: 'predefined', category: 'Iluminación', dataAiHint: 'string lights' },
+  { name: 'Alfombra Roja', imageUrl: 'https://placehold.co/80x200/E0B0B0/B08080.png?text=Alfombra', width: 80, height: 200, rotation: 0, type: 'predefined', category: 'Decoración', dataAiHint: 'red carpet' },
+  { name: 'Set de Sillones (Lounge)', imageUrl: 'https://placehold.co/140x70/DCDCDC/ADADAD.png?text=Lounge', width: 140, height: 70, rotation: 0, type: 'predefined', category: 'Mobiliario', dataAiHint: 'lounge furniture' },
+  { name: 'Photocall / Fotocabina', imageUrl: 'https://placehold.co/100x120/C8C8C8/989898.png?text=Photocall', width: 100, height: 120, rotation: 0, type: 'predefined', category: 'Estructuras', dataAiHint: 'photo booth' },
+  { name: 'Fuente de Agua Decorativa', imageUrl: 'https://placehold.co/70x70/ADD8E6/7DA8B6.png?text=Fuente', width: 70, height: 70, rotation: 0, type: 'predefined', category: 'Decoración', dataAiHint: 'water fountain' },
+  { name: 'Parlante/Altavoz Grande', imageUrl: 'https://placehold.co/40x60/B0B0B0/808080.png?text=Audio', width: 40, height: 60, rotation: 0, type: 'predefined', category: 'Equipamiento', dataAiHint: 'speaker large' },
 ];
 
-const uniqueCategories = Array.from(new Set(predefinedElementsPalette.map(el => el.category || 'Otro'))).sort();
-if (!uniqueCategories.includes('Otro')) {
-  uniqueCategories.push('Otro');
-}
+const groupedPaletteItems = predefinedElementsPalette.reduce((acc, item) => {
+  const category = item.category || 'Otro';
+  if (!acc[category]) {
+    acc[category] = [];
+  }
+  acc[category].push(item);
+  return acc;
+}, {} as Record<string, Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[]>);
+
+const uniqueCategories = Object.keys(groupedPaletteItems).sort();
+
 
 const GRID_SNAP_SIZE = 10;
 
@@ -158,7 +171,8 @@ export default function DisenoSalonPage() {
         name: '', 
         quantity: 1, 
         type: 'custom', 
-        x: 50, y: 50,
+        x: Math.round(50 / GRID_SNAP_SIZE) * GRID_SNAP_SIZE, 
+        y: Math.round(50 / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
         width: 100, height: 50,
         rotation: 0,
         imageUrl: '',
@@ -167,7 +181,7 @@ export default function DisenoSalonPage() {
       });
       setSelectedElementId(null);
     }
-    setFailedModalImageUrl(false); // Reset modal image error state
+    setFailedModalImageUrl(false); 
     setIsFormModalOpen(true);
   };
   
@@ -192,7 +206,7 @@ export default function DisenoSalonPage() {
 
  const handleElementFieldChange = (
     field: keyof Omit<LayoutElement, 'id' | 'type'>,
-    rawValue: string | undefined
+    rawValue: string | undefined | number // Allow number for direct numeric updates
   ) => {
     setCurrentElement(prevModalElement => {
       if (!prevModalElement) return null;
@@ -200,7 +214,7 @@ export default function DisenoSalonPage() {
       let processedValue: string | number | undefined = rawValue;
 
       if (['x', 'y', 'width', 'height', 'rotation', 'quantity'].includes(field)) {
-        const numVal = parseFloat(rawValue || '');
+        const numVal = typeof rawValue === 'number' ? rawValue : parseFloat(rawValue || '');
         if (isNaN(numVal)) {
           processedValue = (field === 'quantity') ? 1 : 0;
         } else {
@@ -211,11 +225,12 @@ export default function DisenoSalonPage() {
         }
       }
       if (field === 'imageUrl') {
-        setFailedModalImageUrl(false); // Reset error on new URL
+        setFailedModalImageUrl(false); 
       }
       
       const updatedModalElement = { ...prevModalElement, [field]: processedValue } as Partial<LayoutElement>;
 
+      // Live update the canvas if editing an existing element
       if (prevModalElement.id && layoutData.elements.find(el => el.id === prevModalElement.id)) {
         setLayoutData(prevLayoutData => ({
           ...prevLayoutData,
@@ -241,8 +256,8 @@ export default function DisenoSalonPage() {
     const isEditing = !!currentElement.id && layoutData.elements.find(el => el.id === currentElement.id);
 
     if (isEditing) {
-      const updatedElementInLayout = layoutData.elements.find(el => el.id === currentElement.id);
-      toast({ title: "Elemento Actualizado", description: `${updatedElementInLayout?.name || 'El elemento'} ha sido actualizado.` });
+      // Live update has already handled changes in layoutData.elements
+      toast({ title: "Elemento Actualizado", description: `${currentElement.name || 'El elemento'} ha sido actualizado.` });
     } else { 
       const newElementData: LayoutElement = {
         id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -264,6 +279,7 @@ export default function DisenoSalonPage() {
     
     setIsFormModalOpen(false);
     setCurrentElement(null);
+    setSelectedElementId(null);
   };
   
   const handleRemoveElement = (elementId?: string) => {
@@ -278,7 +294,6 @@ export default function DisenoSalonPage() {
   };
 
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
-    // x and y are already snapped by react-draggable's grid prop
     setLayoutData(prev => ({
       ...prev,
       elements: prev.elements.map(el => 
@@ -495,29 +510,38 @@ export default function DisenoSalonPage() {
             <CardDescription className="text-xs">Haz clic para pre-rellenar el formulario y añadir al plano.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[400px] pr-3">
-              <div className="space-y-2">
-                {predefinedElementsPalette.map((item, idx) => (
-                  <Button
-                    key={idx}
-                    variant="outline"
-                    className="w-full justify-start h-auto py-2 text-left"
-                    onClick={() => addFromPalette(item)}
-                    disabled={isSaving}
-                  >
-                    {getPaletteIcon(item.category)}
-                    <div className="flex flex-col">
-                        <span className="text-xs font-medium">{item.name}</span>
-                        <span className="text-xs text-muted-foreground">{item.category}</span>
-                    </div>
-                  </Button>
+            <ScrollArea className="h-[400px] pr-1">
+              <Accordion type="multiple" className="w-full">
+                {uniqueCategories.map((category) => (
+                  <AccordionItem value={category} key={category}>
+                    <AccordionTrigger className="text-sm font-medium hover:no-underline py-2 px-1">
+                        {category} ({groupedPaletteItems[category]?.length || 0})
+                    </AccordionTrigger>
+                    <AccordionContent className="pl-1 pr-0 pb-1">
+                      <div className="space-y-1.5">
+                        {groupedPaletteItems[category]?.map((item, idx) => (
+                          <Button
+                            key={`${category}-${idx}`}
+                            variant="outline"
+                            className="w-full justify-start h-auto py-1.5 px-2 text-left text-xs"
+                            onClick={() => addFromPalette(item)}
+                            disabled={isSaving}
+                            title={item.name}
+                          >
+                            {getPaletteIcon(item.category)}
+                            <span className="truncate">{item.name}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
-                <Separator className="my-3"/>
-                <Button variant="default" className="w-full mt-2" onClick={() => openFormModal()} disabled={isSaving}>
-                    <PlusCircle className="w-4 h-4 mr-2" />Añadir Elemento Personalizado
-                </Button>
-              </div>
+              </Accordion>
             </ScrollArea>
+            <Separator className="my-3"/>
+            <Button variant="default" className="w-full mt-2" onClick={() => openFormModal()} disabled={isSaving}>
+                <PlusCircle className="w-4 h-4 mr-2" />Añadir Elemento Personalizado
+            </Button>
           </CardContent>
         </Card>
 
@@ -568,7 +592,7 @@ export default function DisenoSalonPage() {
                         transition-all duration-150 ease-in-out
                         ${selectedElementId === el.id 
                           ? 'border-2 border-accent ring-2 ring-accent shadow-xl z-10' 
-                          : 'border-primary/50 bg-primary/10 hover:border-primary hover:ring-1 hover:ring-primary/50 hover:shadow-md'
+                          : 'border-primary/30 bg-primary/10 hover:border-primary hover:ring-1 hover:ring-primary/50 hover:shadow-md'
                         }
                       `}
                       style={{
@@ -594,12 +618,12 @@ export default function DisenoSalonPage() {
                             layout="fill" 
                             objectFit="contain" 
                             className="rounded-sm pointer-events-none" 
-                            data-ai-hint="object floor element"
+                            data-ai-hint={el.dataAiHint || "object floor element"}
                             onError={() => setFailedImageUrls(prev => new Set(prev).add(el.imageUrl!))}
                         />
                       ) : (
                         <div className={`w-full h-full flex flex-col items-center justify-center ${failedImageUrls.has(el.imageUrl!) ? 'bg-destructive/10' : 'bg-primary/20'} pointer-events-none text-center p-0.5`}>
-                            {failedImageUrls.has(el.imageUrl!) && <ImageOff className="w-4 h-4 mb-0.5 text-destructive"/>}
+                            {(failedImageUrls.has(el.imageUrl!) || !el.imageUrl) && <ImageOff className={`w-4 h-4 mb-0.5 ${failedImageUrls.has(el.imageUrl!) ? 'text-destructive' : 'text-primary-foreground/70'}`}/>}
                             <span className="truncate text-[8px] sm:text-[10px] font-medium text-primary-foreground leading-tight">{el.name}</span>
                             <span className="text-[7px] sm:text-[9px] text-primary-foreground/80 leading-tight">({el.width}x{el.height}px)</span>
                         </div>
@@ -629,7 +653,7 @@ export default function DisenoSalonPage() {
                   <li key={el.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 border rounded-md hover:bg-muted/50">
                     <div className="flex items-center gap-2 flex-grow mb-2 sm:mb-0">
                        {el.imageUrl && !failedImageUrls.has(el.imageUrl) ? 
-                         <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain border" data-ai-hint="icon element" onError={() => setFailedImageUrls(prev => new Set(prev).add(el.imageUrl!))}/> 
+                         <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain border" data-ai-hint={el.dataAiHint || "icon element"} onError={() => setFailedImageUrls(prev => new Set(prev).add(el.imageUrl!))}/> 
                          : (el.imageUrl && failedImageUrls.has(el.imageUrl)) ? <ImageOff className="w-6 h-6 text-destructive"/> 
                          : getPaletteIcon(el.category)
                        }
@@ -779,7 +803,7 @@ export default function DisenoSalonPage() {
                             width={100} 
                             height={100} 
                             className="border rounded-sm object-contain bg-muted/30"
-                            data-ai-hint="element preview"
+                            data-ai-hint={currentElement.dataAiHint || "element preview"}
                             onError={() => setFailedModalImageUrl(true)}
                         />
                     )}
@@ -849,4 +873,3 @@ export default function DisenoSalonPage() {
     </div>
   );
 }
-
