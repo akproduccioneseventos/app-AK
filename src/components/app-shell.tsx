@@ -50,8 +50,14 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
 
-  // Fiestas
-  if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas'; // Actualizado
+  // Fiestas (Planificador)
+  if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
+  if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
+  if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
+  if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores y Servicios';
+  if (pathname === '/fiestas/nueva/decoracion') return 'Diseño y Decoración';
+  if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
+
 
   // Configuración
   if (pathname === '/settings') return 'Configuración General';

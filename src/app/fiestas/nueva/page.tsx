@@ -1,14 +1,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, DollarSign, Users, Truck, Palette, Settings2 } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface PlanningModule {
   title: string;
   description: string;
   icon: React.ElementType;
-  href?: string; // En el futuro, cada módulo tendrá su propia página
+  href: string; 
   status: "Disponible" | "Próximamente" | "En Desarrollo";
   actionLabel: string;
 }
@@ -18,48 +18,40 @@ const planningModules: PlanningModule[] = [
     title: "Lista de Tareas del Evento", 
     description: "Organiza y sigue el progreso de todas las tareas pendientes para tu fiesta.", 
     icon: ListChecks, 
-    href: "/fiestas/nueva/tareas", // Ruta futura
-    status: "Próximamente",
+    href: "/fiestas/nueva/tareas",
+    status: "Disponible",
     actionLabel: "Gestionar Tareas"
-  },
-  { 
-    title: "Presupuesto Detallado", 
-    description: "Lleva un control exhaustivo de tus ingresos y gastos para el evento.", 
-    icon: DollarSign, 
-    href: "/fiestas/nueva/presupuesto", // Ruta futura
-    status: "Próximamente",
-    actionLabel: "Controlar Presupuesto"
   },
   { 
     title: "Gestión de Invitados", 
     description: "Administra tu lista de invitados, envía invitaciones y gestiona confirmaciones.", 
     icon: Users, 
-    href: "/fiestas/nueva/invitados", // Ruta futura
-    status: "Próximamente",
+    href: "/fiestas/nueva/invitados",
+    status: "Disponible",
     actionLabel: "Administrar Invitados"
   },
   { 
     title: "Proveedores y Servicios", 
     description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.", 
     icon: Truck, 
-    href: "/fiestas/nueva/proveedores", // Ruta futura
-    status: "Próximamente",
+    href: "/fiestas/nueva/proveedores",
+    status: "Disponible",
     actionLabel: "Buscar Proveedores"
   },
   {
     title: "Diseño y Decoración",
     description: "Planifica la estética, temática y decoración de tu evento.",
     icon: Palette,
-    href: "/fiestas/nueva/decoracion", // Ruta futura
-    status: "Próximamente",
+    href: "/fiestas/nueva/decoracion",
+    status: "Disponible",
     actionLabel: "Definir Diseño"
   },
   {
     title: "Configuración del Evento",
     description: "Define detalles generales, fecha, lugar y tipo de celebración.",
     icon: Settings2,
-    href: "/fiestas/nueva/configuracion", // Ruta futura
-    status: "Próximamente",
+    href: "/fiestas/nueva/configuracion",
+    status: "Disponible",
     actionLabel: "Configurar Evento"
   }
 ];
@@ -97,7 +89,6 @@ export default function PlanificarFiestaHubPage() {
               </div>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col justify-end">
-              {/* <p className="text-xs text-muted-foreground mb-3">Estado: {module.status}</p> */}
               {module.href ? (
                 <Link href={module.href} passHref className="mt-auto">
                   <Button 
@@ -130,14 +121,14 @@ export default function PlanificarFiestaHubPage() {
         </CardHeader>
         <CardContent>
             <p className="text-muted-foreground">
-                Este es el nuevo centro de planificación para tus fiestas. Iremos habilitando cada uno de estos módulos progresivamente. 
-                Por favor, indícame cuál de estas secciones te gustaría que desarrollemos primero.
+                Este es el centro de planificación para tus fiestas. Selecciona un módulo para comenzar a detallar tu evento.
+                Iremos habilitando funcionalidades más avanzadas en cada sección progresivamente.
             </p>
             <img 
               src="https://placehold.co/600x300.png" 
               alt="Planificación de eventos" 
               className="mt-4 rounded-md shadow-md mx-auto"
-              data-ai-hint="event planning blueprint"
+              data-ai-hint="event planning dashboard"
             />
         </CardContent>
       </Card>
