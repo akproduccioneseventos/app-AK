@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize, Move, PackageSearch, Sofa, Lightbulb, Flower2, Droplets, Music2 } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize, Move, PackageSearch, Sofa, Lightbulb, Flower2, Droplets, Music2, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SalonLayoutData, LayoutElement } from '@/types/fiesta';
 import { getFiestaActual, updateSalonLayoutFiestaActual } from '@/app/actions/fiesta-actual';
@@ -61,7 +61,6 @@ const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantit
   { name: 'Parlante/Altavoz Grande', imageUrl: 'https://placehold.co/40x60/B0B0B0/808080.png?text=Audio', width: 40, height: 60, rotation: 0, type: 'predefined', category: 'Equipamiento' },
 ];
 
-// Define categories for filtering palette (optional for future use)
 const paletteCategories = Array.from(new Set(predefinedElementsPalette.map(el => el.category || 'Otro')));
 
 export default function DisenoSalonPage() {
@@ -141,7 +140,7 @@ export default function DisenoSalonPage() {
         name: paletteItem.name,
         quantity: 1,
         type: 'predefined',
-        x: Math.floor(Math.random() * 200) + 50, // Default position, user can adjust
+        x: Math.floor(Math.random() * 200) + 50, 
         y: Math.floor(Math.random() * 200) + 50,
         width: paletteItem.width || 50,
         height: paletteItem.height || 50,
@@ -209,6 +208,52 @@ export default function DisenoSalonPage() {
       ),
     }));
   };
+
+  const handleDuplicateElement = (elementId: string) => {
+    const elementToDuplicate = layoutData.elements.find(el => el.id === elementId);
+    if (elementToDuplicate) {
+      const duplicatedElement: LayoutElement = {
+        ...JSON.parse(JSON.stringify(elementToDuplicate)), // Deep copy
+        id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        x: (elementToDuplicate.x || 0) + 10,
+        y: (elementToDuplicate.y || 0) + 10,
+      };
+      setLayoutData(prev => ({
+        ...prev,
+        elements: [...prev.elements, duplicatedElement],
+      }));
+      toast({ title: "Elemento Duplicado", description: `${duplicatedElement.name} ha sido duplicado.` });
+    }
+  };
+
+  const moveElement = (elementId: string, direction: 'up' | 'down' | 'front' | 'back') => {
+    setLayoutData(prev => {
+      const elements = [...prev.elements];
+      const index = elements.findIndex(el => el.id === elementId);
+      if (index === -1) return prev;
+
+      const item = elements.splice(index, 1)[0];
+
+      switch (direction) {
+        case 'up':
+          if (index < elements.length) elements.splice(index + 1, 0, item);
+          else elements.push(item); // Already last or list was empty after splice
+          break;
+        case 'down':
+          if (index > 0) elements.splice(index - 1, 0, item);
+          else elements.unshift(item); // Already first or list was empty
+          break;
+        case 'front':
+          elements.push(item);
+          break;
+        case 'back':
+          elements.unshift(item);
+          break;
+      }
+      return { ...prev, elements };
+    });
+  };
+
 
   const handleSaveLayout = async () => {
     setIsSaving(true);
@@ -442,9 +487,9 @@ export default function DisenoSalonPage() {
           {layoutData.elements.length > 0 ? (
             <ScrollArea className="h-[250px] pr-3">
               <ul className="space-y-2">
-                {layoutData.elements.map(el => (
-                  <li key={el.id} className="flex justify-between items-center p-2 border rounded-md hover:bg-muted/50">
-                    <div className="flex items-center gap-2">
+                {layoutData.elements.map((el, index) => (
+                  <li key={el.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 border rounded-md hover:bg-muted/50">
+                    <div className="flex items-center gap-2 flex-grow mb-2 sm:mb-0">
                        {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain" data-ai-hint="icon element"/> : getPaletteIcon(el.category)}
                         <div>
                             <p className="font-medium text-sm">{el.name} <span className="text-xs text-muted-foreground">({el.category || 'Otro'})</span></p>
@@ -454,25 +499,24 @@ export default function DisenoSalonPage() {
                             </p>
                         </div>
                     </div>
-                    <div className="flex gap-1">
-                        <Button variant="outline" size="icon" onClick={() => openFormModal(el)} className="h-7 w-7" aria-label="Editar Elemento">
-                            <Edit3 className="w-3.5 h-3.5"/>
-                        </Button>
+                    <div className="flex flex-wrap gap-1.5 self-start sm:self-center">
+                        <Button variant="outline" size="icon" onClick={() => openFormModal(el)} className="h-7 w-7" aria-label="Editar Elemento"><Edit3 className="w-3.5 h-3.5"/></Button>
+                        <Button variant="outline" size="icon" onClick={() => handleDuplicateElement(el.id)} className="h-7 w-7" aria-label="Duplicar Elemento"><Copy className="w-3.5 h-3.5"/></Button>
+                        
+                        <Button variant="outline" size="icon" onClick={() => moveElement(el.id, 'up')} disabled={index === layoutData.elements.length - 1} className="h-7 w-7" aria-label="Mover Arriba"><ArrowUp className="w-3.5 h-3.5"/></Button>
+                        <Button variant="outline" size="icon" onClick={() => moveElement(el.id, 'down')} disabled={index === 0} className="h-7 w-7" aria-label="Mover Abajo"><ArrowDown className="w-3.5 h-3.5"/></Button>
+                        <Button variant="outline" size="icon" onClick={() => moveElement(el.id, 'front')} disabled={index === layoutData.elements.length - 1} className="h-7 w-7" aria-label="Traer al Frente"><ChevronsUp className="w-3.5 h-3.5"/></Button>
+                        <Button variant="outline" size="icon" onClick={() => moveElement(el.id, 'back')} disabled={index === 0} className="h-7 w-7" aria-label="Enviar al Fondo"><ChevronsDown className="w-3.5 h-3.5"/></Button>
+                        
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="icon" className="h-7 w-7" aria-label="Eliminar Elemento" disabled={isSaving}>
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                </Button>
+                                <Button variant="destructive" size="icon" className="h-7 w-7" aria-label="Eliminar Elemento" disabled={isSaving}><Trash2 className="w-3.5 h-3.5" /></Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                                </AlertDialogHeader>
+                                <AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle></AlertDialogHeader>
                                 <AlertDialogFooter>
                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleRemoveElement(el.id)} className="bg-destructive hover:bg-destructive/90">
-                                    Sí, eliminar
-                                </AlertDialogAction>
+                                <AlertDialogAction onClick={() => handleRemoveElement(el.id)} className="bg-destructive hover:bg-destructive/90">Sí, eliminar</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
