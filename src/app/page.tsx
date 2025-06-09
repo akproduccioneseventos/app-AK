@@ -98,13 +98,13 @@ export default function DashboardPage() {
             <CardContent className="flex justify-center p-2 sm:p-4"> {/* Adjusted padding */}
               <Calendar
                 mode="single"
-                defaultMonth={new Date(2024, 3, 1)} // Default to April 2024 for consistency with static title
-                className="p-0 rounded-md border shadow-sm" // Added border and shadow to calendar itself
+                defaultMonth={new Date()} 
+                className="p-0 rounded-md border shadow-sm" 
                 classNames={{
-                  caption_label: "text-base font-medium", // Slightly larger caption
-                  head_cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm", // Responsive head cells
-                  cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm", // Responsive cells
-                  day: "w-8 h-8 sm:w-9 sm:h-9", // Responsive day
+                  caption_label: "text-base font-medium", 
+                  head_cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm", 
+                  cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm", 
+                  day: "w-8 h-8 sm:w-9 sm:h-9", 
                   day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                   day_today: "bg-accent text-accent-foreground",
                 }}

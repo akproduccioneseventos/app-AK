@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 
 export function AppLogo() {
@@ -7,7 +8,7 @@ export function AppLogo() {
         AK PRODUCCIONES
       </span>
       <span className="text-xs font-body text-sidebar-foreground/80 tracking-wider group-hover:text-sidebar-foreground transition-colors">
-        MEDIA PROSUTEE
+        PRESUPUESTADOR
       </span>
     </Link>
   );
