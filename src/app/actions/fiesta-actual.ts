@@ -19,6 +19,7 @@ const defaultConfiguracion: ConfigEventoDataStorage = {
   invitadosEstimados: 80,
   presupuestoEstimado: 156000,
   notasAdicionales: '',
+  clienteId: undefined, // Nuevo campo
 };
 
 const defaultTareas: Tarea[] = [
@@ -94,6 +95,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         configuracion: {
             ...initialFiestaActualData.configuracion,
             ...(data.configuracion || {}),
+            clienteId: data.configuracion?.clienteId || undefined,
         },
         personalAsignado: data.personalAsignado || [],
         menuAsignadoId: data.menuAsignadoId || undefined,
@@ -179,7 +181,7 @@ export async function updateConfiguracionFiestaActual(
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.configuracion = { ...configData };
+    fiestaActual.configuracion = { ...fiestaActual.configuracion, ...configData };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.configuracion)) };
   } catch (e: any) {
@@ -404,6 +406,7 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
     try {
         const resetData = { 
           ...initialFiestaActualData,
+          configuracion: { ...defaultConfiguracion, clienteId: undefined }, // Reset clienteId too
           tareas: [...defaultTareas.map(t => ({...t}))], 
           decoracion: { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} },
           salonLayout: { ...defaultSalonLayout, elements: [] },
@@ -421,6 +424,15 @@ async function initializeFiestaData() {
         await fs.access(fiestaActualFilePath); 
         const currentData = await readFiestaActualFile(); 
         let needsUpdate = false;
+
+        if (!currentData.configuracion) {
+            currentData.configuracion = { ...defaultConfiguracion };
+            needsUpdate = true;
+        } else if (currentData.configuracion.clienteId === undefined) { // Check specifically for clienteId
+            currentData.configuracion.clienteId = undefined; // Ensure it's explicitly undefined if not present
+            // needsUpdate = true; // Only set to true if it was missing and now we are adding it with a default
+        }
+
 
         if (!currentData.tareas || currentData.tareas.length === 0) {
             currentData.tareas = [...defaultTareas.map(t => ({...t}))];

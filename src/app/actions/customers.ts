@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { Customer } from '@/types/customer';
+import type { Customer, SalesFunnelStage } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -23,12 +23,9 @@ async function readCustomersFile(): Promise<Customer[]> {
   try {
     const fileContent = await fs.readFile(customersFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data) ? data.map(c => ({...c, salesFunnelStage: c.salesFunnelStage || 'Lead'})) : [];
   } catch (error: any) {
     if (error.code === 'ENOENT') {
-      // If file doesn't exist, create it with an empty array or initial data
-      // For now, let's start with an empty array if not found.
-      // The initial data is now in customers.json directly.
       await writeCustomersFile([]);
       return [];
     }
@@ -55,7 +52,7 @@ export async function getCustomers(): Promise<Customer[]> {
 export async function getCustomerById(id: string): Promise<Customer | null> {
   const customers = await readCustomersFile();
   const customer = customers.find(c => c.id === id);
-  return customer ? { ...customer } : null;
+  return customer ? { ...customer, salesFunnelStage: customer.salesFunnelStage || 'Lead' } : null;
 }
 
 export async function saveCustomer(
@@ -69,7 +66,8 @@ export async function saveCustomer(
     if (index !== -1) {
       customers[index] = { 
         ...customers[index], 
-        ...customerData, 
+        ...customerData,
+        salesFunnelStage: customerData.salesFunnelStage || customers[index].salesFunnelStage || 'Lead',
       };
       await writeCustomersFile(customers);
       return { success: true, id: customerData.id, customer: { ...customers[index] } };
@@ -82,6 +80,7 @@ export async function saveCustomer(
       ...customerData,
       id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: customerData.name || customerData.companyName || 'Sin Nombre Asignado', // Ensure name is set
+      salesFunnelStage: customerData.salesFunnelStage || 'Lead',
     };
     customers.push(newCustomer);
     await writeCustomersFile(customers);
@@ -107,15 +106,23 @@ async function initializeCustomerData() {
     await ensureDataDirectoryExists();
     try {
         await fs.access(customersFilePath);
+        // Ensure existing customers have a default salesFunnelStage if missing
+        const currentCustomers = await readCustomersFile();
+        let wasModified = false;
+        const updatedCustomers = currentCustomers.map(c => {
+            if (!c.salesFunnelStage) {
+                c.salesFunnelStage = 'Lead';
+                wasModified = true;
+            }
+            return c;
+        });
+        if (wasModified) {
+            await writeCustomersFile(updatedCustomers);
+        }
+
     } catch (error: any) {
         if (error.code === 'ENOENT') {
             console.log('Archivo customers.json no encontrado, creando con datos iniciales...');
-            // If you have a predefined initial list, you can place it here.
-            // For now, it will be created empty by readCustomersFile if it's the first run.
-            // Or, if you want to ensure src/data/customers.json is used as is:
-            // const initialData = [] // or load from a static source if you prefer
-            // await writeCustomersFile(initialData);
-            // The customers.json is now manually created with the list.
         }
     }
 }

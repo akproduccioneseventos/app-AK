@@ -9,25 +9,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Settings2, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, Settings2, Loader2, AlertTriangle, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { TipoEvento } from '@/types/presupuesto';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
+import type { Customer } from '@/types/customer';
 import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { getCustomers } from '@/app/actions/customers';
 
-// Client-side representation, fechaEvento is Date or undefined
-interface ConfigFormState {
-  nombreEvento: string;
-  tipoCelebracion: TipoEvento | string;
+
+interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> {
   fechaEvento?: Date;
-  horaInicio: string;
-  horaFin: string;
-  nombreLugar: string;
-  direccionLugar: string;
-  invitadosEstimados: number | string;
-  presupuestoEstimado: number | string;
-  notasAdicionales: string;
+  clienteId?: string;
 }
 
 const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
@@ -35,31 +29,40 @@ const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 
 export default function ConfiguracionEventoPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ConfigFormState | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
   useEffect(() => {
-    async function loadConfig() {
+    async function loadInitialData() {
       setIsLoading(true);
+      setIsLoadingCustomers(true);
       try {
-        const fiesta = await getFiestaActual();
+        const [fiesta, fetchedCustomers] = await Promise.all([
+          getFiestaActual(),
+          getCustomers()
+        ]);
+
         if (fiesta && fiesta.configuracion) {
           setConfig({
             ...fiesta.configuracion,
             fechaEvento: fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : undefined,
+            clienteId: fiesta.configuracion.clienteId || undefined,
           });
         } else {
-          // Should not happen if fiestaActual is initialized correctly on server
           toast({ title: 'Error', description: 'No se pudo cargar la configuración inicial.', variant: 'destructive' });
         }
+        setCustomers(fetchedCustomers);
       } catch (error) {
-        console.error("Error loading event configuration:", error);
-        toast({ title: 'Error al Cargar', description: 'No se pudo obtener la configuración del evento.', variant: 'destructive' });
+        console.error("Error loading event configuration or customers:", error);
+        toast({ title: 'Error al Cargar', description: 'No se pudo obtener la configuración del evento o los clientes.', variant: 'destructive' });
       } finally {
         setIsLoading(false);
+        setIsLoadingCustomers(false);
       }
     }
-    loadConfig();
+    loadInitialData();
   }, [toast]);
 
   const handleChange = (field: keyof ConfigFormState, value: any) => {
@@ -71,7 +74,7 @@ export default function ConfiguracionEventoPage() {
   };
   
   const handleTipoEventoChange = (value: string) => {
-    if (config) { // Ensure config is not null
+    if (config) { 
       if (value === "Otro") {
         handleChange('tipoCelebracion', ''); 
       } else {
@@ -79,6 +82,11 @@ export default function ConfiguracionEventoPage() {
       }
     }
   };
+  
+  const handleClienteChange = (clienteId: string) => {
+    handleChange('clienteId', clienteId === "ninguno" ? undefined : clienteId);
+  };
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -93,9 +101,14 @@ export default function ConfiguracionEventoPage() {
 
     setIsSaving(true);
     const configToSave: ConfigEventoDataStorage = {
-      ...config,
+      ...(config as Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> & { fechaEvento?: string, clienteId?: string}), // Type assertion
       fechaEvento: config.fechaEvento ? config.fechaEvento.toISOString() : undefined,
+      clienteId: config.clienteId || undefined,
     };
+    
+    // Filter out potentially undefined fields that should not be sent if empty
+    if (!configToSave.clienteId) delete configToSave.clienteId;
+
 
     try {
       const result = await updateConfiguracionFiestaActual(configToSave);
@@ -104,10 +117,10 @@ export default function ConfiguracionEventoPage() {
           title: "¡Configuración Guardada!",
           description: "Los detalles generales del evento se han actualizado.",
         });
-        // Optionally update local state if server sends back transformed data, though here it's the same
         setConfig({
             ...result.updatedData,
             fechaEvento: result.updatedData.fechaEvento ? new Date(result.updatedData.fechaEvento) : undefined,
+            clienteId: result.updatedData.clienteId || undefined,
         });
       } else {
         throw new Error(result.error || "Error desconocido al guardar la configuración.");
@@ -165,8 +178,7 @@ export default function ConfiguracionEventoPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
+            <div className="space-y-2">
                 <Label htmlFor="nombre-evento" className="text-base">Nombre del Evento</Label>
                 <Input
                   id="nombre-evento"
@@ -177,6 +189,30 @@ export default function ConfiguracionEventoPage() {
                   required
                   disabled={isSaving}
                 />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                <Label htmlFor="cliente-principal" className="text-base">Cliente Principal del Evento</Label>
+                <Select
+                  value={config.clienteId || "ninguno"}
+                  onValueChange={handleClienteChange}
+                  disabled={isSaving || isLoadingCustomers}
+                >
+                  <SelectTrigger id="cliente-principal" className="text-base p-3 h-auto">
+                    <SelectValue placeholder={isLoadingCustomers ? "Cargando clientes..." : "Seleccionar cliente"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ninguno" className="text-base text-muted-foreground">Ninguno asignado</SelectItem>
+                    {customers.map(customer => (
+                      <SelectItem key={customer.id} value={customer.id} className="text-base">
+                        {customer.companyName || customer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {customers.length === 0 && !isLoadingCustomers && (
+                    <p className="text-xs text-muted-foreground">No hay clientes. <Link href="/customers/new" className="underline text-primary">Crear nuevo cliente</Link>.</p>
+                 )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración</Label>
@@ -311,7 +347,7 @@ export default function ConfiguracionEventoPage() {
              />
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Configuración'}
             </Button>

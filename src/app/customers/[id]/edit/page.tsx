@@ -12,7 +12,8 @@ import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
-import type { Customer } from '@/types/customer';
+import type { Customer, SalesFunnelStage } from '@/types/customer';
+import { ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EditCustomerPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -40,7 +42,8 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const [city, setCity] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [country, setCountry] = useState('');
-  const [customerState, setCustomerState] = useState(''); // Renamed to avoid conflict with React's 'state'
+  const [customerState, setCustomerState] = useState('');
+  const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead');
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -65,6 +68,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           setZipCode(loadedCustomer.address?.zipCode || '');
           setCountry(loadedCustomer.address?.country || '');
           setCustomerState(loadedCustomer.address?.state || '');
+          setSalesFunnelStage(loadedCustomer.salesFunnelStage || 'Lead');
         } else {
           setNotFound(true);
           toast({ title: 'Error', description: `No se encontró el cliente con ID ${params.id}.`, variant: 'destructive' });
@@ -105,6 +109,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         country: country.trim() || undefined,
         state: customerState.trim() || undefined,
       },
+      salesFunnelStage: salesFunnelStage,
     };
 
     try {
@@ -212,9 +217,24 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="customer-taxid">NIF/CIF</Label>
-              <Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="Ej: B12345678" disabled={isSaving || isDeleting}/>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="customer-taxid">NIF/CIF</Label>
+                <Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="Ej: B12345678" disabled={isSaving || isDeleting}/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sales-funnel-stage">Etapa del Embudo</Label>
+                <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as SalesFunnelStage)} disabled={isSaving || isDeleting}>
+                  <SelectTrigger id="sales-funnel-stage">
+                    <SelectValue placeholder="Seleccionar etapa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALL_SALES_FUNNEL_STAGES.map(stage => (
+                      <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
             <h3 className="text-lg font-medium pt-4 border-t font-headline">Dirección</h3>

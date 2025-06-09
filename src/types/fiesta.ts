@@ -12,6 +12,7 @@ export interface ConfigEventoDataStorage {
   invitadosEstimados: number | string;
   presupuestoEstimado: number | string;
   notasAdicionales: string;
+  clienteId?: string; // ID del cliente principal vinculado a esta fiesta
 }
 
 export interface PersonalAsignadoDetalleStorage {
@@ -39,7 +40,7 @@ export interface LayoutElement {
   rotation: number;
   type: 'predefined' | 'custom';
   category?: string; // Ej: 'Mobiliario', 'Decoración Floral', 'Iluminación', 'Equipamiento', 'Zona', 'Otro'
-  dataAiHint?: string; // Para la búsqueda de imágenes de Unsplash u otros
+  dataAiHint?: string;
 }
 
 export interface SalonLayoutData {
@@ -94,4 +95,3 @@ export interface FiestaEnPlanificacion {
   tareas?: Tarea[];
   decoracion?: DecoracionData;
 }
-

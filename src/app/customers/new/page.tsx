@@ -12,7 +12,9 @@ import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, UserPlus2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCustomer } from '@/app/actions/customers';
-import type { Customer } from '@/types/customer';
+import type { Customer, SalesFunnelStage } from '@/types/customer';
+import { ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -30,6 +32,7 @@ export default function NewCustomerPage() {
   const [zipCode, setZipCode] = useState('');
   const [country, setCountry] = useState('');
   const [state, setState] = useState(''); // For state/province
+  const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +43,7 @@ export default function NewCustomerPage() {
 
     setIsSaving(true);
     const customerData: Omit<Customer, 'id'> = {
-      name: name.trim() || companyName.trim(), // Use company name if personal name is empty
+      name: name.trim() || companyName.trim(), 
       companyName: companyName.trim() || undefined,
       email: email.trim() || undefined,
       phone: phone.trim() || undefined,
@@ -52,6 +55,7 @@ export default function NewCustomerPage() {
         country: country.trim() || undefined,
         state: state.trim() || undefined,
       },
+      salesFunnelStage: salesFunnelStage,
     };
 
     try {
@@ -115,9 +119,24 @@ export default function NewCustomerPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="customer-taxid">NIF/CIF</Label>
-              <Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="Ej: B12345678" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="customer-taxid">NIF/CIF</Label>
+                <Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="Ej: B12345678" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sales-funnel-stage">Etapa del Embudo</Label>
+                <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as SalesFunnelStage)}>
+                  <SelectTrigger id="sales-funnel-stage">
+                    <SelectValue placeholder="Seleccionar etapa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALL_SALES_FUNNEL_STAGES.map(stage => (
+                      <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
             <h3 className="text-lg font-medium pt-4 border-t font-headline">Dirección</h3>
