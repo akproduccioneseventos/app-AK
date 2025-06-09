@@ -25,6 +25,8 @@ export interface FiestaEnPlanificacion {
   configuracion: ConfigEventoDataStorage; // Non-optional after initialization
   personalAsignado: PersonalAsignadoDetalleStorage[];
   menuAsignadoId?: string; // ID of the FullMenu assigned to this party
+  presupuestoId?: string; // ID of the Presupuesto assigned to this party
+  invoiceIds?: string[]; // IDs of Invoices assigned to this party
   // tareas?: Tarea[]; // Future: Define Tarea type
   // invitados?: Invitado[]; // Future: Define Invitado type
   // decoracion?: DecoracionData; // Future

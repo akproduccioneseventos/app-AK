@@ -26,7 +26,9 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   id: 'fiesta-en-curso', // Static ID for the single planned fiesta
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
-  menuAsignadoId: undefined, // Initialize menuAsignadoId
+  menuAsignadoId: undefined,
+  presupuestoId: undefined,
+  invoiceIds: [],
   // Initialize other modules with their defaults later
   // tareas: defaultTareas, // example
 };
@@ -56,6 +58,8 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             },
             personalAsignado: data.personalAsignado || [],
             menuAsignadoId: data.menuAsignadoId || undefined,
+            presupuestoId: data.presupuestoId || undefined,
+            invoiceIds: data.invoiceIds || [],
         };
         return validatedData;
     }
@@ -131,10 +135,56 @@ export async function updateMenuAsignadoFiestaActual(
   }
 }
 
+export async function updatePresupuestoAsignadoFiestaActual(
+  presupuestoId?: string | null
+): Promise<{ success: boolean; presupuestoId?: string | null; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    fiestaActual.presupuestoId = presupuestoId === null ? undefined : presupuestoId;
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, presupuestoId: fiestaActual.presupuestoId };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar el presupuesto asignado." };
+  }
+}
+
+export async function addInvoiceIdToFiestaActual(
+  invoiceId: string
+): Promise<{ success: boolean; invoiceIds?: string[]; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    if (!fiestaActual.invoiceIds) {
+      fiestaActual.invoiceIds = [];
+    }
+    if (!fiestaActual.invoiceIds.includes(invoiceId)) {
+      fiestaActual.invoiceIds.push(invoiceId);
+      await writeFiestaActualFile(fiestaActual);
+    }
+    return { success: true, invoiceIds: fiestaActual.invoiceIds };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al añadir ID de factura." };
+  }
+}
+
+export async function removeInvoiceIdFromFiestaActual(
+  invoiceId: string
+): Promise<{ success: boolean; invoiceIds?: string[]; error?: string }> {
+  try {
+    let fiestaActual = await readFiestaActualFile();
+    if (fiestaActual.invoiceIds) {
+      fiestaActual.invoiceIds = fiestaActual.invoiceIds.filter(id => id !== invoiceId);
+      await writeFiestaActualFile(fiestaActual);
+    }
+    return { success: true, invoiceIds: fiestaActual.invoiceIds || [] };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al quitar ID de factura." };
+  }
+}
+
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
-        // Ensure initial data always includes menuAsignadoId as undefined on reset
-        const resetData = { ...initialFiestaActualData, menuAsignadoId: undefined };
+        // Ensure initial data always includes all fields with their defaults on reset
+        const resetData = { ...initialFiestaActualData };
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: JSON.parse(JSON.stringify(resetData)) };
     } catch (e: any) {

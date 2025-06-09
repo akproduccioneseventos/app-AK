@@ -2,12 +2,15 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit } from 'lucide-react'; // Removed Trash2 for now
+import { Eye, Edit, LinkIcon, Link2Off, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 
 interface PresupuestoCardProps {
   presupuesto: Presupuesto;
+  isAssignedToCurrentFiesta?: boolean;
+  onToggleAssign?: () => void;
+  isAssigning?: boolean;
 }
 
 const formatCurrency = (amount: number) => {
@@ -20,7 +23,12 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export default function PresupuestoCard({ presupuesto }: PresupuestoCardProps) {
+export default function PresupuestoCard({ 
+  presupuesto, 
+  isAssignedToCurrentFiesta, 
+  onToggleAssign,
+  isAssigning 
+}: PresupuestoCardProps) {
   return (
     <Card className="shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between">
       <CardHeader>
@@ -36,22 +44,37 @@ export default function PresupuestoCard({ presupuesto }: PresupuestoCardProps) {
         </div>
         <p className="text-lg font-semibold">{formatCurrency(presupuesto.costoTotalEstimado)}</p>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2 pt-4">
-        <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
-          <Button variant="outline" size="sm" aria-label={`Ver presupuesto de ${presupuesto.clienteNombre}`}>
-            <Eye className="w-4 h-4 mr-1" /> Ver
+      <CardFooter className="flex flex-col items-stretch gap-2 pt-4">
+        {onToggleAssign && (
+          <Button 
+            variant={isAssignedToCurrentFiesta ? "secondary" : "default"} 
+            size="sm" 
+            onClick={onToggleAssign}
+            disabled={isAssigning}
+            className="w-full"
+          >
+            {isAssigning ? (
+              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+            ) : isAssignedToCurrentFiesta ? (
+              <Link2Off className="w-4 h-4 mr-1" />
+            ) : (
+              <LinkIcon className="w-4 h-4 mr-1" />
+            )}
+            {isAssigning ? (isAssignedToCurrentFiesta ? 'Quitando...' : 'Asignando...') : (isAssignedToCurrentFiesta ? 'Quitar de Fiesta' : 'Asignar a Fiesta')}
           </Button>
-        </Link>
-        <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
-          <Button variant="secondary" size="sm" aria-label={`Editar presupuesto de ${presupuesto.clienteNombre}`}>
-            <Edit className="w-4 h-4 mr-1" /> Editar
-          </Button>
-        </Link>
-        {/* 
-        <Button variant="destructive" size="sm" aria-label={`Eliminar presupuesto de ${presupuesto.clienteNombre}`}>
-          <Trash2 className="w-4 h-4 mr-1" /> Eliminar
-        </Button> 
-        */}
+        )}
+        <div className="flex justify-end gap-2">
+          <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
+            <Button variant="outline" size="sm" aria-label={`Ver presupuesto de ${presupuesto.clienteNombre}`}>
+              <Eye className="w-4 h-4 mr-1" /> Ver
+            </Button>
+          </Link>
+          <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
+            <Button variant="outline" size="sm" aria-label={`Editar presupuesto de ${presupuesto.clienteNombre}`}>
+              <Edit className="w-4 h-4 mr-1" /> Editar
+            </Button>
+          </Link>
+        </div>
       </CardFooter>
     </Card>
   );
