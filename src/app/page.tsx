@@ -1,6 +1,8 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar } from "@/components/ui/calendar";
+// import { Calendar } from "@/components/ui/calendar"; // No longer directly used here
+import { DashboardCalendar } from '@/components/dashboard-calendar'; // Import the new component
 import { CalendarDays, ClipboardList, DollarSign, CreditCard, Info } from 'lucide-react'; // Added icons
 
 const proximosEventosData = [
@@ -96,19 +98,7 @@ export default function DashboardPage() {
               <CardTitle className="font-headline text-xl">Calendario</CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center p-2 sm:p-4"> {/* Adjusted padding */}
-              <Calendar
-                mode="single"
-                defaultMonth={new Date()} 
-                className="p-0 rounded-md border shadow-sm" 
-                classNames={{
-                  caption_label: "text-base font-medium", 
-                  head_cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm", 
-                  cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm", 
-                  day: "w-8 h-8 sm:w-9 sm:h-9", 
-                  day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                  day_today: "bg-accent text-accent-foreground",
-                }}
-              />
+              <DashboardCalendar />
             </CardContent>
           </Card>
         </div>
