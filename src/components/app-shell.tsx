@@ -58,6 +58,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/decoracion') return 'Diseño y Decoración';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
+  if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
 
 
   // Configuración

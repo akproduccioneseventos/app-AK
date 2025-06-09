@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Truck, Palette, Settings2, Globe, UtensilsCrossed } from 'lucide-react';
 import Link from 'next/link';
 
 interface PlanningModule {
@@ -59,8 +59,16 @@ const planningModules: PlanningModule[] = [
     description: "Crea y personaliza una página web para compartir detalles de tu fiesta.",
     icon: Globe,
     href: "/fiestas/nueva/pagina-web",
-    status: "Disponible", // Marcar como disponible para acceder a la página de configuración
+    status: "Disponible",
     actionLabel: "Personalizar Web"
+  },
+  {
+    title: "Catering y Menú",
+    description: "Selecciona platos y calcula el costo del catering para tu evento.",
+    icon: UtensilsCrossed,
+    href: "/fiestas/nueva/catering",
+    status: "Disponible",
+    actionLabel: "Definir Menú"
   }
 ];
 
