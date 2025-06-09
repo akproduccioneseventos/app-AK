@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,14 +9,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Settings2 } from 'lucide-react';
+import { ArrowLeft, Save, Settings2, Loader2, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { TipoEvento } from '@/types/presupuesto';
+import type { ConfigEventoDataStorage } from '@/types/fiesta';
+import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 
-const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
-
-interface EventConfigData {
+// Client-side representation, fechaEvento is Date or undefined
+interface ConfigFormState {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
   fechaEvento?: Date;
@@ -29,23 +30,40 @@ interface EventConfigData {
   notasAdicionales: string;
 }
 
+const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
+
 export default function ConfiguracionEventoPage() {
   const { toast } = useToast();
-  const [config, setConfig] = useState<EventConfigData>({
-    nombreEvento: 'Boda Noelia Damaceno', // Default from Excel
-    tipoCelebracion: 'Boda', // Default from Excel
-    fechaEvento: new Date(2025, 5, 6), // Default from Excel (06/06/25, month is 0-indexed)
-    horaInicio: '',
-    horaFin: '',
-    nombreLugar: 'Bonsai', // Default from Excel
-    direccionLugar: '',
-    invitadosEstimados: 80, // Default from Excel
-    presupuestoEstimado: 156000, // Default from Excel
-    notasAdicionales: '',
-  });
+  const [config, setConfig] = useState<ConfigFormState | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleChange = (field: keyof EventConfigData, value: any) => {
-    setConfig(prev => ({ ...prev, [field]: value }));
+  useEffect(() => {
+    async function loadConfig() {
+      setIsLoading(true);
+      try {
+        const fiesta = await getFiestaActual();
+        if (fiesta && fiesta.configuracion) {
+          setConfig({
+            ...fiesta.configuracion,
+            fechaEvento: fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : undefined,
+          });
+        } else {
+          // Should not happen if fiestaActual is initialized correctly on server
+          toast({ title: 'Error', description: 'No se pudo cargar la configuración inicial.', variant: 'destructive' });
+        }
+      } catch (error) {
+        console.error("Error loading event configuration:", error);
+        toast({ title: 'Error al Cargar', description: 'No se pudo obtener la configuración del evento.', variant: 'destructive' });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadConfig();
+  }, [toast]);
+
+  const handleChange = (field: keyof ConfigFormState, value: any) => {
+    setConfig(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
 
   const handleDateChange = (date?: Date) => {
@@ -53,22 +71,73 @@ export default function ConfiguracionEventoPage() {
   };
   
   const handleTipoEventoChange = (value: string) => {
-     if (value === "Otro") {
+    if (config) { // Ensure config is not null
+      if (value === "Otro") {
         handleChange('tipoCelebracion', ''); 
       } else {
         handleChange('tipoCelebracion', value as TipoEvento);
       }
+    }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // En una aplicación real, aquí guardarías los datos.
-    console.log({ config });
-    toast({
-      title: "Configuración Guardada (Simulación)",
-      description: "Los detalles generales del evento se han guardado.",
-    });
+    if (!config) {
+      toast({ title: "Error", description: "No hay datos de configuración para guardar.", variant: "destructive" });
+      return;
+    }
+    if (!config.nombreEvento.trim()) {
+        toast({ title: "Nombre Requerido", description: "El nombre del evento no puede estar vacío.", variant: "destructive"});
+        return;
+    }
+
+    setIsSaving(true);
+    const configToSave: ConfigEventoDataStorage = {
+      ...config,
+      fechaEvento: config.fechaEvento ? config.fechaEvento.toISOString() : undefined,
+    };
+
+    try {
+      const result = await updateConfiguracionFiestaActual(configToSave);
+      if (result.success && result.updatedData) {
+        toast({
+          title: "¡Configuración Guardada!",
+          description: "Los detalles generales del evento se han actualizado.",
+        });
+        // Optionally update local state if server sends back transformed data, though here it's the same
+        setConfig({
+            ...result.updatedData,
+            fechaEvento: result.updatedData.fechaEvento ? new Date(result.updatedData.fechaEvento) : undefined,
+        });
+      } else {
+        throw new Error(result.error || "Error desconocido al guardar la configuración.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <p className="ml-3 text-lg">Cargando configuración...</p>
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
+        <h2 className="text-xl font-semibold mb-2">Error al Cargar Configuración</h2>
+        <p className="text-muted-foreground">No se pudieron cargar los datos. Por favor, intentá de nuevo más tarde.</p>
+         <Button onClick={() => window.location.reload()} className="mt-4">Recargar Página</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -77,7 +146,7 @@ export default function ConfiguracionEventoPage() {
           Configuración General del Evento
         </h1>
         <Link href="/fiestas/nueva" passHref>
-          <Button variant="outline">
+          <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Planificador
           </Button>
@@ -106,6 +175,7 @@ export default function ConfiguracionEventoPage() {
                   placeholder="Ej: Boda Ana y Juan, Mi Cumpleaños N°30"
                   className="text-base p-3"
                   required
+                  disabled={isSaving}
                 />
               </div>
               <div className="space-y-2">
@@ -113,6 +183,7 @@ export default function ConfiguracionEventoPage() {
                  <Select 
                     value={tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) ? config.tipoCelebracion : "Otro"}
                     onValueChange={handleTipoEventoChange}
+                    disabled={isSaving}
                   >
                     <SelectTrigger id="tipo-celebracion" className="text-base p-3 h-auto">
                       <SelectValue placeholder="Seleccioná un tipo" />
@@ -131,6 +202,7 @@ export default function ConfiguracionEventoPage() {
                         value={config.tipoCelebracion !== "Otro" ? config.tipoCelebracion : ""}
                         onChange={(e) => handleChange('tipoCelebracion', e.target.value)}
                         className="text-base p-3 mt-2"
+                        disabled={isSaving}
                     />
                   )}
               </div>
@@ -149,6 +221,7 @@ export default function ConfiguracionEventoPage() {
                   value={config.horaInicio}
                   onChange={(e) => handleChange('horaInicio', e.target.value)}
                   className="text-base p-3"
+                  disabled={isSaving}
                 />
               </div>
               <div className="space-y-2">
@@ -159,6 +232,7 @@ export default function ConfiguracionEventoPage() {
                   value={config.horaFin}
                   onChange={(e) => handleChange('horaFin', e.target.value)}
                   className="text-base p-3"
+                  disabled={isSaving}
                 />
               </div>
             </div>
@@ -171,6 +245,7 @@ export default function ConfiguracionEventoPage() {
                 onChange={(e) => handleChange('nombreLugar', e.target.value)}
                 placeholder="Ej: Salón Paraíso, Finca Los Robles"
                 className="text-base p-3"
+                disabled={isSaving}
               />
             </div>
             <div className="space-y-2">
@@ -182,6 +257,7 @@ export default function ConfiguracionEventoPage() {
                 placeholder="Ej: Calle Falsa 123, Ciudad, Provincia"
                 rows={2}
                 className="text-base p-3"
+                disabled={isSaving}
               />
             </div>
             
@@ -196,6 +272,7 @@ export default function ConfiguracionEventoPage() {
                     placeholder="Ej: 100"
                     min="1"
                     className="text-base p-3"
+                    disabled={isSaving}
                     />
                 </div>
                  <div className="space-y-2">
@@ -209,6 +286,7 @@ export default function ConfiguracionEventoPage() {
                     min="0"
                     step="any"
                     className="text-base p-3"
+                    disabled={isSaving}
                     />
                 </div>
             </div>
@@ -222,6 +300,7 @@ export default function ConfiguracionEventoPage() {
                 placeholder="Cualquier otro detalle importante para la configuración general."
                 rows={3}
                 className="text-base p-3"
+                disabled={isSaving}
               />
             </div>
              <img 
@@ -232,9 +311,9 @@ export default function ConfiguracionEventoPage() {
              />
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto">
-              <Save className="w-4 h-4 mr-2" />
-              Guardar Configuración
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {isSaving ? 'Guardando...' : 'Guardar Configuración'}
             </Button>
           </CardFooter>
         </Card>
