@@ -53,9 +53,8 @@ export function MainNav() {
       <SidebarMenu>
         {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior passHref>
+              <Link href={item.href}>
                 <SidebarMenuButton
-                  asChild
                   isActive={isActiveParent(item.href)}
                   className={cn(
                     isActiveParent(item.href) 
@@ -65,10 +64,9 @@ export function MainNav() {
                   )}
                   tooltip={item.label}
                 >
-                  <a> 
-                    <item.icon className="w-5 h-5" />
-                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                  </a>
+                  {/* Content is now direct children of SidebarMenuButton */}
+                  <item.icon className="w-5 h-5" />
+                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -77,3 +75,4 @@ export function MainNav() {
       </SidebarMenu>
   );
 }
+
