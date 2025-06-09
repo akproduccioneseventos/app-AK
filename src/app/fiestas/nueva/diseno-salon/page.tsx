@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize, Move } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, LayoutGrid, ImageOff, Edit3, Wand2, Maximize, Move, PackageSearch, Sofa, Lightbulb, Flower2, Droplets, Music2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SalonLayoutData, LayoutElement } from '@/types/fiesta';
 import { getFiestaActual, updateSalonLayoutFiestaActual } from '@/app/actions/fiesta-actual';
@@ -40,13 +40,29 @@ import Draggable, { type DraggableData, type DraggableEvent } from 'react-dragga
 
 const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
   { name: 'Mesa Redonda (8 pax)', imageUrl: 'https://placehold.co/80x80/E0E0E0/B0B0B0.png?text=Mesa', width: 80, height: 80, rotation: 0, type: 'predefined', category: 'Mobiliario' },
-  { name: 'Mesa Rectangular (6 pax)', imageUrl: 'https://placehold.co/120x60/E0E0E0/B0B0B0.png?text=Mesa L', width: 120, height: 60, rotation: 0, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Mesa Rectangular (6 pax)', imageUrl: 'https://placehold.co/120x60/E0E0E0/B0B0B0.png?text=Mesa+L', width: 120, height: 60, rotation: 0, type: 'predefined', category: 'Mobiliario' },
   { name: 'Silla', imageUrl: 'https://placehold.co/30x30/F0F0F0/C0C0C0.png?text=S', width: 30, height: 30, rotation: 0, type: 'predefined', category: 'Mobiliario' },
   { name: 'Pista de Baile (Pequeña)', imageUrl: 'https://placehold.co/150x150/D0D0D0/A0A0A0.png?text=Pista', width: 150, height: 150, rotation: 0, type: 'predefined', category: 'Zona' },
+  { name: 'Pista de Baile (Grande)', imageUrl: 'https://placehold.co/250x250/D0D0D0/A0A0A0.png?text=Pista+G', width: 250, height: 250, rotation: 0, type: 'predefined', category: 'Zona' },
   { name: 'Barra de Bebidas', imageUrl: 'https://placehold.co/100x40/C8C8C8/989898.png?text=Bar', width: 100, height: 40, rotation: 0, type: 'predefined', category: 'Equipamiento' },
   { name: 'Escenario (Pequeño)', imageUrl: 'https://placehold.co/120x80/BDBDBD/8D8D8D.png?text=Escenario', width: 120, height: 80, rotation: 0, type: 'predefined', category: 'Equipamiento' },
-  { name: 'Planta Decorativa', imageUrl: 'https://placehold.co/40x40/A9A9A9/797979.png?text=Planta', width: 40, height: 40, rotation: 0, type: 'predefined', category: 'Decoración' },
+  { name: 'DJ Booth', imageUrl: 'https://placehold.co/70x50/BDBDBD/8D8D8D.png?text=DJ', width: 70, height: 50, rotation: 0, type: 'predefined', category: 'Equipamiento' },
+  { name: 'Planta Decorativa Grande', imageUrl: 'https://placehold.co/60x60/A9A9A9/797979.png?text=Planta+G', width: 60, height: 60, rotation: 0, type: 'predefined', category: 'Decoración' },
+  { name: 'Arco Floral', imageUrl: 'https://placehold.co/80x120/A9A9A9/797979.png?text=Arco+Floral', width: 80, height: 120, rotation: 0, type: 'predefined', category: 'Decoración Floral' },
+  { name: 'Panel de Fondo (Backdrop)', imageUrl: 'https://placehold.co/150x100/BFBFBF/8F8F8F.png?text=Backdrop', width: 150, height: 100, rotation: 0, type: 'predefined', category: 'Estructuras' },
+  { name: 'Mesa de Dulces/Torta', imageUrl: 'https://placehold.co/120x50/D1D1D1/A1A1A1.png?text=Mesa+Dulce', width: 120, height: 50, rotation: 0, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Letras Luminosas (LOVE)', imageUrl: 'https://placehold.co/160x60/EAEAEA/BABABA.png?text=LOVE', width: 160, height: 60, rotation: 0, type: 'predefined', category: 'Iluminación' },
+  { name: 'Centro de Mesa Alto', imageUrl: 'https://placehold.co/30x50/C0C0C0/909090.png?text=CentroM', width: 30, height: 50, rotation: 0, type: 'predefined', category: 'Decoración Floral' },
+  { name: 'Guirnalda de Luces', imageUrl: 'https://placehold.co/100x20/F5F5F5/C5C5C5.png?text=Luces', width: 100, height: 20, rotation: 0, type: 'predefined', category: 'Iluminación' },
+  { name: 'Alfombra Roja', imageUrl: 'https://placehold.co/80x200/E0B0B0/B08080.png?text=Alfombra', width: 80, height: 200, rotation: 0, type: 'predefined', category: 'Decoración' },
+  { name: 'Set de Sillones (Lounge)', imageUrl: 'https://placehold.co/140x70/DCDCDC/ADADAD.png?text=Lounge', width: 140, height: 70, rotation: 0, type: 'predefined', category: 'Mobiliario' },
+  { name: 'Photocall / Fotocabina', imageUrl: 'https://placehold.co/100x120/C8C8C8/989898.png?text=Photocall', width: 100, height: 120, rotation: 0, type: 'predefined', category: 'Estructuras' },
+  { name: 'Fuente de Agua Decorativa', imageUrl: 'https://placehold.co/70x70/ADD8E6/7DA8B6.png?text=Fuente', width: 70, height: 70, rotation: 0, type: 'predefined', category: 'Decoración' },
+  { name: 'Parlante/Altavoz Grande', imageUrl: 'https://placehold.co/40x60/B0B0B0/808080.png?text=Audio', width: 40, height: 60, rotation: 0, type: 'predefined', category: 'Equipamiento' },
 ];
+
+// Define categories for filtering palette (optional for future use)
+const paletteCategories = Array.from(new Set(predefinedElementsPalette.map(el => el.category || 'Otro')));
 
 export default function DisenoSalonPage() {
   const { toast } = useToast();
@@ -82,7 +98,7 @@ export default function DisenoSalonPage() {
                 height: el.height ?? 50,
                 rotation: el.rotation ?? 0,
                 type: el.type ?? 'custom',
-                category: el.category || undefined,
+                category: el.category || 'Otro',
             })),
             generalNotes: fiestaData.salonLayout.generalNotes || ''
         });
@@ -125,14 +141,14 @@ export default function DisenoSalonPage() {
         name: paletteItem.name,
         quantity: 1,
         type: 'predefined',
-        x: Math.floor(Math.random() * 200) + 50,
+        x: Math.floor(Math.random() * 200) + 50, // Default position, user can adjust
         y: Math.floor(Math.random() * 200) + 50,
         width: paletteItem.width || 50,
         height: paletteItem.height || 50,
         rotation: paletteItem.rotation || 0,
         imageUrl: paletteItem.imageUrl,
         notes: '',
-        category: paletteItem.category
+        category: paletteItem.category || 'Otro'
      });
      setIsFormModalOpen(true);
   };
@@ -189,7 +205,7 @@ export default function DisenoSalonPage() {
     setLayoutData(prev => ({
       ...prev,
       elements: prev.elements.map(el => 
-        el.id === elementId ? { ...el, x: data.x, y: data.y } : el
+        el.id === elementId ? { ...el, x: Math.round(data.x), y: Math.round(data.y) } : el
       ),
     }));
   };
@@ -211,7 +227,7 @@ export default function DisenoSalonPage() {
           height: el.height ?? 50,
           rotation: el.rotation ?? 0,
           type: el.type ?? 'custom',
-          category: el.category || undefined,
+          category: el.category || 'Otro',
         }))
       };
       const result = await updateSalonLayoutFiestaActual(validatedLayoutData);
@@ -222,7 +238,7 @@ export default function DisenoSalonPage() {
             elements: (result.updatedData.elements || []).map(el => ({
                 id: el.id, name: el.name, quantity: el.quantity, notes: el.notes, imageUrl: el.imageUrl,
                 x: el.x ?? 0, y: el.y ?? 0, width: el.width ?? 50, height: el.height ?? 50,
-                rotation: el.rotation ?? 0, type: el.type ?? 'custom', category: el.category
+                rotation: el.rotation ?? 0, type: el.type ?? 'custom', category: el.category || 'Otro'
             })),
             generalNotes: result.updatedData.generalNotes || ''
         });
@@ -235,6 +251,20 @@ export default function DisenoSalonPage() {
       setIsSaving(false);
     }
   };
+
+  const getPaletteIcon = (category?: string) => {
+    switch (category) {
+        case 'Mobiliario': return <Sofa className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Iluminación': return <Lightbulb className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Decoración Floral': return <Flower2 className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Decoración': return <PackageSearch className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Estructuras': return <LayoutGrid className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Zona': return <Maximize className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Equipamiento': return <Music2 className="w-4 h-4 mr-2 text-primary/80" />;
+        default: return <Wand2 className="w-4 h-4 mr-2 text-primary/80" />;
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -314,15 +344,19 @@ export default function DisenoSalonPage() {
                   <Button
                     key={idx}
                     variant="outline"
-                    className="w-full justify-start h-auto py-2"
+                    className="w-full justify-start h-auto py-2 text-left"
                     onClick={() => addFromPalette(item)}
                     disabled={isSaving}
                   >
-                    <Image src={item.imageUrl || "https://placehold.co/40x40.png"} alt={item.name} width={30} height={30} className="mr-2 rounded-sm object-contain" data-ai-hint="icon element"/>
-                    <span className="text-xs">{item.name}</span>
+                    {getPaletteIcon(item.category)}
+                    <div className="flex flex-col">
+                        <span className="text-xs font-medium">{item.name}</span>
+                        <span className="text-xs text-muted-foreground">{item.category}</span>
+                    </div>
                   </Button>
                 ))}
-                <Button variant="default" className="w-full mt-4" onClick={() => openFormModal()} disabled={isSaving}>
+                <Separator className="my-3"/>
+                <Button variant="default" className="w-full mt-2" onClick={() => openFormModal()} disabled={isSaving}>
                     <PlusCircle className="w-4 h-4 mr-2" />Añadir Elemento Personalizado
                 </Button>
               </div>
@@ -341,13 +375,13 @@ export default function DisenoSalonPage() {
           <CardContent>
             <div 
               ref={canvasRef}
-              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-hidden select-none"
+              className="relative w-full aspect-[16/9] border border-dashed rounded-md bg-muted/20 overflow-hidden select-none group"
               style={{ 
                 backgroundImage: layoutData.backgroundImageUrl ? `url(${layoutData.backgroundImageUrl})` : 'none',
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
-                minHeight: '400px', // Increased minHeight for better usability
+                minHeight: '450px', 
               }}
             >
               {!layoutData.backgroundImageUrl && (
@@ -360,28 +394,26 @@ export default function DisenoSalonPage() {
                  <Draggable
                     key={el.id}
                     axis="both"
-                    handle=".handle" // Define a handle if you want specific drag areas, otherwise whole element is draggable
-                    defaultPosition={{ x: el.x ?? 0, y: el.y ?? 0 }} // Use defaultPosition for uncontrolled if not updating state during drag
-                    position={{ x: el.x ?? 0, y: el.y ?? 0 }} // Use position for controlled component
-                    grid={[5, 5]} // Snap to grid (optional)
-                    scale={1} // Scale (optional)
-                    bounds="parent" // Restrict to parent bounds
+                    handle=".handle" 
+                    position={{ x: el.x ?? 0, y: el.y ?? 0 }}
+                    grid={[5, 5]} 
+                    scale={1} 
+                    bounds="parent" 
                     onStop={(e, data) => handleDragStop(e, data, el.id)}
                   >
                     <div
                       title={`${el.name} (x:${el.x}, y:${el.y})`}
-                      className="absolute border border-primary/50 bg-primary/20 hover:bg-primary/30 cursor-grab active:cursor-grabbing flex items-center justify-center text-xs p-1 rounded-sm handle" // Added handle class
+                      className="absolute border border-primary/50 bg-primary/20 hover:bg-primary/30 cursor-grab active:cursor-grabbing flex items-center justify-center text-xs p-1 rounded-sm handle"
                       style={{
                         width: `${el.width || 50}px`,
                         height: `${el.height || 50}px`,
                         transform: `rotate(${el.rotation || 0}deg)`,
                         color: 'hsl(var(--primary-foreground))',
-                        touchAction: 'none', // Important for touch devices
+                        touchAction: 'none', 
                       }}
                       onClick={(e) => {
-                        // Prevent modal from opening if it was a drag action (simple check)
                         const target = e.target as HTMLElement;
-                        if (target.closest('.react-draggable-dragging')) return;
+                        if (target.closest('.react-draggable-dragging') || (e.target as HTMLElement).classList.contains('handle-icon')) return;
                         openFormModal(el);
                       }}
                     >
@@ -390,7 +422,7 @@ export default function DisenoSalonPage() {
                       ) : (
                         <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px] pointer-events-none">{el.name}</span>
                       )}
-                       <Move className="absolute top-0 right-0 w-3 h-3 text-primary-foreground/50 opacity-50 group-hover:opacity-100 transition-opacity handle"/>
+                       <Move className="handle-icon absolute top-0 right-0 w-3 h-3 text-primary-foreground/70 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab"/>
                     </div>
                   </Draggable>
               ))}
@@ -413,9 +445,9 @@ export default function DisenoSalonPage() {
                 {layoutData.elements.map(el => (
                   <li key={el.id} className="flex justify-between items-center p-2 border rounded-md hover:bg-muted/50">
                     <div className="flex items-center gap-2">
-                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain" data-ai-hint="icon element"/> : <LayoutGrid className="w-4 h-4 text-muted-foreground"/>}
+                       {el.imageUrl ? <Image src={el.imageUrl} alt={el.name} width={24} height={24} className="rounded-sm object-contain" data-ai-hint="icon element"/> : getPaletteIcon(el.category)}
                         <div>
-                            <p className="font-medium text-sm">{el.name} <span className="text-xs text-muted-foreground">({el.type})</span></p>
+                            <p className="font-medium text-sm">{el.name} <span className="text-xs text-muted-foreground">({el.category || 'Otro'})</span></p>
                             <p className="text-xs text-muted-foreground">
                                 X:{el.x}, Y:{el.y} | W:{el.width}px, H:{el.height}px | Rot: {el.rotation}°
                                 {el.notes && ` | Notas: ${el.notes.substring(0,30)}...`}
@@ -520,7 +552,7 @@ export default function DisenoSalonPage() {
             </div>
             <div className="space-y-1">
                 <Label htmlFor="el-category">Categoría</Label>
-                <Input id="el-category" value={currentElement?.category || ''} onChange={(e) => handleElementFieldChange('category', e.target.value)} placeholder="Ej: Mobiliario, Decoración"/>
+                <Input id="el-category" value={currentElement?.category || 'Otro'} onChange={(e) => handleElementFieldChange('category', e.target.value)} placeholder="Ej: Mobiliario, Decoración, Equipamiento"/>
             </div>
              <div className="space-y-1">
               <Label htmlFor="el-quantity">Cantidad (Informativo)</Label>

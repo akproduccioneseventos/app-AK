@@ -46,7 +46,7 @@ const defaultDecoracion: DecoracionData = {
   tema: 'Boda Noelia Damaceno', 
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
-  items: [], // Inicializar items como array vacío
+  items: [], 
   generalNotes: "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.",
 };
 
@@ -115,7 +115,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
                 height: el.height ?? 50,
                 rotation: el.rotation ?? 0,
                 type: el.type ?? 'custom',
-                category: el.category || undefined,
+                category: el.category || 'Otro',
              })),
              backgroundImageUrl: data.salonLayout?.backgroundImageUrl || '',
              generalNotes: data.salonLayout?.generalNotes || '',
@@ -128,7 +128,16 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
               ...(initialFiestaActualData.decoracion?.paletaColores || defaultColorPalette),
               ...(data.decoracion?.paletaColores || {}),
             },
-            items: (data.decoracion?.items || []).map(item => ({ ...item, quantity: item.quantity || 1 })),
+            items: (data.decoracion?.items || []).map(item => ({
+                id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+                name: item.name || 'Ítem sin nombre',
+                category: item.category || 'Otro',
+                quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
+                estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
+                supplier: item.supplier || undefined,
+                notes: item.notes || undefined,
+                imageUrl: item.imageUrl || undefined,
+            })),
             generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : data.decoracion.generalNotes,
             tema: data.decoracion?.tema === undefined ? defaultDecoracion.tema : data.decoracion.tema,
             moodboardImageUrl: data.decoracion?.moodboardImageUrl === undefined ? defaultDecoracion.moodboardImageUrl : data.decoracion.moodboardImageUrl,
@@ -329,7 +338,7 @@ export async function updateSalonLayoutFiestaActual(
       height: el.height ?? 50,
       rotation: el.rotation ?? 0,
       type: el.type ?? 'custom',
-      category: el.category || undefined,
+      category: el.category || 'Otro',
     }));
     fiestaActual.salonLayout = { 
         ...layoutData, 
@@ -363,13 +372,17 @@ export async function updateDecoracionFiestaActual(
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.decoracion = { 
-        ...defaultDecoracion, // Start with defaults to ensure all fields are present
-        ...decoracionData, // Override with provided data
+        ...defaultDecoracion, 
+        ...decoracionData, 
         items: (decoracionData.items || []).map(item => ({ 
-            ...item, 
-            id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`, // Ensure ID
+            id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+            name: item.name || 'Ítem sin nombre',
+            category: item.category || 'Otro',
             quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
             estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
+            supplier: item.supplier || undefined,
+            notes: item.notes || undefined,
+            imageUrl: item.imageUrl || undefined,
         })),
         paletaColores: {
             ...defaultColorPalette,
@@ -405,7 +418,6 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
 async function initializeFiestaData() {
     await ensureDataDirectoryExists();
     try {
-        // Attempt to access, if it fails (ENOENT), it will be handled by read or created in catch
         await fs.access(fiestaActualFilePath); 
         const currentData = await readFiestaActualFile(); 
         let needsUpdate = false;
@@ -419,16 +431,19 @@ async function initializeFiestaData() {
             currentData.decoracion = { ...defaultDecoracion, items: [], paletaColores: {...defaultColorPalette} };
             needsUpdate = true;
         } else {
-            // Ensure nested properties of decoracion have defaults
             currentData.decoracion.paletaColores = {
                 ...defaultColorPalette,
                 ...(currentData.decoracion.paletaColores || {})
             };
             currentData.decoracion.items = (currentData.decoracion.items || []).map(item => ({
-                ...item, 
                 id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+                name: item.name || 'Ítem sin nombre',
+                category: item.category || 'Otro',
                 quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
                 estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
+                supplier: item.supplier || undefined,
+                notes: item.notes || undefined,
+                imageUrl: item.imageUrl || undefined,
             }));
             if (currentData.decoracion.generalNotes === undefined) {
                  currentData.decoracion.generalNotes = defaultDecoracion.generalNotes;
@@ -460,7 +475,7 @@ async function initializeFiestaData() {
                 height: el.height ?? 50,
                 rotation: el.rotation ?? 0,
                 type: el.type ?? 'custom',
-                category: el.category || undefined,
+                category: el.category || 'Otro',
             }));
             currentData.salonLayout.backgroundImageUrl = currentData.salonLayout.backgroundImageUrl || '';
             currentData.salonLayout.generalNotes = currentData.salonLayout.generalNotes || '';

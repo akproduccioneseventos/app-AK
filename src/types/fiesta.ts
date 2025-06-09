@@ -38,7 +38,7 @@ export interface LayoutElement {
   height: number;
   rotation: number;
   type: 'predefined' | 'custom';
-  category?: string;
+  category?: string; // Ej: 'Mobiliario', 'Decoración Floral', 'Iluminación', 'Equipamiento', 'Zona', 'Otro'
 }
 
 export interface SalonLayoutData {
@@ -64,9 +64,9 @@ export interface ColorPalette {
 export interface DecorationItem {
   id: string;
   name: string;
-  category?: string;
+  category?: string; // Ej: Flores, Iluminación, Textil, Mobiliario Pequeño
   quantity: number;
-  estimatedCost?: number;
+  estimatedCost?: number; // Costo unitario o total para este item específico
   supplier?: string;
   notes?: string;
   imageUrl?: string;
@@ -77,7 +77,7 @@ export interface DecoracionData {
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
   items?: DecorationItem[];
-  generalNotes?: string; // Renombrado de 'notas' para evitar confusión con notas de DecorationItem
+  generalNotes?: string; 
 }
 
 
