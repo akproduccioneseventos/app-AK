@@ -60,7 +60,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
-  if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Modificar Menú Existente';
+  if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
+  if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') {
+    return `Editando Menú: ${pathSegments[4]}`;
+  }
 
 
   // Configuración
