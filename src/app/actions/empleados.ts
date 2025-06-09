@@ -2,9 +2,14 @@
 'use server';
 
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
+import fs from 'fs/promises';
+import path from 'path';
 
-// --- SIMULACIÓN DE BASE DE DATOS EN MEMORIA ---
-let mockEmpleadosDatabase: Empleado[] = [
+const dataDirectory = path.join(process.cwd(), 'src', 'data');
+const empleadosFilePath = path.join(dataDirectory, 'empleados.json');
+
+// Datos iniciales si el archivo no existe o está vacío
+const initialMockEmpleadosDatabase: Empleado[] = [
   { id: 'emp_1', nombre: 'Eduardo', rol: 'Mozo', sueldoBase: 2100 },
   { id: 'emp_2', nombre: 'Ari Beraca', rol: 'Cocina', sueldoBase: 1700 },
   { id: 'emp_3', nombre: 'Alex', rol: 'Cocina y Utileria', sueldoBase: 2700 },
@@ -15,36 +20,75 @@ let mockEmpleadosDatabase: Empleado[] = [
   { id: 'emp_8', nombre: 'Yusara', rol: 'Mozo', sueldoBase: 2100 },
   { id: 'emp_9', nombre: 'Pablo', rol: 'Fotografo', sueldoBase: 3800 },
   { id: 'emp_10', nombre: 'Gonza', rol: 'DJ', sueldoBase: 3000 },
-  { id: 'emp_11', nombre: 'Juan (Barman)', rol: 'Barman', sueldoBase: 1800 }, // Asumiendo un nombre para el Barman
-  { id: 'emp_12', nombre: 'Pedro (Ayud. Barman)', rol: 'Ayudante de Barman', sueldoBase: 1700 }, // Asumiendo un nombre
+  { id: 'emp_11', nombre: 'Juan (Barman)', rol: 'Barman', sueldoBase: 1800 },
+  { id: 'emp_12', nombre: 'Pedro (Ayud. Barman)', rol: 'Ayudante de Barman', sueldoBase: 1700 },
 ];
-// --- FIN SIMULACIÓN BASE DE DATOS ---
+
+async function ensureDataDirectoryExists(): Promise<void> {
+  try {
+    await fs.mkdir(dataDirectory, { recursive: true });
+  } catch (error) {
+    console.error('Error creando el directorio de datos:', error);
+    // No relanzamos el error para permitir que la app continúe con datos en memoria si es necesario
+  }
+}
+
+async function readEmpleadosFile(): Promise<Empleado[]> {
+  await ensureDataDirectoryExists();
+  try {
+    const fileContent = await fs.readFile(empleadosFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return Array.isArray(data) ? data : initialMockEmpleadosDatabase;
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      // Si el archivo no existe, lo creamos con los datos iniciales
+      await writeEmpleadosFile(initialMockEmpleadosDatabase);
+      return [...initialMockEmpleadosDatabase];
+    }
+    console.error('Error leyendo el archivo de empleados, usando datos iniciales:', error);
+    // Devolver datos iniciales en caso de otro tipo de error de lectura/parseo
+    return [...initialMockEmpleadosDatabase];
+  }
+}
+
+async function writeEmpleadosFile(data: Empleado[]): Promise<void> {
+  await ensureDataDirectoryExists();
+  try {
+    await fs.writeFile(empleadosFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error escribiendo en el archivo de empleados:', error);
+    // Considerar cómo manejar errores de escritura. Por ahora, solo log.
+  }
+}
 
 export async function getEmpleados(): Promise<Empleado[]> {
-  await new Promise(resolve => setTimeout(resolve, 300)); // Simular delay
-  return JSON.parse(JSON.stringify(mockEmpleadosDatabase.sort((a, b) => a.nombre.localeCompare(b.nombre))));
+  const empleados = await readEmpleadosFile();
+  // Simular delay como antes si es necesario, o eliminarlo para operaciones de archivo
+  // await new Promise(resolve => setTimeout(resolve, 100)); 
+  return empleados.sort((a, b) => a.nombre.localeCompare(b.nombre));
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
-  await new Promise(resolve => setTimeout(resolve, 200));
-  const empleado = mockEmpleadosDatabase.find(e => e.id === id);
+  const empleados = await readEmpleadosFile();
+  const empleado = empleados.find(e => e.id === id);
   return empleado ? JSON.parse(JSON.stringify(empleado)) : null;
 }
 
 export async function saveEmpleado(
   empleadoData: NuevoEmpleadoFormData | Empleado
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
-  await new Promise(resolve => setTimeout(resolve, 700));
-
+  let empleados = await readEmpleadosFile();
+  
   if ('id' in empleadoData && empleadoData.id) {
     // Actualizar empleado existente
-    const index = mockEmpleadosDatabase.findIndex(e => e.id === empleadoData.id);
+    const index = empleados.findIndex(e => e.id === empleadoData.id);
     if (index !== -1) {
-      mockEmpleadosDatabase[index] = { 
-        ...mockEmpleadosDatabase[index], 
+      empleados[index] = { 
+        ...empleados[index], 
         ...empleadoData, 
       };
-      return { success: true, id: empleadoData.id, empleado: JSON.parse(JSON.stringify(mockEmpleadosDatabase[index])) };
+      await writeEmpleadosFile(empleados);
+      return { success: true, id: empleadoData.id, empleado: JSON.parse(JSON.stringify(empleados[index])) };
     } else {
       return { success: false, error: `Empleado con ID ${empleadoData.id} no encontrado para actualizar.` };
     }
@@ -54,17 +98,19 @@ export async function saveEmpleado(
       ...empleadoData,
       id: `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     };
-    mockEmpleadosDatabase.push(nuevoEmpleado);
+    empleados.push(nuevoEmpleado);
+    await writeEmpleadosFile(empleados);
     return { success: true, id: nuevoEmpleado.id, empleado: JSON.parse(JSON.stringify(nuevoEmpleado)) };
   }
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const initialLength = mockEmpleadosDatabase.length;
-  mockEmpleadosDatabase = mockEmpleadosDatabase.filter(e => e.id !== id);
+  let empleados = await readEmpleadosFile();
+  const initialLength = empleados.length;
+  empleados = empleados.filter(e => e.id !== id);
   
-  if (mockEmpleadosDatabase.length < initialLength) {
+  if (empleados.length < initialLength) {
+    await writeEmpleadosFile(empleados);
     return { success: true };
   } else {
     return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
