@@ -50,6 +50,12 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
 
+  // Empleados
+  if (pathname === '/empleados') return 'Gestión de Personal';
+  if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
+  if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado #${pathSegments[1]}`;
+
+
   // Fiestas (Planificador)
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
@@ -76,7 +82,7 @@ const getPageTitle = (pathname: string): string => {
   // Rutas Generales (menos específicas)
   if (pathname.startsWith('/eventos')) return 'Eventos';
   if (pathname.startsWith('/proveedores')) return 'Proveedores';
-  if (pathname.startsWith('/empleados')) return 'Empleados';
+  // if (pathname.startsWith('/empleados')) return 'Empleados'; // Ya cubierto arriba
   if (pathname.startsWith('/compras')) return 'Compras';
   if (pathname.startsWith('/calendario')) return 'Calendario';
   if (pathname.startsWith('/notas')) return 'Notas';
@@ -93,6 +99,7 @@ const getPageTitle = (pathname: string): string => {
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
+            if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
             return `${parentTitle}: #${title}`;
         }
         // Si no es un ID, puede ser una subpágina con nombre
