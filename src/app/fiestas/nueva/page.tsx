@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import { StatusBadge } from '@/components/status-badge';
+import { CountdownTimer } from '@/components/countdown-timer';
 
 interface PlanningModule {
   title: string;
@@ -72,7 +73,7 @@ const planningModules: PlanningModule[] = [
   {
     title: "Catering y Menú",
     description: "Crea y gestiona menús personalizados, detallando platos e ingredientes con costos.",
-    icon: ChefHat, // Changed Icon
+    icon: ChefHat, 
     href: "/fiestas/nueva/catering",
     status: "Disponible",
     actionLabel: "Gestionar Menús"
@@ -131,32 +132,16 @@ const formatDate = (dateString?: string) => {
 interface TaskSummary {
   completed: number;
   total: number;
+  pending: number;
   progress: number;
-}
-interface SalonLayoutSummary {
-  hasBackground: boolean;
-  elementCount: number;
-}
-interface DecoracionSummary {
-  temaDefinido: boolean;
-  paletaDefinida: boolean;
-  moodboardUrl?: string;
 }
 
 
 export default function PlanificarFiestaHubPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-  const [linkedBudget, setLinkedBudget] = useState<Presupuesto | null>(null);
   const [linkedInvoices, setLinkedInvoices] = useState<Invoice[]>([]);
-  const [assignedMenu, setAssignedMenu] = useState<FullMenu | null>(null);
-  const [assignedStaffSummary, setAssignedStaffSummary] = useState<{ count: number; totalCost: number } | null>(null);
-  
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
-  const [meetingCount, setMeetingCount] = useState<number>(0);
-  const [salonLayoutSummary, setSalonLayoutSummary] = useState<SalonLayoutSummary | null>(null);
-  const [decoracionSummary, setDecoracionSummary] = useState<DecoracionSummary | null>(null);
-
-
+  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -168,13 +153,6 @@ export default function PlanificarFiestaHubPage() {
       setFiestaActual(fiesta);
 
       if (fiesta) {
-        if (fiesta.presupuestoId) {
-          const budget = await getPresupuestoById(fiesta.presupuestoId);
-          setLinkedBudget(budget);
-        } else {
-          setLinkedBudget(null);
-        }
-
         if (fiesta.invoiceIds && fiesta.invoiceIds.length > 0) {
           const invoiceDetailsPromises = fiesta.invoiceIds.map(id => getInvoiceById(id));
           const invoicesDetails = (await Promise.all(invoiceDetailsPromises)).filter(inv => inv !== null) as Invoice[];
@@ -183,49 +161,13 @@ export default function PlanificarFiestaHubPage() {
           setLinkedInvoices([]);
         }
 
-        if (fiesta.menuAsignadoId) {
-          const menu = await getMenuById(fiesta.menuAsignadoId);
-          setAssignedMenu(menu);
-        } else {
-          setAssignedMenu(null);
-        }
-
-        if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
-          const totalCost = fiesta.personalAsignado.reduce((sum, staff) => sum + staff.eventSalary, 0);
-          setAssignedStaffSummary({ count: fiesta.personalAsignado.length, totalCost });
-        } else {
-          setAssignedStaffSummary(null);
-        }
-
         if (fiesta.tareas) {
           const completed = fiesta.tareas.filter(t => t.completada).length;
           const total = fiesta.tareas.length;
-          setTaskSummary({ completed, total, progress: total > 0 ? (completed / total) * 100 : 0 });
+          setTaskSummary({ completed, total, pending: total - completed, progress: total > 0 ? (completed / total) * 100 : 0 });
         } else {
-          setTaskSummary({ completed: 0, total: 0, progress: 0 });
+          setTaskSummary({ completed: 0, total: 0, pending: 0, progress: 0 });
         }
-
-        setMeetingCount(fiesta.reuniones?.length || 0);
-
-        if (fiesta.salonLayout) {
-          setSalonLayoutSummary({
-            hasBackground: !!fiesta.salonLayout.backgroundImageUrl,
-            elementCount: fiesta.salonLayout.elements?.length || 0,
-          });
-        } else {
-          setSalonLayoutSummary({ hasBackground: false, elementCount: 0 });
-        }
-
-        if (fiesta.decoracion) {
-          setDecoracionSummary({
-            temaDefinido: !!fiesta.decoracion.tema && fiesta.decoracion.tema.trim() !== '',
-            paletaDefinida: !!fiesta.decoracion.paletaColores && Object.values(fiesta.decoracion.paletaColores).some(c => c !== '#FFFFFF' && c.trim() !== ''),
-            moodboardUrl: fiesta.decoracion.moodboardImageUrl,
-          });
-        } else {
-          setDecoracionSummary({ temaDefinido: false, paletaDefinida: false });
-        }
-
       }
     } catch (e: any) {
       console.error("Error loading fiesta data:", e);
@@ -238,12 +180,14 @@ export default function PlanificarFiestaHubPage() {
   useEffect(() => {
     loadFiestaData();
   }, [loadFiestaData]);
-
-  const totalInvoicedAmount = linkedInvoices.reduce((sum, invoice) => sum + invoice.totalAmount, 0);
-  const totalPaidForParty = linkedInvoices.reduce((sum, invoice) => {
+  
+  const presupuestoEstimado = fiestaActual?.configuracion?.presupuestoEstimado ?? 0;
+  const totalPagado = linkedInvoices.reduce((sum, invoice) => {
     const paymentsTotal = invoice.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
     return sum + paymentsTotal;
   }, 0);
+  const saldoPorPagar = (typeof presupuestoEstimado === 'number' ? presupuestoEstimado : parseFloat(presupuestoEstimado)) - totalPagado;
+
 
   return (
     <div className="space-y-8">
@@ -269,245 +213,96 @@ export default function PlanificarFiestaHubPage() {
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
             <p className="ml-3 text-muted-foreground text-lg">Cargando datos del planificador...</p>
           </div>
-      ) : error ? (
+      ) : error || !fiestaActual ? (
           <div className="flex flex-col items-center justify-center py-10 text-destructive bg-destructive/10 p-6 rounded-lg">
             <AlertTriangle className="w-10 h-10 mb-3" />
             <p className="font-semibold text-lg">Error al Cargar Datos</p>
-            <p className="text-sm">{error}</p>
+            <p className="text-sm">{error || "No se pudo cargar la información de la fiesta."}</p>
             <Button onClick={loadFiestaData} variant="destructive" className="mt-4">Intentar de Nuevo</Button>
         </div>
       ) : (
         <>
-          <Card className="shadow-lg bg-primary/5 border-primary/20">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <FileText className="w-7 h-7 text-primary" />
-                <div>
-                  <CardTitle className="font-headline text-xl">Resumen Contable del Evento</CardTitle>
-                </div>
-              </div>
+          {/* Main Event Info & Countdown */}
+          <Card className="shadow-xl bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20">
+            <CardHeader className="pb-4">
+                <CardTitle className="font-headline text-2xl md:text-3xl text-primary text-center">
+                    {fiestaActual.configuracion.nombreEvento}
+                </CardTitle>
+                <CardDescription className="text-md text-muted-foreground text-center">
+                    {fiestaActual.configuracion.tipoCelebracion} - {formatDate(fiestaActual.configuracion.fechaEvento)}
+                </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-md mb-1">Presupuesto Asignado:</h4>
-                {linkedBudget ? (
-                  <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2">
-                      <div className="flex-grow">
-                        <p className="font-medium text-primary">{linkedBudget.clienteNombre} - {linkedBudget.eventoTipo}</p>
-                        <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
-                           <span>Total: {formatCurrency(linkedBudget.costoTotalEstimado)}</span>
-                           {linkedBudget.estado && <PresupuestoStatusBadge status={linkedBudget.estado} />}
-                        </div>
-                      </div>
-                      <Link href={`/presupuestos/${linkedBudget.id}/ver`} passHref>
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto mt-1 sm:mt-0">
-                          Ver Presupuesto <ExternalLink className="w-3 h-3 ml-1.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </Card>
-                ) : (
-                  <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                    No hay ningún presupuesto asignado. <Link href="/presupuestos" className="text-primary underline hover:text-primary/80">Asignar uno</Link>.
-                  </p>
-                )}
-              </div>
-              <Separator />
-              <div>
-                <h4 className="font-semibold text-md mb-2">Facturas ({linkedInvoices.length}):</h4>
-                {linkedInvoices.length > 0 ? (
-                  <Card className="p-3 bg-background">
-                    <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-muted-foreground">Total Facturado:</span>
-                        <span className="font-medium">{formatCurrency(totalInvoicedAmount)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Total Pagado:</span>
-                        <span className="font-medium text-green-600">{formatCurrency(totalPaidForParty)}</span>
-                    </div>
-                     <Link href="/invoices" passHref className="mt-3 block">
-                        <Button variant="outline" size="sm" className="w-full">
-                          Gestionar Facturas <ExternalLink className="w-3 h-3 ml-1.5" />
-                        </Button>
-                      </Link>
-                  </Card>
-                ) : (
-                  <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                    No hay facturas asignadas. <Link href="/invoices" className="text-primary underline hover:text-primary/80">Asignar o crear facturas</Link>.
-                  </p>
-                )}
-              </div>
+            <CardContent className="flex flex-col items-center justify-center space-y-4">
+                <CountdownTimer targetDate={fiestaActual.configuracion.fechaEvento} />
+                 <div className="text-center mt-3">
+                     {fiestaActual.configuracion.nombreLugar && (
+                        <p className="text-sm text-muted-foreground">
+                            <MapPin className="inline-block w-4 h-4 mr-1.5 align-text-bottom" />
+                            Lugar: {fiestaActual.configuracion.nombreLugar}
+                        </p>
+                    )}
+                </div>
             </CardContent>
           </Card>
-
-          <Card className="shadow-lg">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Milestone className="w-7 h-7 text-primary" />
-                <CardTitle className="font-headline text-xl">Resumen General del Evento</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {fiestaActual?.configuracion && (
-                <div className="p-3 bg-muted/30 rounded-md space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Info className="w-4 h-4"/>
-                    <span>Tipo de Evento: <span className="font-medium text-foreground">{fiestaActual.configuracion.tipoCelebracion || 'No especificado'}</span></span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CalendarDays className="w-4 h-4"/>
-                    <span>Fecha del Evento: <span className="font-medium text-foreground">{formatDate(fiestaActual.configuracion.fechaEvento)}</span></span>
-                  </div>
-                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4"/>
-                    <span>Invitados Estimados: <span className="font-medium text-foreground">{fiestaActual.configuracion.invitadosEstimados || 'N/A'}</span></span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <DollarSign className="w-4 h-4"/>
-                    <span>Presupuesto Estimado: <span className="font-medium text-foreground">{formatCurrency(fiestaActual.configuracion.presupuestoEstimado)}</span></span>
-                  </div>
-                </div>
-              )}
-              <Separator/>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-semibold text-md mb-1">Menú Asignado:</h4>
-                  {assignedMenu ? (
-                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <p className="font-medium text-primary truncate">{assignedMenu.name}</p>
-                        <Link href="/fiestas/nueva/catering" passHref>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                            Gestionar <ExternalLink className="w-3 h-3 ml-1.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ) : (
-                    <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                      Sin menú asignado. <Link href="/fiestas/nueva/catering" className="text-primary underline">Seleccionar</Link>.
+          
+          {/* Task & Financial Summary Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="md:col-span-1 hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Tareas Pendientes</CardTitle>
+                    <ClipboardCheck className="h-5 w-5 text-orange-500" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{taskSummary?.pending ?? 'N/A'}</div>
+                    <p className="text-xs text-muted-foreground">
+                        De {taskSummary?.total ?? 'N/A'} tareas totales. {taskSummary?.progress.toFixed(0) ?? '0'}% completado.
                     </p>
-                  )}
-                </div>
-                <div>
-                  <h4 className="font-semibold text-md mb-1">Personal Asignado:</h4>
-                  {assignedStaffSummary ? (
-                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <div>
-                          <p className="font-medium">{assignedStaffSummary.count} persona(s)</p>
-                          <p className="text-xs text-muted-foreground">
-                            Costo Total: {formatCurrency(assignedStaffSummary.totalCost)}
-                          </p>
-                        </div>
-                        <Link href="/fiestas/nueva/personal" passHref>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                            Gestionar <ExternalLink className="w-3 h-3 ml-1.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ) : (
-                     <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">
-                      Sin personal asignado. <Link href="/fiestas/nueva/personal" className="text-primary underline">Asignar</Link>.
+                </CardContent>
+            </Card>
+            <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Presupuesto Estimado</CardTitle>
+                    <DollarSign className="h-5 w-5 text-primary" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{formatCurrency(presupuestoEstimado)}</div>
+                    <p className="text-xs text-muted-foreground">Costo total proyectado.</p>
+                </CardContent>
+            </Card>
+             <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Pagado</CardTitle>
+                    <PiggyBank className="h-5 w-5 text-green-500" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold text-green-600">{formatCurrency(totalPagado)}</div>
+                    <p className="text-xs text-muted-foreground">Suma de pagos recibidos.</p>
+                </CardContent>
+            </Card>
+            {/* Saldo por Pagar - podría ser condicional si el presupuesto no está definido */}
+             <Card className="hover:shadow-md transition-shadow md:col-start-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Saldo por Pagar</CardTitle>
+                    <CreditCard className="h-5 w-5 text-red-500" />
+                </CardHeader>
+                <CardContent>
+                     <div className={`text-2xl font-bold ${saldoPorPagar > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                        {formatCurrency(saldoPorPagar)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        {saldoPorPagar <= 0 ? 'Presupuesto cubierto/excedido.' : 'Estimado menos pagado.'}
                     </p>
-                  )}
-                </div>
-                <div>
-                  <h4 className="font-semibold text-md mb-1">Tareas:</h4>
-                   {taskSummary ? (
-                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <div>
-                           <p className="font-medium">{taskSummary.completed} de {taskSummary.total} completadas</p>
-                           <Progress value={taskSummary.progress} className="h-2 mt-1" />
-                        </div>
-                        <Link href="/fiestas/nueva/tareas" passHref>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                            Ver Tareas <ExternalLink className="w-3 h-3 ml-1.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ) : (
-                    <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando tareas...</p>
-                  )}
-                </div>
-                <div>
-                  <h4 className="font-semibold text-md mb-1">Reuniones:</h4>
-                   <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <p className="font-medium">{meetingCount} reunión(es) registrada(s)</p>
-                        <Link href="/fiestas/nueva/reuniones" passHref>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                            Ver Reuniones <ExternalLink className="w-3 h-3 ml-1.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                </div>
-                <div className="md:col-span-1">
-                  <h4 className="font-semibold text-md mb-1">Diseño del Salón:</h4>
-                  {salonLayoutSummary ? (
-                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <div className="flex items-center gap-3">
-                          <LayoutGrid className={`w-5 h-5 ${salonLayoutSummary.hasBackground || salonLayoutSummary.elementCount > 0 ? 'text-green-500' : 'text-muted-foreground'}`} />
-                          <p className="text-sm">
-                            {salonLayoutSummary.hasBackground ? "Plano cargado. " : "Sin plano. "}
-                            {salonLayoutSummary.elementCount > 0 ? `${salonLayoutSummary.elementCount} elemento(s).` : "Sin elementos."}
-                          </p>
-                        </div>
-                        <Link href="/fiestas/nueva/diseno-salon" passHref>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                            Ver Diseño <ExternalLink className="w-3 h-3 ml-1.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ) : (
-                     <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando diseño...</p>
-                  )}
-                </div>
-                <div className="md:col-span-1">
-                   <h4 className="font-semibold text-md mb-1">Decoración:</h4>
-                  {decoracionSummary ? (
-                    <Card className="p-3 bg-background hover:shadow-md transition-shadow">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <div className="flex items-center gap-3">
-                          <Palette className={`w-5 h-5 ${decoracionSummary.temaDefinido || decoracionSummary.paletaDefinida ? 'text-green-500' : 'text-muted-foreground'}`} />
-                           <p className="text-sm">
-                            {decoracionSummary.temaDefinido ? "Tema definido. " : "Sin tema. "}
-                            {decoracionSummary.paletaDefinida ? "Paleta colores. " : "Sin paleta."}
-                          </p>
-                        </div>
-                        <Link href="/fiestas/nueva/decoracion" passHref>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                            Ver Decoración <ExternalLink className="w-3 h-3 ml-1.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ) : (
-                     <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md text-center">Cargando decoración...</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-             <CardFooter>
-                <p className="text-xs text-muted-foreground">
-                    Gestiona cada aspecto desde los módulos dedicados a continuación.
-                </p>
-            </CardFooter>
-          </Card>
+                </CardContent>
+            </Card>
+          </div>
           
           <Card className="shadow-lg">
             <CardHeader>
                 <div className="flex items-center gap-3">
                     <ListChecks className="w-7 h-7 text-primary" />
-                    <CardTitle className="font-headline text-xl">Módulos de Planificación</CardTitle>
+                    <CardTitle className="font-headline text-xl">Gestionar Detalles del Evento</CardTitle>
                 </div>
+                 <CardDescription>Accede a los diferentes módulos para planificar cada aspecto.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -559,3 +354,22 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
+
+// Definición de DollarSign si no está en lucide-react (o para asegurar que existe)
+const DollarSign = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="12" y1="1" x2="12" y2="23" />
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+  </svg>
+);
