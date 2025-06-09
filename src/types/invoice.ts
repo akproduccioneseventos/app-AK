@@ -1,3 +1,4 @@
+
 import type { Customer } from './customer';
 
 export type InvoiceStatus = 'Draft' | 'Sent' | 'Viewed' | 'Paid' | 'Overdue';
@@ -8,6 +9,15 @@ export interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   total: number;
+}
+
+export interface Payment {
+  id: string;
+  paymentDate: string; // ISO date string
+  amount: number;
+  method?: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro';
+  notes?: string;
+  receiptImageUrl?: string; // Optional URL of an uploaded receipt image for the payment
 }
 
 export interface Invoice {
@@ -24,8 +34,8 @@ export interface Invoice {
   status: InvoiceStatus;
   notes?: string;
   currency: string; // e.g., 'USD', 'EUR'
-  vendorName: string; 
+  vendorName: string;
   vendorAddress?: string; // Address of the company issuing the invoice
   vendorTaxId?: string; // Tax ID of the company issuing the invoice
-  receiptImageUrl?: string; // Optional URL of the uploaded receipt
+  payments?: Payment[]; // Array of payments made for this invoice
 }

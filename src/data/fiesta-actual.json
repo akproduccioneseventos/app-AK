@@ -1,0 +1,96 @@
+{
+  "id": "fiesta-en-curso",
+  "configuracion": {
+    "nombreEvento": "Boda Noelia Damaceno",
+    "tipoCelebracion": "Boda",
+    "fechaEvento": "2025-06-06T00:00:00.000Z",
+    "horaInicio": "",
+    "horaFin": "",
+    "nombreLugar": "Bonsai",
+    "direccionLugar": "",
+    "invitadosEstimados": 80,
+    "presupuestoEstimado": 156000,
+    "notasAdicionales": ""
+  },
+  "personalAsignado": [],
+  "invoiceIds": [],
+  "reuniones": [],
+  "salonLayout": {
+    "backgroundImageUrl": "",
+    "elements": [],
+    "generalNotes": ""
+  },
+  "tareas": [
+    {
+      "id": "task_default_1",
+      "texto": "Gestionar Vajilla y Mantelería",
+      "completada": false
+    },
+    {
+      "id": "task_default_2",
+      "texto": "Coordinar Mobiliario",
+      "completada": false
+    },
+    {
+      "id": "task_default_3",
+      "texto": "Contratar Mozos (4) y Mozos de cocina (4)",
+      "completada": false
+    },
+    {
+      "id": "task_default_4",
+      "texto": "Contratar Fotografía de fiesta y exteriores",
+      "completada": false
+    },
+    {
+      "id": "task_default_5",
+      "texto": "Contratar Plataforma 360 y Fotocabina",
+      "completada": false
+    },
+    {
+      "id": "task_default_6",
+      "texto": "Organizar Mesa de postres y Torta principal",
+      "completada": false
+    },
+    {
+      "id": "task_default_7",
+      "texto": "Contratar Barra de tragos",
+      "completada": false
+    },
+    {
+      "id": "task_default_8",
+      "texto": "Definir Decoración Básica",
+      "completada": false
+    },
+    {
+      "id": "task_default_9",
+      "texto": "Definir Discoteca Básica",
+      "completada": false
+    },
+    {
+      "id": "task_default_10",
+      "texto": "Crear Invitación digital",
+      "completada": false
+    },
+    {
+      "id": "task_default_11",
+      "texto": "Organizar Coffee Break",
+      "completada": false
+    },
+    {
+      "id": "task_default_12",
+      "texto": "Asegurar Hielo",
+      "completada": false
+    }
+  ],
+  "decoracion": {
+    "tema": "Boda Noelia Damaceno",
+    "paletaColores": {
+      "primary": "#FFFFFF",
+      "secondary": "#FFFFFF",
+      "accent": "#FFFFFF"
+    },
+    "moodboardImageUrl": "",
+    "items": [],
+    "generalNotes": "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras."
+  }
+}

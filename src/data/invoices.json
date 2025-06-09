@@ -16,7 +16,16 @@
     "vendorName": "Presupuestador AK Producciones",
     "vendorAddress": "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España",
     "vendorTaxId": "A08123456",
-    "notes": "Gracias por su negocio."
+    "notes": "Gracias por su negocio.",
+    "payments": [
+      {
+        "id": "pay_1_1",
+        "paymentDate": "2022-01-01T10:00:00Z",
+        "amount": 363.00,
+        "method": "Transferencia",
+        "notes": "Pago completo."
+      }
+    ]
   },
   {
     "id": "inv_img_2",
@@ -34,7 +43,15 @@
     "vendorName": "Presupuestador AK Producciones",
     "vendorAddress": "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España",
     "vendorTaxId": "A08123456",
-    "notes": "Servicio completado según acuerdo."
+    "notes": "Servicio completado según acuerdo.",
+    "payments": [
+      {
+        "id": "pay_2_1",
+        "paymentDate": "2022-01-03T12:00:00Z",
+        "amount": 2178.00,
+        "method": "Transferencia"
+      }
+    ]
   },
   {
     "id": "inv_img_3",
@@ -51,7 +68,23 @@
     "currency": "EUR",
     "vendorName": "Presupuestador AK Producciones",
     "vendorAddress": "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España",
-    "vendorTaxId": "A08123456"
+    "vendorTaxId": "A08123456",
+    "payments": [
+      {
+        "id": "pay_3_1",
+        "paymentDate": "2022-01-10T09:30:00Z",
+        "amount": 2000.00,
+        "method": "Transferencia",
+        "notes": "Primer pago"
+      },
+      {
+        "id": "pay_3_2",
+        "paymentDate": "2022-01-20T14:00:00Z",
+        "amount": 964.50,
+        "method": "Transferencia",
+        "notes": "Pago final"
+      }
+    ]
   },
   {
     "id": "inv_img_4",
@@ -68,7 +101,15 @@
     "currency": "EUR",
     "vendorName": "Presupuestador AK Producciones",
     "vendorAddress": "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España",
-    "vendorTaxId": "A08123456"
+    "vendorTaxId": "A08123456",
+    "payments": [
+      {
+        "id": "pay_4_1",
+        "paymentDate": "2022-01-04T11:00:00Z",
+        "amount": 1149.50,
+        "method": "Tarjeta"
+      }
+    ]
   },
   {
     "id": "inv_img_5",
@@ -81,11 +122,12 @@
     "taxRate": 21,
     "taxAmount": 88.20,
     "totalAmount": 508.20,
-    "status": "Paid",
+    "status": "Sent",
     "currency": "EUR",
     "vendorName": "Presupuestador AK Producciones",
     "vendorAddress": "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España",
-    "vendorTaxId": "A08123456"
+    "vendorTaxId": "A08123456",
+    "payments": []
   },
   {
     "id": "inv_img_6",
@@ -102,7 +144,16 @@
     "currency": "EUR",
     "vendorName": "Presupuestador AK Producciones",
     "vendorAddress": "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España",
-    "vendorTaxId": "A08123456"
+    "vendorTaxId": "A08123456",
+    "payments": [
+      {
+        "id": "pay_6_1",
+        "paymentDate": "2022-02-10T10:00:00Z",
+        "amount": 700.00,
+        "method": "Transferencia",
+        "notes": "Pago parcial, pendiente el resto."
+      }
+    ]
   },
   {
     "id": "inv_img_7",
@@ -119,6 +170,14 @@
     "currency": "EUR",
     "vendorName": "Presupuestador AK Producciones",
     "vendorAddress": "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España",
-    "vendorTaxId": "A08123456"
+    "vendorTaxId": "A08123456",
+    "payments": [
+      {
+        "id": "pay_7_1",
+        "paymentDate": "2022-02-15T16:30:00Z",
+        "amount": 302.50,
+        "method": "Efectivo"
+      }
+    ]
   }
 ]
