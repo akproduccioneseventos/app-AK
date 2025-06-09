@@ -31,11 +31,9 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import {
@@ -138,8 +136,6 @@ export default function DisenoSalonPage() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (contextMenuOpen) {
-        // Check if the click is outside the context menu content
-        // This logic might need refinement depending on how DropdownMenu handles its portal
         setContextMenuOpen(false);
       }
     };
@@ -183,9 +179,48 @@ export default function DisenoSalonPage() {
         notes: '',
         category: paletteItem.category || 'Otro'
      });
-     setSelectedElementId(null); // No existing element is selected when adding from palette
+     setSelectedElementId(null); 
      setIsFormModalOpen(true);
   };
+
+ const handleElementFieldChange = (
+    field: keyof Omit<LayoutElement, 'id' | 'type'>,
+    rawValue: string | undefined
+  ) => {
+    setCurrentElement(prevModalElement => {
+      if (!prevModalElement) return null;
+
+      let processedValue: string | number | undefined = rawValue;
+
+      if (['x', 'y', 'width', 'height', 'rotation', 'quantity'].includes(field)) {
+        const numVal = parseFloat(rawValue || '');
+        if (isNaN(numVal)) {
+          processedValue = (field === 'quantity') ? 1 : 0;
+        } else {
+          processedValue = numVal;
+        }
+        if (field === 'quantity' && (processedValue as number) < 1) {
+          processedValue = 1;
+        }
+      }
+      
+      const updatedModalElement = { ...prevModalElement, [field]: processedValue } as Partial<LayoutElement>;
+
+      // Live update the main layoutData if editing an existing element
+      if (prevModalElement.id && layoutData.elements.find(el => el.id === prevModalElement.id)) {
+        setLayoutData(prevLayoutData => ({
+          ...prevLayoutData,
+          elements: prevLayoutData.elements.map(el =>
+            el.id === prevModalElement.id
+              ? { ...el, [field as keyof LayoutElement]: processedValue } // Use field from outer scope
+              : el
+          ),
+        }));
+      }
+      return updatedModalElement;
+    });
+  };
+
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -194,40 +229,38 @@ export default function DisenoSalonPage() {
       return;
     }
 
-    const newElementData: LayoutElement = {
-      id: currentElement.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      name: currentElement.name.trim(),
-      quantity: Number(currentElement.quantity) || 1,
-      x: Number(currentElement.x) || 0,
-      y: Number(currentElement.y) || 0,
-      width: Number(currentElement.width) || 50,
-      height: Number(currentElement.height) || 50,
-      rotation: Number(currentElement.rotation) || 0,
-      imageUrl: currentElement.imageUrl?.trim() || undefined,
-      notes: currentElement.notes?.trim() || undefined,
-      type: currentElement.type || 'custom',
-      category: currentElement.category?.trim() || 'Otro',
-    };
-    
-    let updatedElements;
-    if (currentElement.id) { 
-        updatedElements = layoutData.elements.map(el => el.id === currentElement.id ? newElementData : el);
-        toast({ title: "Elemento Actualizado", description: `${newElementData.name} ha sido actualizado.` });
-    } else { 
-        updatedElements = [...layoutData.elements, newElementData];
-        toast({ title: "Elemento Añadido", description: `${newElementData.name} añadido al diseño.` });
+    const isEditing = !!currentElement.id && layoutData.elements.find(el => el.id === currentElement.id);
+
+    if (isEditing) {
+      // The element in layoutData.elements is already updated by live updates (handleElementFieldChange).
+      // We just need to ensure the currentElement state itself is fully typed if we were to use it directly.
+      // Or simply rely on the fact that layoutData.elements has the latest.
+      const updatedElementInLayout = layoutData.elements.find(el => el.id === currentElement.id);
+      toast({ title: "Elemento Actualizado", description: `${updatedElementInLayout?.name || 'El elemento'} ha sido actualizado.` });
+    } else { // Adding a new element
+      const newElementData: LayoutElement = {
+        id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        name: currentElement.name.trim(),
+        quantity: Number(currentElement.quantity) || 1,
+        x: Number(currentElement.x) || 0,
+        y: Number(currentElement.y) || 0,
+        width: Number(currentElement.width) || 50,
+        height: Number(currentElement.height) || 50,
+        rotation: Number(currentElement.rotation) || 0,
+        imageUrl: currentElement.imageUrl?.trim() || undefined,
+        notes: currentElement.notes?.trim() || undefined,
+        type: currentElement.type || 'custom',
+        category: currentElement.category?.trim() || 'Otro',
+      };
+      setLayoutData(prev => ({ ...prev, elements: [...prev.elements, newElementData] }));
+      toast({ title: "Elemento Añadido", description: `${newElementData.name} añadido al diseño.` });
     }
     
-    setLayoutData(prev => ({ ...prev, elements: updatedElements }));
     setIsFormModalOpen(false);
     setCurrentElement(null);
     setSelectedElementId(null);
   };
   
-  const handleElementFieldChange = (field: keyof LayoutElement | 'quantity', value: string | number) => {
-    setCurrentElement(prev => prev ? ({ ...prev, [field]: value }) : null);
-  };
-
   const handleRemoveElement = (elementId?: string) => {
     const idToRemove = elementId || contextMenuTargetId;
     if (!idToRemove) return;
@@ -257,7 +290,7 @@ export default function DisenoSalonPage() {
       const duplicatedElement: LayoutElement = {
         ...JSON.parse(JSON.stringify(elementToDuplicate)), 
         id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        x: (elementToDuplicate.x || 0) + 20, // Offset slightly
+        x: (elementToDuplicate.x || 0) + 20, 
         y: (elementToDuplicate.y || 0) + 20,
       };
       setLayoutData(prev => ({
@@ -281,18 +314,18 @@ export default function DisenoSalonPage() {
       const item = elements.splice(index, 1)[0];
 
       switch (direction) {
-        case 'up': // Bring forward
+        case 'up': 
           if (index < elements.length) elements.splice(index + 1, 0, item);
           else elements.push(item); 
           break;
-        case 'down': // Send backward
+        case 'down': 
           if (index > 0) elements.splice(index - 1, 0, item);
           else elements.unshift(item); 
           break;
-        case 'front': // Bring to front
+        case 'front': 
           elements.push(item);
           break;
-        case 'back': // Send to back
+        case 'back': 
           elements.unshift(item);
           break;
       }
@@ -361,7 +394,6 @@ export default function DisenoSalonPage() {
     event.preventDefault();
     setContextMenuTargetId(elementId);
     setContextMenuPosition({ x: event.clientX, y: event.clientY });
-    // This timeout is a trick to ensure DropdownMenuTrigger has time to mount if it depends on contextMenuOpen
     setTimeout(() => {
       setContextMenuOpen(true);
        if (contextMenuTriggerRef.current) {
@@ -491,7 +523,7 @@ export default function DisenoSalonPage() {
                 backgroundPosition: 'center',
                 minHeight: '450px', 
               }}
-              onClick={() => setContextMenuOpen(false)} // Close context menu on canvas click
+              onClick={() => setContextMenuOpen(false)}
             >
               {!layoutData.backgroundImageUrl && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
@@ -530,8 +562,8 @@ export default function DisenoSalonPage() {
                       }}
                       onClick={(e) => {
                         if ((e.target as HTMLElement).closest('.react-draggable-dragging') || (e.target as HTMLElement).classList.contains('handle-icon')) return;
-                        if (e.ctrlKey || e.metaKey) return; // Allow context menu on ctrl/meta + click if needed
-                        e.stopPropagation(); // Prevent canvas click from closing context menu immediately
+                        if (e.ctrlKey || e.metaKey) return; 
+                        e.stopPropagation(); 
                         openFormModal(el);
                         setContextMenuOpen(false);
                       }}
@@ -540,16 +572,15 @@ export default function DisenoSalonPage() {
                        {el.imageUrl ? (
                         <Image src={el.imageUrl} alt={el.name} layout="fill" objectFit="contain" className="rounded-sm pointer-events-none" data-ai-hint="object floor element"/>
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-primary/20 pointer-events-none">
-                            <span className="truncate text-center p-0.5 text-[8px] sm:text-[10px] font-medium text-primary-foreground">{el.name}</span>
-                            <span className="text-[7px] sm:text-[9px] text-primary-foreground/80">({el.width}x{el.height}px)</span>
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-primary/20 pointer-events-none text-center p-0.5">
+                            <span className="truncate text-[8px] sm:text-[10px] font-medium text-primary-foreground leading-tight">{el.name}</span>
+                            <span className="text-[7px] sm:text-[9px] text-primary-foreground/80 leading-tight">({el.width}x{el.height}px)</span>
                         </div>
                       )}
                        <Move className="handle-icon absolute top-0 right-0 w-3 h-3 text-primary-foreground/70 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab p-0.5 bg-black/20 rounded-bl-sm"/>
                     </div>
                   </Draggable>
               ))}
-                {/* Invisible trigger for the context menu */}
                 <div ref={contextMenuTriggerRef} style={{ position: 'fixed', zIndex: 1000 }} />
             </div>
           </CardContent>
@@ -594,6 +625,7 @@ export default function DisenoSalonPage() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle></AlertDialogHeader>
+                                <AlertDialogDescription>El elemento "{layoutData.elements.find(e => e.id === el.id)?.name}" será eliminado.</AlertDialogDescription>
                                 <AlertDialogFooter>
                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => handleRemoveElement(el.id)} className="bg-destructive hover:bg-destructive/90">Sí, eliminar</AlertDialogAction>
@@ -622,11 +654,7 @@ export default function DisenoSalonPage() {
          {targetElementForContextMenu && (
             <DropdownMenuContent 
                 className="w-56"
-                style={{
-                    // Position fixed is handled by DropdownMenuContent itself when open
-                    // We just need to trigger it near the mouse
-                }}
-                onCloseAutoFocus={(e) => e.preventDefault()} // Prevent focus shift on close
+                onCloseAutoFocus={(e) => e.preventDefault()}
             >
                 <DropdownMenuItem onClick={() => { openFormModal(targetElementForContextMenu); setContextMenuOpen(false); }}>
                     <Edit3 className="mr-2 h-4 w-4" /> Editar Propiedades
@@ -687,7 +715,12 @@ export default function DisenoSalonPage() {
             </div>
              <div className="space-y-1">
               <Label htmlFor="el-type">Tipo</Label>
-              <Select value={currentElement?.type || 'custom'} onValueChange={(val) => handleElementFieldChange('type', val as 'predefined' | 'custom')}>
+              <Select 
+                value={currentElement?.type || 'custom'} 
+                onValueChange={(val) => {
+                    setCurrentElement(prev => prev ? ({...prev, type: val as 'predefined' | 'custom'}) : null);
+                 }}
+                >
                 <SelectTrigger id="el-type"><SelectValue/></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="custom">Personalizado (URL propia)</SelectItem>
@@ -710,26 +743,26 @@ export default function DisenoSalonPage() {
              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label htmlFor="el-x">Posición X (px)</Label>
-                  <Input id="el-x" type="number" value={currentElement?.x ?? 0} onChange={(e) => handleElementFieldChange('x', Number(e.target.value))} />
+                  <Input id="el-x" type="number" value={currentElement?.x ?? ''} onChange={(e) => handleElementFieldChange('x', e.target.value)} />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="el-y">Posición Y (px)</Label>
-                  <Input id="el-y" type="number" value={currentElement?.y ?? 0} onChange={(e) => handleElementFieldChange('y', Number(e.target.value))} />
+                  <Input id="el-y" type="number" value={currentElement?.y ?? ''} onChange={(e) => handleElementFieldChange('y', e.target.value)} />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label htmlFor="el-width">Ancho (px)</Label>
-                  <Input id="el-width" type="number" placeholder="Ej: 100" value={currentElement?.width ?? ''} onChange={(e) => handleElementFieldChange('width', Number(e.target.value))} />
+                  <Input id="el-width" type="number" placeholder="Ej: 100" value={currentElement?.width ?? ''} onChange={(e) => handleElementFieldChange('width', e.target.value)} />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="el-height">Alto (px)</Label>
-                  <Input id="el-height" type="number" placeholder="Ej: 50" value={currentElement?.height ?? ''} onChange={(e) => handleElementFieldChange('height', Number(e.target.value))} />
+                  <Input id="el-height" type="number" placeholder="Ej: 50" value={currentElement?.height ?? ''} onChange={(e) => handleElementFieldChange('height', e.target.value)} />
                 </div>
             </div>
              <div className="space-y-1">
               <Label htmlFor="el-rotation">Rotación (grados)</Label>
-              <Input id="el-rotation" type="number" placeholder="Ej: 0" value={currentElement?.rotation ?? 0} onChange={(e) => handleElementFieldChange('rotation', Number(e.target.value))} />
+              <Input id="el-rotation" type="number" placeholder="Ej: 0" value={currentElement?.rotation ?? ''} onChange={(e) => handleElementFieldChange('rotation', e.target.value)} />
             </div>
             <div className="space-y-1">
                 <Label htmlFor="el-category">Categoría</Label>
@@ -749,7 +782,7 @@ export default function DisenoSalonPage() {
             </div>
              <div className="space-y-1">
               <Label htmlFor="el-quantity">Cantidad (Informativo)</Label>
-              <Input id="el-quantity" type="number" value={currentElement?.quantity ?? 1} onChange={(e) => handleElementFieldChange('quantity', Number(e.target.value))} min="1" />
+              <Input id="el-quantity" type="number" value={currentElement?.quantity ?? 1} onChange={(e) => handleElementFieldChange('quantity', e.target.value)} min="1" />
             </div>
             <div className="space-y-1">
               <Label htmlFor="el-notes">Notas Específicas (opcional)</Label>
@@ -765,4 +798,3 @@ export default function DisenoSalonPage() {
     </div>
   );
 }
-
