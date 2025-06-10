@@ -134,6 +134,38 @@ export async function getPresupuestos(): Promise<Presupuesto[]> {
   return presupuestos.sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
+export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
+  const presupuestos = await readPresupuestosFile();
+  const presupuesto = presupuestos.find(p => p.id === id);
+  return presupuesto || null;
+}
+
+export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  let presupuestos = await readPresupuestosFile();
+  const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
+
+  if (index === -1) {
+    return { success: false, error: `Presupuesto con ID ${presupuestoData.id} no encontrado.` };
+  }
+
+  // Recalcular costos por si acaso, aunque el formulario de edición simplificado no los modifica directamente
+  const costoSubtotalPlatos = presupuestoData.platosSeleccionados.reduce((sum, plato) => sum + plato.costoTotalPlato, 0);
+  const costoSubtotalServicios = presupuestoData.serviciosAdicionales.reduce((sum, servicio) => sum + servicio.costoServicio, 0);
+  const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
+
+  presupuestos[index] = {
+    ...presupuestoData,
+    costoSubtotalPlatos,
+    costoSubtotalServicios,
+    costoTotalEstimado,
+    timestamp: new Date().toISOString(), // Actualizar timestamp
+  };
+
+  await writePresupuestosFile(presupuestos);
+  return { success: true, presupuesto: presupuestos[index] };
+}
+
+
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   let presupuestos = await readPresupuestosFile();
   const initialLength = presupuestos.length;

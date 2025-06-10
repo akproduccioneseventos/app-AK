@@ -86,18 +86,30 @@ export async function saveInvoice(
   let invoices = await readInvoicesFile();
   
   if ('id' in invoiceData && invoiceData.id) {
-    // Update existing invoice - Placeholder for future edit functionality
+    // Update existing invoice
     const index = invoices.findIndex(inv => inv.id === invoiceData.id);
     if (index !== -1) {
-      // Ensure items have IDs
+      // Ensure items have IDs if they don't (might happen if an item was conceptually new but passed in an update)
       const updatedItems = invoiceData.items.map((item, idx) => ({
         ...item,
         id: (item as InvoiceItem).id || `item_${invoiceData.id}_${idx + 1}_${Date.now()}`
       }));
+
+      // Recalculate totals for consistency, especially if items were editable (future)
+      const subtotal = updatedItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+      const taxRate = invoiceData.taxRate ?? invoices[index].taxRate ?? 0; // Use new, then old, then 0
+      const taxAmount = (subtotal * taxRate) / 100;
+      const totalAmount = subtotal + taxAmount;
+      
       invoices[index] = { 
+        ...(invoices[index]), // Preserve fields not explicitly in invoiceData (like vendor details if partial update)
         ...invoiceData, 
         items: updatedItems as InvoiceItem[],
-        payments: invoiceData.payments || invoices[index].payments || [] // Preserve existing payments if not provided
+        payments: invoiceData.payments || invoices[index].payments || [], // Preserve existing payments if not provided
+        subtotal,
+        taxRate,
+        taxAmount,
+        totalAmount,
       };
       await writeInvoicesFile(invoices);
       return { success: true, id: invoiceData.id, invoice: JSON.parse(JSON.stringify(invoices[index])) };
