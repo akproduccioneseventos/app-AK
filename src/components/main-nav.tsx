@@ -27,13 +27,13 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
-  SidebarMenuSubButton,
+  SidebarMenuSubButton, // Ensure this is imported
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/eventos', label: 'Todas las Fiestas', icon: CalendarClock }, // Renombrado
+  { href: '/eventos', label: 'Todas las Fiestas', icon: CalendarClock },
   { href: '/fiestas/nueva', label: 'Crear Fiesta', icon: PartyPopper }, 
   { href: '/customers', label: 'Clientes', icon: Users },
   { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter }, 
@@ -46,6 +46,7 @@ const navItems = [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
+      { href: '/compras', label: 'Compras', icon: ShoppingBasket },
     ]
   },
   { 
@@ -60,6 +61,7 @@ const navItems = [
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
+  { href: '/notas', label: 'Notas', icon: StickyNote },
 ];
 
 export function MainNav() {
@@ -97,7 +99,7 @@ export function MainNav() {
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} passHref legacyBehavior>
+                      <Link href={subItem.href} passHref asChild>
                         <SidebarMenuSubButton isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}>
                            {subItem.label}
                         </SidebarMenuSubButton>
