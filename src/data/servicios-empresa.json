@@ -1,0 +1,27 @@
+
+[
+  {
+    "id": "serv_audio_basico",
+    "nombre": "Sonido Básico para Eventos",
+    "descripcion": "Incluye parlantes, micrófono y consola pequeña.",
+    "categoria": "Audiovisual",
+    "precioEstimado": 200,
+    "unidad": "por evento"
+  },
+  {
+    "id": "serv_ilum_deco",
+    "nombre": "Iluminación Decorativa LED",
+    "descripcion": "Tachos LED, guirnaldas, efectos básicos.",
+    "categoria": "Iluminación",
+    "precioEstimado": 150,
+    "unidad": "por evento"
+  },
+  {
+    "id": "serv_dj_completo",
+    "nombre": "Servicio de DJ Profesional",
+    "descripcion": "Música, equipos y DJ por 5 horas.",
+    "categoria": "Música",
+    "precioEstimado": 500,
+    "unidad": "por evento"
+  }
+]

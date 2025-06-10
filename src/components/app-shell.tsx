@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2 } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -53,8 +53,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/sales-funnel') return 'Embudo de Ventas';
 
   // Empresa
+  if (pathname === '/proveedores') return 'Proveedores'; // Ahora bajo Empresa
   if (pathname === '/empresa/servicios') return 'Servicios de la Empresa';
   // Empleados está cubierto más abajo
+  if (pathname === '/compras') return 'Compras y Checklist'; // Aunque removido del nav, el título debe existir
 
   // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
@@ -81,6 +83,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
 
+  // Contabilidad
+  if (pathname === '/contabilidad/pagos') return 'Registro de Pagos';
+  // /presupuestos y /invoices ya están cubiertos arriba.
+
 
   // Configuración
   if (pathname === '/settings') return 'Configuración General';
@@ -98,10 +104,8 @@ const getPageTitle = (pathname: string): string => {
 
   // Nuevas rutas Placeholder
   if (pathname === '/eventos') return 'Gestión de Eventos';
-  if (pathname === '/proveedores') return 'Gestión de Proveedores'; // Este es el general
-  if (pathname === '/compras') return 'Compras y Checklist';
   if (pathname === '/calendario') return 'Calendario General';
-  if (pathname === '/notas') return 'Bloc de Notas';
+  if (pathname === '/notas') return 'Bloc de Notas'; // Aunque removido del nav, el título debe existir
 
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
@@ -144,15 +148,19 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/musica') return Music2;
 
   if (pathname === '/empresa/servicios') return Sparkles;
+  if (pathname === '/proveedores') return Briefcase; // Icono para proveedores general
 
   if (pathname === '/eventos') return CalendarClock;
-  if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/compras') return ShoppingCart;
   if (pathname === '/calendario') return CalendarDaysIcon;
   if (pathname === '/notas') return StickyNote;
   
   if (pathname === '/login') return LogInIcon;
   if (pathname === '/signup') return UserPlusIcon;
+
+  if (pathname === '/presupuestos') return ListChecks;
+  if (pathname === '/invoices') return FileText;
+  if (pathname === '/contabilidad/pagos') return Banknote;
 
 
   return null;

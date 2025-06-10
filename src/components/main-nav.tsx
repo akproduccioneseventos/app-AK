@@ -17,7 +17,9 @@ import {
   PartyPopper,
   Filter, 
   Sparkles, 
-  ShoppingBasket
+  ShoppingBasket, // Kept for consistency in icons, but link might be removed
+  FileText, // For Invoices
+  Banknote // For Pagos
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -25,7 +27,7 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
-  SidebarMenuSubButton, // Added this explicitly
+  SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
@@ -35,23 +37,31 @@ const navItems = [
   { href: '/fiestas/nueva', label: 'Crear Fiesta', icon: PartyPopper }, 
   { href: '/customers', label: 'Clientes', icon: Users },
   { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter }, 
-  // EMPRESA SECTION - START
   { 
     isGroup: true,
     label: 'Empresa', 
     icon: Briefcase,
-    basePath: '/empresa', // For parent active state
+    basePath: '/empresa', 
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
-      { href: '/compras', label: 'Compras', icon: ShoppingBasket },
+      // { href: '/compras', label: 'Compras', icon: ShoppingBasket }, // Link a Compras eliminado de aquí
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
     ]
   },
-  // EMPRESA SECTION - END
-  { href: '/presupuestos', label: 'Presupuestos y pagos', icon: CircleDollarSign }, 
+  { 
+    isGroup: true,
+    label: 'Contabilidad', 
+    icon: CircleDollarSign,
+    basePath: '/contabilidad', 
+    subItems: [
+      { href: '/presupuestos', label: 'Presupuestos', icon: ListChecks },
+      { href: '/invoices', label: 'Facturas', icon: FileText },
+      { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
+    ]
+  },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
-  { href: '/notas', label: 'Notas', icon: StickyNote },
+  // { href: '/notas', label: 'Notas', icon: StickyNote }, // Link a Notas eliminado
 ];
 
 export function MainNav() {
@@ -59,8 +69,11 @@ export function MainNav() {
 
   const isActiveParent = (itemHref: string, subItemPaths?: string[]) => {
     if (itemHref === '/' && pathname === '/') return true;
-    if (itemHref !== '/' && pathname.startsWith(itemHref)) return true;
-    if (subItemPaths?.some(subPath => pathname.startsWith(subPath))) return true;
+    // Check if the current path starts with the item's base path,
+    // but ensure it's not just a partial match of a longer path segment.
+    // e.g., /presupuestos should not match /presupuestos/nuevo if itemHref is /presupuestos
+    if (itemHref !== '/' && (pathname === itemHref || pathname.startsWith(itemHref + '/'))) return true;
+    if (subItemPaths?.some(subPath => pathname === subPath || pathname.startsWith(subPath + '/'))) return true;
     return false;
   };
 
@@ -90,7 +103,7 @@ export function MainNav() {
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
                       <Link href={subItem.href} passHref legacyBehavior>
-                        <SidebarMenuSubButton isActive={pathname === subItem.href}>
+                        <SidebarMenuSubButton isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}>
                            {subItem.label}
                         </SidebarMenuSubButton>
                       </Link>
