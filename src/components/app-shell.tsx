@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -51,6 +51,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
   if (pathname === '/sales-funnel') return 'Embudo de Ventas';
+
+  // Empresa
+  if (pathname === '/empresa/servicios') return 'Servicios de la Empresa';
+  // Empleados está cubierto más abajo
 
   // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
@@ -94,7 +98,7 @@ const getPageTitle = (pathname: string): string => {
 
   // Nuevas rutas Placeholder
   if (pathname === '/eventos') return 'Gestión de Eventos';
-  if (pathname === '/proveedores') return 'Gestión de Proveedores';
+  if (pathname === '/proveedores') return 'Gestión de Proveedores'; // Este es el general
   if (pathname === '/compras') return 'Compras y Checklist';
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
@@ -139,6 +143,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
 
+  if (pathname === '/empresa/servicios') return Sparkles;
+
   if (pathname === '/eventos') return CalendarClock;
   if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/compras') return ShoppingCart;
@@ -168,7 +174,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     <SidebarProvider defaultOpen={true} >
       <Sidebar collapsible="icon" variant="sidebar" side="left" className="border-r border-sidebar-border">
         <SidebarHeader className="p-4">
-          <SheetTitle className="sr-only">Navegación Principal</SheetTitle>
           <AppLogo />
         </SidebarHeader>
         <SidebarContent className="p-2">

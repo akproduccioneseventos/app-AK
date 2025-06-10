@@ -63,9 +63,14 @@ async function writeEmpleadosFile(data: Empleado[]): Promise<void> {
 
 export async function getEmpleados(): Promise<Empleado[]> {
   const empleados = await readEmpleadosFile();
-  // Simular delay como antes si es necesario, o eliminarlo para operaciones de archivo
-  // await new Promise(resolve => setTimeout(resolve, 100)); 
-  return empleados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  // Ordenar por rol (cargo) y luego por nombre
+  return empleados.sort((a, b) => {
+    const rolComparison = a.rol.localeCompare(b.rol);
+    if (rolComparison !== 0) {
+      return rolComparison;
+    }
+    return a.nombre.localeCompare(b.nombre);
+  });
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {

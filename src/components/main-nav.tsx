@@ -15,12 +15,17 @@ import {
   CalendarDays,
   StickyNote,
   PartyPopper,
-  Filter // Added Filter icon
+  Filter, 
+  Sparkles, 
+  ShoppingBasket
 } from 'lucide-react';
 import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton, // Added this explicitly
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
@@ -29,11 +34,22 @@ const navItems = [
   { href: '/eventos', label: 'Eventos', icon: CalendarClock },
   { href: '/fiestas/nueva', label: 'Crear Fiesta', icon: PartyPopper }, 
   { href: '/customers', label: 'Clientes', icon: Users },
-  { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter }, // New Sales Funnel link
-  { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
-  { href: '/empleados', label: 'Empleados', icon: ContactRound },
+  { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter }, 
+  // EMPRESA SECTION - START
+  { 
+    isGroup: true,
+    label: 'Empresa', 
+    icon: Briefcase,
+    basePath: '/empresa', // For parent active state
+    subItems: [
+      { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
+      { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
+      { href: '/compras', label: 'Compras', icon: ShoppingBasket },
+      { href: '/empleados', label: 'Empleados', icon: ContactRound },
+    ]
+  },
+  // EMPRESA SECTION - END
   { href: '/presupuestos', label: 'Presupuestos y pagos', icon: CircleDollarSign }, 
-  { href: '/compras', label: 'Compras y checklist', icon: ListChecks }, 
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
   { href: '/notas', label: 'Notas', icon: StickyNote },
 ];
@@ -41,19 +57,50 @@ const navItems = [
 export function MainNav() {
   const pathname = usePathname();
 
-  const isActiveParent = (itemHref: string) => {
-    if (itemHref === '/') return pathname === '/';
-    if (pathname.startsWith(itemHref + '/') || pathname === itemHref) {
-        if (itemHref === '/' && pathname !== '/') return false;
-        return true;
-    }
+  const isActiveParent = (itemHref: string, subItemPaths?: string[]) => {
+    if (itemHref === '/' && pathname === '/') return true;
+    if (itemHref !== '/' && pathname.startsWith(itemHref)) return true;
+    if (subItemPaths?.some(subPath => pathname.startsWith(subPath))) return true;
     return false;
   };
 
 
   return (
       <SidebarMenu>
-        {navItems.map((item) => (
+        {navItems.map((item, index) => {
+          if (item.isGroup && item.subItems) {
+            const groupSubPaths = item.subItems.map(sub => sub.href);
+            const isGroupActive = isActiveParent(item.basePath || '#', groupSubPaths);
+            return (
+              <SidebarMenuItem key={`group-${item.label}-${index}`}>
+                <SidebarMenuButton
+                  isActive={isGroupActive}
+                  className={cn(
+                    isGroupActive
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold' 
+                      : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                    'group-data-[collapsible=icon]:justify-center'
+                  )}
+                  tooltip={item.label}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                </SidebarMenuButton>
+                <SidebarMenuSub>
+                  {item.subItems.map(subItem => (
+                    <SidebarMenuSubItem key={subItem.href}>
+                      <Link href={subItem.href} passHref legacyBehavior>
+                        <SidebarMenuSubButton isActive={pathname === subItem.href}>
+                           {subItem.label}
+                        </SidebarMenuSubButton>
+                      </Link>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            );
+          }
+          return (
             <SidebarMenuItem key={item.href}>
               <Link href={item.href}>
                 <SidebarMenuButton
@@ -66,15 +113,13 @@ export function MainNav() {
                   )}
                   tooltip={item.label}
                 >
-                  {/* Content is now direct children of SidebarMenuButton */}
                   <item.icon className="w-5 h-5" />
                   <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
           )
-        )}
+        })}
       </SidebarMenu>
   );
 }
-
