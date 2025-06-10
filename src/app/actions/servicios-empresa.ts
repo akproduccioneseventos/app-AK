@@ -30,8 +30,16 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
     return Array.isArray(data) ? data : [...initialServicios];
   } catch (error: any) {
     if (error.code === 'ENOENT') {
-      await writeServiciosFile(initialServicios);
-      return [...initialServicios];
+      // If the file doesn't exist, create it with initial data.
+      // Need to await this write operation before returning.
+      try {
+        await writeServiciosFile(initialServicios);
+        return [...initialServicios];
+      } catch (writeErr) {
+        console.error('Error escribiendo archivo inicial de servicios:', writeErr);
+        // Fallback to in-memory initial data if initial write fails
+        return [...initialServicios];
+      }
     }
     console.error('Error leyendo el archivo de servicios, usando datos iniciales:', error);
     return [...initialServicios];
@@ -44,6 +52,7 @@ async function writeServiciosFile(data: ServicioEmpresa[]): Promise<void> {
     await fs.writeFile(serviciosFilePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error escribiendo en el archivo de servicios:', error);
+    throw new Error('Error al escribir los datos de servicios.'); // Propagate the error
   }
 }
 
@@ -63,30 +72,34 @@ export async function saveServicioEmpresa(
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   let servicios = await readServiciosFile();
   
-  if ('id' in servicioData && servicioData.id) {
-    // Update existing servicio
-    const index = servicios.findIndex(s => s.id === servicioData.id);
-    if (index !== -1) {
-      servicios[index] = { 
-        ...servicios[index], 
-        ...servicioData,
+  try {
+    if ('id' in servicioData && servicioData.id) {
+      // Update existing servicio
+      const index = servicios.findIndex(s => s.id === servicioData.id);
+      if (index !== -1) {
+        servicios[index] = { 
+          ...servicios[index], 
+          ...servicioData,
+          precioEstimado: servicioData.precioEstimado !== undefined ? Number(servicioData.precioEstimado) || undefined : undefined,
+        };
+        await writeServiciosFile(servicios);
+        return { success: true, id: servicioData.id, servicio: { ...servicios[index] } };
+      } else {
+        return { success: false, error: `Servicio con ID ${servicioData.id} no encontrado para actualizar.` };
+      }
+    } else {
+      // Create new servicio
+      const newServicio: ServicioEmpresa = {
+        ...(servicioData as Omit<ServicioEmpresa, 'id'>), // Explicitly cast to the correct type for new service
+        id: `serv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         precioEstimado: servicioData.precioEstimado !== undefined ? Number(servicioData.precioEstimado) || undefined : undefined,
       };
+      servicios.push(newServicio);
       await writeServiciosFile(servicios);
-      return { success: true, id: servicioData.id, servicio: { ...servicios[index] } };
-    } else {
-      return { success: false, error: `Servicio con ID ${servicioData.id} no encontrado para actualizar.` };
+      return { success: true, id: newServicio.id, servicio: { ...newServicio } };
     }
-  } else {
-    // Create new servicio
-    const newServicio: ServicioEmpresa = {
-      ...servicioData,
-      id: `serv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      precioEstimado: servicioData.precioEstimado !== undefined ? Number(servicioData.precioEstimado) || undefined : undefined,
-    };
-    servicios.push(newServicio);
-    await writeServiciosFile(servicios);
-    return { success: true, id: newServicio.id, servicio: { ...newServicio } };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Ocurrió un error al guardar el servicio." };
   }
 }
 
@@ -96,8 +109,12 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
   servicios = servicios.filter(s => s.id !== id);
   
   if (servicios.length < initialLength) {
-    await writeServiciosFile(servicios);
-    return { success: true };
+    try {
+      await writeServiciosFile(servicios);
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || "Ocurrió un error al eliminar el servicio (escritura)." };
+    }
   } else {
     return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };
   }
@@ -111,9 +128,14 @@ async function initializeServiciosData() {
     } catch (error: any) {
         if (error.code === 'ENOENT') {
             console.log('Archivo servicios-empresa.json no encontrado, creando con datos iniciales...');
-            await writeServiciosFile(initialServicios);
+            try {
+                await writeServiciosFile(initialServicios);
+            } catch (initWriteError) {
+                console.error("Error al crear el archivo de servicios inicial:", initWriteError);
+            }
         }
     }
 }
 
 initializeServiciosData();
+
