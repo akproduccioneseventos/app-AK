@@ -1,5 +1,5 @@
 
-export type TipoEvento = 'Cumpleaños' | 'Boda' | 'Fiesta de 15' | 'Baby Shower' | 'Evento Corporativo' | 'Conferencia' | 'Lanzamiento de Producto' | 'Otro';
+export type TipoEvento = 'Cumpleaños' | 'Boda' | 'Fiesta de 15' | 'Fiesta Infantil' | 'Baby Shower' | 'Evento Corporativo' | 'Conferencia' | 'Lanzamiento de Producto' | 'Otro';
 
 export interface PlatoPresupuesto {
   id: string;

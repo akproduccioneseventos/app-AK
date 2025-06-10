@@ -1,0 +1,74 @@
+[
+  {
+    "id": "emp_1",
+    "nombre": "Eduardo",
+    "rol": "Mozo",
+    "sueldoBase": 2100
+  },
+  {
+    "id": "emp_2",
+    "nombre": "Ari Beraca",
+    "rol": "Cocina",
+    "sueldoBase": 1700
+  },
+  {
+    "id": "emp_3",
+    "nombre": "Alex",
+    "rol": "Cocina y Utileria",
+    "sueldoBase": 2700
+  },
+  {
+    "id": "emp_4",
+    "nombre": "Jonathan",
+    "rol": "Cocina y Utileria",
+    "sueldoBase": 2700
+  },
+  {
+    "id": "emp_5",
+    "nombre": "Matias",
+    "rol": "Cocina y Utileria",
+    "sueldoBase": 2600
+  },
+  {
+    "id": "emp_6",
+    "nombre": "Facundo Beraca",
+    "rol": "Mozo",
+    "sueldoBase": 2100
+  },
+  {
+    "id": "emp_7",
+    "nombre": "Ricardo Bairabar",
+    "rol": "Mozo",
+    "sueldoBase": 2100
+  },
+  {
+    "id": "emp_8",
+    "nombre": "Yusara",
+    "rol": "Mozo",
+    "sueldoBase": 2100
+  },
+  {
+    "id": "emp_9",
+    "nombre": "Pablo",
+    "rol": "Fotografo",
+    "sueldoBase": 3800
+  },
+  {
+    "id": "emp_10",
+    "nombre": "Gonza",
+    "rol": "DJ",
+    "sueldoBase": 3000
+  },
+  {
+    "id": "emp_11",
+    "nombre": "Juan (Barman)",
+    "rol": "Barman",
+    "sueldoBase": 1800
+  },
+  {
+    "id": "emp_12",
+    "nombre": "Pedro (Ayud. Barman)",
+    "rol": "Ayudante de Barman",
+    "sueldoBase": 1700
+  }
+]

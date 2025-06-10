@@ -24,7 +24,7 @@ interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 
   clienteId?: string;
 }
 
-const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
+const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
 
 export default function ConfiguracionEventoPage() {
   const { toast } = useToast();
@@ -106,7 +106,6 @@ export default function ConfiguracionEventoPage() {
       clienteId: config.clienteId || undefined,
     };
     
-    // Filter out potentially undefined fields that should not be sent if empty
     if (!configToSave.clienteId) delete configToSave.clienteId;
 
 
