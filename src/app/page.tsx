@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
 import { CalendarDays, DollarSign, CreditCard, Landmark, PiggyBank, AlertTriangle, Loader2, BarChart3, Info, Users as UsersIcon, UserPlus, CalendarClock, CheckCircle2, PartyPopper, MapPin, FileText, ContactRound } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
