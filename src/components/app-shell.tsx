@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2 } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { SheetTitle } from '@/components/ui/sheet'; // Import SheetTitle
 
 // Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
@@ -61,7 +62,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
-  if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores y Servicios';
+  if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores (Fiesta Actual)';
   if (pathname === '/fiestas/nueva/decoracion') return 'Diseño y Decoración';
   if (pathname === '/fiestas/nueva/diseno-salon') return 'Diseño del Salón';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
@@ -88,13 +89,20 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/evento/actual') return 'Página del Evento';
   if (pathname === '/evento/actual/mesa') return 'Consulta de Mesa';
 
+  // Nuevas rutas Placeholder
+  if (pathname === '/eventos') return 'Gestión de Eventos';
+  if (pathname === '/proveedores') return 'Gestión de Proveedores';
+  if (pathname === '/compras') return 'Compras y Checklist';
+  if (pathname === '/calendario') return 'Calendario General';
+  if (pathname === '/notas') return 'Bloc de Notas';
+
 
   // Rutas Generales (menos específicas)
-  if (pathname.startsWith('/eventos')) return 'Eventos';
-  if (pathname.startsWith('/proveedores')) return 'Proveedores';
-  if (pathname.startsWith('/compras')) return 'Compras';
-  if (pathname.startsWith('/calendario')) return 'Calendario';
-  if (pathname.startsWith('/notas')) return 'Notas';
+  // if (pathname.startsWith('/eventos')) return 'Eventos'; // Ya cubierto arriba
+  // if (pathname.startsWith('/proveedores')) return 'Proveedores'; // Ya cubierto arriba
+  // if (pathname.startsWith('/compras')) return 'Compras'; // Ya cubierto arriba
+  // if (pathname.startsWith('/calendario')) return 'Calendario'; // Ya cubierto arriba
+  // if (pathname.startsWith('/notas')) return 'Notas'; // Ya cubierto arriba
 
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
@@ -103,18 +111,20 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) {
+        if (!isNaN(Number(title))) { // If the last segment is a number (likely an ID)
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
             return `${parentTitle}: #${title}`;
         }
+        // Normalize common actions like "edit" or "new"
         if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
         if(title.toLowerCase() === 'new' || title.toLowerCase() === 'nuevo' || title.toLowerCase() === 'nueva') title = "Nuevo";
 
+        // Avoid redundant titles like "Customers - Customer"
         if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())){
-             return title;
+             return title; // Or parentTitle, depending on desired hierarchy
         }
 
         return `${parentTitle} - ${title}`;
@@ -135,6 +145,13 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/evento/actual') return Globe;
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
+
+  // Icons for new placeholder pages
+  if (pathname === '/eventos') return CalendarClock;
+  if (pathname === '/proveedores') return Briefcase;
+  if (pathname === '/compras') return ShoppingCart; // or ListChecks
+  if (pathname === '/calendario') return CalendarDaysIcon;
+  if (pathname === '/notas') return StickyNote;
 
 
   return null;
@@ -208,3 +225,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </SidebarProvider>
   );
 }
+
