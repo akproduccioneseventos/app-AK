@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { es } from 'date-fns/locale'; // Import Spanish locale
 
 interface DashboardCalendarProps {
   eventDate?: Date;
@@ -44,6 +45,7 @@ export function DashboardCalendar({ eventDate }: DashboardCalendarProps) {
       onMonthChange={setClientSideMonth} // Allow user to navigate months
       modifiers={modifiers}
       modifiersStyles={modifiersStyles}
+      locale={es} // Set locale to Spanish
       className="p-0 rounded-md border shadow-sm mx-auto" // Added mx-auto for centering
       classNames={{
         caption_label: "text-base font-medium",

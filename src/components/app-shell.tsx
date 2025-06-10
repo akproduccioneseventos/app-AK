@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { SheetTitle } from '@/components/ui/sheet'; // Import SheetTitle
+import { SheetTitle } from '@/components/ui/sheet';
 
 // Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
@@ -85,9 +85,12 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
 
-  // Página Pública del Evento (si se accede dentro del shell)
+  // Página Pública del Evento y Login/Signup
   if (pathname === '/evento/actual') return 'Página del Evento';
   if (pathname === '/evento/actual/mesa') return 'Consulta de Mesa';
+  if (pathname === '/login') return 'Iniciar Sesión';
+  if (pathname === '/signup') return 'Crear Cuenta';
+
 
   // Nuevas rutas Placeholder
   if (pathname === '/eventos') return 'Gestión de Eventos';
@@ -96,14 +99,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
 
-
-  // Rutas Generales (menos específicas)
-  // if (pathname.startsWith('/eventos')) return 'Eventos'; // Ya cubierto arriba
-  // if (pathname.startsWith('/proveedores')) return 'Proveedores'; // Ya cubierto arriba
-  // if (pathname.startsWith('/compras')) return 'Compras'; // Ya cubierto arriba
-  // if (pathname.startsWith('/calendario')) return 'Calendario'; // Ya cubierto arriba
-  // if (pathname.startsWith('/notas')) return 'Notas'; // Ya cubierto arriba
-
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
@@ -111,20 +106,18 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) { // If the last segment is a number (likely an ID)
+        if (!isNaN(Number(title))) { 
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
             return `${parentTitle}: #${title}`;
         }
-        // Normalize common actions like "edit" or "new"
         if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
         if(title.toLowerCase() === 'new' || title.toLowerCase() === 'nuevo' || title.toLowerCase() === 'nueva') title = "Nuevo";
 
-        // Avoid redundant titles like "Customers - Customer"
         if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())){
-             return title; // Or parentTitle, depending on desired hierarchy
+             return title;
         }
 
         return `${parentTitle} - ${title}`;
@@ -146,12 +139,14 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
 
-  // Icons for new placeholder pages
   if (pathname === '/eventos') return CalendarClock;
   if (pathname === '/proveedores') return Briefcase;
-  if (pathname === '/compras') return ShoppingCart; // or ListChecks
+  if (pathname === '/compras') return ShoppingCart;
   if (pathname === '/calendario') return CalendarDaysIcon;
   if (pathname === '/notas') return StickyNote;
+  
+  if (pathname === '/login') return LogInIcon;
+  if (pathname === '/signup') return UserPlusIcon;
 
 
   return null;
@@ -162,11 +157,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
+  
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
+  if (isAuthPage) {
+    return <main className="min-h-screen">{children}</main>;
+  }
 
   return (
     <SidebarProvider defaultOpen={true} >
       <Sidebar collapsible="icon" variant="sidebar" side="left" className="border-r border-sidebar-border">
         <SidebarHeader className="p-4">
+          <SheetTitle className="sr-only">Navegación Principal</SheetTitle>
           <AppLogo />
         </SidebarHeader>
         <SidebarContent className="p-2">
@@ -200,10 +202,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LogOut className="w-4 h-4 mr-2" />
-                Cerrar Sesión
-              </DropdownMenuItem>
+              <Link href="/login" passHref>
+                <DropdownMenuItem>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Cerrar Sesión
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarFooter>
@@ -225,4 +229,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </SidebarProvider>
   );
 }
-
