@@ -60,9 +60,25 @@ const defaultSalonLayout: SalonLayoutData = {
 
 const defaultWebPageSettings: EventWebPageSettings = {
   pageTitle: 'Mi Evento Especial',
+  heroSubtitle: '¡Una celebración inolvidable!',
   welcomeMessage: '¡Bienvenidos a la celebración!',
   coverImageUrl: '',
   galleryImageUrls: [],
+  showCountdown: true,
+  ourStoryTitle: 'Nuestra Historia',
+  ourStoryText: '',
+  ourStoryImageUrl: '',
+  showOurStory: true,
+  eventDetailsTitle: 'Detalles del Evento',
+  eventDetailsText: '',
+  showEventDetails: true,
+  dressCodeText: '',
+  showDressCode: false,
+  giftRegistryTitle: 'Lista de Regalos',
+  giftRegistryText: '',
+  showGiftRegistry: false,
+  showGallery: true,
+  showRsvp: true,
 };
 
 const defaultMusicaFiesta: MusicaFiesta = {
@@ -178,17 +194,14 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
           tableNumber: inv.tableNumber || undefined,
           notes: inv.notes || undefined,
         })),
-        webPageSettings: {
-          pageTitle: data.webPageSettings?.pageTitle || defaultWebPageSettings.pageTitle || '',
-          welcomeMessage: data.webPageSettings?.welcomeMessage || defaultWebPageSettings.welcomeMessage || '',
-          coverImageUrl: data.webPageSettings?.coverImageUrl || defaultWebPageSettings.coverImageUrl || '',
-          galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
+        webPageSettings: { // Ensure webPageSettings is always initialized
+          ...defaultWebPageSettings,
+          ...(data.webPageSettings || {}), // Merge existing data over defaults
+          galleryImageUrls: data.webPageSettings?.galleryImageUrls || [], // Ensure gallery is array
         },
         musica: {
-          cancionEntrada: data.musica?.cancionEntrada || defaultMusicaFiesta.cancionEntrada || '',
-          cancionVals: data.musica?.cancionVals || defaultMusicaFiesta.cancionVals || '',
-          playlistFiesta: data.musica?.playlistFiesta || defaultMusicaFiesta.playlistFiesta || '',
-          listaNoReproducir: data.musica?.listaNoReproducir || defaultMusicaFiesta.listaNoReproducir || '',
+          ...defaultMusicaFiesta,
+          ...(data.musica || {}),
         },
     };
     return validatedData;
@@ -199,7 +212,6 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
       return { ...initialFiestaActualData };
     }
     console.error('Error leyendo el archivo de fiesta actual, usando datos iniciales:', error);
-    // Attempt to write initial data if reading/parsing failed for other reasons
     try {
         await writeFiestaActualFile(initialFiestaActualData);
     } catch (writeError) {
@@ -220,19 +232,17 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   const fiesta = await readFiestaActualFile();
-  // Return a deep copy to prevent direct modification of the in-memory cache if any
   return JSON.parse(JSON.stringify(fiesta));
 }
 
 export async function updateConfiguracionFiestaActual(
-  configData: Partial<ConfigEventoDataStorage> // Allow partial updates
+  configData: Partial<ConfigEventoDataStorage>
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.configuracion = { 
         ...fiestaActual.configuracion, 
         ...configData,
-        // Ensure numeric fields are numbers or default
         invitadosEstimados: configData.invitadosEstimados !== undefined ? Number(configData.invitadosEstimados) || 0 : fiestaActual.configuracion.invitadosEstimados,
         presupuestoEstimado: configData.presupuestoEstimado !== undefined ? Number(configData.presupuestoEstimado) || 0 : fiestaActual.configuracion.presupuestoEstimado,
     };
@@ -248,7 +258,7 @@ export async function updatePersonalFiestaActual(
 ): Promise<{ success: boolean; updatedData?: PersonalAsignadoDetalleStorage[]; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.personalAsignado = [...personalData]; // Replace entire array
+    fiestaActual.personalAsignado = [...personalData]; 
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.personalAsignado)) };
   } catch (e: any) {
@@ -583,12 +593,27 @@ export async function updateWebPageSettingsFiestaActual(
 ): Promise<{ success: boolean; updatedData?: EventWebPageSettings; error?: string }> {
   try {
     let fiestaActual = await readFiestaActualFile();
-    fiestaActual.webPageSettings = {
-      pageTitle: settings.pageTitle || fiestaActual.webPageSettings?.pageTitle || defaultWebPageSettings.pageTitle,
-      welcomeMessage: settings.welcomeMessage || fiestaActual.webPageSettings?.welcomeMessage || defaultWebPageSettings.welcomeMessage,
-      coverImageUrl: settings.coverImageUrl || fiestaActual.webPageSettings?.coverImageUrl || defaultWebPageSettings.coverImageUrl,
-      galleryImageUrls: settings.galleryImageUrls || fiestaActual.webPageSettings?.galleryImageUrls || [],
+    
+    // Ensure webPageSettings exists and merge with new settings and defaults
+    const currentWebSettings = fiestaActual.webPageSettings || {};
+    const newWebSettings: EventWebPageSettings = {
+        ...defaultWebPageSettings, // Start with all defaults
+        ...currentWebSettings,   // Override with current settings from file
+        ...settings,             // Override with new settings from user
+        galleryImageUrls: settings.galleryImageUrls || currentWebSettings.galleryImageUrls || [], // Ensure gallery is always an array
     };
+    // Ensure boolean fields retain their value if undefined in `settings`, defaulting from `defaultWebPageSettings` via `newWebSettings`
+    newWebSettings.showCountdown = settings.showCountdown !== undefined ? settings.showCountdown : newWebSettings.showCountdown;
+    newWebSettings.showOurStory = settings.showOurStory !== undefined ? settings.showOurStory : newWebSettings.showOurStory;
+    newWebSettings.showEventDetails = settings.showEventDetails !== undefined ? settings.showEventDetails : newWebSettings.showEventDetails;
+    newWebSettings.showDressCode = settings.showDressCode !== undefined ? settings.showDressCode : newWebSettings.showDressCode;
+    newWebSettings.showGiftRegistry = settings.showGiftRegistry !== undefined ? settings.showGiftRegistry : newWebSettings.showGiftRegistry;
+    newWebSettings.showGallery = settings.showGallery !== undefined ? settings.showGallery : newWebSettings.showGallery;
+    newWebSettings.showRsvp = settings.showRsvp !== undefined ? settings.showRsvp : newWebSettings.showRsvp;
+
+
+    fiestaActual.webPageSettings = newWebSettings;
+    
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.webPageSettings)) };
   } catch (e: any) {
@@ -602,10 +627,9 @@ export async function updateMusicaFiestaActual(
   try {
     let fiestaActual = await readFiestaActualFile();
     fiestaActual.musica = {
-        cancionEntrada: musicaData.cancionEntrada || fiestaActual.musica?.cancionEntrada || defaultMusicaFiesta.cancionEntrada,
-        cancionVals: musicaData.cancionVals || fiestaActual.musica?.cancionVals || defaultMusicaFiesta.cancionVals,
-        playlistFiesta: musicaData.playlistFiesta || fiestaActual.musica?.playlistFiesta || defaultMusicaFiesta.playlistFiesta,
-        listaNoReproducir: musicaData.listaNoReproducir || fiestaActual.musica?.listaNoReproducir || defaultMusicaFiesta.listaNoReproducir,
+        ...defaultMusicaFiesta,
+        ...(fiestaActual.musica || {}),
+        ...musicaData,
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.musica)) };
@@ -617,7 +641,6 @@ export async function updateMusicaFiestaActual(
 
 export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
     try {
-        // Create a deep copy of initialFiestaActualData to avoid modifying the constant
         const resetData = JSON.parse(JSON.stringify(initialFiestaActualData));
         await writeFiestaActualFile(resetData);
         return { success: true, initialData: resetData };
@@ -626,19 +649,13 @@ export async function resetFiestaActual(): Promise<{ success: boolean; initialDa
     }
 }
 
-// Initialize data file if it doesn't exist or is malformed
-// This function is called when the module is loaded.
 async function initializeDataFile() {
     await ensureDataDirectoryExists();
     try {
-        // Attempt to read the file to ensure it's valid and contains all necessary default structures.
-        // readFiestaActualFile itself handles creation with defaults if ENOENT or other read errors.
         await readFiestaActualFile(); 
         console.log("Fiesta actual data file checked/initialized successfully.");
     } catch (error) {
         console.error("Critical error during initial data file check/initialization:", error);
-        // If readFiestaActualFile throws an error that it doesn't handle by writing defaults (should not happen),
-        // we might try one more time to write the absolute defaults.
         try {
             await writeFiestaActualFile(initialFiestaActualData);
             console.log("Fiesta actual data file forcefully reset to initial defaults due to critical error.");
@@ -649,5 +666,3 @@ async function initializeDataFile() {
 }
 
 initializeDataFile();
-
-    

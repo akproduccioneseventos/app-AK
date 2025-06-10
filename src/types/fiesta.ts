@@ -85,9 +85,25 @@ export interface DecoracionData {
 
 export interface EventWebPageSettings {
   pageTitle?: string;
+  heroSubtitle?: string;
   welcomeMessage?: string;
-  coverImageUrl?: string; // Stores URL or data URI
-  galleryImageUrls?: string[]; // Stores URLs or data URIs
+  coverImageUrl?: string; 
+  galleryImageUrls?: string[];
+  showCountdown?: boolean;
+  ourStoryTitle?: string;
+  ourStoryText?: string;
+  ourStoryImageUrl?: string;
+  showOurStory?: boolean;
+  eventDetailsTitle?: string;
+  eventDetailsText?: string; // For ceremony, reception, general info
+  showEventDetails?: boolean;
+  dressCodeText?: string;
+  showDressCode?: boolean;
+  giftRegistryTitle?: string;
+  giftRegistryText?: string; // For links, messages
+  showGiftRegistry?: boolean;
+  showGallery?: boolean;
+  showRsvp?: boolean;
 }
 
 export interface MusicaFiesta {
