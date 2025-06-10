@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { SheetTitle } from '@/components/ui/sheet';
 
 // Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
@@ -53,10 +52,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/sales-funnel') return 'Embudo de Ventas';
 
   // Empresa
-  if (pathname === '/proveedores') return 'Proveedores'; // Ahora bajo Empresa
+  if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/empresa/servicios') return 'Servicios de la Empresa';
-  // Empleados está cubierto más abajo
-  if (pathname === '/compras') return 'Compras y Checklist'; // Aunque removido del nav, el título debe existir
+  if (pathname === '/compras') return 'Compras y Checklist';
 
   // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
@@ -85,7 +83,6 @@ const getPageTitle = (pathname: string): string => {
 
   // Contabilidad
   if (pathname === '/contabilidad/pagos') return 'Registro de Pagos';
-  // /presupuestos y /invoices ya están cubiertos arriba.
 
 
   // Configuración
@@ -102,10 +99,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/signup') return 'Crear Cuenta';
 
 
-  // Nuevas rutas Placeholder
-  if (pathname === '/eventos') return 'Gestión de Eventos';
+  // Rutas Actualizadas
+  if (pathname === '/eventos') return 'Todas las Fiestas'; // Actualizado
   if (pathname === '/calendario') return 'Calendario General';
-  if (pathname === '/notas') return 'Bloc de Notas'; // Aunque removido del nav, el título debe existir
+  if (pathname === '/notas') return 'Bloc de Notas';
 
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
@@ -148,9 +145,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/musica') return Music2;
 
   if (pathname === '/empresa/servicios') return Sparkles;
-  if (pathname === '/proveedores') return Briefcase; // Icono para proveedores general
+  if (pathname === '/proveedores') return Briefcase; 
 
-  if (pathname === '/eventos') return CalendarClock;
+  if (pathname === '/eventos') return CalendarClock; // Icono para "Todas las Fiestas"
   if (pathname === '/compras') return ShoppingCart;
   if (pathname === '/calendario') return CalendarDaysIcon;
   if (pathname === '/notas') return StickyNote;

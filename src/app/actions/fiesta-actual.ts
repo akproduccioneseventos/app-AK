@@ -8,74 +8,69 @@ import path from 'path';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const fiestaActualFilePath = path.join(dataDirectory, 'fiesta-actual.json');
+const historialFiestasFilePath = path.join(dataDirectory, 'historial-fiestas.json');
+
 
 const defaultConfiguracion: ConfigEventoDataStorage = {
-  nombreEvento: 'Boda Noelia Damaceno',
-  tipoCelebracion: 'Boda',
-  fechaEvento: new Date(2025, 5, 6).toISOString(),
-  horaInicio: '',
-  horaFin: '',
-  nombreLugar: 'Bonsai',
-  direccionLugar: '',
-  invitadosEstimados: 80,
-  presupuestoEstimado: 156000,
-  notasAdicionales: '',
+  nombreEvento: 'Mi Próximo Evento Increíble',
+  tipoCelebracion: 'Cumpleaños',
+  fechaEvento: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()).toISOString(), // Default to one year from now
+  horaInicio: '19:00',
+  horaFin: '02:00',
+  nombreLugar: 'Salón de Ensueño',
+  direccionLugar: 'Calle Principal 123, Ciudad',
+  invitadosEstimados: 50,
+  presupuestoEstimado: 100000,
+  notasAdicionales: 'Planificación inicial.',
   clienteId: undefined,
 };
 
 const defaultTareas: Tarea[] = [
-  { id: 'task_default_1', texto: 'Gestionar Vajilla y Mantelería', completada: false },
-  { id: 'task_default_2', texto: 'Coordinar Mobiliario', completada: false },
-  { id: 'task_default_3', texto: 'Contratar Mozos (4) y Mozos de cocina (4)', completada: false },
-  { id: 'task_default_4', texto: 'Contratar Fotografía de fiesta y exteriores', completada: false },
-  { id: 'task_default_5', texto: 'Contratar Plataforma 360 y Fotocabina', completada: false },
-  { id: 'task_default_6', texto: 'Organizar Mesa de postres y Torta principal', completada: false },
-  { id: 'task_default_7', texto: 'Contratar Barra de tragos', completada: false },
-  { id: 'task_default_8', texto: 'Definir Decoración Básica', completada: false },
-  { id: 'task_default_9', texto: 'Definir Discoteca Básica', completada: false },
-  { id: 'task_default_10', texto: 'Crear Invitación digital', completada: false },
-  { id: 'task_default_11', texto: 'Organizar Coffee Break', completada: false },
-  { id: 'task_default_12', texto: 'Asegurar Hielo', completada: false },
+  { id: 'task_default_1', texto: 'Definir lista de invitados', completada: false },
+  { id: 'task_default_2', texto: 'Seleccionar catering y menú', completada: false },
+  { id: 'task_default_3', texto: 'Contratar DJ o música', completada: false },
+  { id: 'task_default_4', texto: 'Elegir decoración y temática', completada: false },
+  { id: 'task_default_5', texto: 'Enviar invitaciones', completada: false },
 ];
 
 const defaultColorPalette: ColorPalette = {
-  primary: '#FFFFFF',
-  secondary: '#FFFFFF',
-  accent: '#FFFFFF',
+  primary: '#007bff', // Un azul vibrante como ejemplo
+  secondary: '#6c757d', // Un gris neutro
+  accent: '#28a745', // Un verde para acentos
 };
 
 const defaultDecoracion: DecoracionData = {
-  tema: 'Boda Noelia Damaceno',
+  tema: 'Elegante y Moderno',
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
   items: [],
-  generalNotes: "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.",
+  generalNotes: "Decoración base, detalles por definir.",
 };
 
 const defaultSalonLayout: SalonLayoutData = {
     backgroundImageUrl: '',
     elements: [],
-    generalNotes: '',
+    generalNotes: 'Disposición estándar del salón.',
 };
 
 const defaultWebPageSettings: EventWebPageSettings = {
   pageTitle: 'Mi Evento Especial',
   heroSubtitle: '¡Una celebración inolvidable!',
-  welcomeMessage: '¡Bienvenidos a la celebración!',
+  welcomeMessage: '¡Bienvenidos a la celebración de nuestro evento!',
   coverImageUrl: '',
   galleryImageUrls: [],
   showCountdown: true,
   ourStoryTitle: 'Nuestra Historia',
-  ourStoryText: '',
+  ourStoryText: 'Un breve relato de cómo llegamos hasta aquí...',
   ourStoryImageUrl: '',
   showOurStory: true,
   eventDetailsTitle: 'Detalles del Evento',
-  eventDetailsText: '',
+  eventDetailsText: 'Fecha, hora, lugar y más información importante.',
   showEventDetails: true,
-  dressCodeText: '',
+  dressCodeText: 'Elegante Sport',
   showDressCode: false,
   giftRegistryTitle: 'Lista de Regalos',
-  giftRegistryText: '',
+  giftRegistryText: 'Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...',
   showGiftRegistry: false,
   showGallery: true,
   showRsvp: true,
@@ -90,7 +85,7 @@ const defaultMusicaFiesta: MusicaFiesta = {
 
 
 const initialFiestaActualData: FiestaEnPlanificacion = {
-  id: 'fiesta-en-curso',
+  id: `fiesta_${Date.now()}`, // ID único para la fiesta
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
   menuAsignadoId: undefined,
@@ -98,7 +93,7 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   invoiceIds: [],
   reuniones: [],
   salonLayout: { ...defaultSalonLayout, elements: [] },
-  tareas: [...defaultTareas.map(t => ({...t}))],
+  tareas: [...defaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))],
   decoracion: {
     ...defaultDecoracion,
     items: [],
@@ -113,7 +108,7 @@ async function ensureDataDirectoryExists(): Promise<void> {
   try {
     await fs.mkdir(dataDirectory, { recursive: true });
   } catch (error) {
-    console.error('Error creando el directorio de datos para fiesta actual:', error);
+    console.error('Error creando el directorio de datos:', error);
   }
 }
 
@@ -121,7 +116,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
   await ensureDataDirectoryExists();
   try {
     const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
-    let data = JSON.parse(fileContent) as Partial<FiestaEnPlanificacion>; // Parse as Partial to handle missing fields
+    let data = JSON.parse(fileContent) as Partial<FiestaEnPlanificacion>; 
 
     const validatedData: FiestaEnPlanificacion = {
         id: data.id || initialFiestaActualData.id,
@@ -159,7 +154,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             })),
             generalNotes: data.salonLayout?.generalNotes || defaultSalonLayout.generalNotes || '',
         },
-        tareas: (data.tareas && data.tareas.length > 0 ? data.tareas : [...defaultTareas.map(t => ({...t}))]).map(t => ({
+        tareas: (data.tareas && data.tareas.length > 0 ? data.tareas : [...defaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(t => ({
             id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
             texto: t.texto || 'Tarea sin descripción',
             completada: t.completada || false,
@@ -194,10 +189,10 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
           tableNumber: inv.tableNumber || undefined,
           notes: inv.notes || undefined,
         })),
-        webPageSettings: { // Ensure webPageSettings is always initialized
+        webPageSettings: {
           ...defaultWebPageSettings,
-          ...(data.webPageSettings || {}), // Merge existing data over defaults
-          galleryImageUrls: data.webPageSettings?.galleryImageUrls || [], // Ensure gallery is array
+          ...(data.webPageSettings || {}), 
+          galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
         },
         musica: {
           ...defaultMusicaFiesta,
@@ -208,16 +203,19 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
 
   } catch (error: any) {
     if (error.code === 'ENOENT') {
-      await writeFiestaActualFile(initialFiestaActualData);
-      return { ...initialFiestaActualData };
+      // If file doesn't exist, create it with a new unique ID for the fiesta
+      const newInitialData = { ...initialFiestaActualData, id: `fiesta_${Date.now()}` };
+      await writeFiestaActualFile(newInitialData);
+      return { ...newInitialData };
     }
     console.error('Error leyendo el archivo de fiesta actual, usando datos iniciales:', error);
+    const newInitialDataOnError = { ...initialFiestaActualData, id: `fiesta_${Date.now()}` };
     try {
-        await writeFiestaActualFile(initialFiestaActualData);
+        await writeFiestaActualFile(newInitialDataOnError);
     } catch (writeError) {
         console.error('Error escribiendo datos iniciales de fiesta actual después de un error de lectura:', writeError);
     }
-    return { ...initialFiestaActualData };
+    return { ...newInitialDataOnError };
   }
 }
 
@@ -594,15 +592,13 @@ export async function updateWebPageSettingsFiestaActual(
   try {
     let fiestaActual = await readFiestaActualFile();
     
-    // Ensure webPageSettings exists and merge with new settings and defaults
     const currentWebSettings = fiestaActual.webPageSettings || {};
     const newWebSettings: EventWebPageSettings = {
-        ...defaultWebPageSettings, // Start with all defaults
-        ...currentWebSettings,   // Override with current settings from file
-        ...settings,             // Override with new settings from user
-        galleryImageUrls: settings.galleryImageUrls || currentWebSettings.galleryImageUrls || [], // Ensure gallery is always an array
+        ...defaultWebPageSettings, 
+        ...currentWebSettings,   
+        ...settings,             
+        galleryImageUrls: settings.galleryImageUrls || currentWebSettings.galleryImageUrls || [],
     };
-    // Ensure boolean fields retain their value if undefined in `settings`, defaulting from `defaultWebPageSettings` via `newWebSettings`
     newWebSettings.showCountdown = settings.showCountdown !== undefined ? settings.showCountdown : newWebSettings.showCountdown;
     newWebSettings.showOurStory = settings.showOurStory !== undefined ? settings.showOurStory : newWebSettings.showOurStory;
     newWebSettings.showEventDetails = settings.showEventDetails !== undefined ? settings.showEventDetails : newWebSettings.showEventDetails;
@@ -638,31 +634,103 @@ export async function updateMusicaFiestaActual(
   }
 }
 
-
-export async function resetFiestaActual(): Promise<{ success: boolean; initialData?: FiestaEnPlanificacion, error?: string }> {
+export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta?: FiestaEnPlanificacion, error?: string }> {
     try {
-        const resetData = JSON.parse(JSON.stringify(initialFiestaActualData));
-        await writeFiestaActualFile(resetData);
-        return { success: true, initialData: resetData };
+        const newInitialData = { ...initialFiestaActualData, id: `fiesta_${Date.now()}` };
+        await writeFiestaActualFile(newInitialData);
+        return { success: true, newFiesta: JSON.parse(JSON.stringify(newInitialData)) };
     } catch (e: any) {
+        console.error("Error al reiniciar la fiesta:", e);
         return { success: false, error: e.message || "Error al reiniciar la fiesta." };
     }
 }
 
-async function initializeDataFile() {
+async function readHistorialFiestasFile(): Promise<FiestaEnPlanificacion[]> {
+  await ensureDataDirectoryExists();
+  try {
+    const fileContent = await fs.readFile(historialFiestasFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return Array.isArray(data) ? data : [];
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      await fs.writeFile(historialFiestasFilePath, JSON.stringify([]), 'utf-8');
+      return [];
+    }
+    console.error('Error leyendo el historial de fiestas:', error);
+    return [];
+  }
+}
+
+async function writeHistorialFiestasFile(data: FiestaEnPlanificacion[]): Promise<void> {
+  await ensureDataDirectoryExists();
+  try {
+    await fs.writeFile(historialFiestasFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error escribiendo en el historial de fiestas:', error);
+  }
+}
+
+export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
+  const fiestas = await readHistorialFiestasFile();
+  // Sort by event date, most recent first
+  return fiestas.sort((a, b) => {
+    const dateA = a.configuracion.fechaEvento ? new Date(a.configuracion.fechaEvento).getTime() : 0;
+    const dateB = b.configuracion.fechaEvento ? new Date(b.configuracion.fechaEvento).getTime() : 0;
+    return dateB - dateA;
+  });
+}
+
+export async function archivarFiestaActual(): Promise<{ success: boolean; error?: string; archivada?: FiestaEnPlanificacion, nuevaFiesta?: FiestaEnPlanificacion }> {
+  try {
+    const fiestaParaArchivar = await readFiestaActualFile();
+    
+    // Check if it's meaningfully different from the default initial data
+    // This is a simple check, could be more sophisticated
+    if (fiestaParaArchivar.configuracion.nombreEvento === defaultConfiguracion.nombreEvento &&
+        (fiestaParaArchivar.tareas || []).length <= defaultTareas.length ) {
+        // Potentially don't archive if it looks like a fresh, unmodified default fiesta
+        // For now, we'll archive it anyway. User can manage history later.
+        // console.log("Fiesta actual parece ser la default, no se archivará automáticamente o se podría preguntar.");
+    }
+
+    let historial = await readHistorialFiestasFile();
+    historial.unshift(fiestaParaArchivar); // Add to the beginning of the array
+    await writeHistorialFiestasFile(historial);
+
+    const resetResult = await resetFiestaActual();
+    if (!resetResult.success || !resetResult.newFiesta) {
+        throw new Error(resetResult.error || "No se pudo reiniciar la fiesta actual después de archivar.");
+    }
+
+    return { success: true, archivada: fiestaParaArchivar, nuevaFiesta: resetResult.newFiesta };
+  } catch (e: any) {
+    console.error("Error archivando la fiesta actual:", e);
+    return { success: false, error: e.message || "Error al archivar la fiesta." };
+  }
+}
+
+
+async function initializeDataFiles() {
     await ensureDataDirectoryExists();
     try {
         await readFiestaActualFile(); 
-        console.log("Fiesta actual data file checked/initialized successfully.");
+        console.log("Archivo fiesta-actual.json verificado/inicializado.");
     } catch (error) {
-        console.error("Critical error during initial data file check/initialization:", error);
+        console.error("Error crítico durante la verificación/inicialización de fiesta-actual.json:", error);
         try {
-            await writeFiestaActualFile(initialFiestaActualData);
-            console.log("Fiesta actual data file forcefully reset to initial defaults due to critical error.");
+            const newInitialData = { ...initialFiestaActualData, id: `fiesta_${Date.now()}` };
+            await writeFiestaActualFile(newInitialData);
+            console.log("Archivo fiesta-actual.json forzado a valores iniciales debido a error crítico.");
         } catch (writeError) {
-            console.error("Failed to forcefully reset fiesta actual data file:", writeError);
+            console.error("Fallo al forzar reseteo de fiesta-actual.json:", writeError);
         }
+    }
+    try {
+        await readHistorialFiestasFile();
+        console.log("Archivo historial-fiestas.json verificado/inicializado.");
+    } catch (error) {
+        console.error("Error durante la verificación/inicialización de historial-fiestas.json (se creará si no existe).");
     }
 }
 
-initializeDataFile();
+initializeDataFiles();

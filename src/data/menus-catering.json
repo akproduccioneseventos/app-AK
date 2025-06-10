@@ -1,0 +1,155 @@
+[
+  {
+    "id": "menu_clasico_casamiento_1",
+    "name": "Menú Clásico Casamiento",
+    "description": "Entrada, principal y postre tradicionales.",
+    "items": [
+      {
+        "id": "dish_empanadas_criollas",
+        "name": "Empanadas Criollas (x Docena)",
+        "type": "Entrada",
+        "ingredients": [
+          {
+            "id": "ing_tapas_empanada",
+            "name": "Tapas de Empanada",
+            "quantity": "12",
+            "unit": "un.",
+            "cost": "300.00"
+          },
+          {
+            "id": "ing_carne_picada",
+            "name": "Carne Picada Especial",
+            "quantity": "500",
+            "unit": "gr",
+            "cost": "1200.00"
+          }
+        ],
+        "totalDishCost": 1500
+      },
+      {
+        "id": "dish_lomo_strogonoff",
+        "name": "Lomo Strogonoff con Papas Noisette",
+        "type": "Plato Principal",
+        "ingredients": [
+          {
+            "id": "ing_lomo_fresco",
+            "name": "Lomo Fresco",
+            "quantity": "1",
+            "unit": "kg",
+            "cost": "7500.00"
+          },
+          {
+            "id": "ing_papas_noisette",
+            "name": "Papas Noisette Congeladas",
+            "quantity": "1",
+            "unit": "kg",
+            "cost": "1500.00"
+          }
+        ],
+        "totalDishCost": 9000
+      }
+    ],
+    "createdAt": "2023-11-15T00:00:00.000Z",
+    "updatedAt": "2023-11-15T00:00:00.000Z"
+  },
+  {
+    "id": "menu_infantil_cumple_2",
+    "name": "Menú Cumpleaños Infantil",
+    "description": "Opciones divertidas y adaptadas para niños.",
+    "items": [
+      {
+        "id": "dish_mini_pizzas",
+        "name": "Mini Pizzas Muzzarella (x20)",
+        "type": "Plato Principal",
+        "ingredients": [
+          {
+            "id": "ing_prepizzas",
+            "name": "Prepizzas",
+            "quantity": "20",
+            "unit": "un.",
+            "cost": "2000.00"
+          },
+          {
+            "id": "ing_muzzarella_kg",
+            "name": "Muzzarella",
+            "quantity": "1",
+            "unit": "kg",
+            "cost": "3000.00"
+          }
+        ],
+        "totalDishCost": 5000
+      }
+    ],
+    "createdAt": "2023-12-01T00:00:00.000Z",
+    "updatedAt": "2023-12-01T00:00:00.000Z"
+  },
+  {
+    "id": "menu_base_boda_noelia",
+    "name": "Menú Base Boda Noelia",
+    "description": "Menú tipo basado en la fiesta del 6 de junio para Noelia Damaceno.",
+    "items": [
+      {
+        "id": "dish_tabla_fiambres_noelia",
+        "name": "Tabla de fiambres",
+        "type": "Entrada",
+        "ingredients": [
+          {
+            "id": "ing_fiambres_varios",
+            "name": "Fiambres surtidos (costo total para 80 pax)",
+            "quantity": "1",
+            "unit": "global",
+            "cost": "3200.00"
+          }
+        ],
+        "totalDishCost": 3200
+      },
+      {
+        "id": "dish_sandwiches_saladitos_noelia",
+        "name": "Sandwiches y saladitos",
+        "type": "Entrada",
+        "ingredients": [
+          {
+            "id": "ing_sandwiches_varios",
+            "name": "Sandwiches y saladitos surtidos (costo total para 80 pax)",
+            "quantity": "1",
+            "unit": "global",
+            "cost": "6400.00"
+          }
+        ],
+        "totalDishCost": 6400
+      },
+      {
+        "id": "dish_pollo_buffet_noelia",
+        "name": "Pollo con mesa buffet",
+        "type": "Plato Principal",
+        "ingredients": [
+          {
+            "id": "ing_pollo_buffet_completo",
+            "name": "Pollo y acompañamientos buffet (costo total para 70 pax)",
+            "quantity": "1",
+            "unit": "global",
+            "cost": "9100.00"
+          }
+        ],
+        "totalDishCost": 9100
+      },
+      {
+        "id": "dish_hamburguesas_fritas_noelia",
+        "name": "Hamburguesas c/ fritas (Menú Personal)",
+        "type": "Plato Principal",
+        "ingredients": [
+          {
+            "id": "ing_hamburguesas_combo",
+            "name": "Combo hamburguesa y fritas (costo total para 25 pax)",
+            "quantity": "1",
+            "unit": "global",
+            "cost": "3375.00"
+          }
+        ],
+        "totalDishCost": 3375
+      }
+    ],
+    "createdAt": "2025-06-10T21:21:45.684Z",
+    "updatedAt": "2025-06-10T21:21:45.684Z"
+  }
+]
