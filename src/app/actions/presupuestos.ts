@@ -1,12 +1,14 @@
 
 'use server';
 
-import type { Presupuesto, PlatoPresupuesto } from '@/types/presupuesto';
+import type { Presupuesto, PlatoPresupuesto, ServicioAdicional } from '@/types/presupuesto'; // Added ServicioAdicional
 import fs from 'fs/promises';
 import path from 'path';
+import type { FullMenu, MenuItem as CateringMenuItem } from '@/types/catering'; // Renamed to avoid conflict
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const presupuestosFilePath = path.join(dataDirectory, 'presupuestos.json');
+const menusCateringFilePath = path.join(dataDirectory, 'menus-catering.json'); // Path to the catering menus
 
 // Datos iniciales si el archivo no existe o está vacío
 const initialMockPresupuestosDatabase: Presupuesto[] = [
@@ -30,38 +32,6 @@ const initialMockPresupuestosDatabase: Presupuesto[] = [
     estado: 'Enviado',
     notas: 'Confirmar cantidad de invitados una semana antes.'
   },
-  {
-    id: 'pres_mock_2',
-    clienteNombre: 'Carlos López',
-    eventoTipo: 'Boda',
-    eventoFecha: new Date(2025, 2, 22).toISOString(), // Mar 22, 2025
-    invitadosCantidad: 120,
-    platosSeleccionados: [
-      { idPlato: 'asado', nombrePlato: 'Asado Completo', cantidad: 120, costoUnitario: 25, costoTotalPlato: 3000 },
-      { idPlato: 'ensalada_premium', nombrePlato: 'Ensalada Premium', cantidad: 120, costoUnitario: 8, costoTotalPlato: 960 },
-    ],
-    serviciosAdicionales: [
-      { idServicio: 'foto', nombreServicio: 'Fotografía', costoServicio: 300 },
-      { idServicio: 'deco', nombreServicio: 'Decoración Temática', costoServicio: 500 },
-    ],
-    costoSubtotalPlatos: 3960,
-    costoSubtotalServicios: 800,
-    costoTotalEstimado: 4760,
-    timestamp: new Date().toISOString(),
-    estado: 'Aceptado',
-  }
-];
-
-// Platos disponibles para seleccionar (esto se mantiene en memoria por ahora como en el original)
-const mockPlatos: PlatoPresupuesto[] = [
-  { id: 'pizza', nombre: 'Pizza Variada', descripcion: 'Muzzarella, napolitana, fugazzeta.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 10, dataAiHint: "pizza food" },
-  { id: 'empanadas', nombre: 'Empanadas Surtidas', descripcion: 'Carne, pollo, jamón y queso.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 5, dataAiHint: "empanadas pastry" },
-  { id: 'asado', nombre: 'Asado Completo', descripcion: 'Tira, vacío, chorizo, morcilla.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 25, dataAiHint: "barbecue meat" },
-  { id: 'sushi', nombre: 'Sushi Variado (30 piezas)', descripcion: 'Rolls clásicos y especiales.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 30, dataAiHint: "sushi seafood" },
-  { id: 'pasta', nombre: 'Pasta Casera con Salsa', descripcion: 'A elección: Fileto, bolognesa, crema.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 18, dataAiHint: "pasta dish" },
-  { id: 'tacos', nombre: 'Tacos Mexicanos (3u)', descripcion: 'Carne, pollo o vegetarianos.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 12, dataAiHint: "tacos mexican" },
-  { id: 'ensalada_premium', nombre: 'Ensalada Premium', descripcion: 'Verdes, cherry, parmesano, nueces.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 8, dataAiHint: "salad gourmet" },
-  { id: 'mesa_dulce', nombre: 'Mesa Dulce Clásica', descripcion: 'Variedad de tortas y postres.', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 15, dataAiHint: "dessert table" },
 ];
 
 
@@ -98,10 +68,49 @@ async function writePresupuestosFile(data: Presupuesto[]): Promise<void> {
   }
 }
 
+// Helper function to generate simple AI hints for images
+function generateDataAiHint(name: string): string {
+  const commonWords = ['de', 'con', 'y', 'a', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'para', 'por', 'sin', 'sobre', 'tras'];
+  const cleanedName = name.toLowerCase()
+    .replace(/\((tradicional|gourmet|opción invierno|estimado por persona|lata \d+ml|botella \d+ml|porrón \d+ml|vaso|jarra \d+l)\)/gi, '') // Remove specific parenthetical phrases
+    .replace(/[^\w\s]/gi, '') // Remove punctuation
+    .trim();
+  
+  const words = cleanedName.split(/\s+/).filter(word => word.length > 2 && !commonWords.includes(word));
+  if (words.length === 0) return 'food item'; // Fallback
+  if (words.length === 1) return words[0];
+  return `${words[0]} ${words[1]}`; // Take first two significant words
+}
+
+
 export async function getPlatos(): Promise<PlatoPresupuesto[]> {
-  // Simulación con delay (como estaba antes, no interactúa con JSON por ahora)
-  await new Promise(resolve => setTimeout(resolve, 100));
-  return JSON.parse(JSON.stringify(mockPlatos.map(plato => ({ ...plato, imagenUrl: `${plato.imagenUrl}?${plato.dataAiHint ? `&data-ai-hint=${encodeURIComponent(plato.dataAiHint)}` : ''}`}))));
+  try {
+    const menusFileContent = await fs.readFile(menusCateringFilePath, 'utf-8');
+    const menusData: FullMenu[] = JSON.parse(menusFileContent);
+    
+    const platosPresupuesto: PlatoPresupuesto[] = [];
+
+    menusData.forEach(menu => {
+      menu.items.forEach(item => {
+        platosPresupuesto.push({
+          id: item.id,
+          nombre: item.name,
+          descripcion: item.type || undefined, // Use menu item type as description
+          costoPorPersona: item.totalDishCost, // Assuming totalDishCost is per person
+          imagenUrl: `https://placehold.co/300x200.png`,
+          dataAiHint: generateDataAiHint(item.name), // Generate AI hint
+          seleccionado: false,
+        });
+      });
+    });
+    return platosPresupuesto;
+  } catch (error) {
+    console.error('Error leyendo o parseando menus-catering.json para getPlatos:', error);
+    // Fallback to a very basic list or empty if critical
+    return [
+        { id: 'fallback_error', nombre: 'Error al cargar platos', descripcion: 'Contactar soporte', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 0, dataAiHint: "error sign" },
+    ];
+  }
 }
 
 
@@ -125,8 +134,6 @@ export async function getPresupuestos(): Promise<Presupuesto[]> {
   return presupuestos.sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
-// Podrías añadir funciones para getPresupuestoById, updatePresupuesto, deletePresupuesto
-// Ejemplo de deletePresupuesto (a implementar en UI si se requiere)
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   let presupuestos = await readPresupuestosFile();
   const initialLength = presupuestos.length;
@@ -139,3 +146,18 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
     return { success: false, error: `Presupuesto con ID ${id} no encontrado para eliminar.` };
   }
 }
+
+// Initialize presupuestos.json if it doesn't exist
+async function initializePresupuestoData() {
+    await ensureDataDirectoryExists();
+    try {
+        await fs.access(presupuestosFilePath);
+    } catch (error: any) {
+        if (error.code === 'ENOENT') {
+            console.log('Archivo presupuestos.json no encontrado, creando con datos iniciales...');
+            await writePresupuestosFile(initialMockPresupuestosDatabase);
+        }
+    }
+}
+
+initializePresupuestoData();
