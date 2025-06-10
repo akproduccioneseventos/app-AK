@@ -129,7 +129,7 @@ export async function deleteInvoice(id: string): Promise<{ success: boolean; err
   const initialLength = invoices.length;
   invoices = invoices.filter(inv => inv.id !== id);
   
-  if (customers.length < initialLength) {
+  if (invoices.length < initialLength) {
     await writeInvoicesFile(invoices);
     return { success: true };
   } else {
@@ -202,7 +202,3 @@ async function initializeInvoiceData() {
 }
 
 initializeInvoiceData();
-
-// Dummy customer array for deleteInvoice function - this should be removed or refactored
-// as customer data is managed in customers.ts
-const customers: any[] = [];
