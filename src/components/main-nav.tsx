@@ -16,10 +16,8 @@ import {
   PartyPopper,
   Filter,
   Sparkles,
-  // ShoppingBasket, // Icon for Compras, removed
   FileText,
   Banknote
-  // StickyNote, // Icon for Notas, removed
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -27,7 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
-  SidebarMenuSubButton,
+  SidebarMenuSubButton, // Ensure this is imported
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
@@ -46,7 +44,6 @@ const navItems = [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
-      // { href: '/compras', label: 'Compras', icon: ShoppingBasket }, // Removed
     ]
   },
   {
@@ -61,7 +58,6 @@ const navItems = [
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
-  // { href: '/notas', label: 'Notas', icon: StickyNote }, // Removed
 ];
 
 export function MainNav() {
@@ -99,7 +95,7 @@ export function MainNav() {
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} asChild> {/* passHref is removed */}
+                      <Link href={subItem.href} asChild>
                         <SidebarMenuSubButton isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}>
                            {subItem.label}
                         </SidebarMenuSubButton>
