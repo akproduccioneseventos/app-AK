@@ -79,7 +79,7 @@ export function MainNav() {
             const isGroupActive = isActiveParent(item.basePath || '#', groupSubPaths);
             return (
               <SidebarMenuItem key={`group-${item.label}-${index}`}>
-                <SidebarMenuButton // This is a button for the group, not a Link
+                <SidebarMenuButton 
                   isActive={isGroupActive}
                   className={cn(
                     isGroupActive
@@ -95,8 +95,7 @@ export function MainNav() {
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href}>
-                        {/* REMOVED asChild from Link for sub-items */}
+                      <Link href={subItem.href} asChild> 
                         <SidebarMenuSubButton isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}>
                            {subItem.label}
                         </SidebarMenuSubButton>
@@ -112,7 +111,7 @@ export function MainNav() {
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} asChild>
                 <SidebarMenuButton
-                  href={item.href} // Pass href to SidebarMenuButton so it renders as <a>
+                  href={item.href} 
                   isActive={isActiveParent(item.href)}
                   className={cn(
                     isActiveParent(item.href)
@@ -132,3 +131,5 @@ export function MainNav() {
       </SidebarMenu>
   );
 }
+
+    

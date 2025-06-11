@@ -527,8 +527,8 @@ const sidebarMenuButtonVariants = cva(
 )
 
 type SidebarMenuButtonProps = (
-  React.ComponentPropsWithoutRef<"button"> & { href?: never; asChild?: boolean } // Added asChild here
-  | React.ComponentPropsWithoutRef<"a"> & { href: string; asChild?: never } // Removed asChild from anchor version
+  React.ComponentPropsWithoutRef<"button"> & { href?: never; asChild?: boolean }
+  | React.ComponentPropsWithoutRef<"a"> & { href: string; asChild?: never }
 ) & {
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
@@ -538,7 +538,7 @@ type SidebarMenuButtonProps = (
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, SidebarMenuButtonProps>(
   (
     {
-      asChild = false, // Default asChild to false
+      asChild = false,
       isActive = false,
       variant = "default",
       size = "default",
@@ -704,14 +704,14 @@ const SidebarMenuSubItem = React.forwardRef<
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
-  HTMLDivElement, // Changed to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> & { // Changed to HTMLAttributes<HTMLDivElement>
+  HTMLAnchorElement, // Explicitly HTMLAnchorElement
+  React.ComponentPropsWithoutRef<"a"> & { // Explicitly React.ComponentPropsWithoutRef<"a">
     size?: "sm" | "md";
     isActive?: boolean;
   }
 >(({ size = "md", isActive, className, children, ...props }, ref) => {
   return (
-    <div // Changed to div
+    <a // Render as an anchor tag
       ref={ref}
       data-sidebar="menu-sub-button"
       data-size={size}
@@ -724,10 +724,10 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props}
+      {...props} // Spread props which will include href from Link when asChild is used
     >
       {children}
-    </div>
+    </a>
   )
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
@@ -758,4 +758,6 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+    
+
     
