@@ -42,7 +42,7 @@ const navItems = [
     basePath: '/empresa',
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
-      { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
+      // { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles }, // Eliminado
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
     ]
   },
@@ -95,7 +95,7 @@ export function MainNav() {
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href}> {/* REMOVED asChild here */}
+                      <Link href={subItem.href}>
                         <SidebarMenuSubButton isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}>
                            {subItem.label}
                         </SidebarMenuSubButton>
