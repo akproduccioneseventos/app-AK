@@ -71,8 +71,6 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen)
     const open = openProp ?? _open
     const setOpen = React.useCallback(
@@ -83,21 +81,17 @@ const SidebarProvider = React.forwardRef<
         } else {
           _setOpen(openState)
         }
-
-        // This sets the cookie to keep the sidebar state.
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
       },
       [setOpenProp, open]
     )
 
-    // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
       return isMobile
         ? setOpenMobile((open) => !open)
         : setOpen((open) => !open)
     }, [isMobile, setOpen, setOpenMobile])
 
-    // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (
@@ -108,13 +102,10 @@ const SidebarProvider = React.forwardRef<
           toggleSidebar()
         }
       }
-
       window.addEventListener("keydown", handleKeyDown)
       return () => window.removeEventListener("keydown", handleKeyDown)
     }, [toggleSidebar])
 
-    // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed"
 
     const contextValue = React.useMemo<SidebarContext>(
@@ -172,7 +163,7 @@ const Sidebar = React.forwardRef<
       collapsible = "offcanvas",
       className,
       children,
-      ...props // These are props for the main div wrapper of Sidebar, not for the Sheet component
+      ...props
     },
     ref
   ) => {
@@ -186,7 +177,7 @@ const Sidebar = React.forwardRef<
             className
           )}
           ref={ref}
-          {...props} // Apply Sidebar's own div props here
+          {...props}
         >
           {children}
         </div>
@@ -195,7 +186,6 @@ const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        // Only pass props relevant to Sheet (DialogPrimitive.Root)
         <Sheet open={openMobile} onOpenChange={setOpenMobile}>
           <SheetContent
             data-sidebar="sidebar"
@@ -206,7 +196,7 @@ const Sidebar = React.forwardRef<
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
               } as React.CSSProperties
             }
-            side={side} // side is a valid prop for SheetContent
+            side={side}
           >
             <SheetTitle className="sr-only">Navegación Principal</SheetTitle>
             <div className="flex h-full w-full flex-col">{children}</div>
@@ -218,14 +208,13 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className={cn("group peer hidden md:block text-sidebar-foreground", className)} // Apply Sidebar's className here
+        className={cn("group peer hidden md:block text-sidebar-foreground", className)}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
-        {...props} // Apply Sidebar's other div props here
+        {...props}
       >
-        {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
             "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
@@ -242,11 +231,9 @@ const Sidebar = React.forwardRef<
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            // Adjust the padding for floating and inset variants.
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l"
-            // className for the inner fixed div is not passed from Sidebar props directly
           )}
         >
           <div
@@ -464,7 +451,6 @@ const SidebarGroupAction = React.forwardRef<
       data-sidebar="group-action"
       className={cn(
         "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
         className
@@ -536,19 +522,18 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-type SidebarMenuButtonElement = HTMLButtonElement | HTMLAnchorElement;
-type SidebarMenuButtonProps = React.HTMLAttributes<SidebarMenuButtonElement> & {
+type SidebarMenuButtonProps = (
+  | React.ComponentPropsWithoutRef<"button">
+  | React.ComponentPropsWithoutRef<"a"> // Allow anchor props if href is present
+) & {
   asChild?: boolean;
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
-  href?: string; 
+  href?: string; // Make href an explicit prop
 } & VariantProps<typeof sidebarMenuButtonVariants>;
 
 
-const SidebarMenuButton = React.forwardRef<
-  SidebarMenuButtonElement, 
-  SidebarMenuButtonProps
->(
+const SidebarMenuButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, SidebarMenuButtonProps>(
   (
     {
       asChild = false,
@@ -557,13 +542,13 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
-      href, 
+      href, // Destructure href
       ...props
     },
     ref
   ) => {
-    const Comp = href ? "a" : (asChild ? Slot : "button");
-    const { isMobile, state } = useSidebar()
+    const Comp = href ? "a" : (asChild ? Slot : "button"); // If href is present, render as 'a'
+    const { isMobile, state } = useSidebar();
 
     const elementProps: any = {
       ref,
@@ -575,11 +560,12 @@ const SidebarMenuButton = React.forwardRef<
     };
 
     if (Comp === "a") {
-      elementProps.href = href; 
+      elementProps.href = href;
     } else if (Comp === "button" && !asChild && !elementProps.type) {
+      // Only set type if it's a button and not asChild
       elementProps.type = "button";
     }
-    
+
     const buttonElement = <Comp {...elementProps} />;
 
     if (!tooltip) {
@@ -619,7 +605,6 @@ const SidebarMenuAction = React.forwardRef<
       data-sidebar="menu-action"
       className={cn(
         "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
@@ -662,7 +647,6 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])
@@ -718,14 +702,14 @@ const SidebarMenuSubItem = React.forwardRef<
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
-  HTMLAnchorElement,
-  React.ComponentPropsWithoutRef<"a"> & {
+  HTMLAnchorElement, // Always an anchor for sub-items
+  React.ComponentPropsWithoutRef<"a"> & { // Explicitly anchor props
     size?: "sm" | "md";
     isActive?: boolean;
   }
 >(({ size = "md", isActive, className, children, ...props }, ref) => {
   return (
-    <a
+    <a // Render as 'a' tag directly
       ref={ref}
       data-sidebar="menu-sub-button"
       data-size={size}
@@ -772,3 +756,5 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+    
