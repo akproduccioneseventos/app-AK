@@ -95,7 +95,7 @@ export function MainNav() {
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} asChild> 
+                      <Link href={subItem.href}> {/* REMOVED asChild here */}
                         <SidebarMenuSubButton isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}>
                            {subItem.label}
                         </SidebarMenuSubButton>
@@ -131,5 +131,3 @@ export function MainNav() {
       </SidebarMenu>
   );
 }
-
-    
