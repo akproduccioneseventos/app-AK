@@ -155,7 +155,7 @@ export default function ViewInvoicePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <Link href="/invoices" passHref>
           <Button variant="outline" disabled={isAddingPayment}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -315,7 +315,7 @@ export default function ViewInvoicePage() {
                     <TableHead>Fecha Pago</TableHead>
                     <TableHead>Importe</TableHead>
                     <TableHead>Método</TableHead>
-                    <TableHead>Notas</TableHead>
+                    <TableHead>Tipo Pago / Notas</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -389,12 +389,12 @@ export default function ViewInvoicePage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="paymentNotes">Notas (Opcional)</Label>
+                  <Label htmlFor="paymentNotes">Tipo de Pago / Notas (Opcional)</Label>
                   <Textarea
                     id="paymentNotes"
                     value={newPayment.notes || ''}
                     onChange={(e) => handlePaymentInputChange('notes', e.target.value)}
-                    placeholder="Ej: Referencia de transferencia, pago parcial, etc."
+                    placeholder="Ej: Seña, Entrega 2, Pago Final, Nro. de referencia"
                     rows={3}
                   />
                 </div>

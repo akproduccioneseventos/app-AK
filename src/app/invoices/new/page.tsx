@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useEffect, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, type FormEvent, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,22 +14,24 @@ import { ArrowLeft, Save, Loader2, PlusCircle, Trash2, FilePlus2 } from 'lucide-
 import { useToast } from '@/hooks/use-toast';
 import { getCustomers } from '@/app/actions/customers';
 import { saveInvoice } from '@/app/actions/invoices';
+import { getPresupuestoById } from '@/app/actions/presupuestos'; // Importar
 import type { Customer } from '@/types/customer';
+import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem, InvoiceStatus } from '@/types/invoice';
 
-// Default Vendor Details (could come from settings in the future)
 const VENDOR_NAME = "Presupuestador AK Producciones";
 const VENDOR_ADDRESS = "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España";
 const VENDOR_TAX_ID = "A08123456";
 const DEFAULT_CURRENCY = "EUR";
-const DEFAULT_TAX_RATE = 21; // 21%
+const DEFAULT_TAX_RATE = 21; 
 
 interface NewInvoiceItem extends Omit<InvoiceItem, 'id' | 'total'> {
-  tempId: string; // For client-side list management
+  tempId: string; 
 }
 
-export default function NewInvoicePage() {
+function NewInvoicePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -38,7 +40,7 @@ export default function NewInvoicePage() {
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>(() => {
     const date = new Date();
-    date.setDate(date.getDate() + 30); // Default due date 30 days from now
+    date.setDate(date.getDate() + 30); 
     return date;
   });
   const [items, setItems] = useState<NewInvoiceItem[]>([
@@ -49,24 +51,70 @@ export default function NewInvoicePage() {
 
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingFromPresupuesto, setIsLoadingFromPresupuesto] = useState(false);
 
   useEffect(() => {
-    async function loadCustomers() {
+    async function loadInitialData() {
       setIsLoadingCustomers(true);
+      setIsLoadingFromPresupuesto(true);
       try {
         const fetchedCustomers = await getCustomers();
         setCustomers(fetchedCustomers);
-        if (fetchedCustomers.length > 0) {
-          // setSelectedCustomerId(fetchedCustomers[0].id); // Optionally select first customer
+
+        const fromPresupuestoId = searchParams.get('fromPresupuesto');
+        if (fromPresupuestoId) {
+          const presupuesto = await getPresupuestoById(fromPresupuestoId);
+          if (presupuesto) {
+            if (presupuesto.clienteNombre) {
+              // Attempt to find customer by name, otherwise, this would need a customer ID on presupuesto
+              const matchingCustomer = fetchedCustomers.find(c => c.name === presupuesto.clienteNombre || c.companyName === presupuesto.clienteNombre);
+              if (matchingCustomer) {
+                setSelectedCustomerId(matchingCustomer.id);
+              }
+            }
+            setInvoiceNumber(`FACT-P${presupuesto.id.split('_').pop()}`); // Suggest invoice number
+            // Pre-fill items
+            const presupuestoItems: NewInvoiceItem[] = [];
+            presupuesto.platosSeleccionados.forEach(p => {
+              presupuestoItems.push({
+                tempId: `item_plato_${p.idPlato}_${Date.now()}`,
+                description: `${p.nombrePlato} (x${p.cantidad})`,
+                quantity: 1, // Assuming the total for the group is one line item
+                unitPrice: p.costoTotalPlato,
+              });
+            });
+            presupuesto.serviciosAdicionales.forEach(s => {
+              presupuestoItems.push({
+                tempId: `item_servicio_${s.idServicio}_${Date.now()}`,
+                description: s.nombreServicio,
+                quantity: 1,
+                unitPrice: s.costoServicio,
+              });
+            });
+            if (presupuestoItems.length > 0) {
+                setItems(presupuestoItems);
+            } else {
+                setItems([{ tempId: `item_${Date.now()}`, description: '', quantity: 1, unitPrice: 0 }]);
+            }
+            setNotes(presupuesto.notas || '');
+            // Consider setting issueDate/dueDate based on presupuesto.eventoFecha if makes sense
+            if (presupuesto.eventoFecha) {
+                setIssueDate(new Date(presupuesto.eventoFecha)); // Example: set issue date to event date
+            }
+             toast({ title: "Datos Cargados", description: `Datos del presupuesto #${presupuesto.id.split('_').pop()} pre-cargados.`});
+          } else {
+            toast({ title: "Presupuesto no encontrado", description: `No se pudo cargar el presupuesto ID ${fromPresupuestoId}.`, variant: "destructive" });
+          }
         }
       } catch (error) {
-        toast({ title: "Error", description: "No se pudieron cargar los clientes.", variant: "destructive" });
+        toast({ title: "Error", description: "No se pudieron cargar los clientes o datos del presupuesto.", variant: "destructive" });
       } finally {
         setIsLoadingCustomers(false);
+        setIsLoadingFromPresupuesto(false);
       }
     }
-    loadCustomers();
-  }, [toast]);
+    loadInitialData();
+  }, [toast, searchParams]);
 
   const handleAddItem = () => {
     setItems([...items, { tempId: `item_${Date.now()}`, description: '', quantity: 1, unitPrice: 0 }]);
@@ -118,17 +166,16 @@ export default function NewInvoicePage() {
         return;
     }
 
-    const invoiceData: Omit<Invoice, 'id' | 'items'> & { items: Omit<InvoiceItem, 'id'>[] } = {
+    const invoiceData: Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] } = {
       invoiceNumber: invoiceNumber.trim(),
-      // Customer is simplified here, the action might need to fetch full details if not passed
       customer: selectedCustomer, 
       issueDate: issueDate.toISOString(),
-      dueDate: dueDate ? dueDate.toISOString() : issueDate.toISOString(), // Default due date if not set
+      dueDate: dueDate ? dueDate.toISOString() : issueDate.toISOString(), 
       items: items.map(item => ({
         description: item.description,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        total: item.quantity * item.unitPrice, // Server-side action should also calculate this for safety
+        total: item.quantity * item.unitPrice, 
       })),
       subtotal,
       taxRate: DEFAULT_TAX_RATE,
@@ -157,6 +204,15 @@ export default function NewInvoicePage() {
     }
   };
 
+  if (isLoadingFromPresupuesto) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="ml-3 text-muted-foreground">Cargando datos del presupuesto...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -181,7 +237,6 @@ export default function NewInvoicePage() {
             <CardDescription>Completa la información para generar una nueva factura.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Customer & Invoice Basic Info */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="customer-select">Cliente</Label>
@@ -236,7 +291,6 @@ export default function NewInvoicePage() {
               </div>
             </div>
 
-            {/* Invoice Items Section */}
             <div className="space-y-4 pt-4 border-t mt-6">
               <h3 className="text-lg font-medium font-headline">Conceptos de la Factura</h3>
               {items.map((item, index) => (
@@ -276,7 +330,7 @@ export default function NewInvoicePage() {
                       />
                     </div>
                     <div className="sm:col-span-1 flex justify-end">
-                      {items.length > 1 && (
+                      {items.length > 0 && ( // Show remove only if there's at least one item
                         <Button 
                           type="button" 
                           variant="ghost" 
@@ -299,7 +353,6 @@ export default function NewInvoicePage() {
               </Button>
             </div>
             
-            {/* Totals Section */}
             <div className="space-y-2 pt-6 border-t mt-6 text-right">
               <div className="flex justify-end items-center gap-4">
                 <span className="text-muted-foreground">Subtotal:</span>
@@ -315,7 +368,6 @@ export default function NewInvoicePage() {
               </div>
             </div>
 
-            {/* Notes Section */}
             <div className="space-y-2 pt-6 border-t mt-6">
               <Label htmlFor="notes" className="text-base">Notas Adicionales</Label>
               <Textarea 
@@ -329,7 +381,7 @@ export default function NewInvoicePage() {
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers || isLoadingFromPresupuesto}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
               {isSaving ? 'Creando Factura...' : 'Crear Factura'}
             </Button>
@@ -339,3 +391,12 @@ export default function NewInvoicePage() {
     </div>
   );
 }
+
+export default function NewInvoicePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>}>
+      <NewInvoicePageContent />
+    </Suspense>
+  );
+}
+

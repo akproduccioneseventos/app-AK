@@ -3,10 +3,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation'; // Import useRouter
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote, FileSignature } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -31,6 +31,7 @@ const formatDate = (dateString?: string) => {
 
 export default function VerPresupuestoPage() {
   const params = useParams();
+  const router = useRouter(); // Initialize useRouter
   const presupuestoId = params.id as string;
   const { toast } = useToast();
 
@@ -66,6 +67,12 @@ export default function VerPresupuestoPage() {
   useEffect(() => {
     fetchPresupuesto();
   }, [fetchPresupuesto]);
+
+  const handleCreateInvoice = () => {
+    if (presupuesto) {
+      router.push(`/invoices/new?fromPresupuesto=${presupuesto.id}`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -104,7 +111,11 @@ export default function VerPresupuestoPage() {
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" onClick={() => window.print()}>
             <Printer className="w-4 h-4 mr-2" />
-            Imprimir / Guardar PDF
+            Imprimir Contrato
+          </Button>
+           <Button onClick={handleCreateInvoice} variant='default'>
+            <FileText className="w-4 h-4 mr-2" />
+            Crear Factura desde Presupuesto
           </Button>
           <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
             <Button variant="secondary">
@@ -130,7 +141,7 @@ export default function VerPresupuestoPage() {
            <Separator className="my-3 print:hidden" />
            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm print:text-xs print:gap-1">
                 <div className="flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-muted-foreground"/>
+                    <FileSignature className="w-4 h-4 text-muted-foreground"/>
                     <span className="font-medium text-muted-foreground">Tipo:</span>
                     <span className="text-foreground">{presupuesto.eventoTipo}</span>
                 </div>
