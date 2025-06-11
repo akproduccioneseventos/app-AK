@@ -18,7 +18,7 @@ import {
   Sparkles,
   FileText,
   Banknote,
-  ImageIcon // Importar ImageIcon
+  ImageIcon
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -44,7 +44,7 @@ const navItems = [
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
-      // { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles }, // Eliminado anteriormente
+      { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
     ]
   },
   {
@@ -58,7 +58,7 @@ const navItems = [
       { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
     ]
   },
-  { href: '/galeria', label: 'Galería', icon: ImageIcon }, // Nueva sección "Galería"
+  { href: '/galeria', label: 'Galería', icon: ImageIcon },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
 ];
 
@@ -113,7 +113,7 @@ export function MainNav() {
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} asChild>
                 <SidebarMenuButton
-                  href={item.href}
+                  // href={item.href} // REMOVED THIS LINE
                   isActive={isActiveParent(item.href)}
                   className={cn(
                     isActiveParent(item.href)
