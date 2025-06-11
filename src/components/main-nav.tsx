@@ -17,7 +17,8 @@ import {
   Filter,
   Sparkles,
   FileText,
-  Banknote
+  Banknote,
+  ImageIcon // Importar ImageIcon
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -43,6 +44,7 @@ const navItems = [
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
+      // { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles }, // Eliminado anteriormente
     ]
   },
   {
@@ -56,6 +58,7 @@ const navItems = [
       { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
     ]
   },
+  { href: '/galeria', label: 'Galería', icon: ImageIcon }, // Nueva sección "Galería"
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
 ];
 
@@ -78,7 +81,7 @@ export function MainNav() {
             const isGroupActive = isActiveParent(item.basePath || '#', groupSubPaths);
             return (
               <SidebarMenuItem key={`group-${item.label}-${index}`}>
-                <SidebarMenuButton 
+                <SidebarMenuButton
                   isActive={isGroupActive}
                   className={cn(
                     isGroupActive
@@ -110,7 +113,7 @@ export function MainNav() {
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} asChild>
                 <SidebarMenuButton
-                  href={item.href} 
+                  href={item.href}
                   isActive={isActiveParent(item.href)}
                   className={cn(
                     isActiveParent(item.href)
