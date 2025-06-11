@@ -42,7 +42,6 @@ const navItems = [
     basePath: '/empresa',
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
-      { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
     ]
   },
