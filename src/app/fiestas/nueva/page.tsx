@@ -4,9 +4,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getMenuById } from '@/app/actions/menus-catering';
@@ -19,6 +19,19 @@ import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import { StatusBadge } from '@/components/status-badge';
 import { CountdownTimer } from '@/components/countdown-timer';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 interface PlanningModule {
   title: string;
@@ -146,11 +159,13 @@ interface TaskSummary {
 
 
 export default function PlanificarFiestaHubPage() {
+  const { toast } = useToast();
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [linkedInvoices, setLinkedInvoices] = useState<Invoice[]>([]);
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadFiestaData = useCallback(async () => {
@@ -189,6 +204,26 @@ export default function PlanificarFiestaHubPage() {
     loadFiestaData();
   }, [loadFiestaData]);
 
+  const handleResetFiesta = async () => {
+    setIsResetting(true);
+    try {
+      const result = await resetFiestaActual();
+      if (result.success && result.newFiesta) {
+        toast({
+          title: "¡Planificador Reiniciado!",
+          description: "Se ha iniciado una nueva planificación de fiesta desde cero.",
+        });
+        await loadFiestaData(); // Recargar para mostrar la nueva fiesta vacía
+      } else {
+        throw new Error(result.error || "No se pudo reiniciar el planificador.");
+      }
+    } catch (e: any) {
+      toast({ title: "Error al Reiniciar", description: e.message, variant: "destructive" });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const presupuestoEstimado = fiestaActual?.configuracion?.presupuestoEstimado ?? 0;
   const totalPagado = linkedInvoices.reduce((sum, invoice) => {
     const paymentsTotal = invoice.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
@@ -208,12 +243,37 @@ export default function PlanificarFiestaHubPage() {
             Organiza cada detalle de tu próximo evento desde aquí.
           </p>
         </div>
-        <Link href="/" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Dashboard
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={isResetting || isLoading}>
+                  {isResetting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCcw className="w-4 h-4 mr-2" />}
+                  Empezar Nueva Fiesta
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Confirmar Nueva Fiesta?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esto descartará cualquier cambio no guardado en la fiesta actual "{fiestaActual?.configuracion.nombreEvento || 'Evento Actual'}" y comenzará una planificación desde cero. Esta acción no archiva la fiesta actual. ¿Estás seguro?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isResetting}>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleResetFiesta} disabled={isResetting} className="bg-destructive hover:bg-destructive/90">
+                    {isResetting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    Sí, Empezar de Cero
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Link href="/" passHref>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver al Dashboard
+              </Button>
+            </Link>
+        </div>
       </div>
 
       {isLoading ? (
@@ -363,3 +423,4 @@ export default function PlanificarFiestaHubPage() {
   );
 }
 
+    
