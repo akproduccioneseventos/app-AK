@@ -96,7 +96,7 @@ export function MainNav() {
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
                       <Link href={subItem.href}>
-                        {/* Removed asChild, Link will render its own <a> */}
+                        {/* REMOVED asChild from Link for sub-items */}
                         <SidebarMenuSubButton isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}>
                            {subItem.label}
                         </SidebarMenuSubButton>
@@ -112,7 +112,7 @@ export function MainNav() {
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} asChild>
                 <SidebarMenuButton
-                  href={item.href}
+                  href={item.href} // Pass href to SidebarMenuButton so it renders as <a>
                   isActive={isActiveParent(item.href)}
                   className={cn(
                     isActiveParent(item.href)
