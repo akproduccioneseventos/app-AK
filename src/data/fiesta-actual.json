@@ -1,16 +1,16 @@
 {
-  "id": "fiesta-en-curso",
+  "id": "fiesta_1749667415650",
   "configuracion": {
-    "nombreEvento": "Boda Noelia Damaceno",
-    "tipoCelebracion": "Boda",
-    "fechaEvento": "2025-06-06T00:00:00.000Z",
-    "horaInicio": "",
-    "horaFin": "",
-    "nombreLugar": "Bonsai",
-    "direccionLugar": "",
-    "invitadosEstimados": 80,
-    "presupuestoEstimado": 156000,
-    "notasAdicionales": ""
+    "nombreEvento": "Mi Próximo Evento Increíble",
+    "tipoCelebracion": "Cumpleaños",
+    "fechaEvento": "2026-06-11T00:00:00.000Z",
+    "horaInicio": "19:00",
+    "horaFin": "02:00",
+    "nombreLugar": "Salón de Ensueño",
+    "direccionLugar": "Calle Principal 123, Ciudad",
+    "invitadosEstimados": 50,
+    "presupuestoEstimado": 100000,
+    "notasAdicionales": "Planificación inicial."
   },
   "personalAsignado": [],
   "invoiceIds": [],
@@ -22,76 +22,41 @@
   },
   "tareas": [
     {
-      "id": "task_default_1",
-      "texto": "Gestionar Vajilla y Mantelería",
+      "id": "task_1749667387812_i22ru43",
+      "texto": "Definir lista de invitados",
       "completada": false
     },
     {
-      "id": "task_default_2",
-      "texto": "Coordinar Mobiliario",
+      "id": "task_1749667387812_eeagy2m",
+      "texto": "Seleccionar catering y menú",
       "completada": false
     },
     {
-      "id": "task_default_3",
-      "texto": "Contratar Mozos (4) y Mozos de cocina (4)",
+      "id": "task_1749667387812_fa5ja7o",
+      "texto": "Contratar DJ o música",
       "completada": false
     },
     {
-      "id": "task_default_4",
-      "texto": "Contratar Fotografía de fiesta y exteriores",
+      "id": "task_1749667387812_2gdm7ft",
+      "texto": "Elegir decoración y temática",
       "completada": false
     },
     {
-      "id": "task_default_5",
-      "texto": "Contratar Plataforma 360 y Fotocabina",
-      "completada": false
-    },
-    {
-      "id": "task_default_6",
-      "texto": "Organizar Mesa de postres y Torta principal",
-      "completada": false
-    },
-    {
-      "id": "task_default_7",
-      "texto": "Contratar Barra de tragos",
-      "completada": false
-    },
-    {
-      "id": "task_default_8",
-      "texto": "Definir Decoración Básica",
-      "completada": false
-    },
-    {
-      "id": "task_default_9",
-      "texto": "Definir Discoteca Básica",
-      "completada": false
-    },
-    {
-      "id": "task_default_10",
-      "texto": "Crear Invitación digital",
-      "completada": false
-    },
-    {
-      "id": "task_default_11",
-      "texto": "Organizar Coffee Break",
-      "completada": false
-    },
-    {
-      "id": "task_default_12",
-      "texto": "Asegurar Hielo",
+      "id": "task_1749667387812_b8lz9pu",
+      "texto": "Enviar invitaciones",
       "completada": false
     }
   ],
   "decoracion": {
-    "tema": "Boda Noelia Damaceno",
+    "tema": "Elegante y Moderno",
     "paletaColores": {
-      "primary": "#FFFFFF",
-      "secondary": "#FFFFFF",
-      "accent": "#FFFFFF"
+      "primary": "#007bff",
+      "secondary": "#6c757d",
+      "accent": "#28a745"
     },
     "moodboardImageUrl": "",
     "items": [],
-    "generalNotes": "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras."
+    "generalNotes": "Decoración base, detalles por definir."
   },
   "invitados": [],
   "webPageSettings": {
