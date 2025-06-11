@@ -18,7 +18,7 @@
   "salonLayout": {
     "backgroundImageUrl": "",
     "elements": [],
-    "generalNotes": ""
+    "generalNotes": "Disposición estándar del salón."
   },
   "tareas": [
     {
@@ -92,5 +92,34 @@
     "moodboardImageUrl": "",
     "items": [],
     "generalNotes": "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras."
+  },
+  "invitados": [],
+  "webPageSettings": {
+    "pageTitle": "Mi Evento Especial",
+    "heroSubtitle": "¡Una celebración inolvidable!",
+    "welcomeMessage": "¡Bienvenidos a la celebración de nuestro evento!",
+    "coverImageUrl": "",
+    "galleryImageUrls": [],
+    "showCountdown": true,
+    "ourStoryTitle": "Nuestra Historia",
+    "ourStoryText": "Un breve relato de cómo llegamos hasta aquí...",
+    "ourStoryImageUrl": "",
+    "showOurStory": true,
+    "eventDetailsTitle": "Detalles del Evento",
+    "eventDetailsText": "Fecha, hora, lugar y más información importante.",
+    "showEventDetails": true,
+    "dressCodeText": "Elegante Sport",
+    "showDressCode": false,
+    "giftRegistryTitle": "Lista de Regalos",
+    "giftRegistryText": "Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...",
+    "showGiftRegistry": false,
+    "showGallery": true,
+    "showRsvp": true
+  },
+  "musica": {
+    "cancionEntrada": "",
+    "cancionVals": "",
+    "playlistFiesta": "",
+    "listaNoReproducir": ""
   }
 }

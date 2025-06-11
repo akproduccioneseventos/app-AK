@@ -1,0 +1,38 @@
+[
+  {
+    "id": "pres_mock_1",
+    "clienteNombre": "Ana García",
+    "eventoTipo": "Cumpleaños",
+    "eventoFecha": "2024-11-15T00:00:00.000Z",
+    "invitadosCantidad": 50,
+    "platosSeleccionados": [
+      {
+        "idPlato": "pizza",
+        "nombrePlato": "Pizza Variada",
+        "cantidad": 50,
+        "costoUnitario": 10,
+        "costoTotalPlato": 500
+      },
+      {
+        "idPlato": "empanadas",
+        "nombrePlato": "Empanadas Surtidas",
+        "cantidad": 50,
+        "costoUnitario": 5,
+        "costoTotalPlato": 250
+      }
+    ],
+    "serviciosAdicionales": [
+      {
+        "idServicio": "dj",
+        "nombreServicio": "DJ / Sonido",
+        "costoServicio": 400
+      }
+    ],
+    "costoSubtotalPlatos": 750,
+    "costoSubtotalServicios": 400,
+    "costoTotalEstimado": 1150,
+    "timestamp": "2025-06-11T10:38:54.190Z",
+    "estado": "Enviado",
+    "notas": "Confirmar cantidad de invitados una semana antes."
+  }
+]
