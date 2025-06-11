@@ -81,7 +81,9 @@ const SidebarProvider = React.forwardRef<
         } else {
           _setOpen(openState)
         }
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        if (typeof document !== 'undefined') {
+          document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        }
       },
       [setOpenProp, open]
     )
@@ -102,8 +104,10 @@ const SidebarProvider = React.forwardRef<
           toggleSidebar()
         }
       }
-      window.addEventListener("keydown", handleKeyDown)
-      return () => window.removeEventListener("keydown", handleKeyDown)
+      if (typeof window !== 'undefined') {
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+      }
     }, [toggleSidebar])
 
     const state = open ? "expanded" : "collapsed"
@@ -523,8 +527,8 @@ const sidebarMenuButtonVariants = cva(
 )
 
 type SidebarMenuButtonProps = (
-  React.ComponentPropsWithoutRef<"button"> & { href?: never } | // Props for button
-  React.ComponentPropsWithoutRef<"a"> & { href: string }      // Props for anchor if href is present
+  React.ComponentPropsWithoutRef<"button"> & { href?: never }
+  | React.ComponentPropsWithoutRef<"a"> & { href: string }
 ) & {
   asChild?: boolean;
   isActive?: boolean;
@@ -541,7 +545,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement
       size = "default",
       tooltip,
       className,
-      href, 
+      href,
       ...props
     },
     ref
@@ -557,14 +561,12 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement
       className: cn(sidebarMenuButtonVariants({ variant, size }), className),
       ...props,
     };
-    
-    // If it's an anchor, ensure href is part of props passed to Comp
-    if (Comp === "a" && href) {
-      (elementProps as React.ComponentPropsWithoutRef<"a">).href = href;
-    } else if (Comp === "button" && !asChild && !(elementProps as React.ComponentPropsWithoutRef<"button">).type) {
-      (elementProps as React.ComponentPropsWithoutRef<"button">).type = "button";
-    }
 
+    if (Comp === "a" && href) {
+      (elementProps as React.AnchorHTMLAttributes<HTMLAnchorElement>).href = href;
+    } else if (Comp === "button" && !asChild && !(elementProps as React.ButtonHTMLAttributes<HTMLButtonElement>).type) {
+      (elementProps as React.ButtonHTMLAttributes<HTMLButtonElement>).type = "button";
+    }
 
     const buttonElement = <Comp {...elementProps} />;
 
@@ -702,14 +704,14 @@ const SidebarMenuSubItem = React.forwardRef<
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
-  HTMLDivElement, // Changed from HTMLAnchorElement to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> & { // Use HTMLAttributes for div
+  HTMLAnchorElement, // Ensure this is an anchor element
+  React.ComponentPropsWithoutRef<"a"> & { // Use anchor props
     size?: "sm" | "md";
     isActive?: boolean;
   }
 >(({ size = "md", isActive, className, children, ...props }, ref) => {
   return (
-    <div // Render as 'div' tag
+    <a // Render as 'a' tag
       ref={ref}
       data-sidebar="menu-sub-button"
       data-size={size}
@@ -722,10 +724,10 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props} // href will NOT be passed here from Link if Link is not asChild
+      {...props}
     >
       {children}
-    </div>
+    </a>
   )
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
@@ -756,5 +758,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
     
