@@ -103,6 +103,7 @@
     color-adjust: exact; /* Firefox */
     background-color: white !important; /* Ensure white background for printing */
     color: black !important; /* Ensure black text */
+    font-size: 10pt !important; /* Adjust base font size for print */
   }
   .print\:hidden {
     display: none !important;
@@ -117,7 +118,7 @@
     flex-direction: column !important;
   }
   .print\:gap-6 {
-    gap: 1.5rem !important; /* Or adjust as needed */
+    gap: 1rem !important; /* Reduced gap for print */
   }
   .print\:p-0 {
     padding: 0 !important;
@@ -138,10 +139,57 @@
     box-shadow: none !important;
   }
   .print\:border-t-2 {
-    border-top-width: 2px !important;
+    border-top-width: 1px !important; /* Thinner border for print */
+  }
+   .print\:border-b-2 {
+    border-bottom-width: 1px !important; /* Thinner border for print */
+  }
+  .print\:border {
+    border-width: 1px !important;
+    border-color: #ccc !important; /* Lighter border for print */
+  }
+  .print\:rounded-md {
+    border-radius: 0.25rem !important; /* Smaller radius */
   }
   .print\:mb-4 {
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .print\:mb-2 {
+    margin-bottom: 0.25rem !important;
+  }
+  .print\:p-2 {
+    padding: 0.25rem !important;
+  }
+  .print\:pt-1 {
+    padding-top: 0.125rem !important;
+  }
+   .print\:pb-1 {
+    padding-bottom: 0.125rem !important;
+  }
+  .print\:pb-2 {
+    padding-bottom: 0.25rem !important;
+  }
+  .print\:text-\[10px\] { /* Specific for very small text */
+    font-size: 8pt !important;
+    line-height: 1.1 !important;
+  }
+  .print\:text-xs {
+    font-size: 9pt !important;
+  }
+  .print\:text-sm {
+    font-size: 10pt !important;
+  }
+   .print\:text-md {
+    font-size: 11pt !important;
+  }
+  .print\:text-lg {
+    font-size: 12pt !important;
+  }
+  .print\:text-xl {
+    font-size: 14pt !important;
+  }
+  .print\:whitespace-normal {
+     white-space: normal !important;
   }
   .print\:break-inside-avoid-page {
     break-inside: avoid-page !important;
@@ -152,49 +200,23 @@
   .print\:static {
     position: static !important;
   }
-  .print\:border-b-2 {
-    border-bottom-width: 2px !important;
-  }
-  .print\:pb-2 {
-    padding-bottom: 0.5rem !important;
-  }
+  
   .print\:space-y-2 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
+  }
+  .print\:space-y-4 > :not([hidden]) ~ :not([hidden]) {
     --tw-space-y-reverse: 0;
     margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
-  }
-  .print\:border {
-    border-width: 1px !important;
-  }
-  .print\:rounded-md {
-    border-radius: 0.375rem !important; /* Corresponds to md */
-  }
-  .print\:mb-2 {
-    margin-bottom: 0.5rem !important;
-  }
-  .print\:p-2 {
-    padding: 0.5rem !important;
-  }
-  .print\:mt-1 {
-    margin-top: 0.25rem !important;
-  }
-  .print\:pt-1 {
-    padding-top: 0.25rem !important;
-  }
-  .print\:text-\[10px\] {
-    font-size: 10px !important;
-    line-height: 1.2 !important;
-  }
-  .print\:whitespace-normal {
-     white-space: normal !important;
   }
 
   /* Hide sidebar and app shell header/footer for print */
   [data-sidebar="sidebar"], 
   header, 
-  /* Assuming your sidebar inset has a distinct selector or you add one */
-  .app-shell-header, /* Add specific class if needed */
-  .app-shell-footer  /* Add specific class if needed */
+  .app-shell-header, 
+  .app-shell-footer
   { 
     display: none !important;
   }
@@ -210,8 +232,22 @@
     overflow: visible !important;
     height: auto !important;
   }
-  .print\:flex-col > div { /* Target columns in sales funnel */
-    page-break-inside: avoid;
+  .print\:grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
   }
+  .print\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Ensure cards in the planner page break nicely if possible */
+  .print\:planner-card {
+    break-inside: avoid-page;
+    page-break-inside: avoid; /* Older syntax */
+    border: 1px solid #eee !important;
+    box-shadow: none !important;
+    margin-bottom: 0.5rem !important;
+  }
+
 }
+
 

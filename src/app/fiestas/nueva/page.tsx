@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -224,6 +224,10 @@ export default function PlanificarFiestaHubPage() {
     }
   };
 
+  const handlePrintPlanner = () => {
+    window.print();
+  };
+
   const presupuestoEstimado = fiestaActual?.configuracion?.presupuestoEstimado ?? 0;
   const totalPagado = linkedInvoices.reduce((sum, invoice) => {
     const paymentsTotal = invoice.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
@@ -233,8 +237,8 @@ export default function PlanificarFiestaHubPage() {
 
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="space-y-8 print:space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div>
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Planificador: {fiestaActual?.configuracion.nombreEvento || "Evento Actual"}
@@ -243,7 +247,11 @@ export default function PlanificarFiestaHubPage() {
             Organiza cada detalle de tu próximo evento desde aquí.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={handlePrintPlanner} disabled={isResetting || isLoading}>
+              <Printer className="w-4 h-4 mr-2" />
+              Imprimir Vista Actual
+            </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" disabled={isResetting || isLoading}>
@@ -270,19 +278,19 @@ export default function PlanificarFiestaHubPage() {
             <Link href="/" passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver al Dashboard
+                Volver al Menú Principal
               </Button>
             </Link>
         </div>
       </div>
 
       {isLoading ? (
-         <div className="flex items-center justify-center py-10">
+         <div className="flex items-center justify-center py-10 print:hidden">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
             <p className="ml-3 text-muted-foreground text-lg">Cargando datos del planificador...</p>
           </div>
       ) : error || !fiestaActual ? (
-          <div className="flex flex-col items-center justify-center py-10 text-destructive bg-destructive/10 p-6 rounded-lg">
+          <div className="flex flex-col items-center justify-center py-10 text-destructive bg-destructive/10 p-6 rounded-lg print:hidden">
             <AlertTriangle className="w-10 h-10 mb-3" />
             <p className="font-semibold text-lg">Error al Cargar Datos</p>
             <p className="text-sm">{error || "No se pudo cargar la información de la fiesta."}</p>
@@ -291,20 +299,22 @@ export default function PlanificarFiestaHubPage() {
       ) : (
         <>
           {/* Main Event Info & Countdown */}
-          <Card className="shadow-xl bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20">
-            <CardHeader className="pb-4">
-                <CardTitle className="font-headline text-2xl md:text-3xl text-primary text-center">
+          <Card className="shadow-xl bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20 print:shadow-none print:border-2 print:border-primary/50">
+            <CardHeader className="pb-4 print:pb-2">
+                <CardTitle className="font-headline text-2xl md:text-3xl text-primary text-center print:text-xl">
                     {fiestaActual.configuracion.nombreEvento}
                 </CardTitle>
-                <CardDescription className="text-md text-muted-foreground text-center">
+                <CardDescription className="text-md text-muted-foreground text-center print:text-sm">
                     {fiestaActual.configuracion.tipoCelebracion} - {formatDate(fiestaActual.configuracion.fechaEvento)}
                 </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center space-y-4">
-                <CountdownTimer targetDate={fiestaActual.configuracion.fechaEvento} />
-                 <div className="text-center mt-3">
+            <CardContent className="flex flex-col items-center justify-center space-y-4 print:space-y-2">
+                <div className="print:hidden">
+                    <CountdownTimer targetDate={fiestaActual.configuracion.fechaEvento} />
+                </div>
+                 <div className="text-center mt-3 print:mt-1">
                      {fiestaActual.configuracion.nombreLugar && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground print:text-xs">
                             <MapPin className="inline-block w-4 h-4 mr-1.5 align-text-bottom" />
                             Lugar: {fiestaActual.configuracion.nombreLugar}
                         </p>
@@ -314,47 +324,47 @@ export default function PlanificarFiestaHubPage() {
           </Card>
 
           {/* Task & Financial Summary Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="md:col-span-1 hover:shadow-md transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Tareas Pendientes</CardTitle>
-                    <ClipboardCheck className="h-5 w-5 text-orange-500" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:grid-cols-2 print:gap-4 print:break-inside-avoid-page">
+            <Card className="md:col-span-1 hover:shadow-md transition-shadow print:shadow-none print:border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
+                    <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Tareas Pendientes</CardTitle>
+                    <ClipboardCheck className="h-5 w-5 text-orange-500 print:h-4 print:w-4" />
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{taskSummary?.pending ?? 'N/A'}</div>
+                <CardContent className="print:pt-1">
+                    <div className="text-2xl font-bold print:text-lg">{taskSummary?.pending ?? 'N/A'}</div>
                     <p className="text-xs text-muted-foreground">
                         De {taskSummary?.total ?? 'N/A'} tareas totales. {taskSummary?.progress.toFixed(0) ?? '0'}% completado.
                     </p>
                 </CardContent>
             </Card>
-            <Card className="hover:shadow-md transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Presupuesto Estimado</CardTitle>
-                    <DollarSign className="h-5 w-5 text-primary" />
+            <Card className="hover:shadow-md transition-shadow print:shadow-none print:border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
+                    <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Presupuesto Estimado</CardTitle>
+                    <DollarSign className="h-5 w-5 text-primary print:h-4 print:w-4" />
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{formatCurrency(presupuestoEstimado)}</div>
+                <CardContent className="print:pt-1">
+                    <div className="text-2xl font-bold print:text-lg">{formatCurrency(presupuestoEstimado)}</div>
                     <p className="text-xs text-muted-foreground">Costo total proyectado.</p>
                 </CardContent>
             </Card>
-             <Card className="hover:shadow-md transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Pagado</CardTitle>
-                    <PiggyBank className="h-5 w-5 text-green-500" />
+             <Card className="hover:shadow-md transition-shadow print:shadow-none print:border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
+                    <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Total Pagado</CardTitle>
+                    <PiggyBank className="h-5 w-5 text-green-500 print:h-4 print:w-4" />
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{formatCurrency(totalPagado)}</div>
+                <CardContent className="print:pt-1">
+                    <div className="text-2xl font-bold text-green-600 print:text-lg">{formatCurrency(totalPagado)}</div>
                     <p className="text-xs text-muted-foreground">Suma de pagos recibidos.</p>
                 </CardContent>
             </Card>
             {/* Saldo por Pagar - podría ser condicional si el presupuesto no está definido */}
-             <Card className="hover:shadow-md transition-shadow md:col-start-2">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Saldo por Pagar</CardTitle>
-                    <CreditCard className="h-5 w-5 text-red-500" />
+             <Card className="hover:shadow-md transition-shadow md:col-start-2 print:shadow-none print:border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
+                    <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Saldo por Pagar</CardTitle>
+                    <CreditCard className="h-5 w-5 text-red-500 print:h-4 print:w-4" />
                 </CardHeader>
-                <CardContent>
-                     <div className={`text-2xl font-bold ${saldoPorPagar > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                <CardContent className="print:pt-1">
+                     <div className={`text-2xl font-bold ${saldoPorPagar > 0 ? 'text-destructive' : 'text-green-600'} print:text-lg`}>
                         {formatCurrency(saldoPorPagar)}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -364,30 +374,30 @@ export default function PlanificarFiestaHubPage() {
             </Card>
           </div>
 
-          <Card className="shadow-lg">
-            <CardHeader>
+          <Card className="shadow-lg print:shadow-none print:border-none">
+            <CardHeader className="print:hidden">
                 <div className="flex items-center gap-3">
                     <ListChecks className="w-7 h-7 text-primary" />
                     <CardTitle className="font-headline text-xl">Gestionar Detalles del Evento</CardTitle>
                 </div>
                  <CardDescription>Accede a los diferentes módulos para planificar cada aspecto.</CardDescription>
             </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <CardContent className="print:p-0">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-1 print:gap-4">
                     {planningModules.map((module) => (
-                    <Card key={module.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300 bg-card">
-                        <CardHeader className="flex-row items-start gap-3 space-y-0 pb-3">
-                        <div className="p-2.5 bg-primary/10 rounded-md">
+                    <Card key={module.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300 bg-card print:shadow-none print:border print:rounded-md print:break-inside-avoid">
+                        <CardHeader className="flex-row items-start gap-3 space-y-0 pb-3 print:pb-2 print:items-center">
+                        <div className="p-2.5 bg-primary/10 rounded-md print:hidden">
                             <module.icon className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                            <CardTitle className="font-semibold text-md mb-0.5">{module.title}</CardTitle>
+                            <CardTitle className="font-semibold text-md mb-0.5 print:text-sm print:font-bold">{module.title}</CardTitle>
                         </div>
                         </CardHeader>
-                        <CardContent className="flex-grow pb-3">
-                            <p className="text-xs text-muted-foreground line-clamp-2">{module.description}</p>
+                        <CardContent className="flex-grow pb-3 print:pb-2 print:pt-0">
+                            <p className="text-xs text-muted-foreground line-clamp-2 print:line-clamp-none">{module.description}</p>
                         </CardContent>
-                        <CardFooter className="pt-0">
+                        <CardFooter className="pt-0 print:hidden">
                         {module.href ? (
                             <Link href={module.href} passHref className="w-full">
                             <Button
