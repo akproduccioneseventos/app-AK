@@ -12,8 +12,8 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
-import type { Customer, CustomerStatus, SalesFunnelStage } from '@/types/customer';
-import { ALL_CUSTOMER_STATES, ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
+import type { Customer, CustomerStatus } from '@/types/customer'; // SalesFunnelStage removido
+import { ALL_CUSTOMER_STATES } from '@/types/customer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,15 +31,14 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const { toast } = useToast();
   const [customer, setCustomer] = useState<Customer | null>(null);
   
-  // Form state
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [cedula, setCedula] = useState('');
   const [street, setStreet] = useState('');
-  const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead');
+  const [email, setEmail] = useState(''); // Añadido email
+  // const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead'); // Eliminado
   const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
-
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,18 +56,16 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           setName(loadedCustomer.name || '');
           setCompanyName(loadedCustomer.companyName || '');
           setPhone(loadedCustomer.phone || '');
+          setEmail(loadedCustomer.email || ''); // Cargar email
           setCedula(loadedCustomer.taxId || ''); 
           setStreet(loadedCustomer.address?.street || '');
-          setSalesFunnelStage(loadedCustomer.salesFunnelStage || 'Lead');
+          // setSalesFunnelStage(loadedCustomer.salesFunnelStage || 'Lead'); // Eliminado
           setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
         } else {
           setNotFound(true);
-          toast({ title: 'Error', description: `No se encontró el cliente con ID ${params.id}.`, variant: 'destructive' });
         }
       } catch (error) {
-        console.error("Error al cargar el cliente:", error);
         setNotFound(true);
-        toast({ title: 'Error al Cargar Cliente', description: 'No se pudo obtener el cliente.', variant: 'destructive' });
       } finally {
         setIsLoading(false);
       }
@@ -76,13 +73,13 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     if (params.id) {
       loadCustomer();
     }
-  }, [params.id, toast]);
+  }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!customer) return;
     if (!name.trim() && !companyName.trim()) {
-      toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del cliente o de la empresa.", variant: "destructive" });
+      toast({ title: "Nombre Requerido", variant: "destructive" });
       return;
     }
 
@@ -93,22 +90,22 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
       companyName: companyName.trim() || undefined,
       phone: phone.trim() || undefined,
       taxId: cedula.trim() || undefined, 
+      email: email.trim() || undefined,
       address: {
-        ...(customer.address || {}), // Preserve other address fields if they exist
+        ...(customer.address || {}),
         street: street.trim() || undefined,
       },
-      email: customer.email, 
-      salesFunnelStage: salesFunnelStage,
+      // salesFunnelStage: salesFunnelStage, // Eliminado
       estadoCliente: estadoClienteForm,
     };
 
     try {
       const result = await saveCustomer(customerData);
       if (result.success && result.customer) {
-        toast({ title: "¡Cliente Actualizado!", description: `El cliente "${result.customer.name}" ha sido actualizado.` });
+        toast({ title: "¡Cliente Actualizado!"});
         setCustomer(result.customer); 
       } else {
-        throw new Error(result.error || "Error desconocido al actualizar el cliente.");
+        throw new Error(result.error || "Error desconocido al actualizar.");
       }
     } catch (error: any) {
       toast({ title: "Error al Actualizar", description: error.message, variant: "destructive" });
@@ -123,10 +120,10 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     try {
       const result = await deleteCustomerAction(customer.id);
       if (result.success) {
-        toast({ title: '¡Cliente Eliminado!', description: `El cliente "${customer.name}" ha sido eliminado.` });
+        toast({ title: '¡Cliente Eliminado!' });
         router.push('/customers');
       } else {
-        throw new Error(result.error || 'Error desconocido al eliminar el cliente.');
+        throw new Error(result.error || 'Error desconocido al eliminar.');
       }
     } catch (error: any) {
       toast({ title: 'Error al Eliminar', description: error.message, variant: 'destructive' });
@@ -135,32 +132,9 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-16 h-16 animate-spin text-primary" />
-        <p className="ml-4 text-xl">Cargando datos del cliente...</p>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Cliente no encontrado. <Link href="/customers" className="underline">Volver a clientes</Link>.</div>;
 
-  if (notFound) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen text-center">
-        <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Cliente no Encontrado</h1>
-        <p className="text-muted-foreground mb-6">
-          El cliente con ID <span className="font-mono bg-muted px-1 rounded">{params.id}</span> no pudo ser encontrado.
-        </p>
-        <Link href="/customers" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Clientes
-          </Button>
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -172,10 +146,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           </h1>
         </div>
         <Link href="/customers" passHref>
-          <Button variant="outline" disabled={isSaving || isDeleting}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
+          <Button variant="outline" disabled={isSaving || isDeleting}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>
       
@@ -186,57 +157,28 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="customer-name">Nombre Completo</Label>
-                <Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" disabled={isSaving || isDeleting}/>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="company-name">Nombre de la Empresa (Opcional)</Label>
-                <Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ej: Soluciones Creativas S.L." disabled={isSaving || isDeleting}/>
-              </div>
+              <div><Label htmlFor="customer-name">Nombre Completo</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving || isDeleting}/></div>
+              <div><Label htmlFor="company-name">Empresa (Opcional)</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={isSaving || isDeleting}/></div>
             </div>
-
+             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div><Label htmlFor="customer-email">Email</Label><Input id="customer-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSaving || isDeleting}/></div>
+                <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/></div>
+            </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="customer-phone">Teléfono</Label>
-                <Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+598 99 000 000" disabled={isSaving || isDeleting}/>
+              <div><Label htmlFor="customer-cedula">Cédula / RUT</Label><Input id="customer-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} disabled={isSaving || isDeleting}/></div>
+              <div>
+                <Label htmlFor="customer-status">Estado del Cliente</Label>
+                <Select value={estadoClienteForm} onValueChange={(value) => setEstadoClienteForm(value as CustomerStatus)} disabled={isSaving || isDeleting}>
+                <SelectTrigger id="customer-status"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                    {ALL_CUSTOMER_STATES.map(estado => (
+                    <SelectItem key={estado} value={estado}>{estado}</SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="customer-cedula">Cédula</Label>
-                <Input id="customer-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="Ej: 1.234.567-8" disabled={isSaving || isDeleting}/>
-              </div>
             </div>
-            
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="sales-funnel-stage">Etapa del Embudo</Label>
-                    <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as SalesFunnelStage)} disabled={isSaving || isDeleting}>
-                    <SelectTrigger id="sales-funnel-stage"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                        {ALL_SALES_FUNNEL_STAGES.map(stage => (
-                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="customer-status">Estado del Cliente</Label>
-                    <Select value={estadoClienteForm} onValueChange={(value) => setEstadoClienteForm(value as CustomerStatus)} disabled={isSaving || isDeleting}>
-                    <SelectTrigger id="customer-status"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                        {ALL_CUSTOMER_STATES.map(estado => (
-                        <SelectItem key={estado} value={estado}>{estado}</SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="street">Calle y Número</Label>
-              <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Ej: Av. 18 de Julio 1234" disabled={isSaving || isDeleting}/>
-            </div>
-           
+            <div><Label htmlFor="street">Calle y Número</Label><Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} disabled={isSaving || isDeleting}/></div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isDeleting}>
