@@ -53,7 +53,7 @@ async function writeProspectsFile(data: Prospecto[]): Promise<void> {
   }
 }
 
-// Devuelve prospectos para las etapas activas del embudo (excluyendo finales)
+// Devuelve prospectos para las etapas activas del embudo (excluyendo 'Firmo Contrato' y 'No Contrato')
 export async function getProspects(): Promise<Prospecto[]> {
   const prospects = await readProspectsFile();
   return prospects
@@ -116,6 +116,9 @@ export async function saveProspect(
 
         const customerResult = await saveCustomer(customerDataFromProspect);
         if (customerResult.success && customerResult.id) {
+          // El prospecto que firmó contrato ya no debería estar en la lista activa.
+          // No lo eliminamos completamente de prospects.json para mantener un historial si se desea,
+          // pero getProspects() los filtrará.
           prospects[index].salesFunnelStage = 'Firmo Contrato'; 
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], customerId: customerResult.id };

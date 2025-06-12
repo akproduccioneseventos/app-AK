@@ -1,12 +1,12 @@
 
 export type ProspectSalesFunnelStage =
-  | 'Prospecto'          // Etapa inicial (reemplaza a 'Lead')
+  | 'Prospecto'          // Etapa inicial
   | 'Contacto Iniciado'  // Se ha intentado contactar
-  | 'Contactado'         // Contacto realizado (reemplaza a 'Contactado y Calificando')
+  | 'Contactado'         // Contacto realizado
   | 'Reunión Programada' // Reunión agendada
   | 'Presupuesto Presentado' // Se envió presupuesto
-  | 'Firmo Contrato'     // Etapa final: GANADO (reemplaza a 'Contratado' y 'Contrato Firmado')
-  | 'No Contrato';       // Etapa final: PERDIDO (reemplaza a 'Descartado')
+  | 'Firmo Contrato'     // Etapa final: GANADO (se convierte en cliente)
+  | 'No Contrato';       // Etapa final: PERDIDO
 
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
   'Prospecto',

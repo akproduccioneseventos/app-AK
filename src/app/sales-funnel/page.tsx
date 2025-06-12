@@ -21,6 +21,7 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
     case 'Contactado': return "default";
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
+    // 'Firmo Contrato' y 'No Contrato' no se muestran como columnas activas
     default: return "secondary";
   }
 };
@@ -42,6 +43,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
+      // getProspects ya filtra para excluir 'Firmo Contrato' y 'No Contrato'
       const data = await getProspects(); 
       setProspects(data);
     } catch (err: any) {
@@ -57,9 +59,12 @@ export default function SalesFunnelPage() {
     loadProspects();
   }, [loadProspects]);
 
-  const activeFunnelStages: ProspectSalesFunnelStage[] = ALL_PROSPECT_STAGES.filter(
-    s => s !== 'Firmo Contrato' && s !== 'No Contrato'
-  ) as ProspectSalesFunnelStage[];
+  // Define las etapas que se mostrarán como columnas en el embudo
+  const activeFunnelStages: ProspectSalesFunnelStage[] = useMemo(() => 
+    ALL_PROSPECT_STAGES.filter(
+      s => s !== 'Firmo Contrato' && s !== 'No Contrato'
+    ) as ProspectSalesFunnelStage[],
+  []);
 
 
   const prospectsByStage = useMemo(() => {
@@ -67,6 +72,7 @@ export default function SalesFunnelPage() {
     activeFunnelStages.forEach(stage => grouped.set(stage, []));
 
     prospects.forEach(prospect => {
+      // Solo agrupar si la etapa del prospecto es una de las activas
       if (activeFunnelStages.includes(prospect.salesFunnelStage)) {
         const stageGroup = grouped.get(prospect.salesFunnelStage);
         if (stageGroup) {
@@ -74,6 +80,7 @@ export default function SalesFunnelPage() {
         }
       }
     });
+    // Ordenar dentro de cada etapa por fecha de actualización
     grouped.forEach((stageProspectsArray) => {
         stageProspectsArray.sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     });

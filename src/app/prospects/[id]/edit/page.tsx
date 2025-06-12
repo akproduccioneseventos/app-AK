@@ -32,6 +32,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const { toast } = useToast();
   const [prospect, setProspect] = useState<Prospecto | null>(null);
 
+  // Form fields
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Prospecto');
@@ -39,6 +40,15 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [salonDeseado, setSalonDeseado] = useState('');
   const [cantidadInvitados, setCantidadInvitados] = useState<number | ''>('');
   const [nextMeetingDate, setNextMeetingDate] = useState<Date | undefined>(undefined);
+  // Hidden fields from UI but preserved from loaded prospect
+  const [companyName, setCompanyName] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [taxId, setTaxId] = useState<string | undefined>(undefined);
+  const [address, setAddress] = useState<Prospecto['address']>(undefined);
+  const [source, setSource] = useState<string | undefined>(undefined);
+  const [estimatedValue, setEstimatedValue] = useState<number | undefined>(undefined);
+  const [notes, setNotes] = useState<string | undefined>(undefined);
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,6 +63,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         const loadedProspecto = await getProspectById(params.id);
         if (loadedProspecto) {
           setProspect(loadedProspecto);
+          // Populate form fields
           setName(loadedProspecto.name || '');
           setPhone(loadedProspecto.phone || '');
           setSalesFunnelStage(loadedProspecto.salesFunnelStage || 'Prospecto');
@@ -60,6 +71,16 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
           setSalonDeseado(loadedProspecto.salonDeseado || '');
           setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
           setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
+          
+          // Preserve other fields not directly editable in this simplified form
+          setCompanyName(loadedProspecto.companyName);
+          setEmail(loadedProspecto.email);
+          setTaxId(loadedProspecto.taxId);
+          setAddress(loadedProspecto.address);
+          setSource(loadedProspecto.source);
+          setEstimatedValue(loadedProspecto.estimatedValue);
+          setNotes(loadedProspecto.notes);
+
         } else {
           setNotFound(true);
         }
@@ -84,8 +105,10 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
     }
 
     setIsSaving(true);
+    // Construct prospectDataToSave including all fields from the loaded prospect,
+    // and overriding with form values.
     const prospectDataToSave: Prospecto = {
-      ...prospect,
+      ...prospect, // Start with all existing data
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
@@ -93,6 +116,14 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       salonDeseado: salonDeseado.trim() || undefined,
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
       nextMeetingDate: salesFunnelStage === 'Reunión Programada' && nextMeetingDate ? nextMeetingDate.toISOString() : undefined,
+      // Ensure other preserved fields are included if they were on `prospect`
+      companyName: prospect.companyName,
+      email: prospect.email,
+      taxId: prospect.taxId,
+      address: prospect.address,
+      source: prospect.source,
+      estimatedValue: prospect.estimatedValue,
+      notes: prospect.notes, // Ensure notes are also preserved or updated if a field was added
     };
 
     try {
@@ -106,7 +137,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero hubo un problema al crear el cliente.`, variant: "default" });
         }
-        // Si se movió a "Firmo Contrato" o "No Contrato", redirigir al embudo.
+        
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' || result.prospect.salesFunnelStage === 'No Contrato') {
             router.push('/sales-funnel');
             return;
