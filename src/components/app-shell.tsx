@@ -2,19 +2,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarInset,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
-import { AppLogo } from './app-logo';
-import { MainNav } from './main-nav';
+import { AppLogo } from './app-logo'; // AppLogo might not be used if sidebar is gone, but keep for now
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users } from 'lucide-react'; // Added Users
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -26,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 // Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
@@ -51,8 +42,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
 
   // Empresa
-  if (pathname === '/empresa') return 'Gestión de la Empresa'; // New main hub
-  if (pathname === '/empresa/contabilidad') return 'Gestión Contable'; // New accounting hub
+  if (pathname === '/empresa') return 'Gestión de la Empresa';
+  if (pathname === '/empresa/contabilidad') return 'Gestión Contable';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
   if (pathname === '/empresa/todos-los-servicios') return 'Catálogo de Servicios';
@@ -103,7 +94,7 @@ const getPageTitle = (pathname: string): string => {
 
 
   // Rutas Actualizadas
-  if (pathname === '/eventos') return 'Todas las Fiestas'; 
+  if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
 
@@ -114,7 +105,7 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) { 
+        if (!isNaN(Number(title))) {
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
@@ -146,23 +137,23 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/evento/actual') return Globe;
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
-  
+
   if (pathname === '/empresa') return Building2;
   if (pathname === '/empresa/contabilidad') return CircleDollarSign;
   if (pathname === '/empresa/todos-los-servicios') return Sparkles;
   if (pathname === '/empresa/todos-los-servicios/nuevo') return PlusCircleIcon;
 
-  if (pathname === '/proveedores') return Briefcase; 
+  if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/proveedores/new') return UserPlusIcon;
   if (pathname === '/empleados') return ContactRound;
   if (pathname === '/customers') return Users;
 
 
-  if (pathname === '/eventos') return CalendarClock; 
+  if (pathname === '/eventos') return CalendarClock;
   if (pathname === '/compras') return ShoppingCart;
   if (pathname === '/calendario') return CalendarDaysIcon;
   if (pathname === '/notas') return StickyNote;
-  
+
   if (pathname === '/login') return LogInIcon;
   if (pathname === '/signup') return UserPlusIcon;
 
@@ -179,76 +170,63 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
-  
+
   const isAuthPage = pathname === '/login' || pathname === '/signup';
   const isPublicEventPage = pathname.startsWith('/evento/actual');
-
 
   if (isAuthPage || isPublicEventPage) {
     return <main className="min-h-screen">{children}</main>;
   }
 
   return (
-    <SidebarProvider defaultOpen={true} >
-      <Sidebar collapsible="icon" variant="sidebar" side="left" className="border-r border-sidebar-border">
-        <SidebarHeader className="p-4">
-          <AppLogo />
-        </SidebarHeader>
-        <SidebarContent className="p-2">
-          <MainNav />
-        </SidebarContent>
-        <SidebarFooter className="p-2 border-t border-sidebar-border/50">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start text-left p-2 hover:bg-sidebar-accent focus:bg-sidebar-accent">
-                <Avatar className="w-8 h-8 mr-2">
-                  <AvatarImage src="https://placehold.co/40x40.png" alt="Avatar de Usuario" data-ai-hint="user avatar" />
-                  <AvatarFallback className="bg-sidebar-accent-foreground text-sidebar-background">U</AvatarFallback>
-                </Avatar>
-                <div className="group-data-[collapsible=icon]:hidden text-sidebar-foreground">
-                  <p className="text-sm font-medium">Usuario</p>
-                  <p className="text-xs text-sidebar-foreground/80">usuario@akproducciones.com</p>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-              <DropdownMenuSeparator />
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
+        <div className="flex items-center gap-2">
+          {/* Link to home/dashboard - previously AppLogo was here */}
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
+             <AppLogo />
+          </Link>
+          <span className="mx-2 text-muted-foreground">|</span>
+          {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
+          <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-9 w-9">
+                <AvatarImage src="https://placehold.co/40x40.png" alt="Avatar de Usuario" data-ai-hint="user avatar" />
+                <AvatarFallback className="bg-primary text-primary-foreground">U</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem disabled>
+              <UserCircle className="mr-2 h-4 w-4" />
+              <span>Perfil</span>
+            </DropdownMenuItem>
+            <Link href="/settings" passHref>
               <DropdownMenuItem>
-                <UserCircle className="w-4 h-4 mr-2" />
-                Perfil
+                <SettingsIcon className="mr-2 h-4 w-4" />
+                <span>Configuración</span>
               </DropdownMenuItem>
-              <Link href="/settings" passHref>
-                <DropdownMenuItem>
-                  <SettingsIcon className="w-4 h-4 mr-2" />
-                  Configuración
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuSeparator />
-              <Link href="/login" passHref>
-                <DropdownMenuItem>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Cerrar Sesión
-                </DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <header className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 border-b">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="lg:hidden" />
-             {PageIcon && <PageIcon className="w-6 h-6 md:w-7 md:h-7 text-primary hidden sm:block" />}
-            <h1 className="text-2xl md:text-3xl font-bold font-headline text-foreground">
-              {pageTitle}
-            </h1>
-          </div>
-        </header>
-        <main className="flex-1 p-4 overflow-auto md:p-6 lg:p-8 bg-background">
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+            </Link>
+            <DropdownMenuSeparator />
+            <Link href="/login" passHref>
+              <DropdownMenuItem>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Cerrar Sesión</span>
+              </DropdownMenuItem>
+            </Link>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
+      <main className="flex-1 p-4 md:p-6 lg:p-8 bg-background">
+        {children}
+      </main>
+    </div>
   );
 }
+
+    
