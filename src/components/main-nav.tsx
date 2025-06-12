@@ -42,13 +42,14 @@ const navItems = [
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
+      { href: '/empresa/todos-los-servicios', label: 'Todos los Servicios', icon: Sparkles },
     ]
   },
   {
     isGroup: true,
     label: 'Contabilidad',
     icon: CircleDollarSign,
-    basePath: '/contabilidad', // basePath can cover customers & sales-funnel if they are under it logically
+    basePath: '/contabilidad', 
     subItems: [
       { href: '/presupuestos', label: 'Presupuestos', icon: ListChecks },
       { href: '/invoices', label: 'Facturas', icon: FileText },
@@ -58,7 +59,6 @@ const navItems = [
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
-  { href: '/galeria', label: 'Galería', icon: ImageIcon },
   
 ];
 
@@ -67,10 +67,6 @@ export function MainNav() {
 
   const isActiveParent = (itemHref: string, subItemPaths?: string[]) => {
     if (itemHref === '/' && pathname === '/') return true;
-    // Check if the current path starts with the item's href or exactly matches it.
-    // Also, ensure that if itemHref is not '/', it's not a partial match of a longer path segment.
-    // For example, if itemHref is '/customer' and pathname is '/customers', it shouldn't match.
-    // It should match if pathname is '/customer' or '/customer/details'.
     const isBasePathMatch = itemHref !== '/' && (pathname === itemHref || pathname.startsWith(itemHref + '/'));
     if (isBasePathMatch) return true;
     
@@ -84,18 +80,8 @@ export function MainNav() {
         {navItems.map((item, index) => {
           if (item.isGroup && item.subItems) {
             const groupSubPaths = item.subItems.map(sub => sub.href);
-            // For a group, it's active if its own basePath matches or any of its subItems are active.
-            // The basePath itself might not be a direct navigable link but a logical grouping.
-            // We use a broader check for group activation.
             let isGroupActive = groupSubPaths.some(subPath => pathname === subPath || pathname.startsWith(subPath + '/'));
-            if (item.basePath && (pathname === item.basePath || pathname.startsWith(item.basePath + '/')) && !isGroupActive) {
-                 // This condition handles cases where the group's basePath itself is a route, 
-                 // or if we want the group active even if no sub-item is explicitly matched but path is under basePath.
-                 // However, typically for groups, activity is determined by sub-items.
-                 // For this specific rearrangement, we rely on subItemPaths for activity.
-            }
-
-
+            
             return (
               <SidebarMenuItem key={`group-${item.label}-${index}`}>
                 <SidebarMenuButton 
@@ -127,7 +113,6 @@ export function MainNav() {
               </SidebarMenuItem>
             );
           }
-          // For direct navigation items
           return (
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} legacyBehavior={false} asChild>
@@ -151,4 +136,3 @@ export function MainNav() {
       </SidebarMenu>
   );
 }
-

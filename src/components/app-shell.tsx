@@ -53,6 +53,7 @@ const getPageTitle = (pathname: string): string => {
 
   // Empresa
   if (pathname === '/proveedores') return 'Proveedores';
+  if (pathname === '/empresa/todos-los-servicios') return 'Todos los Servicios';
   if (pathname === '/compras') return 'Compras y Checklist';
 
   // Empleados
@@ -99,7 +100,7 @@ const getPageTitle = (pathname: string): string => {
 
 
   // Rutas Actualizadas
-  if (pathname === '/eventos') return 'Todas las Fiestas'; // Actualizado
+  if (pathname === '/eventos') return 'Todas las Fiestas'; 
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
 
@@ -143,10 +144,11 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/evento/actual') return Globe;
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
+  if (pathname === '/empresa/todos-los-servicios') return Sparkles;
 
   if (pathname === '/proveedores') return Briefcase; 
 
-  if (pathname === '/eventos') return CalendarClock; // Icono para "Todas las Fiestas"
+  if (pathname === '/eventos') return CalendarClock; 
   if (pathname === '/compras') return ShoppingCart;
   if (pathname === '/calendario') return CalendarDaysIcon;
   if (pathname === '/notas') return StickyNote;
