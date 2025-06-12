@@ -1,12 +1,12 @@
 
 export type ProspectSalesFunnelStage =
-  | 'Prospecto'          // Renombrado desde Lead
+  | 'Prospecto'
   | 'Contacto Iniciado'
-  | 'Contactado'         // Renombrado desde Contactado y Calificando
+  | 'Contactado'
   | 'Reunión Programada'
   | 'Presupuesto Presentado'
-  | 'Firmo Contrato'     // Nueva etapa final (reemplaza Contratado/Contrato Firmado)
-  | 'No Contrato';       // Nueva etapa final (reemplaza Descartado)
+  | 'Firmo Contrato' // Etapa final
+  | 'No Contrato';   // Etapa final
 
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
   'Prospecto',

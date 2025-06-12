@@ -30,7 +30,7 @@ async function readProspectsFile(): Promise<Prospecto[]> {
         tipoFiesta: p.tipoFiesta || undefined,
         salonDeseado: p.salonDeseado || undefined,
         cantidadInvitados: p.cantidadInvitados === null || p.cantidadInvitados === undefined ? undefined : Number(p.cantidadInvitados),
-        salesFunnelStage: p.salesFunnelStage || 'Prospecto', // Default a 'Prospecto' si no existe
+        salesFunnelStage: p.salesFunnelStage || 'Prospecto', 
         nextMeetingDate: p.nextMeetingDate || undefined,
     }));
   } catch (error: any) {
@@ -115,11 +115,10 @@ export async function saveProspect(
 
         const customerResult = await saveCustomer(customerDataFromProspect);
         if (customerResult.success && customerResult.id) {
-          prospects[index].salesFunnelStage = 'Firmo Contrato'; // Aseguramos que quede en este estado
+          prospects[index].salesFunnelStage = 'Firmo Contrato'; 
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], customerId: customerResult.id };
         } else {
-          // Aún así guardamos el prospecto como 'Firmo Contrato'
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], error: `Prospecto actualizado a 'Firmo Contrato' pero hubo un problema al crear/actualizar el cliente: ${customerResult.error}` };
         }
@@ -135,7 +134,7 @@ export async function saveProspect(
     const newProspect: Prospecto = {
       ...(prospectData as NewProspectoData),
       id: `prospect_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      salesFunnelStage: prospectData.salesFunnelStage || 'Prospecto', // Default stage a 'Prospecto'
+      salesFunnelStage: prospectData.salesFunnelStage || 'Prospecto', 
       createdAt: now,
       updatedAt: now,
       cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
@@ -180,7 +179,7 @@ async function initializeProspectData() {
                 p.cantidadInvitados = undefined;
                 prospectModified = true;
             }
-            if (!p.salesFunnelStage) {
+            if (!p.salesFunnelStage || !ALL_PROSPECT_STAGES.includes(p.salesFunnelStage)) { // Check if stage is valid
                 p.salesFunnelStage = 'Prospecto'; // Default a 'Prospecto'
                 prospectModified = true;
             }

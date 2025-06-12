@@ -18,12 +18,12 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
   switch (stage) {
     case 'Prospecto': return "secondary";
     case 'Contacto Iniciado': return "outline";
-    case 'Contactado': return "default";
+    case 'Contactado': return "default"; // Mantener color para una etapa activa intermedia
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
-    // Las etapas finales no se usan para badges de columna activa
-    case 'Firmo Contrato': return "secondary";
-    case 'No Contrato': return "destructive";
+    // Las etapas finales no se usan para badges de columna activa, pero si se necesitaran:
+    // case 'Firmo Contrato': return "secondary"; 
+    // case 'No Contrato': return "destructive";
     default: return "secondary";
   }
 };
@@ -45,7 +45,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getProspects(); // Esta función ya filtra para etapas activas
+      const data = await getProspects(); 
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -60,7 +60,6 @@ export default function SalesFunnelPage() {
     loadProspects();
   }, [loadProspects]);
 
-  // Etapas a mostrar como columnas en el embudo
   const activeFunnelStages: ProspectSalesFunnelStage[] = ALL_PROSPECT_STAGES.filter(
     s => s !== 'Firmo Contrato' && s !== 'No Contrato'
   ) as ProspectSalesFunnelStage[];
@@ -71,9 +70,12 @@ export default function SalesFunnelPage() {
     activeFunnelStages.forEach(stage => grouped.set(stage, []));
 
     prospects.forEach(prospect => {
-      const stageGroup = grouped.get(prospect.salesFunnelStage);
-      if (stageGroup) {
-        stageGroup.push(prospect);
+      // Asegurarse que el prospecto tiene una etapa válida que esté en activeFunnelStages
+      if (activeFunnelStages.includes(prospect.salesFunnelStage)) {
+        const stageGroup = grouped.get(prospect.salesFunnelStage);
+        if (stageGroup) {
+          stageGroup.push(prospect);
+        }
       }
     });
     grouped.forEach((stageProspectsArray) => {
@@ -147,7 +149,7 @@ export default function SalesFunnelPage() {
               <Card key={stage} className={`w-72 sm:w-80 md:w-[350px] flex-shrink-0 flex flex-col h-full shadow-lg border-t-4 ${borderColorClass} print:w-full print:shadow-none print:border-t-2 print:mb-4 print:break-inside-avoid-page`}>
                 <CardHeader className="pb-3 sticky top-0 bg-card/95 backdrop-blur-sm z-10 border-b print:static print:bg-transparent print:border-b-2 print:pb-2">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="font-headline text-lg" style={{ color: `hsl(var(--${stageColorVariant === 'default' ? 'primary' : stageColorVariant}))` }}>
+                    <CardTitle className="font-headline text-lg" style={{ color: `hsl(var(--${stageColorVariant === 'default' ? 'primary' : stageColorVariant === 'outline' ? 'primary' : stageColorVariant}))` }}>
                       {stage}
                     </CardTitle>
                     <Badge variant={stageColorVariant} className="text-sm px-2.5 py-1">{stageProspects.length}</Badge>
