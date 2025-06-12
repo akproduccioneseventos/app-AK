@@ -40,7 +40,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [salonDeseado, setSalonDeseado] = useState('');
   const [cantidadInvitados, setCantidadInvitados] = useState<number | ''>('');
   const [nextMeetingDate, setNextMeetingDate] = useState<Date | undefined>(undefined);
-  // Hidden fields from UI but preserved from loaded prospect
+  
+  // Fields to preserve but not edit in this simplified form
   const [companyName, setCompanyName] = useState<string | undefined>(undefined);
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [taxId, setTaxId] = useState<string | undefined>(undefined);
@@ -49,52 +50,51 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [estimatedValue, setEstimatedValue] = useState<number | undefined>(undefined);
   const [notes, setNotes] = useState<string | undefined>(undefined);
 
-
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    async function loadProspecto() {
-      setIsLoading(true);
-      setNotFound(false);
-      try {
-        const loadedProspecto = await getProspectById(params.id);
-        if (loadedProspecto) {
-          setProspect(loadedProspecto);
-          // Populate form fields
-          setName(loadedProspecto.name || '');
-          setPhone(loadedProspecto.phone || '');
-          setSalesFunnelStage(loadedProspecto.salesFunnelStage || 'Prospecto');
-          setTipoFiesta(loadedProspecto.tipoFiesta || '');
-          setSalonDeseado(loadedProspecto.salonDeseado || '');
-          setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
-          setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
-          
-          // Preserve other fields not directly editable in this simplified form
-          setCompanyName(loadedProspecto.companyName);
-          setEmail(loadedProspecto.email);
-          setTaxId(loadedProspecto.taxId);
-          setAddress(loadedProspecto.address);
-          setSource(loadedProspecto.source);
-          setEstimatedValue(loadedProspecto.estimatedValue);
-          setNotes(loadedProspecto.notes);
+  const loadProspectData = useCallback(async () => {
+    setIsLoading(true);
+    setNotFound(false);
+    try {
+      const loadedProspecto = await getProspectById(params.id);
+      if (loadedProspecto) {
+        setProspect(loadedProspecto);
+        setName(loadedProspecto.name || '');
+        setPhone(loadedProspecto.phone || '');
+        setSalesFunnelStage(loadedProspecto.salesFunnelStage || 'Prospecto');
+        setTipoFiesta(loadedProspecto.tipoFiesta || '');
+        setSalonDeseado(loadedProspecto.salonDeseado || '');
+        setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
+        setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
+        
+        // Preserve other fields
+        setCompanyName(loadedProspecto.companyName);
+        setEmail(loadedProspecto.email);
+        setTaxId(loadedProspecto.taxId);
+        setAddress(loadedProspecto.address);
+        setSource(loadedProspecto.source);
+        setEstimatedValue(loadedProspecto.estimatedValue);
+        setNotes(loadedProspecto.notes);
 
-        } else {
-          setNotFound(true);
-        }
-      } catch (error) {
-        console.error("Error al cargar el prospecto:", error);
+      } else {
         setNotFound(true);
-      } finally {
-        setIsLoading(false);
+        toast({ title: "Error", description: `Prospecto con ID ${params.id} no encontrado.`, variant: "destructive" });
       }
+    } catch (error) {
+      console.error("Error al cargar el prospecto:", error);
+      setNotFound(true);
+      toast({ title: "Error de Carga", description: "No se pudo obtener la información del prospecto.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
     }
-    if (params.id) {
-      loadProspecto();
-    }
-  }, [params.id]);
+  }, [params.id, toast]);
+
+  useEffect(() => {
+    loadProspectData();
+  }, [loadProspectData]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,10 +105,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
     }
 
     setIsSaving(true);
-    // Construct prospectDataToSave including all fields from the loaded prospect,
-    // and overriding with form values.
     const prospectDataToSave: Prospecto = {
-      ...prospect, // Start with all existing data
+      ...prospect, // Start with all existing data from loaded prospect
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
@@ -116,33 +114,30 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       salonDeseado: salonDeseado.trim() || undefined,
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
       nextMeetingDate: salesFunnelStage === 'Reunión Programada' && nextMeetingDate ? nextMeetingDate.toISOString() : undefined,
-      // Ensure other preserved fields are included if they were on `prospect`
-      companyName: prospect.companyName,
-      email: prospect.email,
-      taxId: prospect.taxId,
-      address: prospect.address,
-      source: prospect.source,
-      estimatedValue: prospect.estimatedValue,
-      notes: prospect.notes, // Ensure notes are also preserved or updated if a field was added
+      // Explicitly include preserved fields to ensure they are part of the save payload
+      companyName, email, taxId, address, source, estimatedValue, notes,
     };
 
     try {
       const result = await saveProspect(prospectDataToSave);
       if (result.success && result.prospect) {
         toast({ title: "¡Prospecto Actualizado!", description: `El prospecto "${result.prospect.name}" ha sido actualizado.` });
+        
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' && result.customerId) {
-           toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`, variant: "default" });
-           router.push(`/customers`); 
+           toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
+           router.push(`/customers`); // Or perhaps the customer's detail page
            return; 
         } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
-           toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero hubo un problema al crear el cliente.`, variant: "default" });
+           toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero hubo un problema al crear el cliente.` });
         }
         
+        // If stage is now a "closed" one, redirect to funnel list. Otherwise, update local state.
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' || result.prospect.salesFunnelStage === 'No Contrato') {
             router.push('/sales-funnel');
-            return;
+        } else {
+            setProspect(result.prospect); // Update local state to reflect changes
+            loadProspectData(); // Re-fetch to ensure consistency, especially for nextMeetingDate wipe
         }
-        setProspect(result.prospect); 
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el prospecto.");
       }
@@ -195,28 +190,22 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Nombre Completo *</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isSaving || isDeleting}/>
-              </div>
-              <div>
-                <Label htmlFor="phone">Teléfono</Label>
-                <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/>
-              </div>
+            <div>
+              <Label htmlFor="name">Nombre Completo *</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isSaving || isDeleting}/>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="tipoFiesta">Tipo de Fiesta (Opcional)</Label>
-                <Input id="tipoFiesta" value={tipoFiesta} onChange={(e) => setTipoFiesta(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" disabled={isSaving || isDeleting}/>
-              </div>
-              <div>
-                <Label htmlFor="salonDeseado">Salón Deseado (Opcional)</Label>
-                <Input id="salonDeseado" value={salonDeseado} onChange={(e) => setSalonDeseado(e.target.value)} placeholder="Ej: Salón Paraíso" disabled={isSaving || isDeleting}/>
-              </div>
+            <div>
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/>
             </div>
-
+            <div>
+              <Label htmlFor="tipoFiesta">Tipo de Fiesta (Opcional)</Label>
+              <Input id="tipoFiesta" value={tipoFiesta} onChange={(e) => setTipoFiesta(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" disabled={isSaving || isDeleting}/>
+            </div>
+            <div>
+              <Label htmlFor="salonDeseado">Salón Deseado (Opcional)</Label>
+              <Input id="salonDeseado" value={salonDeseado} onChange={(e) => setSalonDeseado(e.target.value)} placeholder="Ej: Salón Paraíso" disabled={isSaving || isDeleting}/>
+            </div>
             <div>
               <Label htmlFor="cantidadInvitados">Cantidad de Invitados (Opcional)</Label>
               <Input
@@ -229,7 +218,6 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
                 disabled={isSaving || isDeleting}
               />
             </div>
-
             <div>
               <Label htmlFor="salesFunnelStage">Etapa del Embudo</Label>
               <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as ProspectSalesFunnelStage)} disabled={isSaving || isDeleting}>
@@ -241,14 +229,12 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
                 </SelectContent>
               </Select>
             </div>
-
             {salesFunnelStage === 'Reunión Programada' && (
               <div>
                 <Label htmlFor="nextMeetingDate">Fecha Próxima Reunión</Label>
                 <DatePickerDemo selectedDate={nextMeetingDate} onDateChange={setNextMeetingDate} />
               </div>
             )}
-
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isDeleting}>
@@ -262,7 +248,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
                   type="button" 
                   className="w-full sm:w-auto" 
                   disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Firmo Contrato'}
-                  title={prospect?.salesFunnelStage === 'Firmo Contrato' ? "Un prospecto que ya firmó contrato es ahora un cliente y no puede ser eliminado desde aquí." : "Eliminar Prospecto"}
+                  title={prospect?.salesFunnelStage === 'Firmo Contrato' ? "No se puede eliminar un prospecto que ya firmó contrato. Gestionar desde Clientes." : "Eliminar Prospecto"}
                 >
                   {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
                   {isDeleting ? 'Eliminando...' : 'Eliminar Prospecto'}

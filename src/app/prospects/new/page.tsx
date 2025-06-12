@@ -33,17 +33,17 @@ export default function NewProspectoPage() {
     }
 
     setIsSaving(true);
-    const prospectData: Pick<NewProspectoData, 'name' | 'phone'> & Partial<Omit<NewProspectoData, 'name' | 'phone'>> = {
+    const prospectData: NewProspectoData = {
       name: name.trim(),
       phone: phone.trim() || undefined,
       tipoFiesta: tipoFiesta.trim() || undefined,
       salonDeseado: salonDeseado.trim() || undefined,
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
-      // salesFunnelStage se establecerá por defecto a 'Lead' en la acción saveProspect si no se provee
+      // salesFunnelStage will be set to 'Prospecto' by default in the server action
     };
 
     try {
-      const result = await saveProspect(prospectData as NewProspectoData); // Cast a NewProspectoData
+      const result = await saveProspect(prospectData);
       if (result.success && result.id) {
         toast({ title: "¡Prospecto Guardado!", description: `El prospecto "${prospectData.name}" ha sido guardado.` });
         router.push('/sales-funnel');
@@ -77,29 +77,25 @@ export default function NewProspectoPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Información del Prospecto</CardTitle>
-          <CardDescription>Completa los datos del nuevo prospecto.</CardDescription>
+          <CardDescription>Completa los datos del nuevo prospecto. Se creará en la etapa "Prospecto".</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Nombre Completo *</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <div>
-                <Label htmlFor="phone">Teléfono</Label>
-                <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-              </div>
+            <div>
+              <Label htmlFor="name">Nombre Completo *</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isSaving}/>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="tipoFiesta">Tipo de Fiesta (Opcional)</Label>
-                <Input id="tipoFiesta" value={tipoFiesta} onChange={(e) => setTipoFiesta(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15"/>
-              </div>
-              <div>
-                <Label htmlFor="salonDeseado">Salón Deseado (Opcional)</Label>
-                <Input id="salonDeseado" value={salonDeseado} onChange={(e) => setSalonDeseado(e.target.value)} placeholder="Ej: Salón Paraíso, Finca Los Robles"/>
-              </div>
+            <div>
+              <Label htmlFor="phone">Teléfono (Opcional)</Label>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving}/>
+            </div>
+            <div>
+              <Label htmlFor="tipoFiesta">Tipo de Fiesta (Opcional)</Label>
+              <Input id="tipoFiesta" value={tipoFiesta} onChange={(e) => setTipoFiesta(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" disabled={isSaving}/>
+            </div>
+            <div>
+              <Label htmlFor="salonDeseado">Salón Deseado (Opcional)</Label>
+              <Input id="salonDeseado" value={salonDeseado} onChange={(e) => setSalonDeseado(e.target.value)} placeholder="Ej: Salón Paraíso" disabled={isSaving}/>
             </div>
             <div>
               <Label htmlFor="cantidadInvitados">Cantidad de Invitados (Opcional)</Label>
@@ -110,6 +106,7 @@ export default function NewProspectoPage() {
                 onChange={(e) => setCantidadInvitados(e.target.value === '' ? '' : Number(e.target.value))} 
                 min="1"
                 placeholder="Ej: 100"
+                disabled={isSaving}
               />
             </div>
           </CardContent>

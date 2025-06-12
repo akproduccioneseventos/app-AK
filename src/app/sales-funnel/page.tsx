@@ -9,7 +9,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Phone, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, FileText as FileTextIcon } from 'lucide-react';
 import { getProspects } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
-import { ALL_PROSPECT_STAGES } from '@/types/prospect';
+import { ACTIVE_FUNNEL_STAGES } from '@/types/prospect'; // Import active stages
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,8 +21,7 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
     case 'Contactado': return "default";
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
-    // 'Firmo Contrato' y 'No Contrato' no se muestran como columnas activas
-    default: return "secondary";
+    default: return "secondary"; // Should not happen for active stages
   }
 };
 
@@ -43,8 +42,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // getProspects ya filtra para excluir 'Firmo Contrato' y 'No Contrato'
-      const data = await getProspects(); 
+      const data = await getProspects(); // getProspects already filters for active stages
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -59,33 +57,24 @@ export default function SalesFunnelPage() {
     loadProspects();
   }, [loadProspects]);
 
-  // Define las etapas que se mostrarán como columnas en el embudo
-  const activeFunnelStages: ProspectSalesFunnelStage[] = useMemo(() => 
-    ALL_PROSPECT_STAGES.filter(
-      s => s !== 'Firmo Contrato' && s !== 'No Contrato'
-    ) as ProspectSalesFunnelStage[],
-  []);
-
-
   const prospectsByStage = useMemo(() => {
     const grouped = new Map<ProspectSalesFunnelStage, Prospecto[]>();
-    activeFunnelStages.forEach(stage => grouped.set(stage, []));
+    ACTIVE_FUNNEL_STAGES.forEach(stage => grouped.set(stage, []));
 
     prospects.forEach(prospect => {
-      // Solo agrupar si la etapa del prospecto es una de las activas
-      if (activeFunnelStages.includes(prospect.salesFunnelStage)) {
+      // Ensure prospect's stage is one of the active ones before grouping
+      if (ACTIVE_FUNNEL_STAGES.includes(prospect.salesFunnelStage as any)) {
         const stageGroup = grouped.get(prospect.salesFunnelStage);
         if (stageGroup) {
           stageGroup.push(prospect);
         }
       }
     });
-    // Ordenar dentro de cada etapa por fecha de actualización
     grouped.forEach((stageProspectsArray) => {
         stageProspectsArray.sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     });
     return grouped;
-  }, [prospects, activeFunnelStages]);
+  }, [prospects]);
 
   const handlePrint = () => {
     window.print();
@@ -138,7 +127,7 @@ export default function SalesFunnelPage() {
 
       <ScrollArea className="flex-grow whitespace-nowrap rounded-md border bg-muted/20 print:border-none print:bg-transparent print:overflow-visible">
         <div className="flex gap-4 p-4 h-full min-h-[600px] print:flex-col print:gap-6 print:p-0">
-          {activeFunnelStages.map(stage => {
+          {ACTIVE_FUNNEL_STAGES.map(stage => {
             const stageProspects = prospectsByStage.get(stage) || [];
             const stageColorVariant = getStageBadgeVariant(stage);
 
@@ -201,12 +190,12 @@ export default function SalesFunnelPage() {
                                   <Users2Icon className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.cantidadInvitados} inv.
                                 </p>
                                 )}
-                                {stage === 'Reunión Programada' && prospect.nextMeetingDate && (
+                                {prospect.salesFunnelStage === 'Reunión Programada' && prospect.nextMeetingDate && (
                                   <p className="text-xs text-primary font-medium flex items-center gap-1 print:text-[10px]" title={`Reunión: ${formatDate(prospect.nextMeetingDate)}`}>
                                     <CalendarDays className="w-3 h-3 flex-shrink-0 print:hidden" /> Reunión: {formatDate(prospect.nextMeetingDate)}
                                   </p>
                                 )}
-                                {stage === 'Presupuesto Presentado' && prospect.estimatedValue && (
+                                {prospect.salesFunnelStage === 'Presupuesto Presentado' && prospect.estimatedValue && (
                                    <p className="text-xs text-green-600 font-medium flex items-center gap-1 print:text-[10px]" title={`Presupuesto: ${prospect.estimatedValue.toLocaleString('es-AR', {style: 'currency', currency: 'ARS'})}`}>
                                      <FileTextIcon className="w-3 h-3 flex-shrink-0 print:hidden" /> Presup.: {prospect.estimatedValue.toLocaleString('es-AR', {style: 'currency', currency: 'ARS'})}
                                    </p>
