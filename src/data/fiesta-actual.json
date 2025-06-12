@@ -1,9 +1,9 @@
 {
-  "id": "fiesta_1749667415650",
+  "id": "fiesta_1749688860452",
   "configuracion": {
     "nombreEvento": "Mi Próximo Evento Increíble",
     "tipoCelebracion": "Cumpleaños",
-    "fechaEvento": "2026-06-11T00:00:00.000Z",
+    "fechaEvento": "2026-06-12T00:00:00.000Z",
     "horaInicio": "19:00",
     "horaFin": "02:00",
     "nombreLugar": "Salón de Ensueño",
@@ -22,27 +22,27 @@
   },
   "tareas": [
     {
-      "id": "task_1749667387812_i22ru43",
+      "id": "task_1749688746631_5wezdcd",
       "texto": "Definir lista de invitados",
       "completada": false
     },
     {
-      "id": "task_1749667387812_eeagy2m",
+      "id": "task_1749688746631_zym3u8l",
       "texto": "Seleccionar catering y menú",
       "completada": false
     },
     {
-      "id": "task_1749667387812_fa5ja7o",
+      "id": "task_1749688746631_r9i3ibh",
       "texto": "Contratar DJ o música",
       "completada": false
     },
     {
-      "id": "task_1749667387812_2gdm7ft",
+      "id": "task_1749688746631_nmgbuog",
       "texto": "Elegir decoración y temática",
       "completada": false
     },
     {
-      "id": "task_1749667387812_b8lz9pu",
+      "id": "task_1749688746631_mbhsonh",
       "texto": "Enviar invitaciones",
       "completada": false
     }
