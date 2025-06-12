@@ -18,12 +18,9 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
   switch (stage) {
     case 'Prospecto': return "secondary";
     case 'Contacto Iniciado': return "outline";
-    case 'Contactado': return "default"; // Mantener color para una etapa activa intermedia
+    case 'Contactado': return "default";
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
-    // Las etapas finales no se usan para badges de columna activa, pero si se necesitaran:
-    // case 'Firmo Contrato': return "secondary"; 
-    // case 'No Contrato': return "destructive";
     default: return "secondary";
   }
 };
@@ -70,7 +67,6 @@ export default function SalesFunnelPage() {
     activeFunnelStages.forEach(stage => grouped.set(stage, []));
 
     prospects.forEach(prospect => {
-      // Asegurarse que el prospecto tiene una etapa válida que esté en activeFunnelStages
       if (activeFunnelStages.includes(prospect.salesFunnelStage)) {
         const stageGroup = grouped.get(prospect.salesFunnelStage);
         if (stageGroup) {

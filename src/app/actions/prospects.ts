@@ -2,6 +2,7 @@
 'use server';
 
 import type { Prospecto, NewProspectoData, ProspectSalesFunnelStage } from '@/types/prospect';
+import { ALL_PROSPECT_STAGES } from '@/types/prospect';
 import fs from 'fs/promises';
 import path from 'path';
 import { saveCustomer } from '@/app/actions/customers';
@@ -52,7 +53,7 @@ async function writeProspectsFile(data: Prospecto[]): Promise<void> {
   }
 }
 
-// Devuelve prospectos para las etapas activas del embudo
+// Devuelve prospectos para las etapas activas del embudo (excluyendo finales)
 export async function getProspects(): Promise<Prospecto[]> {
   const prospects = await readProspectsFile();
   return prospects
@@ -119,6 +120,8 @@ export async function saveProspect(
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], customerId: customerResult.id };
         } else {
+          // Aunque no se pudo crear el cliente, igual marcamos el prospecto y guardamos.
+          prospects[index].salesFunnelStage = 'Firmo Contrato'; 
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], error: `Prospecto actualizado a 'Firmo Contrato' pero hubo un problema al crear/actualizar el cliente: ${customerResult.error}` };
         }
@@ -179,8 +182,8 @@ async function initializeProspectData() {
                 p.cantidadInvitados = undefined;
                 prospectModified = true;
             }
-            if (!p.salesFunnelStage || !ALL_PROSPECT_STAGES.includes(p.salesFunnelStage)) { // Check if stage is valid
-                p.salesFunnelStage = 'Prospecto'; // Default a 'Prospecto'
+            if (!p.salesFunnelStage || !ALL_PROSPECT_STAGES.includes(p.salesFunnelStage)) {
+                p.salesFunnelStage = 'Prospecto'; 
                 prospectModified = true;
             }
             if (!p.nextMeetingDate && p.salesFunnelStage === 'Reunión Programada' && (p as any).fechaProximaReunion) {

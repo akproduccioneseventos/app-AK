@@ -32,7 +32,6 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const { toast } = useToast();
   const [prospect, setProspect] = useState<Prospecto | null>(null);
 
-  // Estados del formulario
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Prospecto');
@@ -106,6 +105,11 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
            return; 
         } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero hubo un problema al crear el cliente.`, variant: "default" });
+        }
+        // Si se movió a "Firmo Contrato" o "No Contrato", redirigir al embudo.
+        if (result.prospect.salesFunnelStage === 'Firmo Contrato' || result.prospect.salesFunnelStage === 'No Contrato') {
+            router.push('/sales-funnel');
+            return;
         }
         setProspect(result.prospect); 
       } else {
@@ -227,7 +231,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
                   type="button" 
                   className="w-full sm:w-auto" 
                   disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Firmo Contrato'}
-                  title={prospect?.salesFunnelStage === 'Firmo Contrato' ? "No se puede eliminar un prospecto que ya firmó contrato (es cliente)." : "Eliminar Prospecto"}
+                  title={prospect?.salesFunnelStage === 'Firmo Contrato' ? "Un prospecto que ya firmó contrato es ahora un cliente y no puede ser eliminado desde aquí." : "Eliminar Prospecto"}
                 >
                   {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
                   {isDeleting ? 'Eliminando...' : 'Eliminar Prospecto'}
