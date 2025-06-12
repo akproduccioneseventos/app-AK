@@ -532,7 +532,7 @@ type SidebarMenuButtonProps = Omit<React.ComponentPropsWithoutRef<"button"> & Re
   href?: string; 
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
-} & VariantProps<typeof sidebarMenuButtonVariants>;
+} & VariantProps<typeof sidebarMenuButtonVariants> & { asChild?: boolean };
 
 
 const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenuButtonProps>(
@@ -545,18 +545,23 @@ const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenu
       className,
       href, 
       children,
+      asChild: _asChildFromProps, // Renamed to avoid conflict with the outer `asChild`
       ...props 
     },
     ref
   ) => {
     const { isMobile, state } = useSidebar();
 
+    // Destructure asChild from props to prevent it from being passed to the native element
+    const { asChild, ...restProps } = props as any;
+
+
     const commonProps = {
       "data-sidebar": "menu-button",
       "data-size": size,
       "data-active": String(isActive), 
       className: cn(sidebarMenuButtonVariants({ variant, size, className })),
-      ...props, 
+      ...restProps, 
     };
 
     let interactiveElement;
@@ -709,14 +714,18 @@ const SidebarMenuSubItem = React.forwardRef<
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
-  HTMLAnchorElement, // Changed to HTMLAnchorElement
-  React.ComponentPropsWithoutRef<"a"> & { // Changed to React.ComponentPropsWithoutRef<"a">
+  HTMLAnchorElement, 
+  React.ComponentPropsWithoutRef<"a"> & {
     size?: "sm" | "md";
     isActive?: boolean;
+    asChild?: boolean; // Added to handle the asChild prop
   }
->(({ size = "md", isActive, className, children, ...props }, ref) => {
+>(({ size = "md", isActive, className, children, asChild: _asChildFromProps, ...props }, ref) => {
+  // Destructure asChild from props to prevent it from being passed to the native element
+  const { asChild, ...restProps } = props as any;
+
   return (
-    <a // Render as an 'a'
+    <a 
       ref={ref}
       data-sidebar="menu-sub-button"
       data-size={size}
@@ -729,7 +738,7 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props} 
+      {...restProps} 
     >
       {children}
     </a>
@@ -764,5 +773,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-    
