@@ -4,6 +4,7 @@
 import type { Customer, SalesFunnelStage, CustomerStatus } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
+import { getFiestaActual } from '@/app/actions/fiesta-actual'; // Importar para obtener la fiesta actual
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const customersFilePath = path.join(dataDirectory, 'customers.json');
@@ -49,17 +50,48 @@ async function writeCustomersFile(data: Customer[]): Promise<void> {
 }
 
 export async function getCustomers(): Promise<Customer[]> {
-  const customers = await readCustomersFile();
+  let customers = await readCustomersFile();
+  let hasChanges = false;
+
+  try {
+    const fiestaActual = await getFiestaActual();
+    const clienteIdFiestaActual = fiestaActual?.configuracion?.clienteId;
+    const fechaEventoFiestaActual = fiestaActual?.configuracion?.fechaEvento;
+
+    if (clienteIdFiestaActual && fechaEventoFiestaActual) {
+      const eventDate = new Date(fechaEventoFiestaActual);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set to the beginning of today for comparison
+
+      customers = customers.map(customer => {
+        if (customer.id === clienteIdFiestaActual && customer.estadoCliente === 'Actual') {
+          if (eventDate < today) {
+            customer.estadoCliente = 'Antiguo';
+            hasChanges = true;
+          }
+        }
+        return customer;
+      });
+
+      if (hasChanges) {
+        await writeCustomersFile(customers);
+      }
+    }
+  } catch (error) {
+    console.error("Error al procesar la actualización automática del estado del cliente:", error);
+    // No bloqueamos la devolución de clientes si esta lógica falla
+  }
+  
   return customers.sort((a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {
-  const customers = await readCustomersFile();
+  const customers = await readCustomersFile(); // Usamos readCustomersFile para consistencia de datos por defecto
   const customer = customers.find(c => c.id === id);
   return customer ? { 
     ...customer, 
-    salesFunnelStage: customer.salesFunnelStage || 'Lead',
-    estadoCliente: customer.estadoCliente || 'Actual' 
+    salesFunnelStage: customer.salesFunnelStage || 'Lead', // Asegurar default
+    estadoCliente: customer.estadoCliente || 'Actual'  // Asegurar default
   } : null;
 }
 
