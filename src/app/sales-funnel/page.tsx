@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Mail, Phone, UserPlus2, CalendarDays, Printer } from 'lucide-react';
+import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Mail, Phone, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, FileText as FileTextIcon } from 'lucide-react';
 import { getProspects } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
 import { ALL_PROSPECT_STAGES } from '@/types/prospect';
@@ -18,10 +18,13 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
   switch (stage) {
     case 'Lead': return "secondary";
     case 'Contacto Iniciado': return "outline";
-    case 'Contactado y Calificando': return "default";
+    case 'Contactado y Calificando': return "default"; // Usar 'default' para más énfasis
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
     case 'En Negociación': return "default";
+    // Contrato Firmado y Descartado no se muestran en el embudo activo, pero se definen por si acaso
+    case 'Contrato Firmado': return "secondary"; 
+    case 'Descartado': return "destructive";
     default: return "secondary";
   }
 };
@@ -43,7 +46,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getProspects();
+      const data = await getProspects(); // Esto ya filtra 'Contrato Firmado' y 'Descartado'
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -161,9 +164,7 @@ export default function SalesFunnelPage() {
                                     {prospect.companyName || prospect.name}
                                   </h4>
                                 </div>
-                                {prospect.source && <Badge variant="outline" className="text-xs py-0.5 px-1.5 mb-1 print:text-[10px] print:px-1 print:py-0">Origen: {prospect.source}</Badge>}
-                                <p className="text-xs text-muted-foreground print:text-[10px]">Creado: {formatDate(prospect.createdAt)}</p>
-                                <p className="text-xs text-muted-foreground print:text-[10px]">Actualizado: {formatDate(prospect.updatedAt)}</p>
+                                <p className="text-xs text-muted-foreground print:text-[10px]">Act: {formatDate(prospect.updatedAt)}</p>
                               </div>
                               <Link href={`/prospects/${prospect.id}/edit`} passHref className="print:hidden">
                                 <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-primary" title="Editar Prospecto">
@@ -171,26 +172,38 @@ export default function SalesFunnelPage() {
                                 </Button>
                               </Link>
                             </div>
-                            {(prospect.email || prospect.phone || (stage === 'Reunión Programada' && prospect.nextMeetingDate)) && (
-                                <div className="mt-2 pt-2 border-t border-dashed space-y-0.5 print:mt-1 print:pt-1">
-                                    {prospect.email && (
-                                    <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={prospect.email}>
-                                      <Mail className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.email}
-                                    </p>
-                                    )}
-                                    {prospect.phone && (
-                                    <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={prospect.phone}>
-                                      <Phone className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.phone}
-                                    </p>
-                                    )}
-                                    {stage === 'Reunión Programada' && prospect.nextMeetingDate && (
-                                      <p className="text-xs text-primary font-medium flex items-center gap-1 print:text-[10px]" title={`Reunión: ${formatDate(prospect.nextMeetingDate)}`}>
-                                        <CalendarDays className="w-3 h-3 flex-shrink-0 print:hidden" /> Reunión: {formatDate(prospect.nextMeetingDate)}
-                                      </p>
-                                    )}
-                                </div>
-                            )}
-                            {prospect.estimatedValue && <p className="text-xs text-muted-foreground mt-1 print:text-[10px]">Valor Est.: {prospect.estimatedValue.toLocaleString('es-AR', {style: 'currency', currency: 'ARS'})}</p> }
+                            <div className="mt-2 pt-2 border-t border-dashed space-y-0.5 print:mt-1 print:pt-1">
+                                {prospect.phone && (
+                                <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={prospect.phone}>
+                                  <Phone className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.phone}
+                                </p>
+                                )}
+                                {prospect.tipoFiesta && (
+                                <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={prospect.tipoFiesta}>
+                                  <ListChecks className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.tipoFiesta}
+                                </p>
+                                )}
+                                {prospect.salonDeseado && (
+                                <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={prospect.salonDeseado}>
+                                  <Building className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.salonDeseado}
+                                </p>
+                                )}
+                                {prospect.cantidadInvitados !== undefined && (
+                                <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={`Invitados: ${prospect.cantidadInvitados}`}>
+                                  <Users2Icon className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.cantidadInvitados} inv.
+                                </p>
+                                )}
+                                {stage === 'Reunión Programada' && prospect.nextMeetingDate && (
+                                  <p className="text-xs text-primary font-medium flex items-center gap-1 print:text-[10px]" title={`Reunión: ${formatDate(prospect.nextMeetingDate)}`}>
+                                    <CalendarDays className="w-3 h-3 flex-shrink-0 print:hidden" /> Reunión: {formatDate(prospect.nextMeetingDate)}
+                                  </p>
+                                )}
+                                {stage === 'Presupuesto Presentado' && prospect.estimatedValue && (
+                                   <p className="text-xs text-green-600 font-medium flex items-center gap-1 print:text-[10px]" title={`Presupuesto: ${prospect.estimatedValue.toLocaleString('es-AR', {style: 'currency', currency: 'ARS'})}`}>
+                                     <FileTextIcon className="w-3 h-3 flex-shrink-0 print:hidden" /> Presup.: {prospect.estimatedValue.toLocaleString('es-AR', {style: 'currency', currency: 'ARS'})}
+                                   </p>
+                                )}
+                            </div>
                             {prospect.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate print:text-[10px] print:whitespace-normal" title={prospect.notes}>Notas: {prospect.notes}</p>}
                           </CardContent>
                         </Card>

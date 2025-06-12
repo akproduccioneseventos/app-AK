@@ -42,6 +42,10 @@ export interface Prospecto {
     zipCode?: string;
     country?: string;
   };
+  // Nuevos campos opcionales
+  tipoFiesta?: string;
+  salonDeseado?: string;
+  cantidadInvitados?: number;
 }
 
 export type NewProspectoData = Omit<Prospecto, 'id' | 'createdAt' | 'updatedAt'>;

@@ -34,6 +34,9 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Lead');
+  const [tipoFiesta, setTipoFiesta] = useState('');
+  const [salonDeseado, setSalonDeseado] = useState('');
+  const [cantidadInvitados, setCantidadInvitados] = useState<number | ''>('');
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -51,6 +54,9 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
           setName(loadedProspecto.name || '');
           setPhone(loadedProspecto.phone || '');
           setSalesFunnelStage(loadedProspecto.salesFunnelStage);
+          setTipoFiesta(loadedProspecto.tipoFiesta || '');
+          setSalonDeseado(loadedProspecto.salonDeseado || '');
+          setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
         } else {
           setNotFound(true);
         }
@@ -75,18 +81,19 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
     }
 
     setIsSaving(true);
-    const prospectDataToSave: Partial<Prospecto> & { id: string; name: string; salesFunnelStage: ProspectSalesFunnelStage } = {
-      id: prospect.id, // Ensure ID is included for update
+    // Preparamos el objeto con todos los campos del prospecto para la actualización
+    const prospectDataToSave: Prospecto = {
+      ...prospect, // Mantenemos todos los campos originales
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
-      // Other fields from 'prospect' state will be preserved by the backend if not explicitly changed here
+      tipoFiesta: tipoFiesta.trim() || undefined,
+      salonDeseado: salonDeseado.trim() || undefined,
+      cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
     };
 
     try {
-      // Pass only the fields that are part of the form, plus ID.
-      // The backend `saveProspect` will merge these with existing data.
-      const result = await saveProspect(prospectDataToSave as Prospecto);
+      const result = await saveProspect(prospectDataToSave);
       if (result.success && result.prospect) {
         toast({ title: "¡Prospecto Actualizado!", description: `El prospecto "${result.prospect.name}" ha sido actualizado.` });
         if (result.prospect.salesFunnelStage === 'Contrato Firmado' && result.customerId) {
@@ -95,6 +102,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         } else if (result.prospect.salesFunnelStage === 'Contrato Firmado'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como contrato firmado, pero hubo un problema al crear el cliente.`, variant: "default" });
         }
+        // Actualizar el estado local del prospecto para reflejar cambios guardados
+        setProspect(result.prospect);
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el prospecto.");
       }
@@ -143,13 +152,43 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Información del Prospecto</CardTitle>
-           <CardDescription>Modifica el nombre, teléfono y la etapa del embudo.</CardDescription>
+           <CardDescription>Modifica los datos y la etapa del embudo.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label htmlFor="name">Nombre Completo</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isSaving || isDeleting}/></div>
-              <div><Label htmlFor="phone">Teléfono</Label><Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/></div>
+              <div>
+                <Label htmlFor="name">Nombre Completo *</Label>
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isSaving || isDeleting}/>
+              </div>
+              <div>
+                <Label htmlFor="phone">Teléfono</Label>
+                <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="tipoFiesta">Tipo de Fiesta (Opcional)</Label>
+                <Input id="tipoFiesta" value={tipoFiesta} onChange={(e) => setTipoFiesta(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" disabled={isSaving || isDeleting}/>
+              </div>
+              <div>
+                <Label htmlFor="salonDeseado">Salón Deseado (Opcional)</Label>
+                <Input id="salonDeseado" value={salonDeseado} onChange={(e) => setSalonDeseado(e.target.value)} placeholder="Ej: Salón Paraíso" disabled={isSaving || isDeleting}/>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="cantidadInvitados">Cantidad de Invitados (Opcional)</Label>
+              <Input 
+                id="cantidadInvitados" 
+                type="number" 
+                value={cantidadInvitados} 
+                onChange={(e) => setCantidadInvitados(e.target.value === '' ? '' : Number(e.target.value))} 
+                min="1"
+                placeholder="Ej: 100"
+                disabled={isSaving || isDeleting}
+              />
             </div>
             
             <div>

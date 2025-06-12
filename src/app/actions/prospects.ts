@@ -27,6 +27,10 @@ async function readProspectsFile(): Promise<Prospecto[]> {
         ...p,
         createdAt: p.createdAt || new Date(0).toISOString(), // Fallback for old data
         updatedAt: p.updatedAt || new Date(0).toISOString(), // Fallback for old data
+        // Asegurar que los nuevos campos opcionales existan o sean undefined
+        tipoFiesta: p.tipoFiesta || undefined,
+        salonDeseado: p.salonDeseado || undefined,
+        cantidadInvitados: p.cantidadInvitados === null ? undefined : (Number(p.cantidadInvitados) || undefined),
     }));
   } catch (error: any) {
     if (error.code === 'ENOENT') {
@@ -69,6 +73,9 @@ export async function getProspectById(id: string): Promise<Prospecto | null> {
     ...prospect,
     createdAt: prospect.createdAt || new Date(0).toISOString(),
     updatedAt: prospect.updatedAt || new Date(0).toISOString(),
+    tipoFiesta: prospect.tipoFiesta || undefined,
+    salonDeseado: prospect.salonDeseado || undefined,
+    cantidadInvitados: prospect.cantidadInvitados === null ? undefined : (Number(prospect.cantidadInvitados) || undefined),
   } : null;
 }
 
@@ -88,10 +95,12 @@ export async function saveProspect(
         ...prospectData,
         updatedAt: now,
         createdAt: originalProspect.createdAt || now, // Preserve original createdAt
+        cantidadInvitados: prospectData.cantidadInvitados === null ? undefined : (Number(prospectData.cantidadInvitados) || undefined),
       };
       
       // Lógica de conversión a Cliente
       if (prospectData.salesFunnelStage === 'Contrato Firmado') {
+        // Solo pasamos los campos que Customer puede manejar
         const customerDataFromProspect: Omit<Customer, 'id' | 'estadoCliente'> = {
           name: prospectData.name,
           companyName: prospectData.companyName,
@@ -99,6 +108,8 @@ export async function saveProspect(
           phone: prospectData.phone,
           taxId: prospectData.taxId,
           address: prospectData.address,
+          // Los nuevos campos como tipoFiesta, salonDeseado, cantidadInvitados no se pasan
+          // a Customer directamente a menos que se modifique el tipo Customer.
         };
         
         const customerResult = await saveCustomer(customerDataFromProspect);
@@ -107,8 +118,6 @@ export async function saveProspect(
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], customerId: customerResult.id };
         } else {
-          // No se pudo crear/actualizar el cliente, pero el prospecto se actualiza a 'Contrato Firmado' igualmente.
-          // Podrías decidir si revertir el estado del prospecto o no. Por ahora, lo mantenemos.
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], error: `Prospecto actualizado a 'Contrato Firmado' pero hubo un problema al crear/actualizar el cliente: ${customerResult.error}` };
         }
@@ -127,6 +136,7 @@ export async function saveProspect(
       salesFunnelStage: prospectData.salesFunnelStage || 'Lead', // Default stage
       createdAt: now,
       updatedAt: now,
+      cantidadInvitados: prospectData.cantidadInvitados === null ? undefined : (Number(prospectData.cantidadInvitados) || undefined),
     };
     prospects.push(newProspect);
     await writeProspectsFile(prospects);
@@ -152,17 +162,20 @@ async function initializeProspectData() {
     await ensureDataDirectoryExists();
     try {
         await fs.access(prospectsFilePath);
-        // Check and update existing data if necessary
         const currentProspects = await readProspectsFile();
         let wasModified = false;
         const updatedProspects = currentProspects.map(p => {
             let prospectModified = false;
             if (!p.createdAt) {
-                p.createdAt = new Date(0).toISOString(); // Or a more sensible default like p.updatedAt if available
+                p.createdAt = new Date(0).toISOString(); 
                 prospectModified = true;
             }
             if (!p.updatedAt) {
                 p.updatedAt = new Date().toISOString();
+                prospectModified = true;
+            }
+            if (p.cantidadInvitados === null) { // Handle null to undefined conversion if necessary
+                p.cantidadInvitados = undefined;
                 prospectModified = true;
             }
             if (prospectModified) wasModified = true;
@@ -180,4 +193,3 @@ async function initializeProspectData() {
     }
 }
 initializeProspectData();
-
