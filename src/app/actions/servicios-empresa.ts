@@ -84,7 +84,7 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_barra_tragos',
     nombre: 'Barra de Tragos',
-    categoria: 'Catering',
+    categoria: 'Bebidas',
     precioEstimado: 25000,
     unidad: 'Por evento',
     descripcion: 'Servicio de barra de tragos con o sin alcohol.',
@@ -134,7 +134,7 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_cat_mesa_dulce',
     nombre: 'Catering (Mesa de Dulces)',
-    categoria: 'Catering',
+    categoria: 'Repostería',
     precioEstimado: 8000,
     unidad: 'Por evento',
   },
@@ -155,21 +155,21 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_cat_torta_aleg',
     nombre: 'Catering (Torta Alegórica)',
-    categoria: 'Catering',
+    categoria: 'Repostería',
     precioEstimado: 7000,
     unidad: 'Global',
   },
   {
     id: 'serv_cat_torta_cump',
     nombre: 'Catering (Torta de Cumpleaños)',
-    categoria: 'Catering',
+    categoria: 'Repostería',
     precioEstimado: 5000,
     unidad: 'Global',
   },
   {
     id: 'serv_consult_coord',
     nombre: 'Consultoría / Coordinación de Evento',
-    categoria: 'Planificación',
+    categoria: 'Personal',
     precioEstimado: 2500,
     unidad: 'Por evento',
   },
@@ -190,35 +190,35 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_dis_graf',
     nombre: 'Diseño Gráfico',
-    categoria: 'Diseño',
+    categoria: 'Otros',
     precioEstimado: 1500,
     unidad: 'Por proyecto',
   },
   {
     id: 'serv_dis_web_land',
     nombre: 'Diseño Web (Landing Page)',
-    categoria: 'Diseño',
+    categoria: 'Otros',
     precioEstimado: 10000,
     unidad: 'Por proyecto',
   },
   {
     id: 'serv_drone',
     nombre: 'Servicio de Drone (Filmación y Fotografía)',
-    categoria: 'Audiovisual',
+    categoria: 'Filmación',
     precioEstimado: 8000,
     unidad: 'Por evento',
   },
   {
     id: 'serv_edit_video',
     nombre: 'Edición de Video',
-    categoria: 'Audiovisual',
+    categoria: 'Filmación',
     precioEstimado: 3000,
     unidad: 'Por proyecto',
   },
   {
     id: 'serv_efect_esp',
     nombre: 'Efectos Especiales (Humo, Chispas, etc.)',
-    categoria: 'Efectos Especiales',
+    categoria: 'Entretenimiento',
     precioEstimado: 5000,
     unidad: 'Por evento',
   },
@@ -239,14 +239,14 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_film_video',
     nombre: 'Filmación y Video de Evento',
-    categoria: 'Audiovisual',
+    categoria: 'Filmación',
     precioEstimado: 25000,
     unidad: 'Por evento',
   },
   {
     id: 'serv_film_inst',
     nombre: 'Filmación Institucional',
-    categoria: 'Audiovisual',
+    categoria: 'Filmación',
     precioEstimado: 30000,
     unidad: 'Por proyecto',
   },
@@ -260,7 +260,7 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_mobil',
     nombre: 'Mobiliario (sillas, mesas, etc.)',
-    categoria: 'Mobiliario',
+    categoria: 'Decoración',
     precioEstimado: 10000,
     unidad: 'Por evento',
   },
@@ -311,7 +311,7 @@ const initialServicios: ServicioEmpresa[] = [
     nombre: 'Shows / Espectáculos',
     categoria: 'Entretenimiento',
     precioEstimado: 10000,
-    unidad: 'Por show',
+    unidad: 'Por evento',
   },
   {
     id: 'serv_streaming',
@@ -386,7 +386,7 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_limpieza_post',
     nombre: 'Servicios de Limpieza Post-Evento',
-    categoria: 'Limpieza',
+    categoria: 'Personal',
     precioEstimado: 4000,
     unidad: 'Por evento',
   },
@@ -414,7 +414,7 @@ const initialServicios: ServicioEmpresa[] = [
   {
     id: 'serv_alq_vehic_clas',
     nombre: 'Alquiler de Vehículos (ej. auto clásico)',
-    categoria: 'Transporte',
+    categoria: 'Logística',
     precioEstimado: 10000,
     unidad: 'Por día/evento'
   }

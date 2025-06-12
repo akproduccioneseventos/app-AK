@@ -1,134 +1,195 @@
-// src/components/main-nav.tsx
-'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  LayoutDashboard,
-  CalendarClock,
-  Users,
-  Briefcase,
-  ContactRound,
-  CircleDollarSign,
-  ListChecks,
-  CalendarDays,
-  PartyPopper,
-  Filter,
-  Sparkles,
-  FileText,
-  Banknote,
-  ImageIcon
-} from 'lucide-react';
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-} from '@/components/ui/sidebar';
-import { cn } from '@/lib/utils';
-
-const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/eventos', label: 'Todas las Fiestas', icon: CalendarClock },
-  { href: '/fiestas/nueva', label: 'Crear Fiesta', icon: PartyPopper },
-  { href: '/customers', label: 'Clientes', icon: Users },
-  { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter },
+[
   {
-    isGroup: true,
-    label: 'Empresa',
-    icon: Briefcase,
-    basePath: '/empresa',
-    subItems: [
-      { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
-      { href: '/empleados', label: 'Empleados', icon: ContactRound },
-    ]
+    "id": "serv_cat_almu_cena_form",
+    "nombre": "Catering (Almuerzo o Cena Formal)",
+    "categoria": "Catering",
+    "precioEstimado": 1800,
+    "unidad": "Por persona",
+    "descripcion": "Servicio completo de catering para almuerzos o cenas formales, incluye entrada, plato principal y postre."
   },
   {
-    isGroup: true,
-    label: 'Contabilidad',
-    icon: CircleDollarSign,
-    basePath: '/contabilidad',
-    subItems: [
-      { href: '/presupuestos', label: 'Presupuestos', icon: ListChecks },
-      { href: '/invoices', label: 'Facturas', icon: FileText },
-      { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
-    ]
+    "id": "serv_cat_brunch",
+    "nombre": "Catering (Brunch)",
+    "categoria": "Catering",
+    "precioEstimado": 1200,
+    "unidad": "Por persona",
+    "descripcion": "Variedad de opciones dulces y saladas, ideal para eventos matutinos o de media tarde."
   },
-  { href: '/calendario', label: 'Calendario', icon: CalendarDays },
-  
-];
-
-export function MainNav() {
-  const pathname = usePathname();
-
-  const isActiveParent = (itemHref: string, subItemPaths?: string[]) => {
-    if (itemHref === '/' && pathname === '/') return true;
-    if (itemHref !== '/' && (pathname === itemHref || pathname.startsWith(itemHref + '/'))) return true;
-    if (subItemPaths?.some(subPath => pathname === subPath || pathname.startsWith(subPath + '/'))) return true;
-    return false;
-  };
-
-
-  return (
-      <SidebarMenu>
-        {navItems.map((item, index) => {
-          if (item.isGroup && item.subItems) {
-            const groupSubPaths = item.subItems.map(sub => sub.href);
-            const isGroupActive = isActiveParent(item.basePath || '#', groupSubPaths);
-            return (
-              <SidebarMenuItem key={`group-${item.label}-${index}`}>
-                <SidebarMenuButton 
-                  isActive={isGroupActive}
-                  className={cn(
-                    isGroupActive
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
-                      : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                    'group-data-[collapsible=icon]:justify-center'
-                  )}
-                  tooltip={item.label}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  {item.subItems.map(subItem => (
-                    <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} legacyBehavior={false} asChild={true}>
-                        <SidebarMenuSubButton
-                          isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}
-                        >
-                           {subItem.label}
-                        </SidebarMenuSubButton>
-                      </Link>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            );
-          }
-          // For direct navigation items
-          return (
-            <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} asChild>
-                <SidebarMenuButton
-                  isActive={isActiveParent(item.href)}
-                  className={cn(
-                    isActiveParent(item.href)
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
-                      : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                    'group-data-[collapsible=icon]:justify-center'
-                  )}
-                  tooltip={item.label}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          )
-        })}
-      </SidebarMenu>
-  );
-}
+  {
+    "id": "serv_cat_cocktail",
+    "nombre": "Catering (Cocktail)",
+    "categoria": "Catering",
+    "precioEstimado": 1500,
+    "unidad": "Por persona",
+    "descripcion": "Selección de bocadillos fríos y calientes, perfectos para recepciones y eventos sociales."
+  },
+  {
+    "id": "serv_cat_coffee",
+    "nombre": "Catering (Coffee Break)",
+    "categoria": "Catering",
+    "precioEstimado": 600,
+    "unidad": "Por persona",
+    "descripcion": "Pausa para café con opciones de pastelería, frutas y bebidas calientes/frías."
+  },
+  {
+    "id": "serv_cat_finger",
+    "nombre": "Catering (Finger Food)",
+    "categoria": "Catering",
+    "precioEstimado": 1000,
+    "unidad": "Por persona",
+    "descripcion": "Bocadillos gourmet fáciles de comer, ideales para eventos informales y networking."
+  },
+  {
+    "id": "serv_cat_menu_inf",
+    "nombre": "Catering (Menú Infantil)",
+    "categoria": "Catering",
+    "precioEstimado": 800,
+    "unidad": "Por persona",
+    "descripcion": "Opciones adaptadas y divertidas para los más pequeños."
+  },
+  {
+    "id": "serv_beb_barra_tragos",
+    "nombre": "Barra de Tragos (Nacional/Importada)",
+    "categoria": "Bebidas",
+    "precioEstimado": 25000,
+    "unidad": "Por evento",
+    "descripcion": "Servicio completo de barra de tragos con y sin alcohol, personalizable."
+  },
+  {
+    "id": "serv_beb_gaseosas_agua",
+    "nombre": "Gaseosas y Agua",
+    "categoria": "Bebidas",
+    "precioEstimado": 250,
+    "unidad": "Por persona",
+    "descripcion": "Surtido de gaseosas línea Coca-Cola, agua con y sin gas."
+  },
+  {
+    "id": "serv_beb_cerveza",
+    "nombre": "Cerveza (Varias Marcas)",
+    "categoria": "Bebidas",
+    "precioEstimado": 350,
+    "unidad": "Por persona",
+    "descripcion": "Selección de cervezas nacionales e importadas."
+  },
+  {
+    "id": "serv_deco_general",
+    "nombre": "Decoración General de Evento",
+    "categoria": "Decoración",
+    "precioEstimado": 20000,
+    "unidad": "Por evento",
+    "descripcion": "Concepto y ejecución de la decoración integral del evento según temática."
+  },
+  {
+    "id": "serv_deco_floral",
+    "nombre": "Arreglos Florales",
+    "categoria": "Decoración",
+    "precioEstimado": 5000,
+    "unidad": "Por evento",
+    "descripcion": "Diseño y montaje de arreglos florales para mesas, ambientación, etc."
+  },
+  {
+    "id": "serv_deco_ilum_amb",
+    "nombre": "Iluminación Ambiental Decorativa",
+    "categoria": "Iluminación",
+    "precioEstimado": 15000,
+    "unidad": "Por evento",
+    "descripcion": "Diseño e instalación de iluminación para crear ambientes (tachos LED, guirnaldas, etc.)."
+  },
+  {
+    "id": "serv_foto_evento_completo",
+    "nombre": "Fotografía de Evento Completa",
+    "categoria": "Fotografía",
+    "precioEstimado": 20000,
+    "unidad": "Por evento",
+    "descripcion": "Cobertura fotográfica profesional durante todo el evento, entrega de fotos editadas."
+  },
+  {
+    "id": "serv_foto_sesion_previa",
+    "nombre": "Sesión Fotográfica Previa",
+    "categoria": "Fotografía",
+    "precioEstimado": 8000,
+    "unidad": "Por proyecto",
+    "descripcion": "Sesión de fotos en exteriores o estudio antes del evento."
+  },
+  {
+    "id": "serv_film_video_evento",
+    "nombre": "Filmación y Video de Evento",
+    "categoria": "Filmación",
+    "precioEstimado": 25000,
+    "unidad": "Por evento",
+    "descripcion": "Cobertura de video profesional, incluye edición de video resumen y/o completo."
+  },
+  {
+    "id": "serv_film_drone",
+    "nombre": "Servicio de Drone (Filmación y Fotografía)",
+    "categoria": "Filmación",
+    "precioEstimado": 8000,
+    "unidad": "Por evento",
+    "descripcion": "Tomas aéreas espectaculares para complementar la filmación y fotografía."
+  },
+  {
+    "id": "serv_repo_torta_aleg",
+    "nombre": "Torta Alegórica / Principal",
+    "categoria": "Repostería",
+    "precioEstimado": 7000,
+    "unidad": "Global",
+    "descripcion": "Diseño y elaboración de la torta principal del evento, personalizada."
+  },
+  {
+    "id": "serv_repo_mesa_dulce",
+    "nombre": "Mesa de Dulces / Candy Bar",
+    "categoria": "Repostería",
+    "precioEstimado": 8000,
+    "unidad": "Por evento",
+    "descripcion": "Variedad de postres individuales, golosinas y dulces temáticos."
+  },
+  {
+    "id": "serv_entr_show_banda",
+    "nombre": "Show Musical (Banda en Vivo)",
+    "categoria": "Entretenimiento",
+    "precioEstimado": 30000,
+    "unidad": "Por show",
+    "descripcion": "Contratación de banda musical para animar el evento."
+  },
+  {
+    "id": "serv_entr_animacion_infantil",
+    "nombre": "Animación Infantil",
+    "categoria": "Entretenimiento",
+    "precioEstimado": 10000,
+    "unidad": "Por evento",
+    "descripcion": "Juegos, personajes y actividades para entretener a los niños."
+  },
+  {
+    "id": "serv_entr_fotocabina",
+    "nombre": "Fotocabina / Espejo Mágico",
+    "categoria": "Entretenimiento",
+    "precioEstimado": 15000,
+    "unidad": "Por evento",
+    "descripcion": "Alquiler de fotocabina con accesorios y fotos impresas al instante."
+  },
+  {
+    "id": "serv_disc_dj_sonido",
+    "nombre": "Disc Jockey (DJ) y Sonido Profesional",
+    "categoria": "Música",
+    "precioEstimado": 25000,
+    "unidad": "Por evento",
+    "descripcion": "DJ profesional con equipo de sonido completo para toda la fiesta."
+  },
+  {
+    "id": "serv_disc_ilum_pista",
+    "nombre": "Iluminación de Pista de Baile",
+    "categoria": "Iluminación",
+    "precioEstimado": 10000,
+    "unidad": "Por evento",
+    "descripcion": "Luces robóticas, efectos, láser, máquina de humo para la pista de baile."
+  },
+  {
+    "id": "serv_disc_pantalla_led",
+    "nombre": "Pantalla LED Gigante",
+    "categoria": "Audiovisual",
+    "precioEstimado": 15000,
+    "unidad": "Por evento",
+    "descripcion": "Alquiler e instalación de pantalla LED para videos, visuales, etc."
+  }
+]
