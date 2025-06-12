@@ -45,3 +45,4 @@ export interface Prospecto {
 }
 
 export type NewProspectoData = Omit<Prospecto, 'id' | 'createdAt' | 'updatedAt'>;
+

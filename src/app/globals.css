@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -95,3 +96,122 @@
     background-size: 20px 20px; /* Corresponds to GRID_SNAP_SIZE * 2 */
   }
 }
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact; /* Chrome, Safari */
+    color-adjust: exact; /* Firefox */
+    background-color: white !important; /* Ensure white background for printing */
+    color: black !important; /* Ensure black text */
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  .print\:block {
+    display: block !important;
+  }
+  .print\:flex {
+    display: flex !important;
+  }
+  .print\:flex-col {
+    flex-direction: column !important;
+  }
+  .print\:gap-6 {
+    gap: 1.5rem !important; /* Or adjust as needed */
+  }
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+  .print\:border-none {
+    border: none !important;
+  }
+  .print\:bg-transparent {
+    background-color: transparent !important;
+  }
+  .print\:overflow-visible {
+    overflow: visible !important;
+  }
+  .print\:w-full {
+    width: 100% !important;
+  }
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+  .print\:border-t-2 {
+    border-top-width: 2px !important;
+  }
+  .print\:mb-4 {
+    margin-bottom: 1rem !important;
+  }
+  .print\:break-inside-avoid-page {
+    break-inside: avoid-page !important;
+  }
+   .print\:break-inside-avoid {
+    break-inside: avoid !important;
+  }
+  .print\:static {
+    position: static !important;
+  }
+  .print\:border-b-2 {
+    border-bottom-width: 2px !important;
+  }
+  .print\:pb-2 {
+    padding-bottom: 0.5rem !important;
+  }
+  .print\:space-y-2 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+  }
+  .print\:border {
+    border-width: 1px !important;
+  }
+  .print\:rounded-md {
+    border-radius: 0.375rem !important; /* Corresponds to md */
+  }
+  .print\:mb-2 {
+    margin-bottom: 0.5rem !important;
+  }
+  .print\:p-2 {
+    padding: 0.5rem !important;
+  }
+  .print\:mt-1 {
+    margin-top: 0.25rem !important;
+  }
+  .print\:pt-1 {
+    padding-top: 0.25rem !important;
+  }
+  .print\:text-\[10px\] {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+  .print\:whitespace-normal {
+     white-space: normal !important;
+  }
+
+  /* Hide sidebar and app shell header/footer for print */
+  [data-sidebar="sidebar"], 
+  header, 
+  /* Assuming your sidebar inset has a distinct selector or you add one */
+  .app-shell-header, /* Add specific class if needed */
+  .app-shell-footer  /* Add specific class if needed */
+  { 
+    display: none !important;
+  }
+  main { /* Ensure main content takes full width */
+    margin: 0 !important;
+    padding: 0.5in !important; /* Add some padding for print */
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+  }
+  /* Attempt to make ScrollArea content visible for print */
+  [data-radix-scroll-area-viewport] {
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .print\:flex-col > div { /* Target columns in sales funnel */
+    page-break-inside: avoid;
+  }
+}
+

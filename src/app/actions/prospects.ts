@@ -23,7 +23,11 @@ async function readProspectsFile(): Promise<Prospecto[]> {
   try {
     const fileContent = await fs.readFile(prospectsFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data : [];
+    return (Array.isArray(data) ? data : []).map(p => ({
+        ...p,
+        createdAt: p.createdAt || new Date(0).toISOString(), // Fallback for old data
+        updatedAt: p.updatedAt || new Date(0).toISOString(), // Fallback for old data
+    }));
   } catch (error: any) {
     if (error.code === 'ENOENT') {
       await writeProspectsFile([]); // Crear archivo si no existe
@@ -60,7 +64,12 @@ export async function getAllProspectsIncludingClosed(): Promise<Prospecto[]> {
 
 export async function getProspectById(id: string): Promise<Prospecto | null> {
   const prospects = await readProspectsFile();
-  return prospects.find(p => p.id === id) || null;
+  const prospect = prospects.find(p => p.id === id);
+  return prospect ? {
+    ...prospect,
+    createdAt: prospect.createdAt || new Date(0).toISOString(),
+    updatedAt: prospect.updatedAt || new Date(0).toISOString(),
+  } : null;
 }
 
 export async function saveProspect(
@@ -73,15 +82,17 @@ export async function saveProspect(
     // Update existing prospect
     const index = prospects.findIndex(p => p.id === prospectData.id);
     if (index !== -1) {
+      const originalProspect = prospects[index];
       prospects[index] = { 
-        ...prospects[index], 
+        ...originalProspect, 
         ...prospectData,
         updatedAt: now,
+        createdAt: originalProspect.createdAt || now, // Preserve original createdAt
       };
       
       // Lógica de conversión a Cliente
       if (prospectData.salesFunnelStage === 'Contrato Firmado') {
-        const customerDataFromProspect: Omit<Customer, 'id' | 'salesFunnelStage' | 'estadoCliente'> = {
+        const customerDataFromProspect: Omit<Customer, 'id' | 'estadoCliente'> = {
           name: prospectData.name,
           companyName: prospectData.companyName,
           email: prospectData.email,
@@ -89,16 +100,17 @@ export async function saveProspect(
           taxId: prospectData.taxId,
           address: prospectData.address,
         };
-        // Aquí podrías buscar un cliente existente antes de crear uno nuevo
+        
         const customerResult = await saveCustomer(customerDataFromProspect);
         if (customerResult.success && customerResult.id) {
-          // Podrías querer eliminar el prospecto o marcarlo como 'Convertido'
-          // Por ahora, solo actualizamos su estado.
-          prospects[index].salesFunnelStage = 'Contrato Firmado'; // Aseguramos el estado
+          prospects[index].salesFunnelStage = 'Contrato Firmado'; 
           await writeProspectsFile(prospects);
           return { success: true, id: prospectData.id, prospect: prospects[index], customerId: customerResult.id };
         } else {
-          return { success: false, error: `Error al convertir prospecto a cliente: ${customerResult.error}` };
+          // No se pudo crear/actualizar el cliente, pero el prospecto se actualiza a 'Contrato Firmado' igualmente.
+          // Podrías decidir si revertir el estado del prospecto o no. Por ahora, lo mantenemos.
+          await writeProspectsFile(prospects);
+          return { success: true, id: prospectData.id, prospect: prospects[index], error: `Prospecto actualizado a 'Contrato Firmado' pero hubo un problema al crear/actualizar el cliente: ${customerResult.error}` };
         }
       }
 
@@ -140,6 +152,26 @@ async function initializeProspectData() {
     await ensureDataDirectoryExists();
     try {
         await fs.access(prospectsFilePath);
+        // Check and update existing data if necessary
+        const currentProspects = await readProspectsFile();
+        let wasModified = false;
+        const updatedProspects = currentProspects.map(p => {
+            let prospectModified = false;
+            if (!p.createdAt) {
+                p.createdAt = new Date(0).toISOString(); // Or a more sensible default like p.updatedAt if available
+                prospectModified = true;
+            }
+            if (!p.updatedAt) {
+                p.updatedAt = new Date().toISOString();
+                prospectModified = true;
+            }
+            if (prospectModified) wasModified = true;
+            return p;
+        });
+        if (wasModified) {
+            await writeProspectsFile(updatedProspects);
+        }
+
     } catch (error: any) {
         if (error.code === 'ENOENT') {
             console.log('Archivo prospects.json no encontrado, creando archivo vacío...');
@@ -148,3 +180,4 @@ async function initializeProspectData() {
     }
 }
 initializeProspectData();
+
