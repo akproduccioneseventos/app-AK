@@ -14,6 +14,10 @@ import {
   PartyPopper,
   Sparkles,
   Building2, 
+  Users, // Added Users Icon
+  ListChecks, // Added ListChecks Icon
+  FileText, // Added FileText Icon
+  Banknote // Added Banknote Icon
 } from 'lucide-react';
 import {
   SidebarMenu,
