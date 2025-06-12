@@ -75,7 +75,7 @@ export default function ProveedoresPage() {
             Gestión de Proveedores
           </h1>
         </div>
-        <Link href="/customers/new" passHref> {/* Enlaza a nuevo cliente por ahora */}
+        <Link href="/proveedores/new" passHref> {/* Actualizado el enlace aquí */}
           <Button>
             <UserPlus className="w-5 h-5 mr-2" />
             Añadir Nuevo Proveedor
@@ -161,7 +161,7 @@ export default function ProveedoresPage() {
               <p className="text-muted-foreground text-lg">
                 No tienes proveedores guardados todavía.
               </p>
-              <Link href="/customers/new" passHref> {/* Enlaza a nuevo cliente */}
+              <Link href="/proveedores/new" passHref> {/* Enlaza a nuevo proveedor */}
                     <Button className="mt-6">
                     <UserPlus className="w-5 h-5 mr-2" />
                     Añadir Primer Proveedor
