@@ -18,11 +18,10 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
   switch (stage) {
     case 'Lead': return "secondary";
     case 'Contacto Iniciado': return "outline";
-    case 'Contactado y Calificando': return "default"; // Blueish by default theme
+    case 'Contactado y Calificando': return "default";
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
     case 'En Negociación': return "default";
-    // 'Contrato Firmado' y 'Descartado' no se mostrarán en el embudo principal activo
     default: return "secondary";
   }
 };
@@ -44,7 +43,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getProspects(); // getProspects ya filtra los convertidos/descartados
+      const data = await getProspects();
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -71,7 +70,6 @@ export default function SalesFunnelPage() {
         stageGroup.push(prospect);
       }
     });
-    // Sort prospects within each stage by updatedAt descending (most recent first)
     grouped.forEach((stageProspectsArray) => {
         stageProspectsArray.sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     });
