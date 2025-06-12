@@ -44,7 +44,7 @@ const navItems = [
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
-      { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles },
+      // { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles }, // Removed
     ]
   },
   {
@@ -97,8 +97,8 @@ export function MainNav() {
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} passHref legacyBehavior={false} asChild>
-                        <SidebarMenuSubButton // This should now correctly render as <a>
+                      <Link href={subItem.href} legacyBehavior={false} asChild>
+                        <SidebarMenuSubButton
                           isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}
                         >
                            {subItem.label}
@@ -113,7 +113,7 @@ export function MainNav() {
           // For direct navigation items
           return (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref legacyBehavior={false} asChild>
+              <Link href={item.href} legacyBehavior={false} asChild>
                 <SidebarMenuButton
                   isActive={isActiveParent(item.href)}
                   className={cn(
@@ -134,5 +134,3 @@ export function MainNav() {
       </SidebarMenu>
   );
 }
-
-    
