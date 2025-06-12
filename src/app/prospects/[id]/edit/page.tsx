@@ -41,7 +41,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [cantidadInvitados, setCantidadInvitados] = useState<number | ''>('');
   const [nextMeetingDate, setNextMeetingDate] = useState<Date | undefined>(undefined);
   
-  // Fields to preserve but not edit in this simplified form
+  // Fields to preserve from original prospect but not directly editable in this simplified form
   const [companyName, setCompanyName] = useState<string | undefined>(undefined);
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [taxId, setTaxId] = useState<string | undefined>(undefined);
@@ -49,6 +49,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [source, setSource] = useState<string | undefined>(undefined);
   const [estimatedValue, setEstimatedValue] = useState<number | undefined>(undefined);
   const [notes, setNotes] = useState<string | undefined>(undefined);
+  const [createdAt, setCreatedAt] = useState<string>('');
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -70,6 +72,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
         setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
         
+        // Preserve other fields
         setCompanyName(loadedProspecto.companyName);
         setEmail(loadedProspecto.email);
         setTaxId(loadedProspecto.taxId);
@@ -77,6 +80,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         setSource(loadedProspecto.source);
         setEstimatedValue(loadedProspecto.estimatedValue);
         setNotes(loadedProspecto.notes);
+        setCreatedAt(loadedProspecto.createdAt);
 
       } else {
         setNotFound(true);
@@ -105,7 +109,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
 
     setIsSaving(true);
     const prospectDataToSave: Prospecto = {
-      ...prospect,
+      id: prospect.id, // Crucial for update
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
@@ -113,7 +117,17 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       salonDeseado: salonDeseado.trim() || undefined,
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
       nextMeetingDate: salesFunnelStage === 'Reunión Programada' && nextMeetingDate ? nextMeetingDate.toISOString() : undefined,
-      companyName, email, taxId, address, source, estimatedValue, notes,
+      
+      // Preserve non-editable fields
+      companyName, 
+      email, 
+      taxId, 
+      address, 
+      source, 
+      estimatedValue, 
+      notes,
+      createdAt: prospect.createdAt, // Ensure createdAt is preserved
+      updatedAt: new Date().toISOString(), // This will be set by saveProspect action anyway
     };
 
     try {
@@ -123,15 +137,17 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' && result.customerId) {
            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
-           router.push(`/customers`);
+           router.push(`/customers`); // Redirect to customers list
            return; 
         } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero hubo un problema al crear el cliente.` });
         }
         
+        // If stage is now a terminal one (Firmo Contrato or No Contrato), redirect to funnel
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' || result.prospect.salesFunnelStage === 'No Contrato') {
             router.push('/sales-funnel');
         } else {
+            // For other stage changes, update local state and reload data
             setProspect(result.prospect); 
             loadProspectData(); 
         }

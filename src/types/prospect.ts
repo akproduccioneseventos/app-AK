@@ -1,12 +1,12 @@
 
 export type ProspectSalesFunnelStage =
-  | 'Prospecto'             // Initial stage (replaces Lead)
+  | 'Prospecto'             // Initial stage
   | 'Contacto Iniciado'     // Attempted to contact
-  | 'Contactado'            // Contact made (replaces Contactado y Calificando)
+  | 'Contactado'            // Contact made
   | 'Reunión Programada'    // Meeting scheduled
   | 'Presupuesto Presentado'// Quote/proposal sent
-  | 'Firmo Contrato'        // Deal WON - will convert to Customer (replaces Contrato Firmado)
-  | 'No Contrato';          // Deal LOST (replaces Descartado)
+  | 'Firmo Contrato'        // Deal WON - will convert to Customer
+  | 'No Contrato';          // Deal LOST
 
 // All possible stages, including terminal ones
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
@@ -36,11 +36,11 @@ export interface Prospecto {
   phone?: string;
   source?: string; 
   salesFunnelStage: ProspectSalesFunnelStage;
-  nextMeetingDate?: string; 
+  nextMeetingDate?: string; // ISO string
   estimatedValue?: number; 
   notes?: string;
-  createdAt: string; 
-  updatedAt: string; 
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 
   tipoFiesta?: string; 
   salonDeseado?: string; 

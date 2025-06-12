@@ -9,7 +9,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Phone, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, FileText as FileTextIcon } from 'lucide-react';
 import { getProspects } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
-import { ACTIVE_FUNNEL_STAGES } from '@/types/prospect';
+import { ACTIVE_FUNNEL_STAGES } from '@/types/prospect'; // Import ACTIVE_FUNNEL_STAGES
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,11 +17,11 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
   if (!stage) return "secondary";
   switch (stage) {
     case 'Prospecto': return "secondary";
-    case 'Contacto Iniciado': return "outline";
-    case 'Contactado': return "default";
-    case 'Reunión Programada': return "default";
-    case 'Presupuesto Presentado': return "default";
-    // 'Firmo Contrato' and 'No Contrato' are not active funnel stages for display
+    case 'Contacto Iniciado': return "outline"; // Example: blue-ish outline
+    case 'Contactado': return "default"; // Example: primary color
+    case 'Reunión Programada': return "default"; // Example: primary color, maybe slightly darker
+    case 'Presupuesto Presentado': return "default"; // Example: primary color, maybe different shade
+    // 'Firmo Contrato' and 'No Contrato' are not active funnel stages for column display
     default: return "secondary";
   }
 };
@@ -70,6 +70,7 @@ export default function SalesFunnelPage() {
         }
       }
     });
+    // Sort prospects within each stage by updatedAt descending (most recent first)
     grouped.forEach((stageProspectsArray) => {
         stageProspectsArray.sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     });
@@ -105,8 +106,8 @@ export default function SalesFunnelPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
             <FilterIcon className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline text-purple-600">
-              🟣🟣🟣 ¿SE VE ESTE CAMBIO? 🟣🟣🟣
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+              Embudo de Ventas
             </h1>
         </div>
         <div className="flex gap-2">
@@ -135,13 +136,13 @@ export default function SalesFunnelPage() {
             if (stageColorVariant === 'default') borderColorClass = 'border-primary';
             else if (stageColorVariant === 'secondary') borderColorClass = 'border-gray-400 dark:border-gray-600';
             else if (stageColorVariant === 'destructive') borderColorClass = 'border-destructive';
-            else if (stageColorVariant === 'outline') borderColorClass = 'border-blue-500';
+            else if (stageColorVariant === 'outline') borderColorClass = 'border-blue-500'; // Example for 'Contacto Iniciado'
 
             return (
               <Card key={stage} className={`w-72 sm:w-80 md:w-[350px] flex-shrink-0 flex flex-col h-full shadow-lg border-t-4 ${borderColorClass} print:w-full print:shadow-none print:border-t-2 print:mb-4 print:break-inside-avoid-page`}>
                 <CardHeader className="pb-3 sticky top-0 bg-card/95 backdrop-blur-sm z-10 border-b print:static print:bg-transparent print:border-b-2 print:pb-2">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="font-headline text-lg" style={{ color: `hsl(var(--${stageColorVariant === 'default' ? 'primary' : stageColorVariant === 'outline' ? 'primary' : stageColorVariant}))` }}>
+                    <CardTitle className="font-headline text-lg" style={{ color: `hsl(var(--${stageColorVariant === 'default' ? 'primary' : stageColorVariant === 'outline' ? 'primary' /* Using primary for blue outline text */ : stageColorVariant}))` }}>
                       {stage}
                     </CardTitle>
                     <Badge variant={stageColorVariant} className="text-sm px-2.5 py-1">{stageProspects.length}</Badge>

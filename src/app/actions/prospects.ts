@@ -114,6 +114,7 @@ export async function saveProspect(
       };
       const customerResult = await saveCustomer(customerDataFromProspect);
       if (customerResult.success && customerResult.id) {
+        // Prospect remains in prospects.json but won't be shown in active funnel
         await writeProspectsFile(prospects);
         return { success: true, id: prospectData.id, prospect: prospects[index], customerId: customerResult.id };
       } else {
@@ -129,7 +130,7 @@ export async function saveProspect(
   } else {
     // Create new prospect
     const newProspect: Prospecto = {
-      ...(prospectData as NewProspectoData),
+      ...(prospectData as NewProspectoData), // Cast, all fields from NewProspectoData are optional except name
       id: `prospect_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       salesFunnelStage: 'Prospecto', // Default stage for new prospects
       createdAt: now,
@@ -137,7 +138,14 @@ export async function saveProspect(
       cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
       tipoFiesta: prospectData.tipoFiesta || undefined,
       salonDeseado: prospectData.salonDeseado || undefined,
-      nextMeetingDate: undefined,
+      nextMeetingDate: undefined, // Not applicable on creation by default
+      companyName: prospectData.companyName || undefined,
+      email: prospectData.email || undefined,
+      taxId: prospectData.taxId || undefined,
+      address: prospectData.address || undefined,
+      source: prospectData.source || undefined,
+      estimatedValue: prospectData.estimatedValue || undefined,
+      notes: prospectData.notes || undefined,
     };
     prospects.push(newProspect);
     await writeProspectsFile(prospects);
@@ -177,6 +185,8 @@ async function initializeProspectData() {
                 p.salesFunnelStage = 'Prospecto'; prospectModified = true;
             }
             if (p.cantidadInvitados === null) { p.cantidadInvitados = undefined; prospectModified = true; }
+            if (p.tipoFiesta === null) {p.tipoFiesta = undefined; prospectModified = true;}
+            if (p.salonDeseado === null) {p.salonDeseado = undefined; prospectModified = true;}
             if (p.salesFunnelStage !== 'Reunión Programada' && p.nextMeetingDate) {
                 p.nextMeetingDate = undefined; prospectModified = true;
             }
