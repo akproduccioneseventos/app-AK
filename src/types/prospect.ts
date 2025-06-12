@@ -1,3 +1,4 @@
+// DEBUG-EMBUDO-V7 - Types
 
 export type ProspectSalesFunnelStage =
   | 'Prospecto'             // Initial stage
@@ -42,10 +43,12 @@ export interface Prospecto {
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 
+  // Optional fields related to the event they are interested in
   tipoFiesta?: string; 
   salonDeseado?: string; 
   cantidadInvitados?: number;
 
+  // Fields for potential conversion to Customer
   taxId?: string;
   address?: {
     street?: string;
@@ -56,4 +59,6 @@ export interface Prospecto {
   };
 }
 
+// Data type for creating a new prospect. Name is required, others are optional.
+// salesFunnelStage will be set to 'Prospecto' by default in the server action.
 export type NewProspectoData = Pick<Prospecto, 'name'> & Partial<Omit<Prospecto, 'id' | 'createdAt' | 'updatedAt' | 'salesFunnelStage'>>;

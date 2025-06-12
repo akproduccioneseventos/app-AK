@@ -1,4 +1,4 @@
-
+// DEBUG-EMBUDO-V7 - Edit Prospect Page
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -41,7 +41,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [cantidadInvitados, setCantidadInvitados] = useState<number | ''>('');
   const [nextMeetingDate, setNextMeetingDate] = useState<Date | undefined>(undefined);
   
-  // Fields to preserve from original prospect but not directly editable in this simplified form
+  // Fields to preserve from original prospect
   const [companyName, setCompanyName] = useState<string | undefined>(undefined);
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [taxId, setTaxId] = useState<string | undefined>(undefined);
@@ -72,7 +72,6 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
         setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
         
-        // Preserve other fields
         setCompanyName(loadedProspecto.companyName);
         setEmail(loadedProspecto.email);
         setTaxId(loadedProspecto.taxId);
@@ -109,7 +108,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
 
     setIsSaving(true);
     const prospectDataToSave: Prospecto = {
-      id: prospect.id, // Crucial for update
+      id: prospect.id,
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
@@ -118,7 +117,6 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
       nextMeetingDate: salesFunnelStage === 'Reunión Programada' && nextMeetingDate ? nextMeetingDate.toISOString() : undefined,
       
-      // Preserve non-editable fields
       companyName, 
       email, 
       taxId, 
@@ -126,8 +124,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       source, 
       estimatedValue, 
       notes,
-      createdAt: prospect.createdAt, // Ensure createdAt is preserved
-      updatedAt: new Date().toISOString(), // This will be set by saveProspect action anyway
+      createdAt: prospect.createdAt,
+      updatedAt: new Date().toISOString(),
     };
 
     try {
@@ -137,17 +135,15 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' && result.customerId) {
            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
-           router.push(`/customers`); // Redirect to customers list
+           router.push(`/customers`); 
            return; 
         } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero hubo un problema al crear el cliente.` });
         }
         
-        // If stage is now a terminal one (Firmo Contrato or No Contrato), redirect to funnel
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' || result.prospect.salesFunnelStage === 'No Contrato') {
             router.push('/sales-funnel');
         } else {
-            // For other stage changes, update local state and reload data
             setProspect(result.prospect); 
             loadProspectData(); 
         }

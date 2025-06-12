@@ -1,4 +1,4 @@
-
+// DEBUG-EMBUDO-V7 - Actions
 'use server';
 
 import type { Prospecto, NewProspectoData, ProspectSalesFunnelStage } from '@/types/prospect';
@@ -55,6 +55,7 @@ async function writeProspectsFile(data: Prospecto[]): Promise<void> {
 
 export async function getProspects(): Promise<Prospecto[]> {
   const prospects = await readProspectsFile();
+  // Filter to only show prospects in active funnel stages
   return prospects
     .filter(p => ACTIVE_FUNNEL_STAGES.includes(p.salesFunnelStage as any)) 
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -100,9 +101,11 @@ export async function saveProspect(
       updatedAt: now,
       createdAt: originalProspect.createdAt || now, // Preserve original creation date
       cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
-      nextMeetingDate: prospectData.salesFunnelStage === 'Reunión Programada' && prospectData.nextMeetingDate ? prospectData.nextMeetingDate : (prospectData.salesFunnelStage !== 'Reunión Programada' ? undefined : originalProspect.nextMeetingDate),
+      // Clear nextMeetingDate if stage is not 'Reunión Programada'
+      nextMeetingDate: prospectData.salesFunnelStage === 'Reunión Programada' && prospectData.nextMeetingDate ? prospectData.nextMeetingDate : undefined,
     };
     
+    // If prospect signs contract, convert to customer
     if (prospects[index].salesFunnelStage === 'Firmo Contrato') {
       const customerDataFromProspect: Omit<Customer, 'id' | 'estadoCliente'> = {
         name: prospects[index].name,
@@ -111,6 +114,7 @@ export async function saveProspect(
         phone: prospects[index].phone,
         taxId: prospects[index].taxId,
         address: prospects[index].address,
+        // salesFunnelStage is not part of Customer type
       };
       const customerResult = await saveCustomer(customerDataFromProspect);
       if (customerResult.success && customerResult.id) {
@@ -135,9 +139,10 @@ export async function saveProspect(
       salesFunnelStage: 'Prospecto', // Default stage for new prospects
       createdAt: now,
       updatedAt: now,
-      cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
+      // Ensure new optional fields are included
       tipoFiesta: prospectData.tipoFiesta || undefined,
       salonDeseado: prospectData.salonDeseado || undefined,
+      cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
       nextMeetingDate: undefined, // Not applicable on creation by default
       companyName: prospectData.companyName || undefined,
       email: prospectData.email || undefined,
@@ -156,6 +161,7 @@ export async function saveProspect(
 export async function deleteProspect(id: string): Promise<{ success: boolean; error?: string }> {
   let prospects = await readProspectsFile();
   const prospectToDelete = prospects.find(p => p.id === id);
+  // Prevent deletion if already converted to customer (signed contract)
   if (prospectToDelete && prospectToDelete.salesFunnelStage === 'Firmo Contrato') {
     return { success: false, error: 'No se puede eliminar un prospecto que ya firmó contrato. Gestionar desde Clientes.' };
   }
@@ -171,10 +177,12 @@ export async function deleteProspect(id: string): Promise<{ success: boolean; er
   }
 }
 
+// Initialize data file and ensure existing data conforms to schema
 async function initializeProspectData() {
     await ensureDataDirectoryExists();
     try {
-        await fs.access(prospectsFilePath);
+        await fs.access(prospectsFilePath); // Check if file exists
+        // Read and potentially update existing prospects
         const currentProspects = await readProspectsFile();
         let wasModified = false;
         const updatedProspects = currentProspects.map(p => {
@@ -182,20 +190,28 @@ async function initializeProspectData() {
             if (!p.createdAt) { p.createdAt = new Date(0).toISOString(); prospectModified = true; }
             if (!p.updatedAt) { p.updatedAt = new Date().toISOString(); prospectModified = true; }
             if (!p.salesFunnelStage || !ALL_PROSPECT_STAGES.includes(p.salesFunnelStage as any)) {
+                // If stage is invalid, reset to 'Prospecto'
                 p.salesFunnelStage = 'Prospecto'; prospectModified = true;
             }
-            if (p.cantidadInvitados === null) { p.cantidadInvitados = undefined; prospectModified = true; }
-            if (p.tipoFiesta === null) {p.tipoFiesta = undefined; prospectModified = true;}
-            if (p.salonDeseado === null) {p.salonDeseado = undefined; prospectModified = true;}
+            // Ensure optional fields exist or are undefined
+            if (!('tipoFiesta' in p)) { p.tipoFiesta = undefined; prospectModified = true; }
+            if (!('salonDeseado' in p)) { p.salonDeseado = undefined; prospectModified = true; }
+            if (!('cantidadInvitados' in p)) { p.cantidadInvitados = undefined; prospectModified = true; }
+            else if (p.cantidadInvitados === null) { p.cantidadInvitados = undefined; prospectModified = true; }
+
+
             if (p.salesFunnelStage !== 'Reunión Programada' && p.nextMeetingDate) {
-                p.nextMeetingDate = undefined; prospectModified = true;
+                p.nextMeetingDate = undefined; // Clear meeting date if not in relevant stage
+                prospectModified = true;
             }
             if (prospectModified) wasModified = true;
             return p;
         });
         if (wasModified) {
             await writeProspectsFile(updatedProspects);
+            console.log('Prospects data initialized/updated.');
         }
+
     } catch (error: any) {
         if (error.code === 'ENOENT') {
             console.log('Archivo prospects.json no encontrado, creando archivo vacío...');
@@ -203,4 +219,5 @@ async function initializeProspectData() {
         }
     }
 }
+
 initializeProspectData();
