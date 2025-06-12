@@ -58,6 +58,7 @@ const navItems = [
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
+  { href: '/galeria', label: 'Galería', icon: ImageIcon },
 ];
 
 export function MainNav() {
@@ -111,7 +112,7 @@ export function MainNav() {
           // For direct navigation items
           return (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} asChild={true}>
+              <Link href={item.href} legacyBehavior={false} asChild>
                 <SidebarMenuButton
                   isActive={isActiveParent(item.href)}
                   className={cn(
