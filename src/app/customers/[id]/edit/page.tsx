@@ -12,8 +12,7 @@ import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
-import type { Customer, SalesFunnelStage } from '@/types/customer';
-import { ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
+import type { Customer } from '@/types/customer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +24,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EditCustomerPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -35,15 +33,13 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   // Form state
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [taxId, setTaxId] = useState('');
+  const [cedula, setCedula] = useState(''); // Cambiado de taxId
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [country, setCountry] = useState('');
-  const [customerState, setCustomerState] = useState('');
-  const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead');
+  const [customerState, setCustomerState] = useState(''); // Renombrado de 'state' para evitar conflicto
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -60,15 +56,13 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           setCustomer(loadedCustomer);
           setName(loadedCustomer.name || '');
           setCompanyName(loadedCustomer.companyName || '');
-          setEmail(loadedCustomer.email || '');
           setPhone(loadedCustomer.phone || '');
-          setTaxId(loadedCustomer.taxId || '');
+          setCedula(loadedCustomer.taxId || ''); // Cargar taxId en cédula
           setStreet(loadedCustomer.address?.street || '');
           setCity(loadedCustomer.address?.city || '');
           setZipCode(loadedCustomer.address?.zipCode || '');
           setCountry(loadedCustomer.address?.country || '');
           setCustomerState(loadedCustomer.address?.state || '');
-          setSalesFunnelStage(loadedCustomer.salesFunnelStage || 'Lead');
         } else {
           setNotFound(true);
           toast({ title: 'Error', description: `No se encontró el cliente con ID ${params.id}.`, variant: 'destructive' });
@@ -99,9 +93,8 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
       ...customer,
       name: name.trim() || companyName.trim(),
       companyName: companyName.trim() || undefined,
-      email: email.trim() || undefined,
       phone: phone.trim() || undefined,
-      taxId: taxId.trim() || undefined,
+      taxId: cedula.trim() || undefined, // Guardar cédula en taxId
       address: {
         street: street.trim() || undefined,
         city: city.trim() || undefined,
@@ -109,7 +102,9 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         country: country.trim() || undefined,
         state: customerState.trim() || undefined,
       },
-      salesFunnelStage: salesFunnelStage,
+      // email y salesFunnelStage no se actualizan desde este formulario
+      email: customer.email, 
+      salesFunnelStage: customer.salesFunnelStage,
     };
 
     try {
@@ -197,7 +192,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="customer-name">Nombre Completo (Persona)</Label>
+                <Label htmlFor="customer-name">Nombre Completo</Label>
                 <Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" disabled={isSaving || isDeleting}/>
               </div>
               <div className="space-y-2">
@@ -208,58 +203,38 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="customer-email">Email</Label>
-                <Input id="customer-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contacto@empresa.com" disabled={isSaving || isDeleting}/>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="customer-phone">Teléfono</Label>
-                <Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+34 600 000 000" disabled={isSaving || isDeleting}/>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="customer-taxid">NIF/CIF</Label>
-                <Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="Ej: B12345678" disabled={isSaving || isDeleting}/>
+                <Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+598 99 000 000" disabled={isSaving || isDeleting}/>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sales-funnel-stage">Etapa del Embudo</Label>
-                <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as SalesFunnelStage)} disabled={isSaving || isDeleting}>
-                  <SelectTrigger id="sales-funnel-stage">
-                    <SelectValue placeholder="Seleccionar etapa" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ALL_SALES_FUNNEL_STAGES.map(stage => (
-                      <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="customer-cedula">Cédula</Label>
+                <Input id="customer-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="Ej: 1.234.567-8" disabled={isSaving || isDeleting}/>
               </div>
             </div>
             
             <h3 className="text-lg font-medium pt-4 border-t font-headline">Dirección</h3>
             <div className="space-y-2">
               <Label htmlFor="street">Calle y Número</Label>
-              <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Ej: Calle de la Innovación 123" disabled={isSaving || isDeleting}/>
+              <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Ej: Av. 18 de Julio 1234" disabled={isSaving || isDeleting}/>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="city">Ciudad</Label>
-                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Madrid" disabled={isSaving || isDeleting}/>
+                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Montevideo" disabled={isSaving || isDeleting}/>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="zip-code">Código Postal</Label>
-                <Input id="zip-code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="Ej: 28001" disabled={isSaving || isDeleting}/>
+                <Input id="zip-code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="Ej: 11200" disabled={isSaving || isDeleting}/>
               </div>
             </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="state">Provincia / Estado</Label>
-                <Input id="state" value={customerState} onChange={(e) => setCustomerState(e.target.value)} placeholder="Ej: Madrid" disabled={isSaving || isDeleting}/>
+                <Label htmlFor="state">Departamento / Provincia</Label>
+                <Input id="state" value={customerState} onChange={(e) => setCustomerState(e.target.value)} placeholder="Ej: Montevideo" disabled={isSaving || isDeleting}/>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">País</Label>
-                <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ej: España" disabled={isSaving || isDeleting}/>
+                <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ej: Uruguay" disabled={isSaving || isDeleting}/>
               </div>
             </div>
             <div className="pt-4">
@@ -307,3 +282,5 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     </div>
   );
 }
+
+    

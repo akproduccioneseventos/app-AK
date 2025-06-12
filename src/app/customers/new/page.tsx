@@ -12,9 +12,7 @@ import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, UserPlus2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCustomer } from '@/app/actions/customers';
-import type { Customer, SalesFunnelStage } from '@/types/customer';
-import { ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { Customer } from '@/types/customer';
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -24,15 +22,13 @@ export default function NewCustomerPage() {
   // Form state
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [taxId, setTaxId] = useState('');
+  const [cedula, setCedula] = useState(''); // Cambiado de taxId
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [country, setCountry] = useState('');
-  const [state, setState] = useState(''); // For state/province
-  const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead');
+  const [state, setState] = useState(''); 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,12 +38,11 @@ export default function NewCustomerPage() {
     }
 
     setIsSaving(true);
-    const customerData: Omit<Customer, 'id'> = {
+    const customerData: Omit<Customer, 'id' | 'email' | 'salesFunnelStage'> = { // Ajustado para omitir campos no usados
       name: name.trim() || companyName.trim(), 
       companyName: companyName.trim() || undefined,
-      email: email.trim() || undefined,
       phone: phone.trim() || undefined,
-      taxId: taxId.trim() || undefined,
+      taxId: cedula.trim() || undefined, // Guardar cédula en taxId
       address: {
         street: street.trim() || undefined,
         city: city.trim() || undefined,
@@ -55,11 +50,11 @@ export default function NewCustomerPage() {
         country: country.trim() || undefined,
         state: state.trim() || undefined,
       },
-      salesFunnelStage: salesFunnelStage,
     };
 
     try {
-      const result = await saveCustomer(customerData);
+      // Asegurarse de que saveCustomer pueda manejar esta estructura (sin email ni salesFunnelStage)
+      const result = await saveCustomer(customerData as Omit<Customer, 'id'>); 
       if (result.success && result.id) {
         toast({ title: "¡Cliente Guardado!", description: `El cliente "${customerData.name}" ha sido guardado.` });
         router.push('/customers');
@@ -99,7 +94,7 @@ export default function NewCustomerPage() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="customer-name">Nombre Completo (Persona)</Label>
+                <Label htmlFor="customer-name">Nombre Completo</Label>
                 <Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" />
               </div>
               <div className="space-y-2">
@@ -110,58 +105,38 @@ export default function NewCustomerPage() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="customer-email">Email</Label>
-                <Input id="customer-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contacto@empresa.com" />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="customer-phone">Teléfono</Label>
-                <Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+34 600 000 000" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="customer-taxid">NIF/CIF</Label>
-                <Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="Ej: B12345678" />
+                <Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+598 99 000 000" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sales-funnel-stage">Etapa del Embudo</Label>
-                <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as SalesFunnelStage)}>
-                  <SelectTrigger id="sales-funnel-stage">
-                    <SelectValue placeholder="Seleccionar etapa" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ALL_SALES_FUNNEL_STAGES.map(stage => (
-                      <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="customer-cedula">Cédula</Label>
+                <Input id="customer-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="Ej: 1.234.567-8" />
               </div>
             </div>
             
             <h3 className="text-lg font-medium pt-4 border-t font-headline">Dirección</h3>
             <div className="space-y-2">
               <Label htmlFor="street">Calle y Número</Label>
-              <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Ej: Calle de la Innovación 123" />
+              <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Ej: Av. 18 de Julio 1234" />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="city">Ciudad</Label>
-                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Madrid" />
+                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Montevideo" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="zip-code">Código Postal</Label>
-                <Input id="zip-code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="Ej: 28001" />
+                <Input id="zip-code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="Ej: 11200" />
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="state">Provincia / Estado</Label>
-                <Input id="state" value={state} onChange={(e) => setState(e.target.value)} placeholder="Ej: Madrid" />
+                <Label htmlFor="state">Departamento / Provincia</Label>
+                <Input id="state" value={state} onChange={(e) => setState(e.target.value)} placeholder="Ej: Montevideo" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">País</Label>
-                <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ej: España" />
+                <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ej: Uruguay" />
               </div>
             </div>
             <div className="pt-4">
@@ -186,3 +161,5 @@ export default function NewCustomerPage() {
     </div>
   );
 }
+
+    
