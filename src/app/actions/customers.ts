@@ -24,7 +24,6 @@ async function readCustomersFile(): Promise<Customer[]> {
     const data = JSON.parse(fileContent);
     return Array.isArray(data) ? data.map(c => ({
         ...c, 
-        // salesFunnelStage: c.salesFunnelStage || 'Lead', // Eliminado
         estadoCliente: c.estadoCliente || 'Actual' 
     })) : [];
   } catch (error: any) {
@@ -86,7 +85,6 @@ export async function getCustomerById(id: string): Promise<Customer | null> {
   const customer = customers.find(c => c.id === id);
   return customer ? { 
     ...customer, 
-    // salesFunnelStage: customer.salesFunnelStage || 'Lead', // Eliminado
     estadoCliente: customer.estadoCliente || 'Actual'
   } : null;
 }
@@ -102,17 +100,14 @@ export async function saveCustomer(
       customers[index] = { 
         ...customers[index], 
         ...customerData,
-        // salesFunnelStage: customerData.salesFunnelStage || customers[index].salesFunnelStage || 'Lead', // Eliminado
         estadoCliente: customerData.estadoCliente || customers[index].estadoCliente || 'Actual',
       };
       await writeCustomersFile(customers);
       return { success: true, id: customerData.id, customer: { ...customers[index] } };
     } else {
-      // Si no se encuentra para actualizar, y viene de un prospecto, podríamos crearlo
-      // pero por ahora, la creación se maneja en el 'else'
       const newCustomerFromUpdate: Customer = {
-        ...(customerData as Customer), // Asumimos que tiene todos los campos
-        id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`, // Generar nuevo ID
+        ...(customerData as Customer), 
+        id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         name: customerData.name || customerData.companyName || 'Sin Nombre Asignado',
         estadoCliente: customerData.estadoCliente || 'Actual',
       };
@@ -155,10 +150,6 @@ async function initializeCustomerData() {
         let wasModified = false;
         const updatedCustomers = currentCustomers.map(c => {
             let customerModified = false;
-            // if (!c.salesFunnelStage) { // Eliminado
-            //     c.salesFunnelStage = 'Lead';
-            //     customerModified = true;
-            // }
             if (!c.estadoCliente) {
                 c.estadoCliente = 'Actual';
                 customerModified = true;

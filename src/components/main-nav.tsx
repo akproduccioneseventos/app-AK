@@ -1,4 +1,3 @@
-
 // src/components/main-nav.tsx
 'use client';
 
@@ -14,7 +13,6 @@ import {
   ListChecks,
   CalendarDays,
   PartyPopper,
-  Filter,
   Sparkles,
   FileText,
   Banknote,
@@ -55,7 +53,7 @@ const navItems = [
       { href: '/invoices', label: 'Facturas', icon: FileText },
       { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
       { href: '/customers', label: 'Clientes', icon: Users },
-      { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter },
+      // { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter }, // Eliminado
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },

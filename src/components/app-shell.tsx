@@ -49,7 +49,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
-  if (pathname === '/sales-funnel') return 'Embudo de Ventas';
+  // if (pathname === '/sales-funnel') return 'Embudo de Ventas'; // Eliminado
 
   // Empresa
   if (pathname === '/proveedores') return 'Proveedores';
@@ -142,7 +142,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
   if (pathname === '/fiestas/nueva/decoracion') return Palette;
   if (pathname === '/fiestas/nueva/catering') return ChefHat;
-  if (pathname === '/sales-funnel') return FilterIcon;
+  // if (pathname === '/sales-funnel') return FilterIcon; // Eliminado
   if (pathname === '/evento/actual') return Globe;
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
