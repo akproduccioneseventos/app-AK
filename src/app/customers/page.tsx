@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { Customer, SalesFunnelStage } from '@/types/customer';
-import { ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
+import type { Customer, SalesFunnelStage, CustomerStatus } from '@/types/customer';
+import { ALL_SALES_FUNNEL_STAGES, ALL_CUSTOMER_STATES } from '@/types/customer';
 import { getCustomers, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
 import {
   AlertDialog,
@@ -40,9 +40,18 @@ const getStageBadgeVariant = (stage?: SalesFunnelStage): "default" | "secondary"
     case 'Calificado': return "default";
     case 'Propuesta Presentada': return "default";
     case 'Negociación': return "default";
-    case 'Ganado': return "default"; // Success variant can be green
+    case 'Ganado': return "default"; 
     case 'Perdido': return "destructive";
     case 'En Espera': return "secondary";
+    default: return "secondary";
+  }
+};
+
+const getCustomerStatusBadgeVariant = (status?: CustomerStatus): "default" | "secondary" | "destructive" | "outline" => {
+  if (!status) return "secondary";
+  switch (status) {
+    case 'Actual': return "default"; // Could be a success-like variant
+    case 'Antiguo': return "secondary";
     default: return "secondary";
   }
 };
@@ -53,8 +62,12 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  
   const [stageFilter, setStageFilter] = useState<Record<SalesFunnelStage, boolean>>(
     ALL_SALES_FUNNEL_STAGES.reduce((acc, stage) => ({ ...acc, [stage]: true }), {} as Record<SalesFunnelStage, boolean>)
+  );
+  const [statusFilter, setStatusFilter] = useState<Record<CustomerStatus, boolean>>(
+    ALL_CUSTOMER_STATES.reduce((acc, status) => ({...acc, [status]: true }), {} as Record<CustomerStatus, boolean>)
   );
 
   const fetchCustomers = async () => {
@@ -94,11 +107,18 @@ export default function CustomersPage() {
     setStageFilter(prev => ({ ...prev, [stage]: !prev[stage] }));
   };
 
-  const filteredCustomers = customers.filter(customer => 
-    customer.salesFunnelStage ? stageFilter[customer.salesFunnelStage] : stageFilter['Lead'] // Default to Lead if undefined
-  );
+  const handleStatusFilterChange = (status: CustomerStatus) => {
+    setStatusFilter(prev => ({ ...prev, [status]: !prev[status]}));
+  }
+
+  const filteredCustomers = customers.filter(customer => {
+    const stageMatch = customer.salesFunnelStage ? stageFilter[customer.salesFunnelStage] : stageFilter['Lead'];
+    const statusMatch = customer.estadoCliente ? statusFilter[customer.estadoCliente] : statusFilter['Actual'];
+    return stageMatch && statusMatch;
+  });
   
-  const anyFilterActive = ALL_SALES_FUNNEL_STAGES.some(stage => !stageFilter[stage]);
+  const anyStageFilterActive = ALL_SALES_FUNNEL_STAGES.some(stage => !stageFilter[stage]);
+  const anyStatusFilterActive = ALL_CUSTOMER_STATES.some(status => !statusFilter[status]);
 
   return (
     <div className="space-y-6">
@@ -109,17 +129,17 @@ export default function CustomersPage() {
             Gestión de Clientes
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
                 <Filter className="w-4 h-4 mr-2" />
                 Filtrar Etapa
-                {anyFilterActive && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
+                {anyStageFilterActive && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel>Mostrar Etapas</DropdownMenuLabel>
+              <DropdownMenuLabel>Mostrar Etapas del Embudo</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {ALL_SALES_FUNNEL_STAGES.map(stage => (
                 <DropdownMenuCheckboxItem
@@ -132,6 +152,30 @@ export default function CustomersPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Tag className="w-4 h-4 mr-2" />
+                Filtrar Estado
+                {anyStatusFilterActive && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>Mostrar Estado del Cliente</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {ALL_CUSTOMER_STATES.map(status => (
+                <DropdownMenuCheckboxItem
+                  key={status}
+                  checked={statusFilter[status]}
+                  onCheckedChange={() => handleStatusFilterChange(status)}
+                >
+                  {status}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Link href="/customers/new" passHref>
             <Button>
               <UserPlus className="w-5 h-5 mr-2" />
@@ -158,10 +202,10 @@ export default function CustomersPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre / Empresa</TableHead>
-                    <TableHead>Etapa</TableHead>
+                    <TableHead>Estado Cliente</TableHead>
+                    <TableHead>Etapa Embudo</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Teléfono</TableHead>
-                    <TableHead>Ciudad</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -169,6 +213,11 @@ export default function CustomersPage() {
                   {filteredCustomers.map((customer) => (
                     <TableRow key={customer.id}>
                       <TableCell className="font-medium min-w-[200px]">{customer.companyName || customer.name}</TableCell>
+                      <TableCell className="min-w-[120px]">
+                        <Badge variant={getCustomerStatusBadgeVariant(customer.estadoCliente)} className="text-xs">
+                          {customer.estadoCliente || 'Actual'}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="min-w-[150px]">
                         <Badge variant={getStageBadgeVariant(customer.salesFunnelStage)} className="text-xs">
                           {customer.salesFunnelStage || 'Lead'}
@@ -176,7 +225,6 @@ export default function CustomersPage() {
                       </TableCell>
                       <TableCell className="min-w-[180px]">{customer.email || '-'}</TableCell>
                       <TableCell className="min-w-[130px]">{customer.phone || '-'}</TableCell>
-                      <TableCell className="min-w-[130px]">{customer.address?.city || '-'}</TableCell>
                       <TableCell className="text-right min-w-[150px]">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/customers/${customer.id}/edit`} passHref>

@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { Customer, SalesFunnelStage } from '@/types/customer';
+import type { Customer, SalesFunnelStage, CustomerStatus } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -23,7 +23,11 @@ async function readCustomersFile(): Promise<Customer[]> {
   try {
     const fileContent = await fs.readFile(customersFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data.map(c => ({...c, salesFunnelStage: c.salesFunnelStage || 'Lead'})) : [];
+    return Array.isArray(data) ? data.map(c => ({
+        ...c, 
+        salesFunnelStage: c.salesFunnelStage || 'Lead',
+        estadoCliente: c.estadoCliente || 'Actual' 
+    })) : [];
   } catch (error: any) {
     if (error.code === 'ENOENT') {
       await writeCustomersFile([]);
@@ -52,7 +56,11 @@ export async function getCustomers(): Promise<Customer[]> {
 export async function getCustomerById(id: string): Promise<Customer | null> {
   const customers = await readCustomersFile();
   const customer = customers.find(c => c.id === id);
-  return customer ? { ...customer, salesFunnelStage: customer.salesFunnelStage || 'Lead' } : null;
+  return customer ? { 
+    ...customer, 
+    salesFunnelStage: customer.salesFunnelStage || 'Lead',
+    estadoCliente: customer.estadoCliente || 'Actual' 
+  } : null;
 }
 
 export async function saveCustomer(
@@ -68,6 +76,7 @@ export async function saveCustomer(
         ...customers[index], 
         ...customerData,
         salesFunnelStage: customerData.salesFunnelStage || customers[index].salesFunnelStage || 'Lead',
+        estadoCliente: customerData.estadoCliente || customers[index].estadoCliente || 'Actual',
       };
       await writeCustomersFile(customers);
       return { success: true, id: customerData.id, customer: { ...customers[index] } };
@@ -77,10 +86,11 @@ export async function saveCustomer(
   } else {
     // Create new customer
     const newCustomer: Customer = {
-      ...customerData,
+      ...(customerData as Omit<Customer, 'id'>), // Type assertion for new customer data
       id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: customerData.name || customerData.companyName || 'Sin Nombre Asignado', // Ensure name is set
       salesFunnelStage: customerData.salesFunnelStage || 'Lead',
+      estadoCliente: customerData.estadoCliente || 'Actual',
     };
     customers.push(newCustomer);
     await writeCustomersFile(customers);
@@ -106,14 +116,20 @@ async function initializeCustomerData() {
     await ensureDataDirectoryExists();
     try {
         await fs.access(customersFilePath);
-        // Ensure existing customers have a default salesFunnelStage if missing
+        // Ensure existing customers have default fields if missing
         const currentCustomers = await readCustomersFile();
         let wasModified = false;
         const updatedCustomers = currentCustomers.map(c => {
+            let customerModified = false;
             if (!c.salesFunnelStage) {
                 c.salesFunnelStage = 'Lead';
-                wasModified = true;
+                customerModified = true;
             }
+            if (!c.estadoCliente) {
+                c.estadoCliente = 'Actual';
+                customerModified = true;
+            }
+            if (customerModified) wasModified = true;
             return c;
         });
         if (wasModified) {
@@ -123,6 +139,10 @@ async function initializeCustomerData() {
     } catch (error: any) {
         if (error.code === 'ENOENT') {
             console.log('Archivo customers.json no encontrado, creando con datos iniciales...');
+            // If the file doesn't exist, readCustomersFile will create it with an empty array
+            // or the initial mock data if that logic was present.
+            // Here, we ensure that if it's created empty, it respects defaults.
+            await readCustomersFile(); 
         }
     }
 }

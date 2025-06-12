@@ -20,6 +20,9 @@ export const ALL_SALES_FUNNEL_STAGES: SalesFunnelStage[] = [
   'En Espera'
 ];
 
+export type CustomerStatus = 'Actual' | 'Antiguo';
+export const ALL_CUSTOMER_STATES: CustomerStatus[] = ['Actual', 'Antiguo'];
+
 export interface Customer {
   id: string;
   name: string;
@@ -35,5 +38,6 @@ export interface Customer {
   companyName?: string;
   taxId?: string; // e.g., VAT ID, CIF
   salesFunnelStage?: SalesFunnelStage;
+  estadoCliente?: CustomerStatus;
 }
 

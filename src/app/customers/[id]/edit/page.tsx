@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
-import type { Customer } from '@/types/customer';
+import type { Customer, CustomerStatus, SalesFunnelStage } from '@/types/customer';
+import { ALL_CUSTOMER_STATES, ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,12 +36,15 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
-  const [cedula, setCedula] = useState(''); // Cambiado de taxId
+  const [cedula, setCedula] = useState('');
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [country, setCountry] = useState('');
   const [customerState, setCustomerState] = useState(''); // Renombrado de 'state' para evitar conflicto
+  const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead');
+  const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,12 +62,14 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           setName(loadedCustomer.name || '');
           setCompanyName(loadedCustomer.companyName || '');
           setPhone(loadedCustomer.phone || '');
-          setCedula(loadedCustomer.taxId || ''); // Cargar taxId en cédula
+          setCedula(loadedCustomer.taxId || ''); 
           setStreet(loadedCustomer.address?.street || '');
           setCity(loadedCustomer.address?.city || '');
           setZipCode(loadedCustomer.address?.zipCode || '');
           setCountry(loadedCustomer.address?.country || '');
           setCustomerState(loadedCustomer.address?.state || '');
+          setSalesFunnelStage(loadedCustomer.salesFunnelStage || 'Lead');
+          setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
         } else {
           setNotFound(true);
           toast({ title: 'Error', description: `No se encontró el cliente con ID ${params.id}.`, variant: 'destructive' });
@@ -94,7 +101,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
       name: name.trim() || companyName.trim(),
       companyName: companyName.trim() || undefined,
       phone: phone.trim() || undefined,
-      taxId: cedula.trim() || undefined, // Guardar cédula en taxId
+      taxId: cedula.trim() || undefined, 
       address: {
         street: street.trim() || undefined,
         city: city.trim() || undefined,
@@ -102,9 +109,9 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         country: country.trim() || undefined,
         state: customerState.trim() || undefined,
       },
-      // email y salesFunnelStage no se actualizan desde este formulario
       email: customer.email, 
-      salesFunnelStage: customer.salesFunnelStage,
+      salesFunnelStage: salesFunnelStage,
+      estadoCliente: estadoClienteForm,
     };
 
     try {
@@ -212,6 +219,31 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
               </div>
             </div>
             
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                    <Label htmlFor="sales-funnel-stage">Etapa del Embudo</Label>
+                    <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as SalesFunnelStage)} disabled={isSaving || isDeleting}>
+                    <SelectTrigger id="sales-funnel-stage"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        {ALL_SALES_FUNNEL_STAGES.map(stage => (
+                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="customer-status">Estado del Cliente</Label>
+                    <Select value={estadoClienteForm} onValueChange={(value) => setEstadoClienteForm(value as CustomerStatus)} disabled={isSaving || isDeleting}>
+                    <SelectTrigger id="customer-status"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        {ALL_CUSTOMER_STATES.map(estado => (
+                        <SelectItem key={estado} value={estado}>{estado}</SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                </div>
+            </div>
+            
             <h3 className="text-lg font-medium pt-4 border-t font-headline">Dirección</h3>
             <div className="space-y-2">
               <Label htmlFor="street">Calle y Número</Label>
@@ -282,5 +314,3 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     </div>
   );
 }
-
-    
