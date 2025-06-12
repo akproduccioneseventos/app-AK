@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet" 
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -529,7 +529,7 @@ const sidebarMenuButtonVariants = cva(
 type SidebarMenuButtonElement = HTMLAnchorElement | HTMLButtonElement;
 
 type SidebarMenuButtonProps = Omit<React.ComponentPropsWithoutRef<"button"> & React.ComponentPropsWithoutRef<"a">, "href"> & {
-  href?: string; 
+  href?: string;
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
 } & VariantProps<typeof sidebarMenuButtonVariants> & { asChild?: boolean };
@@ -543,36 +543,38 @@ const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenu
       size = "default",
       tooltip,
       className,
-      href, 
+      href,
       children,
-      asChild: _asChildFromProps, // Renamed to avoid conflict with the outer `asChild`
-      ...props 
+      asChild, // Capture the asChild prop
+      ...props // The rest of the props
     },
     ref
   ) => {
     const { isMobile, state } = useSidebar();
 
-    // Destructure asChild from props to prevent it from being passed to the native element
-    const { asChild, ...restProps } = props as any;
-
-
     const commonProps = {
       "data-sidebar": "menu-button",
       "data-size": size,
-      "data-active": String(isActive), 
+      "data-active": String(isActive),
       className: cn(sidebarMenuButtonVariants({ variant, size, className })),
-      ...restProps, 
+      ...props, // Spread the remaining props (which now correctly excludes asChild)
     };
 
     let interactiveElement;
 
-    if (href) {
+    if (asChild && React.isValidElement(children)) {
+      interactiveElement = (
+        <Slot ref={ref as any} {...commonProps}>
+          {children}
+        </Slot>
+      );
+    } else if (href) {
       interactiveElement = (
         <a ref={ref as React.Ref<HTMLAnchorElement>} href={href} {...commonProps}>
           {children}
         </a>
       );
-    } else { 
+    } else {
       interactiveElement = (
         <button ref={ref as React.Ref<HTMLButtonElement>} type="button" {...commonProps}>
           {children}
@@ -714,18 +716,22 @@ const SidebarMenuSubItem = React.forwardRef<
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
-  HTMLAnchorElement, 
+  HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a"> & {
     size?: "sm" | "md";
     isActive?: boolean;
-    asChild?: boolean; // Added to handle the asChild prop
+    asChild?: boolean;
   }
->(({ size = "md", isActive, className, children, asChild: _asChildFromProps, ...props }, ref) => {
-  // Destructure asChild from props to prevent it from being passed to the native element
-  const { asChild, ...restProps } = props as any;
-
+>(({
+  size = "md",
+  isActive,
+  className,
+  children,
+  asChild, // Destructure asChild here
+  ...props // These are the rest of the props, which will not include asChild
+}, ref) => {
   return (
-    <a 
+    <a
       ref={ref}
       data-sidebar="menu-sub-button"
       data-size={size}
@@ -738,12 +744,12 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...restProps} 
+      {...props} // Spread the props that do not include `asChild`
     >
       {children}
     </a>
-  )
-})
+  );
+});
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 
