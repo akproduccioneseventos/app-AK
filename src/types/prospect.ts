@@ -1,13 +1,14 @@
 
 export type ProspectSalesFunnelStage =
-  | 'Prospecto'             // Initial stage
+  | 'Prospecto'             // Initial stage (replaces Lead)
   | 'Contacto Iniciado'     // Attempted to contact
-  | 'Contactado'            // Contact made
+  | 'Contactado'            // Contact made (replaces Contactado y Calificando)
   | 'Reunión Programada'    // Meeting scheduled
   | 'Presupuesto Presentado'// Quote/proposal sent
-  | 'Firmo Contrato'        // Deal WON - will convert to Customer
-  | 'No Contrato';          // Deal LOST
+  | 'Firmo Contrato'        // Deal WON - will convert to Customer (replaces Contrato Firmado)
+  | 'No Contrato';          // Deal LOST (replaces Descartado)
 
+// All possible stages, including terminal ones
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
   'Prospecto',
   'Contacto Iniciado',
@@ -33,20 +34,18 @@ export interface Prospecto {
   companyName?: string;
   email?: string;
   phone?: string;
-  source?: string; // How was this prospect acquired? (e.g., 'Referral', 'Website', 'Event')
+  source?: string; 
   salesFunnelStage: ProspectSalesFunnelStage;
-  nextMeetingDate?: string; // ISO string for storage, relevant for 'Reunión Programada'
-  estimatedValue?: number; // Potential value of the deal
+  nextMeetingDate?: string; 
+  estimatedValue?: number; 
   notes?: string;
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
+  createdAt: string; 
+  updatedAt: string; 
 
-  // Fields related to the event they are interested in
-  tipoFiesta?: string; // e.g., 'Boda', 'Cumpleaños de 15', 'Evento Corporativo'
-  salonDeseado?: string; // Preferred venue or type of venue
+  tipoFiesta?: string; 
+  salonDeseado?: string; 
   cantidadInvitados?: number;
 
-  // Optional fields that might be filled if converting from a more detailed source or later
   taxId?: string;
   address?: {
     street?: string;
@@ -57,5 +56,4 @@ export interface Prospecto {
   };
 }
 
-// Data needed to create a new prospect, some fields are optional
 export type NewProspectoData = Pick<Prospecto, 'name'> & Partial<Omit<Prospecto, 'id' | 'createdAt' | 'updatedAt' | 'salesFunnelStage'>>;

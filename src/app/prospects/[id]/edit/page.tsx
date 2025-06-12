@@ -70,7 +70,6 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
         setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
         
-        // Preserve other fields
         setCompanyName(loadedProspecto.companyName);
         setEmail(loadedProspecto.email);
         setTaxId(loadedProspecto.taxId);
@@ -106,7 +105,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
 
     setIsSaving(true);
     const prospectDataToSave: Prospecto = {
-      ...prospect, // Start with all existing data from loaded prospect
+      ...prospect,
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
@@ -114,7 +113,6 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       salonDeseado: salonDeseado.trim() || undefined,
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
       nextMeetingDate: salesFunnelStage === 'Reunión Programada' && nextMeetingDate ? nextMeetingDate.toISOString() : undefined,
-      // Explicitly include preserved fields to ensure they are part of the save payload
       companyName, email, taxId, address, source, estimatedValue, notes,
     };
 
@@ -125,18 +123,17 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' && result.customerId) {
            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
-           router.push(`/customers`); // Or perhaps the customer's detail page
+           router.push(`/customers`);
            return; 
         } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero hubo un problema al crear el cliente.` });
         }
         
-        // If stage is now a "closed" one, redirect to funnel list. Otherwise, update local state.
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' || result.prospect.salesFunnelStage === 'No Contrato') {
             router.push('/sales-funnel');
         } else {
-            setProspect(result.prospect); // Update local state to reflect changes
-            loadProspectData(); // Re-fetch to ensure consistency, especially for nextMeetingDate wipe
+            setProspect(result.prospect); 
+            loadProspectData(); 
         }
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el prospecto.");

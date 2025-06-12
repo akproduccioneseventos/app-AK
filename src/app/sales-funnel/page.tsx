@@ -9,7 +9,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Phone, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, FileText as FileTextIcon } from 'lucide-react';
 import { getProspects } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
-import { ACTIVE_FUNNEL_STAGES } from '@/types/prospect'; // Import active stages
+import { ACTIVE_FUNNEL_STAGES } from '@/types/prospect';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,7 +21,8 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
     case 'Contactado': return "default";
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
-    default: return "secondary"; // Should not happen for active stages
+    // 'Firmo Contrato' and 'No Contrato' are not active funnel stages for display
+    default: return "secondary";
   }
 };
 
@@ -42,7 +43,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getProspects(); // getProspects already filters for active stages
+      const data = await getProspects(); // getProspects filters for active stages
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -62,7 +63,6 @@ export default function SalesFunnelPage() {
     ACTIVE_FUNNEL_STAGES.forEach(stage => grouped.set(stage, []));
 
     prospects.forEach(prospect => {
-      // Ensure prospect's stage is one of the active ones before grouping
       if (ACTIVE_FUNNEL_STAGES.includes(prospect.salesFunnelStage as any)) {
         const stageGroup = grouped.get(prospect.salesFunnelStage);
         if (stageGroup) {
@@ -106,7 +106,7 @@ export default function SalesFunnelPage() {
         <div className="flex items-center gap-3">
             <FilterIcon className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Embudo de Ventas (Prospectos)
+              Embudo de Ventas (Prospectos) - DEBUG v6
             </h1>
         </div>
         <div className="flex gap-2">
