@@ -44,7 +44,6 @@ const navItems = [
     subItems: [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
-      // { href: '/empresa/servicios', label: 'Servicios', icon: Sparkles }, // Removed
     ]
   },
   {
@@ -58,7 +57,6 @@ const navItems = [
       { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
     ]
   },
-  { href: '/galeria', label: 'Galería', icon: ImageIcon },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
 ];
 
@@ -81,7 +79,7 @@ export function MainNav() {
             const isGroupActive = isActiveParent(item.basePath || '#', groupSubPaths);
             return (
               <SidebarMenuItem key={`group-${item.label}-${index}`}>
-                <SidebarMenuButton // This is a button for the group header/trigger
+                <SidebarMenuButton 
                   isActive={isGroupActive}
                   className={cn(
                     isGroupActive
@@ -97,7 +95,7 @@ export function MainNav() {
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} legacyBehavior={false} asChild>
+                      <Link href={subItem.href} legacyBehavior={false} asChild={true}>
                         <SidebarMenuSubButton
                           isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}
                         >
@@ -113,7 +111,7 @@ export function MainNav() {
           // For direct navigation items
           return (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} asChild>
+              <Link href={item.href} legacyBehavior={false} asChild={true}>
                 <SidebarMenuButton
                   isActive={isActiveParent(item.href)}
                   className={cn(
