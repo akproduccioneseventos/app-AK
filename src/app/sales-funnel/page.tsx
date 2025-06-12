@@ -16,15 +16,13 @@ import { useToast } from '@/hooks/use-toast';
 const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "secondary" | "destructive" | "outline" => {
   if (!stage) return "secondary";
   switch (stage) {
-    case 'Prospecto': return "secondary"; // Anteriormente Lead
+    case 'Prospecto': return "secondary";
     case 'Contacto Iniciado': return "outline";
-    case 'Contactado': return "default"; // Anteriormente Contactado y Calificando
+    case 'Contactado': return "default";
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
-    // 'En Negociación' fue eliminada
-    // 'Contratado' y 'No Contratado' no se muestran en el embudo activo, pero se definen por si acaso
-    case 'Contratado': return "secondary"; 
-    case 'No Contratado': return "destructive";
+    case 'Firmo Contrato': return "secondary"; // Estado final, no debería mostrarse como columna activa usualmente
+    case 'No Contrato': return "destructive";   // Estado final, no debería mostrarse como columna activa usualmente
     default: return "secondary";
   }
 };
@@ -46,7 +44,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getProspects(); // Esto ya filtra 'Contratado' y 'No Contratado'
+      const data = await getProspects();
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -61,9 +59,8 @@ export default function SalesFunnelPage() {
     loadProspects();
   }, [loadProspects]);
 
-  // Actualizar las etapas activas del embudo
   const activeFunnelStages: ProspectSalesFunnelStage[] = ALL_PROSPECT_STAGES.filter(
-    s => s !== 'Contratado' && s !== 'No Contratado'
+    s => s !== 'Firmo Contrato' && s !== 'No Contrato'
   ) as ProspectSalesFunnelStage[];
 
 
@@ -131,13 +128,13 @@ export default function SalesFunnelPage() {
       <p className="text-muted-foreground print:hidden">
         Visualiza y gestiona tus prospectos a través de las diferentes etapas del proceso de ventas.
       </p>
-      
+
       <ScrollArea className="flex-grow whitespace-nowrap rounded-md border bg-muted/20 print:border-none print:bg-transparent print:overflow-visible">
         <div className="flex gap-4 p-4 h-full min-h-[600px] print:flex-col print:gap-6 print:p-0">
           {activeFunnelStages.map(stage => {
             const stageProspects = prospectsByStage.get(stage) || [];
             const stageColorVariant = getStageBadgeVariant(stage);
-            
+
             let borderColorClass = 'border-gray-300 dark:border-gray-700';
             if (stageColorVariant === 'default') borderColorClass = 'border-primary';
             else if (stageColorVariant === 'secondary') borderColorClass = 'border-gray-400 dark:border-gray-600';

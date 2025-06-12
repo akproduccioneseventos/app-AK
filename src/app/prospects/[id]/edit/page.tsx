@@ -31,7 +31,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const router = useRouter();
   const { toast } = useToast();
   const [prospect, setProspect] = useState<Prospecto | null>(null);
-  
+
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Prospecto');
@@ -85,7 +85,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
 
     setIsSaving(true);
     const prospectDataToSave: Prospecto = {
-      ...prospect, 
+      ...prospect,
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
@@ -99,10 +99,10 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       const result = await saveProspect(prospectDataToSave);
       if (result.success && result.prospect) {
         toast({ title: "¡Prospecto Actualizado!", description: `El prospecto "${result.prospect.name}" ha sido actualizado.` });
-        if (result.prospect.salesFunnelStage === 'Contratado' && result.customerId) {
+        if (result.prospect.salesFunnelStage === 'Firmo Contrato' && result.customerId) {
            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`, variant: "default" });
-           router.push(`/customers`); 
-        } else if (result.prospect.salesFunnelStage === 'Contratado'){
+           router.push(`/customers`);
+        } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como contrato firmado, pero hubo un problema al crear el cliente.`, variant: "default" });
         }
         setProspect(result.prospect);
@@ -133,7 +133,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       setIsDeleting(false);
     }
   };
-  
+
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Prospecto no encontrado. <Link href="/sales-funnel" className="underline">Volver al embudo</Link>.</div>;
 
@@ -150,7 +150,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
           <Button variant="outline" disabled={isSaving || isDeleting}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Información del Prospecto</CardTitle>
@@ -168,7 +168,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
                 <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="tipoFiesta">Tipo de Fiesta (Opcional)</Label>
@@ -182,17 +182,17 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
 
             <div>
               <Label htmlFor="cantidadInvitados">Cantidad de Invitados (Opcional)</Label>
-              <Input 
-                id="cantidadInvitados" 
-                type="number" 
-                value={cantidadInvitados} 
-                onChange={(e) => setCantidadInvitados(e.target.value === '' ? '' : Number(e.target.value))} 
+              <Input
+                id="cantidadInvitados"
+                type="number"
+                value={cantidadInvitados}
+                onChange={(e) => setCantidadInvitados(e.target.value === '' ? '' : Number(e.target.value))}
                 min="1"
                 placeholder="Ej: 100"
                 disabled={isSaving || isDeleting}
               />
             </div>
-            
+
             <div>
               <Label htmlFor="salesFunnelStage">Etapa del Embudo</Label>
               <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as ProspectSalesFunnelStage)} disabled={isSaving || isDeleting}>
@@ -220,7 +220,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
             </Button>
              <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Contratado'}>
+                <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Firmo Contrato'}>
                   {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
                   {isDeleting ? 'Eliminando...' : 'Eliminar Prospecto'}
                 </Button>
