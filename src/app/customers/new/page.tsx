@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, UserPlus2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCustomer } from '@/app/actions/customers';
@@ -23,12 +22,8 @@ export default function NewCustomerPage() {
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
-  const [cedula, setCedula] = useState(''); // Cambiado de taxId
+  const [cedula, setCedula] = useState('');
   const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [country, setCountry] = useState('');
-  const [state, setState] = useState(''); 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,22 +33,17 @@ export default function NewCustomerPage() {
     }
 
     setIsSaving(true);
-    const customerData: Omit<Customer, 'id' | 'email' | 'salesFunnelStage'> = { // Ajustado para omitir campos no usados
+    const customerData: Omit<Customer, 'id' | 'email' | 'salesFunnelStage' | 'estadoCliente'> = { 
       name: name.trim() || companyName.trim(), 
       companyName: companyName.trim() || undefined,
       phone: phone.trim() || undefined,
-      taxId: cedula.trim() || undefined, // Guardar cédula en taxId
+      taxId: cedula.trim() || undefined, 
       address: {
         street: street.trim() || undefined,
-        city: city.trim() || undefined,
-        zipCode: zipCode.trim() || undefined,
-        country: country.trim() || undefined,
-        state: state.trim() || undefined,
       },
     };
 
     try {
-      // Asegurarse de que saveCustomer pueda manejar esta estructura (sin email ni salesFunnelStage)
       const result = await saveCustomer(customerData as Omit<Customer, 'id'>); 
       if (result.success && result.id) {
         toast({ title: "¡Cliente Guardado!", description: `El cliente "${customerData.name}" ha sido guardado.` });
@@ -114,40 +104,9 @@ export default function NewCustomerPage() {
               </div>
             </div>
             
-            <h3 className="text-lg font-medium pt-4 border-t font-headline">Dirección</h3>
             <div className="space-y-2">
               <Label htmlFor="street">Calle y Número</Label>
               <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Ej: Av. 18 de Julio 1234" />
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="city">Ciudad</Label>
-                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Montevideo" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="zip-code">Código Postal</Label>
-                <Input id="zip-code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="Ej: 11200" />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="state">Departamento / Provincia</Label>
-                <Input id="state" value={state} onChange={(e) => setState(e.target.value)} placeholder="Ej: Montevideo" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="country">País</Label>
-                <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ej: Uruguay" />
-              </div>
-            </div>
-            <div className="pt-4">
-              <Image 
-                src="https://placehold.co/600x300.png" 
-                alt="Customer relationship management" 
-                width={600}
-                height={300}
-                className="rounded-md shadow-sm mx-auto"
-                data-ai-hint="customer relationship management"
-              />
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
@@ -161,5 +120,3 @@ export default function NewCustomerPage() {
     </div>
   );
 }
-
-    

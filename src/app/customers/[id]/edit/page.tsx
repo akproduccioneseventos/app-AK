@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
@@ -38,10 +37,6 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const [phone, setPhone] = useState('');
   const [cedula, setCedula] = useState('');
   const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [country, setCountry] = useState('');
-  const [customerState, setCustomerState] = useState(''); // Renombrado de 'state' para evitar conflicto
   const [salesFunnelStage, setSalesFunnelStage] = useState<SalesFunnelStage>('Lead');
   const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
 
@@ -64,10 +59,6 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           setPhone(loadedCustomer.phone || '');
           setCedula(loadedCustomer.taxId || ''); 
           setStreet(loadedCustomer.address?.street || '');
-          setCity(loadedCustomer.address?.city || '');
-          setZipCode(loadedCustomer.address?.zipCode || '');
-          setCountry(loadedCustomer.address?.country || '');
-          setCustomerState(loadedCustomer.address?.state || '');
           setSalesFunnelStage(loadedCustomer.salesFunnelStage || 'Lead');
           setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
         } else {
@@ -103,11 +94,8 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
       phone: phone.trim() || undefined,
       taxId: cedula.trim() || undefined, 
       address: {
+        ...(customer.address || {}), // Preserve other address fields if they exist
         street: street.trim() || undefined,
-        city: city.trim() || undefined,
-        zipCode: zipCode.trim() || undefined,
-        country: country.trim() || undefined,
-        state: customerState.trim() || undefined,
       },
       email: customer.email, 
       salesFunnelStage: salesFunnelStage,
@@ -244,41 +232,11 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                 </div>
             </div>
             
-            <h3 className="text-lg font-medium pt-4 border-t font-headline">Dirección</h3>
             <div className="space-y-2">
               <Label htmlFor="street">Calle y Número</Label>
               <Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Ej: Av. 18 de Julio 1234" disabled={isSaving || isDeleting}/>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="city">Ciudad</Label>
-                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Montevideo" disabled={isSaving || isDeleting}/>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="zip-code">Código Postal</Label>
-                <Input id="zip-code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="Ej: 11200" disabled={isSaving || isDeleting}/>
-              </div>
-            </div>
-             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="state">Departamento / Provincia</Label>
-                <Input id="state" value={customerState} onChange={(e) => setCustomerState(e.target.value)} placeholder="Ej: Montevideo" disabled={isSaving || isDeleting}/>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="country">País</Label>
-                <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ej: Uruguay" disabled={isSaving || isDeleting}/>
-              </div>
-            </div>
-            <div className="pt-4">
-              <Image 
-                src="https://placehold.co/600x300.png" 
-                alt="Customer relationship management" 
-                width={600}
-                height={300}
-                className="rounded-md shadow-sm mx-auto"
-                data-ai-hint="customer data update"
-              />
-            </div>
+           
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isDeleting}>
