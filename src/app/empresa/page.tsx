@@ -38,7 +38,7 @@ const empresaHubItems: HubItem[] = [
   },
   {
     title: 'Contabilidad',
-    description: 'Accede a presupuestos, facturas, pagos y clientes.', // Actualizada descripción
+    description: 'Accede a presupuestos, facturas, pagos y clientes.', // Clientes ahora está aquí
     href: '/empresa/contabilidad',
     icon: CircleDollarSign,
     actionLabel: 'Ir a Contabilidad',
