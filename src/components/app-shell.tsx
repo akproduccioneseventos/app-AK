@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -49,7 +49,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
-  // if (pathname === '/sales-funnel') return 'Embudo de Ventas'; // Eliminado
 
   // Empresa
   if (pathname === '/proveedores') return 'Proveedores';
@@ -142,7 +141,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
   if (pathname === '/fiestas/nueva/decoracion') return Palette;
   if (pathname === '/fiestas/nueva/catering') return ChefHat;
-  // if (pathname === '/sales-funnel') return FilterIcon; // Eliminado
   if (pathname === '/evento/actual') return Globe;
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;

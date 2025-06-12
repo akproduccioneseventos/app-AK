@@ -1,3 +1,4 @@
+
 // src/components/main-nav.tsx
 'use client';
 
@@ -53,7 +54,6 @@ const navItems = [
       { href: '/invoices', label: 'Facturas', icon: FileText },
       { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
       { href: '/customers', label: 'Clientes', icon: Users },
-      // { href: '/sales-funnel', label: 'Embudo de Ventas', icon: Filter }, // Eliminado
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
