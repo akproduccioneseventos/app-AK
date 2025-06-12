@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { getCustomers } from '@/app/actions/customers';
 import type { Customer, SalesFunnelStage, CustomerStatus } from '@/types/customer';
 import { ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 const getStageBadgeVariant = (stage?: SalesFunnelStage): "default" | "secondary" | "destructive" | "outline" => {
   if (!stage) return "secondary";
@@ -20,7 +21,7 @@ const getStageBadgeVariant = (stage?: SalesFunnelStage): "default" | "secondary"
     case 'Calificado': return "default";
     case 'Propuesta Presentada': return "default";
     case 'Negociación': return "default";
-    case 'Ganado': return "default"; 
+    case 'Ganado': return "default";
     case 'Perdido': return "destructive";
     case 'En Espera': return "secondary";
     default: return "secondary";
@@ -40,35 +41,42 @@ export default function SalesFunnelPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const loadCustomers = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getCustomers();
+      setCustomers(data);
+    } catch (err: any) {
+      console.error("Error loading customers for sales funnel:", err);
+      setError("No se pudieron cargar los clientes.");
+      toast({ title: "Error de Carga", description: "No se pudieron cargar los clientes para el embudo.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    async function loadCustomers() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await getCustomers();
-        setCustomers(data);
-      } catch (err: any) {
-        console.error("Error loading customers for sales funnel:", err);
-        setError("No se pudieron cargar los clientes.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
     loadCustomers();
-  }, []);
+  }, [loadCustomers]);
 
   const customersByStage = useMemo(() => {
     const grouped = new Map<SalesFunnelStage, Customer[]>();
     ALL_SALES_FUNNEL_STAGES.forEach(stage => grouped.set(stage, []));
 
     customers.forEach(customer => {
-      const stage = customer.salesFunnelStage || 'Lead'; 
-      if (grouped.has(stage)) {
-        grouped.get(stage)!.push(customer);
+      const stage = customer.salesFunnelStage || 'Lead'; // Default a Lead si no está definido
+      const stageGroup = grouped.get(stage);
+      if (stageGroup) {
+        stageGroup.push(customer);
       } else {
-         if (!grouped.has('Lead')) grouped.set('Lead', []);
-         grouped.get('Lead')!.push(customer);
+        // Si por alguna razón la etapa no está en ALL_SALES_FUNNEL_STAGES (debería ser raro),
+        // lo podríamos agrupar en 'Lead' o una categoría 'Otro'.
+        // Por ahora, se asume que todas las etapas posibles están en ALL_SALES_FUNNEL_STAGES.
+        const leadGroup = grouped.get('Lead');
+        if (leadGroup) leadGroup.push(customer);
       }
     });
     return grouped;
@@ -89,7 +97,7 @@ export default function SalesFunnelPage() {
         <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
         <h2 className="text-xl font-semibold text-destructive">Error al Cargar Embudo</h2>
         <p className="text-muted-foreground mb-4">{error}</p>
-        <Button onClick={() => window.location.reload()}>Intentar de Nuevo</Button>
+        <Button onClick={loadCustomers}>Intentar de Nuevo</Button>
       </div>
     );
   }
@@ -103,27 +111,35 @@ export default function SalesFunnelPage() {
         </h1>
       </div>
       <p className="text-muted-foreground">
-        Visualiza tus clientes a través de las diferentes etapas del proceso de ventas. 
+        Visualiza tus clientes a través de las diferentes etapas del proceso de ventas.
         Haz clic en "Editar" en la tarjeta de un cliente para cambiar su etapa.
       </p>
       
-      <ScrollArea className="flex-grow whitespace-nowrap pb-4">
-        <div className="flex gap-4 h-full pb-2 min-h-[400px]"> {/* Asegurar altura mínima para el scroll */}
+      <ScrollArea className="flex-grow whitespace-nowrap pb-4 rounded-md border bg-muted/30">
+        <div className="flex gap-4 p-4 h-full min-h-[500px]"> {/* Contenedor para las columnas */}
           {ALL_SALES_FUNNEL_STAGES.map(stage => {
             const stageCustomers = customersByStage.get(stage) || [];
+            const stageColor = getStageBadgeVariant(stage);
+            const borderColorClass = 
+                stageColor === 'default' ? 'border-primary' :
+                stageColor === 'secondary' ? 'border-gray-400' :
+                stageColor === 'destructive' ? 'border-destructive' :
+                'border-blue-400';
+
+
             return (
-              <Card key={stage} className="w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col h-full border-t-4 shadow-md" style={{ borderColor: `hsl(var(--${getStageBadgeVariant(stage) === 'default' ? 'primary' : getStageBadgeVariant(stage)}))` }}>
-                <CardHeader className="pb-3 sticky top-0 bg-card/80 backdrop-blur-sm z-10">
+              <Card key={stage} className={`w-72 sm:w-80 md:w-[340px] flex-shrink-0 flex flex-col h-full shadow-md border-t-4 bg-card ${borderColorClass}`}>
+                <CardHeader className="pb-3 sticky top-0 bg-card/90 backdrop-blur-sm z-10">
                   <CardTitle className="font-headline text-lg flex items-center justify-between">
-                    <span>{stage}</span>
-                    <Badge variant={getStageBadgeVariant(stage)} className="text-sm">{stageCustomers.length}</Badge>
+                    <span style={{ color: `hsl(var(--${stageColor === 'default' ? 'primary' : stageColor}))`}}>{stage}</span>
+                    <Badge variant={stageColor} className="text-sm px-2 py-0.5">{stageCustomers.length}</Badge>
                   </CardTitle>
                 </CardHeader>
-                <ScrollArea className="flex-grow"> {/* Scroll individual para cada columna */}
-                  <CardContent className="pt-0 pb-3 px-3 space-y-3">
+                <ScrollArea className="flex-grow">
+                  <CardContent className="pt-2 pb-3 px-3 space-y-3">
                     {stageCustomers.length > 0 ? (
                       stageCustomers.map(customer => (
-                        <Card key={customer.id} className="shadow-sm hover:shadow-lg transition-shadow bg-background/70">
+                        <Card key={customer.id} className="shadow-sm hover:shadow-md transition-shadow bg-background/80">
                           <CardContent className="p-3">
                             <div className="flex justify-between items-start gap-2">
                               <div className="flex-grow min-w-0">
@@ -157,8 +173,8 @@ export default function SalesFunnelPage() {
                         </Card>
                       ))
                     ) : (
-                      <div className="text-center py-10">
-                        <Users className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
+                      <div className="text-center py-10 flex flex-col items-center justify-center h-full min-h-[100px]">
+                        <Users className="w-10 h-10 text-muted-foreground/30 mb-2" />
                         <p className="text-xs text-muted-foreground">No hay clientes en esta etapa.</p>
                       </div>
                     )}
