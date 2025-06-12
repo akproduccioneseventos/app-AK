@@ -526,12 +526,10 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-type SidebarMenuButtonElement = HTMLButtonElement | HTMLAnchorElement;
+type SidebarMenuButtonElement = HTMLAnchorElement | HTMLButtonElement;
 
-type SidebarMenuButtonProps = (
-  React.ComponentPropsWithoutRef<"button"> & { href?: never; asChild?: boolean } |
-  React.ComponentPropsWithoutRef<"a"> & { href: string; asChild?: never }
-) & {
+type SidebarMenuButtonProps = Omit<React.ComponentPropsWithoutRef<"button"> & React.ComponentPropsWithoutRef<"a">, "href"> & {
+  href?: string; 
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
 } & VariantProps<typeof sidebarMenuButtonVariants>;
@@ -540,46 +538,52 @@ type SidebarMenuButtonProps = (
 const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenuButtonProps>(
   (
     {
-      asChild = false,
       isActive = false,
       variant = "default",
       size = "default",
       tooltip,
       className,
-      href,
-      ...props
+      href, 
+      children,
+      ...props 
     },
     ref
   ) => {
-    const Comp = href ? "a" : (asChild ? Slot : "button");
     const { isMobile, state } = useSidebar();
 
-    const elementProps = {
+    const commonProps = {
       "data-sidebar": "menu-button",
       "data-size": size,
-      "data-active": isActive,
-      className: cn(sidebarMenuButtonVariants({ variant, size }), className),
-      ...props,
+      "data-active": String(isActive), 
+      className: cn(sidebarMenuButtonVariants({ variant, size, className })),
+      ...props, 
     };
-    
-    // Casting ref based on Comp type
-    const buttonElement = React.createElement(Comp, {
-        ...elementProps,
-        ref: ref as React.Ref<HTMLButtonElement & HTMLAnchorElement>, // More general ref
-        ...(Comp === "a" && href && { href }),
-        ...(Comp === "button" && !asChild && !elementProps.type && { type: "button" })
-    });
 
+    let interactiveElement;
+
+    if (href) {
+      interactiveElement = (
+        <a ref={ref as React.Ref<HTMLAnchorElement>} href={href} {...commonProps}>
+          {children}
+        </a>
+      );
+    } else { 
+      interactiveElement = (
+        <button ref={ref as React.Ref<HTMLButtonElement>} type="button" {...commonProps}>
+          {children}
+        </button>
+      );
+    }
 
     if (!tooltip) {
-      return buttonElement;
+      return interactiveElement;
     }
 
     const tooltipProps = typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{buttonElement}</TooltipTrigger>
+        <TooltipTrigger asChild>{interactiveElement}</TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
@@ -704,20 +708,19 @@ const SidebarMenuSubItem = React.forwardRef<
 >(({ ...props }, ref) => <li ref={ref} {...props} />)
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
-// SidebarMenuSubButton renders a div for styling, to be wrapped by <Link> in MainNav
 const SidebarMenuSubButton = React.forwardRef<
-  HTMLDivElement, // Changed to HTMLDivElement
-  React.ComponentPropsWithoutRef<"div"> & { // Changed to React.ComponentPropsWithoutRef<"div">
+  HTMLAnchorElement, // Changed to HTMLAnchorElement
+  React.ComponentPropsWithoutRef<"a"> & { // Changed to React.ComponentPropsWithoutRef<"a">
     size?: "sm" | "md";
     isActive?: boolean;
   }
 >(({ size = "md", isActive, className, children, ...props }, ref) => {
   return (
-    <div // Render as a div
+    <a // Render as an 'a'
       ref={ref}
       data-sidebar="menu-sub-button"
       data-size={size}
-      data-active={isActive}
+      data-active={String(isActive)}
       className={cn(
         "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
         "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
@@ -726,13 +729,14 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props} // Spread props (no href expected here directly)
+      {...props} 
     >
       {children}
-    </div>
+    </a>
   )
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
+
 
 export {
   Sidebar,
@@ -760,3 +764,5 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+    
