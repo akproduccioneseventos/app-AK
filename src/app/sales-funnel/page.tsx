@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users } from 'lucide-react';
+import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle } from 'lucide-react';
 import { getCustomers } from '@/app/actions/customers';
-import type { Customer, SalesFunnelStage } from '@/types/customer';
+import type { Customer, SalesFunnelStage, CustomerStatus } from '@/types/customer';
 import { ALL_SALES_FUNNEL_STAGES } from '@/types/customer';
 import { Badge } from '@/components/ui/badge';
 
@@ -20,9 +20,18 @@ const getStageBadgeVariant = (stage?: SalesFunnelStage): "default" | "secondary"
     case 'Calificado': return "default";
     case 'Propuesta Presentada': return "default";
     case 'Negociación': return "default";
-    case 'Ganado': return "default";
+    case 'Ganado': return "default"; 
     case 'Perdido': return "destructive";
     case 'En Espera': return "secondary";
+    default: return "secondary";
+  }
+};
+
+const getCustomerStatusBadgeVariant = (status?: CustomerStatus): "default" | "secondary" | "destructive" | "outline" => {
+  if (!status) return "secondary";
+  switch (status) {
+    case 'Actual': return "default";
+    case 'Antiguo': return "secondary";
     default: return "secondary";
   }
 };
@@ -54,16 +63,12 @@ export default function SalesFunnelPage() {
     ALL_SALES_FUNNEL_STAGES.forEach(stage => grouped.set(stage, []));
 
     customers.forEach(customer => {
-      const stage = customer.salesFunnelStage || 'Lead'; // Default to Lead if undefined
+      const stage = customer.salesFunnelStage || 'Lead'; 
       if (grouped.has(stage)) {
         grouped.get(stage)!.push(customer);
       } else {
-        // This case should ideally not happen if ALL_SALES_FUNNEL_STAGES is comprehensive
-        // and customers always have a stage or default to 'Lead'.
-        // For safety, we could add to a generic 'Uncategorized' or log an error.
-        // For now, we assume it will always be one of the defined stages.
-         if (!grouped.has('Lead')) grouped.set('Lead', []); // Ensure Lead exists
-         grouped.get('Lead')!.push(customer); // Put into Lead if stage is unknown
+         if (!grouped.has('Lead')) grouped.set('Lead', []);
+         grouped.get('Lead')!.push(customer);
       }
     });
     return grouped;
@@ -99,48 +104,60 @@ export default function SalesFunnelPage() {
       </div>
       <p className="text-muted-foreground">
         Visualiza tus clientes a través de las diferentes etapas del proceso de ventas. 
-        Para cambiar la etapa de un cliente, edítalo desde su tarjeta.
+        Haz clic en "Editar" en la tarjeta de un cliente para cambiar su etapa.
       </p>
       
       <ScrollArea className="flex-grow whitespace-nowrap pb-4">
-        <div className="flex gap-4 h-full pb-2">
+        <div className="flex gap-4 h-full pb-2 min-h-[400px]"> {/* Asegurar altura mínima para el scroll */}
           {ALL_SALES_FUNNEL_STAGES.map(stage => {
             const stageCustomers = customersByStage.get(stage) || [];
             return (
-              <Card key={stage} className="w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col h-full border-t-4" style={{ borderTopColor: `hsl(var(--${getStageBadgeVariant(stage) === 'default' ? 'primary' : getStageBadgeVariant(stage)}))` }}>
-                <CardHeader className="pb-3 sticky top-0 bg-card z-10">
+              <Card key={stage} className="w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col h-full border-t-4 shadow-md" style={{ borderColor: `hsl(var(--${getStageBadgeVariant(stage) === 'default' ? 'primary' : getStageBadgeVariant(stage)}))` }}>
+                <CardHeader className="pb-3 sticky top-0 bg-card/80 backdrop-blur-sm z-10">
                   <CardTitle className="font-headline text-lg flex items-center justify-between">
-                    {stage}
+                    <span>{stage}</span>
                     <Badge variant={getStageBadgeVariant(stage)} className="text-sm">{stageCustomers.length}</Badge>
                   </CardTitle>
                 </CardHeader>
-                <ScrollArea className="flex-grow">
-                  <CardContent className="pt-0 pb-3 space-y-3">
+                <ScrollArea className="flex-grow"> {/* Scroll individual para cada columna */}
+                  <CardContent className="pt-0 pb-3 px-3 space-y-3">
                     {stageCustomers.length > 0 ? (
                       stageCustomers.map(customer => (
-                        <Card key={customer.id} className="shadow-sm hover:shadow-md transition-shadow">
+                        <Card key={customer.id} className="shadow-sm hover:shadow-lg transition-shadow bg-background/70">
                           <CardContent className="p-3">
-                            <div className="flex justify-between items-start">
-                              <h4 className="font-semibold text-sm text-foreground truncate pr-2" title={customer.companyName || customer.name}>
-                                {customer.companyName || customer.name}
-                              </h4>
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-grow min-w-0">
+                                <h4 className="font-semibold text-sm text-foreground truncate" title={customer.companyName || customer.name}>
+                                  <UserCircle className="inline-block w-4 h-4 mr-1.5 text-muted-foreground" />
+                                  {customer.companyName || customer.name}
+                                </h4>
+                                {customer.estadoCliente && (
+                                  <Badge variant={getCustomerStatusBadgeVariant(customer.estadoCliente)} className="mt-1 text-xs">
+                                    {customer.estadoCliente}
+                                  </Badge>
+                                )}
+                              </div>
                                <Link href={`/customers/${customer.id}/edit`} passHref>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0">
+                                <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" title="Editar Cliente">
                                   <Edit className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
                                 </Button>
                               </Link>
                             </div>
-                            {customer.email && (
-                              <p className="text-xs text-muted-foreground truncate" title={customer.email}>{customer.email}</p>
-                            )}
-                            {customer.phone && (
-                               <p className="text-xs text-muted-foreground truncate" title={customer.phone}>{customer.phone}</p>
+                            {(customer.email || customer.phone) && (
+                                <div className="mt-1.5 pt-1.5 border-t border-dashed">
+                                    {customer.email && (
+                                    <p className="text-xs text-muted-foreground truncate" title={customer.email}>Email: {customer.email}</p>
+                                    )}
+                                    {customer.phone && (
+                                    <p className="text-xs text-muted-foreground truncate" title={customer.phone}>Tel: {customer.phone}</p>
+                                    )}
+                                </div>
                             )}
                           </CardContent>
                         </Card>
                       ))
                     ) : (
-                      <div className="text-center py-8">
+                      <div className="text-center py-10">
                         <Users className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
                         <p className="text-xs text-muted-foreground">No hay clientes en esta etapa.</p>
                       </div>
