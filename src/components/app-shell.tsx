@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -31,7 +31,7 @@ import Link from 'next/link';
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
 
-  if (pathname === '/') return 'Dashboard';
+  if (pathname === '/') return 'Menú Principal';
 
   // Presupuestos
   if (pathname === '/presupuestos') return 'Presupuestos';
@@ -53,7 +53,6 @@ const getPageTitle = (pathname: string): string => {
 
   // Empresa
   if (pathname === '/proveedores') return 'Proveedores';
-  if (pathname === '/empresa/servicios') return 'Servicios de la Empresa';
   if (pathname === '/compras') return 'Compras y Checklist';
 
   // Empleados
@@ -134,6 +133,7 @@ const getPageTitle = (pathname: string): string => {
 };
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
+  if (pathname === '/') return LayoutDashboard;
   if (pathname === '/fiestas/nueva/personal') return UserCheck;
   if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
   if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
@@ -144,7 +144,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
 
-  if (pathname === '/empresa/servicios') return Sparkles;
   if (pathname === '/proveedores') return Briefcase; 
 
   if (pathname === '/eventos') return CalendarClock; // Icono para "Todas las Fiestas"
@@ -170,8 +169,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const PageIcon = getPageIcon(pathname);
   
   const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const isPublicEventPage = pathname.startsWith('/evento/actual');
 
-  if (isAuthPage) {
+
+  if (isAuthPage || isPublicEventPage) {
     return <main className="min-h-screen">{children}</main>;
   }
 

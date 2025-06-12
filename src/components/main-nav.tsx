@@ -30,7 +30,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/', label: 'Menú Principal', icon: LayoutDashboard },
   { href: '/eventos', label: 'Todas las Fiestas', icon: CalendarClock },
   { href: '/fiestas/nueva', label: 'Crear Fiesta', icon: PartyPopper },
   { href: '/customers', label: 'Clientes', icon: Users },
