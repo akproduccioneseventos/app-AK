@@ -21,8 +21,9 @@ const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "se
     case 'Contactado': return "default";
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
-    case 'Firmo Contrato': return "secondary"; // Estado final, no debería mostrarse como columna activa usualmente
-    case 'No Contrato': return "destructive";   // Estado final, no debería mostrarse como columna activa usualmente
+    // Las etapas finales no se usan para badges de columna activa
+    case 'Firmo Contrato': return "secondary";
+    case 'No Contrato': return "destructive";
     default: return "secondary";
   }
 };
@@ -44,7 +45,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getProspects();
+      const data = await getProspects(); // Esta función ya filtra para etapas activas
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -59,6 +60,7 @@ export default function SalesFunnelPage() {
     loadProspects();
   }, [loadProspects]);
 
+  // Etapas a mostrar como columnas en el embudo
   const activeFunnelStages: ProspectSalesFunnelStage[] = ALL_PROSPECT_STAGES.filter(
     s => s !== 'Firmo Contrato' && s !== 'No Contrato'
   ) as ProspectSalesFunnelStage[];

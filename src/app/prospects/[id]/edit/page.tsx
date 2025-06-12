@@ -13,7 +13,7 @@ import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-r
 import { useToast } from '@/hooks/use-toast';
 import { getProspectById, saveProspect, deleteProspect as deleteProspectAction } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
-import { ALL_PROSPECT_STAGES } from '@/types/prospect';
+import { ALL_PROSPECT_STAGES } from '@/types/prospect'; // Asegúrate que ALL_PROSPECT_STAGES usa los nombres correctos
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import {
   AlertDialog,
@@ -32,9 +32,10 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const { toast } = useToast();
   const [prospect, setProspect] = useState<Prospecto | null>(null);
 
+  // Estados del formulario
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Prospecto');
+  const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Prospecto'); // Default a 'Prospecto'
   const [tipoFiesta, setTipoFiesta] = useState('');
   const [salonDeseado, setSalonDeseado] = useState('');
   const [cantidadInvitados, setCantidadInvitados] = useState<number | ''>('');
@@ -93,6 +94,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       salonDeseado: salonDeseado.trim() || undefined,
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
       nextMeetingDate: salesFunnelStage === 'Reunión Programada' && nextMeetingDate ? nextMeetingDate.toISOString() : undefined,
+      // Los demás campos (email, companyName, taxId, address, source, estimatedValue, notes) se mantienen si existían
+      // pero no se editan desde este formulario simplificado.
     };
 
     try {
@@ -101,11 +104,12 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         toast({ title: "¡Prospecto Actualizado!", description: `El prospecto "${result.prospect.name}" ha sido actualizado.` });
         if (result.prospect.salesFunnelStage === 'Firmo Contrato' && result.customerId) {
            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`, variant: "default" });
-           router.push(`/customers`);
+           router.push(`/customers`); // O a la página del cliente específico si se desea
+           return; // Evitar doble actualización de estado si ya se redirigió
         } else if (result.prospect.salesFunnelStage === 'Firmo Contrato'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como contrato firmado, pero hubo un problema al crear el cliente.`, variant: "default" });
         }
-        setProspect(result.prospect);
+        setProspect(result.prospect); // Actualizar estado local
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el prospecto.");
       }
@@ -220,6 +224,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
             </Button>
              <AlertDialog>
               <AlertDialogTrigger asChild>
+                 {/* El prospecto no se puede eliminar si ya firmó contrato (se convirtió en cliente) */}
                 <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Firmo Contrato'}>
                   {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
                   {isDeleting ? 'Eliminando...' : 'Eliminar Prospecto'}

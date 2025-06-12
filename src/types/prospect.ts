@@ -1,12 +1,12 @@
 
 export type ProspectSalesFunnelStage =
-  | 'Prospecto'
+  | 'Prospecto'          // Renombrado desde Lead
   | 'Contacto Iniciado'
-  | 'Contactado'
+  | 'Contactado'         // Renombrado desde Contactado y Calificando
   | 'Reunión Programada'
   | 'Presupuesto Presentado'
-  | 'Firmo Contrato' // Anteriormente Contratado
-  | 'No Contrato';    // Anteriormente No Contratado
+  | 'Firmo Contrato'     // Nueva etapa final (reemplaza Contratado/Contrato Firmado)
+  | 'No Contrato';       // Nueva etapa final (reemplaza Descartado)
 
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
   'Prospecto',
@@ -26,11 +26,11 @@ export interface Prospecto {
   phone?: string;
   source?: string;
   salesFunnelStage: ProspectSalesFunnelStage;
-  nextMeetingDate?: string;
+  nextMeetingDate?: string; // ISO string for storage
   estimatedValue?: number;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
   taxId?: string;
   address?: {
     street?: string;
