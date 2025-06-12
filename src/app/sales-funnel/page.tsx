@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Mail, Phone, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, FileText as FileTextIcon } from 'lucide-react';
+import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Phone, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, FileText as FileTextIcon } from 'lucide-react';
 import { getProspects } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
 import { ALL_PROSPECT_STAGES } from '@/types/prospect';
@@ -16,15 +16,15 @@ import { useToast } from '@/hooks/use-toast';
 const getStageBadgeVariant = (stage?: ProspectSalesFunnelStage): "default" | "secondary" | "destructive" | "outline" => {
   if (!stage) return "secondary";
   switch (stage) {
-    case 'Lead': return "secondary";
+    case 'Prospecto': return "secondary"; // Anteriormente Lead
     case 'Contacto Iniciado': return "outline";
-    case 'Contactado y Calificando': return "default"; // Usar 'default' para más énfasis
+    case 'Contactado': return "default"; // Anteriormente Contactado y Calificando
     case 'Reunión Programada': return "default";
     case 'Presupuesto Presentado': return "default";
-    case 'En Negociación': return "default";
-    // Contrato Firmado y Descartado no se muestran en el embudo activo, pero se definen por si acaso
-    case 'Contrato Firmado': return "secondary"; 
-    case 'Descartado': return "destructive";
+    // 'En Negociación' fue eliminada
+    // 'Contratado' y 'No Contratado' no se muestran en el embudo activo, pero se definen por si acaso
+    case 'Contratado': return "secondary"; 
+    case 'No Contratado': return "destructive";
     default: return "secondary";
   }
 };
@@ -46,7 +46,7 @@ export default function SalesFunnelPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getProspects(); // Esto ya filtra 'Contrato Firmado' y 'Descartado'
+      const data = await getProspects(); // Esto ya filtra 'Contratado' y 'No Contratado'
       setProspects(data);
     } catch (err: any) {
       console.error("Error loading prospects for sales funnel:", err);
@@ -61,7 +61,11 @@ export default function SalesFunnelPage() {
     loadProspects();
   }, [loadProspects]);
 
-  const activeFunnelStages = ALL_PROSPECT_STAGES.filter(s => s !== 'Contrato Firmado' && s !== 'Descartado');
+  // Actualizar las etapas activas del embudo
+  const activeFunnelStages: ProspectSalesFunnelStage[] = ALL_PROSPECT_STAGES.filter(
+    s => s !== 'Contratado' && s !== 'No Contratado'
+  ) as ProspectSalesFunnelStage[];
+
 
   const prospectsByStage = useMemo(() => {
     const grouped = new Map<ProspectSalesFunnelStage, Prospecto[]>();

@@ -1,39 +1,37 @@
 
 export type ProspectSalesFunnelStage =
-  | 'Lead'
+  | 'Prospecto' // Anteriormente Lead
   | 'Contacto Iniciado'
-  | 'Contactado y Calificando'
+  | 'Contactado' // Anteriormente Contactado y Calificando
   | 'Reunión Programada'
   | 'Presupuesto Presentado'
-  | 'En Negociación'
-  | 'Contrato Firmado' // Etapa de conversión
-  | 'Descartado';
+  // | 'En Negociación' // Eliminada
+  | 'Contratado' // Nueva etapa de conversión (reemplaza Contrato Firmado)
+  | 'No Contratado'; // Nueva etapa para perdidos (reemplaza Descartado)
 
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
-  'Lead',
+  'Prospecto',
   'Contacto Iniciado',
-  'Contactado y Calificando',
+  'Contactado',
   'Reunión Programada',
   'Presupuesto Presentado',
-  'En Negociación',
-  'Contrato Firmado',
-  'Descartado',
+  'Contratado',
+  'No Contratado',
 ];
 
 export interface Prospecto {
   id: string;
-  name: string; // Nombre del prospecto o contacto principal
-  companyName?: string; // Nombre de la empresa si aplica
+  name: string; 
+  companyName?: string; 
   email?: string;
   phone?: string;
-  source?: string; // Origen del prospecto (ej: "Referido", "Web", "Evento")
+  source?: string; 
   salesFunnelStage: ProspectSalesFunnelStage;
-  nextMeetingDate?: string; // ISO date string, para "Reunión Programada"
-  estimatedValue?: number; // Valor estimado del contrato/proyecto
+  nextMeetingDate?: string; 
+  estimatedValue?: number; 
   notes?: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-  // Campos que podrían ser útiles para la conversión a Customer
+  createdAt: string; 
+  updatedAt: string; 
   taxId?: string; 
   address?: {
     street?: string;
@@ -42,11 +40,9 @@ export interface Prospecto {
     zipCode?: string;
     country?: string;
   };
-  // Nuevos campos opcionales
   tipoFiesta?: string;
   salonDeseado?: string;
   cantidadInvitados?: number;
 }
 
 export type NewProspectoData = Omit<Prospecto, 'id' | 'createdAt' | 'updatedAt'>;
-

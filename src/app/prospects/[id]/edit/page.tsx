@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getProspectById, saveProspect, deleteProspect as deleteProspectAction } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
 import { ALL_PROSPECT_STAGES } from '@/types/prospect';
+import { DatePickerDemo } from '@/components/date-picker-demo';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,10 +34,11 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Lead');
+  const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Prospecto');
   const [tipoFiesta, setTipoFiesta] = useState('');
   const [salonDeseado, setSalonDeseado] = useState('');
   const [cantidadInvitados, setCantidadInvitados] = useState<number | ''>('');
+  const [nextMeetingDate, setNextMeetingDate] = useState<Date | undefined>(undefined);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,6 +59,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
           setTipoFiesta(loadedProspecto.tipoFiesta || '');
           setSalonDeseado(loadedProspecto.salonDeseado || '');
           setCantidadInvitados(loadedProspecto.cantidadInvitados === undefined ? '' : loadedProspecto.cantidadInvitados);
+          setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
         } else {
           setNotFound(true);
         }
@@ -81,28 +84,27 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
     }
 
     setIsSaving(true);
-    // Preparamos el objeto con todos los campos del prospecto para la actualización
     const prospectDataToSave: Prospecto = {
-      ...prospect, // Mantenemos todos los campos originales
+      ...prospect, 
       name: name.trim(),
       phone: phone.trim() || undefined,
       salesFunnelStage,
       tipoFiesta: tipoFiesta.trim() || undefined,
       salonDeseado: salonDeseado.trim() || undefined,
       cantidadInvitados: cantidadInvitados === '' ? undefined : Number(cantidadInvitados),
+      nextMeetingDate: salesFunnelStage === 'Reunión Programada' && nextMeetingDate ? nextMeetingDate.toISOString() : undefined,
     };
 
     try {
       const result = await saveProspect(prospectDataToSave);
       if (result.success && result.prospect) {
         toast({ title: "¡Prospecto Actualizado!", description: `El prospecto "${result.prospect.name}" ha sido actualizado.` });
-        if (result.prospect.salesFunnelStage === 'Contrato Firmado' && result.customerId) {
+        if (result.prospect.salesFunnelStage === 'Contratado' && result.customerId) {
            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`, variant: "default" });
            router.push(`/customers`); 
-        } else if (result.prospect.salesFunnelStage === 'Contrato Firmado'){
+        } else if (result.prospect.salesFunnelStage === 'Contratado'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como contrato firmado, pero hubo un problema al crear el cliente.`, variant: "default" });
         }
-        // Actualizar el estado local del prospecto para reflejar cambios guardados
         setProspect(result.prospect);
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el prospecto.");
@@ -202,6 +204,14 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
                 </SelectContent>
               </Select>
             </div>
+
+            {salesFunnelStage === 'Reunión Programada' && (
+              <div>
+                <Label htmlFor="nextMeetingDate">Fecha Próxima Reunión</Label>
+                <DatePickerDemo selectedDate={nextMeetingDate} onDateChange={setNextMeetingDate} />
+              </div>
+            )}
+
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isDeleting}>
@@ -210,7 +220,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
             </Button>
              <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Contrato Firmado'}>
+                <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Contratado'}>
                   {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
                   {isDeleting ? 'Eliminando...' : 'Eliminar Prospecto'}
                 </Button>
