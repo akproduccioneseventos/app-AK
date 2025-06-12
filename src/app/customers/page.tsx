@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
@@ -97,9 +97,13 @@ export default function CustomersPage() {
   
   const anyStatusFilterActive = ALL_CUSTOMER_STATES.some(status => !statusFilter[status]);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <UsersIcon className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
@@ -129,6 +133,10 @@ export default function CustomersPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          
+          <Button onClick={handlePrint} variant="outline">
+            <Printer className="w-4 h-4 mr-2" /> Imprimir Lista
+          </Button>
 
           <Link href="/customers/new" passHref>
             <Button>
@@ -139,14 +147,14 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      <Card className="shadow-lg">
-        <CardHeader>
+      <Card className="shadow-lg print:shadow-none print:border-none">
+        <CardHeader className="print:hidden">
           <CardTitle className="font-headline">Listado de Clientes ({filteredCustomers.length})</CardTitle>
           <CardDescription>Consulta y gestiona la información de tus clientes que han firmado contrato.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="print:p-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-10">
+            <div className="flex items-center justify-center py-10 print:hidden">
               <Loader2 className="w-10 h-10 animate-spin text-primary" />
               <p className="ml-3 text-muted-foreground">Cargando clientes...</p>
             </div>
@@ -159,7 +167,7 @@ export default function CustomersPage() {
                     <TableHead>Estado Cliente</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Teléfono</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead className="text-right print:hidden">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -167,13 +175,13 @@ export default function CustomersPage() {
                     <TableRow key={customer.id}>
                       <TableCell className="font-medium min-w-[200px]">{customer.companyName || customer.name}</TableCell>
                       <TableCell className="min-w-[120px]">
-                        <Badge variant={getCustomerStatusBadgeVariant(customer.estadoCliente)} className="text-xs">
+                        <Badge variant={getCustomerStatusBadgeVariant(customer.estadoCliente)} className="text-xs print:border print:border-gray-300 print:text-black print:bg-white">
                           {customer.estadoCliente || 'Actual'}
                         </Badge>
                       </TableCell>
                       <TableCell className="min-w-[180px]">{customer.email || '-'}</TableCell>
                       <TableCell className="min-w-[130px]">{customer.phone || '-'}</TableCell>
-                      <TableCell className="text-right min-w-[150px]">
+                      <TableCell className="text-right min-w-[150px] print:hidden">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/customers/${customer.id}/edit`} passHref>
                             <Button variant="outline" size="icon" aria-label={`Editar Cliente ${customer.companyName || customer.name}`}>
@@ -210,7 +218,7 @@ export default function CustomersPage() {
               </Table>
             </div>
           ) : (
-             <div className="py-10 text-center">
+             <div className="py-10 text-center print:hidden">
               <UsersIcon className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground text-lg">
                 {customers.length === 0 ? "No tienes clientes confirmados todavía." : "Ningún cliente coincide con los filtros aplicados."}
