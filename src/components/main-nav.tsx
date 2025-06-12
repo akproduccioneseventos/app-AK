@@ -42,14 +42,6 @@ const navItems = [
       { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
       { href: '/empresa/todos-los-servicios', label: 'Todos los Servicios', icon: Sparkles },
-    ]
-  },
-  {
-    isGroup: true,
-    label: 'Contabilidad',
-    icon: CircleDollarSign,
-    basePath: '/contabilidad', 
-    subItems: [
       { href: '/presupuestos', label: 'Presupuestos', icon: ListChecks },
       { href: '/invoices', label: 'Facturas', icon: FileText },
       { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
@@ -79,6 +71,10 @@ export function MainNav() {
           if (item.isGroup && item.subItems) {
             const groupSubPaths = item.subItems.map(sub => sub.href);
             let isGroupActive = groupSubPaths.some(subPath => pathname === subPath || pathname.startsWith(subPath + '/'));
+            // Special check for basePath when group is "Empresa" and subitems have different base paths
+            if (item.basePath && (pathname === item.basePath || pathname.startsWith(item.basePath + '/'))) {
+                isGroupActive = true;
+            }
             
             return (
               <SidebarMenuItem key={`group-${item.label}-${index}`}>
@@ -102,6 +98,7 @@ export function MainNav() {
                         <SidebarMenuSubButton
                           isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}
                         >
+                           {subItem.icon && <subItem.icon className="w-4 h-4 mr-2 opacity-80" />}
                            {subItem.label}
                         </SidebarMenuSubButton>
                       </Link>
