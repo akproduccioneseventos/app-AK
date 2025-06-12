@@ -1,4 +1,3 @@
-
 // src/components/main-nav.tsx
 'use client';
 
@@ -58,7 +57,7 @@ const navItems = [
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
-  { href: '/galeria', label: 'Galería', icon: ImageIcon },
+  
 ];
 
 export function MainNav() {
