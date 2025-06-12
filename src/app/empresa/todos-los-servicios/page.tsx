@@ -62,7 +62,7 @@ export default function TodosLosServiciosPage() {
     const lowercasedFilter = searchTerm.toLowerCase();
     const filteredData = allServicios.filter(servicio =>
       servicio.nombre.toLowerCase().includes(lowercasedFilter) ||
-      servicio.categoria.toLowerCase().includes(lowercasedFilter) ||
+      (servicio.categoria && servicio.categoria.toLowerCase().includes(lowercasedFilter)) ||
       (servicio.descripcion && servicio.descripcion.toLowerCase().includes(lowercasedFilter))
     );
     setFilteredServicios(filteredData);
@@ -74,7 +74,7 @@ export default function TodosLosServiciosPage() {
       const result = await deleteServicioEmpresa(id);
       if (result.success) {
         toast({ title: "Servicio Eliminado", description: `El servicio "${nombreServicio || id}" ha sido eliminado.` });
-        fetchServicios(); // Recargar la lista
+        fetchServicios(); 
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
       }
@@ -106,10 +106,10 @@ export default function TodosLosServiciosPage() {
             Catálogo General de Servicios de la Empresa
           </h1>
         </div>
-         <Link href="/settings" passHref> {/* Asumiendo que no hay página específica para crear/editar servicios aún */}
+         <Link href="/empresa/todos-los-servicios/nuevo" passHref>
           <Button variant="default">
             <PlusCircle className="w-4 h-4 mr-2" />
-            Añadir Nuevo Servicio (Próximamente)
+            Añadir Nuevo Servicio
           </Button>
         </Link>
       </div>
@@ -151,7 +151,9 @@ export default function TodosLosServiciosPage() {
           <CardContent className="p-6 text-center text-muted-foreground">
             <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-30" />
             No hay servicios definidos para la empresa.
-             <Button variant="link" asChild className="block mx-auto mt-2"><Link href="#">Añadir primer servicio (Próximamente)</Link></Button>
+             <Link href="/empresa/todos-los-servicios/nuevo" passHref>
+                <Button variant="link" className="block mx-auto mt-2">Añadir primer servicio</Button>
+             </Link>
           </CardContent>
         </Card>
       ) : (
@@ -172,7 +174,7 @@ export default function TodosLosServiciosPage() {
                         <div className="flex justify-between items-start">
                           <CardTitle className="text-base font-semibold">{servicio.nombre}</CardTitle>
                            <div className="flex gap-1">
-                                <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" disabled> {/* TODO: Link to edit page */}
                                     <Edit className="w-3.5 h-3.5" />
                                 </Button>
                                 <AlertDialog>
@@ -199,7 +201,7 @@ export default function TodosLosServiciosPage() {
                                 </AlertDialog>
                             </div>
                         </div>
-                         <Badge variant="outline" className="text-xs mt-1">{servicio.categoria}</Badge>
+                         {servicio.categoria && <Badge variant="outline" className="text-xs mt-1">{servicio.categoria}</Badge>}
                       </CardHeader>
                       <CardContent className="px-3 pb-3 text-sm">
                         {servicio.descripcion && <p className="text-muted-foreground text-xs mb-1.5">{servicio.descripcion}</p>}
@@ -219,7 +221,7 @@ export default function TodosLosServiciosPage() {
         </Accordion>
       )}
       <CardFooter className="mt-6 text-xs text-muted-foreground">
-        La gestión detallada (añadir, editar) de servicios se habilitará en futuras actualizaciones.
+        La funcionalidad de edición de servicios se habilitará en futuras actualizaciones.
       </CardFooter>
     </div>
   );

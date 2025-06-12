@@ -14,7 +14,7 @@ import {
 import { AppLogo } from './app-logo';
 import { MainNav } from './main-nav';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, UserCheck, MessageSquareText, LayoutGrid, Palette, ChefHat, Filter as FilterIcon, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -53,7 +53,9 @@ const getPageTitle = (pathname: string): string => {
 
   // Empresa
   if (pathname === '/proveedores') return 'Proveedores';
+  if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
   if (pathname === '/empresa/todos-los-servicios') return 'Todos los Servicios';
+  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Servicio';
   if (pathname === '/compras') return 'Compras y Checklist';
 
   // Empleados
@@ -145,8 +147,10 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/fiestas/nueva/pagina-web') return Globe;
   if (pathname === '/fiestas/nueva/musica') return Music2;
   if (pathname === '/empresa/todos-los-servicios') return Sparkles;
+  if (pathname === '/empresa/todos-los-servicios/nuevo') return PlusCircleIcon;
 
   if (pathname === '/proveedores') return Briefcase; 
+  if (pathname === '/proveedores/new') return UserPlusIcon;
 
   if (pathname === '/eventos') return CalendarClock; 
   if (pathname === '/compras') return ShoppingCart;
