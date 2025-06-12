@@ -105,8 +105,8 @@ export default function SalesFunnelPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
             <FilterIcon className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Embudo de Ventas (Prospectos) - DEBUG v6
+            <h1 className="text-3xl font-bold tracking-tight font-headline text-purple-600">
+              🟣🟣🟣 ¿SE VE ESTE CAMBIO? 🟣🟣🟣
             </h1>
         </div>
         <div className="flex gap-2">
