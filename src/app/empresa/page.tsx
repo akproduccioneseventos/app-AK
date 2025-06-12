@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, ContactRound, Briefcase, Sparkles, CircleDollarSign, Building2 } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, Sparkles, CircleDollarSign, Building2 } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -26,7 +26,7 @@ const empresaHubItems: HubItem[] = [
     title: 'Gestión de Proveedores',
     description: 'Mantén un registro de tus proveedores y sus servicios.',
     href: '/proveedores',
-    icon: Briefcase, // Consistent with new nav
+    icon: Briefcase,
     actionLabel: 'Ir a Proveedores',
   },
   {
@@ -37,15 +37,8 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ver Servicios',
   },
   {
-    title: 'Gestión de Clientes',
-    description: 'Consulta y administra la información de tus clientes confirmados.',
-    href: '/customers',
-    icon: Users,
-    actionLabel: 'Ir a Clientes',
-  },
-  {
     title: 'Contabilidad',
-    description: 'Accede a presupuestos, facturas y registros de pagos.',
+    description: 'Accede a presupuestos, facturas, pagos y clientes.',
     href: '/empresa/contabilidad',
     icon: CircleDollarSign,
     actionLabel: 'Ir a Contabilidad',

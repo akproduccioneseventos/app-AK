@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, FileText, Banknote, CircleDollarSign } from 'lucide-react';
+import { ArrowLeft, ListChecks, FileText, Banknote, CircleDollarSign, Users } from 'lucide-react';
 
 interface ContabilidadItem {
   title: string;
@@ -36,6 +36,13 @@ const contabilidadItems: ContabilidadItem[] = [
     icon: Banknote,
     actionLabel: 'Ver Pagos',
   },
+  {
+    title: 'Gestión de Clientes',
+    description: 'Consulta y administra la información de tus clientes confirmados.',
+    href: '/customers',
+    icon: Users,
+    actionLabel: 'Ir a Clientes',
+  },
 ];
 
 export default function ContabilidadHubPage() {
@@ -56,7 +63,7 @@ export default function ContabilidadHubPage() {
         </Link>
       </div>
       <CardDescription className="text-lg">
-        Administra los aspectos financieros de tu negocio, incluyendo presupuestos, facturas y pagos.
+        Administra los aspectos financieros de tu negocio, incluyendo presupuestos, facturas, pagos y clientes.
       </CardDescription>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
