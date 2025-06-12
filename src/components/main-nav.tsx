@@ -17,7 +17,8 @@ import {
   Sparkles,
   FileText,
   Banknote,
-  ImageIcon
+  ImageIcon,
+  Building2, // Added Building2
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -36,30 +37,29 @@ const navItems = [
   {
     isGroup: true,
     label: 'Empresa',
-    icon: Briefcase,
-    basePath: '/empresa',
+    icon: Building2, // Changed to Building2 for main Empresa hub
+    basePath: '/empresa', // Main hub page for Empresa
     subItems: [
-      { href: '/proveedores', label: 'Proveedores', icon: Briefcase },
       { href: '/empleados', label: 'Empleados', icon: ContactRound },
-      { href: '/empresa/todos-los-servicios', label: 'Todos los Servicios', icon: Sparkles },
-      { href: '/presupuestos', label: 'Presupuestos', icon: ListChecks },
-      { href: '/invoices', label: 'Facturas', icon: FileText },
-      { href: '/contabilidad/pagos', label: 'Pagos', icon: Banknote },
+      { href: '/proveedores', label: 'Proveedores', icon: Briefcase }, // UsersIcon could also work
+      { href: '/empresa/todos-los-servicios', label: 'Catálogo de Servicios', icon: Sparkles },
       { href: '/customers', label: 'Clientes', icon: Users },
+      { href: '/empresa/contabilidad', label: 'Contabilidad', icon: CircleDollarSign }, 
     ]
   },
   { href: '/calendario', label: 'Calendario', icon: CalendarDays },
-  
 ];
 
 export function MainNav() {
   const pathname = usePathname();
 
   const isActiveParent = (itemHref: string, subItemPaths?: string[]) => {
+    // Exact match for the main link or if the path starts with the item's href (for sections)
     if (itemHref === '/' && pathname === '/') return true;
     const isBasePathMatch = itemHref !== '/' && (pathname === itemHref || pathname.startsWith(itemHref + '/'));
     if (isBasePathMatch) return true;
     
+    // Check if any sub-item path matches for group highlighting
     if (subItemPaths?.some(subPath => pathname === subPath || pathname.startsWith(subPath + '/'))) return true;
     return false;
   };
@@ -70,32 +70,33 @@ export function MainNav() {
         {navItems.map((item, index) => {
           if (item.isGroup && item.subItems) {
             const groupSubPaths = item.subItems.map(sub => sub.href);
-            let isGroupActive = groupSubPaths.some(subPath => pathname === subPath || pathname.startsWith(subPath + '/'));
-            // Special check for basePath when group is "Empresa" and subitems have different base paths
-            if (item.basePath && (pathname === item.basePath || pathname.startsWith(item.basePath + '/'))) {
-                isGroupActive = true;
-            }
+            // Determine if the group itself or one of its children is active
+            let isGroupActive = isActiveParent(item.basePath || '#', groupSubPaths);
             
             return (
               <SidebarMenuItem key={`group-${item.label}-${index}`}>
-                <SidebarMenuButton 
-                  isActive={isGroupActive}
-                  className={cn(
-                    isGroupActive
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
-                      : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                    'group-data-[collapsible=icon]:justify-center'
-                  )}
-                  tooltip={item.label}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                </SidebarMenuButton>
+                 <Link href={item.basePath || '#'} legacyBehavior={false} passHref>
+                    <SidebarMenuButton 
+                    asChild={!!item.basePath} // Important: Use asChild if basePath is a link
+                    isActive={isGroupActive}
+                    className={cn(
+                        isGroupActive
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
+                        : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                        'group-data-[collapsible=icon]:justify-center'
+                    )}
+                    tooltip={item.label}
+                    >
+                    <item.icon className="w-5 h-5" />
+                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                    </SidebarMenuButton>
+                </Link>
                 <SidebarMenuSub>
                   {item.subItems.map(subItem => (
                     <SidebarMenuSubItem key={subItem.href}>
-                      <Link href={subItem.href} legacyBehavior={false} asChild={true}>
+                      <Link href={subItem.href} legacyBehavior={false} passHref>
                         <SidebarMenuSubButton
+                           asChild // Ensure SidebarMenuSubButton can also act as a child for Link
                           isActive={pathname === subItem.href || pathname.startsWith(subItem.href + '/')}
                         >
                            {subItem.icon && <subItem.icon className="w-4 h-4 mr-2 opacity-80" />}
@@ -108,10 +109,12 @@ export function MainNav() {
               </SidebarMenuItem>
             );
           }
+          // For direct navigation items
           return (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} asChild>
+              <Link href={item.href} legacyBehavior={false} passHref>
                 <SidebarMenuButton
+                  asChild // Ensure SidebarMenuButton can act as a child for Link
                   isActive={isActiveParent(item.href)}
                   className={cn(
                     isActiveParent(item.href)
