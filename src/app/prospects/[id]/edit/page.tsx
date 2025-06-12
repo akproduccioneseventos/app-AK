@@ -7,9 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerDemo } from '@/components/date-picker-demo';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -34,16 +32,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const [prospect, setProspect] = useState<Prospecto | null>(null);
   
   const [name, setName] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [source, setSource] = useState('');
   const [salesFunnelStage, setSalesFunnelStage] = useState<ProspectSalesFunnelStage>('Lead');
-  const [nextMeetingDate, setNextMeetingDate] = useState<Date | undefined>(undefined);
-  const [estimatedValue, setEstimatedValue] = useState<string>('');
-  const [notes, setNotes] = useState('');
-  const [taxId, setTaxId] = useState('');
-  const [addressStreet, setAddressStreet] = useState('');
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,16 +49,8 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         if (loadedProspecto) {
           setProspect(loadedProspecto);
           setName(loadedProspecto.name || '');
-          setCompanyName(loadedProspecto.companyName || '');
-          setEmail(loadedProspecto.email || '');
           setPhone(loadedProspecto.phone || '');
-          setSource(loadedProspecto.source || '');
           setSalesFunnelStage(loadedProspecto.salesFunnelStage);
-          setNextMeetingDate(loadedProspecto.nextMeetingDate ? new Date(loadedProspecto.nextMeetingDate) : undefined);
-          setEstimatedValue(loadedProspecto.estimatedValue?.toString() || '');
-          setNotes(loadedProspecto.notes || '');
-          setTaxId(loadedProspecto.taxId || '');
-          setAddressStreet(loadedProspecto.address?.street || '');
         } else {
           setNotFound(true);
         }
@@ -87,37 +69,29 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!prospect) return;
-    if (!name.trim() && !companyName.trim()) {
+    if (!name.trim()) {
       toast({ title: "Nombre Requerido", variant: "destructive" });
       return;
     }
 
     setIsSaving(true);
-    const prospectData: Prospecto = {
-      ...prospect,
-      name: name.trim() || companyName.trim(),
-      companyName: companyName.trim() || undefined,
-      email: email.trim() || undefined,
+    const prospectDataToSave: Partial<Prospecto> & { id: string; name: string; salesFunnelStage: ProspectSalesFunnelStage } = {
+      id: prospect.id, // Ensure ID is included for update
+      name: name.trim(),
       phone: phone.trim() || undefined,
-      source: source.trim() || undefined,
       salesFunnelStage,
-      nextMeetingDate: nextMeetingDate?.toISOString(),
-      estimatedValue: estimatedValue ? parseFloat(estimatedValue) : undefined,
-      notes: notes.trim() || undefined,
-      taxId: taxId.trim() || undefined,
-      address: {
-          ...(prospect.address || {}),
-          street: addressStreet.trim() || undefined,
-      }
+      // Other fields from 'prospect' state will be preserved by the backend if not explicitly changed here
     };
 
     try {
-      const result = await saveProspect(prospectData);
+      // Pass only the fields that are part of the form, plus ID.
+      // The backend `saveProspect` will merge these with existing data.
+      const result = await saveProspect(prospectDataToSave as Prospecto);
       if (result.success && result.prospect) {
         toast({ title: "¡Prospecto Actualizado!", description: `El prospecto "${result.prospect.name}" ha sido actualizado.` });
         if (result.prospect.salesFunnelStage === 'Contrato Firmado' && result.customerId) {
            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`, variant: "default" });
-           router.push(`/customers/${result.customerId}/edit`); // O a la lista de clientes
+           router.push(`/customers`); 
         } else if (result.prospect.salesFunnelStage === 'Contrato Firmado'){
            toast({ title: "Conversión Parcial", description: `Prospecto marcado como contrato firmado, pero hubo un problema al crear el cliente.`, variant: "default" });
         }
@@ -158,7 +132,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
         <div className="flex items-center gap-3">
           <Edit3 className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Editando Prospecto: <span className="text-primary">{prospect?.companyName || prospect?.name || params.id}</span>
+            Editando Prospecto: <span className="text-primary">{prospect?.name || params.id}</span>
           </h1>
         </div>
         <Link href="/sales-funnel" passHref>
@@ -169,48 +143,25 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Información del Prospecto</CardTitle>
+           <CardDescription>Modifica el nombre, teléfono y la etapa del embudo.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label htmlFor="name">Nombre Completo</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving || isDeleting}/></div>
-              <div><Label htmlFor="company-name">Empresa (Opcional)</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={isSaving || isDeleting}/></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label htmlFor="email">Email</Label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSaving || isDeleting}/></div>
+              <div><Label htmlFor="name">Nombre Completo</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isSaving || isDeleting}/></div>
               <div><Label htmlFor="phone">Teléfono</Label><Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/></div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><Label htmlFor="taxId">Cédula / RUT</Label><Input id="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)} disabled={isSaving || isDeleting}/></div>
-                <div><Label htmlFor="addressStreet">Dirección (Calle y Nro)</Label><Input id="addressStreet" value={addressStreet} onChange={(e) => setAddressStreet(e.target.value)} disabled={isSaving || isDeleting}/></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="salesFunnelStage">Etapa del Embudo</Label>
-                <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as ProspectSalesFunnelStage)} disabled={isSaving || isDeleting}>
-                  <SelectTrigger id="salesFunnelStage"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {ALL_PROSPECT_STAGES.map(stage => (
-                      <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div><Label htmlFor="source">Origen (Opcional)</Label><Input id="source" value={source} onChange={(e) => setSource(e.target.value)} disabled={isSaving || isDeleting}/></div>
-            </div>
-             {salesFunnelStage === 'Reunión Programada' && (
-                <div>
-                    <Label htmlFor="nextMeetingDate">Fecha Próxima Reunión</Label>
-                    <DatePickerDemo selectedDate={nextMeetingDate} onDateChange={setNextMeetingDate} className={isSaving || isDeleting ? "disabled:opacity-70" : ""} />
-                </div>
-            )}
+            
             <div>
-                <Label htmlFor="estimatedValue">Valor Estimado (Opcional)</Label>
-                <Input id="estimatedValue" type="number" value={estimatedValue} onChange={(e) => setEstimatedValue(e.target.value)} disabled={isSaving || isDeleting}/>
-            </div>
-            <div>
-                <Label htmlFor="notes">Notas</Label>
-                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} disabled={isSaving || isDeleting}/>
+              <Label htmlFor="salesFunnelStage">Etapa del Embudo</Label>
+              <Select value={salesFunnelStage} onValueChange={(value) => setSalesFunnelStage(value as ProspectSalesFunnelStage)} disabled={isSaving || isDeleting}>
+                <SelectTrigger id="salesFunnelStage"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ALL_PROSPECT_STAGES.map(stage => (
+                    <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -220,7 +171,7 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
             </Button>
              <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting}>
+                <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting || prospect?.salesFunnelStage === 'Contrato Firmado'}>
                   {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
                   {isDeleting ? 'Eliminando...' : 'Eliminar Prospecto'}
                 </Button>
@@ -247,4 +198,3 @@ export default function EditProspectoPage({ params }: { params: { id: string } }
     </div>
   );
 }
-
