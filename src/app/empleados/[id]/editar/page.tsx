@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function EditarEmpleadoPage({ params }: { params: { id: string } }) {
+export default function EditarEmpleadoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+  const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();
   const [empleado, setEmpleado] = useState<Empleado | null>(null);
@@ -249,3 +250,4 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
     </div>
   );
 }
+
