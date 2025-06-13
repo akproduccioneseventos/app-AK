@@ -10,8 +10,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        // The 'body' and 'headline' will inherit Poppins from the body tag
+        // or use the CSS variable if explicitly set.
+        // For direct usage of the variable: body: ['var(--font-poppins)', 'sans-serif'],
         body: ['Poppins', 'sans-serif'],
-        headline: ['Poppins', 'serif'], // Using Poppins for headline as well for consistency
+        headline: ['Poppins', 'serif'], 
         code: ['monospace'],
       },
       colors: {
