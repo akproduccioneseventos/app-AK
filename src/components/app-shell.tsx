@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, Filter as FilterIcon, Printer } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as VentasIcon, Printer } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -18,11 +18,11 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
-// Helper to get page title based on pathname
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
 
   if (pathname === '/') return 'Menú Principal';
+  if (pathname === '/ventas') return 'Tablero de Ventas';
 
   // Presupuestos
   if (pathname === '/presupuestos') return 'Presupuestos';
@@ -36,10 +36,13 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${pathSegments[1]}`;
   if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${pathSegments[1]}`;
 
-  // Clientes
+  // Clientes y Prospectos
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
+  if (pathname === '/prospects/new') return 'Nuevo Prospecto';
+  if (pathSegments[0] === 'prospects' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Prospecto #${pathSegments[1]}`;
+
 
   // Empresa
   if (pathname === '/empresa') return 'Gestión de la Empresa';
@@ -75,7 +78,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
 
-  // Contabilidad (Ahora accessed via /empresa/contabilidad, direct links may still exist)
+  // Contabilidad
   if (pathname === '/contabilidad/pagos') return 'Registro de Pagos';
 
 
@@ -97,6 +100,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
+  if (pathname === '/sales-funnel') return 'Página Obsoleta'; // Marcar la ruta antigua
+
 
   // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
@@ -110,6 +115,7 @@ const getPageTitle = (pathname: string): string => {
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
+            if (parentTitle.toLowerCase() === 'prospects' && title) return `Prospecto #${title}`;
             return `${parentTitle}: #${title}`;
         }
         if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
@@ -129,6 +135,7 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
+  if (pathname === '/ventas') return VentasIcon;
   if (pathname === '/fiestas/nueva/personal') return UserCheck;
   if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
   if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
@@ -147,6 +154,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/proveedores/new') return UserPlusIcon;
   if (pathname === '/empleados') return ContactRound;
   if (pathname === '/customers') return Users;
+  if (pathname === '/prospects/new') return UserPlusIcon;
 
 
   if (pathname === '/eventos') return CalendarClock;
@@ -160,6 +168,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/pagos') return Banknote;
+  if (pathname === '/sales-funnel') return null;
 
 
   return null;

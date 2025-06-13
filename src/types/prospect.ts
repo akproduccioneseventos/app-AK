@@ -1,32 +1,27 @@
-// DEBUG-EMBUDO-V7 - Types
+
+// DEBUG-EMBUDO-V7 - Types (ahora Ventas)
 
 export type ProspectSalesFunnelStage =
-  | 'Prospecto'             // Initial stage
-  | 'Contacto Iniciado'     // Attempted to contact
-  | 'Contactado'            // Contact made
-  | 'Reunión Programada'    // Meeting scheduled
-  | 'Presupuesto Presentado'// Quote/proposal sent
-  | 'Firmo Contrato'        // Deal WON - will convert to Customer
-  | 'No Contrato';          // Deal LOST
+  | 'Consulto'              // Nueva etapa inicial
+  | 'Agendo Entrevista'     // Nueva etapa
+  | 'Con Presupuesto'       // Nueva etapa
+  | 'Firmo Contrato'        // Terminal - Convertir a Cliente
+  | 'No Contrato';          // Terminal - Perdido
 
-// All possible stages, including terminal ones
+// Todas las etapas posibles
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
-  'Prospecto',
-  'Contacto Iniciado',
-  'Contactado',
-  'Reunión Programada',
-  'Presupuesto Presentado',
+  'Consulto',
+  'Agendo Entrevista',
+  'Con Presupuesto',
   'Firmo Contrato',
   'No Contrato',
 ];
 
-// Active stages to be shown as columns in the sales funnel view
-export const ACTIVE_FUNNEL_STAGES: Exclude<ProspectSalesFunnelStage, 'Firmo Contrato' | 'No Contrato'>[] = [
-  'Prospecto',
-  'Contacto Iniciado',
-  'Contactado',
-  'Reunión Programada',
-  'Presupuesto Presentado',
+// Etapas activas para el tablero "Ventas"
+export const ACTIVE_VENTAS_STAGES: Exclude<ProspectSalesFunnelStage, 'Firmo Contrato' | 'No Contrato'>[] = [
+  'Consulto',
+  'Agendo Entrevista',
+  'Con Presupuesto',
 ];
 
 export interface Prospecto {
@@ -37,18 +32,18 @@ export interface Prospecto {
   phone?: string;
   source?: string; 
   salesFunnelStage: ProspectSalesFunnelStage;
-  nextMeetingDate?: string; // ISO string
-  estimatedValue?: number; 
+  nextMeetingDate?: string; // ISO string - Relevante para "Agendo Entrevista"
+  estimatedValue?: number; // Relevante para "Con Presupuesto"
   notes?: string;
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 
-  // Optional fields related to the event they are interested in
+  // Campos opcionales relacionados con el evento de interés
   tipoFiesta?: string; 
   salonDeseado?: string; 
   cantidadInvitados?: number;
 
-  // Fields for potential conversion to Customer
+  // Campos para posible conversión a Cliente
   taxId?: string;
   address?: {
     street?: string;
@@ -57,8 +52,10 @@ export interface Prospecto {
     zipCode?: string;
     country?: string;
   };
+  // Campo para el contrato (simulado, ya que no hay subida de archivos)
+  contractNotes?: string; // Podría ser un enlace a un documento externo o notas sobre el contrato
 }
 
-// Data type for creating a new prospect. Name is required, others are optional.
-// salesFunnelStage will be set to 'Prospecto' by default in the server action.
+// Tipo de dato para crear un nuevo prospecto. Nombre es requerido.
+// salesFunnelStage se establecerá en 'Consulto' por defecto en la acción del servidor.
 export type NewProspectoData = Pick<Prospecto, 'name'> & Partial<Omit<Prospecto, 'id' | 'createdAt' | 'updatedAt' | 'salesFunnelStage'>>;

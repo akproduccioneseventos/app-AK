@@ -1,8 +1,9 @@
-// DEBUG-EMBUDO-V7 - Actions
+
+// DEBUG-EMBUDO-V7 - Actions (ahora Ventas)
 'use server';
 
 import type { Prospecto, NewProspectoData, ProspectSalesFunnelStage } from '@/types/prospect';
-import { ALL_PROSPECT_STAGES, ACTIVE_FUNNEL_STAGES } from '@/types/prospect';
+import { ALL_PROSPECT_STAGES, ACTIVE_VENTAS_STAGES } from '@/types/prospect';
 import fs from 'fs/promises';
 import path from 'path';
 import { saveCustomer } from '@/app/actions/customers';
@@ -28,11 +29,13 @@ async function readProspectsFile(): Promise<Prospecto[]> {
       ...p,
       createdAt: p.createdAt || new Date(0).toISOString(),
       updatedAt: p.updatedAt || new Date(0).toISOString(),
-      salesFunnelStage: p.salesFunnelStage || 'Prospecto',
+      salesFunnelStage: p.salesFunnelStage || 'Consulto', // Default a la nueva etapa inicial
       tipoFiesta: p.tipoFiesta || undefined,
       salonDeseado: p.salonDeseado || undefined,
       cantidadInvitados: p.cantidadInvitados === null || p.cantidadInvitados === undefined ? undefined : Number(p.cantidadInvitados),
       nextMeetingDate: p.nextMeetingDate || undefined,
+      estimatedValue: p.estimatedValue === null || p.estimatedValue === undefined ? undefined : Number(p.estimatedValue),
+      contractNotes: p.contractNotes || undefined,
     }));
   } catch (error: any) {
     if (error.code === 'ENOENT') {
@@ -53,11 +56,10 @@ async function writeProspectsFile(data: Prospecto[]): Promise<void> {
   }
 }
 
-export async function getProspects(): Promise<Prospecto[]> {
+export async function getProspectsForVentasBoard(): Promise<Prospecto[]> {
   const prospects = await readProspectsFile();
-  // Filter to only show prospects in active funnel stages
   return prospects
-    .filter(p => ACTIVE_FUNNEL_STAGES.includes(p.salesFunnelStage as any)) 
+    .filter(p => ACTIVE_VENTAS_STAGES.includes(p.salesFunnelStage as any)) 
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
@@ -73,11 +75,13 @@ export async function getProspectById(id: string): Promise<Prospecto | null> {
     ...prospect,
     createdAt: prospect.createdAt || new Date(0).toISOString(),
     updatedAt: prospect.updatedAt || new Date().toISOString(),
-    salesFunnelStage: prospect.salesFunnelStage || 'Prospecto',
+    salesFunnelStage: prospect.salesFunnelStage || 'Consulto',
     tipoFiesta: prospect.tipoFiesta || undefined,
     salonDeseado: prospect.salonDeseado || undefined,
     cantidadInvitados: prospect.cantidadInvitados === null || prospect.cantidadInvitados === undefined ? undefined : Number(prospect.cantidadInvitados),
     nextMeetingDate: prospect.nextMeetingDate || undefined,
+    estimatedValue: prospect.estimatedValue === null || prospect.estimatedValue === undefined ? undefined : Number(prospect.estimatedValue),
+    contractNotes: prospect.contractNotes || undefined,
   } : null;
 }
 
@@ -99,13 +103,13 @@ export async function saveProspect(
       ...originalProspect,
       ...prospectData,
       updatedAt: now,
-      createdAt: originalProspect.createdAt || now, // Preserve original creation date
+      createdAt: originalProspect.createdAt || now,
       cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
-      // Clear nextMeetingDate if stage is not 'Reunión Programada'
-      nextMeetingDate: prospectData.salesFunnelStage === 'Reunión Programada' && prospectData.nextMeetingDate ? prospectData.nextMeetingDate : undefined,
+      estimatedValue: prospectData.estimatedValue === null || prospectData.estimatedValue === undefined ? undefined : Number(prospectData.estimatedValue),
+      nextMeetingDate: prospectData.salesFunnelStage === 'Agendo Entrevista' && prospectData.nextMeetingDate ? prospectData.nextMeetingDate : undefined,
+      contractNotes: prospectData.contractNotes || originalProspect.contractNotes,
     };
     
-    // If prospect signs contract, convert to customer
     if (prospects[index].salesFunnelStage === 'Firmo Contrato') {
       const customerDataFromProspect: Omit<Customer, 'id' | 'estadoCliente'> = {
         name: prospects[index].name,
@@ -114,16 +118,14 @@ export async function saveProspect(
         phone: prospects[index].phone,
         taxId: prospects[index].taxId,
         address: prospects[index].address,
-        // salesFunnelStage is not part of Customer type
+        // `contractNotes` from prospect could be mapped to a customer note if desired
       };
       const customerResult = await saveCustomer(customerDataFromProspect);
       if (customerResult.success && customerResult.id) {
-        // Prospect remains in prospects.json but won't be shown in active funnel
         await writeProspectsFile(prospects);
         return { success: true, id: prospectData.id, prospect: prospects[index], customerId: customerResult.id };
       } else {
-        // Log error or handle case where customer creation failed but prospect was updated
-        await writeProspectsFile(prospects); // Still save the prospect update
+        await writeProspectsFile(prospects); 
         return { success: true, id: prospectData.id, prospect: prospects[index], error: `Prospecto actualizado a 'Firmo Contrato' pero hubo un problema al crear/actualizar el cliente: ${customerResult.error}` };
       }
     }
@@ -134,23 +136,23 @@ export async function saveProspect(
   } else {
     // Create new prospect
     const newProspect: Prospecto = {
-      ...(prospectData as NewProspectoData), // Cast, all fields from NewProspectoData are optional except name
+      ...(prospectData as NewProspectoData), 
       id: `prospect_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      salesFunnelStage: 'Prospecto', // Default stage for new prospects
+      salesFunnelStage: 'Consulto', // Default stage for new prospects
       createdAt: now,
       updatedAt: now,
-      // Ensure new optional fields are included
       tipoFiesta: prospectData.tipoFiesta || undefined,
       salonDeseado: prospectData.salonDeseado || undefined,
       cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
-      nextMeetingDate: undefined, // Not applicable on creation by default
+      nextMeetingDate: undefined,
+      estimatedValue: prospectData.estimatedValue === null || prospectData.estimatedValue === undefined ? undefined : Number(prospectData.estimatedValue),
       companyName: prospectData.companyName || undefined,
       email: prospectData.email || undefined,
       taxId: prospectData.taxId || undefined,
       address: prospectData.address || undefined,
       source: prospectData.source || undefined,
-      estimatedValue: prospectData.estimatedValue || undefined,
       notes: prospectData.notes || undefined,
+      contractNotes: prospectData.contractNotes || undefined,
     };
     prospects.push(newProspect);
     await writeProspectsFile(prospects);
@@ -161,7 +163,6 @@ export async function saveProspect(
 export async function deleteProspect(id: string): Promise<{ success: boolean; error?: string }> {
   let prospects = await readProspectsFile();
   const prospectToDelete = prospects.find(p => p.id === id);
-  // Prevent deletion if already converted to customer (signed contract)
   if (prospectToDelete && prospectToDelete.salesFunnelStage === 'Firmo Contrato') {
     return { success: false, error: 'No se puede eliminar un prospecto que ya firmó contrato. Gestionar desde Clientes.' };
   }
@@ -177,12 +178,10 @@ export async function deleteProspect(id: string): Promise<{ success: boolean; er
   }
 }
 
-// Initialize data file and ensure existing data conforms to schema
 async function initializeProspectData() {
     await ensureDataDirectoryExists();
     try {
-        await fs.access(prospectsFilePath); // Check if file exists
-        // Read and potentially update existing prospects
+        await fs.access(prospectsFilePath); 
         const currentProspects = await readProspectsFile();
         let wasModified = false;
         const updatedProspects = currentProspects.map(p => {
@@ -190,26 +189,24 @@ async function initializeProspectData() {
             if (!p.createdAt) { p.createdAt = new Date(0).toISOString(); prospectModified = true; }
             if (!p.updatedAt) { p.updatedAt = new Date().toISOString(); prospectModified = true; }
             if (!p.salesFunnelStage || !ALL_PROSPECT_STAGES.includes(p.salesFunnelStage as any)) {
-                // If stage is invalid, reset to 'Prospecto'
-                p.salesFunnelStage = 'Prospecto'; prospectModified = true;
+                p.salesFunnelStage = 'Consulto'; prospectModified = true;
             }
-            // Ensure optional fields exist or are undefined
             if (!('tipoFiesta' in p)) { p.tipoFiesta = undefined; prospectModified = true; }
             if (!('salonDeseado' in p)) { p.salonDeseado = undefined; prospectModified = true; }
-            if (!('cantidadInvitados' in p)) { p.cantidadInvitados = undefined; prospectModified = true; }
-            else if (p.cantidadInvitados === null) { p.cantidadInvitados = undefined; prospectModified = true; }
-
-
-            if (p.salesFunnelStage !== 'Reunión Programada' && p.nextMeetingDate) {
-                p.nextMeetingDate = undefined; // Clear meeting date if not in relevant stage
-                prospectModified = true;
+            if (!('cantidadInvitados' in p) || p.cantidadInvitados === null) { p.cantidadInvitados = undefined; prospectModified = true; }
+            if (!('nextMeetingDate' in p)) {p.nextMeetingDate = undefined; prospectModified = true; }
+            if (p.salesFunnelStage !== 'Agendo Entrevista' && p.nextMeetingDate) {
+                p.nextMeetingDate = undefined; prospectModified = true;
             }
+            if (!('estimatedValue' in p) || p.estimatedValue === null) { p.estimatedValue = undefined; prospectModified = true; }
+            if (!('contractNotes' in p)) {p.contractNotes = undefined; prospectModified = true; }
+
             if (prospectModified) wasModified = true;
             return p;
         });
         if (wasModified) {
             await writeProspectsFile(updatedProspects);
-            console.log('Prospects data initialized/updated.');
+            console.log('Prospects data initialized/updated with new stages.');
         }
 
     } catch (error: any) {
