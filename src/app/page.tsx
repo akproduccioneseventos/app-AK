@@ -42,7 +42,7 @@ const MostrarHora = () => {
 const Header = () => (
   <header className="bg-white shadow p-4">
     <div className="flex items-center justify-between">
-      <Link href="/" className="flex items-center gap-2"> {/* Corrected: Removed <a> and passHref, classes applied here */}
+      <Link href="/" className="flex items-center gap-2"> {/* CORREGIDO: Link sin <a> interna y sin passHref */}
         <AppLogo />
       </Link>
       {/* Aquí podrías añadir más elementos al header si es necesario */}
