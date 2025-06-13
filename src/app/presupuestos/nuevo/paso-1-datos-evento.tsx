@@ -13,7 +13,7 @@ interface Paso1Props {
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }
 
-const tiposEvento: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
+const tiposEvento: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto', 'Salón de Fiesta'];
 
 export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
   
@@ -98,3 +98,4 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     </div>
   );
 }
+

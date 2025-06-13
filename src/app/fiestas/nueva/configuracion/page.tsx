@@ -24,7 +24,7 @@ interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 
   clienteId?: string;
 }
 
-const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto'];
+const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto', 'Salón de Fiesta'];
 
 export default function ConfiguracionEventoPage() {
   const { toast } = useToast();
@@ -356,3 +356,4 @@ export default function ConfiguracionEventoPage() {
     </div>
   );
 }
+

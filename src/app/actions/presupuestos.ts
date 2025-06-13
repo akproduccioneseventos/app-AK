@@ -11,28 +11,7 @@ const presupuestosFilePath = path.join(dataDirectory, 'presupuestos.json');
 const menusCateringFilePath = path.join(dataDirectory, 'menus-catering.json'); // Path to the catering menus
 
 // Datos iniciales si el archivo no existe o está vacío
-const initialMockPresupuestosDatabase: Presupuesto[] = [
-  {
-    id: 'pres_mock_1',
-    clienteNombre: 'Ana García',
-    eventoTipo: 'Cumpleaños',
-    eventoFecha: new Date(2024, 10, 15).toISOString(), // Nov 15, 2024
-    invitadosCantidad: 50,
-    platosSeleccionados: [
-      { idPlato: 'pizza', nombrePlato: 'Pizza Variada', cantidad: 50, costoUnitario: 10, costoTotalPlato: 500 },
-      { idPlato: 'empanadas', nombrePlato: 'Empanadas Surtidas', cantidad: 50, costoUnitario: 5, costoTotalPlato: 250 },
-    ],
-    serviciosAdicionales: [
-      { idServicio: 'dj', nombreServicio: 'DJ / Sonido', costoServicio: 400 },
-    ],
-    costoSubtotalPlatos: 750,
-    costoSubtotalServicios: 400,
-    costoTotalEstimado: 1150,
-    timestamp: new Date().toISOString(),
-    estado: 'Enviado',
-    notas: 'Confirmar cantidad de invitados una semana antes.'
-  },
-];
+const initialMockPresupuestosDatabase: Presupuesto[] = [];
 
 
 async function ensureDataDirectoryExists(): Promise<void> {
@@ -193,3 +172,4 @@ async function initializePresupuestoData() {
 }
 
 initializePresupuestoData();
+

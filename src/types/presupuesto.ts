@@ -1,5 +1,5 @@
 
-export type TipoEvento = 'Cumpleaños' | 'Boda' | 'Fiesta de 15' | 'Fiesta Infantil' | 'Baby Shower' | 'Evento Corporativo' | 'Conferencia' | 'Lanzamiento de Producto' | 'Otro';
+export type TipoEvento = 'Cumpleaños' | 'Boda' | 'Fiesta de 15' | 'Fiesta Infantil' | 'Baby Shower' | 'Evento Corporativo' | 'Conferencia' | 'Lanzamiento de Producto' | 'Salón de Fiesta' | 'Otro';
 
 export interface PlatoPresupuesto {
   id: string;
@@ -66,3 +66,4 @@ export interface PresupuestoFormData {
   resumen?: Presupuesto; // El presupuesto final calculado
   notas: string;
 }
+
