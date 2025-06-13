@@ -18,8 +18,8 @@ interface ConsolidatedPayment extends Payment {
   invoiceCurrency: string;
 }
 
-const formatCurrency = (amount: number, currency: string = 'ARS') => {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: currency }).format(amount);
+const formatCurrency = (amount: number, currency: string = 'UYU') => {
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(amount);
 };
 
 const formatDate = (dateString?: string) => {

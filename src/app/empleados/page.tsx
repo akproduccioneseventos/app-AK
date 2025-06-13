@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
 export default function EmpleadosPage() {

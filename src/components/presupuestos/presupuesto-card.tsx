@@ -14,11 +14,11 @@ interface PresupuestoCardProps {
 }
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('es-AR', {
+  return new Date(dateString).toLocaleDateString('es-UY', {
     day: '2-digit', month: 'short', year: 'numeric'
   });
 };

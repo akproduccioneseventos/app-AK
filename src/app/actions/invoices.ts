@@ -21,7 +21,7 @@ const initialMockInvoices: Invoice[] = [
     taxAmount: 63.00,
     totalAmount: 363.00,
     status: 'Paid',
-    currency: 'EUR',
+    currency: 'UYU', // Changed from EUR to UYU
     vendorName: 'Presupuestador AK Producciones',
     vendorAddress: 'Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España',
     vendorTaxId: 'A08123456',

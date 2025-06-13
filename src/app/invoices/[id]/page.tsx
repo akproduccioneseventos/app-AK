@@ -20,8 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 // Helper function for formatting currency
-const formatCurrency = (amount: number, currency: string = 'EUR') => {
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: currency }).format(amount);
+const formatCurrency = (amount: number, currency: string = 'UYU') => {
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(amount);
 };
 
 // Helper function for formatting date

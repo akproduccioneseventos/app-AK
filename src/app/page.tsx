@@ -18,7 +18,7 @@ const formatCurrency = (amount?: number | string) => {
   if (amount === undefined || amount === null || amount === '') return "N/A";
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(numericAmount)) return "N/A";
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(numericAmount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(numericAmount);
 };
 
 const formatDate = (dateString?: string) => {

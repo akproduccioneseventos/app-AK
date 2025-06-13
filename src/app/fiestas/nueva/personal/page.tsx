@@ -17,7 +17,7 @@ import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
 interface AssignedStaffDetail {
@@ -185,7 +185,7 @@ export default function AsignarPersonalEventoPage() {
                     <TableHead>Nombre</TableHead>
                     <TableHead>Rol</TableHead>
                     <TableHead className="text-right">Sueldo Base</TableHead>
-                    <TableHead className="text-right w-[200px]">Sueldo Evento (ARS)</TableHead>
+                    <TableHead className="text-right w-[200px]">Sueldo Evento (UYU)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

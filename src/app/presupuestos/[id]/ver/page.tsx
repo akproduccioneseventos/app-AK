@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
 const formatDate = (dateString?: string) => {

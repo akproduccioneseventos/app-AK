@@ -22,7 +22,7 @@ import type { Invoice, InvoiceItem, InvoiceStatus } from '@/types/invoice';
 const VENDOR_NAME = "Presupuestador AK Producciones";
 const VENDOR_ADDRESS = "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España";
 const VENDOR_TAX_ID = "A08123456";
-const DEFAULT_CURRENCY = "EUR";
+const DEFAULT_CURRENCY = "UYU"; // Changed from EUR to UYU
 const DEFAULT_TAX_RATE = 21; 
 
 interface NewInvoiceItem extends Omit<InvoiceItem, 'id' | 'total'> {
@@ -344,7 +344,7 @@ function NewInvoicePageContent() {
                     </div>
                   </div>
                    <p className="text-sm text-right font-medium">
-                        Total Ítem: {(item.quantity * item.unitPrice).toLocaleString('es-ES', { style: 'currency', currency: DEFAULT_CURRENCY })}
+                        Total Ítem: {(item.quantity * item.unitPrice).toLocaleString('es-UY', { style: 'currency', currency: DEFAULT_CURRENCY })}
                     </p>
                 </Card>
               ))}
@@ -356,15 +356,15 @@ function NewInvoicePageContent() {
             <div className="space-y-2 pt-6 border-t mt-6 text-right">
               <div className="flex justify-end items-center gap-4">
                 <span className="text-muted-foreground">Subtotal:</span>
-                <span className="font-medium w-32">{subtotal.toLocaleString('es-ES', { style: 'currency', currency: DEFAULT_CURRENCY })}</span>
+                <span className="font-medium w-32">{subtotal.toLocaleString('es-UY', { style: 'currency', currency: DEFAULT_CURRENCY })}</span>
               </div>
               <div className="flex justify-end items-center gap-4">
                 <span className="text-muted-foreground">IVA ({DEFAULT_TAX_RATE}%):</span>
-                <span className="font-medium w-32">{taxAmount.toLocaleString('es-ES', { style: 'currency', currency: DEFAULT_CURRENCY })}</span>
+                <span className="font-medium w-32">{taxAmount.toLocaleString('es-UY', { style: 'currency', currency: DEFAULT_CURRENCY })}</span>
               </div>
               <div className="flex justify-end items-center gap-4 pt-2 border-t mt-2">
                 <span className="text-lg font-semibold">Total General:</span>
-                <span className="text-lg font-semibold text-primary w-32">{totalAmount.toLocaleString('es-ES', { style: 'currency', currency: DEFAULT_CURRENCY })}</span>
+                <span className="text-lg font-semibold text-primary w-32">{totalAmount.toLocaleString('es-UY', { style: 'currency', currency: DEFAULT_CURRENCY })}</span>
               </div>
             </div>
 
