@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, BadgeHelp, UsersRound } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, BadgeHelp, UsersRound, DollarSign } from 'lucide-react';
 import { getRoles, saveRol, deleteRol as deleteRolAction } from '@/app/actions/roles';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
@@ -67,23 +67,52 @@ export default function GestionRolesPage() {
   }, [fetchRoles]);
 
   const openModal = (rol?: Rol) => {
-    setCurrentRol(rol ? { ...rol } : { nombre: '', tipoSalario: 'fijo', montoSalario: undefined, notas: '' });
+    setCurrentRol(rol ? { ...rol } : { nombre: '', tipoSalario: 'fijo', montoSalario: undefined, aportesCalculados: undefined, notas: '' });
     setIsModalOpen(true);
   };
 
-  const handleModalFieldChange = (field: keyof Rol, value: string | number) => {
+  const handleModalFieldChange = (field: keyof Rol, value: string | number | undefined) => {
     setCurrentRol(prev => {
       if (!prev) return null;
-      const updatedRol = { ...prev, [field]: value };
-      if (field === 'tipoSalario' && value === 'variable') {
-        delete updatedRol.montoSalario;
+      let updatedRol = { ...prev, [field]: value };
+      
+      if (field === 'tipoSalario') {
+        if (value === 'variable') {
+          delete updatedRol.montoSalario;
+          delete updatedRol.aportesCalculados;
+        } else if (value === 'fijo' && prev.montoSalario !== undefined && !isNaN(Number(prev.montoSalario))) {
+           // aportesCalculados se recalculará en el memo o al guardar
+        } else {
+           // tipo fijo pero sin monto aún, limpiar aportes
+           delete updatedRol.aportesCalculados;
+        }
       }
+      
+      if (field === 'montoSalario') {
+        if (updatedRol.tipoSalario === 'fijo' && value !== undefined && !isNaN(Number(value))) {
+          // aportesCalculados se recalculará en el memo
+        } else if (updatedRol.tipoSalario === 'fijo' && (value === undefined || value === '' || isNaN(Number(value)))) {
+           delete updatedRol.aportesCalculados; // Si el monto es inválido o borrado
+        } else if (updatedRol.tipoSalario === 'variable'){
+           delete updatedRol.aportesCalculados; // Siempre sin aportes si es variable
+        }
+      }
+
       if (field === 'montoSalario' && value === '') {
          updatedRol.montoSalario = undefined;
+         delete updatedRol.aportesCalculados;
       }
       return updatedRol;
     });
   };
+  
+  const aportesEstimadosModal = useMemo(() => {
+    if (currentRol?.tipoSalario === 'fijo' && currentRol.montoSalario !== undefined && !isNaN(Number(currentRol.montoSalario))) {
+      return (Number(currentRol.montoSalario) * 0.30);
+    }
+    return undefined;
+  }, [currentRol?.tipoSalario, currentRol?.montoSalario]);
+
 
   const handleSaveRol = async (e: FormEvent) => {
     e.preventDefault();
@@ -97,7 +126,10 @@ export default function GestionRolesPage() {
     }
 
     setIsSaving(true);
-    const rolToSave = { ...currentRol } as NuevoRolFormData | Rol;
+    // El backend recalculará aportesCalculados, no es necesario pasarlo desde el currentRol
+    const { aportesCalculados, ...rolDataForSave } = currentRol; 
+    const rolToSave = rolDataForSave as NuevoRolFormData | Rol;
+
 
     try {
       const result = await saveRol(rolToSave);
@@ -160,7 +192,7 @@ export default function GestionRolesPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-headline">{currentRol?.id ? 'Editar Rol' : 'Crear Nuevo Rol'}</DialogTitle>
-            <DialogDescription>Define los detalles del rol y su tipo de salario.</DialogDescription>
+            <DialogDescription>Define los detalles del rol, su tipo de salario y aportes.</DialogDescription>
           </DialogHeader>
           {currentRol && (
             <form onSubmit={handleSaveRol} className="space-y-4 py-2">
@@ -179,10 +211,16 @@ export default function GestionRolesPage() {
                 </Select>
               </div>
               {currentRol.tipoSalario === 'fijo' && (
-                <div className="space-y-1">
-                  <Label htmlFor="rol-monto-salario">Monto Salario Fijo (UYU) *</Label>
-                  <Input id="rol-monto-salario" type="number" value={currentRol.montoSalario ?? ''} onChange={(e) => handleModalFieldChange('montoSalario', e.target.value)} placeholder="Ej: 30000" min="0" step="any" required/>
-                </div>
+                <>
+                  <div className="space-y-1">
+                    <Label htmlFor="rol-monto-salario">Monto Salario Fijo (UYU) *</Label>
+                    <Input id="rol-monto-salario" type="number" value={currentRol.montoSalario ?? ''} onChange={(e) => handleModalFieldChange('montoSalario', e.target.value === '' ? undefined : parseFloat(e.target.value))} placeholder="Ej: 30000" min="0" step="any" required/>
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Aportes Estimados (30%)</Label>
+                    <Input value={aportesEstimadosModal !== undefined ? formatCurrency(aportesEstimadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
+                  </div>
+                </>
               )}
               <div className="space-y-1">
                 <Label htmlFor="rol-notas">Notas / Descripción (Opcional)</Label>
@@ -217,7 +255,9 @@ export default function GestionRolesPage() {
                     <div className="flex-grow">
                       <h4 className="font-semibold text-foreground">{rol.nombre}</h4>
                       <p className="text-xs text-muted-foreground">
-                        Tipo Salario: {rol.tipoSalario === 'fijo' ? `Fijo (${formatCurrency(rol.montoSalario)})` : 'Variable por evento'}
+                        Tipo Salario: {rol.tipoSalario === 'fijo' ? 
+                          `Fijo (${formatCurrency(rol.montoSalario)})${rol.aportesCalculados !== undefined ? ` (Aportes: ${formatCurrency(rol.aportesCalculados)})` : ''}` 
+                          : 'Variable por evento'}
                       </p>
                       {rol.notas && <p className="text-xs text-muted-foreground italic mt-1">Notas: {rol.notas.substring(0, 100)}{rol.notas.length > 100 ? '...' : ''}</p>}
                     </div>

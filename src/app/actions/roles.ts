@@ -62,8 +62,11 @@ export async function saveRol(
     const index = roles.findIndex(r => r.id === rolData.id);
     if (index !== -1) {
       roles[index] = { ...roles[index], ...rolData };
-      if (rolData.tipoSalario === 'variable') {
-        delete roles[index].montoSalario; // Eliminar monto si es variable
+      if (roles[index].tipoSalario === 'fijo' && typeof roles[index].montoSalario === 'number' && (roles[index].montoSalario as number) >= 0) {
+        roles[index].aportesCalculados = (roles[index].montoSalario as number) * 0.30;
+      } else {
+        delete roles[index].montoSalario;
+        delete roles[index].aportesCalculados;
       }
       await writeRolesFile(roles);
       return { success: true, id: rolData.id, rol: JSON.parse(JSON.stringify(roles[index])) };
@@ -76,8 +79,11 @@ export async function saveRol(
       ...rolData,
       id: `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     };
-    if (nuevoRol.tipoSalario === 'variable') {
-      delete nuevoRol.montoSalario; // Eliminar monto si es variable
+    if (nuevoRol.tipoSalario === 'fijo' && typeof nuevoRol.montoSalario === 'number' && nuevoRol.montoSalario >= 0) {
+      nuevoRol.aportesCalculados = nuevoRol.montoSalario * 0.30;
+    } else {
+      delete nuevoRol.montoSalario; // Eliminar monto si es variable o inválido
+      delete nuevoRol.aportesCalculados;
     }
     roles.push(nuevoRol);
     await writeRolesFile(roles);
