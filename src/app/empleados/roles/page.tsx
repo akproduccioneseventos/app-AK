@@ -40,8 +40,6 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-const DEFAULT_APORTES_PERCENTAGE = 30;
-
 export default function GestionRolesPage() {
   const { toast } = useToast();
   const [roles, setRoles] = useState<Rol[]>([]);
@@ -51,9 +49,7 @@ export default function GestionRolesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); 
-  const [porcentajeAportesInput, setPorcentajeAportesInput] = useState<string>(String(DEFAULT_APORTES_PERCENTAGE));
-
-
+  
   const fetchRoles = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -73,51 +69,42 @@ export default function GestionRolesPage() {
   const openModal = (rol?: Rol) => {
     if (rol) {
       setCurrentRol({ ...rol });
-      setPorcentajeAportesInput(String(rol.porcentajeAportes ?? DEFAULT_APORTES_PERCENTAGE));
     } else {
       setCurrentRol({ 
         nombre: '', 
         tipoSalario: 'Mensual', 
         montoSalario: undefined, 
-        porcentajeAportes: DEFAULT_APORTES_PERCENTAGE, 
         aportesCalculados: undefined, 
         notas: '' 
       });
-      setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE));
     }
     setIsModalOpen(true);
   };
   
   const aportesCalculadosModal = useMemo(() => {
-    if (currentRol?.tipoSalario === 'Mensual' && currentRol.montoSalario !== undefined && !isNaN(Number(currentRol.montoSalario))) {
-      const porcentaje = parseFloat(porcentajeAportesInput);
-      if (!isNaN(porcentaje) && porcentaje >= 0) {
-        return (Number(currentRol.montoSalario) * (porcentaje / 100));
-      }
+    if (currentRol?.tipoSalario === 'Mensual' && currentRol.montoSalario !== undefined && !isNaN(Number(currentRol.montoSalario)) && Number(currentRol.montoSalario) >= 0) {
+      return (Number(currentRol.montoSalario) * 0.30); // Fixed 30%
     }
     return undefined;
-  }, [currentRol?.tipoSalario, currentRol?.montoSalario, porcentajeAportesInput]);
+  }, [currentRol?.tipoSalario, currentRol?.montoSalario]);
 
 
-  const handleModalFieldChange = (field: keyof Rol, value: string | number | undefined) => {
+  const handleModalFieldChange = (field: keyof Omit<Rol, 'aportesCalculados'>, value: string | number | undefined) => {
     setCurrentRol(prev => {
       if (!prev) return null;
       let updatedRol = { ...prev, [field]: value };
       
       if (field === 'tipoSalario') {
-        if (value === 'Por evento') {
+        if (value !== 'Mensual') { // If not 'Mensual' (e.g., 'Por evento')
           delete updatedRol.montoSalario;
-          delete updatedRol.porcentajeAportes; // También limpiar porcentaje
-          delete updatedRol.aportesCalculados;
-          setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE)); // Resetear input de %
-        } else if (value === 'Mensual' && prev.porcentajeAportes === undefined) {
-          updatedRol.porcentajeAportes = DEFAULT_APORTES_PERCENTAGE; // Establecer % default si no existe
-          setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE));
+          // aportesCalculados will be handled by backend based on montoSalario
         }
       }
       
-      if (field === 'montoSalario' && value === '') {
+      if (field === 'montoSalario' && (value === '' || value === undefined || isNaN(Number(value)))) {
          updatedRol.montoSalario = undefined;
+      } else if (field === 'montoSalario') {
+         updatedRol.montoSalario = Number(value);
       }
       return updatedRol;
     });
@@ -131,28 +118,17 @@ export default function GestionRolesPage() {
       return;
     }
     
-    const porcentajeAportesNum = parseFloat(porcentajeAportesInput);
-    if (currentRol.tipoSalario === 'Mensual' && (isNaN(porcentajeAportesNum) || porcentajeAportesNum < 0)) {
-        toast({ title: "Porcentaje de Aportes Inválido", description: "El porcentaje de aportes debe ser un número positivo.", variant: "destructive"});
-        return;
-    }
-     if (currentRol.tipoSalario === 'Mensual' && (currentRol.montoSalario === undefined || isNaN(Number(currentRol.montoSalario)) || Number(currentRol.montoSalario) < 0)) {
+    if (currentRol.tipoSalario === 'Mensual' && (currentRol.montoSalario === undefined || isNaN(Number(currentRol.montoSalario)) || Number(currentRol.montoSalario) < 0)) {
         toast({ title: "Monto de Salario Inválido", description: "Para salario mensual, el monto debe ser un número positivo.", variant: "destructive"});
         return;
     }
 
-
     setIsSaving(true);
     const rolDataForSave: Partial<Rol> = { ...currentRol };
-    if (rolDataForSave.tipoSalario === 'Mensual') {
-        rolDataForSave.porcentajeAportes = porcentajeAportesNum;
-        // Backend se encargará de calcular aportesCalculados
-    } else {
-        delete rolDataForSave.montoSalario;
-        delete rolDataForSave.porcentajeAportes;
-        delete rolDataForSave.aportesCalculados;
-    }
     
+    // Backend will calculate aportesCalculados based on montoSalario if tipoSalario is 'Mensual'
+    // If tipoSalario is 'Por evento', backend will ensure montoSalario and aportesCalculados are not set.
+
     const rolToSave = rolDataForSave as NuevoRolFormData | Rol;
 
     try {
@@ -216,7 +192,7 @@ export default function GestionRolesPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-headline">{currentRol?.id ? 'Editar Rol' : 'Crear Nuevo Rol'}</DialogTitle>
-            <DialogDescription>Define los detalles del rol, su tipo de salario y aportes.</DialogDescription>
+            <DialogDescription>Define los detalles del rol, su tipo de salario y aportes (30% fijo sobre mensual).</DialogDescription>
           </DialogHeader>
           {currentRol && (
             <form onSubmit={handleSaveRol} className="space-y-4 py-2">
@@ -240,16 +216,10 @@ export default function GestionRolesPage() {
                     <Label htmlFor="rol-monto-salario">Monto Salario Mensual (UYU) *</Label>
                     <Input id="rol-monto-salario" type="number" value={currentRol.montoSalario ?? ''} onChange={(e) => handleModalFieldChange('montoSalario', e.target.value === '' ? undefined : parseFloat(e.target.value))} placeholder="Ej: 30000" min="0" step="any" required/>
                   </div>
-                   <div className="grid grid-cols-2 gap-4 items-end">
-                    <div className="space-y-1">
-                      <Label htmlFor="rol-porcentaje-aportes">Porcentaje Aportes (%) *</Label>
-                      <Input id="rol-porcentaje-aportes" type="number" value={porcentajeAportesInput} onChange={(e) => setPorcentajeAportesInput(e.target.value)} placeholder="Ej: 30" min="0" max="100" step="any" required/>
-                    </div>
-                    <div className="space-y-1">
-                      <Label>Aportes Estimados</Label>
+                   <div className="space-y-1">
+                      <Label>Aportes Estimados (30%)</Label>
                       <Input value={aportesCalculadosModal !== undefined ? formatCurrency(aportesCalculadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
                     </div>
-                  </div>
                 </>
               )}
               <div className="space-y-1">
@@ -289,8 +259,7 @@ export default function GestionRolesPage() {
                         {rol.tipoSalario === 'Mensual' && rol.montoSalario !== undefined && (
                           <>
                             {' - '}Sueldo: {formatCurrency(rol.montoSalario)}
-                            {rol.porcentajeAportes !== undefined && ` (${rol.porcentajeAportes}%)`}
-                            {rol.aportesCalculados !== undefined && ` - Aportes: ${formatCurrency(rol.aportesCalculados)}`}
+                            {rol.aportesCalculados !== undefined && ` - Aportes (30%): ${formatCurrency(rol.aportesCalculados)}`}
                           </>
                         )}
                       </p>

@@ -25,6 +25,7 @@ async function readRolesFile(): Promise<Rol[]> {
     await ensureDataDirectoryExists();
     await fs.access(rolesFilePath);
     const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
+    if (fileContent.trim() === '') return []; // Handle empty file
     return JSON.parse(fileContent) as Rol[];
   } catch (error) {
     // If file doesn't exist or is invalid, return empty array
@@ -42,11 +43,16 @@ async function writeRolesFile(data: Rol[]): Promise<void> {
   }
 }
 
-// Initialize local JSON file if it doesn't exist
 async function initializeLocalRolesFile() {
   try {
     await fs.access(rolesFilePath);
-  } catch {
+     const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
+    if (fileContent.trim() === '') { // If file is empty, initialize with empty array
+      await writeRolesFile([]);
+    } else {
+      JSON.parse(fileContent); // Try to parse to check if it's valid JSON
+    }
+  } catch (error) { // Covers file not existing or invalid JSON
     await writeRolesFile([]);
   }
 }
@@ -57,7 +63,7 @@ initializeLocalRolesFile();
 export async function getRoles(): Promise<Rol[]> {
   if (!db) {
     console.error("Firestore no está inicializado. No se pueden obtener roles.");
-    return [];
+    return readRolesFile(); // Fallback to JSON if Firestore is down
   }
   try {
     const snapshot = await db.collection(ROLES_COLLECTION).orderBy('nombre').get();
@@ -66,15 +72,17 @@ export async function getRoles(): Promise<Rol[]> {
     }
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Rol));
   } catch (error) {
-    console.error('Error obteniendo roles de Firestore:', error);
-    throw new Error('No se pudieron cargar los roles desde Firestore.');
+    console.error('Error obteniendo roles de Firestore, intentando leer desde JSON local:', error);
+    // Fallback to local JSON if Firestore read fails
+    return readRolesFile();
   }
 }
 
 export async function getRolById(id: string): Promise<Rol | null> {
   if (!db) {
     console.error("Firestore no está inicializado. Rol no puede ser obtenido.");
-    return null;
+    const localRoles = await readRolesFile();
+    return localRoles.find(r => r.id === id) || null;
   }
   try {
     const docRef = db.collection(ROLES_COLLECTION).doc(id);
@@ -84,8 +92,9 @@ export async function getRolById(id: string): Promise<Rol | null> {
     }
     return { id: doc.id, ...doc.data() } as Rol;
   } catch (error) {
-    console.error(`Error obteniendo rol ${id} de Firestore:`, error);
-    throw new Error('No se pudo obtener el rol desde Firestore.');
+    console.error(`Error obteniendo rol ${id} de Firestore, intentando leer desde JSON local:`, error);
+    const localRoles = await readRolesFile();
+    return localRoles.find(r => r.id === id) || null;
   }
 }
 
@@ -98,16 +107,14 @@ export async function saveRol(
   
   let rolToProcess: Partial<Rol> = { ...rolData };
 
+  // Calculate aportes if tipoSalario is 'Mensual' and montoSalario is valid
   if (rolToProcess.tipoSalario === 'Mensual' && 
-      typeof rolToProcess.montoSalario === 'number' && rolToProcess.montoSalario >= 0 &&
-      typeof rolToProcess.porcentajeAportes === 'number' && rolToProcess.porcentajeAportes >= 0) {
-    rolToProcess.aportesCalculados = rolToProcess.montoSalario * (rolToProcess.porcentajeAportes / 100);
+      typeof rolToProcess.montoSalario === 'number' && rolToProcess.montoSalario >= 0) {
+    rolToProcess.aportesCalculados = rolToProcess.montoSalario * 0.30; // Fixed 30%
   } else {
+    // If not 'Mensual' or montoSalario is invalid, clear salary-related fields
+    delete rolToProcess.montoSalario;
     delete rolToProcess.aportesCalculados;
-    if (rolToProcess.tipoSalario !== 'Mensual') {
-        delete rolToProcess.montoSalario;
-        delete rolToProcess.porcentajeAportes;
-    }
   }
 
   let savedRolFromFirestore: Rol;
@@ -116,7 +123,7 @@ export async function saveRol(
     // Firestore operation first
     if ('id' in rolData && rolData.id) {
       const rolId = rolData.id;
-      const { id, ...dataToUpdate } = rolToProcess as Rol;
+      const { id, ...dataToUpdate } = rolToProcess as Rol; // Cast to Rol after processing
       await db.collection(ROLES_COLLECTION).doc(rolId).set(dataToUpdate, { merge: true });
       savedRolFromFirestore = { id: rolId, ...dataToUpdate };
     } else {
@@ -136,7 +143,7 @@ export async function saveRol(
       } else {
         localRoles.push(savedRolFromFirestore);
       }
-      await writeRolesFile(localRoles.sort((a, b) => a.nombre.localeCompare(b.nombre)));
+      await writeRolesFile(localRoles.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '')));
     } catch (jsonError) {
       console.error(`Firestore saveRol successful for ID ${savedRolFromFirestore.id}, but JSON backup failed:`, jsonError);
       // Do not re-throw, Firestore is the source of truth
@@ -170,6 +177,8 @@ export async function deleteRol(id: string): Promise<{ success: boolean; error?:
       localRoles = localRoles.filter(r => r.id !== id);
       if (localRoles.length < initialLength) {
         await writeRolesFile(localRoles);
+      } else {
+        console.warn(`Rol ID ${id} no encontrado en el archivo JSON local para eliminar, pero eliminado de Firestore.`);
       }
     } catch (jsonError) {
       console.error(`Firestore deleteRol successful for ID ${id}, but JSON backup failed:`, jsonError);
