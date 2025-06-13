@@ -8,21 +8,8 @@ import path from 'path';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const empleadosFilePath = path.join(dataDirectory, 'empleados.json');
 
-// Datos iniciales si el archivo no existe o está vacío
-const initialMockEmpleadosDatabase: Empleado[] = [
-  { id: 'emp_1', nombre: 'Eduardo', rol: 'Mozo', sueldoBase: 2100 },
-  { id: 'emp_2', nombre: 'Ari Beraca', rol: 'Cocina', sueldoBase: 1700 },
-  { id: 'emp_3', nombre: 'Alex', rol: 'Cocina y Utileria', sueldoBase: 2700 },
-  { id: 'emp_4', nombre: 'Jonathan', rol: 'Cocina y Utileria', sueldoBase: 2700 },
-  { id: 'emp_5', nombre: 'Matias', rol: 'Cocina y Utileria', sueldoBase: 2600 },
-  { id: 'emp_6', nombre: 'Facundo Beraca', rol: 'Mozo', sueldoBase: 2100 },
-  { id: 'emp_7', nombre: 'Ricardo Bairabar', rol: 'Mozo', sueldoBase: 2100 },
-  { id: 'emp_8', nombre: 'Yusara', rol: 'Mozo', sueldoBase: 2100 },
-  { id: 'emp_9', nombre: 'Pablo', rol: 'Fotografo', sueldoBase: 3800 },
-  { id: 'emp_10', nombre: 'Gonza', rol: 'DJ', sueldoBase: 3000 },
-  { id: 'emp_11', nombre: 'Juan (Barman)', rol: 'Barman', sueldoBase: 1800 },
-  { id: 'emp_12', nombre: 'Pedro (Ayud. Barman)', rol: 'Ayudante de Barman', sueldoBase: 1700 },
-];
+// Datos iniciales ahora vacíos. Los empleados se agregarán a través de la UI.
+const initialMockEmpleadosDatabase: Empleado[] = [];
 
 async function ensureDataDirectoryExists(): Promise<void> {
   try {
@@ -38,15 +25,16 @@ async function readEmpleadosFile(): Promise<Empleado[]> {
   try {
     const fileContent = await fs.readFile(empleadosFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data : initialMockEmpleadosDatabase;
+    // Si el archivo existe pero está vacío o no es un array, usa initialMock (que ahora es vacío)
+    return Array.isArray(data) && data.length > 0 ? data : [...initialMockEmpleadosDatabase];
   } catch (error: any) {
     if (error.code === 'ENOENT') {
-      // Si el archivo no existe, lo creamos con los datos iniciales
-      await writeEmpleadosFile(initialMockEmpleadosDatabase);
+      // Si el archivo no existe, lo creamos con los datos iniciales (vacío)
+      await writeEmpleadosFile([...initialMockEmpleadosDatabase]);
       return [...initialMockEmpleadosDatabase];
     }
-    console.error('Error leyendo el archivo de empleados, usando datos iniciales:', error);
-    // Devolver datos iniciales en caso de otro tipo de error de lectura/parseo
+    console.error('Error leyendo el archivo de empleados, usando datos iniciales (vacíos):', error);
+    // Devolver datos iniciales (vacíos) en caso de otro tipo de error de lectura/parseo
     return [...initialMockEmpleadosDatabase];
   }
 }
@@ -95,7 +83,15 @@ export async function saveEmpleado(
       await writeEmpleadosFile(empleados);
       return { success: true, id: empleadoData.id, empleado: JSON.parse(JSON.stringify(empleados[index])) };
     } else {
-      return { success: false, error: `Empleado con ID ${empleadoData.id} no encontrado para actualizar.` };
+      // Si se intenta actualizar un ID que no existe, lo creamos como nuevo.
+      // Esto puede pasar si el archivo json se borró o corrompió.
+      const nuevoEmpleadoDesdeUpdate: Empleado = {
+        ...(empleadoData as Empleado), // Asumimos que si tiene ID, tiene todos los campos de Empleado
+        id: `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`, // Generar nuevo ID único
+      };
+      empleados.push(nuevoEmpleadoDesdeUpdate);
+      await writeEmpleadosFile(empleados);
+      return { success: true, id: nuevoEmpleadoDesdeUpdate.id, empleado: JSON.parse(JSON.stringify(nuevoEmpleadoDesdeUpdate)) };
     }
   } else {
     // Crear nuevo empleado
@@ -121,3 +117,20 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
     return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
   }
 }
+
+// Asegurarse de que el archivo exista al iniciar, con un array vacío si es necesario.
+async function initializeEmpleadosData() {
+  await ensureDataDirectoryExists();
+  try {
+    await fs.access(empleadosFilePath);
+    // Si el archivo existe, no hacemos nada con initialMockEmpleadosDatabase,
+    // ya que readEmpleadosFile se encargará de leerlo o devolver un array vacío.
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      console.log('Archivo empleados.json no encontrado, creando con datos iniciales (vacíos)...');
+      await writeEmpleadosFile([...initialMockEmpleadosDatabase]); // Escribe array vacío
+    }
+  }
+}
+
+initializeEmpleadosData();
