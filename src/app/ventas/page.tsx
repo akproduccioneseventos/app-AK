@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, Users, MessageCircle, FileText } from 'lucide-react';
+import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, MessageCircle, FileText } from 'lucide-react';
 import { getProspectsForVentasBoard, saveProspect } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
 import { ACTIVE_VENTAS_STAGES, ALL_PROSPECT_STAGES } from '@/types/prospect';
@@ -27,7 +27,7 @@ const formatDate = (dateString?: string, options?: Intl.DateTimeFormatOptions) =
   if (!dateString) return null;
   const defaultOptions: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric', ...options };
   try {
-    const date = new Date(dateString.includes('T') ? dateString : \`\${dateString}T00:00:00\`);
+    const date = new Date(dateString.includes('T') ? dateString : `${dateString}T00:00:00`);
     if (isNaN(date.getTime())) return "Fecha Inválida";
     return date.toLocaleDateString('es-ES', defaultOptions);
   } catch (e) { 
@@ -49,7 +49,6 @@ const getColumnStyle = (stage: ProspectSalesFunnelStage): { headerClasses: strin
       return { headerClasses: 'bg-amber-50 dark:bg-amber-900/40', borderTopClass: 'border-t-amber-500', titleColor: 'text-amber-700 dark:text-amber-400', badgeVariant: 'default' };
     case 'Con Presupuesto':
       return { headerClasses: 'bg-purple-50 dark:bg-purple-900/40', borderTopClass: 'border-t-purple-500', titleColor: 'text-purple-700 dark:text-purple-400', badgeVariant: 'default' };
-    // 'Firmo Contrato' y 'No Contrato' no son columnas activas, pero se pueden estilizar si se muestran en otro lugar.
     case 'Firmo Contrato':
       return { headerClasses: 'bg-green-50 dark:bg-green-900/40', borderTopClass: 'border-t-green-500', titleColor: 'text-green-700 dark:text-green-400', badgeVariant: 'default' };
     case 'No Contrato':
@@ -63,8 +62,8 @@ const stageIcons = {
   'Consulto': MessageCircle,
   'Agendo Entrevista': CalendarDays,
   'Con Presupuesto': FileText,
-  'Firmo Contrato': Users, // O FileSignature
-  'No Contrato': Users, // O XCircle
+  'Firmo Contrato': Users, 
+  'No Contrato': Users, 
 };
 
 
@@ -112,15 +111,15 @@ export default function VentasPage() {
     try {
       const result = await saveProspect(updatedProspect);
       if (result.success && result.prospect) {
-        toast({ title: "Etapa Actualizada", description: \`Prospecto "\${result.prospect.name}" movido a "\${newStage}".\` });
+        toast({ title: "Etapa Actualizada", description: `Prospecto "${result.prospect.name}" movido a "${newStage}".` });
         if (newStage === 'Firmo Contrato' && result.customerId) {
-            toast({ title: "¡Convertido a Cliente!", description: \`Cliente ID \${result.customerId} creado/actualizado.\`});
-            router.push(\`/customers\`); 
+            toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
+            router.push(`/customers`); 
         } else if (newStage === 'Firmo Contrato' && result.error) {
-            toast({ title: "Conversión Parcial", description: \`Prospecto marcado como 'Firmo Contrato', pero: \${result.error}\`, variant: "destructive", duration: 7000 });
+            toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero: ${result.error}`, variant: "destructive", duration: 7000 });
             await loadProspects();
         } else if (newStage === 'No Contrato') {
-             await loadProspects(); // Recargar para que desaparezca del tablero activo
+             await loadProspects(); 
         }
         else {
             await loadProspects(); 
@@ -209,7 +208,7 @@ export default function VentasPage() {
             const StageIcon = stageIcons[stage] || Info;
 
             return (
-              <Card key={stage} className={cn(\`w-72 sm:w-80 md:w-[360px] lg:w-[380px] flex-shrink-0 flex flex-col h-full shadow-lg border-t-4 print:w-full print:shadow-none print:border-t-2 print:mb-4 print:break-inside-avoid-page\`, columnStyle.borderTopClass)}>
+              <Card key={stage} className={cn(`w-72 sm:w-80 md:w-[360px] lg:w-[380px] flex-shrink-0 flex flex-col h-full shadow-lg border-t-4 print:w-full print:shadow-none print:border-t-2 print:mb-4 print:break-inside-avoid-page`, columnStyle.borderTopClass)}>
                 <CardHeader className={cn("pb-3 sticky top-0 bg-card/90 backdrop-blur-sm z-10 border-b print:static print:bg-transparent print:border-b-2 print:pb-2", columnStyle.headerClasses)}>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -240,7 +239,7 @@ export default function VentasPage() {
                                 <p className="text-xs text-muted-foreground/80 print:text-[10px]">Act: {formatDate(prospect.updatedAt, { day: '2-digit', month: '2-digit', year: '2-digit', hour:'2-digit', minute:'2-digit' })}</p>
                               </div>
                               <div className="flex-shrink-0 flex items-center print:hidden">
-                                <Link href={\`/prospects/\${prospect.id}/edit\`} passHref>
+                                <Link href={`/prospects/${prospect.id}/edit`} passHref>
                                   <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" title="Editar Prospecto">
                                     <Edit className="w-3.5 h-3.5" />
                                   </Button>
@@ -297,7 +296,7 @@ export default function VentasPage() {
                                     </p>
                                     )}
                                     {prospect.cantidadInvitados !== undefined && (
-                                    <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={\`Invitados: \${prospect.cantidadInvitados}\`}>
+                                    <p className="text-xs text-muted-foreground truncate flex items-center gap-1 print:text-[10px]" title={`Invitados: ${prospect.cantidadInvitados}`}>
                                       <Users2 className="w-3 h-3 flex-shrink-0 print:hidden" /> {prospect.cantidadInvitados} inv.
                                     </p>
                                     )}
@@ -305,12 +304,12 @@ export default function VentasPage() {
                             )}
 
                             {prospect.salesFunnelStage === 'Agendo Entrevista' && prospect.nextMeetingDate && (
-                              <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1 print:text-[10px]" title={\`Reunión: \${formatDate(prospect.nextMeetingDate)}\`}>
+                              <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1 print:text-[10px]" title={`Reunión: ${formatDate(prospect.nextMeetingDate)}`}>
                                 <CalendarDays className="w-3 h-3 flex-shrink-0 print:hidden" /> {formatDate(prospect.nextMeetingDate)}
                               </p>
                             )}
                             {prospect.salesFunnelStage === 'Con Presupuesto' && prospect.estimatedValue !== undefined && (
-                               <p className="mt-1.5 text-xs text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1 print:text-[10px]" title={\`Presupuesto: \${formatCurrency(prospect.estimatedValue)}\`}>
+                               <p className="mt-1.5 text-xs text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1 print:text-[10px]" title={`Presupuesto: ${formatCurrency(prospect.estimatedValue)}`}>
                                  <DollarSign className="w-3 h-3 flex-shrink-0 print:hidden" /> {formatCurrency(prospect.estimatedValue)}
                                </p>
                             )}
