@@ -1,327 +1,96 @@
+'use server';
 
-[
-  {
-    "id": "menu_completo_ak_producciones_v2",
-    "name": "Menú Completo AK Producciones (Precios Base)",
-    "description": "Selección completa de platos y bebidas ofrecidos por AK Producciones, con precios por persona (excepto donde se indique una estimación).",
-    "items": [
-      {
-        "id": "dish_et_empanada_carne",
-        "name": "Empanada de Carne (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_ec", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "300.00"}],
-        "totalDishCost": 300.00
-      },
-      {
-        "id": "dish_et_empanada_pollo",
-        "name": "Empanada de Pollo (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_ep", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "300.00"}],
-        "totalDishCost": 300.00
-      },
-      {
-        "id": "dish_et_empanada_jyq",
-        "name": "Empanada de Jamón y Queso (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_ejyq", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "300.00"}],
-        "totalDishCost": 300.00
-      },
-      {
-        "id": "dish_et_pinchos_capresse",
-        "name": "Pinchos Capresse (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_pc", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "250.00"}],
-        "totalDishCost": 250.00
-      },
-      {
-        "id": "dish_et_mini_brochetas",
-        "name": "Mini Brochetas de Pollo y Vegetales (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_mb", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "350.00"}],
-        "totalDishCost": 350.00
-      },
-      {
-        "id": "dish_et_bruschettas",
-        "name": "Bruschettas Mediterráneas (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_bm", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "300.00"}],
-        "totalDishCost": 300.00
-      },
-      {
-        "id": "dish_et_arrolladitos",
-        "name": "Arrolladitos Primavera (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_ap", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "280.00"}],
-        "totalDishCost": 280.00
-      },
-      {
-        "id": "dish_et_choricitos",
-        "name": "Choricitos a la Pomarola (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_cp", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "400.00"}],
-        "totalDishCost": 400.00
-      },
-      {
-        "id": "dish_et_albondigas",
-        "name": "Albóndigas Caseras con Salsa Fileto (Tradicional)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_et_asf", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "380.00"}],
-        "totalDishCost": 380.00
-      },
-      {
-        "id": "dish_eg_ceviche",
-        "name": "Ceviche Clásico Peruano (Gourmet)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_eg_ccp", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "600.00"}],
-        "totalDishCost": 600.00
-      },
-      {
-        "id": "dish_eg_langostinos",
-        "name": "Langostinos Rebozados en Panko con Alioli Cítrico (Gourmet)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_eg_lrp", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "750.00"}],
-        "totalDishCost": 750.00
-      },
-      {
-        "id": "dish_eg_mini_quiche",
-        "name": "Mini Quiche Lorraine (Gourmet)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_eg_mql", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "450.00"}],
-        "totalDishCost": 450.00
-      },
-      {
-        "id": "dish_eg_carpaccio",
-        "name": "Carpaccio de Lomo con Rúcula y Parmesano (Gourmet)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_eg_clrp", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "700.00"}],
-        "totalDishCost": 700.00
-      },
-      {
-        "id": "dish_eg_provoleta",
-        "name": "Provoleta a la Parrilla con Tomates Asados y Orégano Fresco (Gourmet)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_eg_pptao", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "550.00"}],
-        "totalDishCost": 550.00
-      },
-      {
-        "id": "dish_eg_shot_sopa",
-        "name": "Shot de Sopa Fría (Gazpacho o Remolacha) (Gourmet)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_eg_ssf", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "350.00"}],
-        "totalDishCost": 350.00
-      },
-      {
-        "id": "dish_eg_rolls_salmon",
-        "name": "Rolls de Salmón Ahumado con Queso Crema y Ciboulette (Gourmet)",
-        "type": "Entrada",
-        "ingredients": [{"id": "ing_costo_eg_rsaqcc", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "650.00"}],
-        "totalDishCost": 650.00
-      },
-      {
-        "id": "dish_pt_lomo_champ",
-        "name": "Lomo al Champignon con Papas Rústicas (Tradicional)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pt_lcpr", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1500.00"}],
-        "totalDishCost": 1500.00
-      },
-      {
-        "id": "dish_pt_pollo_verdeo",
-        "name": "Pollo al Verdeo con Puré de Batatas (Tradicional)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pt_pvpb", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1200.00"}],
-        "totalDishCost": 1200.00
-      },
-      {
-        "id": "dish_pt_bondiola_braseada",
-        "name": "Bondiola Braseada con Salsa de Mostaza y Miel, acompañada de Vegetales Asados (Tradicional)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pt_bbsmmva", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1400.00"}],
-        "totalDishCost": 1400.00
-      },
-      {
-        "id": "dish_pt_sorrentinos",
-        "name": "Sorrentinos de Jamón y Queso con Salsa Rosa (Tradicional)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pt_sjyqsr", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1100.00"}],
-        "totalDishCost": 1100.00
-      },
-      {
-        "id": "dish_pt_milanesa_napo",
-        "name": "Milanesa de Ternera Napolitana con Papas Fritas (Tradicional)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pt_mtnpf", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1300.00"}],
-        "totalDishCost": 1300.00
-      },
-      {
-        "id": "dish_pt_pastel_papas",
-        "name": "Pastel de Papas Gratinado (Tradicional)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pt_ppg", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1000.00"}],
-        "totalDishCost": 1000.00
-      },
-      {
-        "id": "dish_pt_cazuela_lentejas",
-        "name": "Cazuela de Lentejas (Opción Invierno) (Tradicional)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pt_cli", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "950.00"}],
-        "totalDishCost": 950.00
-      },
-      {
-        "id": "dish_pg_salmon_plancha",
-        "name": "Salmón Rosado a la Plancha con Reducción de Maracuyá y Espárragos Glaseados (Gourmet)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pg_srprmeg", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "2200.00"}],
-        "totalDishCost": 2200.00
-      },
-      {
-        "id": "dish_pg_risotto_hongos",
-        "name": "Risotto de Hongos Porcini y Aceite Trufado (Gourmet)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pg_rhpat", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1800.00"}],
-        "totalDishCost": 1800.00
-      },
-      {
-        "id": "dish_pg_magret_pato",
-        "name": "Magret de Pato con Salsa de Frutos Rojos y Gratin Dauphinois (Gourmet)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pg_mpsfrgd", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "2500.00"}],
-        "totalDishCost": 2500.00
-      },
-      {
-        "id": "dish_pg_cordero_patagonico",
-        "name": "Cordero Patagónico Cocción Lenta con Guarnición de Quinoa y Hierbas Frescas (Gourmet)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pg_cpclgqhf", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "2800.00"}],
-        "totalDishCost": 2800.00
-      },
-      {
-        "id": "dish_pg_ravioles_negros",
-        "name": "Ravioles Negros de Salmón con Crema de Lima y Eneldo (Gourmet)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pg_rnsccle", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "1900.00"}],
-        "totalDishCost": 1900.00
-      },
-      {
-        "id": "dish_pg_ojo_bife",
-        "name": "Ojo de Bife Madurado con Chimichurri de la Casa y Papines Andinos (Gourmet)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pg_obmccpa", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "2600.00"}],
-        "totalDishCost": 2600.00
-      },
-      {
-        "id": "dish_pg_paella_mariscos",
-        "name": "Paella de Mariscos Estilo Valenciana (Gourmet)",
-        "type": "Plato Principal",
-        "ingredients": [{"id": "ing_costo_pg_pmev", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "2300.00"}],
-        "totalDishCost": 2300.00
-      },
-      {
-        "id": "dish_postre_flan",
-        "name": "Flan Casero con Dulce de Leche y Crema",
-        "type": "Postre",
-        "ingredients": [{"id": "ing_costo_postre_fcdlc", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "450.00"}],
-        "totalDishCost": 450.00
-      },
-      {
-        "id": "dish_postre_volcan",
-        "name": "Volcán de Chocolate con Helado de Vainilla",
-        "type": "Postre",
-        "ingredients": [{"id": "ing_costo_postre_vchv", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "550.00"}],
-        "totalDishCost": 550.00
-      },
-      {
-        "id": "dish_postre_ensalada_frutas",
-        "name": "Ensalada de Frutas de Estación",
-        "type": "Postre",
-        "ingredients": [{"id": "ing_costo_postre_efe", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "350.00"}],
-        "totalDishCost": 350.00
-      },
-      {
-        "id": "dish_postre_tiramisu",
-        "name": "Tiramisú Clásico Italiano",
-        "type": "Postre",
-        "ingredients": [{"id": "ing_costo_postre_tci", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "500.00"}],
-        "totalDishCost": 500.00
-      },
-      {
-        "id": "dish_postre_cheesecake",
-        "name": "Cheesecake de Frutos Rojos",
-        "type": "Postre",
-        "ingredients": [{"id": "ing_costo_postre_cfr", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "600.00"}],
-        "totalDishCost": 600.00
-      },
-      {
-        "id": "dish_postre_mousse_maracuya",
-        "name": "Mousse de Maracuyá",
-        "type": "Postre",
-        "ingredients": [{"id": "ing_costo_postre_mm", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "480.00"}],
-        "totalDishCost": 480.00
-      },
-      {
-        "id": "dish_postre_panqueques",
-        "name": "Panqueques de Manzana Caramelizada con Helado",
-        "type": "Postre",
-        "ingredients": [{"id": "ing_costo_postre_pmch", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "520.00"}],
-        "totalDishCost": 520.00
-      },
-      {
-        "id": "dish_bebida_gaseosa_coca",
-        "name": "Gaseosa Línea Coca-Cola (Regular y Zero) - Lata 354ml",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_gc", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "250.00"}],
-        "totalDishCost": 250.00
-      },
-      {
-        "id": "dish_bebida_agua",
-        "name": "Agua Mineral (con y sin gas) - Botella 500ml",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_am", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "200.00"}],
-        "totalDishCost": 200.00
-      },
-      {
-        "id": "dish_bebida_cerveza_quilmes",
-        "name": "Cerveza Quilmes Clásica - Lata 473ml",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_cq", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "300.00"}],
-        "totalDishCost": 300.00
-      },
-      {
-        "id": "dish_bebida_cerveza_stella",
-        "name": "Cerveza Stella Artois - Porrón 330ml",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_csa", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "350.00"}],
-        "totalDishCost": 350.00
-      },
-      {
-        "id": "dish_bebida_vino_tinto_malbec",
-        "name": "Vino Tinto Malbec (Bodega Media Gama) - Estimado por persona",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_vtm", "name": "Costo base por persona (estimado 1/5 botella)", "quantity": "1", "unit": "persona", "cost": "240.00"}],
-        "totalDishCost": 240.00
-      },
-      {
-        "id": "dish_bebida_vino_blanco_chardonnay",
-        "name": "Vino Blanco Chardonnay (Bodega Media Gama) - Estimado por persona",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_vbc", "name": "Costo base por persona (estimado 1/5 botella)", "quantity": "1", "unit": "persona", "cost": "220.00"}],
-        "totalDishCost": 220.00
-      },
-      {
-        "id": "dish_bebida_jugo_naranja",
-        "name": "Jugo de Naranja Exprimido - Vaso",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_jne", "name": "Costo base por persona", "quantity": "1", "unit": "persona", "cost": "300.00"}],
-        "totalDishCost": 300.00
-      },
-      {
-        "id": "dish_bebida_limonada",
-        "name": "Limonada con Menta y Jengibre - Estimado por persona",
-        "type": "Bebida",
-        "ingredients": [{"id": "ing_costo_beb_lmj", "name": "Costo base por persona (estimado 1/4 jarra)", "quantity": "1", "unit": "persona", "cost": "200.00"}],
-        "totalDishCost": 200.00
-      }
-    ],
-    "createdAt": "2024-06-10T20:00:00.000Z",
-    "updatedAt": "2024-06-10T20:00:00.000Z"
+import { dbAdmin as db } from '@/lib/firebase/server';
+import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
+
+const MENUS_CATERING_COLLECTION = 'menus_catering';
+
+export async function getMenus(): Promise<FullMenu[]> {
+  if (!db) {
+    console.error("Firestore no está inicializado. No se pueden obtener menús.");
+    return [];
   }
-]
+  try {
+    const snapshot = await db.collection(MENUS_CATERING_COLLECTION).orderBy('createdAt', 'desc').get();
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FullMenu));
+  } catch (error) {
+    console.error('Error obteniendo menús de Firestore:', error);
+    throw new Error('No se pudieron cargar los menús.');
+  }
+}
+
+export async function getMenuById(id: string): Promise<FullMenu | null> {
+  if (!db) {
+    console.error("Firestore no está inicializado.");
+    return null;
+  }
+  try {
+    const doc = await db.collection(MENUS_CATERING_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+      return null;
+    }
+    return { id: doc.id, ...doc.data() } as FullMenu;
+  } catch (error) {
+    console.error(`Error obteniendo menú ${id} de Firestore:`, error);
+    throw new Error('No se pudo obtener el menú.');
+  }
+}
+
+export async function saveMenu(
+  menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
+): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
+  }
+  try {
+    let finalMenuData: FullMenu;
+    let menuId: string;
+
+    if ('id' in menuData && menuData.id) {
+      // Actualizar menú existente
+      menuId = menuData.id;
+      const { id, ...dataToUpdate } = menuData;
+      const updatePayload = {
+        ...dataToUpdate,
+        updatedAt: new Date().toISOString()
+      };
+      await db.collection(MENUS_CATERING_COLLECTION).doc(menuId).set(updatePayload, { merge: true });
+      finalMenuData = { id: menuId, ...updatePayload };
+    } else {
+      // Crear nuevo menú
+      const newMenuRef = db.collection(MENUS_CATERING_COLLECTION).doc();
+      menuId = newMenuRef.id;
+      finalMenuData = {
+        ...(menuData as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
+        id: menuId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await newMenuRef.set(finalMenuData);
+    }
+    return { success: true, id: menuId, menu: finalMenuData };
+  } catch (error: any) {
+    console.error('Error guardando menú en Firestore:', error);
+    return { success: false, error: error.message || 'No se pudo guardar el menú.' };
+  }
+}
+
+export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
+  }
+  try {
+    const doc = await db.collection(MENUS_CATERING_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+        return { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
+    }
+    await db.collection(MENUS_CATERING_COLLECTION).doc(id).delete();
+    return { success: true };
+  } catch (error: any) {
+    console.error(`Error eliminando menú ${id} de Firestore:`, error);
+    return { success: false, error: error.message || 'No se pudo eliminar el menú.' };
+  }
+}

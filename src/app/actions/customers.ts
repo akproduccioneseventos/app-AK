@@ -1,172 +1,139 @@
 
 'use server';
 
+import { dbAdmin as db } from '@/lib/firebase/server';
 import type { Customer, CustomerStatus } from '@/types/customer';
-import fs from 'fs/promises';
-import path from 'path';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const customersFilePath = path.join(dataDirectory, 'customers.json');
-
-async function ensureDataDirectoryExists(): Promise<void> {
-  try {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  } catch (error) {
-    console.error('Error creando el directorio de datos para clientes:', error);
-  }
-}
-
-async function readCustomersFile(): Promise<Customer[]> {
-  await ensureDataDirectoryExists();
-  try {
-    const fileContent = await fs.readFile(customersFilePath, 'utf-8');
-    const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data.map(c => ({
-        ...c, 
-        estadoCliente: c.estadoCliente || 'Actual' 
-    })) : [];
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      await writeCustomersFile([]);
-      return [];
-    }
-    console.error('Error leyendo el archivo de clientes, devolviendo array vacío:', error);
-    return [];
-  }
-}
-
-async function writeCustomersFile(data: Customer[]): Promise<void> {
-  await ensureDataDirectoryExists();
-  try {
-    await fs.writeFile(customersFilePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error escribiendo en el archivo de clientes:', error);
-  }
-}
+const CLIENTES_COLLECTION = 'clientes';
 
 export async function getCustomers(): Promise<Customer[]> {
-  let customers = await readCustomersFile();
-  let hasChanges = false;
-
+  if (!db) {
+    console.error("Firestore no está inicializado. No se pueden obtener clientes.");
+    return [];
+  }
   try {
-    const fiestaActual = await getFiestaActual();
+    let customersQuery = db.collection(CLIENTES_COLLECTION);
+    const snapshot = await customersQuery.get();
+    if (snapshot.empty) {
+      return [];
+    }
+    let customers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Customer));
+
+    // Initialize estadoCliente if missing
+    customers = customers.map(c => ({
+        ...c,
+        estadoCliente: c.estadoCliente || 'Actual'
+    }));
+
+    let hasChanges = false;
+    const fiestaActual = await getFiestaActual(); // Assume this now reads from Firestore too
     const clienteIdFiestaActual = fiestaActual?.configuracion?.clienteId;
     const fechaEventoFiestaActual = fiestaActual?.configuracion?.fechaEvento;
 
     if (clienteIdFiestaActual && fechaEventoFiestaActual) {
       const eventDate = new Date(fechaEventoFiestaActual);
       const today = new Date();
-      today.setHours(0, 0, 0, 0); 
+      today.setHours(0, 0, 0, 0);
 
+      const updates: Promise<void>[] = [];
       customers = customers.map(customer => {
         if (customer.id === clienteIdFiestaActual && customer.estadoCliente === 'Actual') {
           if (eventDate < today) {
             customer.estadoCliente = 'Antiguo';
             hasChanges = true;
+            updates.push(db.collection(CLIENTES_COLLECTION).doc(customer.id).update({ estadoCliente: 'Antiguo' }));
           }
         }
         return customer;
       });
 
       if (hasChanges) {
-        await writeCustomersFile(customers);
+        await Promise.all(updates);
       }
     }
+    return customers.sort((a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
   } catch (error) {
-    console.error("Error al procesar la actualización automática del estado del cliente:", error);
+    console.error('Error obteniendo clientes de Firestore:', error);
+    throw new Error('No se pudieron cargar los clientes.');
   }
-  
-  return customers.sort((a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {
-  const customers = await readCustomersFile();
-  const customer = customers.find(c => c.id === id);
-  return customer ? { 
-    ...customer, 
-    estadoCliente: customer.estadoCliente || 'Actual'
-  } : null;
+  if (!db) {
+    console.error("Firestore no está inicializado.");
+    return null;
+  }
+  try {
+    const doc = await db.collection(CLIENTES_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+      return null;
+    }
+    const customerData = { id: doc.id, ...doc.data() } as Customer;
+    return {
+      ...customerData,
+      estadoCliente: customerData.estadoCliente || 'Actual'
+    };
+  } catch (error) {
+    console.error(`Error obteniendo cliente ${id} de Firestore:`, error);
+    throw new Error('No se pudo obtener el cliente.');
+  }
 }
 
 export async function saveCustomer(
   customerData: Omit<Customer, 'id'> | Customer
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
-  let customers = await readCustomersFile();
-  
-  if ('id' in customerData && customerData.id) {
-    const index = customers.findIndex(c => c.id === customerData.id);
-    if (index !== -1) {
-      customers[index] = { 
-        ...customers[index], 
-        ...customerData,
-        estadoCliente: customerData.estadoCliente || customers[index].estadoCliente || 'Actual',
-      };
-      await writeCustomersFile(customers);
-      return { success: true, id: customerData.id, customer: { ...customers[index] } };
-    } else {
-      const newCustomerFromUpdate: Customer = {
-        ...(customerData as Customer), 
-        id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
+  }
+  try {
+    let finalCustomerData: Customer;
+    let customerId: string;
+
+    if ('id' in customerData && customerData.id) {
+      // Actualizar cliente existente
+      customerId = customerData.id;
+      const { id, ...dataToUpdate } = customerData;
+      const updatePayload = {
+        ...dataToUpdate,
         name: customerData.name || customerData.companyName || 'Sin Nombre Asignado',
         estadoCliente: customerData.estadoCliente || 'Actual',
       };
-      customers.push(newCustomerFromUpdate);
-      await writeCustomersFile(customers);
-      return { success: true, id: newCustomerFromUpdate.id, customer: { ...newCustomerFromUpdate } };
+      await db.collection(CLIENTES_COLLECTION).doc(customerId).set(updatePayload, { merge: true });
+      finalCustomerData = { id: customerId, ...updatePayload };
+    } else {
+      // Crear nuevo cliente
+      const newCustomerRef = db.collection(CLIENTES_COLLECTION).doc();
+      customerId = newCustomerRef.id;
+      finalCustomerData = {
+        ...(customerData as Omit<Customer, 'id'>),
+        id: customerId,
+        name: customerData.name || customerData.companyName || 'Sin Nombre Asignado',
+        estadoCliente: (customerData as Customer).estadoCliente || 'Actual',
+      };
+      await newCustomerRef.set(finalCustomerData);
     }
-  } else {
-    // Crear nuevo cliente
-    const newCustomer: Customer = {
-      ...(customerData as Omit<Customer, 'id'>),
-      id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      name: customerData.name || customerData.companyName || 'Sin Nombre Asignado',
-      estadoCliente: customerData.estadoCliente || 'Actual',
-    };
-    customers.push(newCustomer);
-    await writeCustomersFile(customers);
-    return { success: true, id: newCustomer.id, customer: { ...newCustomer } };
+    return { success: true, id: customerId, customer: finalCustomerData };
+  } catch (error: any) {
+    console.error('Error guardando cliente en Firestore:', error);
+    return { success: false, error: error.message || 'No se pudo guardar el cliente.' };
   }
 }
 
 export async function deleteCustomer(id: string): Promise<{ success: boolean; error?: string }> {
-  let customers = await readCustomersFile();
-  const initialLength = customers.length;
-  customers = customers.filter(c => c.id !== id);
-  
-  if (customers.length < initialLength) {
-    await writeCustomersFile(customers);
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
+  }
+  try {
+    // First, check if the customer exists to provide a more specific error if not
+    const doc = await db.collection(CLIENTES_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+        return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
+    }
+    await db.collection(CLIENTES_COLLECTION).doc(id).delete();
     return { success: true };
-  } else {
-    return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
+  } catch (error: any) {
+    console.error(`Error eliminando cliente ${id} de Firestore:`, error);
+    return { success: false, error: error.message || 'No se pudo eliminar el cliente.' };
   }
 }
-
-async function initializeCustomerData() {
-    await ensureDataDirectoryExists();
-    try {
-        await fs.access(customersFilePath);
-        const currentCustomers = await readCustomersFile();
-        let wasModified = false;
-        const updatedCustomers = currentCustomers.map(c => {
-            let customerModified = false;
-            if (!c.estadoCliente) {
-                c.estadoCliente = 'Actual';
-                customerModified = true;
-            }
-            if (customerModified) wasModified = true;
-            return c;
-        });
-        if (wasModified) {
-            await writeCustomersFile(updatedCustomers);
-        }
-
-    } catch (error: any) {
-        if (error.code === 'ENOENT') {
-            console.log('Archivo customers.json no encontrado, creando con datos iniciales...');
-            await readCustomersFile(); 
-        }
-    }
-}
-
-initializeCustomerData();

@@ -1,175 +1,156 @@
 
 'use server';
 
-import type { Presupuesto, PlatoPresupuesto, ServicioAdicional } from '@/types/presupuesto'; // Added ServicioAdicional
-import fs from 'fs/promises';
-import path from 'path';
-import type { FullMenu, MenuItem as CateringMenuItem } from '@/types/catering'; // Renamed to avoid conflict
+import { dbAdmin as db } from '@/lib/firebase/server';
+import type { Presupuesto, PlatoPresupuesto, ServicioAdicional } from '@/types/presupuesto';
+import type { FullMenu } from '@/types/catering';
 
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const presupuestosFilePath = path.join(dataDirectory, 'presupuestos.json');
-const menusCateringFilePath = path.join(dataDirectory, 'menus-catering.json'); // Path to the catering menus
-
-// Datos iniciales si el archivo no existe o está vacío
-const initialMockPresupuestosDatabase: Presupuesto[] = [];
-
-
-async function ensureDataDirectoryExists(): Promise<void> {
-  try {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  } catch (error) {
-    console.error('Error creando el directorio de datos para presupuestos:', error);
-  }
-}
-
-async function readPresupuestosFile(): Promise<Presupuesto[]> {
-  await ensureDataDirectoryExists();
-  try {
-    const fileContent = await fs.readFile(presupuestosFilePath, 'utf-8');
-    const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data : [...initialMockPresupuestosDatabase];
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      await writePresupuestosFile(initialMockPresupuestosDatabase);
-      return [...initialMockPresupuestosDatabase];
-    }
-    console.error('Error leyendo el archivo de presupuestos, usando datos iniciales:', error);
-    return [...initialMockPresupuestosDatabase];
-  }
-}
-
-async function writePresupuestosFile(data: Presupuesto[]): Promise<void> {
-  await ensureDataDirectoryExists();
-  try {
-    await fs.writeFile(presupuestosFilePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error escribiendo en el archivo de presupuestos:', error);
-  }
-}
+const PRESUPUESTOS_COLLECTION = 'presupuestos';
+const MENUS_CATERING_COLLECTION = 'menus_catering'; // For getPlatos
 
 // Helper function to generate simple AI hints for images
 function generateDataAiHint(name: string): string {
   const commonWords = ['de', 'con', 'y', 'a', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'para', 'por', 'sin', 'sobre', 'tras'];
   const cleanedName = name.toLowerCase()
-    .replace(/\((tradicional|gourmet|opción invierno|estimado por persona|lata \d+ml|botella \d+ml|porrón \d+ml|vaso|jarra \d+l)\)/gi, '') // Remove specific parenthetical phrases
-    .replace(/[^\w\s]/gi, '') // Remove punctuation
+    .replace(/\((tradicional|gourmet|opción invierno|estimado por persona|lata \d+ml|botella \d+ml|porrón \d+ml|vaso|jarra \d+l)\)/gi, '')
+    .replace(/[^\w\s]/gi, '')
     .trim();
   
   const words = cleanedName.split(/\s+/).filter(word => word.length > 2 && !commonWords.includes(word));
-  if (words.length === 0) return 'food item'; // Fallback
+  if (words.length === 0) return 'food item';
   if (words.length === 1) return words[0];
-  return `${words[0]} ${words[1]}`; // Take first two significant words
+  return `${words[0]} ${words[1]}`;
 }
 
-
 export async function getPlatos(): Promise<PlatoPresupuesto[]> {
+  if (!db) {
+    console.error("Firestore no está inicializado. No se pueden obtener platos.");
+    return [{ id: 'fallback_error_firestore', nombre: 'Error: Firestore no disponible', descripcion: 'Contactar soporte', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 0, dataAiHint: "error sign" }];
+  }
   try {
-    const menusFileContent = await fs.readFile(menusCateringFilePath, 'utf-8');
-    const menusData: FullMenu[] = JSON.parse(menusFileContent);
-    
+    const menusSnapshot = await db.collection(MENUS_CATERING_COLLECTION).get();
     const platosPresupuesto: PlatoPresupuesto[] = [];
 
-    menusData.forEach(menu => {
+    if (menusSnapshot.empty) {
+      return []; // O un mensaje indicando que no hay menús/platos definidos
+    }
+
+    menusSnapshot.forEach(doc => {
+      const menu = doc.data() as FullMenu;
       menu.items.forEach(item => {
         platosPresupuesto.push({
-          id: item.id,
+          id: item.id, // El ID del MenuItem (plato) dentro del FullMenu
           nombre: item.name,
-          descripcion: item.type || undefined, // Use menu item type as description
-          costoPorPersona: item.totalDishCost, // Assuming totalDishCost is per person
-          imagenUrl: `https://placehold.co/300x200.png`,
-          dataAiHint: generateDataAiHint(item.name), // Generate AI hint
-          seleccionado: false,
+          descripcion: item.type || undefined,
+          costoPorPersona: item.totalDishCost, // Asumiendo totalDishCost es el costo por persona
+          imagenUrl: `https://placehold.co/300x200.png`, // Placeholder, puede ser del item si se añade
+          dataAiHint: generateDataAiHint(item.name),
+          seleccionado: false, // Por defecto para el UI
         });
       });
     });
     return platosPresupuesto;
   } catch (error) {
-    console.error('Error leyendo o parseando menus-catering.json para getPlatos:', error);
-    // Fallback to a very basic list or empty if critical
-    return [
-        { id: 'fallback_error', nombre: 'Error al cargar platos', descripcion: 'Contactar soporte', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 0, dataAiHint: "error sign" },
-    ];
+    console.error('Error leyendo menús de Firestore para getPlatos:', error);
+    return [{ id: 'fallback_error_read', nombre: 'Error al cargar platos', descripcion: 'Contactar soporte', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 0, dataAiHint: "error sign" }];
   }
 }
 
-
 export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'timestamp' | 'estado'>): Promise<{ success: boolean, id?: string, error?: string }> {
-  let presupuestos = await readPresupuestosFile();
-  
-  const nuevoPresupuesto: Presupuesto = { 
-    ...presupuestoData, 
-    id: `pres_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    timestamp: new Date().toISOString(),
-    estado: 'Borrador' // Estado inicial
-  };
-  presupuestos.push(nuevoPresupuesto);
-  await writePresupuestosFile(presupuestos);
-  
-  return { success: true, id: nuevoPresupuesto.id };
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
+  }
+  try {
+    const newPresupuestoRef = db.collection(PRESUPUESTOS_COLLECTION).doc();
+    const nuevoPresupuesto: Presupuesto = {
+      ...presupuestoData,
+      id: newPresupuestoRef.id,
+      timestamp: new Date().toISOString(),
+      estado: 'Borrador'
+    };
+    await newPresupuestoRef.set(nuevoPresupuesto);
+    return { success: true, id: nuevoPresupuesto.id };
+  } catch (error: any) {
+    console.error('Error guardando presupuesto en Firestore:', error);
+    return { success: false, error: error.message || 'No se pudo guardar el presupuesto.' };
+  }
 }
 
 export async function getPresupuestos(): Promise<Presupuesto[]> {
-  const presupuestos = await readPresupuestosFile();
-  return presupuestos.sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  if (!db) {
+    console.error("Firestore no está inicializado. No se pueden obtener presupuestos.");
+    return [];
+  }
+  try {
+    const snapshot = await db.collection(PRESUPUESTOS_COLLECTION).orderBy('timestamp', 'desc').get();
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Presupuesto));
+  } catch (error) {
+    console.error('Error obteniendo presupuestos de Firestore:', error);
+    throw new Error('No se pudieron cargar los presupuestos.');
+  }
 }
 
 export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
-  const presupuestos = await readPresupuestosFile();
-  const presupuesto = presupuestos.find(p => p.id === id);
-  return presupuesto || null;
+  if (!db) {
+    console.error("Firestore no está inicializado.");
+    return null;
+  }
+  try {
+    const doc = await db.collection(PRESUPUESTOS_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+      return null;
+    }
+    return { id: doc.id, ...doc.data() } as Presupuesto;
+  } catch (error) {
+    console.error(`Error obteniendo presupuesto ${id} de Firestore:`, error);
+    throw new Error('No se pudo obtener el presupuesto.');
+  }
 }
 
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  let presupuestos = await readPresupuestosFile();
-  const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
-
-  if (index === -1) {
-    return { success: false, error: `Presupuesto con ID ${presupuestoData.id} no encontrado.` };
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
   }
+  try {
+    const { id, ...dataToUpdate } = presupuestoData;
+    
+    // Recalcular costos por si acaso
+    const costoSubtotalPlatos = dataToUpdate.platosSeleccionados.reduce((sum, plato) => sum + plato.costoTotalPlato, 0);
+    const costoSubtotalServicios = dataToUpdate.serviciosAdicionales.reduce((sum, servicio) => sum + servicio.costoServicio, 0);
+    const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
 
-  // Recalcular costos por si acaso, aunque el formulario de edición simplificado no los modifica directamente
-  const costoSubtotalPlatos = presupuestoData.platosSeleccionados.reduce((sum, plato) => sum + plato.costoTotalPlato, 0);
-  const costoSubtotalServicios = presupuestoData.serviciosAdicionales.reduce((sum, servicio) => sum + servicio.costoServicio, 0);
-  const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
-
-  presupuestos[index] = {
-    ...presupuestoData,
-    costoSubtotalPlatos,
-    costoSubtotalServicios,
-    costoTotalEstimado,
-    timestamp: new Date().toISOString(), // Actualizar timestamp
-  };
-
-  await writePresupuestosFile(presupuestos);
-  return { success: true, presupuesto: presupuestos[index] };
+    const finalDataToUpdate = {
+        ...dataToUpdate,
+        costoSubtotalPlatos,
+        costoSubtotalServicios,
+        costoTotalEstimado,
+        timestamp: new Date().toISOString(),
+    };
+    
+    await db.collection(PRESUPUESTOS_COLLECTION).doc(id).set(finalDataToUpdate, { merge: true });
+    return { success: true, presupuesto: { id, ...finalDataToUpdate } };
+  } catch (error: any) {
+    console.error('Error actualizando presupuesto en Firestore:', error);
+    return { success: false, error: error.message || 'No se pudo actualizar el presupuesto.' };
+  }
 }
-
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
-  let presupuestos = await readPresupuestosFile();
-  const initialLength = presupuestos.length;
-  presupuestos = presupuestos.filter(p => p.id !== id);
-  
-  if (presupuestos.length < initialLength) {
-    await writePresupuestosFile(presupuestos);
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
+  }
+  try {
+    const doc = await db.collection(PRESUPUESTOS_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+        return { success: false, error: `Presupuesto con ID ${id} no encontrado para eliminar.` };
+    }
+    await db.collection(PRESUPUESTOS_COLLECTION).doc(id).delete();
     return { success: true };
-  } else {
-    return { success: false, error: `Presupuesto con ID ${id} no encontrado para eliminar.` };
+  } catch (error: any) {
+    console.error(`Error eliminando presupuesto ${id} de Firestore:`, error);
+    return { success: false, error: error.message || 'No se pudo eliminar el presupuesto.' };
   }
 }
-
-// Initialize presupuestos.json if it doesn't exist
-async function initializePresupuestoData() {
-    await ensureDataDirectoryExists();
-    try {
-        await fs.access(presupuestosFilePath);
-    } catch (error: any) {
-        if (error.code === 'ENOENT') {
-            console.log('Archivo presupuestos.json no encontrado, creando con datos iniciales...');
-            await writePresupuestosFile(initialMockPresupuestosDatabase);
-        }
-    }
-}
-
-initializePresupuestoData();
-

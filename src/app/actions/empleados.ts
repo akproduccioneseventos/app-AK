@@ -1,127 +1,94 @@
 
 'use server';
 
+import { dbAdmin as db } from '@/lib/firebase/server';
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
-import fs from 'fs/promises';
-import path from 'path';
 
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const empleadosFilePath = path.join(dataDirectory, 'empleados.json');
-
-const initialMockEmpleadosDatabase: Empleado[] = []; // No mock data
-
-async function ensureDataDirectoryExists(): Promise<void> {
-  try {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  } catch (error) {
-    console.error('Error creando el directorio de datos para empleados:', error);
-  }
-}
-
-async function readEmpleadosFile(): Promise<Empleado[]> {
-  await ensureDataDirectoryExists();
-  try {
-    const fileContent = await fs.readFile(empleadosFilePath, 'utf-8');
-    const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data : [...initialMockEmpleadosDatabase];
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      await writeEmpleadosFile([...initialMockEmpleadosDatabase]);
-      return [...initialMockEmpleadosDatabase];
-    }
-    console.error('Error leyendo el archivo de empleados, usando datos iniciales (vacíos):', error);
-    return [...initialMockEmpleadosDatabase];
-  }
-}
-
-async function writeEmpleadosFile(data: Empleado[]): Promise<void> {
-  await ensureDataDirectoryExists();
-  try {
-    await fs.writeFile(empleadosFilePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error escribiendo en el archivo de empleados:', error);
-  }
-}
+const EMPLEADOS_COLLECTION = 'empleados';
 
 export async function getEmpleados(): Promise<Empleado[]> {
-  const empleados = await readEmpleadosFile();
-  // Ordenar por nombre
-  return empleados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  if (!db) {
+    console.error("Firestore no está inicializado. No se pueden obtener empleados.");
+    return [];
+  }
+  try {
+    const snapshot = await db.collection(EMPLEADOS_COLLECTION).orderBy('nombre').get();
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Empleado));
+  } catch (error) {
+    console.error('Error obteniendo empleados de Firestore:', error);
+    throw new Error('No se pudieron cargar los empleados.');
+  }
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
-  const empleados = await readEmpleadosFile();
-  const empleado = empleados.find(e => e.id === id);
-  return empleado ? JSON.parse(JSON.stringify(empleado)) : null;
+  if (!db) {
+    console.error("Firestore no está inicializado.");
+    return null;
+  }
+  try {
+    const doc = await db.collection(EMPLEADOS_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+      return null;
+    }
+    return { id: doc.id, ...doc.data() } as Empleado;
+  } catch (error) {
+    console.error(`Error obteniendo empleado ${id} de Firestore:`, error);
+    throw new Error('No se pudo obtener el empleado.');
+  }
 }
 
 export async function saveEmpleado(
-  empleadoData: NuevoEmpleadoFormData | Empleado 
+  empleadoData: NuevoEmpleadoFormData | Empleado
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
-  let empleados = await readEmpleadosFile();
-  
-  if ('id' in empleadoData && empleadoData.id) {
-    // Actualizar empleado existente
-    const index = empleados.findIndex(e => e.id === empleadoData.id);
-    if (index !== -1) {
-      // Cuando se actualiza, se espera el tipo Empleado completo
-      empleados[index] = { 
-        ...empleados[index], 
-        ...(empleadoData as Empleado), // Cast to full Empleado for update
-      };
-      await writeEmpleadosFile(empleados);
-      return { success: true, id: empleadoData.id, empleado: JSON.parse(JSON.stringify(empleados[index])) };
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
+  }
+  try {
+    let finalEmpleadoData: Empleado;
+    let empleadoId: string;
+
+    if ('id' in empleadoData && empleadoData.id) {
+      // Actualizar empleado existente
+      empleadoId = empleadoData.id;
+      const { id, ...dataToUpdate } = empleadoData;
+      await db.collection(EMPLEADOS_COLLECTION).doc(empleadoId).set(dataToUpdate, { merge: true });
+      finalEmpleadoData = { id: empleadoId, ...dataToUpdate };
     } else {
-      // Si se intenta actualizar un ID que no existe, se crea como nuevo (debería ser raro)
-      const nuevoDesdeUpdate: Empleado = {
-        id: `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      // Crear nuevo empleado
+      const newEmpleadoRef = db.collection(EMPLEADOS_COLLECTION).doc();
+      empleadoId = newEmpleadoRef.id;
+      finalEmpleadoData = {
+        id: empleadoId,
         nombre: empleadoData.nombre,
-        cedula: (empleadoData as Empleado).cedula, // cedula is now part of Empleado
-        fechaNacimiento: (empleadoData as Empleado).fechaNacimiento, // fechaNacimiento is now part of Empleado
-        rolId: (empleadoData as Empleado).rolId, // rolId is now part of Empleado
+        cedula: (empleadoData as NuevoEmpleadoFormData).cedula,
+        fechaNacimiento: (empleadoData as NuevoEmpleadoFormData).fechaNacimiento,
+        // rolId se asignará después
       };
-      empleados.push(nuevoDesdeUpdate);
-      await writeEmpleadosFile(empleados);
-      return { success: true, id: nuevoDesdeUpdate.id, empleado: JSON.parse(JSON.stringify(nuevoDesdeUpdate)) };
+      await newEmpleadoRef.set(finalEmpleadoData);
     }
-  } else {
-    // Crear nuevo empleado (usa NuevoEmpleadoFormData)
-    const nuevoEmpleado: Empleado = {
-      id: `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      nombre: empleadoData.nombre,
-      cedula: (empleadoData as NuevoEmpleadoFormData).cedula,
-      fechaNacimiento: (empleadoData as NuevoEmpleadoFormData).fechaNacimiento,
-      // rolId se asignará después
-    };
-    empleados.push(nuevoEmpleado);
-    await writeEmpleadosFile(empleados);
-    return { success: true, id: nuevoEmpleado.id, empleado: JSON.parse(JSON.stringify(nuevoEmpleado)) };
+    return { success: true, id: empleadoId, empleado: finalEmpleadoData };
+  } catch (error: any) {
+    console.error('Error guardando empleado en Firestore:', error);
+    return { success: false, error: error.message || 'No se pudo guardar el empleado.' };
   }
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
-  let empleados = await readEmpleadosFile();
-  const initialLength = empleados.length;
-  empleados = empleados.filter(e => e.id !== id);
-  
-  if (empleados.length < initialLength) {
-    await writeEmpleadosFile(empleados);
-    return { success: true };
-  } else {
-    return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
+  if (!db) {
+    return { success: false, error: "Firestore no está inicializado." };
   }
-}
-
-async function initializeEmpleadosData() {
-  await ensureDataDirectoryExists();
   try {
-    await fs.access(empleadosFilePath);
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      console.log('Archivo empleados.json no encontrado, creando con datos iniciales (vacíos)...');
-      await writeEmpleadosFile([...initialMockEmpleadosDatabase]);
+    const doc = await db.collection(EMPLEADOS_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+        return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
     }
+    await db.collection(EMPLEADOS_COLLECTION).doc(id).delete();
+    return { success: true };
+  } catch (error: any) {
+    console.error(`Error eliminando empleado ${id} de Firestore:`, error);
+    return { success: false, error: error.message || 'No se pudo eliminar el empleado.' };
   }
 }
-
-initializeEmpleadosData();
