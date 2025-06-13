@@ -1,12 +1,11 @@
-
 // DEBUG-EMBUDO-V7 - Types (ahora Ventas)
 
 export type ProspectSalesFunnelStage =
-  | 'Consulto'              // Nueva etapa inicial
-  | 'Agendo Entrevista'     // Nueva etapa
-  | 'Con Presupuesto'       // Nueva etapa
-  | 'Firmo Contrato'        // Terminal - Convertir a Cliente
-  | 'No Contrato';          // Terminal - Perdido
+  | 'Consulto'
+  | 'Agendo Entrevista'
+  | 'Con Presupuesto'
+  | 'Firmo Contrato'
+  | 'No Contrato';
 
 // Todas las etapas posibles
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
@@ -32,7 +31,7 @@ export interface Prospecto {
   companyName?: string;
   email?: string;
   phone?: string;
-  source?: string; 
+  source?: string;
   salesFunnelStage: ProspectSalesFunnelStage;
   nextMeetingDate?: string; // ISO string - Relevante para "Agendo Entrevista"
   estimatedValue?: number; // Relevante para "Con Presupuesto"
@@ -41,8 +40,8 @@ export interface Prospecto {
   updatedAt: string; // ISO string
 
   // Campos opcionales relacionados con el evento de interés
-  tipoFiesta?: string; 
-  salonDeseado?: string; 
+  tipoFiesta?: string;
+  salonDeseado?: string;
   cantidadInvitados?: number;
 
   // Campos para posible conversión a Cliente
@@ -55,7 +54,7 @@ export interface Prospecto {
     country?: string;
   };
   // Campo para el contrato (simulado, ya que no hay subida de archivos)
-  contractNotes?: string; // Podría ser un enlace a un documento externo o notas sobre el contrato
+  contractNotes?: string;
 }
 
 // Tipo de dato para crear un nuevo prospecto. Nombre es requerido.
