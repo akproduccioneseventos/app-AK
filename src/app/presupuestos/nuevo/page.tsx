@@ -148,7 +148,6 @@ export default function NuevoPresupuestoPage() {
     
     const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
 
-    // Los datos del vendor se añadirán en la acción savePresupuesto
     return {
       id: `temp_${Date.now()}`, 
       clienteNombre: formData.clienteNombre,
@@ -164,18 +163,39 @@ export default function NuevoPresupuestoPage() {
       notas: formData.notas,
       estado: 'Borrador',
     };
-  }, [formData]);
+  }, [
+    formData.clienteNombre,
+    formData.eventoTipo,
+    formData.eventoFecha,
+    formData.invitadosCantidad,
+    formData.platosDisponibles,
+    formData.platosSeleccionadosIds,
+    formData.serviciosDisponibles,
+    formData.serviciosSeleccionadosIds,
+    formData.notas,
+  ]);
 
   useEffect(() => {
     if (formData.pasoActual === TOTAL_PASOS) {
       const resumenCalculado = calcularResumen();
-      setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
+      // Only update if the new summary is different from the current one
+      if (JSON.stringify(resumenCalculado) !== JSON.stringify(formData.resumen)) {
+        setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
+      }
     }
-  }, [formData.pasoActual, formData.platosSeleccionadosIds, formData.serviciosSeleccionadosIds, formData.invitadosCantidad, formData.notas, calcularResumen]);
+  }, [
+    formData.pasoActual, 
+    formData.platosSeleccionadosIds, 
+    formData.serviciosSeleccionadosIds, 
+    formData.invitadosCantidad, 
+    formData.notas,
+    calcularResumen, // Keep calcularResumen if its own deps are specific and stable
+    formData.resumen // Add formData.resumen to allow comparison
+  ]);
 
 
   const handleSave = async () => {
-    const resumen = calcularResumen();
+    const resumen = calcularResumen(); // Recalculate to ensure it's based on the latest formData
     if (!resumen) {
       toast({ title: "Error", description: "Faltan datos para generar el resumen.", variant: "destructive" });
       return;
@@ -183,8 +203,8 @@ export default function NuevoPresupuestoPage() {
     setIsSaving(true);
     try {
       const {id, ...presupuestoParaGuardar} = resumen;
-      const result = await savePresupuesto(presupuestoParaGuardar as Presupuesto);
-      if (result.success) {
+      const result = await savePresupuesto(presupuestoParaGuardar as Omit<Presupuesto, 'id'>); // Cast to Omit<Presupuesto, 'id'>
+      if (result.success && result.id) {
         toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumen.clienteNombre} ha sido guardado con éxito.` });
         router.push('/presupuestos'); 
       } else {
@@ -275,5 +295,3 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
-
-    
