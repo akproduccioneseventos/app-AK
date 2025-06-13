@@ -1,9 +1,9 @@
-
 // DEBUG-EMBUDO-V7 - Sales Funnel Page (Enhanced)
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // <--- IMPORTACIÓN AÑADIDA
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -317,4 +317,3 @@ export default function SalesFunnelPage() {
     </div>
   );
 }
-
