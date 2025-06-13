@@ -57,38 +57,48 @@ export async function saveRol(
 ): Promise<{ success: boolean; id?: string; rol?: Rol; error?: string }> {
   let roles = await readRolesFile();
   
+  let rolActualizado: Rol;
+
   if ('id' in rolData && rolData.id) {
     // Actualizar rol existente
     const index = roles.findIndex(r => r.id === rolData.id);
     if (index !== -1) {
-      roles[index] = { ...roles[index], ...rolData };
-      if (roles[index].tipoSalario === 'fijo' && typeof roles[index].montoSalario === 'number' && (roles[index].montoSalario as number) >= 0) {
-        roles[index].aportesCalculados = (roles[index].montoSalario as number) * 0.30;
-      } else {
-        delete roles[index].montoSalario;
-        delete roles[index].aportesCalculados;
-      }
-      await writeRolesFile(roles);
-      return { success: true, id: rolData.id, rol: JSON.parse(JSON.stringify(roles[index])) };
+      rolActualizado = { ...roles[index], ...rolData };
     } else {
       return { success: false, error: `Rol con ID ${rolData.id} no encontrado para actualizar.` };
     }
   } else {
     // Crear nuevo rol
-    const nuevoRol: Rol = {
+    rolActualizado = {
       ...rolData,
       id: `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     };
-    if (nuevoRol.tipoSalario === 'fijo' && typeof nuevoRol.montoSalario === 'number' && nuevoRol.montoSalario >= 0) {
-      nuevoRol.aportesCalculados = nuevoRol.montoSalario * 0.30;
-    } else {
-      delete nuevoRol.montoSalario; // Eliminar monto si es variable o inválido
-      delete nuevoRol.aportesCalculados;
-    }
-    roles.push(nuevoRol);
-    await writeRolesFile(roles);
-    return { success: true, id: nuevoRol.id, rol: JSON.parse(JSON.stringify(nuevoRol)) };
   }
+
+  // Calcular aportes
+  if (rolActualizado.tipoSalario === 'Mensual' && 
+      typeof rolActualizado.montoSalario === 'number' && rolActualizado.montoSalario >= 0 &&
+      typeof rolActualizado.porcentajeAportes === 'number' && rolActualizado.porcentajeAportes >= 0) {
+    rolActualizado.aportesCalculados = rolActualizado.montoSalario * (rolActualizado.porcentajeAportes / 100);
+  } else {
+    // Si no es mensual o no hay monto/porcentaje válido, limpiar aportes
+    delete rolActualizado.aportesCalculados;
+    // Si no es mensual, el monto y porcentaje pueden no aplicar
+    if (rolActualizado.tipoSalario !== 'Mensual') {
+        delete rolActualizado.montoSalario;
+        delete rolActualizado.porcentajeAportes;
+    }
+  }
+  
+  if ('id' in rolData && rolData.id) {
+    const index = roles.findIndex(r => r.id === rolData.id);
+    roles[index] = rolActualizado;
+  } else {
+    roles.push(rolActualizado);
+  }
+
+  await writeRolesFile(roles);
+  return { success: true, id: rolActualizado.id, rol: JSON.parse(JSON.stringify(rolActualizado)) };
 }
 
 export async function deleteRol(id: string): Promise<{ success: boolean; error?: string }> {
@@ -98,8 +108,6 @@ export async function deleteRol(id: string): Promise<{ success: boolean; error?:
   
   if (roles.length < initialLength) {
     await writeRolesFile(roles);
-    // TODO: Considerar qué hacer con empleados que tenían este rol asignado.
-    // Por ahora, simplemente se elimina el rol. El rolId en el empleado quedará "huérfano".
     return { success: true };
   } else {
     return { success: false, error: `Rol con ID ${id} no encontrado para eliminar.` };

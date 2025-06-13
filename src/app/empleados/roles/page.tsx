@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, BadgeHelp, UsersRound, DollarSign } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, BadgeHelp, UsersRound, DollarSign, Percent } from 'lucide-react';
 import { getRoles, saveRol, deleteRol as deleteRolAction } from '@/app/actions/roles';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
@@ -40,6 +40,8 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
+const DEFAULT_APORTES_PERCENTAGE = 30;
+
 export default function GestionRolesPage() {
   const { toast } = useToast();
   const [roles, setRoles] = useState<Rol[]>([]);
@@ -48,7 +50,9 @@ export default function GestionRolesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); // Para nuevo o edición
+  const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); 
+  const [porcentajeAportesInput, setPorcentajeAportesInput] = useState<string>(String(DEFAULT_APORTES_PERCENTAGE));
+
 
   const fetchRoles = useCallback(async () => {
     setIsLoading(true);
@@ -67,9 +71,33 @@ export default function GestionRolesPage() {
   }, [fetchRoles]);
 
   const openModal = (rol?: Rol) => {
-    setCurrentRol(rol ? { ...rol } : { nombre: '', tipoSalario: 'fijo', montoSalario: undefined, aportesCalculados: undefined, notas: '' });
+    if (rol) {
+      setCurrentRol({ ...rol });
+      setPorcentajeAportesInput(String(rol.porcentajeAportes ?? DEFAULT_APORTES_PERCENTAGE));
+    } else {
+      setCurrentRol({ 
+        nombre: '', 
+        tipoSalario: 'Mensual', 
+        montoSalario: undefined, 
+        porcentajeAportes: DEFAULT_APORTES_PERCENTAGE, 
+        aportesCalculados: undefined, 
+        notas: '' 
+      });
+      setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE));
+    }
     setIsModalOpen(true);
   };
+  
+  const aportesCalculadosModal = useMemo(() => {
+    if (currentRol?.tipoSalario === 'Mensual' && currentRol.montoSalario !== undefined && !isNaN(Number(currentRol.montoSalario))) {
+      const porcentaje = parseFloat(porcentajeAportesInput);
+      if (!isNaN(porcentaje) && porcentaje >= 0) {
+        return (Number(currentRol.montoSalario) * (porcentaje / 100));
+      }
+    }
+    return undefined;
+  }, [currentRol?.tipoSalario, currentRol?.montoSalario, porcentajeAportesInput]);
+
 
   const handleModalFieldChange = (field: keyof Rol, value: string | number | undefined) => {
     setCurrentRol(prev => {
@@ -77,41 +105,23 @@ export default function GestionRolesPage() {
       let updatedRol = { ...prev, [field]: value };
       
       if (field === 'tipoSalario') {
-        if (value === 'variable') {
+        if (value === 'Por evento') {
           delete updatedRol.montoSalario;
+          delete updatedRol.porcentajeAportes; // También limpiar porcentaje
           delete updatedRol.aportesCalculados;
-        } else if (value === 'fijo' && prev.montoSalario !== undefined && !isNaN(Number(prev.montoSalario))) {
-           // aportesCalculados se recalculará en el memo o al guardar
-        } else {
-           // tipo fijo pero sin monto aún, limpiar aportes
-           delete updatedRol.aportesCalculados;
+          setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE)); // Resetear input de %
+        } else if (value === 'Mensual' && prev.porcentajeAportes === undefined) {
+          updatedRol.porcentajeAportes = DEFAULT_APORTES_PERCENTAGE; // Establecer % default si no existe
+          setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE));
         }
       }
       
-      if (field === 'montoSalario') {
-        if (updatedRol.tipoSalario === 'fijo' && value !== undefined && !isNaN(Number(value))) {
-          // aportesCalculados se recalculará en el memo
-        } else if (updatedRol.tipoSalario === 'fijo' && (value === undefined || value === '' || isNaN(Number(value)))) {
-           delete updatedRol.aportesCalculados; // Si el monto es inválido o borrado
-        } else if (updatedRol.tipoSalario === 'variable'){
-           delete updatedRol.aportesCalculados; // Siempre sin aportes si es variable
-        }
-      }
-
       if (field === 'montoSalario' && value === '') {
          updatedRol.montoSalario = undefined;
-         delete updatedRol.aportesCalculados;
       }
       return updatedRol;
     });
   };
-  
-  const aportesEstimadosModal = useMemo(() => {
-    if (currentRol?.tipoSalario === 'fijo' && currentRol.montoSalario !== undefined && !isNaN(Number(currentRol.montoSalario))) {
-      return (Number(currentRol.montoSalario) * 0.30);
-    }
-    return undefined;
-  }, [currentRol?.tipoSalario, currentRol?.montoSalario]);
 
 
   const handleSaveRol = async (e: FormEvent) => {
@@ -120,16 +130,30 @@ export default function GestionRolesPage() {
       toast({ title: "Nombre Requerido", description: "El nombre del rol es obligatorio.", variant: "destructive" });
       return;
     }
-    if (currentRol.tipoSalario === 'fijo' && (currentRol.montoSalario === undefined || isNaN(Number(currentRol.montoSalario)) || Number(currentRol.montoSalario) < 0)) {
-        toast({ title: "Monto Inválido", description: "Para salario fijo, el monto debe ser un número positivo.", variant: "destructive"});
+    
+    const porcentajeAportesNum = parseFloat(porcentajeAportesInput);
+    if (currentRol.tipoSalario === 'Mensual' && (isNaN(porcentajeAportesNum) || porcentajeAportesNum < 0)) {
+        toast({ title: "Porcentaje de Aportes Inválido", description: "El porcentaje de aportes debe ser un número positivo.", variant: "destructive"});
+        return;
+    }
+     if (currentRol.tipoSalario === 'Mensual' && (currentRol.montoSalario === undefined || isNaN(Number(currentRol.montoSalario)) || Number(currentRol.montoSalario) < 0)) {
+        toast({ title: "Monto de Salario Inválido", description: "Para salario mensual, el monto debe ser un número positivo.", variant: "destructive"});
         return;
     }
 
-    setIsSaving(true);
-    // El backend recalculará aportesCalculados, no es necesario pasarlo desde el currentRol
-    const { aportesCalculados, ...rolDataForSave } = currentRol; 
-    const rolToSave = rolDataForSave as NuevoRolFormData | Rol;
 
+    setIsSaving(true);
+    const rolDataForSave: Partial<Rol> = { ...currentRol };
+    if (rolDataForSave.tipoSalario === 'Mensual') {
+        rolDataForSave.porcentajeAportes = porcentajeAportesNum;
+        // Backend se encargará de calcular aportesCalculados
+    } else {
+        delete rolDataForSave.montoSalario;
+        delete rolDataForSave.porcentajeAportes;
+        delete rolDataForSave.aportesCalculados;
+    }
+    
+    const rolToSave = rolDataForSave as NuevoRolFormData | Rol;
 
     try {
       const result = await saveRol(rolToSave);
@@ -202,23 +226,29 @@ export default function GestionRolesPage() {
               </div>
               <div className="space-y-1">
                 <Label htmlFor="rol-tipo-salario">Tipo de Salario *</Label>
-                <Select value={currentRol.tipoSalario || 'fijo'} onValueChange={(value) => handleModalFieldChange('tipoSalario', value as Rol['tipoSalario'])}>
+                <Select value={currentRol.tipoSalario || 'Mensual'} onValueChange={(value) => handleModalFieldChange('tipoSalario', value as Rol['tipoSalario'])}>
                   <SelectTrigger id="rol-tipo-salario"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fijo">Fijo</SelectItem>
-                    <SelectItem value="variable">Variable (por evento)</SelectItem>
+                    <SelectItem value="Mensual">Mensual</SelectItem>
+                    <SelectItem value="Por evento">Por evento</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {currentRol.tipoSalario === 'fijo' && (
+              {currentRol.tipoSalario === 'Mensual' && (
                 <>
                   <div className="space-y-1">
-                    <Label htmlFor="rol-monto-salario">Monto Salario Fijo (UYU) *</Label>
+                    <Label htmlFor="rol-monto-salario">Monto Salario Mensual (UYU) *</Label>
                     <Input id="rol-monto-salario" type="number" value={currentRol.montoSalario ?? ''} onChange={(e) => handleModalFieldChange('montoSalario', e.target.value === '' ? undefined : parseFloat(e.target.value))} placeholder="Ej: 30000" min="0" step="any" required/>
                   </div>
-                  <div className="space-y-1">
-                    <Label>Aportes Estimados (30%)</Label>
-                    <Input value={aportesEstimadosModal !== undefined ? formatCurrency(aportesEstimadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
+                   <div className="grid grid-cols-2 gap-4 items-end">
+                    <div className="space-y-1">
+                      <Label htmlFor="rol-porcentaje-aportes">Porcentaje Aportes (%) *</Label>
+                      <Input id="rol-porcentaje-aportes" type="number" value={porcentajeAportesInput} onChange={(e) => setPorcentajeAportesInput(e.target.value)} placeholder="Ej: 30" min="0" max="100" step="any" required/>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Aportes Estimados</Label>
+                      <Input value={aportesCalculadosModal !== undefined ? formatCurrency(aportesCalculadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
+                    </div>
                   </div>
                 </>
               )}
@@ -255,9 +285,14 @@ export default function GestionRolesPage() {
                     <div className="flex-grow">
                       <h4 className="font-semibold text-foreground">{rol.nombre}</h4>
                       <p className="text-xs text-muted-foreground">
-                        Tipo Salario: {rol.tipoSalario === 'fijo' ? 
-                          `Fijo (${formatCurrency(rol.montoSalario)})${rol.aportesCalculados !== undefined ? ` (Aportes: ${formatCurrency(rol.aportesCalculados)})` : ''}` 
-                          : 'Variable por evento'}
+                        Tipo Salario: {rol.tipoSalario}
+                        {rol.tipoSalario === 'Mensual' && rol.montoSalario !== undefined && (
+                          <>
+                            {' - '}Sueldo: {formatCurrency(rol.montoSalario)}
+                            {rol.porcentajeAportes !== undefined && ` (${rol.porcentajeAportes}%)`}
+                            {rol.aportesCalculados !== undefined && ` - Aportes: ${formatCurrency(rol.aportesCalculados)}`}
+                          </>
+                        )}
                       </p>
                       {rol.notas && <p className="text-xs text-muted-foreground italic mt-1">Notas: {rol.notas.substring(0, 100)}{rol.notas.length > 100 ? '...' : ''}</p>}
                     </div>
