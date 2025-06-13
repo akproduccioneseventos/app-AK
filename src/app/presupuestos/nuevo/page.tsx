@@ -177,33 +177,43 @@ export default function NuevoPresupuestoPage() {
 
   useEffect(() => {
     if (formData.pasoActual === TOTAL_PASOS) {
-      const resumenCalculado = calcularResumen();
-      // Only update if the new summary is different from the current one
-      if (JSON.stringify(resumenCalculado) !== JSON.stringify(formData.resumen)) {
+      const resumenCalculado = calcularResumen(); // Presupuesto | null
+
+      let comparableCalculado = null;
+      if (resumenCalculado) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, timestamp, ...rest } = resumenCalculado; 
+        comparableCalculado = rest;
+      }
+
+      let comparableActual = null;
+      if (formData.resumen) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, timestamp, ...rest } = formData.resumen; 
+        comparableActual = rest;
+      }
+      
+      const strCalculado = JSON.stringify(comparableCalculado);
+      const strActual = JSON.stringify(comparableActual);
+
+      if (strCalculado !== strActual) {
         setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
       }
     }
-  }, [
-    formData.pasoActual, 
-    formData.platosSeleccionadosIds, 
-    formData.serviciosSeleccionadosIds, 
-    formData.invitadosCantidad, 
-    formData.notas,
-    calcularResumen, // Keep calcularResumen if its own deps are specific and stable
-    formData.resumen // Add formData.resumen to allow comparison
-  ]);
+  }, [formData.pasoActual, calcularResumen, formData.resumen]);
 
 
   const handleSave = async () => {
-    const resumen = calcularResumen(); // Recalculate to ensure it's based on the latest formData
+    const resumen = calcularResumen(); 
     if (!resumen) {
       toast({ title: "Error", description: "Faltan datos para generar el resumen.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {id, ...presupuestoParaGuardar} = resumen;
-      const result = await savePresupuesto(presupuestoParaGuardar as Omit<Presupuesto, 'id'>); // Cast to Omit<Presupuesto, 'id'>
+      const result = await savePresupuesto(presupuestoParaGuardar as Omit<Presupuesto, 'id'>);
       if (result.success && result.id) {
         toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumen.clienteNombre} ha sido guardado con éxito.` });
         router.push('/presupuestos'); 
@@ -295,3 +305,4 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
+
