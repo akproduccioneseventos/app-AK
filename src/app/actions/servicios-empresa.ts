@@ -48,11 +48,19 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
         return [...initialServicios];
       } catch (writeErr) {
         console.error('Error crítico: No se pudo escribir el archivo inicial de servicios:', writeErr);
-        throw new Error(`No se pudo crear el archivo de servicios: ${(writeErr as Error).message}`);
+        return [...initialServicios]; // Return initial data even if write fails
       }
     }
-    console.error('Error crítico leyendo o parseando el archivo de servicios:', error);
-    throw new Error(`Error al leer o parsear el archivo de servicios: ${error.message}`);
+    // Handle other critical read/parse errors
+    console.error('Error crítico leyendo o parseando el archivo de servicios, usando datos iniciales (vacíos):', error);
+    try {
+        await writeServiciosFile(initialServicios); // Attempt to reset to a good state
+        return [...initialServicios];
+    } catch (writeErr) {
+        console.error('Error crítico: No se pudo escribir el archivo inicial de servicios tras un error de lectura:', writeErr);
+        // Even if write fails, return in-memory initial data to prevent app crash
+        return [...initialServicios];
+    }
   }
 }
 
