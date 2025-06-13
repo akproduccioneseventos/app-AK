@@ -1,15 +1,14 @@
 
 import Link from 'next/link';
 
-export function AppLogo() {
-  return (
-    <Link href="/" className="flex flex-col items-start group">
-      <span className="text-2xl font-bold font-headline text-sidebar-foreground group-hover:text-sidebar-foreground/90 transition-colors">
-        AK PRODUCCIONES
-      </span>
-      <span className="text-xs font-body text-sidebar-foreground/80 tracking-wider group-hover:text-sidebar-foreground transition-colors">
-        PRESUPUESTADOR
-      </span>
-    </Link>
-  );
-}
+const AppLogo = () => (
+  <Link
+    href="/"
+    className="flex flex-col items-start group text-foreground no-underline hover:opacity-80 transition-opacity"
+  >
+    <span className="text-lg font-bold">MiEmpresa</span>
+    <span className="text-sm text-muted-foreground">Servicios</span>
+  </Link>
+);
+
+export default AppLogo;

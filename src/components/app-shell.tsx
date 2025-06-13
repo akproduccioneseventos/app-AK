@@ -2,9 +2,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { AppLogo } from './app-logo'; // AppLogo might not be used if sidebar is gone, but keep for now
+import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, Filter as FilterIcon, Printer } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -182,10 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
         <div className="flex items-center gap-2">
-          {/* Link to home/dashboard - previously AppLogo was here */}
-          <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
-             <AppLogo />
-          </Link>
+          <AppLogo />
           <span className="mx-2 text-muted-foreground">|</span>
           {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
           <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
@@ -228,5 +225,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
-
-    
