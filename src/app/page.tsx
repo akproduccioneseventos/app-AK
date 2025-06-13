@@ -1,344 +1,64 @@
+// app/page.tsx
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { DashboardCalendar } from '@/components/dashboard-calendar';
-import { CalendarDays, DollarSign, CreditCard, Landmark, PiggyBank, AlertTriangle, Loader2, BarChart3, Info, Users as UsersIcon, UserPlus, CalendarClock, CheckCircle2, PartyPopper, MapPin, FileText, ContactRound, Briefcase, PlusCircle as PlusCircleIcon } from 'lucide-react';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Invoice } from '@/types/invoice';
-import type { Customer } from '@/types/customer';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { getInvoiceById } from '@/app/actions/invoices';
-import { getCustomers } from '@/app/actions/customers'; // Importar getCustomers
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-const formatCurrency = (amount?: number | string, currency: string = 'ARS') => {
-  if (amount === undefined || amount === null || amount === '') return "N/A";
-  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(numericAmount)) return "N/A";
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: currency }).format(numericAmount);
-};
+// AppLogo y Header ya no se definen localmente aquí, se asume que AppShell los provee.
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-  } catch (e) { return "Fecha inválida"; }
-};
-
-interface FinancialSummary {
-  presupuestoEstimado: number | string;
-  totalFacturado: number;
-  totalPagado: number;
-  saldoPendiente: number;
-}
-
-export default function DashboardPage() {
-  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-  const [financialSummary, setFinancialSummary] = useState<FinancialSummary | null>(null);
-  const [eventDateForCalendar, setEventDateForCalendar] = useState<Date | undefined>(undefined);
-  const [customerCount, setCustomerCount] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadDashboardData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [fiesta, customersData] = await Promise.all([
-        getFiestaActual(),
-        getCustomers()
-      ]);
-      
-      setFiestaActual(fiesta);
-      setCustomerCount(customersData.length);
-
-      if (fiesta?.configuracion?.fechaEvento) {
-        try {
-            setEventDateForCalendar(new Date(fiesta.configuracion.fechaEvento));
-        } catch (e) {
-            console.warn("Fecha de evento inválida para el calendario:", fiesta.configuracion.fechaEvento);
-            setEventDateForCalendar(undefined);
-        }
-      } else {
-        setEventDateForCalendar(undefined);
-      }
-
-      let linkedInvoices: Invoice[] = [];
-      if (fiesta?.invoiceIds && fiesta.invoiceIds.length > 0) {
-        const invoiceDetailsPromises = fiesta.invoiceIds.map(id => getInvoiceById(id));
-        linkedInvoices = (await Promise.all(invoiceDetailsPromises)).filter(inv => inv !== null) as Invoice[];
-      }
-
-      const presupuestoEstimado = fiesta?.configuracion?.presupuestoEstimado ?? 0;
-      const totalFacturado = linkedInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
-      const totalPagado = linkedInvoices.reduce((sum, inv) => 
-        sum + (inv.payments?.reduce((paySum, p) => paySum + p.amount, 0) || 0)
-      , 0);
-      const saldoPendiente = totalFacturado - totalPagado;
-
-      setFinancialSummary({
-        presupuestoEstimado,
-        totalFacturado,
-        totalPagado,
-        saldoPendiente
-      });
-
-    } catch (e: any) {
-      console.error("Error loading dashboard data:", e);
-      setError(e.message || "Error al cargar los datos del dashboard.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+const SoloCliente = ({ children }: { children: React.ReactNode }) => {
+  const [montado, setMontado] = useState(false);
 
   useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
+    setMontado(true);
+  }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-var(--header-height,4rem))]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg text-muted-foreground">Cargando dashboard...</p>
-      </div>
-    );
+  if (!montado) return null;
+
+  return <>{children}</>;
+};
+
+const MostrarHora = () => {
+  const [hora, setHora] = useState('');
+
+  useEffect(() => {
+    // Esto solo se ejecutará en el cliente, después de la hidratación
+    setHora(new Date().toLocaleTimeString('es-ES'));
+  }, []); // El array vacío asegura que se ejecute una vez al montar
+
+  if (!hora) {
+    return <span className="text-blue-600">Cargando hora...</span>;
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-var(--header-height,4rem))] text-center p-4">
-        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <h2 className="text-xl font-semibold text-destructive">Error al Cargar Dashboard</h2>
-        <p className="text-muted-foreground mb-4">{error}</p>
-        <Button onClick={loadDashboardData}>Intentar de Nuevo</Button>
-      </div>
-    );
-  }
-  
+  return <span className="text-blue-600">Hora actual: {hora}</span>;
+};
+
+export default function PaginaPrincipal() {
   return (
-    <div className="space-y-6">
-      {/* Fiesta Actual Card or Welcome Message */}
-      {fiestaActual && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble" ? (
-        <Card className="shadow-lg bg-primary/5 border-primary/20">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <PartyPopper className="w-7 h-7 text-primary" />
-              <CardTitle className="font-headline text-2xl text-primary">
-                Fiesta Actual en Planificación
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">{fiestaActual.configuracion.nombreEvento}</h3>
-            <div className="text-sm text-muted-foreground flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" />
-              <span>{formatDate(fiestaActual.configuracion.fechaEvento)}</span>
-            </div>
-            {fiestaActual.configuracion.nombreLugar && (
-              <div className="text-sm text-muted-foreground flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span>{fiestaActual.configuracion.nombreLugar}</span>
-              </div>
-            )}
-            <div className="pt-2">
-              <Link href="/fiestas/nueva" passHref>
-                  <Button variant="outline" size="sm">Ir al Planificador</Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-         <Card className="shadow-lg bg-secondary/20 border-secondary/40">
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl text-secondary-foreground">Bienvenido/a al Gestor de Eventos</CardTitle>
-             <CardDescription>Comienza a organizar tu próximo evento o gestiona tu empresa.</CardDescription>
-          </CardHeader>
-         </Card>
-      )}
-
-      {/* Acciones Rápidas */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Acciones Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Link href="/proveedores" passHref>
-            <Button className="w-full h-16 text-lg" variant="outline">
-              <Briefcase className="w-6 h-6 mr-3" />
-              Gestionar Empresa
-            </Button>
-          </Link>
-          <Link href="/fiestas/nueva" passHref>
-            <Button className="w-full h-16 text-lg">
-              <PartyPopper className="w-6 h-6 mr-3" />
-              Crear/Planificar Fiesta
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-
-      {/* Financial Summaries (Fiesta Actual) */}
-      {fiestaActual && financialSummary && (
-        <Card>
-          <CardHeader>
-              <CardTitle className="font-headline text-xl">Resumen Financiero del Evento Actual</CardTitle>
-          </CardHeader>
-          <CardContent>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                  <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">Presupuesto Estimado</CardTitle>
-                      <DollarSign className="h-5 w-5 text-primary" />
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-2xl font-bold">
-                      {formatCurrency(financialSummary?.presupuestoEstimado)}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                      Costo total proyectado para el evento.
-                      </p>
-                  </CardContent>
-                  </Card>
-                  <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">Total Facturado</CardTitle>
-                      <Landmark className="h-5 w-5 text-blue-500" />
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-2xl font-bold">
-                      {formatCurrency(financialSummary?.totalFacturado)}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                      Suma de facturas de este evento.
-                      </p>
-                  </CardContent>
-                  </Card>
-                  <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">Total Pagado</CardTitle>
-                      <PiggyBank className="h-5 w-5 text-green-500" />
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-2xl font-bold text-green-600">
-                      {formatCurrency(financialSummary?.totalPagado)}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                      Suma de pagos recibidos de este evento.
-                      </p>
-                  </CardContent>
-                  </Card>
-                  <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Pendiente</CardTitle>
-                      <CreditCard className="h-5 w-5 text-red-500" />
-                  </CardHeader>
-                  <CardContent>
-                      <div className={`text-2xl font-bold ${financialSummary && financialSummary.saldoPendiente > 0 ? 'text-destructive' : 'text-green-600'}`}>
-                      {formatCurrency(financialSummary?.saldoPendiente)}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                      {financialSummary && financialSummary.saldoPendiente <= 0 ? 'Todo al día' : 'Facturado menos pagado.'}
-                      </p>
-                  </CardContent>
-                  </Card>
-              </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* General Statistics Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Estadísticas Generales del Negocio</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { title: "Total Clientes", value: customerCount.toString(), icon: UsersIcon, description: "Clientes registrados." },
-            { title: "Total Prospectos", value: "N/A", icon: UserPlus, description: "Seguimiento de clientes potenciales. (Próximamente)" },
-            { title: "Fiestas por Realizar", value: "N/A", icon: CalendarClock, description: "Eventos futuros planificados. (Próximamente)" },
-            { title: "Fiestas Realizadas", value: "N/A", icon: CheckCircle2, description: "Historial de eventos completados. (Próximamente)" },
-          ].map((stat) => (
-            <Card key={stat.title} className="hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-                <stat.icon className="h-5 w-5 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">{stat.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </CardContent>
-      </Card>
-      
-
-      {/* Calendar and Quick Links Section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-            <Card className="shadow-md">
-                <CardHeader>
-                  <CardTitle className="font-headline text-xl">Vista Rápida</CardTitle>
-                  <CardDescription>Otros módulos importantes.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Link href="/presupuestos" passHref>
-                        <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-3">
-                                <BarChart3 className="w-6 h-6 text-primary"/>
-                                <p className="font-medium">Gestión de Presupuestos</p>
-                            </div>
-                        </Card>
-                    </Link>
-                    <Link href="/invoices" passHref>
-                        <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-3">
-                                <FileText className="w-6 h-6 text-primary"/>
-                                <p className="font-medium">Administrar Facturas</p>
-                            </div>
-                        </Card>
-                    </Link>
-                     <Link href="/customers" passHref>
-                        <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-3">
-                                <UsersIcon className="w-6 h-6 text-primary"/>
-                                <p className="font-medium">Directorio de Clientes</p>
-                            </div>
-                        </Card>
-                    </Link>
-                     <Link href="/empleados" passHref>
-                        <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-3">
-                                <ContactRound className="w-6 h-6 text-primary"/>
-                                <p className="font-medium">Equipo y Personal</p>
-                            </div>
-                        </Card>
-                    </Link>
-                </CardContent>
-            </Card>
-        </div>
-        <div className="lg:col-span-1">
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle className="font-headline text-xl">Calendario de Eventos</CardTitle>
-            </CardHeader>
-            <CardContent className="flex justify-center p-2 sm:p-4">
-              <DashboardCalendar eventDate={eventDateForCalendar} />
-            </CardContent>
-            {fiestaActual && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble" && (
-              <CardFooter>
-                  <p className="text-xs text-muted-foreground">
-                      La fecha del evento actual ({fiestaActual.configuracion.nombreEvento}) está resaltada.
-                  </p>
-              </CardFooter>
-            )}
-          </Card>
-        </div>
+    // Se elimina el div con min-h-screen y el Header local,
+    // ya que AppShell debería proporcionar el layout principal.
+    <div className="p-6">
+      <h1 className="text-2xl font-semibold mb-4">Bienvenido a tu plataforma</h1>
+      <p className="mb-4">Este es un contenido de ejemplo para la página principal.</p>
+      <SoloCliente>
+        <p className="mb-2">Este contenido solo se muestra en el cliente después de la hidratación.</p>
+        <MostrarHora />
+      </SoloCliente>
+      <div className="mt-6">
+        <Link href="/invoices" className="text-blue-500 hover:underline">
+          Ir a Facturas
+        </Link>
+      </div>
+      <div className="mt-4">
+        <Link href="/presupuestos" className="text-blue-500 hover:underline">
+          Ir a Presupuestos
+        </Link>
+      </div>
+      <div className="mt-4">
+        <Link href="/customers" className="text-blue-500 hover:underline">
+          Ir a Clientes
+        </Link>
       </div>
     </div>
   );
