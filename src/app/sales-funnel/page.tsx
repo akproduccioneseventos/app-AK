@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // <--- IMPORTACIÓN AÑADIDA
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -48,7 +48,7 @@ const getColumnStyle = (stage: ProspectSalesFunnelStage): { headerClasses: strin
       return { headerClasses: 'bg-emerald-50 dark:bg-emerald-900/30', borderTopClass: 'border-t-emerald-500', titleColor: 'text-emerald-700 dark:text-emerald-300' };
     case 'Presupuesto Presentado':
       return { headerClasses: 'bg-purple-50 dark:bg-purple-900/30', borderTopClass: 'border-t-purple-500', titleColor: 'text-purple-700 dark:text-purple-300' };
-    default:
+    default: // Should not happen for active stages
       return { headerClasses: 'bg-gray-50 dark:bg-gray-800/30', borderTopClass: 'border-t-gray-400', titleColor: 'text-gray-600 dark:text-gray-300' };
   }
 };
@@ -85,7 +85,7 @@ export default function SalesFunnelPage() {
   const handleChangeProspectStage = async (prospectId: string, newStage: ProspectSalesFunnelStage) => {
     const prospectToUpdate = prospects.find(p => p.id === prospectId);
     if (!prospectToUpdate) return;
-    if (prospectToUpdate.salesFunnelStage === newStage) return; // No change
+    if (prospectToUpdate.salesFunnelStage === newStage) return;
 
     setProcessingProspectId(prospectId);
 
@@ -93,7 +93,6 @@ export default function SalesFunnelPage() {
       ...prospectToUpdate,
       salesFunnelStage: newStage,
       updatedAt: new Date().toISOString(),
-      // Clear nextMeetingDate if stage is no longer 'Reunión Programada'
       nextMeetingDate: newStage === 'Reunión Programada' ? prospectToUpdate.nextMeetingDate : undefined,
     };
 
@@ -103,6 +102,8 @@ export default function SalesFunnelPage() {
         toast({ title: "Etapa Actualizada", description: `Prospecto "${result.prospect.name}" movido a "${newStage}".` });
         if (newStage === 'Firmo Contrato' && result.customerId) {
             toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
+            // Optionally redirect or give option to go to customer page
+            // router.push(`/customers/${result.customerId}/edit`); // Example redirect
         } else if (newStage === 'Firmo Contrato' && result.error) {
             toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero: ${result.error}`, variant: "destructive", duration: 7000 });
         }
