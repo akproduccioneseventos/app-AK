@@ -8,15 +8,13 @@ import path from 'path';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const empleadosFilePath = path.join(dataDirectory, 'empleados.json');
 
-// Datos iniciales ahora vacíos. Los empleados se agregarán a través de la UI.
-const initialMockEmpleadosDatabase: Empleado[] = [];
+const initialMockEmpleadosDatabase: Empleado[] = []; // No mock data
 
 async function ensureDataDirectoryExists(): Promise<void> {
   try {
     await fs.mkdir(dataDirectory, { recursive: true });
   } catch (error) {
-    console.error('Error creando el directorio de datos:', error);
-    // No relanzamos el error para permitir que la app continúe con datos en memoria si es necesario
+    console.error('Error creando el directorio de datos para empleados:', error);
   }
 }
 
@@ -25,16 +23,13 @@ async function readEmpleadosFile(): Promise<Empleado[]> {
   try {
     const fileContent = await fs.readFile(empleadosFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
-    // Si el archivo existe pero está vacío o no es un array, usa initialMock (que ahora es vacío)
-    return Array.isArray(data) && data.length > 0 ? data : [...initialMockEmpleadosDatabase];
+    return Array.isArray(data) ? data : [...initialMockEmpleadosDatabase];
   } catch (error: any) {
     if (error.code === 'ENOENT') {
-      // Si el archivo no existe, lo creamos con los datos iniciales (vacío)
       await writeEmpleadosFile([...initialMockEmpleadosDatabase]);
       return [...initialMockEmpleadosDatabase];
     }
     console.error('Error leyendo el archivo de empleados, usando datos iniciales (vacíos):', error);
-    // Devolver datos iniciales (vacíos) en caso de otro tipo de error de lectura/parseo
     return [...initialMockEmpleadosDatabase];
   }
 }
@@ -45,20 +40,13 @@ async function writeEmpleadosFile(data: Empleado[]): Promise<void> {
     await fs.writeFile(empleadosFilePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error escribiendo en el archivo de empleados:', error);
-    // Considerar cómo manejar errores de escritura. Por ahora, solo log.
   }
 }
 
 export async function getEmpleados(): Promise<Empleado[]> {
   const empleados = await readEmpleadosFile();
-  // Ordenar por rol (cargo) y luego por nombre
-  return empleados.sort((a, b) => {
-    const rolComparison = a.rol.localeCompare(b.rol);
-    if (rolComparison !== 0) {
-      return rolComparison;
-    }
-    return a.nombre.localeCompare(b.nombre);
-  });
+  // Ordenar por nombre
+  return empleados.sort((a, b) => a.nombre.localeCompare(b.nombre));
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
@@ -68,7 +56,7 @@ export async function getEmpleadoById(id: string): Promise<Empleado | null> {
 }
 
 export async function saveEmpleado(
-  empleadoData: NuevoEmpleadoFormData | Empleado
+  empleadoData: NuevoEmpleadoFormData | Empleado 
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
   let empleados = await readEmpleadosFile();
   
@@ -76,28 +64,34 @@ export async function saveEmpleado(
     // Actualizar empleado existente
     const index = empleados.findIndex(e => e.id === empleadoData.id);
     if (index !== -1) {
+      // Cuando se actualiza, se espera el tipo Empleado completo
       empleados[index] = { 
         ...empleados[index], 
-        ...empleadoData, 
+        ...(empleadoData as Empleado), // Cast to full Empleado for update
       };
       await writeEmpleadosFile(empleados);
       return { success: true, id: empleadoData.id, empleado: JSON.parse(JSON.stringify(empleados[index])) };
     } else {
-      // Si se intenta actualizar un ID que no existe, lo creamos como nuevo.
-      // Esto puede pasar si el archivo json se borró o corrompió.
-      const nuevoEmpleadoDesdeUpdate: Empleado = {
-        ...(empleadoData as Empleado), // Asumimos que si tiene ID, tiene todos los campos de Empleado
-        id: `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`, // Generar nuevo ID único
+      // Si se intenta actualizar un ID que no existe, se crea como nuevo (debería ser raro)
+      const nuevoDesdeUpdate: Empleado = {
+        id: `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        nombre: empleadoData.nombre,
+        cedula: (empleadoData as Empleado).cedula, // cedula is now part of Empleado
+        fechaNacimiento: (empleadoData as Empleado).fechaNacimiento, // fechaNacimiento is now part of Empleado
+        rolId: (empleadoData as Empleado).rolId, // rolId is now part of Empleado
       };
-      empleados.push(nuevoEmpleadoDesdeUpdate);
+      empleados.push(nuevoDesdeUpdate);
       await writeEmpleadosFile(empleados);
-      return { success: true, id: nuevoEmpleadoDesdeUpdate.id, empleado: JSON.parse(JSON.stringify(nuevoEmpleadoDesdeUpdate)) };
+      return { success: true, id: nuevoDesdeUpdate.id, empleado: JSON.parse(JSON.stringify(nuevoDesdeUpdate)) };
     }
   } else {
-    // Crear nuevo empleado
+    // Crear nuevo empleado (usa NuevoEmpleadoFormData)
     const nuevoEmpleado: Empleado = {
-      ...empleadoData,
       id: `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      nombre: empleadoData.nombre,
+      cedula: (empleadoData as NuevoEmpleadoFormData).cedula,
+      fechaNacimiento: (empleadoData as NuevoEmpleadoFormData).fechaNacimiento,
+      // rolId se asignará después
     };
     empleados.push(nuevoEmpleado);
     await writeEmpleadosFile(empleados);
@@ -118,17 +112,14 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
   }
 }
 
-// Asegurarse de que el archivo exista al iniciar, con un array vacío si es necesario.
 async function initializeEmpleadosData() {
   await ensureDataDirectoryExists();
   try {
     await fs.access(empleadosFilePath);
-    // Si el archivo existe, no hacemos nada con initialMockEmpleadosDatabase,
-    // ya que readEmpleadosFile se encargará de leerlo o devolver un array vacío.
   } catch (error: any) {
     if (error.code === 'ENOENT') {
       console.log('Archivo empleados.json no encontrado, creando con datos iniciales (vacíos)...');
-      await writeEmpleadosFile([...initialMockEmpleadosDatabase]); // Escribe array vacío
+      await writeEmpleadosFile([...initialMockEmpleadosDatabase]);
     }
   }
 }

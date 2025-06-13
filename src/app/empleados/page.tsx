@@ -1,14 +1,16 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, Edit, Trash2, Loader2, UserPlus, Users } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle } from 'lucide-react';
 import { getEmpleados, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
+import { getRoles } from '@/app/actions/roles'; // Para obtener nombres de roles
 import type { Empleado } from '@/types/empleado';
+import type { Rol } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -22,39 +24,52 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "N/A";
+  try {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+  } catch (e) { return "Fecha Inválida"; }
 };
 
 export default function EmpleadosPage() {
   const { toast } = useToast();
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const [roles, setRoles] = useState<Rol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchEmpleados = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const data = await getEmpleados();
-      setEmpleados(data);
-    } catch (error) {
-      toast({ title: "Error", description: "No se pudieron cargar los empleados.", variant: "destructive" });
+      const [empleadosData, rolesData] = await Promise.all([
+        getEmpleados(),
+        getRoles()
+      ]);
+      setEmpleados(empleadosData);
+      setRoles(rolesData);
+    } catch (err: any) {
+      setError("No se pudieron cargar los datos de empleados o roles.");
+      toast({ title: "Error de Carga", description: (err as Error).message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
-    fetchEmpleados();
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, nombre?: string) => {
     setDeletingId(id);
     try {
       const result = await deleteEmpleadoAction(id);
       if (result.success) {
-        toast({ title: "Empleado Eliminado", description: "El empleado ha sido eliminado correctamente." });
-        fetchEmpleados(); // Recargar la lista
+        toast({ title: "Empleado Eliminado", description: `El empleado "${nombre || id}" ha sido eliminado.` });
+        await fetchData();
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
       }
@@ -63,6 +78,12 @@ export default function EmpleadosPage() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const getRolName = (rolId?: string): string => {
+    if (!rolId) return 'Sin Rol Asignado';
+    const rol = roles.find(r => r.id === rolId);
+    return rol ? rol.nombre : 'Rol Desconocido';
   };
 
   return (
@@ -74,17 +95,25 @@ export default function EmpleadosPage() {
                 Gestión de Personal
             </h1>
         </div>
-        <Link href="/empleados/nuevo" passHref>
-          <Button>
-            <UserPlus className="w-5 h-5 mr-2" />
-            Añadir Empleado
-          </Button>
-        </Link>
+        <div className="flex gap-2 flex-wrap">
+            <Link href="/empleados/roles" passHref>
+                <Button variant="outline">
+                    <Settings2 className="w-5 h-5 mr-2" />
+                    Configurar Roles
+                </Button>
+            </Link>
+            <Link href="/empleados/nuevo" passHref>
+              <Button>
+                <UserPlus className="w-5 h-5 mr-2" />
+                Añadir Empleado
+              </Button>
+            </Link>
+        </div>
       </div>
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Listado de Empleados</CardTitle>
+          <CardTitle className="font-headline">Listado de Empleados ({empleados.length})</CardTitle>
           <CardDescription>Consulta y gestiona la información de tu personal.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -93,24 +122,32 @@ export default function EmpleadosPage() {
               <Loader2 className="w-10 h-10 animate-spin text-primary" />
               <p className="ml-3 text-muted-foreground">Cargando empleados...</p>
             </div>
+          ) : error ? (
+            <div className="py-10 text-center text-destructive">
+              <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
+              <p className="font-semibold">Error al Cargar Empleados</p>
+              <p className="text-sm">{error}</p>
+            </div>
           ) : empleados.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Rol</TableHead>
-                    <TableHead className="text-right">Sueldo Base</TableHead>
+                    <TableHead>Cédula</TableHead>
+                    <TableHead>Fecha Nacimiento</TableHead>
+                    <TableHead>Rol Asignado</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {empleados.map((empleado) => (
                     <TableRow key={empleado.id}>
-                      <TableCell className="font-medium min-w-[150px]">{empleado.nombre}</TableCell>
-                      <TableCell className="min-w-[150px]">{empleado.rol}</TableCell>
-                      <TableCell className="text-right min-w-[120px]">{formatCurrency(empleado.sueldoBase)}</TableCell>
-                      <TableCell className="text-right min-w-[150px]">
+                      <TableCell className="font-medium min-w-[180px]">{empleado.nombre}</TableCell>
+                      <TableCell className="min-w-[120px]">{empleado.cedula}</TableCell>
+                      <TableCell className="min-w-[140px]">{formatDate(empleado.fechaNacimiento)}</TableCell>
+                      <TableCell className="min-w-[150px]">{getRolName(empleado.rolId)}</TableCell>
+                      <TableCell className="text-right min-w-[120px]">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/empleados/${empleado.id}/editar`} passHref>
                             <Button variant="outline" size="icon" aria-label={`Editar ${empleado.nombre}`}>
@@ -132,7 +169,7 @@ export default function EmpleadosPage() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel disabled={!!deletingId}>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(empleado.id)} disabled={!!deletingId} className="bg-destructive hover:bg-destructive/90">
+                                <AlertDialogAction onClick={() => handleDelete(empleado.id, empleado.nombre)} disabled={!!deletingId} className="bg-destructive hover:bg-destructive/90">
                                   {deletingId === empleado.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                   Sí, eliminar
                                 </AlertDialogAction>

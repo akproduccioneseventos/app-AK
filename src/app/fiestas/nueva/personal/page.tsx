@@ -9,56 +9,67 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
+import { getRoles } from '@/app/actions/roles'; // Para obtener info de roles
 import type { Empleado } from '@/types/empleado';
+import type { Rol } from '@/types/rol'; // Tipo Rol
 import { useToast } from '@/hooks/use-toast';
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 
 const formatCurrency = (amount: number) => {
+  if (isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-interface AssignedStaffDetail {
+interface AssignedStaffUIDetail {
   empleado: Empleado;
-  eventSalary: number;
+  rol?: Rol; // Rol del empleado si tiene uno asignado
+  eventSalary: number; // Sueldo específico para este evento
 }
 
 export default function AsignarPersonalEventoPage() {
   const { toast } = useToast();
   const [allEmpleados, setAllEmpleados] = useState<Empleado[]>([]);
-  const [assignedStaff, setAssignedStaff] = useState<Map<string, AssignedStaffDetail>>(new Map());
+  const [allRoles, setAllRoles] = useState<Rol[]>([]);
+  const [assignedStaff, setAssignedStaff] = useState<Map<string, AssignedStaffUIDetail>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchInitialData = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const [empleadosData, fiestaActualData] = await Promise.all([
+      const [empleadosData, rolesData, fiestaActualData] = await Promise.all([
         getEmpleados(),
+        getRoles(),
         getFiestaActual()
       ]);
       
       setAllEmpleados(empleadosData);
+      setAllRoles(rolesData);
 
-      const initialAssignedMap = new Map<string, AssignedStaffDetail>();
+      const initialAssignedMap = new Map<string, AssignedStaffUIDetail>();
       if (fiestaActualData.personalAsignado && empleadosData.length > 0) {
         fiestaActualData.personalAsignado.forEach(assigned => {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
           if (empleadoDetail) {
+            const rolDetail = empleadoDetail.rolId ? rolesData.find(r => r.id === empleadoDetail.rolId) : undefined;
             initialAssignedMap.set(assigned.empleadoId, {
               empleado: empleadoDetail,
-              eventSalary: assigned.eventSalary
+              rol: rolDetail,
+              eventSalary: assigned.eventSalary // Usar el sueldo guardado para el evento
             });
           }
         });
       }
       setAssignedStaff(initialAssignedMap);
 
-    } catch (error) {
-      console.error("Error loading initial data for staff assignment:", error);
-      toast({ title: "Error", description: "No se pudieron cargar los datos iniciales para la asignación de personal.", variant: "destructive" });
+    } catch (err: any) {
+      setError("No se pudieron cargar los datos iniciales. Por favor, intente de nuevo.");
+      toast({ title: "Error de Carga", description: (err as Error).message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +83,12 @@ export default function AsignarPersonalEventoPage() {
     setAssignedStaff(prev => {
       const newMap = new Map(prev);
       if (isAssigned) {
-        newMap.set(empleado.id, { empleado, eventSalary: empleado.sueldoBase });
+        const rol = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
+        let defaultEventSalary = 0; // Default si no hay rol o es variable
+        if (rol && rol.tipoSalario === 'fijo' && typeof rol.montoSalario === 'number') {
+          defaultEventSalary = rol.montoSalario;
+        }
+        newMap.set(empleado.id, { empleado, rol, eventSalary: defaultEventSalary });
       } else {
         newMap.delete(empleado.id);
       }
@@ -80,17 +96,16 @@ export default function AsignarPersonalEventoPage() {
     });
   };
 
-  const handleEventSalaryChange = (empleadoId: string, newSalary: string) => {
-    const salaryNum = parseFloat(newSalary);
-    if (isNaN(salaryNum) && newSalary !== '') return; 
-
+  const handleEventSalaryChange = (empleadoId: string, newSalaryStr: string) => {
+    const salaryNum = parseFloat(newSalaryStr);
+    
     setAssignedStaff(prev => {
       const newMap = new Map(prev);
       const currentAssignment = newMap.get(empleadoId);
       if (currentAssignment) {
         newMap.set(empleadoId, { 
           ...currentAssignment, 
-          eventSalary: newSalary === '' ? 0 : salaryNum 
+          eventSalary: newSalaryStr === '' || isNaN(salaryNum) ? 0 : salaryNum // Si está vacío o NaN, poner 0 momentáneamente
         });
       }
       return newMap;
@@ -102,12 +117,15 @@ export default function AsignarPersonalEventoPage() {
         const newMap = new Map(prev);
         const currentAssignment = newMap.get(empleadoId);
         if (currentAssignment && (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary))) {
-             newMap.set(empleadoId, { ...currentAssignment, eventSalary: currentAssignment.empleado.sueldoBase });
+            let fallbackSalary = 0; // Default if no role or variable salary
+            if (currentAssignment.rol && currentAssignment.rol.tipoSalario === 'fijo' && typeof currentAssignment.rol.montoSalario === 'number') {
+                fallbackSalary = currentAssignment.rol.montoSalario;
+            }
+            newMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary });
         }
         return newMap;
     });
   };
-
 
   const totalAssignedCount = assignedStaff.size;
   const totalEventCost = Array.from(assignedStaff.values()).reduce((sum, { eventSalary }) => sum + (eventSalary || 0), 0);
@@ -116,7 +134,7 @@ export default function AsignarPersonalEventoPage() {
     setIsSaving(true);
     const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(assignedStaff.values()).map(item => ({
       empleadoId: item.empleado.id,
-      eventSalary: item.eventSalary
+      eventSalary: item.eventSalary // eventSalary ya es numérico o 0
     }));
 
     try {
@@ -124,8 +142,10 @@ export default function AsignarPersonalEventoPage() {
       if (result.success) {
         toast({
           title: "¡Personal Guardado!",
-          description: `Se guardaron las asignaciones de ${totalAssignedCount} empleado(s) con un costo total de ${formatCurrency(totalEventCost)}.`,
+          description: `Se guardaron las asignaciones de ${totalAssignedCount} empleado(s).`,
         });
+        // No es necesario recargar datos aquí si la UI ya refleja los cambios y `result.updatedData` es fiable
+        // pero para consistencia, se podría llamar a fetchInitialData() o actualizar con result.updatedData si se devolviera.
       } else {
         throw new Error(result.error || "Error desconocido al guardar el personal asignado.");
       }
@@ -135,6 +155,26 @@ export default function AsignarPersonalEventoPage() {
       setIsSaving(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-10">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <p className="ml-3 text-muted-foreground">Cargando datos...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-10 text-center text-destructive">
+        <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
+        <p className="font-semibold">Error al Cargar Datos</p>
+        <p className="text-sm">{error}</p>
+        <Button onClick={fetchInitialData} className="mt-4">Reintentar</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -157,23 +197,16 @@ export default function AsignarPersonalEventoPage() {
         <CardHeader>
           <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
           <CardDescription>
-            Marca los empleados que participarán en este evento y ajusta su sueldo si es necesario.
+            Marca los empleados que participarán en este evento y ajusta su sueldo para el evento si es necesario.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-10 h-10 animate-spin text-primary" />
-              <p className="ml-3 text-muted-foreground">Cargando lista de personal...</p>
-            </div>
-          ) : allEmpleados.length === 0 ? (
+          {allEmpleados.length === 0 ? (
             <div className="py-10 text-center">
-              <Users className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground text-lg">No hay personal en tu lista base.</p>
+              <Info className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground text-lg">No hay personal registrado en el sistema.</p>
               <Link href="/empleados/nuevo" passHref>
-                <Button className="mt-6">
-                  Añadir Personal a la Lista General
-                </Button>
+                <Button className="mt-6">Añadir Empleado</Button>
               </Link>
             </div>
           ) : (
@@ -183,8 +216,8 @@ export default function AsignarPersonalEventoPage() {
                   <TableRow>
                     <TableHead className="w-[50px] text-center">Asignar</TableHead>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Rol</TableHead>
-                    <TableHead className="text-right">Sueldo Base</TableHead>
+                    <TableHead>Rol (Base)</TableHead>
+                    <TableHead className="text-right">Sueldo Rol (Base)</TableHead>
                     <TableHead className="text-right w-[200px]">Sueldo Evento (UYU)</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -192,6 +225,9 @@ export default function AsignarPersonalEventoPage() {
                   {allEmpleados.map((empleado) => {
                     const isAssigned = assignedStaff.has(empleado.id);
                     const currentAssignment = assignedStaff.get(empleado.id);
+                    const rolDelEmpleado = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
+                    const sueldoBaseRol = (rolDelEmpleado && rolDelEmpleado.tipoSalario === 'fijo') ? rolDelEmpleado.montoSalario : undefined;
+
                     return (
                       <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
                         <TableCell className="text-center">
@@ -203,8 +239,10 @@ export default function AsignarPersonalEventoPage() {
                           />
                         </TableCell>
                         <TableCell className="font-medium min-w-[150px]">{empleado.nombre}</TableCell>
-                        <TableCell className="min-w-[120px]">{empleado.rol}</TableCell>
-                        <TableCell className="text-right min-w-[120px]">{formatCurrency(empleado.sueldoBase)}</TableCell>
+                        <TableCell className="min-w-[120px]">{rolDelEmpleado?.nombre || <span className="italic text-muted-foreground">Sin rol</span>}</TableCell>
+                        <TableCell className="text-right min-w-[120px]">
+                          {sueldoBaseRol !== undefined ? formatCurrency(sueldoBaseRol) : <span className="italic text-muted-foreground">Variable</span>}
+                        </TableCell>
                         <TableCell className="text-right">
                           {isAssigned ? (
                             <Input

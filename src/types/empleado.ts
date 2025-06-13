@@ -2,9 +2,14 @@
 export interface Empleado {
   id: string;
   nombre: string;
-  rol: string;
-  sueldoBase: number;
+  cedula: string; // Nuevo campo obligatorio
+  fechaNacimiento: string; // Nuevo campo obligatorio (ISO date string)
+  rolId?: string; // ID del rol asignado desde el nuevo sistema de roles
 }
 
-// Para el formulario, antes de tener un ID
-export type NuevoEmpleadoFormData = Omit<Empleado, 'id'>;
+// Para el formulario de alta inicial, solo datos básicos
+export interface NuevoEmpleadoFormData {
+  nombre: string;
+  cedula: string;
+  fechaNacimiento: string; // ISO date string
+}

@@ -1,18 +1,21 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react'; // Ensure React is imported
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getEmpleadoById, saveEmpleado, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
+import { getRoles } from '@/app/actions/roles'; // Para cargar roles
 import type { Empleado } from '@/types/empleado';
+import type { Rol } from '@/types/rol'; // Tipo Rol
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerDemo } from '@/components/date-picker-demo';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,64 +28,65 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// The prop is now `paramsProp` and is typed as a Promise
 export default function EditarEmpleadoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
-  // `React.use()` unwraps the Promise
   const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();
+  
   const [empleado, setEmpleado] = useState<Empleado | null>(null);
+  const [rolesDisponibles, setRolesDisponibles] = useState<Rol[]>([]);
+
+  // Form state
   const [nombre, setNombre] = useState('');
-  const [rol, setRol] = useState('');
-  const [sueldoBase, setSueldoBase] = useState('');
+  const [cedula, setCedula] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
+  const [rolId, setRolId] = useState<string | undefined>(undefined);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    async function loadEmpleado() {
-      setIsLoading(true);
-      setNotFound(false);
-      try {
-        // Use the resolved `params.id` here
-        const loadedEmpleado = await getEmpleadoById(params.id);
-        if (loadedEmpleado) {
-          setEmpleado(loadedEmpleado);
-          setNombre(loadedEmpleado.nombre);
-          setRol(loadedEmpleado.rol);
-          setSueldoBase(loadedEmpleado.sueldoBase.toString());
-        } else {
-          setNotFound(true);
-          // And here
-          toast({ title: 'Error', description: `No se encontró el empleado con ID ${params.id}.`, variant: 'destructive' });
-        }
-      } catch (error) {
-        console.error("Error al cargar el empleado:", error);
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setNotFound(false);
+    try {
+      const [loadedEmpleado, fetchedRoles] = await Promise.all([
+        getEmpleadoById(params.id),
+        getRoles()
+      ]);
+
+      setRolesDisponibles(fetchedRoles);
+
+      if (loadedEmpleado) {
+        setEmpleado(loadedEmpleado);
+        setNombre(loadedEmpleado.nombre);
+        setCedula(loadedEmpleado.cedula);
+        setFechaNacimiento(loadedEmpleado.fechaNacimiento ? new Date(loadedEmpleado.fechaNacimiento) : undefined);
+        setRolId(loadedEmpleado.rolId);
+      } else {
         setNotFound(true);
-        toast({ title: 'Error al Cargar Empleado', description: 'No se pudo obtener el empleado.', variant: 'destructive' });
-      } finally {
-        setIsLoading(false);
+        toast({ title: 'Error', description: `No se encontró el empleado con ID ${params.id}.`, variant: 'destructive' });
       }
+    } catch (error) {
+      console.error("Error al cargar datos del empleado o roles:", error);
+      setNotFound(true); // Consider it not found on error
+      toast({ title: 'Error al Cargar Datos', description: 'No se pudo obtener la información del empleado o los roles.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
     }
-    // And here for the condition
-    if (params.id) {
-      loadEmpleado();
-    }
-    // And here for the dependency array
   }, [params.id, toast]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!empleado || !nombre.trim() || !rol.trim() || !sueldoBase) {
-      toast({ title: "Campos incompletos", description: "Por favor, completa todos los campos.", variant: "destructive" });
-      return;
+  useEffect(() => {
+    if (params.id) {
+      loadData();
     }
+  }, [params.id, loadData]);
 
-    const sueldoNumero = parseFloat(sueldoBase);
-    if (isNaN(sueldoNumero) || sueldoNumero < 0) {
-      toast({ title: "Sueldo Inválido", description: "El sueldo base debe ser un número positivo.", variant: "destructive" });
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!empleado || !nombre.trim() || !cedula.trim() || !fechaNacimiento) {
+      toast({ title: "Campos incompletos", description: "Por favor, completa Nombre, Cédula y Fecha de Nacimiento.", variant: "destructive" });
       return;
     }
 
@@ -90,15 +94,18 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
     const empleadoData: Empleado = {
       ...empleado,
       nombre: nombre.trim(),
-      rol: rol.trim(),
-      sueldoBase: sueldoNumero,
+      cedula: cedula.trim(),
+      fechaNacimiento: fechaNacimiento.toISOString(),
+      rolId: rolId === "sin-rol" ? undefined : rolId,
     };
 
     try {
       const result = await saveEmpleado(empleadoData);
       if (result.success && result.empleado) {
         toast({ title: "¡Empleado Actualizado!", description: `El empleado "${result.empleado.nombre}" ha sido actualizado.` });
-        setEmpleado(result.empleado); 
+        setEmpleado(result.empleado);
+        // Actualizar estado local si es necesario para reflejar cambios como rolId
+        setRolId(result.empleado.rolId);
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el empleado.");
       }
@@ -126,51 +133,21 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
       setIsDeleting(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-16 h-16 animate-spin text-primary" />
-        <p className="ml-4 text-xl">Cargando datos del empleado...</p>
-      </div>
-    );
-  }
-
-  if (notFound) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen text-center">
-        <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Empleado no Encontrado</h1>
-        {/* Use the resolved params.id here too for display if needed */}
-        <p className="text-muted-foreground mb-6">
-          El empleado con ID <span className="font-mono bg-muted px-1 rounded">{params.id}</span> no pudo ser encontrado.
-        </p>
-        <Link href="/empleados" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Empleados
-          </Button>
-        </Link>
-      </div>
-    );
-  }
-
+  
+  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Empleado no encontrado. <Link href="/empleados" className="underline">Volver a empleados</Link>.</div>;
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Edit3 className="w-8 h-8 text-primary" />
-          {/* Use the resolved params.id here for display */}
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Editando: <span className="text-primary">{empleado?.nombre || params.id}</span>
           </h1>
         </div>
         <Link href="/empleados" passHref>
-          <Button variant="outline" disabled={isSaving || isDeleting}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
+          <Button variant="outline" disabled={isSaving || isDeleting}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>
       
@@ -181,47 +158,33 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="empleado-nombre" className="text-base">Nombre Completo</Label>
-              <Input 
-                id="empleado-nombre" 
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                className="text-base p-3"
-                disabled={isSaving || isDeleting}
-              />
+              <Label htmlFor="empleado-nombre" className="text-base">Nombre Completo *</Label>
+              <Input id="empleado-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="empleado-rol" className="text-base">Rol / Cargo</Label>
-              <Input 
-                id="empleado-rol" 
-                value={rol}
-                onChange={(e) => setRol(e.target.value)}
-                className="text-base p-3"
-                disabled={isSaving || isDeleting}
-              />
+              <Label htmlFor="empleado-cedula" className="text-base">Cédula de Identidad *</Label>
+              <Input id="empleado-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="empleado-sueldo" className="text-base">Sueldo Base (ARS)</Label>
-              <Input 
-                id="empleado-sueldo" 
-                type="number"
-                value={sueldoBase}
-                onChange={(e) => setSueldoBase(e.target.value)}
-                min="0"
-                step="any"
-                className="text-base p-3"
-                disabled={isSaving || isDeleting}
-              />
+              <Label htmlFor="empleado-fechaNacimiento" className="text-base">Fecha de Nacimiento *</Label>
+              <DatePickerDemo selectedDate={fechaNacimiento} onDateChange={setFechaNacimiento} className={isSaving || isDeleting ? "disabled:opacity-70" : ""} />
             </div>
-            <div className="pt-4">
-              <Image 
-                src="https://placehold.co/600x200.png" 
-                alt="Employee data update" 
-                width={600}
-                height={200}
-                className="rounded-md shadow-sm mx-auto"
-                data-ai-hint="employee data team"
-              />
+            <div className="space-y-2">
+                <Label htmlFor="empleado-rol" className="text-base">Rol Asignado</Label>
+                <Select value={rolId || "sin-rol"} onValueChange={(value) => setRolId(value === "sin-rol" ? undefined : value)} disabled={isSaving || isDeleting || rolesDisponibles.length === 0}>
+                    <SelectTrigger id="empleado-rol" className="text-base p-3 h-auto">
+                        <SelectValue placeholder={rolesDisponibles.length === 0 ? "No hay roles definidos" : "Seleccionar rol..."}/>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="sin-rol" className="text-base text-muted-foreground">Sin Rol Asignado</SelectItem>
+                        {rolesDisponibles.map(rol => (
+                            <SelectItem key={rol.id} value={rol.id} className="text-base">{rol.nombre}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {rolesDisponibles.length === 0 && (
+                     <p className="text-xs text-muted-foreground">No hay roles creados. <Link href="/empleados/roles" className="underline text-primary">Configurar Roles</Link>.</p>
+                )}
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -258,4 +221,3 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
     </div>
   );
 }
-
