@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, MessageCircle, FileText, Users } from 'lucide-react'; // Added Users here
+import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, MessageCircle, FileText, Users } from 'lucide-react';
 import { getProspectsForVentasBoard, saveProspect } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
-import { ACTIVE_VENTAS_STAGES, ALL_PROSPECT_STAGES } from '@/types/prospect';
+import { ACTIVE_VENTAS_STAGES, ALL_PROSPECT_STAGES } from '@/types/prospect'; // Asegúrate de que ACTIVE_VENTAS_STAGES se importe y use para las columnas
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -104,31 +104,32 @@ export default function VentasPage() {
       ...prospectToUpdate,
       salesFunnelStage: newStage,
       updatedAt: new Date().toISOString(),
+      // Reset specific fields if moving out of relevant stages
       nextMeetingDate: newStage === 'Agendo Entrevista' ? prospectToUpdate.nextMeetingDate : undefined,
-      estimatedValue: newStage === 'Con Presupuesto' ? prospectToUpdate.estimatedValue : undefined,
+      // estimatedValue: newStage === 'Con Presupuesto' ? prospectToUpdate.estimatedValue : undefined, // Mantener el valor si ya existe
     };
 
     try {
       const result = await saveProspect(updatedProspect);
       if (result.success && result.prospect) {
         toast({ title: "Etapa Actualizada", description: `Prospecto "${result.prospect.name}" movido a "${newStage}".` });
+        
         if (newStage === 'Firmo Contrato' && result.customerId) {
             toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
-            router.push(`/customers`); 
+            // No redirigir automáticamente, el prospecto seguirá visible en la columna "Firmo Contrato"
+             await loadProspects(); // Recargar para mostrar el estado actualizado del prospecto
         } else if (newStage === 'Firmo Contrato' && result.error) {
             toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero: ${result.error}`, variant: "destructive", duration: 7000 });
             await loadProspects();
-        } else if (newStage === 'No Contrato') {
+        } else {
              await loadProspects(); 
-        }
-        else {
-            await loadProspects(); 
         }
       } else {
         throw new Error(result.error || "Error desconocido al actualizar la etapa del prospecto.");
       }
     } catch (error: any) {
       toast({ title: "Error al Mover Prospecto", description: error.message, variant: "destructive" });
+       await loadProspects(); // Recargar en caso de error para revertir cualquier cambio visual optimista
     } finally {
       setProcessingProspectId(null);
     }
@@ -136,20 +137,23 @@ export default function VentasPage() {
 
   const prospectsByStage = useMemo(() => {
     const grouped = new Map<ProspectSalesFunnelStage, Prospecto[]>();
+    // Usar ACTIVE_VENTAS_STAGES para inicializar el mapa
     ACTIVE_VENTAS_STAGES.forEach(stage => grouped.set(stage, []));
 
     prospects.forEach(prospect => {
+      // Filtrar si el prospecto pertenece a alguna de las etapas activas del tablero
       if (ACTIVE_VENTAS_STAGES.includes(prospect.salesFunnelStage as any)) {
         const stageGroup = grouped.get(prospect.salesFunnelStage);
         stageGroup?.push(prospect);
       }
     });
     
+    // Ordenar prospectos dentro de cada etapa por fecha de actualización
     grouped.forEach((stageProspectsArray) => {
         stageProspectsArray.sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     });
     return grouped;
-  }, [prospects]);
+  }, [prospects]); // ACTIVE_VENTAS_STAGES es constante, no necesita estar en las dependencias
 
   const handlePrint = () => {
     window.print();
@@ -202,7 +206,7 @@ export default function VentasPage() {
 
       <ScrollArea className="flex-grow whitespace-nowrap rounded-md border bg-muted/20 print:border-none print:bg-transparent print:overflow-visible">
         <div className="flex gap-4 p-4 h-full min-h-[600px] print:flex-col print:gap-6 print:p-0">
-          {ACTIVE_VENTAS_STAGES.map(stage => {
+          {ACTIVE_VENTAS_STAGES.map(stage => { // Usar ACTIVE_VENTAS_STAGES para las columnas
             const stageProspects = prospectsByStage.get(stage) || [];
             const columnStyle = getColumnStyle(stage);
             const StageIcon = stageIcons[stage] || Info;
@@ -335,4 +339,3 @@ export default function VentasPage() {
     </div>
   );
 }
-

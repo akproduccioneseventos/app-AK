@@ -3,7 +3,7 @@
 'use server';
 
 import type { Prospecto, NewProspectoData, ProspectSalesFunnelStage } from '@/types/prospect';
-import { ALL_PROSPECT_STAGES, ACTIVE_VENTAS_STAGES } from '@/types/prospect';
+import { ALL_PROSPECT_STAGES, ACTIVE_VENTAS_STAGES } from '@/types/prospect'; // Asegurarse de usar ACTIVE_VENTAS_STAGES
 import fs from 'fs/promises';
 import path from 'path';
 import { saveCustomer } from '@/app/actions/customers';
@@ -29,7 +29,7 @@ async function readProspectsFile(): Promise<Prospecto[]> {
       ...p,
       createdAt: p.createdAt || new Date(0).toISOString(),
       updatedAt: p.updatedAt || new Date(0).toISOString(),
-      salesFunnelStage: p.salesFunnelStage || 'Consulto', // Default a la nueva etapa inicial
+      salesFunnelStage: p.salesFunnelStage || 'Consulto',
       tipoFiesta: p.tipoFiesta || undefined,
       salonDeseado: p.salonDeseado || undefined,
       cantidadInvitados: p.cantidadInvitados === null || p.cantidadInvitados === undefined ? undefined : Number(p.cantidadInvitados),
@@ -58,6 +58,7 @@ async function writeProspectsFile(data: Prospecto[]): Promise<void> {
 
 export async function getProspectsForVentasBoard(): Promise<Prospecto[]> {
   const prospects = await readProspectsFile();
+  // Esta función ahora usa ACTIVE_VENTAS_STAGES, que debe incluir las 5 etapas para que aparezcan.
   return prospects
     .filter(p => ACTIVE_VENTAS_STAGES.includes(p.salesFunnelStage as any)) 
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -103,7 +104,7 @@ export async function saveProspect(
       ...originalProspect,
       ...prospectData,
       updatedAt: now,
-      createdAt: originalProspect.createdAt || now,
+      createdAt: originalProspect.createdAt || now, // Mantener fecha de creación original
       cantidadInvitados: prospectData.cantidadInvitados === null || prospectData.cantidadInvitados === undefined ? undefined : Number(prospectData.cantidadInvitados),
       estimatedValue: prospectData.estimatedValue === null || prospectData.estimatedValue === undefined ? undefined : Number(prospectData.estimatedValue),
       nextMeetingDate: prospectData.salesFunnelStage === 'Agendo Entrevista' && prospectData.nextMeetingDate ? prospectData.nextMeetingDate : undefined,
@@ -118,7 +119,7 @@ export async function saveProspect(
         phone: prospects[index].phone,
         taxId: prospects[index].taxId,
         address: prospects[index].address,
-        // `contractNotes` from prospect could be mapped to a customer note if desired
+        // Se podría añadir una nota al cliente desde `contractNotes`
       };
       const customerResult = await saveCustomer(customerDataFromProspect);
       if (customerResult.success && customerResult.id) {

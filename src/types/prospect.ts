@@ -7,7 +7,7 @@ export type ProspectSalesFunnelStage =
   | 'Firmo Contrato'
   | 'No Contrato';
 
-// Todas las etapas posibles
+// Todas las etapas posibles para menús desplegables, validaciones, etc.
 export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
   'Consulto',
   'Agendo Entrevista',
@@ -16,13 +16,13 @@ export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
   'No Contrato',
 ];
 
-// Etapas activas para el tablero "Ventas" - DEBE INCLUIR TODAS LAS ETAPAS DESEADAS COMO COLUMNAS
+// Etapas que se mostrarán como COLUMNAS en el tablero de "Ventas"
 export const ACTIVE_VENTAS_STAGES: ProspectSalesFunnelStage[] = [
   'Consulto',
   'Agendo Entrevista',
   'Con Presupuesto',
-  'Firmo Contrato', // Asegurarse que esta y la siguiente estén presentes
-  'No Contrato',    // Asegurarse que esta y la anterior estén presentes
+  'Firmo Contrato',
+  'No Contrato',
 ];
 
 export interface Prospecto {
@@ -53,10 +53,7 @@ export interface Prospecto {
     zipCode?: string;
     country?: string;
   };
-  // Campo para el contrato (simulado, ya que no hay subida de archivos)
   contractNotes?: string;
 }
 
-// Tipo de dato para crear un nuevo prospecto. Nombre es requerido.
-// salesFunnelStage se establecerá en 'Consulto' por defecto en la acción del servidor.
 export type NewProspectoData = Pick<Prospecto, 'name'> & Partial<Omit<Prospecto, 'id' | 'createdAt' | 'updatedAt' | 'salesFunnelStage'>>;
