@@ -100,7 +100,6 @@ export default function DashboardPage() {
     { title: "Presupuestos", description: "Genera y envía presupuestos a tus clientes.", href: "/presupuestos", icon: ListChecks },
     { title: "Clientes", description: "Consulta y gestiona la información de tus clientes.", href: "/customers", icon: Users },
     { title: "Gestión de Empresa", description: "Administra personal, proveedores y servicios.", href: "/empresa", icon: Building2 },
-    // { title: "Ventas", description: "Sigue el progreso de tus prospectos en el tablero de ventas.", href: "/ventas", icon: VentasIcon }, // Eliminado
     { title: "Configuración", description: "Ajusta las preferencias de la aplicación.", href: "/settings", icon: Settings },
   ];
 
