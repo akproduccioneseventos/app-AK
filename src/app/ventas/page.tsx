@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, MessageCircle, FileText } from 'lucide-react';
+import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, MessageCircle, FileText, Users } from 'lucide-react'; // Added Users here
 import { getProspectsForVentasBoard, saveProspect } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
 import { ACTIVE_VENTAS_STAGES, ALL_PROSPECT_STAGES } from '@/types/prospect';
@@ -58,7 +58,7 @@ const getColumnStyle = (stage: ProspectSalesFunnelStage): { headerClasses: strin
   }
 };
 
-const stageIcons = {
+const stageIcons: Record<ProspectSalesFunnelStage, React.ElementType> = {
   'Consulto': MessageCircle,
   'Agendo Entrevista': CalendarDays,
   'Con Presupuesto': FileText,
@@ -335,3 +335,4 @@ export default function VentasPage() {
     </div>
   );
 }
+
