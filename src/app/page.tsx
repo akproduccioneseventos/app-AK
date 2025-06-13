@@ -1,11 +1,16 @@
-// app/page.tsx
+// app/page.tsx (o src/app/page.tsx si usás App Router)
 
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-// AppLogo y Header ya no se definen localmente aquí, se asume que AppShell los provee.
+const AppLogo = () => (
+  <div className="flex flex-col items-start group">
+    <span className="text-lg font-bold">MiEmpresa</span>
+    <span className="text-sm text-gray-500">Servicios</span>
+  </div>
+);
 
 const SoloCliente = ({ children }: { children: React.ReactNode }) => {
   const [montado, setMontado] = useState(false);
@@ -34,32 +39,44 @@ const MostrarHora = () => {
   return <span className="text-blue-600">Hora actual: {hora}</span>;
 };
 
+const Header = () => (
+  <header className="bg-white shadow p-4">
+    <div className="flex items-center justify-between">
+      <Link href="/" className="flex items-center gap-2"> {/* Corrected: Removed <a> and passHref, classes applied here */}
+        <AppLogo />
+      </Link>
+      {/* Aquí podrías añadir más elementos al header si es necesario */}
+    </div>
+  </header>
+);
+
 export default function PaginaPrincipal() {
   return (
-    // Se elimina el div con min-h-screen y el Header local,
-    // ya que AppShell debería proporcionar el layout principal.
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Bienvenido a tu plataforma</h1>
-      <p className="mb-4">Este es un contenido de ejemplo para la página principal.</p>
-      <SoloCliente>
-        <p className="mb-2">Este contenido solo se muestra en el cliente después de la hidratación.</p>
-        <MostrarHora />
-      </SoloCliente>
-      <div className="mt-6">
-        <Link href="/invoices" className="text-blue-500 hover:underline">
-          Ir a Facturas
-        </Link>
-      </div>
-      <div className="mt-4">
-        <Link href="/presupuestos" className="text-blue-500 hover:underline">
-          Ir a Presupuestos
-        </Link>
-      </div>
-      <div className="mt-4">
-        <Link href="/customers" className="text-blue-500 hover:underline">
-          Ir a Clientes
-        </Link>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main className="p-6">
+        <h1 className="text-2xl font-semibold mb-4">Bienvenido a tu plataforma</h1>
+        <p className="mb-4">Este es un contenido de ejemplo para la página principal.</p>
+        <SoloCliente>
+          <p className="mb-2">Este contenido solo se muestra en el cliente después de la hidratación.</p>
+          <MostrarHora />
+        </SoloCliente>
+        <div className="mt-6">
+          <Link href="/invoices" className="text-blue-500 hover:underline">
+            Ir a Facturas
+          </Link>
+        </div>
+         <div className="mt-4">
+          <Link href="/presupuestos" className="text-blue-500 hover:underline">
+            Ir a Presupuestos
+          </Link>
+        </div>
+        <div className="mt-4">
+          <Link href="/customers" className="text-blue-500 hover:underline">
+            Ir a Clientes
+          </Link>
+        </div>
+      </main>
     </div>
   );
 }
