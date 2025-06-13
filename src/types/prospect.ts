@@ -17,11 +17,13 @@ export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
   'No Contrato',
 ];
 
-// Etapas activas para el tablero "Ventas"
-export const ACTIVE_VENTAS_STAGES: Exclude<ProspectSalesFunnelStage, 'Firmo Contrato' | 'No Contrato'>[] = [
+// Etapas activas para el tablero "Ventas" - AHORA INCLUYE TODAS LAS ETAPAS
+export const ACTIVE_VENTAS_STAGES: ProspectSalesFunnelStage[] = [
   'Consulto',
   'Agendo Entrevista',
   'Con Presupuesto',
+  'Firmo Contrato',
+  'No Contrato',
 ];
 
 export interface Prospecto {
