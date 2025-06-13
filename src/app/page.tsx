@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, CheckCircle, CircleDollarSign, ClipboardList, Users, Settings, DollarSign as VentasIcon, Briefcase, BarChart3, Building2, ListChecks, FileText, PlusCircle } from 'lucide-react';
+import { ArrowRight, CalendarDays, CheckCircle, CircleDollarSign, ClipboardList, Users, Settings, Briefcase, Building2, ListChecks, FileText, PlusCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
@@ -100,7 +100,7 @@ export default function DashboardPage() {
     { title: "Presupuestos", description: "Genera y envía presupuestos a tus clientes.", href: "/presupuestos", icon: ListChecks },
     { title: "Clientes", description: "Consulta y gestiona la información de tus clientes.", href: "/customers", icon: Users },
     { title: "Gestión de Empresa", description: "Administra personal, proveedores y servicios.", href: "/empresa", icon: Building2 },
-    { title: "Ventas", description: "Sigue el progreso de tus prospectos en el tablero de ventas.", href: "/ventas", icon: VentasIcon }, // Actualizado
+    // { title: "Ventas", description: "Sigue el progreso de tus prospectos en el tablero de ventas.", href: "/ventas", icon: VentasIcon }, // Eliminado
     { title: "Configuración", description: "Ajusta las preferencias de la aplicación.", href: "/settings", icon: Settings },
   ];
 
