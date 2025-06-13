@@ -1,4 +1,4 @@
-// DEBUG-EMBUDO-V7 - Sales Funnel Page (Enhanced)
+// src/app/sales-funnel/page.tsx
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, Users, UserCircle, Phone, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, FileText as FileTextIcon, MoreVertical, Mail, Briefcase, DollarSign, ChevronDown, AlertCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, Edit, Filter as FilterIcon, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2 as Users2Icon, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info } from 'lucide-react';
 import { getProspects, saveProspect } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
 import { ACTIVE_FUNNEL_STAGES, ALL_PROSPECT_STAGES } from '@/types/prospect';
@@ -27,8 +27,14 @@ const formatDate = (dateString?: string, options?: Intl.DateTimeFormatOptions) =
   if (!dateString) return null;
   const defaultOptions: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric', ...options };
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', defaultOptions);
-  } catch (e) { return "Fecha Inválida"; }
+    // Asegurarse de que la fecha se interprete correctamente, especialmente si viene sin zona horaria.
+    const date = new Date(dateString.includes('T') ? dateString : `${dateString}T00:00:00`);
+    if (isNaN(date.getTime())) return "Fecha Inválida";
+    return date.toLocaleDateString('es-ES', defaultOptions);
+  } catch (e) { 
+    console.error("Error formatting date:", dateString, e);
+    return "Fecha Inválida"; 
+  }
 };
 
 const formatCurrency = (amount?: number) => {
@@ -36,20 +42,20 @@ const formatCurrency = (amount?: number) => {
   return amount.toLocaleString('es-AR', {style: 'currency', currency: 'ARS'});
 }
 
-const getColumnStyle = (stage: ProspectSalesFunnelStage): { headerClasses: string; borderTopClass: string; titleColor: string } => {
+const getColumnStyle = (stage: ProspectSalesFunnelStage): { headerClasses: string; borderTopClass: string; titleColor: string; badgeVariant: "default" | "secondary" | "destructive" | "outline" } => {
   switch (stage) {
     case 'Prospecto':
-      return { headerClasses: 'bg-slate-50 dark:bg-slate-800/30', borderTopClass: 'border-t-slate-400', titleColor: 'text-slate-600 dark:text-slate-300' };
+      return { headerClasses: 'bg-slate-50 dark:bg-slate-800/30', borderTopClass: 'border-t-slate-500', titleColor: 'text-slate-700 dark:text-slate-300', badgeVariant: 'secondary' };
     case 'Contacto Iniciado':
-      return { headerClasses: 'bg-sky-50 dark:bg-sky-900/30', borderTopClass: 'border-t-sky-500', titleColor: 'text-sky-700 dark:text-sky-300' };
+      return { headerClasses: 'bg-sky-50 dark:bg-sky-900/30', borderTopClass: 'border-t-sky-500', titleColor: 'text-sky-700 dark:text-sky-400', badgeVariant: 'default' };
     case 'Contactado':
-      return { headerClasses: 'bg-blue-50 dark:bg-blue-900/30', borderTopClass: 'border-t-blue-500', titleColor: 'text-blue-700 dark:text-blue-300' };
+      return { headerClasses: 'bg-blue-50 dark:bg-blue-900/30', borderTopClass: 'border-t-blue-500', titleColor: 'text-blue-700 dark:text-blue-400', badgeVariant: 'default' };
     case 'Reunión Programada':
-      return { headerClasses: 'bg-emerald-50 dark:bg-emerald-900/30', borderTopClass: 'border-t-emerald-500', titleColor: 'text-emerald-700 dark:text-emerald-300' };
+      return { headerClasses: 'bg-emerald-50 dark:bg-emerald-900/30', borderTopClass: 'border-t-emerald-500', titleColor: 'text-emerald-700 dark:text-emerald-400', badgeVariant: 'default' };
     case 'Presupuesto Presentado':
-      return { headerClasses: 'bg-purple-50 dark:bg-purple-900/30', borderTopClass: 'border-t-purple-500', titleColor: 'text-purple-700 dark:text-purple-300' };
-    default: // Should not happen for active stages
-      return { headerClasses: 'bg-gray-50 dark:bg-gray-800/30', borderTopClass: 'border-t-gray-400', titleColor: 'text-gray-600 dark:text-gray-300' };
+      return { headerClasses: 'bg-purple-50 dark:bg-purple-900/30', borderTopClass: 'border-t-purple-500', titleColor: 'text-purple-700 dark:text-purple-400', badgeVariant: 'default' };
+    default:
+      return { headerClasses: 'bg-gray-50 dark:bg-gray-800/30', borderTopClass: 'border-t-gray-400', titleColor: 'text-gray-600 dark:text-gray-300', badgeVariant: 'outline' };
   }
 };
 
@@ -61,7 +67,6 @@ export default function SalesFunnelPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [processingProspectId, setProcessingProspectId] = useState<string | null>(null);
-
 
   const loadProspects = useCallback(async () => {
     setIsLoading(true);
@@ -84,8 +89,7 @@ export default function SalesFunnelPage() {
 
   const handleChangeProspectStage = async (prospectId: string, newStage: ProspectSalesFunnelStage) => {
     const prospectToUpdate = prospects.find(p => p.id === prospectId);
-    if (!prospectToUpdate) return;
-    if (prospectToUpdate.salesFunnelStage === newStage) return;
+    if (!prospectToUpdate || prospectToUpdate.salesFunnelStage === newStage) return;
 
     setProcessingProspectId(prospectId);
 
@@ -102,12 +106,11 @@ export default function SalesFunnelPage() {
         toast({ title: "Etapa Actualizada", description: `Prospecto "${result.prospect.name}" movido a "${newStage}".` });
         if (newStage === 'Firmo Contrato' && result.customerId) {
             toast({ title: "¡Convertido a Cliente!", description: `Cliente ID ${result.customerId} creado/actualizado.`});
-            // Optionally redirect or give option to go to customer page
-            // router.push(`/customers/${result.customerId}/edit`); // Example redirect
+            router.push(`/customers`); // Redirige a la lista de clientes
         } else if (newStage === 'Firmo Contrato' && result.error) {
             toast({ title: "Conversión Parcial", description: `Prospecto marcado como 'Firmo Contrato', pero: ${result.error}`, variant: "destructive", duration: 7000 });
         }
-        await loadProspects(); // Refresh the entire list
+        await loadProspects(); 
       } else {
         throw new Error(result.error || "Error desconocido al actualizar la etapa del prospecto.");
       }
@@ -197,7 +200,7 @@ export default function SalesFunnelPage() {
                     <CardTitle className={cn("font-headline text-lg", columnStyle.titleColor)}>
                       {stage}
                     </CardTitle>
-                    <Badge variant={stage === 'Prospecto' ? 'secondary' : 'default'} className={cn("text-sm px-2.5 py-1", columnStyle.titleColor, `${columnStyle.headerClasses.replace('bg-', 'border-')}`)} style={{backgroundColor: 'transparent', borderColor: 'currentColor'}}>{stageProspects.length}</Badge>
+                    <Badge variant={columnStyle.badgeVariant} className={cn("text-sm px-2.5 py-1", columnStyle.titleColor)} style={{backgroundColor: 'transparent', borderColor: 'currentColor'}}>{stageProspects.length}</Badge>
                   </div>
                 </CardHeader>
                 <ScrollArea className="flex-grow print:overflow-visible">
@@ -209,7 +212,6 @@ export default function SalesFunnelPage() {
                             <div className="flex justify-between items-start gap-1">
                               <div className="flex-grow min-w-0">
                                 <div className="flex items-center gap-1.5 mb-1">
-                                   <UserCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 print:hidden" />
                                    <h4 className="font-semibold text-sm text-foreground truncate" title={prospect.name}>
                                     {prospect.name}
                                   </h4>
@@ -291,7 +293,7 @@ export default function SalesFunnelPage() {
                                 <CalendarDays className="w-3 h-3 flex-shrink-0 print:hidden" /> {formatDate(prospect.nextMeetingDate)}
                               </p>
                             )}
-                            {prospect.salesFunnelStage === 'Presupuesto Presentado' && prospect.estimatedValue && (
+                            {prospect.salesFunnelStage === 'Presupuesto Presentado' && prospect.estimatedValue !== undefined && (
                                <p className="mt-1.5 text-xs text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1 print:text-[10px]" title={`Presupuesto: ${formatCurrency(prospect.estimatedValue)}`}>
                                  <DollarSign className="w-3 h-3 flex-shrink-0 print:hidden" /> {formatCurrency(prospect.estimatedValue)}
                                </p>
@@ -303,7 +305,7 @@ export default function SalesFunnelPage() {
                       ))
                     ) : (
                       <div className="text-center py-12 flex flex-col items-center justify-center h-full min-h-[150px] print:hidden">
-                        <Users className="w-12 h-12 text-muted-foreground/20 mb-3" />
+                        <Info className="w-10 h-10 text-muted-foreground/20 mb-3" />
                         <p className="text-xs text-muted-foreground">No hay prospectos en esta etapa.</p>
                       </div>
                     )}
