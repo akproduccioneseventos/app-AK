@@ -1,129 +1,99 @@
 
 'use server';
 
+import { dbAdmin as db } from '@/lib/firebase/server';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
-import fs from 'fs/promises';
-import path from 'path';
 
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const rolesFilePath = path.join(dataDirectory, 'roles.json');
-
-async function ensureDataDirectoryExists(): Promise<void> {
-  try {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  } catch (error) {
-    console.error('Error creando el directorio de datos para roles:', error);
-  }
-}
-
-async function readRolesFile(): Promise<Rol[]> {
-  await ensureDataDirectoryExists();
-  try {
-    const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
-    const data = JSON.parse(fileContent);
-    return Array.isArray(data) ? data : [];
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      await writeRolesFile([]);
-      return [];
-    }
-    console.error('Error leyendo el archivo de roles, devolviendo array vacío:', error);
-    return [];
-  }
-}
-
-async function writeRolesFile(data: Rol[]): Promise<void> {
-  await ensureDataDirectoryExists();
-  try {
-    await fs.writeFile(rolesFilePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error escribiendo en el archivo de roles:', error);
-  }
-}
+const ROLES_COLLECTION = 'roles';
 
 export async function getRoles(): Promise<Rol[]> {
-  const roles = await readRolesFile();
-  return roles.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  if (!db) {
+    console.error("Firestore is not initialized. Roles cannot be fetched.");
+    return [];
+  }
+  try {
+    const snapshot = await db.collection(ROLES_COLLECTION).orderBy('nombre').get();
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Rol));
+  } catch (error) {
+    console.error('Error fetching roles from Firestore:', error);
+    throw new Error('No se pudieron cargar los roles.');
+  }
 }
 
 export async function getRolById(id: string): Promise<Rol | null> {
-  const roles = await readRolesFile();
-  const rol = roles.find(r => r.id === id);
-  return rol ? JSON.parse(JSON.stringify(rol)) : null;
+  if (!db) {
+    console.error("Firestore is not initialized. Rol cannot be fetched.");
+    return null;
+  }
+  try {
+    const doc = await db.collection(ROLES_COLLECTION).doc(id).get();
+    if (!doc.exists) {
+      return null;
+    }
+    return { id: doc.id, ...doc.data() } as Rol;
+  } catch (error) {
+    console.error(`Error fetching rol ${id} from Firestore:`, error);
+    throw new Error('No se pudo obtener el rol.');
+  }
 }
 
 export async function saveRol(
   rolData: NuevoRolFormData | Rol
 ): Promise<{ success: boolean; id?: string; rol?: Rol; error?: string }> {
-  let roles = await readRolesFile();
+  if (!db) {
+    console.error("Firestore is not initialized. Rol cannot be saved.");
+    return { success: false, error: "La base de datos no está disponible." };
+  }
   
-  let rolActualizado: Rol;
+  let rolToSave: Omit<Rol, 'id'> & { id?: string } = { ...rolData };
 
-  if ('id' in rolData && rolData.id) {
-    // Actualizar rol existente
-    const index = roles.findIndex(r => r.id === rolData.id);
-    if (index !== -1) {
-      rolActualizado = { ...roles[index], ...rolData };
+  // Calcular aportes y limpiar campos si es necesario
+  if (rolToSave.tipoSalario === 'Mensual' && 
+      typeof rolToSave.montoSalario === 'number' && rolToSave.montoSalario >= 0 &&
+      typeof rolToSave.porcentajeAportes === 'number' && rolToSave.porcentajeAportes >= 0) {
+    rolToSave.aportesCalculados = rolToSave.montoSalario * (rolToSave.porcentajeAportes / 100);
+  } else {
+    delete rolToSave.aportesCalculados;
+    if (rolToSave.tipoSalario !== 'Mensual') {
+        delete rolToSave.montoSalario;
+        delete rolToSave.porcentajeAportes;
+    }
+  }
+
+  try {
+    if ('id' in rolData && rolData.id) {
+      // Actualizar rol existente
+      const rolId = rolData.id;
+      const { id, ...dataToUpdate } = rolToSave as Rol; // Type assertion to ensure id is present
+      await db.collection(ROLES_COLLECTION).doc(rolId).set(dataToUpdate, { merge: true });
+      return { success: true, id: rolId, rol: { id: rolId, ...dataToUpdate } as Rol };
     } else {
-      return { success: false, error: `Rol con ID ${rolData.id} no encontrado para actualizar.` };
+      // Crear nuevo rol
+      const newRolRef = db.collection(ROLES_COLLECTION).doc();
+      const newRolId = newRolRef.id;
+      const newRolData = { ...rolToSave } as Omit<Rol, 'id'>; // Data without id for creation
+      await newRolRef.set(newRolData);
+      return { success: true, id: newRolId, rol: { id: newRolId, ...newRolData } as Rol };
     }
-  } else {
-    // Crear nuevo rol
-    rolActualizado = {
-      ...rolData,
-      id: `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    };
+  } catch (error: any) {
+    console.error('Error saving rol to Firestore:', error);
+    return { success: false, error: error.message || 'No se pudo guardar el rol.' };
   }
-
-  // Calcular aportes
-  if (rolActualizado.tipoSalario === 'Mensual' && 
-      typeof rolActualizado.montoSalario === 'number' && rolActualizado.montoSalario >= 0 &&
-      typeof rolActualizado.porcentajeAportes === 'number' && rolActualizado.porcentajeAportes >= 0) {
-    rolActualizado.aportesCalculados = rolActualizado.montoSalario * (rolActualizado.porcentajeAportes / 100);
-  } else {
-    // Si no es mensual o no hay monto/porcentaje válido, limpiar aportes
-    delete rolActualizado.aportesCalculados;
-    // Si no es mensual, el monto y porcentaje pueden no aplicar
-    if (rolActualizado.tipoSalario !== 'Mensual') {
-        delete rolActualizado.montoSalario;
-        delete rolActualizado.porcentajeAportes;
-    }
-  }
-  
-  if ('id' in rolData && rolData.id) {
-    const index = roles.findIndex(r => r.id === rolData.id);
-    roles[index] = rolActualizado;
-  } else {
-    roles.push(rolActualizado);
-  }
-
-  await writeRolesFile(roles);
-  return { success: true, id: rolActualizado.id, rol: JSON.parse(JSON.stringify(rolActualizado)) };
 }
 
 export async function deleteRol(id: string): Promise<{ success: boolean; error?: string }> {
-  let roles = await readRolesFile();
-  const initialLength = roles.length;
-  roles = roles.filter(r => r.id !== id);
-  
-  if (roles.length < initialLength) {
-    await writeRolesFile(roles);
-    return { success: true };
-  } else {
-    return { success: false, error: `Rol con ID ${id} no encontrado para eliminar.` };
+  if (!db) {
+    console.error("Firestore is not initialized. Rol cannot be deleted.");
+    return { success: false, error: "La base de datos no está disponible." };
   }
-}
-
-async function initializeRolesData() {
-  await ensureDataDirectoryExists();
   try {
-    await fs.access(rolesFilePath);
+    await db.collection(ROLES_COLLECTION).doc(id).delete();
+    return { success: true };
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      console.log('Archivo roles.json no encontrado, creando archivo vacío...');
-      await writeRolesFile([]);
-    }
+    console.error(`Error deleting rol ${id} from Firestore:`, error);
+    return { success: false, error: error.message || 'No se pudo eliminar el rol.' };
   }
 }
-
-initializeRolesData();
