@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Ensure React is imported
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+// The prop is now `paramsProp` and is typed as a Promise
 export default function EditarEmpleadoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+  // `React.use()` unwraps the Promise
   const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();
@@ -44,6 +46,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
       setIsLoading(true);
       setNotFound(false);
       try {
+        // Use the resolved `params.id` here
         const loadedEmpleado = await getEmpleadoById(params.id);
         if (loadedEmpleado) {
           setEmpleado(loadedEmpleado);
@@ -52,6 +55,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
           setSueldoBase(loadedEmpleado.sueldoBase.toString());
         } else {
           setNotFound(true);
+          // And here
           toast({ title: 'Error', description: `No se encontró el empleado con ID ${params.id}.`, variant: 'destructive' });
         }
       } catch (error) {
@@ -62,9 +66,11 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
         setIsLoading(false);
       }
     }
+    // And here for the condition
     if (params.id) {
       loadEmpleado();
     }
+    // And here for the dependency array
   }, [params.id, toast]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -92,7 +98,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
       const result = await saveEmpleado(empleadoData);
       if (result.success && result.empleado) {
         toast({ title: "¡Empleado Actualizado!", description: `El empleado "${result.empleado.nombre}" ha sido actualizado.` });
-        setEmpleado(result.empleado); // Actualizar estado local con los datos guardados
+        setEmpleado(result.empleado); 
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el empleado.");
       }
@@ -135,6 +141,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
       <div className="flex flex-col items-center justify-center h-screen text-center">
         <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
         <h1 className="text-2xl font-bold mb-2">Empleado no Encontrado</h1>
+        {/* Use the resolved params.id here too for display if needed */}
         <p className="text-muted-foreground mb-6">
           El empleado con ID <span className="font-mono bg-muted px-1 rounded">{params.id}</span> no pudo ser encontrado.
         </p>
@@ -154,6 +161,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: Pro
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Edit3 className="w-8 h-8 text-primary" />
+          {/* Use the resolved params.id here for display */}
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Editando: <span className="text-primary">{empleado?.nombre || params.id}</span>
           </h1>
