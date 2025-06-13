@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, MessageCircle, FileText, Users } from 'lucide-react';
+import { Loader2, AlertTriangle, Edit, UserPlus2, CalendarDays, Printer, ListChecks, Building, Users2, DollarSign, ChevronDown, Phone, Mail, Briefcase, Info, MessageCircle, FileText, Users, UserCheck, UserX } from 'lucide-react';
 import { getProspectsForVentasBoard, saveProspect } from '@/app/actions/prospects';
 import type { Prospecto, ProspectSalesFunnelStage } from '@/types/prospect';
 import { ACTIVE_VENTAS_STAGES, ALL_PROSPECT_STAGES } from '@/types/prospect';
@@ -62,8 +62,8 @@ const stageIcons: Record<ProspectSalesFunnelStage, React.ElementType> = {
   'Consulto': MessageCircle,
   'Agendo Entrevista': CalendarDays,
   'Con Presupuesto': FileText,
-  'Firmo Contrato': Users, 
-  'No Contrato': Users, 
+  'Firmo Contrato': UserCheck, 
+  'No Contrato': UserX, 
 };
 
 
@@ -137,7 +137,7 @@ export default function VentasPage() {
     ACTIVE_VENTAS_STAGES.forEach(stage => grouped.set(stage, []));
 
     prospects.forEach(prospect => {
-      if (ACTIVE_VENTAS_STAGES.includes(prospect.salesFunnelStage as any)) {
+      if (ACTIVE_VENTAS_STAGES.includes(prospect.salesFunnelStage as any)) { // Filter by active stages shown on board
         const stageGroup = grouped.get(prospect.salesFunnelStage);
         stageGroup?.push(prospect);
       }
@@ -333,3 +333,4 @@ export default function VentasPage() {
     </div>
   );
 }
+

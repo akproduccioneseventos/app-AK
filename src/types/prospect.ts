@@ -17,6 +17,7 @@ export const ALL_PROSPECT_STAGES: ProspectSalesFunnelStage[] = [
 ];
 
 // Etapas que se mostrarán como COLUMNAS en el tablero de "Ventas"
+// Actualizado para incluir todas las etapas como columnas visibles.
 export const ACTIVE_VENTAS_STAGES: ProspectSalesFunnelStage[] = [
   'Consulto',
   'Agendo Entrevista',
