@@ -5,15 +5,15 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, ClipboardList, Users, PlusCircle, PartyPopper, MapPin } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, ClipboardList, Users, PlusCircle, PartyPopper, MapPin, FileText as FileTextIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
 import { CountdownTimer } from '@/components/countdown-timer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Customer } from '@/types/customer'; 
+import type { Customer } from '@/types/customer';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { getCustomerById } from '@/app/actions/customers'; 
+import { getCustomerById } from '@/app/actions/customers';
 import { useToast } from '@/hooks/use-toast';
 
 const formatCurrency = (amount?: number | string) => {
@@ -116,7 +116,7 @@ export default function DashboardPage() {
     { title: "Gestión de Empresa", description: "Administra personal, proveedores y catálogo de servicios.", href: "/empresa", icon: Building2 },
     { title: "Configuración", description: "Ajusta las preferencias de la aplicación.", href: "/settings", icon: Settings },
   ];
-  
+
   const isFiestaConfigured = fiestaActual && fiestaActual.configuracion.nombreEvento && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble";
 
 
@@ -127,12 +127,20 @@ export default function DashboardPage() {
           <h2 className="text-2xl font-semibold text-foreground mb-1">¡Bienvenido de nuevo!</h2>
           <p className="text-muted-foreground">Aquí tienes un resumen de tu actividad y accesos directos.</p>
         </div>
-        <Link href="/fiestas/nueva/configuracion" passHref>
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-5 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                <PlusCircle className="w-6 h-6 mr-2.5" />
-                Iniciar Planificación de Fiesta
-            </Button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <Link href="/fiestas/nueva/configuracion" passHref className="w-full sm:w-auto">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 py-5 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full">
+                  <PlusCircle className="w-6 h-6 mr-2.5" />
+                  Iniciar Planificación de Fiesta
+              </Button>
+          </Link>
+          <Link href="/presupuestos/nuevo" passHref className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="rounded-full px-6 py-5 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-primary text-primary hover:bg-primary/5 w-full">
+                  <FileTextIcon className="w-6 h-6 mr-2.5" />
+                  Crear Nuevo Presupuesto
+              </Button>
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (

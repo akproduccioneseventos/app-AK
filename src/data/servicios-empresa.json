@@ -1,5 +1,13 @@
 [
   {
+    "nombre": "Mozo",
+    "categoria": "Servicio de catering",
+    "precioVenta": 2900,
+    "costoReal": 2900,
+    "unidad": "Por evento",
+    "id": "serv_1749933215223_3tmlplq"
+  },
+  {
     "nombre": "Decoracion basica",
     "categoria": "Servicio de decoración",
     "precioVenta": 8000,
