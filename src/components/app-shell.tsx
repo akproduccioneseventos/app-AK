@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -130,14 +130,20 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
-  if (pathname === '/fiestas/nueva/personal') return UserCheck;
-  if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
-  if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
-  if (pathname === '/fiestas/nueva/decoracion') return Palette;
-  if (pathname === '/fiestas/nueva/catering') return ChefHat;
-  if (pathname === '/evento/actual') return Globe;
-  if (pathname === '/fiestas/nueva/pagina-web') return Globe;
-  if (pathname === '/fiestas/nueva/musica') return Music2;
+  if (pathname.startsWith('/fiestas/nueva')) { // Group icon for planner section
+    if (pathname === '/fiestas/nueva/personal') return UserCheck;
+    if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
+    if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
+    if (pathname === '/fiestas/nueva/decoracion') return Palette;
+    if (pathname === '/fiestas/nueva/catering') return ChefHat;
+    if (pathname === '/fiestas/nueva/pagina-web') return Globe;
+    if (pathname === '/fiestas/nueva/musica') return Music2;
+    if (pathname === '/fiestas/nueva/invitados') return Users;
+    if (pathname === '/fiestas/nueva/tareas') return ClipboardList;
+    if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
+    return PartyPopper; // Default for main planner page
+  }
+
 
   if (pathname === '/empresa') return Building2;
   if (pathname === '/empresa/contabilidad') return CircleDollarSign;
@@ -163,6 +169,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/pagos') return Banknote;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
+  
+  if (pathname === '/settings') return SettingsIcon;
 
 
   return null;
@@ -228,3 +236,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
