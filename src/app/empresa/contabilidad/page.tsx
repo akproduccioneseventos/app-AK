@@ -97,12 +97,7 @@ export default function ContabilidadHubPage() {
           </Card>
         ))}
       </div>
-      <img 
-          src="https://placehold.co/800x300.png" 
-          alt="Contabilidad y finanzas" 
-          className="mt-8 rounded-lg shadow-md mx-auto"
-          data-ai-hint="accounting finance dashboard"
-      />
     </div>
   );
 }
+
