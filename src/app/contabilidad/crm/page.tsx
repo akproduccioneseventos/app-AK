@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Users, PlusCircle, Loader2, AlertTriangle, KanbanSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
-import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead } from '@/app/actions/crm';
+import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
 import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
 import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
+import { ConvertToClientDialog } from '@/components/crm/ConvertToClientDialog';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function CrmPage() {
@@ -20,6 +21,10 @@ export default function CrmPage() {
   const { toast } = useToast();
   const [movingLeadId, setMovingLeadId] = useState<string | null>(null);
   const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
+  
+  const [leadToConvert, setLeadToConvert] = useState<CrmLead | null>(null);
+  const [isConvertToClientModalOpen, setIsConvertToClientModalOpen] = useState(false);
+
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -45,14 +50,23 @@ export default function CrmPage() {
   }, [fetchData]);
 
   const handleMoveLead = async (leadId: string, newStageId: string) => {
+    const lead = leads.find(l => l.id === leadId);
+    const targetStage = stages.find(s => s.id === newStageId);
+
+    if (targetStage?.isConversionStage && lead) {
+      setLeadToConvert(lead);
+      setIsConvertToClientModalOpen(true);
+      return;
+    }
+    
     setMovingLeadId(leadId);
     try {
       const result = await moveCrmLead(leadId, newStageId);
       if (result.success) {
-        toast({ description: `Lead "${result.lead?.name}" movido.` });
-        await fetchData(); // Re-fetch para actualizar UI
+        toast({ description: `Prospecto "${result.lead?.name}" movido.` });
+        await fetchData(); 
       } else {
-        throw new Error(result.error || "No se pudo mover el lead.");
+        throw new Error(result.error || "No se pudo mover el prospecto.");
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -67,10 +81,10 @@ export default function CrmPage() {
     try {
       const result = await deleteCrmLead(leadId);
       if (result.success) {
-        toast({ description: `Lead "${leadToDelete?.name || 'seleccionado'}" eliminado.`, variant: "destructive" });
+        toast({ description: `Prospecto "${leadToDelete?.name || 'seleccionado'}" eliminado.`, variant: "destructive" });
         await fetchData();
       } else {
-        throw new Error(result.error || "No se pudo eliminar el lead.");
+        throw new Error(result.error || "No se pudo eliminar el prospecto.");
       }
     } catch (error: any) {
       toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
@@ -79,8 +93,35 @@ export default function CrmPage() {
     }
   };
 
+  const handleConversionSubmit = async (formData: FormData) => {
+    if (!leadToConvert) return false;
+    formData.append('prospectId', leadToConvert.id);
+    formData.append('prospectName', leadToConvert.name);
+    // Add other lead fields to formData if needed, e.g., leadToConvert.email
 
-  if (isLoading) {
+    setIsLoading(true); // Use general loading or a specific one for conversion
+    try {
+      const result = await convertToClientAndMoveProspect(formData);
+      if (result.success) {
+        toast({ title: "Conversión Exitosa", description: `Prospecto "${leadToConvert.name}" convertido a cliente y movido.` });
+        setIsConvertToClientModalOpen(false);
+        setLeadToConvert(null);
+        await fetchData();
+        return true;
+      } else {
+        toast({ title: "Error en Conversión", description: result.error || "No se pudo completar la conversión.", variant: "destructive" });
+        return false;
+      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  if (isLoading && !isConvertToClientModalOpen) { // Don't show page loader if modal is open
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
@@ -89,7 +130,7 @@ export default function CrmPage() {
     );
   }
 
-  if (error) {
+  if (error && !isConvertToClientModalOpen) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
         <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
@@ -105,7 +146,7 @@ export default function CrmPage() {
         <div className="flex items-center gap-3">
           <KanbanSquare className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestión de Leads (CRM)
+            Gestión de Prospectos (CRM)
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -123,7 +164,7 @@ export default function CrmPage() {
          <div className="flex flex-col items-center justify-center h-full text-center py-10">
             <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
             <p className="text-lg text-muted-foreground">No hay etapas definidas en el CRM.</p>
-            <p className="text-sm text-muted-foreground">Contacta al administrador para configurar las etapas.</p>
+            <p className="text-sm text-muted-foreground">Verifica la configuración en `src/app/actions/crm.ts`.</p>
         </div>
       ) : (
         <ScrollArea className="w-full whitespace-nowrap pb-4">
@@ -146,6 +187,15 @@ export default function CrmPage() {
             </div>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
+      )}
+      {leadToConvert && (
+        <ConvertToClientDialog
+          isOpen={isConvertToClientModalOpen}
+          onOpenChange={setIsConvertToClientModalOpen}
+          lead={leadToConvert}
+          onSubmit={handleConversionSubmit}
+          onClose={() => setLeadToConvert(null)}
+        />
       )}
     </div>
   );

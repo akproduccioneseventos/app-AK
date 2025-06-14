@@ -4,17 +4,19 @@
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import fs from 'fs/promises';
 import path from 'path';
+import { saveCustomer } from '@/app/actions/customers'; // For client creation
+import type { Customer } from '@/types/customer'; // For client creation
 
 const CRM_DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const LEADS_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-leads.json');
 const STAGES_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-stages.json');
 
 const defaultStages: CrmStage[] = [
-  { id: 's1', name: 'Etapa 1', order: 1, bgColor: 'bg-blue-100 dark:bg-blue-900/30', borderColor: 'border-blue-500 dark:border-blue-700', textColor: 'text-blue-700 dark:text-blue-300', headerBgColor: 'bg-blue-500 dark:bg-blue-700', headerTextColor: 'text-blue-50' },
-  { id: 's2', name: 'Etapa 2', order: 2, bgColor: 'bg-green-100 dark:bg-green-900/30', borderColor: 'border-green-500 dark:border-green-700', textColor: 'text-green-700 dark:text-green-300', headerBgColor: 'bg-green-500 dark:bg-green-700', headerTextColor: 'text-green-50' },
-  { id: 's3', name: 'Etapa 3', order: 3, bgColor: 'bg-yellow-100 dark:bg-yellow-900/30', borderColor: 'border-yellow-500 dark:border-yellow-600', textColor: 'text-yellow-700 dark:text-yellow-300', headerBgColor: 'bg-yellow-500 dark:bg-yellow-600', headerTextColor: 'text-yellow-900 dark:text-yellow-100' },
-  { id: 's4', name: 'Etapa 4', order: 4, bgColor: 'bg-orange-100 dark:bg-orange-900/30', borderColor: 'border-orange-500 dark:border-orange-700', textColor: 'text-orange-700 dark:text-orange-300', headerBgColor: 'bg-orange-500 dark:bg-orange-700', headerTextColor: 'text-orange-50' },
-  { id: 's5', name: 'Etapa 5', order: 5, bgColor: 'bg-purple-100 dark:bg-purple-900/30', borderColor: 'border-purple-500 dark:border-purple-700', textColor: 'text-purple-700 dark:text-purple-300', headerBgColor: 'bg-purple-500 dark:bg-purple-700', headerTextColor: 'text-purple-50' },
+  { id: 's1', name: 'Consultó', order: 1, bgColor: 'bg-sky-100 dark:bg-sky-900/30', borderColor: 'border-sky-500 dark:border-sky-700', textColor: 'text-sky-700 dark:text-sky-300', headerBgColor: 'bg-sky-500 dark:bg-sky-700', headerTextColor: 'text-sky-50' },
+  { id: 's2', name: 'Agendó entrevista', order: 2, bgColor: 'bg-teal-100 dark:bg-teal-900/30', borderColor: 'border-teal-500 dark:border-teal-700', textColor: 'text-teal-700 dark:text-teal-300', headerBgColor: 'bg-teal-500 dark:bg-teal-700', headerTextColor: 'text-teal-50' },
+  { id: 's3', name: 'Con presupuesto', order: 3, bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-500 dark:border-amber-600', textColor: 'text-amber-700 dark:text-amber-300', headerBgColor: 'bg-amber-500 dark:bg-amber-600', headerTextColor: 'text-amber-900 dark:text-amber-100' },
+  { id: 's4', name: 'Firmó contrato', order: 4, bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', borderColor: 'border-emerald-500 dark:border-emerald-700', textColor: 'text-emerald-700 dark:text-emerald-300', headerBgColor: 'bg-emerald-500 dark:bg-emerald-700', headerTextColor: 'text-emerald-50', isConversionStage: true },
+  { id: 's5', name: 'No contrató', order: 5, bgColor: 'bg-rose-100 dark:bg-rose-900/30', borderColor: 'border-rose-500 dark:border-rose-700', textColor: 'text-rose-700 dark:text-rose-300', headerBgColor: 'bg-rose-500 dark:bg-rose-700', headerTextColor: 'text-rose-50' },
 ];
 
 async function ensureDataDirectoryExists() {
@@ -32,8 +34,7 @@ async function readJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
     const fileContent = await fs.readFile(filePath, 'utf-8');
     return fileContent.trim() === '' ? defaultValue : JSON.parse(fileContent) as T;
   } catch (error) {
-    // If file doesn't exist or is invalid, write and return default
-    if (defaultValue !== null) { // Avoid writing null if that's the default
+    if (defaultValue !== null) { 
       await writeJsonFile(filePath, defaultValue);
     }
     return defaultValue;
@@ -46,15 +47,13 @@ async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
     await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
     console.error(`Error writing to ${filePath}:`, error);
-    // Potentially throw error or handle as needed
   }
 }
 
 async function initializeCrmFiles() {
   await readJsonFile(LEADS_FILE_PATH, []);
-  // Initialize stages file with default stages if it's empty or doesn't exist
   const stages = await readJsonFile(STAGES_FILE_PATH, []);
-  if (!stages || stages.length === 0) {
+  if (!stages || stages.length === 0 || JSON.stringify(stages) !== JSON.stringify(defaultStages)) {
     await writeJsonFile(STAGES_FILE_PATH, defaultStages);
   }
 }
@@ -63,6 +62,11 @@ initializeCrmFiles();
 
 export async function getCrmStages(): Promise<CrmStage[]> {
   const stages = await readJsonFile<CrmStage[]>(STAGES_FILE_PATH, defaultStages);
+  // If the stored stages are not the default ones (e.g. after an update), re-initialize with defaults
+  if (JSON.stringify(stages.map(s => ({name: s.name, order: s.order}))) !== JSON.stringify(defaultStages.map(s => ({name: s.name, order: s.order})))) {
+      await writeJsonFile(STAGES_FILE_PATH, defaultStages);
+      return defaultStages.sort((a, b) => a.order - b.order);
+  }
   return stages.sort((a, b) => a.order - b.order);
 }
 
@@ -72,16 +76,19 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
 }
 
 export async function addCrmLead(
-  leadData: Pick<CrmLead, 'name' | 'currentStageId'>
+  leadData: Pick<CrmLead, 'name' | 'currentStageId' | 'email' | 'phone' | 'notes'>
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
   if (!leadData.name.trim()) {
-    return { success: false, error: 'El nombre del lead es obligatorio.' };
+    return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
   const leads = await getCrmLeads();
   const now = new Date().toISOString();
   const newLead: CrmLead = {
     id: `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     name: leadData.name.trim(),
+    email: leadData.email?.trim() || undefined,
+    phone: leadData.phone?.trim() || undefined,
+    notes: leadData.notes?.trim() || undefined,
     currentStageId: leadData.currentStageId,
     createdAt: now,
     updatedAt: now,
@@ -99,7 +106,7 @@ export async function moveCrmLead(
   const leadIndex = leads.findIndex(l => l.id === leadId);
 
   if (leadIndex === -1) {
-    return { success: false, error: `Lead con ID ${leadId} no encontrado.` };
+    return { success: false, error: `Prospecto con ID ${leadId} no encontrado.` };
   }
 
   leads[leadIndex] = {
@@ -118,13 +125,12 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     leads = leads.filter(lead => lead.id !== leadId);
 
     if (leads.length === initialLength) {
-        return { success: false, error: `Lead con ID ${leadId} no encontrado para eliminar.` };
+        return { success: false, error: `Prospecto con ID ${leadId} no encontrado para eliminar.` };
     }
     await writeJsonFile(LEADS_FILE_PATH, leads);
     return { success: true };
 }
 
-// Future function stub for renaming stages
 export async function updateCrmStageName(
   stageId: string,
   newName: string
@@ -142,4 +148,63 @@ export async function updateCrmStageName(
   stages[stageIndex] = { ...stages[stageIndex], name: newName.trim() };
   await writeJsonFile(STAGES_FILE_PATH, stages);
   return { success: true, stage: stages[stageIndex] };
+}
+
+
+export async function convertToClientAndMoveProspect(
+  formData: FormData
+): Promise<{ success: boolean; customerId?: string; lead?: CrmLead; error?: string }> {
+  const prospectId = formData.get('prospectId') as string;
+  const prospectName = formData.get('prospectName') as string;
+  const email = formData.get('email') as string | undefined;
+  const phone = formData.get('phone') as string | undefined;
+  const companyName = formData.get('companyName') as string | undefined;
+  const taxId = formData.get('taxId') as string | undefined;
+  const street = formData.get('street') as string | undefined;
+  const contractFile = formData.get('contract') as File | null;
+
+  if (!prospectId || !prospectName) {
+    return { success: false, error: "Faltan datos del prospecto." };
+  }
+  if (!contractFile) {
+    return { success: false, error: "El archivo del contrato es obligatorio." };
+  }
+  
+  const stages = await getCrmStages();
+  const firmStage = stages.find(s => s.name === 'Firmó contrato');
+  if (!firmStage) {
+      return { success: false, error: "La etapa 'Firmó contrato' no está configurada."};
+  }
+
+  // Prepare data for saveCustomer (it expects FormData)
+  const customerFormData = new FormData();
+  customerFormData.append('name', prospectName); // Use prospect's name for the customer
+  if (email) customerFormData.append('email', email);
+  if (phone) customerFormData.append('phone', phone);
+  if (companyName) customerFormData.append('companyName', companyName);
+  if (taxId) customerFormData.append('taxId', taxId);
+  if (street) customerFormData.append('street', street);
+  customerFormData.append('contract', contractFile);
+
+  try {
+    const customerResult = await saveCustomer(customerFormData as unknown as Omit<Customer, 'id'>); // Type assertion might be needed if saveCustomer has specific FormData type
+
+    if (!customerResult.success || !customerResult.id) {
+      return { success: false, error: customerResult.error || "No se pudo crear el cliente." };
+    }
+
+    // If customer created successfully, move the prospect
+    const moveResult = await moveCrmLead(prospectId, firmStage.id);
+    if (!moveResult.success) {
+      // Potentially rollback customer creation or log inconsistency
+      console.error(`Cliente ${customerResult.id} creado, pero no se pudo mover el prospecto ${prospectId}. Error: ${moveResult.error}`);
+      return { success: false, error: `Cliente creado, pero no se pudo actualizar el prospecto: ${moveResult.error}`, customerId: customerResult.id };
+    }
+
+    return { success: true, customerId: customerResult.id, lead: moveResult.lead };
+
+  } catch (error: any) {
+    console.error("Error in convertToClientAndMoveProspect:", error);
+    return { success: false, error: error.message || "Error desconocido durante la conversión." };
+  }
 }

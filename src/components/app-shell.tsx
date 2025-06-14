@@ -42,7 +42,7 @@ const getPageTitle = (pathname: string): string => {
   
   // Empresa
   if (pathname === '/empresa') return 'Gestión de la Empresa';
-  if (pathname === '/empresa/contabilidad') return 'Gestión Contable y CRM';
+  if (pathname === '/empresa/contabilidad') return 'Gestión Contable y Prospección';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
   if (pathname === '/empresa/todos-los-servicios') return 'Catálogo de Servicios';
@@ -77,7 +77,7 @@ const getPageTitle = (pathname: string): string => {
 
   // Contabilidad & CRM
   if (pathname === '/contabilidad/pagos') return 'Registro de Pagos';
-  if (pathname === '/contabilidad/crm') return 'Gestión de Leads (CRM)';
+  if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
 
   // Configuración

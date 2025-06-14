@@ -16,7 +16,7 @@ interface ContabilidadItem {
 
 const contabilidadItems: ContabilidadItem[] = [
   {
-    title: 'Gestión de Leads (CRM)',
+    title: 'Gestión de Prospectos (CRM)',
     description: 'Visualiza y gestiona tu embudo de ventas y clientes potenciales.',
     href: '/contabilidad/crm',
     icon: KanbanSquare,
@@ -59,7 +59,7 @@ export default function ContabilidadHubPage() {
         <div className="flex items-center gap-3">
             <CircleDollarSign className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Gestión Contable y CRM
+              Gestión Contable y Prospección
             </h1>
         </div>
         <Link href="/empresa" passHref>
@@ -70,7 +70,7 @@ export default function ContabilidadHubPage() {
         </Link>
       </div>
       <CardDescription className="text-lg">
-        Administra los aspectos financieros, clientes potenciales y clientes de tu negocio.
+        Administra los aspectos financieros, prospectos y clientes de tu negocio.
       </CardDescription>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -100,4 +100,3 @@ export default function ContabilidadHubPage() {
     </div>
   );
 }
-

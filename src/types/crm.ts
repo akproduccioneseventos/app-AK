@@ -1,14 +1,15 @@
 
 export interface CrmStage {
   id: string;
-  name: string; // e.g., "Etapa 1", "Lead Calificado"
-  order: number; // To determine sequence
+  name: string; 
+  order: number; 
   // Tailwind classes for styling
-  bgColor: string; // e.g., 'bg-blue-100'
-  borderColor: string; // e.g., 'border-blue-500'
-  textColor: string; // e.g., 'text-blue-700'
-  headerBgColor: string; // e.g., 'bg-blue-500'
-  headerTextColor: string; // e.g., 'text-white'
+  bgColor: string; 
+  borderColor: string; 
+  textColor: string; 
+  headerBgColor: string; 
+  headerTextColor: string; 
+  isConversionStage?: boolean; // Optional flag for special stages
 }
 
 export interface CrmLead {
@@ -17,8 +18,9 @@ export interface CrmLead {
   currentStageId: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
-  // Optional: podrías añadir un customerId si el lead se convierte y se vincula a un Customer existente
-  // customerId?: string;
+  email?: string; // Added for potential future use or capture during conversion
+  phone?: string; // Added
+  notes?: string; // Added
 }
 
-export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt'>;
+export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'email' | 'phone' | 'notes'> & Partial<Pick<CrmLead, 'email' | 'phone' | 'notes'>>;

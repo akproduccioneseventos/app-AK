@@ -4,7 +4,7 @@
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Loader2, Trash2, UserCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle, Loader2, Trash2, UserCircle2, FileSignature } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,10 +21,10 @@ import {
 interface CrmLeadCardProps {
   lead: CrmLead;
   stages: CrmStage[];
-  onMoveLead: (leadId: string, newStageId: string) => Promise<void>;
+  onMoveLead: (leadId: string, newStageId: string) => Promise<void>; // This will now also trigger modal
   onDeleteLead: (leadId: string) => Promise<void>;
-  isMoving: boolean;
-  isDeleting: boolean;
+  isMoving: boolean; // Indicates general move loading, not specific to this card
+  isDeleting: boolean; // Indicates general delete loading
 }
 
 export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, isDeleting }: CrmLeadCardProps) {
@@ -33,8 +33,9 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
     ? stages[currentStageIndex + 1]
     : null;
 
-  const handleMove = () => {
+  const handleMoveOrConvert = () => {
     if (nextStage) {
+      // onMoveLead will handle the logic if it's a conversion stage
       onMoveLead(lead.id, nextStage.id);
     }
   };
@@ -42,6 +43,8 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
   const handleDelete = () => {
     onDeleteLead(lead.id);
   };
+  
+  const cardIsProcessing = isMoving || isDeleting;
 
   return (
     <Card className="mb-3 shadow-md hover:shadow-lg transition-shadow bg-card">
@@ -54,15 +57,15 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
       <CardFooter className="p-2 border-t flex justify-between items-center">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={isDeleting || isMoving} title="Eliminar Lead">
-              {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5" />}
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={cardIsProcessing} title="Eliminar Prospecto">
+              {isDeleting && movingLeadId !== lead.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5" />}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle>
               <AlertDialogDescription>
-                El lead "{lead.name}" será eliminado permanentemente.
+                El prospecto "{lead.name}" será eliminado permanentemente.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -77,14 +80,14 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
         {nextStage ? (
           <Button
             size="sm"
-            variant="outline"
-            onClick={handleMove}
-            disabled={isMoving || isDeleting}
+            variant={nextStage.isConversionStage ? "default" : "outline"}
+            onClick={handleMoveOrConvert}
+            disabled={cardIsProcessing}
             className="text-xs h-7 px-2 py-1"
-            title={`Mover a ${nextStage.name}`}
+            title={nextStage.isConversionStage ? `Convertir a Cliente (${nextStage.name})` : `Mover a ${nextStage.name}`}
           >
-            {isMoving ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5 mr-1" />}
-            Mover
+            {isMoving && movingLeadId !== lead.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : (nextStage.isConversionStage ? <FileSignature className="w-3.5 h-3.5 mr-1" /> :<ArrowRight className="w-3.5 h-3.5 mr-1" />)}
+            {nextStage.isConversionStage ? "Convertir" : "Mover"}
           </Button>
         ) : (
           <Button size="sm" variant="ghost" disabled className="text-xs h-7 px-2 py-1 text-green-600">
