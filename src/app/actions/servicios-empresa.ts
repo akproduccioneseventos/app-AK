@@ -2,7 +2,7 @@
 'use server';
 
 import { dbAdmin as db } from '@/lib/firebase/server';
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 
 const SERVICIOS_EMPRESA_COLLECTION = 'servicios_empresa';
 
@@ -50,27 +50,47 @@ export async function saveServicioEmpresa(
     let finalServicioData: ServicioEmpresa;
     let servicioId: string;
 
-    const dataWithParsedPrice: Partial<ServicioEmpresa> = {
+    const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
       ...servicioData,
-      precioEstimado: servicioData.precioEstimado !== undefined ? Number(servicioData.precioEstimado) : undefined,
+      precioVenta: servicioData.precioVenta !== undefined ? Number(servicioData.precioVenta) : undefined,
+      costoReal: servicioData.costoReal !== undefined ? Number(servicioData.costoReal) : undefined,
     };
-    if (dataWithParsedPrice.precioEstimado !== undefined && isNaN(dataWithParsedPrice.precioEstimado)) {
-        delete dataWithParsedPrice.precioEstimado; // Remove if NaN after conversion
+    if (dataWithParsedNumbers.precioVenta !== undefined && isNaN(dataWithParsedNumbers.precioVenta)) {
+        delete dataWithParsedNumbers.precioVenta;
+    }
+    if (dataWithParsedNumbers.costoReal !== undefined && isNaN(dataWithParsedNumbers.costoReal)) {
+        delete dataWithParsedNumbers.costoReal;
+    }
+    
+    // Validar nombre y categoría
+    if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") {
+      return { success: false, error: "El nombre del servicio es obligatorio." };
+    }
+    if (!dataWithParsedNumbers.categoria) {
+      return { success: false, error: "La categoría del servicio es obligatoria." };
     }
 
 
-    if ('id' in dataWithParsedPrice && dataWithParsedPrice.id) {
+    if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
       // Actualizar servicio existente
-      servicioId = dataWithParsedPrice.id;
-      const { id, ...dataToUpdate } = dataWithParsedPrice;
+      servicioId = dataWithParsedNumbers.id;
+      const { id, ...dataToUpdate } = dataWithParsedNumbers;
       await db.collection(SERVICIOS_EMPRESA_COLLECTION).doc(servicioId).set(dataToUpdate, { merge: true });
       finalServicioData = { id: servicioId, ...(dataToUpdate as Omit<ServicioEmpresa, 'id'>) };
     } else {
-      // Crear nuevo servicio
+      // Crear nuevo servicio - Verificar duplicados
+      const q = db.collection(SERVICIOS_EMPRESA_COLLECTION)
+                  .where('nombre', '==', dataWithParsedNumbers.nombre.trim())
+                  .where('categoria', '==', dataWithParsedNumbers.categoria);
+      const querySnapshot = await q.get();
+      if (!querySnapshot.empty) {
+        return { success: false, error: `Ya existe un servicio con el nombre "${dataWithParsedNumbers.nombre.trim()}" en la categoría "${dataWithParsedNumbers.categoria}".` };
+      }
+
       const newServicioRef = db.collection(SERVICIOS_EMPRESA_COLLECTION).doc();
       servicioId = newServicioRef.id;
       finalServicioData = {
-        ...(dataWithParsedPrice as Omit<ServicioEmpresa, 'id'>),
+        ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>),
         id: servicioId,
       };
       await newServicioRef.set(finalServicioData);

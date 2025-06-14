@@ -13,16 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, PlusCircle, Save, Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa } from '@/types/empresa';
-
-const categoriasServicio: ServicioEmpresa['categoria'][] = [
-  'Catering', 'Bebidas', 'Decoración', 'Audiovisual', 'Música', 'Entretenimiento', 
-  'Estructuras', 'Personal', 'Logística', 'Fotografía', 'Filmación', 'Repostería', 
-  'Iluminación', 'Equipamiento', 'Estilismo', 'Impresión', 'Merchandising', 'Otros'
-];
-const unidadesServicio: ServicioEmpresa['unidad'][] = [
-  'Por persona', 'Por evento', 'Por hora', 'Global', 'Por proyecto', 'Por día/evento', 'Por viaje', 'Por unidad (variable)', 'Por lote'
-];
+import type { ServicioEmpresa, CategoriaServicio, UnidadServicio } from '@/types/empresa';
+import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 
 export default function NuevoServicioPage() {
   const router = useRouter();
@@ -30,10 +22,11 @@ export default function NuevoServicioPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [nombre, setNombre] = useState('');
-  const [categoria, setCategoria] = useState<ServicioEmpresa['categoria'] | ''>('');
+  const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
   const [descripcion, setDescripcion] = useState('');
-  const [precioEstimado, setPrecioEstimado] = useState<string>('');
-  const [unidad, setUnidad] = useState<ServicioEmpresa['unidad'] | ''>('');
+  const [precioVenta, setPrecioVenta] = useState<string>('');
+  const [costoReal, setCostoReal] = useState<string>('');
+  const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -45,14 +38,19 @@ export default function NuevoServicioPage() {
       toast({ title: "Categoría Requerida", description: "Debes seleccionar una categoría para el servicio.", variant: "destructive" });
       return;
     }
+    if (!unidad) {
+        toast({ title: "Unidad Requerida", description: "Debes seleccionar una unidad de precio.", variant: "destructive"});
+        return;
+    }
 
     setIsSaving(true);
     const servicioData: Omit<ServicioEmpresa, 'id'> = {
       nombre: nombre.trim(),
-      categoria: categoria as ServicioEmpresa['categoria'], // Cast as it's validated
+      categoria: categoria as CategoriaServicio, // Cast as it's validated
       descripcion: descripcion.trim() || undefined,
-      precioEstimado: precioEstimado ? parseFloat(precioEstimado) : undefined,
-      unidad: unidad || undefined,
+      precioVenta: precioVenta ? parseFloat(precioVenta) : undefined,
+      costoReal: costoReal ? parseFloat(costoReal) : undefined,
+      unidad: unidad as UnidadServicio,
     };
 
     try {
@@ -61,7 +59,7 @@ export default function NuevoServicioPage() {
         toast({ title: "¡Servicio Guardado!", description: `El servicio "${servicioData.nombre}" ha sido guardado.` });
         router.push('/empresa/todos-los-servicios');
       } else {
-        throw new Error(result.error || "Error desconocido al guardar el servicio.");
+        toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar el servicio.", variant: "destructive"});
       }
     } catch (error: any) {
       toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
@@ -100,7 +98,7 @@ export default function NuevoServicioPage() {
                 id="servicio-nombre" 
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ej: Catering Completo para Bodas, Sesión Fotográfica Exterior"
+                placeholder="Ej: Sesión Fotográfica Exterior Completa"
                 className="text-base p-3"
                 required
                 disabled={isSaving}
@@ -110,7 +108,7 @@ export default function NuevoServicioPage() {
               <Label htmlFor="servicio-categoria" className="text-base">Categoría *</Label>
               <Select 
                 value={categoria} 
-                onValueChange={(value) => setCategoria(value as ServicioEmpresa['categoria'] | '')}
+                onValueChange={(value) => setCategoria(value as CategoriaServicio | '')}
                 required
                 disabled={isSaving}
               >
@@ -118,7 +116,7 @@ export default function NuevoServicioPage() {
                   <SelectValue placeholder="Seleccionar categoría del servicio" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categoriasServicio.map(cat => (
+                  {ALL_CATEGORIAS_SERVICIO.map(cat => (
                     <SelectItem key={cat} value={cat} className="text-base">{cat}</SelectItem>
                   ))}
                 </SelectContent>
@@ -138,12 +136,32 @@ export default function NuevoServicioPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="servicio-precio" className="text-base">Precio Estimado (Opcional)</Label>
+                <Label htmlFor="servicio-unidad" className="text-base">Unidad de Precio *</Label>
+                <Select 
+                  value={unidad} 
+                  onValueChange={(value) => setUnidad(value as UnidadServicio | '')}
+                  disabled={isSaving}
+                  required
+                >
+                  <SelectTrigger id="servicio-unidad" className="text-base p-3 h-auto">
+                    <SelectValue placeholder="Seleccionar unidad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALL_UNIDADES_SERVICIO.map(u => (
+                      <SelectItem key={u} value={u} className="text-base">{u}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="servicio-precio-venta" className="text-base">Precio de Venta (Opcional)</Label>
                 <Input 
-                  id="servicio-precio" 
+                  id="servicio-precio-venta" 
                   type="number" 
-                  value={precioEstimado}
-                  onChange={(e) => setPrecioEstimado(e.target.value)}
+                  value={precioVenta}
+                  onChange={(e) => setPrecioVenta(e.target.value)}
                   placeholder="0.00" 
                   min="0"
                   step="any"
@@ -152,21 +170,18 @@ export default function NuevoServicioPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="servicio-unidad" className="text-base">Unidad de Precio (Opcional)</Label>
-                <Select 
-                  value={unidad} 
-                  onValueChange={(value) => setUnidad(value as ServicioEmpresa['unidad'] | '')}
+                <Label htmlFor="servicio-costo-real" className="text-base">Costo Real del Servicio (Opcional)</Label>
+                <Input 
+                  id="servicio-costo-real" 
+                  type="number" 
+                  value={costoReal}
+                  onChange={(e) => setCostoReal(e.target.value)}
+                  placeholder="0.00" 
+                  min="0"
+                  step="any"
+                  className="text-base p-3"
                   disabled={isSaving}
-                >
-                  <SelectTrigger id="servicio-unidad" className="text-base p-3 h-auto">
-                    <SelectValue placeholder="Seleccionar unidad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {unidadesServicio.map(u => (
-                      <SelectItem key={u} value={u} className="text-base">{u}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </div>
             </div>
             <img 

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Sparkles, Tag, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from '@/components/ui/input';
@@ -27,7 +27,8 @@ import {
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  // Asumimos UYU como moneda por defecto para visualización, puede ser un parámetro si es necesario.
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
 export default function TodosLosServiciosPage() {
@@ -87,15 +88,15 @@ export default function TodosLosServiciosPage() {
 
 
   const serviciosAgrupados = filteredServicios.reduce((acc, servicio) => {
-    const categoria = servicio.categoria || 'Otros';
+    const categoria = servicio.categoria || 'Otros servicios'; // Default to 'Otros servicios' if somehow undefined
     if (!acc[categoria]) {
       acc[categoria] = [];
     }
     acc[categoria].push(servicio);
     return acc;
-  }, {} as Record<string, ServicioEmpresa[]>);
+  }, {} as Record<CategoriaServicio | 'Otros servicios', ServicioEmpresa[]>);
 
-  const categoriasOrdenadas = Object.keys(serviciosAgrupados).sort();
+  const categoriasOrdenadas = Object.keys(serviciosAgrupados).sort() as (CategoriaServicio | 'Otros servicios')[];
 
   return (
     <div className="space-y-6">
@@ -163,12 +164,12 @@ export default function TodosLosServiciosPage() {
               <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg">
                 <div className="flex items-center gap-2">
                   <Tag className="w-5 h-5 text-primary/80"/>
-                  {categoria} ({serviciosAgrupados[categoria].length})
+                  {categoria} ({serviciosAgrupados[categoria]?.length || 0})
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pt-0 pb-3">
                 <div className="space-y-3 mt-2">
-                  {serviciosAgrupados[categoria].map((servicio) => (
+                  {serviciosAgrupados[categoria]?.map((servicio) => (
                     <Card key={servicio.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
                       <CardHeader className="pb-2 pt-3 px-3">
                         <div className="flex justify-between items-start">
@@ -205,12 +206,26 @@ export default function TodosLosServiciosPage() {
                       </CardHeader>
                       <CardContent className="px-3 pb-3 text-sm">
                         {servicio.descripcion && <p className="text-muted-foreground text-xs mb-1.5">{servicio.descripcion}</p>}
-                        {servicio.precioEstimado !== undefined && (
-                          <p className="font-medium text-primary/90">
-                            Precio Est.: {formatCurrency(servicio.precioEstimado)}
-                            {servicio.unidad && <span className="text-xs text-muted-foreground ml-1"> ({servicio.unidad})</span>}
-                          </p>
-                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-1">
+                            {servicio.unidad && (
+                                <p className="text-xs">
+                                    <span className="text-muted-foreground">Unidad: </span> 
+                                    <span className="font-medium">{servicio.unidad}</span>
+                                </p>
+                            )}
+                            {servicio.precioVenta !== undefined && (
+                                <p className="text-xs">
+                                    <span className="text-muted-foreground">P. Venta: </span>
+                                    <span className="font-medium text-primary/90">{formatCurrency(servicio.precioVenta)}</span>
+                                </p>
+                            )}
+                            {servicio.costoReal !== undefined && (
+                                <p className="text-xs">
+                                    <span className="text-muted-foreground">Costo Real: </span>
+                                    <span className="font-medium">{formatCurrency(servicio.costoReal)}</span>
+                                </p>
+                            )}
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
