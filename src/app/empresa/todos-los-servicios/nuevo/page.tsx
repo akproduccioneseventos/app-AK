@@ -38,7 +38,7 @@ export default function NuevoServicioPage() {
   const [costoReal, setCostoReal] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
 
-  // Estados para la lógica condicional de catering
+  // Estado para la lógica condicional de catering
   const [cateringSubCategory, setCateringSubCategory] = useState<CateringSubCategory>('');
 
   const handleCategoriaChange = (value: CategoriaServicio | '') => {

@@ -1,5 +1,13 @@
 [
   {
+    "nombre": "Decoracion basica",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 8000,
+    "costoReal": 2000,
+    "unidad": "Por evento",
+    "id": "serv_1749932774671_yiesfx9"
+  },
+  {
     "nombre": "Discoteca basica",
     "categoria": "Servicio de discoteca",
     "precioVenta": 9000,
