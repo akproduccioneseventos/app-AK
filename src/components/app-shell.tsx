@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -42,7 +42,7 @@ const getPageTitle = (pathname: string): string => {
   
   // Empresa
   if (pathname === '/empresa') return 'Gestión de la Empresa';
-  if (pathname === '/empresa/contabilidad') return 'Gestión Contable';
+  if (pathname === '/empresa/contabilidad') return 'Gestión Contable y CRM';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
   if (pathname === '/empresa/todos-los-servicios') return 'Catálogo de Servicios';
@@ -53,6 +53,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empleados') return 'Gestión de Personal';
   if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
   if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado #${pathSegments[1]}`;
+  if (pathname === '/empleados/roles') return 'Configuración de Roles';
 
 
   // Fiestas (Planificador)
@@ -74,8 +75,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
 
-  // Contabilidad
+  // Contabilidad & CRM
   if (pathname === '/contabilidad/pagos') return 'Registro de Pagos';
+  if (pathname === '/contabilidad/crm') return 'Gestión de Leads (CRM)';
 
 
   // Configuración
@@ -145,6 +147,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/proveedores/new') return UserPlusIcon;
   if (pathname === '/empleados') return ContactRound;
+  if (pathname === '/empleados/roles') return SettingsIcon;
   if (pathname === '/customers') return Users;
 
 
@@ -159,6 +162,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/pagos') return Banknote;
+  if (pathname === '/contabilidad/crm') return KanbanSquare;
 
 
   return null;

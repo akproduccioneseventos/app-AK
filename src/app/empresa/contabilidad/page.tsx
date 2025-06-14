@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, FileText, Banknote, CircleDollarSign, Users } from 'lucide-react';
+import { ArrowLeft, ListChecks, FileText, Banknote, CircleDollarSign, Users, KanbanSquare } from 'lucide-react';
 
 interface ContabilidadItem {
   title: string;
@@ -15,6 +15,13 @@ interface ContabilidadItem {
 }
 
 const contabilidadItems: ContabilidadItem[] = [
+  {
+    title: 'Gestión de Leads (CRM)',
+    description: 'Visualiza y gestiona tu embudo de ventas y clientes potenciales.',
+    href: '/contabilidad/crm',
+    icon: KanbanSquare,
+    actionLabel: 'Ir al CRM',
+  },
   {
     title: 'Presupuestos',
     description: 'Crea, gestiona y envía presupuestos detallados a tus clientes.',
@@ -52,7 +59,7 @@ export default function ContabilidadHubPage() {
         <div className="flex items-center gap-3">
             <CircleDollarSign className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Gestión Contable
+              Gestión Contable y CRM
             </h1>
         </div>
         <Link href="/empresa" passHref>
@@ -63,7 +70,7 @@ export default function ContabilidadHubPage() {
         </Link>
       </div>
       <CardDescription className="text-lg">
-        Administra los aspectos financieros de tu negocio, incluyendo presupuestos, facturas, pagos y clientes.
+        Administra los aspectos financieros, clientes potenciales y clientes de tu negocio.
       </CardDescription>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
