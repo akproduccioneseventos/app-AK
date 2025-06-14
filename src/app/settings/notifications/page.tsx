@@ -1,16 +1,15 @@
 
 'use client';
 
-import React, { useState, type FormEvent } from 'react'; // Added React import
+import React, { useState, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, BellRing, Save, Loader2, Construction } from 'lucide-react';
+import { ArrowLeft, BellRing, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
 
 interface NotificationPreferences {
   eventReminders: { email: boolean; app: boolean };
@@ -138,16 +137,6 @@ export default function NotificationsSettingsPage() {
                 </div>
               </React.Fragment>
             ))}
-             <div className="pt-4">
-                <Image 
-                    src="https://placehold.co/600x250.png" 
-                    alt="Ilustración de notificaciones" 
-                    width={600} 
-                    height={250} 
-                    className="rounded-md shadow-sm mx-auto opacity-80"
-                    data-ai-hint="notifications interface settings"
-                />
-            </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" disabled={isSaving}>
