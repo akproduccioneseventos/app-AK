@@ -10,18 +10,26 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 
 import Paso1DatosEvento from '@/components/presupuestos/paso-1-datos-evento';
-// Paso2Menu ya no se importa, el flujo es directo a servicios
 import Paso3Servicios from '@/components/presupuestos/paso-3-servicios';
 import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
-import type { PresupuestoFormData, PlatoPresupuesto, ServicioAdicional, Presupuesto } from '@/types/presupuesto';
+import type { PresupuestoFormData, PlatoPresupuesto, ServicioAdicional, Presupuesto, TipoEvento } from '@/types/presupuesto';
 import { getPlatos, savePresupuesto } from '@/app/actions/presupuestos'; 
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
+import { ALL_TIPOS_EVENTO } from '@/types/presupuesto'; // Importar ALL_TIPOS_EVENTO
 
-const TOTAL_PASOS = 3; // Ajustado a 3 pasos
+const TOTAL_PASOS = 3; 
 
-const serviciosDisponiblesMock: ServicioAdicional[] = [];
+// Ejemplo de servicios, podría venir de una acción del servidor en el futuro
+const serviciosDisponiblesMock: ServicioAdicional[] = [
+  { id: 'serv_dj', nombre: 'Servicio de DJ Profesional', costo: 15000, seleccionado: false },
+  { id: 'serv_foto', nombre: 'Cobertura Fotográfica Completa', costo: 25000, seleccionado: false },
+  { id: 'serv_video', nombre: 'Filmación y Edición de Video', costo: 30000, seleccionado: false },
+  { id: 'serv_deco', nombre: 'Decoración Temática Premium', costo: 20000, seleccionado: false },
+  { id: 'serv_mozos', nombre: 'Equipo de Mozos Adicionales (x3)', costo: 12000, seleccionado: false },
+  { id: 'serv_barra', nombre: 'Barra de Tragos Premium', costo: 18000, seleccionado: false },
+];
 
 
 export default function NuevoPresupuestoPage() {
@@ -29,6 +37,7 @@ export default function NuevoPresupuestoPage() {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
+  
   const [formData, setFormData] = useState<PresupuestoFormData>({
     pasoActual: 1,
     clienteNombre: '',
@@ -50,20 +59,21 @@ export default function NuevoPresupuestoPage() {
     async function cargarDatosIniciales() {
       setIsLoadingInitialData(true);
       try {
-        // getPlatos sigue siendo llamado por si en el futuro se re-habilita el paso de menú
         const [platos, fiestaActualData] = await Promise.all([
-          getPlatos(),
+          getPlatos(), // Aunque no se use para selección, puede ser útil para referencia futura
           getFiestaActual()
         ]);
 
         setFormData(prev => {
           let newClienteNombre = prev.clienteNombre;
-          let newEventoTipo = prev.eventoTipo;
+          let newEventoTipo = prev.eventoTipo as TipoEvento | string;
           let newEventoFecha = prev.eventoFecha;
           let newInvitadosCantidad = prev.invitadosCantidad;
           let newSalonFiestas = prev.salonFiestas;
           let newNombreHomenajeado1 = prev.nombreHomenajeado1;
-          // nombreHomenajeado2 y nombreEmpresa no se prellenan desde fiestaActual por ahora.
+          let newNombreHomenajeado2 = prev.nombreHomenajeado2;
+          let newNombreEmpresa = prev.nombreEmpresa;
+
 
           if (fiestaActualData && fiestaActualData.configuracion) {
             const config = fiestaActualData.configuracion;
@@ -73,13 +83,24 @@ export default function NuevoPresupuestoPage() {
                 newClienteNombre = config.nombreEvento;
             }
             
-            if (config.tipoCelebracion) { 
+            if (config.tipoCelebracion && ALL_TIPOS_EVENTO.includes(config.tipoCelebracion as TipoEvento)) { 
               newEventoTipo = config.tipoCelebracion;
-              // Pre-fill homenajeado/empresa based on pre-filled tipoCelebracion
-              if (config.tipoCelebracion !== 'Boda' && config.tipoCelebracion !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
+            } else if (config.tipoCelebracion) { // Es un tipo personalizado
+              newEventoTipo = config.tipoCelebracion;
+            }
+            
+            if (config.tipoCelebracion) {
+              if (config.tipoCelebracion === 'Boda' && config.nombreEvento) {
+                // Asumir que nombreEvento podría ser "Novio1 y Novia2" o solo uno si el otro no está
+                // Para prellenado, es complejo. Se podría intentar un split por 'y' o '&'.
+                // Por ahora, si es Boda, mejor dejar que el usuario llene los campos.
+              } else if (config.tipoCelebracion === 'Evento corporativo' && config.nombreEvento) {
+                 newNombreEmpresa = config.nombreEvento;
+              } else if (config.tipoCelebracion !== 'Boda' && config.tipoCelebracion !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
                   newNombreHomenajeado1 = config.nombreEvento;
               }
             }
+
 
             if (!prev.eventoFecha && config.fechaEvento) {
               try {
@@ -98,13 +119,15 @@ export default function NuevoPresupuestoPage() {
           
           return { 
             ...prev, 
-            platosDisponibles: platos.map(p => ({...p, seleccionado: false})),
+            platosDisponibles: platos.map(p => ({...p, seleccionado: false})), // Sigue cargando platos para referencia
             clienteNombre: newClienteNombre,
             eventoTipo: newEventoTipo,
             eventoFecha: newEventoFecha,
             invitadosCantidad: newInvitadosCantidad,
             salonFiestas: newSalonFiestas,
             nombreHomenajeado1: newNombreHomenajeado1,
+            nombreHomenajeado2: newNombreHomenajeado2,
+            nombreEmpresa: newNombreEmpresa,
           };
         });
       } catch (error) {
@@ -119,25 +142,30 @@ export default function NuevoPresupuestoPage() {
 
   const handleNext = () => {
     if (formData.pasoActual < TOTAL_PASOS) {
-      if (formData.pasoActual === 1) {
+      if (formData.pasoActual === 1) { // Validaciones del Paso 1
         if (!formData.clienteNombre.trim()) { toast({ title: "Dato Requerido", description: "El nombre del cliente es obligatorio.", variant: "destructive" }); return;}
-        if (!formData.eventoTipo.trim()) { toast({ title: "Dato Requerido", description: "El tipo de evento es obligatorio.", variant: "destructive" }); return;}
+        if (!formData.eventoTipo?.trim()) { toast({ title: "Dato Requerido", description: "Por favor, selecciona un tipo de evento o especifica uno si elegiste 'Otro'.", variant: "destructive" }); return;}
         if (!formData.eventoFecha) { toast({ title: "Dato Requerido", description: "La fecha del evento es obligatoria.", variant: "destructive" }); return;}
         if (!formData.invitadosCantidad || formData.invitadosCantidad <= 0) { toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser un número positivo.", variant: "destructive" }); return;}
         if (!formData.salonFiestas.trim()) { toast({ title: "Dato Requerido", description: "El salón de fiestas es obligatorio.", variant: "destructive" }); return;}
 
-        if (formData.eventoTipo === 'Boda' && (!formData.nombreHomenajeado1?.trim() || !formData.nombreHomenajeado2?.trim())) {
-            toast({ title: "Nombres Requeridos", description: "Para bodas, por favor ingresa el nombre de ambos novios.", variant: "destructive" });
-            return;
-        } else if (formData.eventoTipo === 'Evento corporativo' && !formData.nombreEmpresa?.trim()) {
-            toast({ title: "Nombre de Empresa Requerido", description: "Para eventos corporativos, por favor ingresa el nombre de la empresa.", variant: "destructive" });
-            return;
-        } else if (formData.eventoTipo !== 'Boda' && formData.eventoTipo !== 'Evento corporativo' && !formData.nombreHomenajeado1?.trim()) {
-             toast({ title: "Nombre del Homenajeado Requerido", description: "Por favor, ingresa el nombre del homenajeado/a.", variant: "destructive" });
-            return;
+        if (formData.eventoTipo === 'Boda') {
+            if (!formData.nombreHomenajeado1?.trim() || !formData.nombreHomenajeado2?.trim()) {
+                toast({ title: "Nombres Requeridos", description: "Para bodas, por favor ingresa el nombre de ambos homenajeados.", variant: "destructive" });
+                return;
+            }
+        } else if (formData.eventoTipo === 'Evento corporativo') {
+            if (!formData.nombreEmpresa?.trim()) {
+                toast({ title: "Nombre de Empresa Requerido", description: "Para eventos corporativos, por favor ingresa el nombre de la empresa.", variant: "destructive" });
+                return;
+            }
+        } else { // Para todos los demás tipos de evento (XV, Cumpleaños, Infantil, o custom "Otro")
+            if (!formData.nombreHomenajeado1?.trim()) {
+                 toast({ title: "Nombre del Homenajeado Requerido", description: `Por favor, ingresa el nombre del homenajeado/a para el evento de tipo "${formData.eventoTipo}".`, variant: "destructive" });
+                return;
+            }
         }
       }
-      // Para el paso 2 (Servicios Adicionales), no hay validación estricta obligatoria antes de pasar al resumen
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
   };
@@ -149,11 +177,16 @@ export default function NuevoPresupuestoPage() {
   };
   
   const calcularResumen = useCallback((): Presupuesto | null => {
-    if (!formData.clienteNombre || !formData.eventoTipo || !formData.eventoFecha || !formData.invitadosCantidad || !formData.salonFiestas) {
+    if (!formData.clienteNombre || !formData.eventoTipo?.trim() || !formData.eventoFecha || !formData.invitadosCantidad || !formData.salonFiestas.trim()) {
       return null;
     }
+    // Validaciones adicionales para nombres según tipo de evento
+    if (formData.eventoTipo === 'Boda' && (!formData.nombreHomenajeado1?.trim() || !formData.nombreHomenajeado2?.trim())) return null;
+    if (formData.eventoTipo === 'Evento corporativo' && !formData.nombreEmpresa?.trim()) return null;
+    if (formData.eventoTipo && formData.eventoTipo !== 'Boda' && formData.eventoTipo !== 'Evento corporativo' && !formData.nombreHomenajeado1?.trim()) return null;
 
-    const costoSubtotalPlatos = 0; // Ya que el paso de menú detallado se omite
+
+    const costoSubtotalPlatos = 0; // El paso de menú detallado se omite.
     const platosFinales: Presupuesto['platosSeleccionados'] = []; 
 
     let costoSubtotalServicios = 0;
@@ -170,7 +203,7 @@ export default function NuevoPresupuestoPage() {
     
     const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
 
-    let notasCombinadas = formData.notas;
+    let notasCombinadas = formData.notas || '';
     if(formData.salonFiestas) notasCombinadas += `\nSalón: ${formData.salonFiestas}`;
     if(formData.eventoTipo === 'Boda' && formData.nombreHomenajeado1 && formData.nombreHomenajeado2) notasCombinadas += `\nNovios: ${formData.nombreHomenajeado1} y ${formData.nombreHomenajeado2}`;
     else if (formData.eventoTipo !== 'Boda' && formData.eventoTipo !== 'Evento corporativo' && formData.nombreHomenajeado1) notasCombinadas += `\nHomenajeado: ${formData.nombreHomenajeado1}`;
@@ -235,7 +268,7 @@ export default function NuevoPresupuestoPage() {
   const handleSave = async () => {
     const resumen = calcularResumen(); 
     if (!resumen) {
-      toast({ title: "Error", description: "Faltan datos para generar el resumen.", variant: "destructive" });
+      toast({ title: "Error", description: "Faltan datos para generar el resumen. Revisa el Paso 1.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
@@ -257,7 +290,6 @@ export default function NuevoPresupuestoPage() {
 
   const progreso = (formData.pasoActual / TOTAL_PASOS) * 100;
 
-  // Actualización de títulos y descripciones para 3 pasos
   const titulosPasos = [
     "Datos Generales del Evento",
     "Servicios Adicionales",
@@ -282,9 +314,9 @@ export default function NuevoPresupuestoPage() {
     switch (formData.pasoActual) {
       case 1:
         return <Paso1DatosEvento formData={formData} setFormData={setFormData} />;
-      case 2: // Anteriormente Paso3Servicios
+      case 2: 
         return <Paso3Servicios formData={formData} setFormData={setFormData} />;
-      case 3: // Anteriormente Paso4Resumen
+      case 3: 
         return <Paso4Resumen presupuesto={formData.resumen} formData={formData} setFormData={setFormData} />;
       default:
         return null;
