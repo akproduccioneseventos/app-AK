@@ -7,13 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo'; 
 import type { Dispatch, SetStateAction } from 'react';
+import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
+
 
 interface Paso1Props {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }
-
-const tiposEventoDisponibles: TipoEvento[] = ['Boda', 'XV años', 'Cumpleaños', 'Evento corporativo', 'Cumpleaños infantil', 'Otro'];
 
 export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
   
@@ -45,30 +45,32 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             value={formData.clienteNombre}
             onChange={(e) => handleChange('clienteNombre', e.target.value)}
             className="text-base p-3"
+            required
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="eventoTipo" className="text-base">Tipo de Evento</Label>
           <Select 
-            value={tiposEventoDisponibles.includes(formData.eventoTipo as TipoEvento) ? formData.eventoTipo : "Otro"}
+            value={ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento) ? formData.eventoTipo : "Otro"}
             onValueChange={handleTipoEventoChange}
           >
             <SelectTrigger id="eventoTipo" className="text-base p-3 h-auto">
               <SelectValue placeholder="Seleccioná un tipo" />
             </SelectTrigger>
             <SelectContent>
-              {tiposEventoDisponibles.map(tipo => (
+              {ALL_TIPOS_EVENTO.map(tipo => (
                 <SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          {(formData.eventoTipo === '' || (!tiposEventoDisponibles.includes(formData.eventoTipo as TipoEvento) && formData.eventoTipo !== 'Otro')) && (
+          {(formData.eventoTipo === '' || (!ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento) && formData.eventoTipo !== 'Otro')) && (
              <Input 
                 id="eventoTipoOtro" 
                 placeholder="Especificá el tipo de evento" 
-                value={formData.eventoTipo !== "Otro" ? formData.eventoTipo : ""} // Ensure 'Otro' itself is not displayed
+                value={formData.eventoTipo !== "Otro" ? formData.eventoTipo : ""} 
                 onChange={(e) => handleChange('eventoTipo', e.target.value)}
                 className="text-base p-3 mt-2"
+                required
             />
           )}
         </div>
@@ -144,6 +146,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             onChange={(e) => handleChange('invitadosCantidad', e.target.value ? parseInt(e.target.value) : null)}
             min="1"
             className="text-base p-3"
+            required
           />
         </div>
       </div>

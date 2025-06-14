@@ -7,6 +7,9 @@ export type TipoEvento =
   | 'Cumpleaños infantil'
   | 'Otro';
 
+export const ALL_TIPOS_EVENTO: TipoEvento[] = ['Boda', 'XV años', 'Cumpleaños', 'Evento corporativo', 'Cumpleaños infantil', 'Otro'];
+
+
 export interface PlatoPresupuesto {
   id: string;
   nombre: string;
