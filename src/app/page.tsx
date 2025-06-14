@@ -96,10 +96,8 @@ export default function DashboardPage() {
 
   const modules: ModuleCardProps[] = [
     { title: "Planificador de Fiestas", description: "Gestiona todos los detalles de tu evento actual.", href: "/fiestas/nueva", icon: CalendarDays },
-    { title: "Facturas", description: "Crea y administra tus facturas emitidas.", href: "/invoices", icon: FileText },
-    { title: "Presupuestos", description: "Genera y envía presupuestos a tus clientes.", href: "/presupuestos", icon: ListChecks },
-    { title: "Clientes", description: "Consulta y gestiona la información de tus clientes.", href: "/customers", icon: Users },
-    { title: "Gestión de Empresa", description: "Administra personal, proveedores y servicios.", href: "/empresa", icon: Building2 },
+    { title: "Contabilidad", description: "Administra presupuestos, facturas, pagos y clientes.", href: "/empresa/contabilidad", icon: CircleDollarSign },
+    { title: "Gestión de Empresa", description: "Administra personal, proveedores y catálogo de servicios.", href: "/empresa", icon: Building2 },
     { title: "Configuración", description: "Ajusta las preferencias de la aplicación.", href: "/settings", icon: Settings },
   ];
 
