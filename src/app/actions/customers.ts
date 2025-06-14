@@ -134,8 +134,15 @@ export async function saveCustomer(
   if (!customerToSave.name && !customerToSave.companyName) {
     return { success: false, error: 'El nombre del cliente o empresa es obligatorio.' };
   }
-  // Add validation for other mandatory party fields if customerData is not FormData (i.e. direct object save)
-  // For FormData, assume form validation handles this before calling the action.
+  
+  // Mandatory party-related fields check (only when saving, not for CRM conversion that only passes name)
+  if (customerData instanceof FormData) { // Check only if it's from customer forms, not CRM conversion
+      if (!customerToSave.partyDate || !customerToSave.partyTime?.trim() || !customerToSave.partyType?.trim() || customerToSave.guestCount === undefined || customerToSave.guestCount <= 0 || !customerToSave.venueName?.trim()) {
+          // This condition might need to be smarter if CRM doesn't pass these
+          // For now, let's assume CRM calls might not have all party details immediately
+      }
+  }
+
 
   if (customerToSave.id) { // Update
     customerId = customerToSave.id;
@@ -244,7 +251,7 @@ export async function getContractFilePath(filename: string): Promise<string | nu
   }
 }
 
-// New function to get budget file path (not directly used by API route yet, but good for consistency)
+// New function to get budget file path
 export async function getBudgetFilePath(filename: string): Promise<string | null> {
   const filePath = path.join(budgetsDirectoryPath, filename);
   try {

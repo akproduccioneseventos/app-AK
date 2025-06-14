@@ -1,16 +1,21 @@
 
 'use server';
 
-// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
-
 import fs from 'fs/promises';
 import path from 'path';
+import { 
+  initialFiestaActualData, 
+  defaultConfiguracion,
+  baseDefaultTareas as defaultTareas, // Renamed to avoid conflict with Tarea type
+  defaultColorPalette,
+  defaultDecoracion,
+  defaultSalonLayout,
+  defaultWebPageSettings,
+  defaultMusicaFiesta
+} from '@/lib/fiesta-defaults';
 
-// const FIESTA_ACTUAL_COLLECTION = 'fiesta_configuracion'; // Firebase disabled
-// const FIESTA_ACTUAL_DOC_ID = 'current_active_fiesta'; // Firebase disabled
-// const HISTORIAL_FIESTAS_COLLECTION = 'fiestas_historial'; // Firebase disabled
 
 const FIESTA_ACTUAL_JSON_FILE = 'fiesta-actual.json';
 const HISTORIAL_FIESTAS_JSON_FILE = 'historial-fiestas.json';
@@ -18,98 +23,6 @@ const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const fiestaActualFilePath = path.join(dataDirectory, FIESTA_ACTUAL_JSON_FILE);
 const historialFiestasFilePath = path.join(dataDirectory, HISTORIAL_FIESTAS_JSON_FILE);
 
-
-const defaultConfiguracion: ConfigEventoDataStorage = {
-  nombreEvento: 'Mi Próximo Evento Increíble',
-  tipoCelebracion: 'Cumpleaños',
-  fechaEvento: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()).toISOString(),
-  horaInicio: '19:00',
-  horaFin: '02:00',
-  nombreLugar: 'Salón de Ensueño',
-  direccionLugar: 'Calle Principal 123, Ciudad',
-  invitadosEstimados: 50,
-  presupuestoEstimado: 100000,
-  notasAdicionales: 'Planificación inicial.',
-  clienteId: undefined,
-};
-
-const defaultTareas: Tarea[] = [
-  { id: 'task_default_1', texto: 'Definir lista de invitados', completada: false },
-  { id: 'task_default_2', texto: 'Seleccionar catering y menú', completada: false },
-  { id: 'task_default_3', texto: 'Contratar DJ o música', completada: false },
-  { id: 'task_default_4', texto: 'Elegir decoración y temática', completada: false },
-  { id: 'task_default_5', texto: 'Enviar invitaciones', completada: false },
-];
-
-const defaultColorPalette: ColorPalette = {
-  primary: '#007bff',
-  secondary: '#6c757d',
-  accent: '#28a745',
-};
-
-const defaultDecoracion: DecoracionData = {
-  tema: 'Elegante y Moderno',
-  paletaColores: { ...defaultColorPalette },
-  moodboardImageUrl: '',
-  items: [],
-  generalNotes: "Decoración base, detalles por definir.",
-};
-
-const defaultSalonLayout: SalonLayoutData = {
-    backgroundImageUrl: '',
-    elements: [],
-    generalNotes: 'Disposición estándar del salón.',
-};
-
-const defaultWebPageSettings: EventWebPageSettings = {
-  pageTitle: 'Mi Evento Especial',
-  heroSubtitle: '¡Una celebración inolvidable!',
-  welcomeMessage: '¡Bienvenidos a la celebración de nuestro evento!',
-  coverImageUrl: '',
-  galleryImageUrls: [],
-  showCountdown: true,
-  ourStoryTitle: 'Nuestra Historia',
-  ourStoryText: 'Un breve relato de cómo llegamos hasta aquí...',
-  ourStoryImageUrl: '',
-  showOurStory: true,
-  eventDetailsTitle: 'Detalles del Evento',
-  eventDetailsText: 'Fecha, hora, lugar y más información importante.',
-  showEventDetails: true,
-  dressCodeText: 'Elegante Sport',
-  showDressCode: false,
-  giftRegistryTitle: 'Lista de Regalos',
-  giftRegistryText: 'Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...',
-  showGiftRegistry: false,
-  showGallery: true,
-  showRsvp: true,
-};
-
-const defaultMusicaFiesta: MusicaFiesta = {
-  cancionEntrada: '',
-  cancionVals: '',
-  playlistFiesta: '',
-  listaNoReproducir: '',
-};
-
-const initialFiestaActualData: FiestaEnPlanificacion = {
-  id: `fiesta_${Date.now()}`, // Generate a dynamic ID for local JSON
-  configuracion: { ...defaultConfiguracion },
-  personalAsignado: [],
-  menuAsignadoId: undefined,
-  presupuestoId: undefined,
-  invoiceIds: [],
-  reuniones: [],
-  salonLayout: { ...defaultSalonLayout, elements: [] },
-  tareas: [...defaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))],
-  decoracion: {
-    ...defaultDecoracion,
-    items: [],
-    paletaColores: { ...defaultColorPalette }
-  },
-  invitados: [],
-  webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },
-  musica: { ...defaultMusicaFiesta },
-};
 
 async function ensureDataDirectoryExists() {
   try {
@@ -175,7 +88,6 @@ initializeLocalFiestaFiles();
 
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  // console.log("Firebase is disabled. Reading fiesta actual from JSON.");
   const data = await readFiestaActualFile();
    // Deep merge with defaults to ensure all fields are present, similar to Firestore logic
    const validatedData: FiestaEnPlanificacion = {
@@ -674,7 +586,6 @@ export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta
 }
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  // console.log("Firebase is disabled. Reading historial de fiestas from JSON.");
   return readHistorialFile();
 }
 
@@ -683,7 +594,6 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
     const fiestaParaArchivar = await getFiestaActual();
     let historial = await readHistorialFile();
     
-    // Ensure unique ID for archived item if necessary, though fiestaParaArchivar should have one
     const archivada = { ...fiestaParaArchivar, id: fiestaParaArchivar.id || `hist_${Date.now()}` };
     historial.push(archivada);
     await writeHistorialFile(historial);

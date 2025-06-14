@@ -105,7 +105,7 @@ export default function NewCustomerPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div><Label htmlFor="customer-name">Nombre Completo</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" required/></div>
+              <div><Label htmlFor="customer-name">Nombre Completo *</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" required/></div>
               <div><Label htmlFor="company-name">Empresa (Opcional)</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -127,36 +127,36 @@ export default function NewCustomerPage() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="party-date">Fecha de la Fiesta</Label>
+                  <Label htmlFor="party-date">Fecha de la Fiesta *</Label>
                   <DatePickerDemo selectedDate={partyDate} onDateChange={setPartyDate} />
                 </div>
                 <div>
-                  <Label htmlFor="party-time">Horario del Evento</Label>
+                  <Label htmlFor="party-time">Horario del Evento *</Label>
                   <Input id="party-time" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" required />
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="party-type">Tipo de Fiesta</Label>
+                  <Label htmlFor="party-type">Tipo de Fiesta *</Label>
                   <Input id="party-type" value={partyType} onChange={(e) => setPartyType(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" required />
                 </div>
                 <div>
-                  <Label htmlFor="guest-count">Cantidad de Invitados</Label>
+                  <Label htmlFor="guest-count">Cantidad de Invitados *</Label>
                   <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1" required/>
                 </div>
             </div>
              <div>
-                <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>
+                <Label htmlFor="venue-name">Salón de Fiestas / Lugar *</Label>
                 <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso" required/>
              </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                    <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Presupuesto (PDF)</Label>
+                    <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Presupuesto (PDF) *</Label>
                     <Input id="budget-file" type="file" accept="application/pdf" onChange={(e) => setBudgetFile(e.target.files?.[0] || null)} required 
                            className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                 </div>
                 <div>
-                    <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Contrato (PDF)</Label>
+                    <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Contrato (PDF) *</Label>
                     <Input id="contract-file" type="file" accept="application/pdf" onChange={(e) => setContractFile(e.target.files?.[0] || null)} required 
                            className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                 </div>
