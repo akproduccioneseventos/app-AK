@@ -7,12 +7,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, UserPlus2, CalendarDays, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCustomer } from '@/app/actions/customers';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Separator } from '@/components/ui/separator';
+import type { TipoEvento } from '@/types/presupuesto'; // Importar TipoEvento
+
+// Definir tipos de evento disponibles, igual que en presupuestos
+const tiposEventoDisponibles: TipoEvento[] = ['Boda', 'XV años', 'Cumpleaños', 'Evento corporativo', 'Cumpleaños infantil', 'Otro'];
+
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -21,37 +27,62 @@ export default function NewCustomerPage() {
 
   // Form state
   const [name, setName] = useState('');
-  const [companyName, setCompanyName] = useState('');
+  const [customerCompanyName, setCustomerCompanyName] = useState(''); // Renamed to avoid conflict
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
   const [email, setEmail] = useState('');
   const [street, setStreet] = useState('');
 
-  // New party-related fields
+  // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
   const [partyTime, setPartyTime] = useState('');
-  const [partyType, setPartyType] = useState('');
-  const [guestCount, setGuestCount] = useState<string>(''); // Store as string for input, parse on submit
+  const [selectedPartyType, setSelectedPartyType] = useState<TipoEvento | string>(''); // Nuevo estado
+  const [corporateEventCompanyName, setCorporateEventCompanyName] = useState(''); // Nuevo estado para nombre de empresa condicional
+
+  const [guestCount, setGuestCount] = useState<string>('');
   const [venueName, setVenueName] = useState('');
   const [contractFile, setContractFile] = useState<File | null>(null);
   const [budgetFile, setBudgetFile] = useState<File | null>(null);
 
+  const handlePartyTypeChange = (value: TipoEvento | string) => {
+    if (value === "Otro") {
+      setSelectedPartyType(''); 
+    } else {
+      setSelectedPartyType(value);
+    }
+    if (value !== 'Evento corporativo') {
+      setCorporateEventCompanyName(''); // Limpiar si no es evento corporativo
+    }
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!name.trim() && !companyName.trim()) {
+    if (!name.trim() && !customerCompanyName.trim()) {
       toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del cliente o de la empresa.", variant: "destructive" });
       return;
     }
-    if (!partyDate || !partyTime.trim() || !partyType.trim() || !guestCount.trim() || parseInt(guestCount) <= 0 || !venueName.trim() || !contractFile || !budgetFile) {
-       toast({ title: "Campos de Fiesta Obligatorios", description: "Fecha, horario, tipo, invitados, salón, presupuesto y contrato son obligatorios.", variant: "destructive"});
+    if (!partyDate || !partyTime.trim() || !selectedPartyType.trim() || !guestCount.trim() || parseInt(guestCount) <= 0 || !venueName.trim() || !contractFile || !budgetFile) {
+       toast({ title: "Campos de Fiesta Obligatorios", description: "Fecha, horario, tipo de fiesta, invitados, salón, presupuesto y contrato son obligatorios.", variant: "destructive"});
        return;
     }
+    if (selectedPartyType === 'Evento corporativo' && !corporateEventCompanyName.trim()) {
+        toast({ title: "Nombre de Empresa Requerido", description: "Por favor, ingresa el nombre de la empresa para el evento corporativo.", variant: "destructive" });
+        return;
+    }
+
 
     setIsSaving(true);
     
     const formData = new FormData();
-    formData.append('name', name.trim() || companyName.trim());
-    if (companyName.trim()) formData.append('companyName', companyName.trim());
+    formData.append('name', name.trim() || customerCompanyName.trim());
+    
+    // Usar corporateEventCompanyName si es un evento corporativo, sino el customerCompanyName general
+    if (selectedPartyType === 'Evento corporativo' && corporateEventCompanyName.trim()) {
+        formData.append('companyName', corporateEventCompanyName.trim());
+    } else if (customerCompanyName.trim()) {
+        formData.append('companyName', customerCompanyName.trim());
+    }
+
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
     if (email.trim()) formData.append('email', email.trim());
@@ -59,7 +90,7 @@ export default function NewCustomerPage() {
 
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     formData.append('partyTime', partyTime.trim());
-    formData.append('partyType', partyType.trim());
+    formData.append('partyType', selectedPartyType.trim()); // Usar el nuevo estado
     formData.append('guestCount', guestCount.trim());
     formData.append('venueName', venueName.trim());
     
@@ -69,7 +100,7 @@ export default function NewCustomerPage() {
     try {
       const result = await saveCustomer(formData); 
       if (result.success && result.id) {
-        toast({ title: "¡Cliente Guardado!", description: `El cliente "${name.trim() || companyName.trim()}" ha sido guardado.` });
+        toast({ title: "¡Cliente Guardado!", description: `El cliente "${name.trim() || customerCompanyName.trim()}" ha sido guardado.` });
         router.push('/customers');
       } else {
         throw new Error(result.error || "Error desconocido al guardar el cliente.");
@@ -106,7 +137,7 @@ export default function NewCustomerPage() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div><Label htmlFor="customer-name">Nombre Completo *</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" required/></div>
-              <div><Label htmlFor="company-name">Empresa (Opcional)</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} /></div>
+              <div><Label htmlFor="customer-company-name">Empresa (Opcional)</Label><Input id="customer-company-name" value={customerCompanyName} onChange={(e) => setCustomerCompanyName(e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div><Label htmlFor="customer-email">Email</Label><Input id="customer-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="cliente@ejemplo.com" /></div>
@@ -136,10 +167,44 @@ export default function NewCustomerPage() {
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="party-type">Tipo de Fiesta *</Label>
-                  <Input id="party-type" value={partyType} onChange={(e) => setPartyType(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" required />
+                   <Select 
+                    value={tiposEventoDisponibles.includes(selectedPartyType as TipoEvento) ? selectedPartyType : "Otro"}
+                    onValueChange={handlePartyTypeChange}
+                  >
+                    <SelectTrigger id="party-type" className="text-base p-3 h-auto">
+                      <SelectValue placeholder="Seleccioná un tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tiposEventoDisponibles.map(tipo => (
+                        <SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedPartyType === '' || (!tiposEventoDisponibles.includes(selectedPartyType as TipoEvento) && selectedPartyType !== 'Otro') && (
+                     <Input 
+                        id="party-type-otro" 
+                        placeholder="Especificá el tipo de fiesta" 
+                        value={selectedPartyType !== "Otro" ? selectedPartyType : ""}
+                        onChange={(e) => setSelectedPartyType(e.target.value)}
+                        className="text-base p-3 mt-2"
+                        required
+                    />
+                  )}
                 </div>
+                {selectedPartyType === 'Evento corporativo' && (
+                    <div className="space-y-2">
+                        <Label htmlFor="corporate-event-company-name">Nombre de la Empresa (Evento Corp.)*</Label>
+                        <Input 
+                        id="corporate-event-company-name" 
+                        value={corporateEventCompanyName} 
+                        onChange={(e) => setCorporateEventCompanyName(e.target.value)} 
+                        placeholder="Nombre de la empresa organizadora" 
+                        required 
+                        />
+                    </div>
+                )}
                 <div>
                   <Label htmlFor="guest-count">Cantidad de Invitados *</Label>
                   <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1" required/>
@@ -174,3 +239,4 @@ export default function NewCustomerPage() {
     </div>
   );
 }
+
