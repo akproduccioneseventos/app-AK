@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo'; 
 import type { Dispatch, SetStateAction } from 'react';
-import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
+import { ALL_TIPOS_EVENTO } from '@/types/presupuesto'; // Importar la lista
 
 
 interface Paso1Props {
@@ -168,4 +168,3 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     </div>
   );
 }
-

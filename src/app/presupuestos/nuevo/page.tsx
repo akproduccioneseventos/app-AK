@@ -73,14 +73,14 @@ export default function NuevoPresupuestoPage() {
                 newClienteNombre = config.nombreEvento;
             }
             
-            // Si el tipo de evento es Boda o Corporativo, no prellenar homenajeado1 desde nombreEvento
-            if (config.clienteId && config.nombreEvento && config.tipoCelebracion !== 'Boda' && config.tipoCelebracion !== 'Evento corporativo') { 
-                newNombreHomenajeado1 = config.nombreEvento;
-            }
-
             if (config.tipoCelebracion) { 
               newEventoTipo = config.tipoCelebracion;
+              // Pre-fill homenajeado/empresa based on pre-filled tipoCelebracion
+              if (config.tipoCelebracion !== 'Boda' && config.tipoCelebracion !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
+                  newNombreHomenajeado1 = config.nombreEvento;
+              }
             }
+
             if (!prev.eventoFecha && config.fechaEvento) {
               try {
                 newEventoFecha = new Date(config.fechaEvento);
@@ -137,19 +137,12 @@ export default function NuevoPresupuestoPage() {
             return;
         }
       }
-      // Si el paso actual es 1, se salta el paso 2 (menú) y va directamente al paso 3 (servicios, que ahora será el paso 2 del flujo)
-      // Para el flujo actual de 3 pasos:
-      // Paso 1 (Datos Generales) -> Paso 2 (Servicios Adicionales)
-      // Paso 2 (Servicios Adicionales) -> Paso 3 (Resumen)
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
   };
 
   const handlePrev = () => {
     if (formData.pasoActual > 1) {
-      // Para el flujo actual de 3 pasos:
-      // Paso 3 (Resumen) -> Paso 2 (Servicios Adicionales)
-      // Paso 2 (Servicios Adicionales) -> Paso 1 (Datos Generales)
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual - 1 }));
     }
   };
@@ -159,8 +152,8 @@ export default function NuevoPresupuestoPage() {
       return null;
     }
 
-    const costoSubtotalPlatos = 0; // El paso de menú se omite, así que el costo de platos es 0
-    const platosFinales: Presupuesto['platosSeleccionados'] = []; // No hay platos seleccionados
+    const costoSubtotalPlatos = 0; 
+    const platosFinales: Presupuesto['platosSeleccionados'] = []; 
 
     let costoSubtotalServicios = 0;
     const serviciosFinales = formData.serviciosDisponibles
@@ -203,7 +196,7 @@ export default function NuevoPresupuestoPage() {
     formData.eventoTipo,
     formData.eventoFecha,
     formData.invitadosCantidad,
-    formData.serviciosDisponibles, // Aunque platos se omite, servicios sí se usa
+    formData.serviciosDisponibles, 
     formData.serviciosSeleccionadosIds,
     formData.notas,
     formData.salonFiestas,
@@ -213,7 +206,7 @@ export default function NuevoPresupuestoPage() {
   ]);
 
   useEffect(() => {
-    if (formData.pasoActual === TOTAL_PASOS) { // Si estamos en el último paso (Resumen)
+    if (formData.pasoActual === TOTAL_PASOS) { 
       const resumenCalculado = calcularResumen(); 
 
       let comparableCalculado = null;
@@ -275,16 +268,15 @@ export default function NuevoPresupuestoPage() {
     switch (formData.pasoActual) {
       case 1:
         return <Paso1DatosEvento formData={formData} setFormData={setFormData} />;
-      case 2: // Anteriormente Paso3Servicios
+      case 2: 
         return <Paso3Servicios formData={formData} setFormData={setFormData} />;
-      case 3: // Anteriormente Paso4Resumen
+      case 3: 
         return <Paso4Resumen presupuesto={formData.resumen} formData={formData} setFormData={setFormData} />;
       default:
         return null;
     }
   };
 
-  // Actualizar títulos y descripciones para 3 pasos
   const titulosPasos = [
     "Datos Generales del Evento",
     "Servicios Adicionales",
