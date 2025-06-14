@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerDemo } from '@/components/date-picker-demo'; 
 import type { Dispatch, SetStateAction } from 'react';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
+import React, { useState, useEffect } from 'react';
 
 interface Paso1Props {
   formData: PresupuestoFormData;
@@ -15,6 +16,65 @@ interface Paso1Props {
 }
 
 export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
+  // Local state to manage the Select component's value to differentiate "Otro" selection
+  // from a custom type already entered in formData.eventoTipo.
+  const [selectValueForTipoEvento, setSelectValueForTipoEvento] = useState<string>(() => {
+    if (formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento)) {
+      return formData.eventoTipo;
+    }
+    if (formData.eventoTipo && formData.eventoTipo !== '') { // It's a custom type
+      return "Otro";
+    }
+    return formData.eventoTipo || ''; // Default to empty if no type yet
+  });
+
+  useEffect(() => {
+    // Sync local select value if formData.eventoTipo changes externally (e.g. pre-fill)
+    if (formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento)) {
+      if (selectValueForTipoEvento !== formData.eventoTipo) {
+        setSelectValueForTipoEvento(formData.eventoTipo);
+      }
+    } else if (formData.eventoTipo) { // Custom type
+      if (selectValueForTipoEvento !== "Otro") {
+        setSelectValueForTipoEvento("Otro");
+      }
+    } else { // No type, or explicitly cleared for "Otro" input
+        if (selectValueForTipoEvento !== "" && selectValueForTipoEvento !== "Otro") {
+           // This case might happen if "Otro" was selected, then form data eventoTipo cleared
+           // If it's truly empty (not because "Otro" selected for input), then select should be empty
+        }
+    }
+  }, [formData.eventoTipo, selectValueForTipoEvento]);
+
+
+  const handleSelectTipoEventoChange = (value: string) => {
+    setSelectValueForTipoEvento(value);
+    if (value !== "Otro") {
+      // If a predefined type is selected, update formData.eventoTipo and clear specific name fields
+      setFormData(prev => ({
+        ...prev,
+        eventoTipo: value as TipoEvento,
+        nombreHomenajeado1: '', // Clear related fields on type change
+        nombreHomenajeado2: '',
+        nombreEmpresa: '',
+      }));
+    } else {
+      // If "Otro" is selected, clear formData.eventoTipo to allow custom input
+      // and clear specific name fields
+      setFormData(prev => ({
+        ...prev,
+        eventoTipo: '', // This will make the custom input appear
+        nombreHomenajeado1: '',
+        nombreHomenajeado2: '',
+        nombreEmpresa: '',
+      }));
+    }
+  };
+
+  const handleCustomTipoEventoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Update formData.eventoTipo directly when the custom input changes
+    setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
+  };
   
   const handleChange = (field: keyof PresupuestoFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -24,23 +84,14 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({ ...prev, eventoFecha: date }));
   };
   
-  const handleTipoEventoChange = (value: string) => {
-    const newTipoEvento = value === "Otro" ? "" : value as TipoEvento | string;
-    
-    setFormData(prev => {
-      const updatedState = {
-        ...prev,
-        eventoTipo: newTipoEvento,
-        // Limpiar campos específicos según el nuevo tipo de evento
-        nombreHomenajeado1: (newTipoEvento !== 'Boda' && newTipoEvento !== 'Evento corporativo' && newTipoEvento !== '') ? prev.nombreHomenajeado1 : (newTipoEvento === 'Boda' ? prev.nombreHomenajeado1 : ''), // Conserva si es homenajeado o novio1, limpia si es empresa
-        nombreHomenajeado2: newTipoEvento === 'Boda' ? prev.nombreHomenajeado2 : '',
-        nombreEmpresa: newTipoEvento === 'Evento corporativo' ? prev.nombreEmpresa : '',
-      };
-      return updatedState;
-    });
-  };
+  const showCustomTipoEventoInput = selectValueForTipoEvento === "Otro";
   
-  const showOtroInput = formData.eventoTipo === '' || !ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento);
+  // Determine the final event type to decide which name fields to show
+  const finalEventType = showCustomTipoEventoInput ? formData.eventoTipo : selectValueForTipoEvento;
+
+  const showBodaNameFields = finalEventType === 'Boda';
+  const showEmpresaNameField = finalEventType === 'Evento corporativo';
+  const showHomenajeadoNameField = finalEventType && !showBodaNameFields && !showEmpresaNameField && finalEventType.trim() !== '';
 
   return (
     <div className="space-y-6">
@@ -70,12 +121,12 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="eventoTipo" className="text-base">Tipo de Evento *</Label>
+        <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento *</Label>
         <Select 
-          value={ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento) ? formData.eventoTipo : "Otro"}
-          onValueChange={handleTipoEventoChange}
+          value={selectValueForTipoEvento}
+          onValueChange={handleSelectTipoEventoChange}
         >
-          <SelectTrigger id="eventoTipo" className="text-base p-3 h-auto">
+          <SelectTrigger id="eventoTipoSelect" className="text-base p-3 h-auto">
             <SelectValue placeholder="Seleccioná un tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -84,20 +135,20 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             ))}
           </SelectContent>
         </Select>
-        {showOtroInput && (
+        {showCustomTipoEventoInput && (
            <Input 
-              id="eventoTipoOtro" 
+              id="eventoTipoOtroInput" 
               placeholder="Especificá el tipo de evento *" 
-              value={formData.eventoTipo === "Otro" || formData.eventoTipo === '' ? '' : formData.eventoTipo}
-              onChange={(e) => handleChange('eventoTipo', e.target.value)}
+              value={formData.eventoTipo} // This is now the custom entered value
+              onChange={handleCustomTipoEventoChange}
               className="text-base p-3 mt-2"
-              required={showOtroInput} // Solo requerido si este campo se muestra
+              required={showCustomTipoEventoInput && !formData.eventoTipo.trim()} 
           />
         )}
       </div>
 
       {/* Campos condicionales para nombres */}
-      {formData.eventoTipo === 'Boda' && (
+      {showBodaNameFields && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="nombreNovio" className="text-base">Nombre del Novio *</Label>
@@ -107,7 +158,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
               value={formData.nombreHomenajeado1}
               onChange={(e) => handleChange('nombreHomenajeado1', e.target.value)}
               className="text-base p-3"
-              required={formData.eventoTipo === 'Boda'}
+              required={showBodaNameFields}
             />
           </div>
           <div className="space-y-2">
@@ -118,13 +169,13 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
               value={formData.nombreHomenajeado2}
               onChange={(e) => handleChange('nombreHomenajeado2', e.target.value)}
               className="text-base p-3"
-              required={formData.eventoTipo === 'Boda'}
+              required={showBodaNameFields}
             />
           </div>
         </div>
       )}
 
-      {formData.eventoTipo === 'Evento corporativo' && (
+      {showEmpresaNameField && (
          <div className="space-y-2">
           <Label htmlFor="nombreEmpresa" className="text-base">Nombre de la Empresa *</Label>
           <Input 
@@ -133,13 +184,12 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             value={formData.nombreEmpresa}
             onChange={(e) => handleChange('nombreEmpresa', e.target.value)}
             className="text-base p-3"
-            required={formData.eventoTipo === 'Evento corporativo'}
+            required={showEmpresaNameField}
           />
         </div>
       )}
       
-      {/* Mostrar "Nombre del Homenajeado" para otros tipos de evento que no sean Boda ni Evento Corporativo, y que tengan un tipo definido */}
-      {formData.eventoTipo && formData.eventoTipo !== '' && formData.eventoTipo !== 'Boda' && formData.eventoTipo !== 'Evento corporativo' && (
+      {showHomenajeadoNameField && (
         <div className="space-y-2">
           <Label htmlFor="nombreHomenajeado" className="text-base">Nombre del Homenajeado/a *</Label>
           <Input 
@@ -148,7 +198,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             value={formData.nombreHomenajeado1}
             onChange={(e) => handleChange('nombreHomenajeado1', e.target.value)}
             className="text-base p-3"
-            required={true} // Requerido si este bloque es visible
+            required={showHomenajeadoNameField}
           />
         </div>
       )}
