@@ -1,94 +1,115 @@
 
 'use server';
 
-import { dbAdmin as db } from '@/lib/firebase/server';
+// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 
-const EMPLEADOS_COLLECTION = 'empleados';
+import fs from 'fs/promises';
+import path from 'path';
 
-export async function getEmpleados(): Promise<Empleado[]> {
-  if (!db) {
-    console.error("Firestore no está inicializado. No se pueden obtener empleados.");
-    return [];
-  }
+const EMPLEADOS_COLLECTION_JSON = 'empleados.json';
+const dataDirectory = path.join(process.cwd(), 'src', 'data');
+const empleadosFilePath = path.join(dataDirectory, EMPLEADOS_COLLECTION_JSON);
+
+async function ensureDataDirectoryExists() {
   try {
-    const snapshot = await db.collection(EMPLEADOS_COLLECTION).orderBy('nombre').get();
-    if (snapshot.empty) {
-      return [];
-    }
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Empleado));
-  } catch (error) {
-    console.error('Error obteniendo empleados de Firestore:', error);
-    throw new Error('No se pudieron cargar los empleados.');
+    await fs.access(dataDirectory);
+  } catch {
+    await fs.mkdir(dataDirectory, { recursive: true });
   }
 }
 
-export async function getEmpleadoById(id: string): Promise<Empleado | null> {
-  if (!db) {
-    console.error("Firestore no está inicializado.");
-    return null;
-  }
+async function readEmpleadosFile(): Promise<Empleado[]> {
   try {
-    const doc = await db.collection(EMPLEADOS_COLLECTION).doc(id).get();
-    if (!doc.exists) {
-      return null;
-    }
-    return { id: doc.id, ...doc.data() } as Empleado;
+    await ensureDataDirectoryExists();
+    await fs.access(empleadosFilePath);
+    const fileContent = await fs.readFile(empleadosFilePath, 'utf-8');
+    if (fileContent.trim() === '') return [];
+    return JSON.parse(fileContent) as Empleado[];
   } catch (error) {
-    console.error(`Error obteniendo empleado ${id} de Firestore:`, error);
-    throw new Error('No se pudo obtener el empleado.');
+    return [];
   }
+}
+
+async function writeEmpleadosFile(data: Empleado[]): Promise<void> {
+  try {
+    await ensureDataDirectoryExists();
+    const sortedData = data.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    await fs.writeFile(empleadosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error writing empleados JSON file:', error);
+  }
+}
+
+async function initializeLocalEmpleadosFile() {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(empleadosFilePath);
+    const fileContent = await fs.readFile(empleadosFilePath, 'utf-8');
+    if (fileContent.trim() === '') {
+      await writeEmpleadosFile([]);
+    } else {
+      JSON.parse(fileContent);
+    }
+  } catch (error) {
+    await writeEmpleadosFile([]);
+  }
+}
+initializeLocalEmpleadosFile();
+
+
+export async function getEmpleados(): Promise<Empleado[]> {
+  // console.log("Firebase is disabled. Reading empleados from JSON.");
+  return readEmpleadosFile();
+}
+
+export async function getEmpleadoById(id: string): Promise<Empleado | null> {
+  // console.log(`Firebase is disabled. Reading empleado ${id} from JSON.`);
+  const empleados = await readEmpleadosFile();
+  return empleados.find(e => e.id === id) || null;
 }
 
 export async function saveEmpleado(
   empleadoData: NuevoEmpleadoFormData | Empleado
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
-  if (!db) {
-    return { success: false, error: "Firestore no está inicializado." };
-  }
-  try {
-    let finalEmpleadoData: Empleado;
-    let empleadoId: string;
+  // console.log("Firebase is disabled. Saving empleado to JSON.");
+  let empleados = await readEmpleadosFile();
+  let finalEmpleadoData: Empleado;
+  let empleadoId: string;
 
-    if ('id' in empleadoData && empleadoData.id) {
-      // Actualizar empleado existente
-      empleadoId = empleadoData.id;
-      const { id, ...dataToUpdate } = empleadoData;
-      await db.collection(EMPLEADOS_COLLECTION).doc(empleadoId).set(dataToUpdate, { merge: true });
-      finalEmpleadoData = { id: empleadoId, ...dataToUpdate };
-    } else {
-      // Crear nuevo empleado
-      const newEmpleadoRef = db.collection(EMPLEADOS_COLLECTION).doc();
-      empleadoId = newEmpleadoRef.id;
-      finalEmpleadoData = {
-        id: empleadoId,
-        nombre: empleadoData.nombre,
-        cedula: (empleadoData as NuevoEmpleadoFormData).cedula,
-        fechaNacimiento: (empleadoData as NuevoEmpleadoFormData).fechaNacimiento,
-        // rolId se asignará después
-      };
-      await newEmpleadoRef.set(finalEmpleadoData);
+  if ('id' in empleadoData && empleadoData.id) {
+    // Update
+    empleadoId = empleadoData.id;
+    const index = empleados.findIndex(e => e.id === empleadoId);
+    if (index === -1) {
+      return { success: false, error: `Empleado con ID ${empleadoId} no encontrado.` };
     }
-    return { success: true, id: empleadoId, empleado: finalEmpleadoData };
-  } catch (error: any) {
-    console.error('Error guardando empleado en Firestore:', error);
-    return { success: false, error: error.message || 'No se pudo guardar el empleado.' };
+    empleados[index] = { ...empleados[index], ...empleadoData } as Empleado;
+    finalEmpleadoData = empleados[index];
+  } else {
+    // Create
+    empleadoId = `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    finalEmpleadoData = {
+      id: empleadoId,
+      nombre: empleadoData.nombre,
+      cedula: (empleadoData as NuevoEmpleadoFormData).cedula,
+      fechaNacimiento: (empleadoData as NuevoEmpleadoFormData).fechaNacimiento,
+      rolId: (empleadoData as Empleado).rolId, // Will be undefined for NuevoEmpleadoFormData
+    };
+    empleados.push(finalEmpleadoData);
   }
+  await writeEmpleadosFile(empleados);
+  return { success: true, id: empleadoId, empleado: finalEmpleadoData };
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
-  if (!db) {
-    return { success: false, error: "Firestore no está inicializado." };
+  // console.log(`Firebase is disabled. Deleting empleado ${id} from JSON.`);
+  let empleados = await readEmpleadosFile();
+  const initialLength = empleados.length;
+  empleados = empleados.filter(e => e.id !== id);
+  if (empleados.length === initialLength) {
+    return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
   }
-  try {
-    const doc = await db.collection(EMPLEADOS_COLLECTION).doc(id).get();
-    if (!doc.exists) {
-        return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
-    }
-    await db.collection(EMPLEADOS_COLLECTION).doc(id).delete();
-    return { success: true };
-  } catch (error: any) {
-    console.error(`Error eliminando empleado ${id} de Firestore:`, error);
-    return { success: false, error: error.message || 'No se pudo eliminar el empleado.' };
-  }
+  await writeEmpleadosFile(empleados);
+  return { success: true };
 }

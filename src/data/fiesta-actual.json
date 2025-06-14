@@ -1,18 +1,21 @@
 {
-  "id": "fiesta_1749688860452",
+  "id": "fiesta_1716490883000",
   "configuracion": {
     "nombreEvento": "Mi Próximo Evento Increíble",
     "tipoCelebracion": "Cumpleaños",
-    "fechaEvento": "2026-06-12T00:00:00.000Z",
+    "fechaEvento": "2025-05-23T00:00:00.000Z",
     "horaInicio": "19:00",
     "horaFin": "02:00",
     "nombreLugar": "Salón de Ensueño",
     "direccionLugar": "Calle Principal 123, Ciudad",
     "invitadosEstimados": 50,
     "presupuestoEstimado": 100000,
-    "notasAdicionales": "Planificación inicial."
+    "notasAdicionales": "Planificación inicial.",
+    "clienteId": null
   },
   "personalAsignado": [],
+  "menuAsignadoId": null,
+  "presupuestoId": null,
   "invoiceIds": [],
   "reuniones": [],
   "salonLayout": {
@@ -22,28 +25,13 @@
   },
   "tareas": [
     {
-      "id": "task_1749688746631_5wezdcd",
+      "id": "task_1716490883001_abc",
       "texto": "Definir lista de invitados",
       "completada": false
     },
     {
-      "id": "task_1749688746631_zym3u8l",
+      "id": "task_1716490883002_def",
       "texto": "Seleccionar catering y menú",
-      "completada": false
-    },
-    {
-      "id": "task_1749688746631_r9i3ibh",
-      "texto": "Contratar DJ o música",
-      "completada": false
-    },
-    {
-      "id": "task_1749688746631_nmgbuog",
-      "texto": "Elegir decoración y temática",
-      "completada": false
-    },
-    {
-      "id": "task_1749688746631_mbhsonh",
-      "texto": "Enviar invitaciones",
       "completada": false
     }
   ],

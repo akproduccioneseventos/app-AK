@@ -1,124 +1,144 @@
 
 'use server';
 
-import { dbAdmin as db } from '@/lib/firebase/server';
+// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 
-const SERVICIOS_EMPRESA_COLLECTION = 'servicios_empresa';
+import fs from 'fs/promises';
+import path from 'path';
 
-export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
-  if (!db) {
-    console.error("Firestore no está inicializado. No se pueden obtener servicios.");
-    return [];
-  }
+const SERVICIOS_EMPRESA_COLLECTION_JSON = 'servicios-empresa.json';
+const dataDirectory = path.join(process.cwd(), 'src', 'data');
+const serviciosFilePath = path.join(dataDirectory, SERVICIOS_EMPRESA_COLLECTION_JSON);
+
+async function ensureDataDirectoryExists() {
   try {
-    const snapshot = await db.collection(SERVICIOS_EMPRESA_COLLECTION).orderBy('categoria').orderBy('nombre').get();
-    if (snapshot.empty) {
-      return [];
-    }
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServicioEmpresa));
-  } catch (error) {
-    console.error('Error obteniendo servicios de empresa de Firestore:', error);
-    throw new Error('No se pudieron cargar los servicios de la empresa.');
+    await fs.access(dataDirectory);
+  } catch {
+    await fs.mkdir(dataDirectory, { recursive: true });
   }
 }
 
-export async function getServicioEmpresaById(id: string): Promise<ServicioEmpresa | null> {
-  if (!db) {
-    console.error("Firestore no está inicializado.");
-    return null;
-  }
+async function readServiciosFile(): Promise<ServicioEmpresa[]> {
   try {
-    const doc = await db.collection(SERVICIOS_EMPRESA_COLLECTION).doc(id).get();
-    if (!doc.exists) {
-      return null;
-    }
-    return { id: doc.id, ...doc.data() } as ServicioEmpresa;
+    await ensureDataDirectoryExists();
+    await fs.access(serviciosFilePath);
+    const fileContent = await fs.readFile(serviciosFilePath, 'utf-8');
+    if (fileContent.trim() === '') return [];
+    return JSON.parse(fileContent) as ServicioEmpresa[];
   } catch (error) {
-    console.error(`Error obteniendo servicio ${id} de Firestore:`, error);
-    throw new Error('No se pudo obtener el servicio de la empresa.');
+    return [];
   }
+}
+
+async function writeServiciosFile(data: ServicioEmpresa[]): Promise<void> {
+  try {
+    await ensureDataDirectoryExists();
+    const sortedData = data.sort((a, b) => {
+      const catComp = (a.categoria || '').localeCompare(b.categoria || '');
+      if (catComp !== 0) return catComp;
+      return (a.nombre || '').localeCompare(b.nombre || '');
+    });
+    await fs.writeFile(serviciosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error writing servicios JSON file:', error);
+  }
+}
+
+async function initializeLocalServiciosFile() {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(serviciosFilePath);
+    const fileContent = await fs.readFile(serviciosFilePath, 'utf-8');
+    if (fileContent.trim() === '') {
+      await writeServiciosFile([]);
+    } else {
+      JSON.parse(fileContent);
+    }
+  } catch (error) {
+    await writeServiciosFile([]);
+  }
+}
+initializeLocalServiciosFile();
+
+export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
+  // console.log("Firebase is disabled. Reading servicios de empresa from JSON.");
+  return readServiciosFile();
+}
+
+export async function getServicioEmpresaById(id: string): Promise<ServicioEmpresa | null> {
+  // console.log(`Firebase is disabled. Reading servicio ${id} from JSON.`);
+  const servicios = await readServiciosFile();
+  return servicios.find(s => s.id === id) || null;
 }
 
 export async function saveServicioEmpresa(
   servicioData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
-  if (!db) {
-    return { success: false, error: "Firestore no está inicializado." };
-  }
-  try {
-    let finalServicioData: Partial<ServicioEmpresa>; // Use Partial to allow deleting fields
-    let servicioId: string;
+  // console.log("Firebase is disabled. Saving servicio to JSON.");
+  let servicios = await readServiciosFile();
+  let finalServicioData: Partial<ServicioEmpresa>;
+  let servicioId: string;
 
-    const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
-      ...servicioData,
-      precioVenta: servicioData.precioVenta !== undefined ? Number(servicioData.precioVenta) : undefined,
-      costoReal: servicioData.costoReal !== undefined ? Number(servicioData.costoReal) : undefined,
+  const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
+    ...servicioData,
+    precioVenta: servicioData.precioVenta !== undefined ? Number(servicioData.precioVenta) : undefined,
+    costoReal: servicioData.costoReal !== undefined ? Number(servicioData.costoReal) : undefined,
+  };
+  if (dataWithParsedNumbers.precioVenta === undefined || isNaN(dataWithParsedNumbers.precioVenta)) {
+      delete dataWithParsedNumbers.precioVenta;
+  }
+  if (dataWithParsedNumbers.costoReal === undefined || isNaN(dataWithParsedNumbers.costoReal)) {
+      delete dataWithParsedNumbers.costoReal;
+  }
+  // @ts-ignore // Ensure 'descripcion' is not part of the payload if it exists from old types
+  delete dataWithParsedNumbers.descripcion;
+
+
+  if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") {
+    return { success: false, error: "El nombre del servicio es obligatorio." };
+  }
+  if (!dataWithParsedNumbers.categoria) {
+    return { success: false, error: "La categoría del servicio es obligatoria." };
+  }
+
+  if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
+    // Update
+    servicioId = dataWithParsedNumbers.id;
+    const index = servicios.findIndex(s => s.id === servicioId);
+    if (index === -1) {
+      return { success: false, error: `Servicio con ID ${servicioId} no encontrado.` };
+    }
+    servicios[index] = { ...servicios[index], ...dataWithParsedNumbers } as ServicioEmpresa;
+    finalServicioData = servicios[index];
+  } else {
+    // Create - Check for duplicates
+    const existingService = servicios.find(
+      s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() &&
+           s.categoria === dataWithParsedNumbers.categoria
+    );
+    if (existingService) {
+      return { success: false, error: `Ya existe un servicio con el nombre "${dataWithParsedNumbers.nombre!.trim()}" en la categoría "${dataWithParsedNumbers.categoria}".` };
+    }
+    servicioId = `serv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    finalServicioData = {
+      ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>),
+      id: servicioId,
     };
-    // Remove fields if NaN or undefined after parsing, so they don't get stored in Firestore
-    if (dataWithParsedNumbers.precioVenta === undefined || isNaN(dataWithParsedNumbers.precioVenta)) {
-        delete dataWithParsedNumbers.precioVenta;
-    }
-    if (dataWithParsedNumbers.costoReal === undefined || isNaN(dataWithParsedNumbers.costoReal)) {
-        delete dataWithParsedNumbers.costoReal;
-    }
-    // Ensure 'descripcion' is not part of the payload
-    delete (dataWithParsedNumbers as any).descripcion;
-
-    
-    // Validar nombre y categoría
-    if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") {
-      return { success: false, error: "El nombre del servicio es obligatorio." };
-    }
-    if (!dataWithParsedNumbers.categoria) {
-      return { success: false, error: "La categoría del servicio es obligatoria." };
-    }
-
-
-    if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
-      // Actualizar servicio existente
-      servicioId = dataWithParsedNumbers.id;
-      const { id, ...dataToUpdate } = dataWithParsedNumbers;
-      await db.collection(SERVICIOS_EMPRESA_COLLECTION).doc(servicioId).set(dataToUpdate, { merge: true });
-      finalServicioData = { id: servicioId, ...(dataToUpdate as Omit<ServicioEmpresa, 'id'>) };
-    } else {
-      // Crear nuevo servicio - Verificar duplicados
-      const q = db.collection(SERVICIOS_EMPRESA_COLLECTION)
-                  .where('nombre', '==', dataWithParsedNumbers.nombre.trim())
-                  .where('categoria', '==', dataWithParsedNumbers.categoria);
-      const querySnapshot = await q.get();
-      if (!querySnapshot.empty) {
-        return { success: false, error: `Ya existe un servicio con el nombre "${dataWithParsedNumbers.nombre.trim()}" en la categoría "${dataWithParsedNumbers.categoria}".` };
-      }
-
-      const newServicioRef = db.collection(SERVICIOS_EMPRESA_COLLECTION).doc();
-      servicioId = newServicioRef.id;
-      finalServicioData = {
-        ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>),
-        id: servicioId,
-      };
-      await newServicioRef.set(finalServicioData);
-    }
-    return { success: true, id: servicioId, servicio: finalServicioData as ServicioEmpresa };
-  } catch (error: any) {
-    console.error('Error guardando servicio en Firestore:', error);
-    return { success: false, error: error.message || 'No se pudo guardar el servicio.' };
+    servicios.push(finalServicioData as ServicioEmpresa);
   }
+  await writeServiciosFile(servicios);
+  return { success: true, id: servicioId, servicio: finalServicioData as ServicioEmpresa };
 }
 
 export async function deleteServicioEmpresa(id: string): Promise<{ success: boolean; error?: string }> {
-  if (!db) {
-    return { success: false, error: "Firestore no está inicializado." };
+  // console.log(`Firebase is disabled. Deleting servicio ${id} from JSON.`);
+  let servicios = await readServiciosFile();
+  const initialLength = servicios.length;
+  servicios = servicios.filter(s => s.id !== id);
+  if (servicios.length === initialLength) {
+    return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };
   }
-  try {
-     const doc = await db.collection(SERVICIOS_EMPRESA_COLLECTION).doc(id).get();
-    if (!doc.exists) {
-        return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };
-    }
-    await db.collection(SERVICIOS_EMPRESA_COLLECTION).doc(id).delete();
-    return { success: true };
-  } catch (error: any) {
-    console.error(`Error eliminando servicio ${id} de Firestore:`, error);
-    return { success: false, error: error.message || 'No se pudo eliminar el servicio.' };
-  }
+  await writeServiciosFile(servicios);
+  return { success: true };
 }

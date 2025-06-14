@@ -1,97 +1,123 @@
 
 'use server';
 
-import { dbAdmin as db } from '@/lib/firebase/server';
+// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 
-const MENUS_CATERING_COLLECTION = 'menus_catering';
+import fs from 'fs/promises';
+import path from 'path';
 
-export async function getMenus(): Promise<FullMenu[]> {
-  if (!db) {
-    console.error("Firestore no está inicializado. No se pueden obtener menús.");
-    return [];
-  }
+const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
+const dataDirectory = path.join(process.cwd(), 'src', 'data');
+const menusFilePath = path.join(dataDirectory, MENUS_CATERING_COLLECTION_JSON);
+
+async function ensureDataDirectoryExists() {
   try {
-    const snapshot = await db.collection(MENUS_CATERING_COLLECTION).orderBy('createdAt', 'desc').get();
-    if (snapshot.empty) {
-      return [];
-    }
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FullMenu));
-  } catch (error) {
-    console.error('Error obteniendo menús de Firestore:', error);
-    throw new Error('No se pudieron cargar los menús.');
+    await fs.access(dataDirectory);
+  } catch {
+    await fs.mkdir(dataDirectory, { recursive: true });
   }
 }
 
-export async function getMenuById(id: string): Promise<FullMenu | null> {
-  if (!db) {
-    console.error("Firestore no está inicializado.");
-    return null;
-  }
+async function readMenusFile(): Promise<FullMenu[]> {
   try {
-    const doc = await db.collection(MENUS_CATERING_COLLECTION).doc(id).get();
-    if (!doc.exists) {
-      return null;
-    }
-    return { id: doc.id, ...doc.data() } as FullMenu;
+    await ensureDataDirectoryExists();
+    await fs.access(menusFilePath);
+    const fileContent = await fs.readFile(menusFilePath, 'utf-8');
+    if (fileContent.trim() === '') return [];
+    return JSON.parse(fileContent) as FullMenu[];
   } catch (error) {
-    console.error(`Error obteniendo menú ${id} de Firestore:`, error);
-    throw new Error('No se pudo obtener el menú.');
+    return [];
   }
+}
+
+async function writeMenusFile(data: FullMenu[]): Promise<void> {
+  try {
+    await ensureDataDirectoryExists();
+    // Sort by createdAt descending, or name if createdAt is missing
+    const sortedData = data.sort((a, b) => {
+        if (a.createdAt && b.createdAt) {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
+        return (a.name || '').localeCompare(b.name || '');
+    });
+    await fs.writeFile(menusFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error writing menus JSON file:', error);
+  }
+}
+
+async function initializeLocalMenusFile() {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(menusFilePath);
+    const fileContent = await fs.readFile(menusFilePath, 'utf-8');
+    if (fileContent.trim() === '') {
+      await writeMenusFile([]);
+    } else {
+      JSON.parse(fileContent);
+    }
+  } catch (error) {
+    await writeMenusFile([]);
+  }
+}
+initializeLocalMenusFile();
+
+export async function getMenus(): Promise<FullMenu[]> {
+  // console.log("Firebase is disabled. Reading menus from JSON.");
+  return readMenusFile();
+}
+
+export async function getMenuById(id: string): Promise<FullMenu | null> {
+  // console.log(`Firebase is disabled. Reading menu ${id} from JSON.`);
+  const menus = await readMenusFile();
+  return menus.find(menu => menu.id === id) || null;
 }
 
 export async function saveMenu(
   menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
-  if (!db) {
-    return { success: false, error: "Firestore no está inicializado." };
-  }
-  try {
-    let finalMenuData: FullMenu;
-    let menuId: string;
+  // console.log("Firebase is disabled. Saving menu to JSON.");
+  let menus = await readMenusFile();
+  let finalMenuData: FullMenu;
+  let menuId: string;
 
-    if ('id' in menuData && menuData.id) {
-      // Actualizar menú existente
-      menuId = menuData.id;
-      const { id, ...dataToUpdate } = menuData;
-      const updatePayload = {
-        ...dataToUpdate,
-        updatedAt: new Date().toISOString()
-      };
-      await db.collection(MENUS_CATERING_COLLECTION).doc(menuId).set(updatePayload, { merge: true });
-      finalMenuData = { id: menuId, ...updatePayload };
-    } else {
-      // Crear nuevo menú
-      const newMenuRef = db.collection(MENUS_CATERING_COLLECTION).doc();
-      menuId = newMenuRef.id;
-      finalMenuData = {
-        ...(menuData as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
-        id: menuId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      await newMenuRef.set(finalMenuData);
+  if ('id' in menuData && menuData.id) {
+    // Update
+    menuId = menuData.id;
+    const index = menus.findIndex(m => m.id === menuId);
+    if (index === -1) {
+      return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
     }
-    return { success: true, id: menuId, menu: finalMenuData };
-  } catch (error: any) {
-    console.error('Error guardando menú en Firestore:', error);
-    return { success: false, error: error.message || 'No se pudo guardar el menú.' };
+    menus[index] = { 
+        ...menus[index], 
+        ...menuData,
+        updatedAt: new Date().toISOString() 
+    } as FullMenu;
+    finalMenuData = menus[index];
+  } else {
+    // Create
+    menuId = `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    finalMenuData = {
+      ...(menuData as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
+      id: menuId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    menus.push(finalMenuData);
   }
+  await writeMenusFile(menus);
+  return { success: true, id: menuId, menu: finalMenuData };
 }
 
 export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
-  if (!db) {
-    return { success: false, error: "Firestore no está inicializado." };
+  // console.log(`Firebase is disabled. Deleting menu ${id} from JSON.`);
+  let menus = await readMenusFile();
+  const initialLength = menus.length;
+  menus = menus.filter(menu => menu.id !== id);
+  if (menus.length === initialLength) {
+    return { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
   }
-  try {
-    const doc = await db.collection(MENUS_CATERING_COLLECTION).doc(id).get();
-    if (!doc.exists) {
-        return { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
-    }
-    await db.collection(MENUS_CATERING_COLLECTION).doc(id).delete();
-    return { success: true };
-  } catch (error: any) {
-    console.error(`Error eliminando menú ${id} de Firestore:`, error);
-    return { success: false, error: error.message || 'No se pudo eliminar el menú.' };
-  }
+  await writeMenusFile(menus);
+  return { success: true };
 }

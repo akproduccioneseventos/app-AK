@@ -1,13 +1,22 @@
 
 'use server';
 
-import { dbAdmin as db } from '@/lib/firebase/server';
+// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 
-const FIESTA_ACTUAL_COLLECTION = 'fiesta_configuracion'; // Collection for the single current party
-const FIESTA_ACTUAL_DOC_ID = 'current_active_fiesta'; // Fixed ID for the current party document
-const HISTORIAL_FIESTAS_COLLECTION = 'fiestas_historial';
+import fs from 'fs/promises';
+import path from 'path';
+
+// const FIESTA_ACTUAL_COLLECTION = 'fiesta_configuracion'; // Firebase disabled
+// const FIESTA_ACTUAL_DOC_ID = 'current_active_fiesta'; // Firebase disabled
+// const HISTORIAL_FIESTAS_COLLECTION = 'fiestas_historial'; // Firebase disabled
+
+const FIESTA_ACTUAL_JSON_FILE = 'fiesta-actual.json';
+const HISTORIAL_FIESTAS_JSON_FILE = 'historial-fiestas.json';
+const dataDirectory = path.join(process.cwd(), 'src', 'data');
+const fiestaActualFilePath = path.join(dataDirectory, FIESTA_ACTUAL_JSON_FILE);
+const historialFiestasFilePath = path.join(dataDirectory, HISTORIAL_FIESTAS_JSON_FILE);
 
 
 const defaultConfiguracion: ConfigEventoDataStorage = {
@@ -83,7 +92,7 @@ const defaultMusicaFiesta: MusicaFiesta = {
 };
 
 const initialFiestaActualData: FiestaEnPlanificacion = {
-  id: FIESTA_ACTUAL_DOC_ID, // Use the fixed ID for the document
+  id: `fiesta_${Date.now()}`, // Generate a dynamic ID for local JSON
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
   menuAsignadoId: undefined,
@@ -102,137 +111,169 @@ const initialFiestaActualData: FiestaEnPlanificacion = {
   musica: { ...defaultMusicaFiesta },
 };
 
-async function getFiestaActualDocRef() {
-    if (!db) throw new Error("Firestore no está inicializado.");
-    return db.collection(FIESTA_ACTUAL_COLLECTION).doc(FIESTA_ACTUAL_DOC_ID);
+async function ensureDataDirectoryExists() {
+  try {
+    await fs.access(dataDirectory);
+  } catch {
+    await fs.mkdir(dataDirectory, { recursive: true });
+  }
 }
 
-async function writeFiestaActualToFirestore(data: FiestaEnPlanificacion): Promise<void> {
-    const docRef = await getFiestaActualDocRef();
-    await docRef.set(data, { merge: true }); // Use merge to avoid overwriting if not all fields are present
+async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(fiestaActualFilePath);
+    const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
+    if (fileContent.trim() === '') throw new Error('Fiesta actual file is empty');
+    return JSON.parse(fileContent) as FiestaEnPlanificacion;
+  } catch (error) {
+    // If file doesn't exist or is invalid, write and return initial data
+    await writeFiestaActualFile(initialFiestaActualData);
+    return initialFiestaActualData;
+  }
 }
+
+async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void> {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.writeFile(fiestaActualFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error writing fiesta-actual.json file:', error);
+  }
+}
+
+async function readHistorialFile(): Promise<FiestaEnPlanificacion[]> {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(historialFiestasFilePath);
+    const fileContent = await fs.readFile(historialFiestasFilePath, 'utf-8');
+    if (fileContent.trim() === '') return [];
+    return JSON.parse(fileContent) as FiestaEnPlanificacion[];
+  } catch (error) {
+    return [];
+  }
+}
+
+async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> {
+  try {
+    await ensureDataDirectoryExists();
+    const sortedData = data.sort((a, b) => 
+        new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime()
+    );
+    await fs.writeFile(historialFiestasFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error writing historial-fiestas.json file:', error);
+  }
+}
+
+// Initialize files if they don't exist
+async function initializeLocalFiestaFiles() {
+  await readFiestaActualFile(); // This will create it if it doesn't exist
+  await readHistorialFile();   // This will ensure it's at least an empty array if it doesn't exist
+}
+initializeLocalFiestaFiles();
+
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  if (!db) {
-    console.error("Firestore no está inicializado. No se puede obtener la fiesta actual.");
-    // Return a modified initial data with a dynamic ID to avoid constant overwrites if Firestore is down
-    return { ...initialFiestaActualData, id: `fiesta_fallback_${Date.now()}` };
-  }
-  try {
-    const docRef = await getFiestaActualDocRef();
-    const docSnap = await docRef.get();
-
-    if (docSnap.exists()) {
-      let data = docSnap.data() as Partial<FiestaEnPlanificacion>;
-      // Deep merge with defaults to ensure all fields are present
-      const validatedData: FiestaEnPlanificacion = {
-        id: data.id || FIESTA_ACTUAL_DOC_ID, // Ensure ID is the fixed one
-        configuracion: {
-            ...defaultConfiguracion,
-            ...(data.configuracion || {}),
-            clienteId: data.configuracion?.clienteId || undefined,
-        },
-        personalAsignado: data.personalAsignado || [],
-        menuAsignadoId: data.menuAsignadoId || undefined,
-        presupuestoId: data.presupuestoId || undefined,
-        invoiceIds: data.invoiceIds || [],
-        reuniones: (data.reuniones || []).map(r => ({
-            id: r.id || `reunion_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-            titulo: r.titulo || 'Reunión sin título',
-            fecha: r.fecha,
-            notas: r.notas || ''
+  // console.log("Firebase is disabled. Reading fiesta actual from JSON.");
+  const data = await readFiestaActualFile();
+   // Deep merge with defaults to ensure all fields are present, similar to Firestore logic
+   const validatedData: FiestaEnPlanificacion = {
+    id: data.id || `fiesta_${Date.now()}`, // Ensure ID
+    configuracion: {
+        ...defaultConfiguracion,
+        ...(data.configuracion || {}),
+        clienteId: data.configuracion?.clienteId || undefined,
+    },
+    personalAsignado: data.personalAsignado || [],
+    menuAsignadoId: data.menuAsignadoId || undefined,
+    presupuestoId: data.presupuestoId || undefined,
+    invoiceIds: data.invoiceIds || [],
+    reuniones: (data.reuniones || []).map(r => ({
+        id: r.id || `reunion_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        titulo: r.titulo || 'Reunión sin título',
+        fecha: r.fecha,
+        notas: r.notas || ''
+    })),
+    salonLayout: {
+        backgroundImageUrl: data.salonLayout?.backgroundImageUrl || defaultSalonLayout.backgroundImageUrl || '',
+        elements: (data.salonLayout?.elements || []).map(el => ({
+            id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+            name: el.name || 'Elemento sin nombre',
+            quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
+            notes: el.notes || undefined,
+            imageUrl: el.imageUrl || undefined,
+            x: el.x ?? 0,
+            y: el.y ?? 0,
+            width: el.width ?? 50,
+            height: el.height ?? 50,
+            rotation: el.rotation ?? 0,
+            type: el.type ?? 'custom',
+            category: el.category || 'Otro',
+            dataAiHint: el.dataAiHint
         })),
-        salonLayout: {
-            backgroundImageUrl: data.salonLayout?.backgroundImageUrl || defaultSalonLayout.backgroundImageUrl || '',
-            elements: (data.salonLayout?.elements || []).map(el => ({
-                id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-                name: el.name || 'Elemento sin nombre',
-                quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
-                notes: el.notes || undefined,
-                imageUrl: el.imageUrl || undefined,
-                x: el.x ?? 0,
-                y: el.y ?? 0,
-                width: el.width ?? 50,
-                height: el.height ?? 50,
-                rotation: el.rotation ?? 0,
-                type: el.type ?? 'custom',
-                category: el.category || 'Otro',
-                dataAiHint: el.dataAiHint
-            })),
-            generalNotes: data.salonLayout?.generalNotes || defaultSalonLayout.generalNotes || '',
+        generalNotes: data.salonLayout?.generalNotes || defaultSalonLayout.generalNotes || '',
+    },
+    tareas: (data.tareas && data.tareas.length > 0 ? data.tareas : [...defaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(t => ({
+        id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        texto: t.texto || 'Tarea sin descripción',
+        completada: t.completada || false,
+        fechaLimite: t.fechaLimite,
+        asignadaA: t.asignadaA
+    })),
+    decoracion: {
+        tema: data.decoracion?.tema || defaultDecoracion.tema || '',
+        paletaColores: {
+          ...defaultColorPalette,
+          ...(data.decoracion?.paletaColores || {}),
         },
-        tareas: (data.tareas && data.tareas.length > 0 ? data.tareas : [...defaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(t => ({
-            id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-            texto: t.texto || 'Tarea sin descripción',
-            completada: t.completada || false,
-            fechaLimite: t.fechaLimite,
-            asignadaA: t.asignadaA
+        moodboardImageUrl: data.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl || '',
+        items: (data.decoracion?.items || []).map(item => ({
+            id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+            name: item.name || 'Ítem sin nombre',
+            category: item.category || 'Otro',
+            quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
+            estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
+            supplier: item.supplier || undefined,
+            notes: item.notes || undefined,
+            imageUrl: item.imageUrl || undefined,
         })),
-        decoracion: {
-            tema: data.decoracion?.tema || defaultDecoracion.tema || '',
-            paletaColores: {
-              ...defaultColorPalette,
-              ...(data.decoracion?.paletaColores || {}),
-            },
-            moodboardImageUrl: data.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl || '',
-            items: (data.decoracion?.items || []).map(item => ({
-                id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
-                name: item.name || 'Ítem sin nombre',
-                category: item.category || 'Otro',
-                quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
-                estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
-                supplier: item.supplier || undefined,
-                notes: item.notes || undefined,
-                imageUrl: item.imageUrl || undefined,
-            })),
-            generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : (data.decoracion.generalNotes || ''),
-        },
-        invitados: (data.invitados || []).map(inv => ({
-          id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
-          nombre: inv.nombre || 'Invitado sin nombre',
-          contacto: inv.contacto || undefined,
-          rsvp: inv.rsvp || 'Pendiente',
-          partySize: inv.partySize === undefined ? 1 : (Number(inv.partySize) || 1),
-          tableNumber: inv.tableNumber || undefined,
-          notes: inv.notes || undefined,
-        })),
-        webPageSettings: {
-          ...defaultWebPageSettings,
-          ...(data.webPageSettings || {}),
-          galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
-        },
-        musica: {
-          ...defaultMusicaFiesta,
-          ...(data.musica || {}),
-        },
-      };
-      return JSON.parse(JSON.stringify(validatedData)); // Ensure plain JS object for client
-    } else {
-      // Document doesn't exist, so create it with initial data
-      const newInitialData = { ...initialFiestaActualData, id: FIESTA_ACTUAL_DOC_ID };
-      await writeFiestaActualToFirestore(newInitialData);
-      return JSON.parse(JSON.stringify(newInitialData));
-    }
-  } catch (error) {
-    console.error('Error obteniendo fiesta actual de Firestore:', error);
-    // Fallback to a default structure if Firestore is unavailable or errors out
-    return JSON.parse(JSON.stringify({ ...initialFiestaActualData, id: `fiesta_error_fallback_${Date.now()}` }));
-  }
+        generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : (data.decoracion.generalNotes || ''),
+    },
+    invitados: (data.invitados || []).map(inv => ({
+      id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+      nombre: inv.nombre || 'Invitado sin nombre',
+      contacto: inv.contacto || undefined,
+      rsvp: inv.rsvp || 'Pendiente',
+      partySize: inv.partySize === undefined ? 1 : (Number(inv.partySize) || 1),
+      tableNumber: inv.tableNumber || undefined,
+      notes: inv.notes || undefined,
+    })),
+    webPageSettings: {
+      ...defaultWebPageSettings,
+      ...(data.webPageSettings || {}),
+      galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
+    },
+    musica: {
+      ...defaultMusicaFiesta,
+      ...(data.musica || {}),
+    },
+  };
+  return JSON.parse(JSON.stringify(validatedData));
 }
-
 
 export async function updateConfiguracionFiestaActual(
   configData: Partial<ConfigEventoDataStorage>
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
   try {
-    let fiestaActual = await getFiestaActual(); // Gets the current state, potentially creating if not exists
+    let fiestaActual = await getFiestaActual();
     fiestaActual.configuracion = {
         ...fiestaActual.configuracion,
         ...configData,
         invitadosEstimados: configData.invitadosEstimados !== undefined ? Number(configData.invitadosEstimados) || 0 : fiestaActual.configuracion.invitadosEstimados,
         presupuestoEstimado: configData.presupuestoEstimado !== undefined ? Number(configData.presupuestoEstimado) || 0 : fiestaActual.configuracion.presupuestoEstimado,
     };
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.configuracion)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la configuración." };
@@ -245,7 +286,7 @@ export async function updatePersonalFiestaActual(
   try {
     let fiestaActual = await getFiestaActual();
     fiestaActual.personalAsignado = [...personalData];
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.personalAsignado)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el personal." };
@@ -258,7 +299,7 @@ export async function updateMenuAsignadoFiestaActual(
   try {
     let fiestaActual = await getFiestaActual();
     fiestaActual.menuAsignadoId = menuId;
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, menuId: menuId };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el menú asignado." };
@@ -271,7 +312,7 @@ export async function updatePresupuestoAsignadoFiestaActual(
   try {
     let fiestaActual = await getFiestaActual();
     fiestaActual.presupuestoId = presupuestoId === null ? undefined : presupuestoId;
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, presupuestoId: fiestaActual.presupuestoId };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el presupuesto asignado." };
@@ -288,7 +329,7 @@ export async function addInvoiceIdToFiestaActual(
     }
     if (!fiestaActual.invoiceIds.includes(invoiceId)) {
       fiestaActual.invoiceIds.push(invoiceId);
-      await writeFiestaActualToFirestore(fiestaActual);
+      await writeFiestaActualFile(fiestaActual);
     }
     return { success: true, invoiceIds: fiestaActual.invoiceIds };
   } catch (e: any) {
@@ -303,7 +344,7 @@ export async function removeInvoiceIdFromFiestaActual(
     let fiestaActual = await getFiestaActual();
     if (fiestaActual.invoiceIds) {
       fiestaActual.invoiceIds = fiestaActual.invoiceIds.filter(id => id !== invoiceId);
-      await writeFiestaActualToFirestore(fiestaActual);
+      await writeFiestaActualFile(fiestaActual);
     }
     return { success: true, invoiceIds: fiestaActual.invoiceIds || [] };
   } catch (e: any) {
@@ -323,7 +364,7 @@ export async function addReunionToFiestaActual(
       notas: reunionData.notas || '',
     };
     fiestaActual.reuniones = [...(fiestaActual.reuniones || []), newReunion];
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, reunion: JSON.parse(JSON.stringify(newReunion)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al añadir la reunión." };
@@ -338,7 +379,7 @@ export async function updateReunionInFiestaActual(
     fiestaActual.reuniones = (fiestaActual.reuniones || []).map(r =>
       r.id === reunionData.id ? { ...reunionData } : r
     );
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     const updatedReunion = fiestaActual.reuniones.find(r => r.id === reunionData.id);
     return { success: true, reunion: updatedReunion ? JSON.parse(JSON.stringify(updatedReunion)) : undefined };
   } catch (e: any) {
@@ -354,7 +395,7 @@ export async function deleteReunionFromFiestaActual(
     const initialLength = (fiestaActual.reuniones || []).length;
     fiestaActual.reuniones = (fiestaActual.reuniones || []).filter(r => r.id !== reunionId);
     if ((fiestaActual.reuniones || []).length < initialLength) {
-      await writeFiestaActualToFirestore(fiestaActual);
+      await writeFiestaActualFile(fiestaActual);
       return { success: true };
     } else {
       return { success: false, error: `Reunión con ID ${reunionId} no encontrada para eliminar.` };
@@ -388,7 +429,7 @@ export async function updateSalonLayoutFiestaActual(
         })),
         generalNotes: layoutData.generalNotes || fiestaActual.salonLayout?.generalNotes || ''
     };
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.salonLayout)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el diseño del salón." };
@@ -407,7 +448,7 @@ export async function updateTareasFiestaActual(
         fechaLimite: t.fechaLimite,
         asignadaA: t.asignadaA
     }));
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.tareas)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar las tareas." };
@@ -439,7 +480,7 @@ export async function updateDecoracionFiestaActual(
         })),
         generalNotes: decoracionData.generalNotes === undefined ? (fiestaActual.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : fiestaActual.decoracion.generalNotes) : decoracionData.generalNotes,
     };
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la decoración." };
@@ -466,7 +507,7 @@ export async function addInvitadoFiestaActual(
       notes: invitadoData.notes || undefined,
     };
     fiestaActual.invitados = [...(fiestaActual.invitados || []), nuevoInvitado];
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, invitado: JSON.parse(JSON.stringify(nuevoInvitado)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al añadir el invitado." };
@@ -495,7 +536,7 @@ export async function updateInvitadoFiestaActual(
         return { success: false, error: `Invitado con ID ${invitadoData.id} no encontrado para actualizar.` };
     }
     
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     const updatedInvitado = fiestaActual.invitados.find(inv => inv.id === invitadoData.id);
     return { success: true, invitado: updatedInvitado ? JSON.parse(JSON.stringify(updatedInvitado)) : undefined };
   } catch (e: any) {
@@ -511,7 +552,7 @@ export async function deleteInvitadoFiestaActual(
     const initialLength = (fiestaActual.invitados || []).length;
     fiestaActual.invitados = (fiestaActual.invitados || []).filter(inv => inv.id !== invitadoId);
     if ((fiestaActual.invitados || []).length < initialLength) {
-      await writeFiestaActualToFirestore(fiestaActual);
+      await writeFiestaActualFile(fiestaActual);
       return { success: true };
     } else {
       return { success: false, error: `Invitado con ID ${invitadoId} no encontrado para eliminar.` };
@@ -564,7 +605,7 @@ export async function handleRsvpSubmission(
     };
 
     fiestaActual.invitados[guestIndex] = updatedInvitado;
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, invitado: JSON.parse(JSON.stringify(updatedInvitado)) };
 
   } catch (e: any) {
@@ -587,7 +628,6 @@ export async function updateWebPageSettingsFiestaActual(
         ...settings,             
         galleryImageUrls: settings.galleryImageUrls || currentWebSettings.galleryImageUrls || [],
     };
-    // Ensure booleans are correctly updated if present in partial settings
     newWebSettings.showCountdown = settings.showCountdown !== undefined ? settings.showCountdown : newWebSettings.showCountdown;
     newWebSettings.showOurStory = settings.showOurStory !== undefined ? settings.showOurStory : newWebSettings.showOurStory;
     newWebSettings.showEventDetails = settings.showEventDetails !== undefined ? settings.showEventDetails : newWebSettings.showEventDetails;
@@ -598,7 +638,7 @@ export async function updateWebPageSettingsFiestaActual(
 
     fiestaActual.webPageSettings = newWebSettings;
     
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.webPageSettings)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la configuración de la página web." };
@@ -615,7 +655,7 @@ export async function updateMusicaFiestaActual(
         ...(fiestaActual.musica || {}),
         ...musicaData,
     };
-    await writeFiestaActualToFirestore(fiestaActual);
+    await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.musica)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la música de la fiesta." };
@@ -623,62 +663,40 @@ export async function updateMusicaFiestaActual(
 }
 
 export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta?: FiestaEnPlanificacion, error?: string }> {
-    if (!db) return { success: false, error: "Firestore no está inicializado." };
-    try {
-        const newInitialData = { ...initialFiestaActualData, id: FIESTA_ACTUAL_DOC_ID };
-        await writeFiestaActualToFirestore(newInitialData);
-        return { success: true, newFiesta: JSON.parse(JSON.stringify(newInitialData)) };
-    } catch (e: any) {
-        console.error("Error al reiniciar la fiesta:", e);
-        return { success: false, error: e.message || "Error al reiniciar la fiesta." };
-    }
+  try {
+    const newInitialDataWithDynamicId = { ...initialFiestaActualData, id: `fiesta_${Date.now()}` };
+    await writeFiestaActualFile(newInitialDataWithDynamicId);
+    return { success: true, newFiesta: JSON.parse(JSON.stringify(newInitialDataWithDynamicId)) };
+  } catch (e: any) {
+    console.error("Error al reiniciar la fiesta:", e);
+    return { success: false, error: e.message || "Error al reiniciar la fiesta." };
+  }
 }
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  if (!db) {
-    console.error("Firestore no está inicializado. No se puede obtener el historial de fiestas.");
-    return [];
-  }
-  try {
-    const snapshot = await db.collection(HISTORIAL_FIESTAS_COLLECTION).orderBy('configuracion.fechaEvento', 'desc').get();
-    if (snapshot.empty) {
-      return [];
-    }
-    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as FiestaEnPlanificacion));
-  } catch (error) {
-    console.error('Error obteniendo historial de fiestas de Firestore:', error);
-    return [];
-  }
+  // console.log("Firebase is disabled. Reading historial de fiestas from JSON.");
+  return readHistorialFile();
 }
 
 export async function archivarFiestaActual(): Promise<{ success: boolean; error?: string; archivada?: FiestaEnPlanificacion, nuevaFiesta?: FiestaEnPlanificacion }> {
-  if (!db) return { success: false, error: "Firestore no está inicializado." };
   try {
     const fiestaParaArchivar = await getFiestaActual();
-    if (fiestaParaArchivar.id !== FIESTA_ACTUAL_DOC_ID) {
-      // This means getFiestaActual might have returned a fallback or an error occurred
-      // We should not archive a fallback.
-      console.warn("Attempted to archive a fiesta that is not the current active one. Archiving aborted.");
-      return { success: false, error: "No se puede archivar una fiesta que no es la activa (posible error de carga)." };
-    }
+    let historial = await readHistorialFile();
     
-    // Create a new document in historial_fiestas. Firestore will generate an ID.
-    // We don't want to use FIESTA_ACTUAL_DOC_ID as the ID in the history.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...dataToArchive } = fiestaParaArchivar; 
-    const archiveRef = await db.collection(HISTORIAL_FIESTAS_COLLECTION).add(dataToArchive);
-    const archivadaConNuevoId = { ...dataToArchive, id: archiveRef.id };
-
+    // Ensure unique ID for archived item if necessary, though fiestaParaArchivar should have one
+    const archivada = { ...fiestaParaArchivar, id: fiestaParaArchivar.id || `hist_${Date.now()}` };
+    historial.push(archivada);
+    await writeHistorialFile(historial);
 
     const resetResult = await resetFiestaActual();
     if (!resetResult.success || !resetResult.newFiesta) {
-        // Attempt to delete the just-archived record if reset fails to prevent partial state? Or log and alert.
-        // For now, log and proceed with error.
-        await db.collection(HISTORIAL_FIESTAS_COLLECTION).doc(archiveRef.id).delete().catch(delErr => console.error("Failed to roll back archive after reset failure:", delErr));
-        throw new Error(resetResult.error || "No se pudo reiniciar la fiesta actual después de archivar.");
+      // Attempt to roll back archive if reset fails
+      const newHistorial = await readHistorialFile();
+      await writeHistorialFile(newHistorial.filter(f => f.id !== archivada.id));
+      throw new Error(resetResult.error || "No se pudo reiniciar la fiesta actual después de archivar.");
     }
 
-    return { success: true, archivada: archivadaConNuevoId, nuevaFiesta: resetResult.newFiesta };
+    return { success: true, archivada: archivada, nuevaFiesta: resetResult.newFiesta };
   } catch (e: any) {
     console.error("Error archivando la fiesta actual:", e);
     return { success: false, error: e.message || "Error al archivar la fiesta." };
