@@ -3,18 +3,19 @@
 
 import { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link'; // Added missing import
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { DatePickerDemo } from '@/components/date-picker-demo'; 
+import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, Loader2, PlusCircle, Trash2, FilePlus2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomers } from '@/app/actions/customers';
 import { saveInvoice } from '@/app/actions/invoices';
-import { getPresupuestoById } from '@/app/actions/presupuestos'; // Importar
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem, InvoiceStatus } from '@/types/invoice';
@@ -22,11 +23,11 @@ import type { Invoice, InvoiceItem, InvoiceStatus } from '@/types/invoice';
 const VENDOR_NAME = "Presupuestador AK Producciones";
 const VENDOR_ADDRESS = "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España";
 const VENDOR_TAX_ID = "A08123456";
-const DEFAULT_CURRENCY = "UYU"; // Changed from EUR to UYU
-const DEFAULT_TAX_RATE = 21; 
+const DEFAULT_CURRENCY = "UYU";
+const DEFAULT_TAX_RATE = 21;
 
 interface NewInvoiceItem extends Omit<InvoiceItem, 'id' | 'total'> {
-  tempId: string; 
+  tempId: string;
 }
 
 function NewInvoicePageContent() {
@@ -40,7 +41,7 @@ function NewInvoicePageContent() {
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>(() => {
     const date = new Date();
-    date.setDate(date.getDate() + 30); 
+    date.setDate(date.getDate() + 30);
     return date;
   });
   const [items, setItems] = useState<NewInvoiceItem[]>([
@@ -66,20 +67,18 @@ function NewInvoicePageContent() {
           const presupuesto = await getPresupuestoById(fromPresupuestoId);
           if (presupuesto) {
             if (presupuesto.clienteNombre) {
-              // Attempt to find customer by name, otherwise, this would need a customer ID on presupuesto
               const matchingCustomer = fetchedCustomers.find(c => c.name === presupuesto.clienteNombre || c.companyName === presupuesto.clienteNombre);
               if (matchingCustomer) {
                 setSelectedCustomerId(matchingCustomer.id);
               }
             }
-            setInvoiceNumber(`FACT-P${presupuesto.id.split('_').pop()}`); // Suggest invoice number
-            // Pre-fill items
+            setInvoiceNumber(`FACT-P${presupuesto.id.split('_').pop()}`);
             const presupuestoItems: NewInvoiceItem[] = [];
             presupuesto.platosSeleccionados.forEach(p => {
               presupuestoItems.push({
                 tempId: `item_plato_${p.idPlato}_${Date.now()}`,
                 description: `${p.nombrePlato} (x${p.cantidad})`,
-                quantity: 1, // Assuming the total for the group is one line item
+                quantity: 1,
                 unitPrice: p.costoTotalPlato,
               });
             });
@@ -97,9 +96,8 @@ function NewInvoicePageContent() {
                 setItems([{ tempId: `item_${Date.now()}`, description: '', quantity: 1, unitPrice: 0 }]);
             }
             setNotes(presupuesto.notas || '');
-            // Consider setting issueDate/dueDate based on presupuesto.eventoFecha if makes sense
             if (presupuesto.eventoFecha) {
-                setIssueDate(new Date(presupuesto.eventoFecha)); // Example: set issue date to event date
+                setIssueDate(new Date(presupuesto.eventoFecha));
             }
              toast({ title: "Datos Cargados", description: `Datos del presupuesto #${presupuesto.id.split('_').pop()} pre-cargados.`});
           } else {
@@ -125,7 +123,7 @@ function NewInvoicePageContent() {
   };
 
   const handleItemChange = (tempId: string, field: keyof Omit<NewInvoiceItem, 'tempId'>, value: string | number) => {
-    setItems(items.map(item => 
+    setItems(items.map(item =>
       item.tempId === tempId ? { ...item, [field]: field === 'quantity' || field === 'unitPrice' ? Number(value) : value } : item
     ));
   };
@@ -168,14 +166,14 @@ function NewInvoicePageContent() {
 
     const invoiceData: Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] } = {
       invoiceNumber: invoiceNumber.trim(),
-      customer: selectedCustomer, 
+      customer: selectedCustomer,
       issueDate: issueDate.toISOString(),
-      dueDate: dueDate ? dueDate.toISOString() : issueDate.toISOString(), 
+      dueDate: dueDate ? dueDate.toISOString() : issueDate.toISOString(),
       items: items.map(item => ({
         description: item.description,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        total: item.quantity * item.unitPrice, 
+        total: item.quantity * item.unitPrice,
       })),
       subtotal,
       taxRate: DEFAULT_TAX_RATE,
@@ -188,7 +186,7 @@ function NewInvoicePageContent() {
       vendorAddress: VENDOR_ADDRESS,
       vendorTaxId: VENDOR_TAX_ID,
     };
-    
+
     try {
       const result = await saveInvoice(invoiceData);
       if (result.success && result.id) {
@@ -229,7 +227,7 @@ function NewInvoicePageContent() {
           </Button>
         </Link>
       </div>
-      
+
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">
           <CardHeader>
@@ -240,8 +238,8 @@ function NewInvoicePageContent() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="customer-select">Cliente</Label>
-                <Select 
-                  value={selectedCustomerId} 
+                <Select
+                  value={selectedCustomerId}
                   onValueChange={setSelectedCustomerId}
                   disabled={isLoadingCustomers || customers.length === 0}
                 >
@@ -270,11 +268,11 @@ function NewInvoicePageContent() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="issue-date">Fecha de Emisión</Label>
-                <DatePickerDemo selectedDate={issueDate} onDateChange={setIssueDate} /> 
+                <DatePickerDemo selectedDate={issueDate} onDateChange={setIssueDate} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="due-date">Fecha de Vencimiento</Label>
-                <DatePickerDemo selectedDate={dueDate} onDateChange={setDueDate} /> 
+                <DatePickerDemo selectedDate={dueDate} onDateChange={setDueDate} />
               </div>
                <div className="space-y-2">
                 <Label htmlFor="status-select">Estado</Label>
@@ -298,7 +296,7 @@ function NewInvoicePageContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                     <div className="sm:col-span-6 space-y-1">
                       <Label htmlFor={`item-desc-${item.tempId}`} className="text-xs">Descripción</Label>
-                      <Input 
+                      <Input
                         id={`item-desc-${item.tempId}`}
                         value={item.description}
                         onChange={(e) => handleItemChange(item.tempId, 'description', e.target.value)}
@@ -308,7 +306,7 @@ function NewInvoicePageContent() {
                     </div>
                     <div className="sm:col-span-2 space-y-1">
                       <Label htmlFor={`item-qty-${item.tempId}`} className="text-xs">Cant.</Label>
-                      <Input 
+                      <Input
                         id={`item-qty-${item.tempId}`}
                         type="number"
                         value={item.quantity}
@@ -319,7 +317,7 @@ function NewInvoicePageContent() {
                     </div>
                     <div className="sm:col-span-3 space-y-1">
                       <Label htmlFor={`item-price-${item.tempId}`} className="text-xs">Precio Unit. ({DEFAULT_CURRENCY})</Label>
-                      <Input 
+                      <Input
                         id={`item-price-${item.tempId}`}
                         type="number"
                         value={item.unitPrice}
@@ -330,11 +328,11 @@ function NewInvoicePageContent() {
                       />
                     </div>
                     <div className="sm:col-span-1 flex justify-end">
-                      {items.length > 0 && ( // Show remove only if there's at least one item
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="icon" 
+                      {items.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleRemoveItem(item.tempId)}
                           className="text-destructive hover:bg-destructive/10 h-9 w-9"
                         >
@@ -352,7 +350,7 @@ function NewInvoicePageContent() {
                 <PlusCircle className="w-4 h-4 mr-2" /> Añadir Concepto
               </Button>
             </div>
-            
+
             <div className="space-y-2 pt-6 border-t mt-6 text-right">
               <div className="flex justify-end items-center gap-4">
                 <span className="text-muted-foreground">Subtotal:</span>
@@ -370,11 +368,11 @@ function NewInvoicePageContent() {
 
             <div className="space-y-2 pt-6 border-t mt-6">
               <Label htmlFor="notes" className="text-base">Notas Adicionales</Label>
-              <Textarea 
-                id="notes" 
-                value={notes} 
-                onChange={(e) => setNotes(e.target.value)} 
-                placeholder="Añade cualquier nota, término de pago o detalle adicional aquí." 
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Añade cualquier nota, término de pago o detalle adicional aquí."
                 rows={3}
                 className="text-base p-3"
               />
@@ -399,4 +397,3 @@ export default function NewInvoicePage() {
     </Suspense>
   );
 }
-
