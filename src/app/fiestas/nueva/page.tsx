@@ -10,12 +10,12 @@ import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual'
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getMenuById } from '@/app/actions/menus-catering';
-import { getCustomerById } from '@/app/actions/customers'; // Import getCustomerById
+import { getCustomerById } from '@/app/actions/customers'; 
 import type { FiestaEnPlanificacion, Tarea, Reunion, SalonLayoutData, DecoracionData } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import type { FullMenu } from '@/types/catering';
-import type { Customer } from '@/types/customer'; // Import Customer type
+import type { Customer } from '@/types/customer'; 
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
@@ -135,7 +135,7 @@ const planningModules: PlanningModule[] = [
   }
 ];
 
-const formatCurrency = (amount?: number | string, currency: string = 'UYU') => { // Changed default to UYU
+const formatCurrency = (amount?: number | string, currency: string = 'UYU') => { 
   if (amount === undefined || amount === null || amount === '') return "N/A";
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(numericAmount)) return "N/A";
@@ -163,7 +163,7 @@ interface TaskSummary {
 export default function PlanificarFiestaHubPage() {
   const { toast } = useToast();
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-  const [linkedClient, setLinkedClient] = useState<Customer | null>(null); // State for linked client details
+  const [linkedClient, setLinkedClient] = useState<Customer | null>(null); 
   const [linkedInvoices, setLinkedInvoices] = useState<Invoice[]>([]);
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
 
@@ -174,7 +174,7 @@ export default function PlanificarFiestaHubPage() {
   const loadFiestaData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    setLinkedClient(null); // Reset linked client
+    setLinkedClient(null); 
     try {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
@@ -220,7 +220,7 @@ export default function PlanificarFiestaHubPage() {
       if (result.success && result.newFiesta) {
         toast({
           title: "¡Planificador Reiniciado!",
-          description: "Se ha iniciado una nueva planificación de fiesta desde cero.",
+          description: "Se ha reiniciado la planificación de la fiesta actual. Cualquier dato no guardado se ha perdido.",
         });
         await loadFiestaData(); 
       } else {
@@ -259,35 +259,35 @@ export default function PlanificarFiestaHubPage() {
         <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePrintPlanner} disabled={isResetting || isLoading}>
               <Printer className="w-4 h-4 mr-2" />
-              Imprimir Vista Actual
+              Imprimir Plan Actual
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" disabled={isResetting || isLoading}>
                   {isResetting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCcw className="w-4 h-4 mr-2" />}
-                  Empezar Nueva Fiesta
+                  Descartar y Reiniciar Plan
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>¿Confirmar Nueva Fiesta?</AlertDialogTitle>
+                  <AlertDialogTitle>¿Confirmar Reinicio?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esto descartará cualquier cambio no guardado en la fiesta actual "{fiestaActual?.configuracion.nombreEvento || 'Evento Actual'}" y comenzará una planificación desde cero. Esta acción no archiva la fiesta actual. ¿Estás seguro?
+                    Esto descartará cualquier cambio no guardado en la fiesta actual "{fiestaActual?.configuracion.nombreEvento || 'Evento Actual'}" y comenzará una planificación desde cero para la fiesta actual. Esta acción NO archiva la fiesta. ¿Estás seguro?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel disabled={isResetting}>Cancelar</AlertDialogCancel>
                   <AlertDialogAction onClick={handleResetFiesta} disabled={isResetting} className="bg-destructive hover:bg-destructive/90">
                     {isResetting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                    Sí, Empezar de Cero
+                    Sí, Reiniciar Plan
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Link href="/" passHref>
+            <Link href="/eventos" passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver al Menú Principal
+                Volver al Gestor de Fiestas
               </Button>
             </Link>
         </div>
@@ -329,7 +329,6 @@ export default function PlanificarFiestaHubPage() {
                         </p>
                     )}
                 </div>
-                {/* Display Budget/Contract buttons if client is linked and files exist */}
                 {linkedClient && (linkedClient.budgetFileName || linkedClient.contractFileName) && (
                     <div className="flex flex-wrap justify-center gap-2 pt-3 border-t print:hidden w-full max-w-md mx-auto mt-3">
                         {linkedClient.budgetFileName && (

@@ -11,9 +11,9 @@ import { Progress } from '@/components/ui/progress';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
 import { CountdownTimer } from '@/components/countdown-timer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Customer } from '@/types/customer'; // Import Customer type
+import type { Customer } from '@/types/customer'; 
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { getCustomerById } from '@/app/actions/customers'; // Import getCustomerById
+import { getCustomerById } from '@/app/actions/customers'; 
 import { useToast } from '@/hooks/use-toast';
 
 const formatCurrency = (amount?: number | string) => {
@@ -111,7 +111,7 @@ export default function DashboardPage() {
 
 
   const modules: ModuleCardProps[] = [
-    { title: "Planificador de Fiestas", description: "Gestiona todos los detalles de tu evento actual.", href: "/fiestas/nueva", icon: CalendarDays },
+    { title: "Planificador de Fiestas", description: "Visualiza y organiza todos tus eventos.", href: "/eventos", icon: CalendarDays },
     { title: "Contabilidad", description: "Administra presupuestos, facturas, pagos y clientes.", href: "/empresa/contabilidad", icon: CircleDollarSign },
     { title: "Gestión de Empresa", description: "Administra personal, proveedores y catálogo de servicios.", href: "/empresa", icon: Building2 },
     { title: "Configuración", description: "Ajusta las preferencias de la aplicación.", href: "/settings", icon: Settings },
@@ -130,7 +130,7 @@ export default function DashboardPage() {
         <Link href="/fiestas/nueva/configuracion" passHref>
             <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-5 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
                 <PlusCircle className="w-6 h-6 mr-2.5" />
-                Crear Nueva Fiesta
+                Iniciar Planificación de Fiesta
             </Button>
         </Link>
       </div>
@@ -147,9 +147,9 @@ export default function DashboardPage() {
               <div className="flex justify-between items-start">
                  <div>
                   <CardTitle className="font-headline text-xl md:text-2xl text-primary flex items-center gap-2">
-                     <PartyPopper className="w-7 h-7"/> Próxima Fiesta a Organizar
+                     <PartyPopper className="w-7 h-7"/> Fiesta Actual en Planificación
                   </CardTitle>
-                  <CardDescription className="text-sm mt-1">Resumen del evento actual en planificación.</CardDescription>
+                  <CardDescription className="text-sm mt-1">Resumen del evento actual.</CardDescription>
                 </div>
                 <Link href="/fiestas/nueva" passHref>
                   <Button variant="default" size="sm">Ir al Planificador</Button>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
             <p className="text-muted-foreground mb-6">
               Parece que no hay una fiesta configurada o la actual está con datos por defecto.
               <br/>
-              Haz clic en "Crear Nueva Fiesta" arriba para empezar o configura la actual desde el Planificador.
+              Haz clic en "Iniciar Planificación de Fiesta" arriba para empezar o configura la actual desde el Planificador.
             </p>
             <Link href="/fiestas/nueva" passHref>
               <Button size="sm" variant="outline">
@@ -265,4 +265,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

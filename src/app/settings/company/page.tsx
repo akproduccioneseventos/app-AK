@@ -1,13 +1,15 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent as ReactFormEvent } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import Link from 'next/link';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,7 +36,7 @@ export default function CompanySettingsPage() {
     setCompanyInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: ReactFormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
     // Simular guardado
@@ -132,9 +134,11 @@ export default function CompanySettingsPage() {
                 />
               </div>
             </div>
-             <img 
+             <Image 
                 src="https://placehold.co/600x200.png" 
                 alt="Configuración de empresa" 
+                width={600}
+                height={200}
                 className="mt-6 rounded-md shadow-md mx-auto"
                 data-ai-hint="company settings form"
             />
