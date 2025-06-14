@@ -63,7 +63,6 @@ export default function TodosLosServiciosPage() {
     const filteredData = allServicios.filter(servicio =>
       servicio.nombre.toLowerCase().includes(lowercasedFilter) ||
       (servicio.categoria && servicio.categoria.toLowerCase().includes(lowercasedFilter))
-      // Descripcion ya no existe en el tipo ServicioEmpresa
     );
     setFilteredServicios(filteredData);
   }, [searchTerm, allServicios]);

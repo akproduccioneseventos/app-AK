@@ -8,7 +8,8 @@ export type CategoriaServicio =
   | 'Servicio de bebidas'
   | 'Servicio de discoteca'
   | 'Servicio de repostería y regalos'
-  | 'Servicio de regalo exclusivo' // Added
+  | 'Regalo exclusivo' // Modificado
+  | 'Personal' // Añadido
   | 'Otros servicios';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
@@ -20,7 +21,8 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Servicio de bebidas',
   'Servicio de discoteca',
   'Servicio de repostería y regalos',
-  'Servicio de regalo exclusivo', // Added
+  'Regalo exclusivo', // Modificado
+  'Personal', // Añadido
   'Otros servicios'
 ];
 
@@ -32,8 +34,21 @@ export interface ServicioEmpresa {
   id: string;
   nombre: string;
   categoria: CategoriaServicio;
-  // descripcion?: string; // Removed
   precioVenta?: number;
   costoReal?: number;
   unidad?: UnidadServicio;
+  // Campos específicos de catering podrían ir aquí si se decide persistirlos
+  // cateringSubCategory?: CateringSubCategory; 
+  // cateringPersonalDetail?: string;
 }
+
+// Si se decide persistir la subcategoría de catering:
+// export type CateringSubCategory = 
+// | 'Entrada' 
+// | 'Mobiliario' 
+// | 'Vajilla' 
+// | 'Mantelería' 
+// | 'Entrada plato principal' 
+// | 'Personal' 
+// | '';
+

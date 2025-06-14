@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "nombre": "Discoteca basica",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 9000,
+    "costoReal": 2600,
+    "unidad": "Por evento",
+    "id": "serv_1749931693763_3jvujlt"
+  }
+]
