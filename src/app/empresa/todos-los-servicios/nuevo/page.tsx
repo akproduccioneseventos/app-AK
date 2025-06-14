@@ -9,12 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Loader2, Sparkles, Users } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa, CategoriaServicio, UnidadServicio } from '@/types/empresa';
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
-import { Separator } from '@/components/ui/separator';
 
 // Definir las subcategorías de catering aquí para el dropdown
 const CATERING_SUBCATEGORIES = [
@@ -41,25 +40,14 @@ export default function NuevoServicioPage() {
 
   // Estados para la lógica condicional de catering
   const [cateringSubCategory, setCateringSubCategory] = useState<CateringSubCategory>('');
-  const [cateringPersonalDetail, setCateringPersonalDetail] = useState('');
 
   const handleCategoriaChange = (value: CategoriaServicio | '') => {
     setCategoria(value);
     if (value !== 'Servicio de catering') {
       setCateringSubCategory(''); // Reset subcategory if main category changes
-      setCateringPersonalDetail('');
     }
   };
   
-  const handleUnidadChange = (value: UnidadServicio | '') => {
-    setUnidad(value);
-    // Si la unidad cambia y ya no es "Por evento", limpiar el detalle de personal
-    if (categoria === 'Servicio de catering' && cateringSubCategory === 'Personal' && value !== 'Por evento') {
-      setCateringPersonalDetail('');
-    }
-  };
-
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!nombre.trim()) {
@@ -74,18 +62,8 @@ export default function NuevoServicioPage() {
         toast({ title: "Unidad Requerida", description: "Debes seleccionar una unidad de precio.", variant: "destructive"});
         return;
     }
-    // Validación adicional si es Catering > Personal > Por Evento y el detalle está vacío
-    if (categoria === 'Servicio de catering' && cateringSubCategory === 'Personal' && unidad === 'Por evento' && !cateringPersonalDetail.trim()) {
-       toast({ title: "Detalle de Personal Requerido", description: "Por favor, ingresa el detalle del personal para este servicio de catering.", variant: "destructive"});
-       return;
-    }
-
 
     setIsSaving(true);
-    // Por ahora, cateringSubCategory y cateringPersonalDetail no se guardan en la base de datos.
-    // Se podrían añadir al objeto `ServicioEmpresa` si se decide persistirlos.
-    // Si se guardan, el nombre del servicio podría ser más genérico y estos campos darían el detalle.
-    // Ejemplo: Nombre="Servicio de Mozos", Detalle="5 mozos".
     const servicioData: Omit<ServicioEmpresa, 'id'> = {
       nombre: nombre.trim(),
       categoria: categoria as CategoriaServicio, 
@@ -164,7 +142,6 @@ export default function NuevoServicioPage() {
               </Select>
             </div>
             
-            {/* Submenú para Servicio de catering */}
             {categoria === 'Servicio de catering' && (
               <div className="space-y-3 p-4 border rounded-md bg-muted/50">
                  <Label htmlFor="catering-subcategoria" className="text-base font-medium">Subcategoría de Catering</Label>
@@ -190,7 +167,7 @@ export default function NuevoServicioPage() {
                 <Label htmlFor="servicio-unidad" className="text-base">Unidad de Precio *</Label>
                 <Select 
                   value={unidad} 
-                  onValueChange={(value) => handleUnidadChange(value as UnidadServicio | '')}
+                  onValueChange={(value) => setUnidad(value as UnidadServicio | '')}
                   disabled={isSaving}
                   required
                 >
@@ -205,25 +182,6 @@ export default function NuevoServicioPage() {
                 </Select>
               </div>
             </div>
-
-            {/* Campo condicional para detalle de personal en catering */}
-            {categoria === 'Servicio de catering' && cateringSubCategory === 'Personal' && unidad === 'Por evento' && (
-              <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                <Label htmlFor="catering-personal-detail" className="text-base font-medium">
-                  <Users className="inline-block w-5 h-5 mr-2 text-primary/80" />
-                  Detalle del Personal (ej: 5 mozos) *
-                </Label>
-                <Input
-                  id="catering-personal-detail"
-                  value={cateringPersonalDetail}
-                  onChange={(e) => setCateringPersonalDetail(e.target.value)}
-                  placeholder="Indicar cantidad y tipo de personal"
-                  className="text-base p-3"
-                  disabled={isSaving}
-                  required={true} // Hacerlo requerido si se muestra
-                />
-              </div>
-            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
