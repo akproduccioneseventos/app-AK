@@ -1,5 +1,11 @@
 
-export type TipoEvento = 'Cumpleaños' | 'Boda' | 'Fiesta de 15' | 'Fiesta Infantil' | 'Baby Shower' | 'Evento Corporativo' | 'Conferencia' | 'Lanzamiento de Producto' | 'Salón de Fiesta' | 'Otro';
+export type TipoEvento =
+  | 'Boda'
+  | 'XV años'
+  | 'Cumpleaños'
+  | 'Evento corporativo'
+  | 'Cumpleaños infantil'
+  | 'Otro';
 
 export interface PlatoPresupuesto {
   id: string;
@@ -42,6 +48,9 @@ export interface Presupuesto {
   timestamp: string; // ISO date string del momento de creación/actualización
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado';
   notas?: string;
+  // Los nuevos campos como salonFiestas, nombreHomenajeado1/2, nombreEmpresa no se añaden aquí
+  // directamente a menos que se especifique que deben persistirse en el objeto Presupuesto final.
+  // Por ahora, se recopilan en el formulario (PresupuestoFormData).
 }
 
 // Para el formulario multi-paso
@@ -53,6 +62,10 @@ export interface PresupuestoFormData {
   eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
+  salonFiestas: string; // Nuevo campo obligatorio
+  nombreHomenajeado1: string; // Para cumple/otro o Novio
+  nombreHomenajeado2: string; // Para Novia (si es Boda)
+  nombreEmpresa: string; // Para Evento Corporativo
 
   // Paso 2
   platosDisponibles: PlatoPresupuesto[]; // Cargados
