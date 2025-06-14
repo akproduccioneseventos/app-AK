@@ -35,10 +35,10 @@ export default function NuevoPresupuestoPage() {
     eventoTipo: 'Cumpleaños', // Default
     eventoFecha: undefined,
     invitadosCantidad: null,
-    salonFiestas: '', // Nuevo campo
-    nombreHomenajeado1: '', // Nuevo campo
-    nombreHomenajeado2: '', // Nuevo campo
-    nombreEmpresa: '', // Nuevo campo
+    salonFiestas: '', 
+    nombreHomenajeado1: '', 
+    nombreHomenajeado2: '', 
+    nombreEmpresa: '', 
     platosDisponibles: [], 
     platosSeleccionadosIds: new Set(), 
     serviciosDisponibles: serviciosDisponiblesMock.map(s => ({...s, seleccionado: false })),
@@ -91,7 +91,7 @@ export default function NuevoPresupuestoPage() {
             } else if (prev.invitadosCantidad === null && typeof config.invitadosEstimados === 'string' && parseInt(config.invitadosEstimados, 10) > 0) {
               newInvitadosCantidad = parseInt(config.invitadosEstimados, 10);
             }
-            if (!prev.salonFiestas && config.nombreLugar) { // Prellenar salón de fiestas
+            if (!prev.salonFiestas && config.nombreLugar) { 
                 newSalonFiestas = config.nombreLugar;
             }
           }
@@ -137,12 +137,19 @@ export default function NuevoPresupuestoPage() {
             return;
         }
       }
+      // Si el paso actual es 1, se salta el paso 2 (menú) y va directamente al paso 3 (servicios, que ahora será el paso 2 del flujo)
+      // Para el flujo actual de 3 pasos:
+      // Paso 1 (Datos Generales) -> Paso 2 (Servicios Adicionales)
+      // Paso 2 (Servicios Adicionales) -> Paso 3 (Resumen)
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
   };
 
   const handlePrev = () => {
     if (formData.pasoActual > 1) {
+      // Para el flujo actual de 3 pasos:
+      // Paso 3 (Resumen) -> Paso 2 (Servicios Adicionales)
+      // Paso 2 (Servicios Adicionales) -> Paso 1 (Datos Generales)
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual - 1 }));
     }
   };
@@ -152,8 +159,8 @@ export default function NuevoPresupuestoPage() {
       return null;
     }
 
-    const costoSubtotalPlatos = 0; 
-    const platosFinales: Presupuesto['platosSeleccionados'] = [];
+    const costoSubtotalPlatos = 0; // El paso de menú se omite, así que el costo de platos es 0
+    const platosFinales: Presupuesto['platosSeleccionados'] = []; // No hay platos seleccionados
 
     let costoSubtotalServicios = 0;
     const serviciosFinales = formData.serviciosDisponibles
@@ -196,7 +203,7 @@ export default function NuevoPresupuestoPage() {
     formData.eventoTipo,
     formData.eventoFecha,
     formData.invitadosCantidad,
-    formData.serviciosDisponibles,
+    formData.serviciosDisponibles, // Aunque platos se omite, servicios sí se usa
     formData.serviciosSeleccionadosIds,
     formData.notas,
     formData.salonFiestas,
@@ -206,7 +213,7 @@ export default function NuevoPresupuestoPage() {
   ]);
 
   useEffect(() => {
-    if (formData.pasoActual === TOTAL_PASOS) {
+    if (formData.pasoActual === TOTAL_PASOS) { // Si estamos en el último paso (Resumen)
       const resumenCalculado = calcularResumen(); 
 
       let comparableCalculado = null;
@@ -240,7 +247,7 @@ export default function NuevoPresupuestoPage() {
     setIsSaving(true);
     try {
       const {id, ...presupuestoParaGuardar} = resumen;
-      const result = await savePresupuesto(presupuestoParaGuardar as Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>); // Asegurar que el tipo sea el correcto sin estado ni invoiceId
+      const result = await savePresupuesto(presupuestoParaGuardar as Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>); 
       if (result.success && result.id) {
         toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumen.clienteNombre} ha sido guardado con éxito.` });
         router.push('/presupuestos'); 
@@ -268,15 +275,16 @@ export default function NuevoPresupuestoPage() {
     switch (formData.pasoActual) {
       case 1:
         return <Paso1DatosEvento formData={formData} setFormData={setFormData} />;
-      case 2: 
+      case 2: // Anteriormente Paso3Servicios
         return <Paso3Servicios formData={formData} setFormData={setFormData} />;
-      case 3: 
+      case 3: // Anteriormente Paso4Resumen
         return <Paso4Resumen presupuesto={formData.resumen} formData={formData} setFormData={setFormData} />;
       default:
         return null;
     }
   };
 
+  // Actualizar títulos y descripciones para 3 pasos
   const titulosPasos = [
     "Datos Generales del Evento",
     "Servicios Adicionales",
@@ -328,3 +336,4 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
+

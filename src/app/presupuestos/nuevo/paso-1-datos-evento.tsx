@@ -168,3 +168,4 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     </div>
   );
 }
+
