@@ -68,7 +68,7 @@ export interface PresupuestoFormData {
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
   salonFiestas: string; 
-  nombreHomenajeado1: string; // Usado para Novio 1 o Homenajeado general
+  nombreHomenajeado1: string; // Usado para Novio 1 o Homenajeado general o Hijo/a en cumple infantil
   nombreHomenajeado2: string; // Usado para Novia 2
   nombreEmpresa: string; 
 
@@ -81,4 +81,5 @@ export interface PresupuestoFormData {
   resumen?: Presupuesto; 
   notas: string;
 }
+
 

@@ -40,7 +40,7 @@ export default function NuevoPresupuestoPage() {
   const [formData, setFormData] = useState<PresupuestoFormData>({
     pasoActual: 1,
     clienteNombre: '',
-    eventoTipo: '', // Inicialmente vacío, se llenará con pre-fill o selección de usuario
+    eventoTipo: '', 
     eventoFecha: undefined,
     invitadosCantidad: null,
     salonFiestas: '', 
@@ -65,7 +65,7 @@ export default function NuevoPresupuestoPage() {
 
         setFormData(prev => {
           let newClienteNombre = prev.clienteNombre;
-          let newEventoTipo = prev.eventoTipo; // Tipo final, puede ser custom
+          let newEventoTipo = prev.eventoTipo; 
           let newEventoFecha = prev.eventoFecha;
           let newInvitadosCantidad = prev.invitadosCantidad;
           let newSalonFiestas = prev.salonFiestas;
@@ -76,19 +76,25 @@ export default function NuevoPresupuestoPage() {
           if (fiestaActualData && fiestaActualData.configuracion) {
             const config = fiestaActualData.configuracion;
 
-            if (!prev.clienteNombre && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                newClienteNombre = config.nombreEvento; 
+            if (!prev.clienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
+                 // Si hay un clienteId, usar el nombre del evento como nombre de cliente por defecto
+                newClienteNombre = config.nombreEvento;
             }
             
             if (config.tipoCelebracion) {
-              newEventoTipo = config.tipoCelebracion; // Sea predefinido o custom
+              // Directamente asignamos el tipo de la fiesta actual. 
+              // El componente Paso1DatosEvento se encargará de mostrar "Otro" en el Select si es un tipo personalizado.
+              newEventoTipo = config.tipoCelebracion;
+              
+              // Lógica para pre-rellenar campos de nombre basados en el tipo de evento de la fiesta actual
               if (config.tipoCelebracion === 'Boda' && config.nombreEvento) {
-                  // No hay una forma fácil de dividir "Novio1 y Novia2" desde nombreEvento
-                  // así que se dejan para que el usuario los llene.
+                // Para bodas, no hay forma estándar de separar nombres del nombreEvento, así que los dejamos
+                // para que el usuario los complete, pero podrías intentar alguna heurística si quisieras.
+                // Por ahora, se espera que se llenen manualmente.
               } else if (config.tipoCelebracion === 'Evento corporativo' && config.nombreEvento) {
-                 newNombreEmpresa = config.nombreEvento;
-              } else if (config.tipoCelebracion !== 'Boda' && config.tipoCelebracion !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                  newNombreHomenajeado1 = config.nombreEvento;
+                 newNombreEmpresa = config.nombreEvento; // Asumimos que nombreEvento es el nombre de la empresa
+              } else if (config.tipoCelebracion && config.tipoCelebracion !== 'Boda' && config.tipoCelebracion !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
+                  newNombreHomenajeado1 = config.nombreEvento; // Asumimos que nombreEvento es el del homenajeado
               }
             }
 
@@ -102,7 +108,7 @@ export default function NuevoPresupuestoPage() {
             } else if (prev.invitadosCantidad === null && typeof config.invitadosEstimados === 'string' && parseInt(config.invitadosEstimados, 10) > 0) {
               newInvitadosCantidad = parseInt(config.invitadosEstimados, 10);
             }
-            if (!prev.salonFiestas && config.nombreLugar) { 
+             if (!prev.salonFiestas && config.nombreLugar) { 
                 newSalonFiestas = config.nombreLugar;
             }
           }
@@ -133,6 +139,7 @@ export default function NuevoPresupuestoPage() {
   const handleNext = () => {
     if (formData.pasoActual < TOTAL_PASOS) {
       if (formData.pasoActual === 1) {
+        // Validaciones para el Paso 1
         if (!formData.clienteNombre.trim()) { toast({ title: "Dato Requerido", description: "El nombre del cliente es obligatorio.", variant: "destructive" }); return;}
         if (!formData.eventoTipo?.trim()) { toast({ title: "Dato Requerido", description: "Por favor, selecciona o especifica un tipo de evento.", variant: "destructive" }); return;}
         if (!formData.eventoFecha) { toast({ title: "Dato Requerido", description: "La fecha del evento es obligatoria.", variant: "destructive" }); return;}
@@ -150,13 +157,14 @@ export default function NuevoPresupuestoPage() {
                 toast({ title: "Nombre de Empresa Requerido", description: "Para eventos corporativos, por favor ingresa el nombre de la empresa.", variant: "destructive" });
                 return;
             }
-        } else if (tipoEventoFinal) { // Para otros tipos válidos (XV, Cumpleaños, Infantil, o custom "Otro" ya especificado)
+        } else if (tipoEventoFinal) { // Para otros tipos válidos y no vacíos
             if (!formData.nombreHomenajeado1?.trim()) {
                  toast({ title: "Nombre del Homenajeado Requerido", description: `Por favor, ingresa el nombre del homenajeado/a para el evento de tipo "${tipoEventoFinal}".`, variant: "destructive" });
                 return;
             }
         }
       }
+      // Aquí podrías añadir validaciones para el paso 2 si es necesario
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
   };
