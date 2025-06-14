@@ -1,11 +1,10 @@
 
 'use server';
 
-// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
-import type { Invoice, InvoiceItem, Customer, Payment } from '@/types/invoice';
-
+import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import fs from 'fs/promises';
 import path from 'path';
+import { markPresupuestoAsFacturado } from './presupuestos'; // Importar la acción
 
 const INVOICES_COLLECTION_JSON = 'invoices.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
@@ -34,7 +33,6 @@ async function readInvoicesFile(): Promise<Invoice[]> {
 async function writeInvoicesFile(data: Invoice[]): Promise<void> {
   try {
     await ensureDataDirectoryExists();
-    // Sort by issueDate descending
     const sortedData = data.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
     await fs.writeFile(invoicesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
   } catch (error) {
@@ -59,13 +57,11 @@ async function initializeLocalInvoicesFile() {
 initializeLocalInvoicesFile();
 
 export async function getInvoices(): Promise<Invoice[]> {
-  // console.log("Firebase is disabled. Reading invoices from JSON.");
   const invoices = await readInvoicesFile();
   return invoices.map(inv => ({ ...inv, payments: inv.payments || [] }));
 }
 
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
-  // console.log(`Firebase is disabled. Reading invoice ${id} from JSON.`);
   const invoices = await readInvoicesFile();
   const invoice = invoices.find(inv => inv.id === id);
   if (!invoice) return null;
@@ -73,9 +69,9 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
 }
 
 export async function saveInvoice(
-  invoiceDataInput: Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] } | Invoice
+  invoiceDataInput: (Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }) | Invoice,
+  sourcePresupuestoId?: string // Nuevo parámetro opcional
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
-  // console.log("Firebase is disabled. Saving invoice to JSON.");
   let invoices = await readInvoicesFile();
   let finalInvoiceData: Invoice;
   let invoiceId: string;
@@ -119,16 +115,25 @@ export async function saveInvoice(
       ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
       id: invoiceId,
       items: itemsWithIds,
-      payments: [], // Initialize with empty payments array
+      payments: [], 
     };
     invoices.push(finalInvoiceData);
   }
   await writeInvoicesFile(invoices);
+
+  // Si se creó a partir de un presupuesto, actualizar el presupuesto
+  if (sourcePresupuestoId && !('id' in invoiceDataInput)) { // Solo en creación
+    const markResult = await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
+    if (!markResult.success) {
+      console.warn(`Factura ${finalInvoiceData.id} creada, pero no se pudo marcar el presupuesto ${sourcePresupuestoId} como facturado: ${markResult.error}`);
+      // No devolver error aquí, la factura se creó. Es una advertencia.
+    }
+  }
+
   return { success: true, id: invoiceId, invoice: finalInvoiceData };
 }
 
 export async function deleteInvoice(id: string): Promise<{ success: boolean; error?: string }> {
-  // console.log(`Firebase is disabled. Deleting invoice ${id} from JSON.`);
   let invoices = await readInvoicesFile();
   const initialLength = invoices.length;
   invoices = invoices.filter(inv => inv.id !== id);
@@ -143,7 +148,6 @@ export async function addPaymentToInvoice(
   invoiceId: string,
   paymentData: Omit<Payment, 'id'>
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
-  // console.log(`Firebase is disabled. Adding payment to invoice ${invoiceId} in JSON.`);
   let invoices = await readInvoicesFile();
   const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
 
@@ -171,3 +175,4 @@ export async function addPaymentToInvoice(
   await writeInvoicesFile(invoices);
   return { success: true, invoice: invoices[invoiceIndex] };
 }
+

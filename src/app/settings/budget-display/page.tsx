@@ -5,9 +5,10 @@ import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
@@ -39,7 +40,7 @@ export default function BudgetDisplaySettingsPage() {
     loadSettings();
   }, [loadSettings]);
 
-  const handleSettingChange = (key: keyof BudgetDisplaySettings, value: boolean) => {
+  const handleSettingChange = (key: keyof BudgetDisplaySettings, value: boolean | number | undefined) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
@@ -132,10 +133,40 @@ export default function BudgetDisplaySettingsPage() {
                 </div>
               </React.Fragment>
             ))}
+            <Separator />
+             <div className="space-y-3 p-3 border rounded-md hover:bg-muted/20 transition-colors">
+                <Label htmlFor="annualAdjustmentPercentage" className="text-base font-medium flex items-center gap-2">
+                    <Percent className="w-5 h-5 text-primary/80"/> Ajuste Anual Automático (%)
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                    Define un porcentaje de ajuste que se podría aplicar a presupuestos para eventos en años futuros. Se indicará en el presupuesto si aplica.
+                </p>
+                <Input
+                    id="annualAdjustmentPercentage"
+                    type="number"
+                    value={settings.annualAdjustmentPercentage ?? ''}
+                    onChange={(e) => handleSettingChange('annualAdjustmentPercentage', e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                    placeholder="Ej: 15 para 15%"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    disabled={isSaving}
+                    className="max-w-xs"
+                />
+            </div>
+            <Separator />
+            <div className="space-y-3 p-3 border rounded-md bg-muted/50">
+                <Label className="text-base font-medium">Descuentos Promocionales</Label>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Info className="w-5 h-5 text-blue-500"/>
+                    <p>La funcionalidad para definir y aplicar descuentos promocionales personalizados se habilitará en futuras actualizaciones.</p>
+                </div>
+            </div>
+
              <div className="p-3 border rounded-md bg-yellow-50 border-yellow-200 text-yellow-700">
                 <AlertTriangle className="inline w-4 h-4 mr-1" />
                 <span className="text-xs font-medium">Nota:</span>
-                <span className="text-xs"> La opción "Mostrar totales con o sin impuestos" se interpreta como mostrar/ocultar el desglose detallado de precios. La lógica específica de impuestos no está implementada. "Mostrar forma de pago" controla la visibilidad de la sección de notas donde pueden ir los términos de pago.</span>
+                <span className="text-xs"> La opción "Mostrar totales con o sin impuestos" (referida en la solicitud original) se interpreta como mostrar/ocultar el desglose detallado de precios mediante la opción "Mostrar desglose de precios por servicio". La lógica específica de cálculo de impuestos no está implementada.</span>
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">

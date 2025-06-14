@@ -85,7 +85,18 @@ export default function VerPresupuestoPage() {
       texto += `\n`;
     }
     
-    texto += `*TOTAL ESTIMADO:* *${formatCurrency(currentPresupuesto.costoTotalEstimado)}*\n\n`;
+    let finalTotalText = currentPresupuesto.costoTotalEstimado;
+    let adjustmentText = "";
+
+    const eventYear = new Date(currentPresupuesto.eventoFecha).getFullYear();
+    const currentYear = new Date().getFullYear();
+
+    if (settings.annualAdjustmentPercentage && settings.annualAdjustmentPercentage > 0 && eventYear > currentYear) {
+      // The adjustment is NOT applied to the total here, only mentioned for invoicing.
+      adjustmentText = `\n\n⚠️ *Nota:* Este presupuesto NO incluye el ajuste anual del ${settings.annualAdjustmentPercentage}% que se aplicará al momento de generar la factura por corresponder a un evento en el próximo año.`;
+    }
+    
+    texto += `*TOTAL ESTIMADO:* *${formatCurrency(finalTotalText)}*${adjustmentText}\n\n`;
 
     if (settings.showPaymentMethodNotes && currentPresupuesto.notas) {
       texto += `*Notas y Condiciones:*\n${currentPresupuesto.notas}\n\n`;
@@ -140,6 +151,13 @@ export default function VerPresupuestoPage() {
     }
   };
 
+  const eventYear = presupuesto ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
+  const currentYear = new Date().getFullYear();
+  const showAnnualAdjustmentLegend = displaySettings?.annualAdjustmentPercentage && 
+                                   displaySettings.annualAdjustmentPercentage > 0 && 
+                                   eventYear > currentYear;
+
+
   if (isLoading || !displaySettings) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -190,10 +208,22 @@ export default function VerPresupuestoPage() {
                     <Mail className="w-4 h-4 mr-2" /> Email
                 </Button>
             </a>
-             <Button onClick={handleCreateInvoice} variant='default'>
-              <FileText className="w-4 h-4 mr-2" />
-              Crear Factura
-            </Button>
+            {presupuesto.estado !== 'Facturado' ? (
+                <Button onClick={handleCreateInvoice} variant='default'>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Crear Factura
+                </Button>
+              ) : presupuesto.invoiceId ? (
+                <Link href={`/invoices/${presupuesto.invoiceId}`} passHref>
+                  <Button variant="secondary" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">
+                    <FileSignature className="w-4 h-4 mr-2" />
+                    Ver Factura ({presupuesto.invoiceId.split('_').pop()})
+                  </Button>
+                </Link>
+              ) : (
+                 <Button variant="secondary" disabled>Facturado (Sin ID)</Button>
+              )
+            }
             <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
               <Button variant="secondary">
                 <Edit className="w-4 h-4 mr-2" />
@@ -232,7 +262,7 @@ export default function VerPresupuestoPage() {
                 </div>
               )}
               {displaySettings.showEventTypeAndDate && (
-                <div className={cn(displaySettings.showClientData ? "md:text-right" : "")}>
+                <div className={displaySettings.showClientData ? "md:text-right" : ""}>
                  <h2 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider mb-1">Evento:</h2>
                  <p className="text-md text-foreground">{presupuesto.eventoTipo}</p>
                  <p className="text-sm text-muted-foreground">Para {presupuesto.invitadosCantidad} invitados</p>
@@ -304,6 +334,14 @@ export default function VerPresupuestoPage() {
             </div>
           </section>
 
+          {showAnnualAdjustmentLegend && (
+            <div className="my-4 p-3 border border-orange-300 bg-orange-50 text-orange-700 rounded-md text-xs print:text-[9pt]">
+              <AlertTriangle className="inline w-3.5 h-3.5 mr-1 align-text-bottom" />
+              Este presupuesto NO incluye el ajuste anual del {displaySettings.annualAdjustmentPercentage}% que se aplicará al momento de generar la factura por corresponder a un evento en el próximo año.
+            </div>
+          )}
+
+
           {displaySettings.showPaymentMethodNotes && presupuesto.notas && (
             <section className="pt-6 border-t print:pt-3 print:border-gray-300">
               <h4 className="text-md font-semibold text-muted-foreground mb-2 print:text-sm">Notas y Condiciones:</h4>
@@ -323,3 +361,4 @@ export default function VerPresupuestoPage() {
     </div>
   );
 }
+

@@ -3,7 +3,7 @@
 
 import { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link'; // Added missing import
+import Link from 'next/link'; 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,7 @@ const VENDOR_NAME = "Presupuestador AK Producciones";
 const VENDOR_ADDRESS = "Calle de Ejemplo 456, Oficina 7A, 28002 Madrid, España";
 const VENDOR_TAX_ID = "A08123456";
 const DEFAULT_CURRENCY = "UYU";
-const DEFAULT_TAX_RATE = 21;
+const DEFAULT_TAX_RATE = 21; // Ejemplo, puede ser 0 si no aplica IVA o es configurable
 
 interface NewInvoiceItem extends Omit<InvoiceItem, 'id' | 'total'> {
   tempId: string;
@@ -49,6 +49,8 @@ function NewInvoicePageContent() {
   ]);
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<InvoiceStatus>('Draft');
+  const [sourcePresupuestoId, setSourcePresupuestoId] = useState<string | null>(null);
+
 
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,51 +59,68 @@ function NewInvoicePageContent() {
   useEffect(() => {
     async function loadInitialData() {
       setIsLoadingCustomers(true);
-      setIsLoadingFromPresupuesto(true);
+      const fromPresupuestoIdParam = searchParams.get('fromPresupuesto');
+      if (fromPresupuestoIdParam) {
+          setIsLoadingFromPresupuesto(true);
+          setSourcePresupuestoId(fromPresupuestoIdParam);
+      }
+
       try {
         const fetchedCustomers = await getCustomers();
         setCustomers(fetchedCustomers);
 
-        const fromPresupuestoId = searchParams.get('fromPresupuesto');
-        if (fromPresupuestoId) {
-          const presupuesto = await getPresupuestoById(fromPresupuestoId);
+        if (fromPresupuestoIdParam) {
+          const presupuesto = await getPresupuestoById(fromPresupuestoIdParam);
           if (presupuesto) {
             if (presupuesto.clienteNombre) {
               const matchingCustomer = fetchedCustomers.find(c => c.name === presupuesto.clienteNombre || c.companyName === presupuesto.clienteNombre);
               if (matchingCustomer) {
                 setSelectedCustomerId(matchingCustomer.id);
+              } else {
+                 // Si el cliente del presupuesto no está en la lista, intentar buscarlo por ID si es que el nombre es solo un string.
+                 // O mejor, asumir que si se crea factura desde presupuesto, el cliente YA DEBERÍA EXISTIR y tener ID.
+                 // Para este caso, si el cliente no existe, se deja vacío y el usuario debe seleccionarlo o crearlo.
+                 toast({ title: "Cliente no encontrado", description: `El cliente "${presupuesto.clienteNombre}" del presupuesto no fue encontrado. Selecciona uno o crea uno nuevo.`, variant: "default", duration: 7000 });
               }
             }
-            setInvoiceNumber(`FACT-P${presupuesto.id.split('_').pop()}`);
+            // Intenta generar un número de factura basado en el ID del presupuesto.
+            // Esto es solo una sugerencia, el usuario puede cambiarlo.
+            setInvoiceNumber(`FACT-P${presupuesto.id.split('_').pop()?.substring(0,5)}`); 
+            
             const presupuestoItems: NewInvoiceItem[] = [];
             presupuesto.platosSeleccionados.forEach(p => {
               presupuestoItems.push({
                 tempId: `item_plato_${p.idPlato}_${Date.now()}`,
                 description: `${p.nombrePlato} (x${p.cantidad})`,
-                quantity: 1,
+                quantity: 1, // Asumimos que el presupuesto total es 1 item en la factura
                 unitPrice: p.costoTotalPlato,
               });
             });
-            presupuesto.serviciosAdicionales.forEach(s => {
-              presupuestoItems.push({
-                tempId: `item_servicio_${s.idServicio}_${Date.now()}`,
-                description: s.nombreServicio,
-                quantity: 1,
-                unitPrice: s.costoServicio,
-              });
-            });
+            // Concatenar servicios adicionales como un único ítem o varios
+            if (presupuesto.serviciosAdicionales.length > 0) {
+                if (presupuesto.costoSubtotalServicios > 0) {
+                     presupuestoItems.push({
+                        tempId: `item_servicios_adicionales_${Date.now()}`,
+                        description: `Servicios Adicionales (Detalle en presupuesto #${presupuesto.id.split('_').pop()?.substring(0,5)})`,
+                        quantity: 1,
+                        unitPrice: presupuesto.costoSubtotalServicios,
+                    });
+                }
+            }
+            
             if (presupuestoItems.length > 0) {
                 setItems(presupuestoItems);
             } else {
-                setItems([{ tempId: `item_${Date.now()}`, description: '', quantity: 1, unitPrice: 0 }]);
+                // Default item if presupuesto had no items
+                setItems([{ tempId: `item_${Date.now()}`, description: 'Servicio según presupuesto adjunto', quantity: 1, unitPrice: presupuesto.costoTotalEstimado }]);
             }
             setNotes(presupuesto.notas || '');
             if (presupuesto.eventoFecha) {
                 setIssueDate(new Date(presupuesto.eventoFecha));
             }
-             toast({ title: "Datos Cargados", description: `Datos del presupuesto #${presupuesto.id.split('_').pop()} pre-cargados.`});
+             toast({ title: "Datos Cargados", description: `Datos del presupuesto #${presupuesto.id.split('_').pop()?.substring(0,5)} pre-cargados.`});
           } else {
-            toast({ title: "Presupuesto no encontrado", description: `No se pudo cargar el presupuesto ID ${fromPresupuestoId}.`, variant: "destructive" });
+            toast({ title: "Presupuesto no encontrado", description: `No se pudo cargar el presupuesto ID ${fromPresupuestoIdParam}.`, variant: "destructive" });
           }
         }
       } catch (error) {
@@ -188,7 +207,7 @@ function NewInvoicePageContent() {
     };
 
     try {
-      const result = await saveInvoice(invoiceData);
+      const result = await saveInvoice(invoiceData, sourcePresupuestoId || undefined);
       if (result.success && result.id) {
         toast({ title: "¡Factura Creada!", description: `La factura ${result.invoice?.invoiceNumber} ha sido creada.` });
         router.push('/invoices');
@@ -202,11 +221,11 @@ function NewInvoicePageContent() {
     }
   };
 
-  if (isLoadingFromPresupuesto) {
+  if (isLoadingCustomers || isLoadingFromPresupuesto) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="ml-3 text-muted-foreground">Cargando datos del presupuesto...</p>
+        <p className="ml-3 text-muted-foreground">Cargando datos...</p>
       </div>
     );
   }
@@ -218,6 +237,7 @@ function NewInvoicePageContent() {
           <FilePlus2 className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Crear Nueva Factura
+            {sourcePresupuestoId && <span className="text-base font-normal text-muted-foreground"> (Desde Presupuesto #{sourcePresupuestoId.split('_').pop()?.substring(0,5)})</span>}
           </h1>
         </div>
         <Link href="/invoices" passHref>
@@ -237,11 +257,12 @@ function NewInvoicePageContent() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="customer-select">Cliente</Label>
+                <Label htmlFor="customer-select">Cliente *</Label>
                 <Select
                   value={selectedCustomerId}
                   onValueChange={setSelectedCustomerId}
                   disabled={isLoadingCustomers || customers.length === 0}
+                  required
                 >
                   <SelectTrigger id="customer-select" className="text-base p-3 h-auto">
                     <SelectValue placeholder={isLoadingCustomers ? "Cargando clientes..." : "Seleccionar cliente"} />
@@ -260,14 +281,14 @@ function NewInvoicePageContent() {
                  )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="invoice-number">Número de Factura</Label>
-                <Input id="invoice-number" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder="Ej: FACT2024-001" className="text-base p-3"/>
+                <Label htmlFor="invoice-number">Número de Factura *</Label>
+                <Input id="invoice-number" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder="Ej: FACT2024-001" className="text-base p-3" required/>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="issue-date">Fecha de Emisión</Label>
+                <Label htmlFor="issue-date">Fecha de Emisión *</Label>
                 <DatePickerDemo selectedDate={issueDate} onDateChange={setIssueDate} />
               </div>
               <div className="space-y-2">
@@ -295,28 +316,30 @@ function NewInvoicePageContent() {
                 <Card key={item.tempId} className="p-4 bg-muted/30 space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                     <div className="sm:col-span-6 space-y-1">
-                      <Label htmlFor={`item-desc-${item.tempId}`} className="text-xs">Descripción</Label>
+                      <Label htmlFor={`item-desc-${item.tempId}`} className="text-xs">Descripción *</Label>
                       <Input
                         id={`item-desc-${item.tempId}`}
                         value={item.description}
                         onChange={(e) => handleItemChange(item.tempId, 'description', e.target.value)}
                         placeholder="Descripción del servicio o producto"
                         className="h-9 text-sm"
+                        required
                       />
                     </div>
                     <div className="sm:col-span-2 space-y-1">
-                      <Label htmlFor={`item-qty-${item.tempId}`} className="text-xs">Cant.</Label>
+                      <Label htmlFor={`item-qty-${item.tempId}`} className="text-xs">Cant. *</Label>
                       <Input
                         id={`item-qty-${item.tempId}`}
                         type="number"
                         value={item.quantity}
                         onChange={(e) => handleItemChange(item.tempId, 'quantity', e.target.value)}
-                        min="0"
+                        min="1"
                         className="h-9 text-sm"
+                        required
                       />
                     </div>
                     <div className="sm:col-span-3 space-y-1">
-                      <Label htmlFor={`item-price-${item.tempId}`} className="text-xs">Precio Unit. ({DEFAULT_CURRENCY})</Label>
+                      <Label htmlFor={`item-price-${item.tempId}`} className="text-xs">Precio Unit. ({DEFAULT_CURRENCY}) *</Label>
                       <Input
                         id={`item-price-${item.tempId}`}
                         type="number"
@@ -325,10 +348,11 @@ function NewInvoicePageContent() {
                         min="0"
                         step="any"
                         className="h-9 text-sm"
+                        required
                       />
                     </div>
                     <div className="sm:col-span-1 flex justify-end">
-                      {items.length > 0 && (
+                      {items.length > 0 && ( // Changed from items.length > 1 to allow deleting the last item if needed, though form validation will catch empty items
                         <Button
                           type="button"
                           variant="ghost"

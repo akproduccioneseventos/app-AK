@@ -46,11 +46,9 @@ export interface Presupuesto {
   costoSubtotalServicios: number;
   costoTotalEstimado: number;
   timestamp: string; // ISO date string del momento de creación/actualización
-  estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado';
+  estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Nuevo estado
   notas?: string;
-  // Los nuevos campos como salonFiestas, nombreHomenajeado1/2, nombreEmpresa no se añaden aquí
-  // directamente a menos que se especifique que deben persistirse en el objeto Presupuesto final.
-  // Por ahora, se recopilan en el formulario (PresupuestoFormData).
+  invoiceId?: string; // ID de la factura asociada si está facturado
 }
 
 // Para el formulario multi-paso
@@ -62,21 +60,21 @@ export interface PresupuestoFormData {
   eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
-  salonFiestas: string; // Nuevo campo obligatorio
-  nombreHomenajeado1: string; // Para cumple/otro o Novio
-  nombreHomenajeado2: string; // Para Novia (si es Boda)
-  nombreEmpresa: string; // Para Evento Corporativo
+  salonFiestas: string; 
+  nombreHomenajeado1: string; 
+  nombreHomenajeado2: string; 
+  nombreEmpresa: string; 
 
   // Paso 2
-  platosDisponibles: PlatoPresupuesto[]; // Cargados
-  platosSeleccionadosIds: Set<string>; // IDs de platos seleccionados
+  platosDisponibles: PlatoPresupuesto[]; 
+  platosSeleccionadosIds: Set<string>; 
 
   // Paso 3
-  serviciosDisponibles: ServicioAdicional[]; // Definidos o cargados
-  serviciosSeleccionadosIds: Set<string>; // IDs de servicios seleccionados
+  serviciosDisponibles: ServicioAdicional[]; 
+  serviciosSeleccionadosIds: Set<string>; 
 
   // Paso 4 (Cálculos y resumen)
-  resumen?: Presupuesto; // El presupuesto final calculado
+  resumen?: Presupuesto; 
   notas: string;
 }
 

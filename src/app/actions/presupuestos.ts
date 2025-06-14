@@ -1,10 +1,8 @@
 
 'use server';
 
-// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { Presupuesto, PlatoPresupuesto, ServicioAdicional } from '@/types/presupuesto';
-import type { FullMenu } from '@/types/catering'; // For getPlatos if it were reading menus from another JSON source
-import { getMenus } from './menus-catering'; // Assuming getMenus from menus-catering.ts will now read from its JSON
+import { getMenus } from './menus-catering'; 
 
 import fs from 'fs/promises';
 import path from 'path';
@@ -74,9 +72,8 @@ function generateDataAiHint(name: string): string {
 }
 
 export async function getPlatos(): Promise<PlatoPresupuesto[]> {
-  // console.log("Firebase is disabled for menus. Reading platos from local menus-catering JSON.");
   try {
-    const menus = await getMenus(); // This will now read from menus-catering.json
+    const menus = await getMenus(); 
     const platosPresupuesto: PlatoPresupuesto[] = [];
 
     if (menus.length === 0) {
@@ -103,14 +100,14 @@ export async function getPlatos(): Promise<PlatoPresupuesto[]> {
   }
 }
 
-export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'timestamp' | 'estado'>): Promise<{ success: boolean, id?: string, error?: string }> {
-  // console.log("Firebase is disabled. Saving presupuesto to JSON.");
+export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'timestamp' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string }> {
   let presupuestos = await readPresupuestosFile();
   const nuevoPresupuesto: Presupuesto = {
     ...presupuestoData,
     id: `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     timestamp: new Date().toISOString(),
-    estado: 'Borrador'
+    estado: 'Borrador', 
+    invoiceId: undefined,
   };
   presupuestos.push(nuevoPresupuesto);
   await writePresupuestosFile(presupuestos);
@@ -118,18 +115,15 @@ export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 
 }
 
 export async function getPresupuestos(): Promise<Presupuesto[]> {
-  // console.log("Firebase is disabled. Reading presupuestos from JSON.");
   return readPresupuestosFile();
 }
 
 export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
-  // console.log(`Firebase is disabled. Reading presupuesto ${id} from JSON.`);
   const presupuestos = await readPresupuestosFile();
   return presupuestos.find(p => p.id === id) || null;
 }
 
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  // console.log(`Firebase is disabled. Updating presupuesto ${presupuestoData.id} in JSON.`);
   let presupuestos = await readPresupuestosFile();
   const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
   if (index === -1) {
@@ -137,16 +131,28 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
   }
 
   const { id, ...dataToUpdate } = presupuestoData;
-  const costoSubtotalPlatos = dataToUpdate.platosSeleccionados.reduce((sum, plato) => sum + plato.costoTotalPlato, 0);
-  const costoSubtotalServicios = dataToUpdate.serviciosAdicionales.reduce((sum, servicio) => sum + servicio.costoServicio, 0);
-  const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
+  
+  // Recalculate totals if items are part of the update (though typically items are not edited this way after creation from the "editar" page)
+  // For now, assume that if `platosSeleccionados` or `serviciosAdicionales` are present, they are the source of truth for totals
+  let costoSubtotalPlatos = dataToUpdate.costoSubtotalPlatos;
+  let costoSubtotalServicios = dataToUpdate.costoSubtotalServicios;
+  let costoTotalEstimado = dataToUpdate.costoTotalEstimado;
+
+  if(dataToUpdate.platosSeleccionados){
+    costoSubtotalPlatos = dataToUpdate.platosSeleccionados.reduce((sum, plato) => sum + plato.costoTotalPlato, 0);
+  }
+  if(dataToUpdate.serviciosAdicionales){
+     costoSubtotalServicios = dataToUpdate.serviciosAdicionales.reduce((sum, servicio) => sum + servicio.costoServicio, 0);
+  }
+  costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
+
 
   const finalDataToUpdate = {
     ...dataToUpdate,
     costoSubtotalPlatos,
     costoSubtotalServicios,
     costoTotalEstimado,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString(), // Always update timestamp on any modification
   };
   
   presupuestos[index] = { id, ...finalDataToUpdate };
@@ -155,7 +161,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 }
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
-  // console.log(`Firebase is disabled. Deleting presupuesto ${id} from JSON.`);
   let presupuestos = await readPresupuestosFile();
   const initialLength = presupuestos.length;
   presupuestos = presupuestos.filter(p => p.id !== id);
@@ -165,3 +170,19 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
   await writePresupuestosFile(presupuestos);
   return { success: true };
 }
+
+// Helper function that might be called by saveInvoice action
+export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceId: string): Promise<{ success: boolean; error?: string }> {
+  let presupuestos = await readPresupuestosFile();
+  const index = presupuestos.findIndex(p => p.id === presupuestoId);
+  if (index === -1) {
+    return { success: false, error: `Presupuesto con ID ${presupuestoId} no encontrado para marcar como facturado.` };
+  }
+  presupuestos[index].estado = 'Facturado';
+  presupuestos[index].invoiceId = invoiceId;
+  presupuestos[index].timestamp = new Date().toISOString(); // Update timestamp
+  
+  await writePresupuestosFile(presupuestos);
+  return { success: true };
+}
+

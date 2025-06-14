@@ -4,5 +4,7 @@
   "showEventTypeAndDate": true,
   "showPaymentMethodNotes": true,
   "showPriceBreakdown": true,
-  "showCompanyLogo": true
+  "showCompanyLogo": true,
+  "annualAdjustmentPercentage": 0,
+  "promotionalDiscounts": []
 }

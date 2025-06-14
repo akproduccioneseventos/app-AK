@@ -24,10 +24,9 @@ async function readBudgetDisplaySettingsFile(): Promise<BudgetDisplaySettings> {
     const fileContent = await fs.readFile(BUDGET_DISPLAY_SETTINGS_FILE_PATH, 'utf-8');
     if (fileContent.trim() === '') return defaultBudgetDisplaySettings;
     const parsedContent = JSON.parse(fileContent) as Partial<BudgetDisplaySettings>;
-    // Merge with defaults to ensure all keys are present
+    // Merge with defaults to ensure all keys are present, including new ones
     return { ...defaultBudgetDisplaySettings, ...parsedContent };
   } catch (error) {
-    // If file doesn't exist or error reading, write and return defaults
     await writeBudgetDisplaySettingsFile(defaultBudgetDisplaySettings);
     return defaultBudgetDisplaySettings;
   }
@@ -42,7 +41,6 @@ async function writeBudgetDisplaySettingsFile(data: BudgetDisplaySettings): Prom
   }
 }
 
-// Initialize file if it doesn't exist
 async function initializeBudgetDisplaySettingsFile() {
   await readBudgetDisplaySettingsFile();
 }
@@ -57,13 +55,14 @@ export async function saveBudgetDisplaySettings(
   settings: BudgetDisplaySettings
 ): Promise<{ success: boolean; settings?: BudgetDisplaySettings; error?: string }> {
   try {
-    // Validate settings if necessary (e.g., ensure all boolean fields are present)
+    // Validate and ensure all fields are present, merging with defaults if necessary
     const settingsToSave: BudgetDisplaySettings = {
-        showClientData: typeof settings.showClientData === 'boolean' ? settings.showClientData : defaultBudgetDisplaySettings.showClientData,
-        showEventTypeAndDate: typeof settings.showEventTypeAndDate === 'boolean' ? settings.showEventTypeAndDate : defaultBudgetDisplaySettings.showEventTypeAndDate,
-        showPaymentMethodNotes: typeof settings.showPaymentMethodNotes === 'boolean' ? settings.showPaymentMethodNotes : defaultBudgetDisplaySettings.showPaymentMethodNotes,
-        showPriceBreakdown: typeof settings.showPriceBreakdown === 'boolean' ? settings.showPriceBreakdown : defaultBudgetDisplaySettings.showPriceBreakdown,
-        showCompanyLogo: typeof settings.showCompanyLogo === 'boolean' ? settings.showCompanyLogo : defaultBudgetDisplaySettings.showCompanyLogo,
+        ...defaultBudgetDisplaySettings, // Start with defaults
+        ...settings, // Override with provided settings
+        // Ensure specific types if necessary, e.g., annualAdjustmentPercentage is a number
+        annualAdjustmentPercentage: Number(settings.annualAdjustmentPercentage) || 0,
+        // Ensure promotionalDiscounts is an array even if undefined in input
+        promotionalDiscounts: Array.isArray(settings.promotionalDiscounts) ? settings.promotionalDiscounts : [],
     };
     await writeBudgetDisplaySettingsFile(settingsToSave);
     return { success: true, settings: settingsToSave };

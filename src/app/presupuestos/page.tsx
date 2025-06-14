@@ -4,8 +4,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2 } from 'lucide-react';
+import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -14,23 +15,30 @@ import { getFiestaActual, updatePresupuestoAsignadoFiestaActual } from '@/app/ac
 import { useToast } from '@/hooks/use-toast';
 
 export default function PresupuestosPage() {
-  const [presupuestosAnteriores, setPresupuestosAnteriores] = useState<Presupuesto[]>([]);
+  const [allPresupuestos, setAllPresupuestos] = useState<Presupuesto[]>([]);
+  const [filteredPresupuestos, setFilteredPresupuestos] = useState<Presupuesto[]>([]);
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [assigningPresupuestoId, setAssigningPresupuestoId] = useState<string | null>(null);
   const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const [presupuestosData, fiestaData] = await Promise.all([
         getPresupuestos(),
         getFiestaActual()
       ]);
-      setPresupuestosAnteriores(presupuestosData);
+      setAllPresupuestos(presupuestosData);
+      setFilteredPresupuestos(presupuestosData); // Initialize filtered list
       setFiestaActual(fiestaData);
-    } catch (error) {
-      console.error("Error cargando datos:", error);
+    } catch (err: any) {
+      console.error("Error cargando datos:", err);
+      setError("No se pudieron cargar los datos. Intente de nuevo.");
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -40,6 +48,14 @@ export default function PresupuestosPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = allPresupuestos.filter(presupuesto =>
+      presupuesto.clienteNombre.toLowerCase().includes(lowercasedFilter)
+    );
+    setFilteredPresupuestos(filtered);
+  }, [searchTerm, allPresupuestos]);
 
   const handleToggleAssignPresupuesto = async (presupuestoId: string) => {
     if (!fiestaActual) return;
@@ -54,7 +70,7 @@ export default function PresupuestosPage() {
           title: isCurrentlyAssigned ? "Presupuesto Desasignado" : "Presupuesto Asignado",
           description: `El presupuesto ha sido ${isCurrentlyAssigned ? 'desasignado de' : 'asignado a'} la fiesta actual.`,
         });
-        await fetchData(); // Recargar datos para reflejar el cambio
+        await fetchData(); 
       } else {
         throw new Error(result.error || "Error al actualizar la asignación del presupuesto.");
       }
@@ -65,15 +81,6 @@ export default function PresupuestosPage() {
     }
   };
   
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Cargando presupuestos...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       <Card className="shadow-xl overflow-hidden bg-gradient-to-br from-primary/20 via-background to-accent/10">
@@ -100,36 +107,64 @@ export default function PresupuestosPage() {
         </CardContent>
       </Card>
 
-      {presupuestosAnteriores.length > 0 && (
-        <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center gap-3">
-            <History className="w-7 h-7 text-primary" />
-            <div>
-              <CardTitle className="font-headline text-2xl">Historial de Presupuestos</CardTitle>
-              <CardDescription>Revisá, gestioná y asigná presupuestos a tu fiesta actual.</CardDescription>
+      <Card className="shadow-lg">
+          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+                <History className="w-7 h-7 text-primary" />
+                <div>
+                <CardTitle className="font-headline text-2xl">Historial de Presupuestos</CardTitle>
+                <CardDescription>Revisá, gestioná y asigná presupuestos a tu fiesta actual.</CardDescription>
+                </div>
+            </div>
+            <div className="relative w-full md:w-auto md:min-w-[300px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                type="text"
+                placeholder="Buscar por nombre de cliente..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10"
+                />
             </div>
           </CardHeader>
-          <CardContent className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {presupuestosAnteriores.map((presupuesto) => (
-              <PresupuestoCard 
-                key={presupuesto.id} 
-                presupuesto={presupuesto}
-                isAssignedToCurrentFiesta={fiestaActual?.presupuestoId === presupuesto.id}
-                onToggleAssign={() => handleToggleAssignPresupuesto(presupuesto.id)}
-                isAssigning={assigningPresupuestoId === presupuesto.id}
-              />
-            ))}
+          <CardContent>
+            {isLoading ? (
+                 <div className="flex items-center justify-center min-h-[200px]">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                    <p className="ml-3 text-lg">Cargando...</p>
+                </div>
+            ) : error ? (
+                <div className="py-10 text-center text-destructive">
+                    <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
+                    <p className="font-semibold text-lg">Error al Cargar Presupuestos</p>
+                    <p className="text-sm">{error}</p>
+                    <Button onClick={fetchData} className="mt-4" variant="outline">Reintentar</Button>
+                </div>
+            ) : filteredPresupuestos.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filteredPresupuestos.map((presupuesto) => (
+                  <PresupuestoCard 
+                    key={presupuesto.id} 
+                    presupuesto={presupuesto}
+                    isAssignedToCurrentFiesta={fiestaActual?.presupuestoId === presupuesto.id}
+                    onToggleAssign={() => handleToggleAssignPresupuesto(presupuesto.id)}
+                    isAssigning={assigningPresupuestoId === presupuesto.id}
+                  />
+                ))}
+              </div>
+            ) : (
+                <div className="text-center py-12 bg-card border rounded-lg shadow-sm">
+                    <Coins className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground text-xl font-medium">
+                        {allPresupuestos.length === 0 ? "Aún no has creado ningún presupuesto." : "No se encontraron presupuestos con ese nombre."}
+                    </p>
+                    {allPresupuestos.length === 0 && (
+                         <p className="text-muted-foreground mt-1">¡Comenzá ahora mismo haciendo clic en el botón de arriba!</p>
+                    )}
+                </div>
+            )}
           </CardContent>
         </Card>
-      )}
-
-      {presupuestosAnteriores.length === 0 && !isLoading && (
-         <div className="text-center py-12 bg-card border rounded-lg shadow-sm">
-            <Coins className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground text-xl font-medium">Aún no has creado ningún presupuesto.</p>
-            <p className="text-muted-foreground mt-1">¡Comenzá ahora mismo haciendo clic en el botón de arriba!</p>
-        </div>
-      )}
     </div>
   );
 }
