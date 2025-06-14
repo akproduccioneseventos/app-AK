@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 
 import Paso1DatosEvento from '@/components/presupuestos/paso-1-datos-evento';
-// Paso2Menu ya no se importa
+// Paso2Menu ya no se importa, el flujo es directo a servicios
 import Paso3Servicios from '@/components/presupuestos/paso-3-servicios';
 import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
@@ -19,7 +19,7 @@ import { getPlatos, savePresupuesto } from '@/app/actions/presupuestos';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
 
-const TOTAL_PASOS = 3; 
+const TOTAL_PASOS = 3; // Ajustado a 3 pasos
 
 const serviciosDisponiblesMock: ServicioAdicional[] = [];
 
@@ -137,6 +137,7 @@ export default function NuevoPresupuestoPage() {
             return;
         }
       }
+      // Para el paso 2 (Servicios Adicionales), no hay validación estricta obligatoria antes de pasar al resumen
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
   };
@@ -152,7 +153,7 @@ export default function NuevoPresupuestoPage() {
       return null;
     }
 
-    const costoSubtotalPlatos = 0; 
+    const costoSubtotalPlatos = 0; // Ya que el paso de menú detallado se omite
     const platosFinales: Presupuesto['platosSeleccionados'] = []; 
 
     let costoSubtotalServicios = 0;
@@ -256,6 +257,19 @@ export default function NuevoPresupuestoPage() {
 
   const progreso = (formData.pasoActual / TOTAL_PASOS) * 100;
 
+  // Actualización de títulos y descripciones para 3 pasos
+  const titulosPasos = [
+    "Datos Generales del Evento",
+    "Servicios Adicionales",
+    "Resumen y Notas del Presupuesto"
+  ];
+  const descripcionesPasos = [
+    "Completá la información básica de tu evento.",
+    "Añadí servicios opcionales para complementar tu fiesta.",
+    "Revisá todos los detalles, añadí notas y el costo final estimado."
+  ];
+
+
   const renderPaso = () => {
     if (isLoadingInitialData && formData.pasoActual === 1) {
       return (
@@ -268,26 +282,14 @@ export default function NuevoPresupuestoPage() {
     switch (formData.pasoActual) {
       case 1:
         return <Paso1DatosEvento formData={formData} setFormData={setFormData} />;
-      case 2: 
+      case 2: // Anteriormente Paso3Servicios
         return <Paso3Servicios formData={formData} setFormData={setFormData} />;
-      case 3: 
+      case 3: // Anteriormente Paso4Resumen
         return <Paso4Resumen presupuesto={formData.resumen} formData={formData} setFormData={setFormData} />;
       default:
         return null;
     }
   };
-
-  const titulosPasos = [
-    "Datos Generales del Evento",
-    "Servicios Adicionales",
-    "Resumen y Notas del Presupuesto"
-  ];
-  const descripcionesPasos = [
-    "Completá la información básica de tu evento.",
-    "Añadí servicios opcionales para complementar tu fiesta.",
-    "Revisá todos los detalles, añadí notas y el costo final estimado."
-  ];
-
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-0">
@@ -328,4 +330,3 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
-

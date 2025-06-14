@@ -27,9 +27,20 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
   
   const handleTipoEventoChange = (value: string) => {
      if (value === "Otro") {
-        handleChange('eventoTipo', ''); 
+        handleChange('eventoTipo', ''); // Prepara para input manual
       } else {
         handleChange('eventoTipo', value as TipoEvento);
+        // Limpiar campos específicos si el tipo cambia
+        if (value !== 'Boda') {
+            handleChange('nombreHomenajeado2', '');
+        }
+        if (value !== 'Evento corporativo') {
+            handleChange('nombreEmpresa', '');
+        }
+        if (value === 'Boda' || value === 'Evento corporativo') {
+            // Si es Boda o Corp, limpiar el homenajeado1 si no aplica
+            if (value !== 'Boda') handleChange('nombreHomenajeado1', '');
+        }
       }
   };
 
@@ -63,11 +74,12 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
               ))}
             </SelectContent>
           </Select>
-          {(formData.eventoTipo === '' || (!ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento) && formData.eventoTipo !== 'Otro')) && (
+          {/* Mostrar input para "Otro" si eventoTipo no es uno de los predefinidos o está vacío tras seleccionar "Otro" */}
+          {(!ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento) && formData.eventoTipo !== "Otro") || (formData.eventoTipo === '' && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento) === false) && (
              <Input 
                 id="eventoTipoOtro" 
-                placeholder="Especificá el tipo de evento" 
-                value={formData.eventoTipo !== "Otro" ? formData.eventoTipo : ""} 
+                placeholder="Especificá el tipo de evento *" 
+                value={formData.eventoTipo === "Otro" ? "" : formData.eventoTipo} 
                 onChange={(e) => handleChange('eventoTipo', e.target.value)}
                 className="text-base p-3 mt-2"
                 required
@@ -86,7 +98,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
               value={formData.nombreHomenajeado1}
               onChange={(e) => handleChange('nombreHomenajeado1', e.target.value)}
               className="text-base p-3"
-              required
+              required={formData.eventoTipo === 'Boda'}
             />
           </div>
           <div className="space-y-2">
@@ -97,7 +109,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
               value={formData.nombreHomenajeado2}
               onChange={(e) => handleChange('nombreHomenajeado2', e.target.value)}
               className="text-base p-3"
-              required
+              required={formData.eventoTipo === 'Boda'}
             />
           </div>
         </div>
@@ -112,7 +124,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             value={formData.nombreHomenajeado1}
             onChange={(e) => handleChange('nombreHomenajeado1', e.target.value)}
             className="text-base p-3"
-            required
+            required={formData.eventoTipo !== 'Boda' && formData.eventoTipo !== 'Evento corporativo'}
           />
         </div>
       )}
@@ -126,7 +138,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             value={formData.nombreEmpresa}
             onChange={(e) => handleChange('nombreEmpresa', e.target.value)}
             className="text-base p-3"
-            required
+            required={formData.eventoTipo === 'Evento corporativo'}
           />
         </div>
       )}
