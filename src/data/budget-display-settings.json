@@ -5,6 +5,7 @@
   "showPaymentMethodNotes": true,
   "showPriceBreakdown": true,
   "showCompanyLogo": true,
-  "annualAdjustmentPercentage": 0,
+  "annualAdjustmentPercentage": 15,
   "promotionalDiscounts": []
 }
+

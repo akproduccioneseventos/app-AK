@@ -6,13 +6,23 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle } from 'lucide-react';
+import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getFiestaActual, updatePresupuestoAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const ALL_PRESUPUESTO_ESTADOS: Presupuesto['estado'][] = ['Borrador', 'Enviado', 'Aceptado', 'Rechazado', 'Facturado'];
 
 export default function PresupuestosPage() {
   const [allPresupuestos, setAllPresupuestos] = useState<Presupuesto[]>([]);
@@ -23,6 +33,9 @@ export default function PresupuestosPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<Record<Presupuesto['estado'], boolean>>(
+    ALL_PRESUPUESTO_ESTADOS.reduce((acc, status) => ({...acc, [status]: true }), {} as Record<Presupuesto['estado'], boolean>)
+  );
 
 
   const fetchData = useCallback(async () => {
@@ -34,7 +47,7 @@ export default function PresupuestosPage() {
         getFiestaActual()
       ]);
       setAllPresupuestos(presupuestosData);
-      setFilteredPresupuestos(presupuestosData); // Initialize filtered list
+      // setFilteredPresupuestos(presupuestosData); // Filter will be applied by useEffect
       setFiestaActual(fiestaData);
     } catch (err: any) {
       console.error("Error cargando datos:", err);
@@ -50,12 +63,21 @@ export default function PresupuestosPage() {
   }, [fetchData]);
 
   useEffect(() => {
-    const lowercasedFilter = searchTerm.toLowerCase();
-    const filtered = allPresupuestos.filter(presupuesto =>
-      presupuesto.clienteNombre.toLowerCase().includes(lowercasedFilter)
-    );
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    const filtered = allPresupuestos.filter(presupuesto => {
+      const searchTermMatch = presupuesto.clienteNombre.toLowerCase().includes(lowercasedSearchTerm);
+      const statusMatch = statusFilter[presupuesto.estado];
+      return searchTermMatch && statusMatch;
+    });
     setFilteredPresupuestos(filtered);
-  }, [searchTerm, allPresupuestos]);
+  }, [searchTerm, allPresupuestos, statusFilter]);
+
+  const handleStatusFilterChange = (status: Presupuesto['estado']) => {
+    setStatusFilter(prev => ({ ...prev, [status]: !prev[status]}));
+  };
+
+  const anyStatusFilterActive = ALL_PRESUPUESTO_ESTADOS.some(status => !statusFilter[status]);
+
 
   const handleToggleAssignPresupuesto = async (presupuestoId: string) => {
     if (!fiestaActual) return;
@@ -116,15 +138,39 @@ export default function PresupuestosPage() {
                 <CardDescription>Revisá, gestioná y asigná presupuestos a tu fiesta actual.</CardDescription>
                 </div>
             </div>
-            <div className="relative w-full md:w-auto md:min-w-[300px]">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                type="text"
-                placeholder="Buscar por nombre de cliente..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10"
-                />
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <div className="relative flex-grow md:min-w-[250px]">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                    type="text"
+                    placeholder="Buscar por cliente..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10"
+                    />
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex-shrink-0">
+                      <Filter className="w-4 h-4 mr-2" />
+                      Filtrar Estado
+                      {anyStatusFilterActive && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuLabel>Mostrar por Estado</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {ALL_PRESUPUESTO_ESTADOS.map(status => (
+                      <DropdownMenuCheckboxItem
+                        key={status}
+                        checked={statusFilter[status]}
+                        onCheckedChange={() => handleStatusFilterChange(status)}
+                      >
+                        {status}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
             </div>
           </CardHeader>
           <CardContent>
@@ -156,7 +202,7 @@ export default function PresupuestosPage() {
                 <div className="text-center py-12 bg-card border rounded-lg shadow-sm">
                     <Coins className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground text-xl font-medium">
-                        {allPresupuestos.length === 0 ? "Aún no has creado ningún presupuesto." : "No se encontraron presupuestos con ese nombre."}
+                        {allPresupuestos.length === 0 ? "Aún no has creado ningún presupuesto." : "No se encontraron presupuestos que coincidan con los filtros."}
                     </p>
                     {allPresupuestos.length === 0 && (
                          <p className="text-muted-foreground mt-1">¡Comenzá ahora mismo haciendo clic en el botón de arriba!</p>

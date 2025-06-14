@@ -14,6 +14,7 @@ interface PresupuestoCardProps {
 }
 
 const formatCurrency = (amount: number) => {
+  if (isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
@@ -79,13 +80,13 @@ export default function PresupuestoCard({
               <Eye className="w-4 h-4 mr-1" /> Ver
             </Button>
           </Link>
-          {presupuesto.estado !== 'Facturado' && (
-            <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
-              <Button variant="outline" size="sm" aria-label={`Editar presupuesto de ${presupuesto.clienteNombre}`}>
-                <Edit className="w-4 h-4 mr-1" /> Editar
-              </Button>
-            </Link>
-          )}
+          {/* Permite editar incluso si está facturado, según la solicitud de poder modificar. 
+              La lógica de sincronización con factura NO está implementada. */}
+          <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
+            <Button variant="outline" size="sm" aria-label={`Editar presupuesto de ${presupuesto.clienteNombre}`}>
+              <Edit className="w-4 h-4 mr-1" /> Editar
+            </Button>
+          </Link>
         </div>
       </CardFooter>
     </Card>

@@ -5,8 +5,7 @@ export interface BudgetDisplaySettings {
   showPaymentMethodNotes: boolean; // Controls "Notas y Condiciones" visibility
   showPriceBreakdown: boolean; // Controls itemized list vs. just total
   showCompanyLogo: boolean;
-  annualAdjustmentPercentage?: number; // Nuevo campo para ajuste anual
-  // Placeholder para futura implementación de descuentos
+  annualAdjustmentPercentage?: number; // Porcentaje de ajuste anual
   promotionalDiscounts?: Array<{ 
     name: string; 
     type: 'percentage' | 'fixed'; 
@@ -24,3 +23,4 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   annualAdjustmentPercentage: 0, // Por defecto 0%
   promotionalDiscounts: [],
 };
+

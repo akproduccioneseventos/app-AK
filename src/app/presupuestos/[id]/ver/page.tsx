@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Download } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Download, Percent } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -33,8 +33,8 @@ const formatDate = (dateString?: string) => {
 };
 
 const COMPANY_NAME = "AK Producciones";
-const COMPANY_ADDRESS = "Montevideo, Uruguay";
-const COMPANY_CONTACT = "contacto@akproducciones.com.uy";
+const COMPANY_ADDRESS = "Montevideo, Uruguay"; // Placeholder
+const COMPANY_CONTACT = "contacto@akproducciones.com.uy"; // Placeholder
 const COMPANY_LOGO_URL = "https://placehold.co/200x80.png?text=AK+Logo"; 
 
 export default function VerPresupuestoPage() {
@@ -55,7 +55,7 @@ export default function VerPresupuestoPage() {
     
     let texto = `📄 *PRESUPUESTO - ${COMPANY_NAME}*\n\n`;
     texto += `*Nº Presupuesto:* ${currentPresupuesto.id.split('_').pop()}\n`;
-    texto += `*Fecha:* ${formatDate(currentPresupuesto.timestamp)}\n\n`;
+    texto += `*Fecha Emisión:* ${formatDate(currentPresupuesto.timestamp)}\n\n`;
 
     if (settings.showClientData) {
       texto += `*Cliente:* ${currentPresupuesto.clienteNombre}\n`;
@@ -87,13 +87,14 @@ export default function VerPresupuestoPage() {
     
     let finalTotalText = currentPresupuesto.costoTotalEstimado;
     let adjustmentText = "";
+    let adjustmentAmount = 0;
 
     const eventYear = new Date(currentPresupuesto.eventoFecha).getFullYear();
     const currentYear = new Date().getFullYear();
 
     if (settings.annualAdjustmentPercentage && settings.annualAdjustmentPercentage > 0 && eventYear > currentYear) {
-      // The adjustment is NOT applied to the total here, only mentioned for invoicing.
-      adjustmentText = `\n\n⚠️ *Nota:* Este presupuesto NO incluye el ajuste anual del ${settings.annualAdjustmentPercentage}% que se aplicará al momento de generar la factura por corresponder a un evento en el próximo año.`;
+      adjustmentAmount = (currentPresupuesto.costoTotalEstimado * settings.annualAdjustmentPercentage) / 100;
+      adjustmentText = `\n\n⚠️ *Nota:* Este presupuesto NO incluye el ajuste anual del ${settings.annualAdjustmentPercentage}% (aprox. ${formatCurrency(adjustmentAmount)}) que se aplicará al momento de generar la factura por corresponder a un evento en el próximo año.`;
     }
     
     texto += `*TOTAL ESTIMADO:* *${formatCurrency(finalTotalText)}*${adjustmentText}\n\n`;
@@ -153,9 +154,11 @@ export default function VerPresupuestoPage() {
 
   const eventYear = presupuesto ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
   const currentYear = new Date().getFullYear();
-  const showAnnualAdjustmentLegend = displaySettings?.annualAdjustmentPercentage && 
-                                   displaySettings.annualAdjustmentPercentage > 0 && 
-                                   eventYear > currentYear;
+  let calculatedAnnualAdjustmentAmount = 0;
+  if (presupuesto && displaySettings?.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && eventYear > currentYear) {
+    calculatedAnnualAdjustmentAmount = (presupuesto.costoTotalEstimado * displaySettings.annualAdjustmentPercentage) / 100;
+  }
+  const showAnnualAdjustmentLegend = calculatedAnnualAdjustmentAmount > 0 && presupuesto?.estado !== 'Facturado';
 
 
   if (isLoading || !displaySettings) {
@@ -246,7 +249,7 @@ export default function VerPresupuestoPage() {
               <div className="text-left sm:text-right">
                 <h1 className="text-3xl font-bold text-primary print:text-2xl">PRESUPUESTO</h1>
                 <p className="text-muted-foreground">Nº: {presupuesto.id.split('_').pop()}</p>
-                <p className="text-muted-foreground">Fecha: {formatDate(presupuesto.timestamp)}</p>
+                <p className="text-muted-foreground">Fecha Emisión: {formatDate(presupuesto.timestamp)}</p>
               </div>
             </div>
           </header>
@@ -288,6 +291,9 @@ export default function VerPresupuestoPage() {
                     </tr>
                   </thead>
                   <tbody>
+                    {presupuesto.platosSeleccionados.length === 0 && presupuesto.serviciosAdicionales.length === 0 && (
+                        <tr><td colSpan={4} className="p-4 text-center text-muted-foreground">No hay ítems detallados en este presupuesto.</td></tr>
+                    )}
                     {presupuesto.platosSeleccionados.map((item) => (
                       <tr key={`plato-${item.idPlato}`} className="border-b last:border-b-0 hover:bg-muted/20">
                         <td className="px-3 py-2.5 text-foreground print:px-2 print:py-1.5">{item.nombrePlato}</td>
@@ -324,20 +330,27 @@ export default function VerPresupuestoPage() {
 
           <Separator className="my-8 print:my-4"/>
 
-          <section className="flex justify-end mb-8 print:mb-4">
-            <div className="w-full max-w-xs space-y-2">
+          <section className="flex justify-end mb-2 print:mb-1">
+            <div className="w-full max-w-xs space-y-1">
               <div className="flex justify-between text-lg">
                 <span className="font-semibold text-muted-foreground">TOTAL ESTIMADO:</span>
                 <span className="font-bold text-primary">{formatCurrency(presupuesto.costoTotalEstimado)}</span>
               </div>
-              <p className="text-xs text-muted-foreground text-right">Precios en UYU. IVA incluido si aplica.</p>
+              {calculatedAnnualAdjustmentAmount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Ajuste Anual ({displaySettings.annualAdjustmentPercentage}%):</span>
+                  <span className="font-medium text-orange-600">{formatCurrency(calculatedAnnualAdjustmentAmount)}</span>
+                </div>
+              )}
+              {/* Placeholder for Total Descuento y Total Final con Calculos - se mostrará igual que Total Estimado por ahora */}
+               <p className="text-xs text-muted-foreground text-right">Precios en UYU. IVA incluido si aplica.</p>
             </div>
           </section>
 
           {showAnnualAdjustmentLegend && (
             <div className="my-4 p-3 border border-orange-300 bg-orange-50 text-orange-700 rounded-md text-xs print:text-[9pt]">
               <AlertTriangle className="inline w-3.5 h-3.5 mr-1 align-text-bottom" />
-              Este presupuesto NO incluye el ajuste anual del {displaySettings.annualAdjustmentPercentage}% que se aplicará al momento de generar la factura por corresponder a un evento en el próximo año.
+              Este presupuesto incluye un ajuste anual del {displaySettings.annualAdjustmentPercentage}% (aprox. {formatCurrency(calculatedAnnualAdjustmentAmount)}) que se aplicaría al momento de generar la factura, por corresponder a un evento en el próximo año. El TOTAL ESTIMADO mostrado arriba *no incluye* este ajuste.
             </div>
           )}
 
@@ -361,4 +374,3 @@ export default function VerPresupuestoPage() {
     </div>
   );
 }
-
