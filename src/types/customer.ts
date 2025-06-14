@@ -17,4 +17,5 @@ export interface Customer {
   companyName?: string;
   taxId?: string; 
   estadoCliente?: CustomerStatus; // 'Actual' o 'Antiguo'
+  contractFileName?: string; // Nuevo campo para el nombre del archivo del contrato
 }

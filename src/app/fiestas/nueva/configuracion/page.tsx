@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,14 +9,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Settings2, Loader2, AlertTriangle, UserCircle } from 'lucide-react';
+import { ArrowLeft, Save, Settings2, Loader2, AlertTriangle, UserCircle, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { TipoEvento } from '@/types/presupuesto';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
-import { getCustomers } from '@/app/actions/customers';
+import { getCustomers, getCustomerById } from '@/app/actions/customers';
 
 
 interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> {
@@ -30,40 +30,50 @@ export default function ConfiguracionEventoPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ConfigFormState | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null); // Para contrato
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
-  useEffect(() => {
-    async function loadInitialData() {
-      setIsLoading(true);
-      setIsLoadingCustomers(true);
-      try {
-        const [fiesta, fetchedCustomers] = await Promise.all([
-          getFiestaActual(),
-          getCustomers()
-        ]);
+  const loadInitialData = useCallback(async () => {
+    setIsLoading(true);
+    setIsLoadingCustomers(true);
+    setLinkedCustomer(null);
+    try {
+      const [fiesta, fetchedCustomers] = await Promise.all([
+        getFiestaActual(),
+        getCustomers()
+      ]);
 
-        if (fiesta && fiesta.configuracion) {
-          setConfig({
-            ...fiesta.configuracion,
-            fechaEvento: fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : undefined,
-            clienteId: fiesta.configuracion.clienteId || undefined,
-          });
-        } else {
-          toast({ title: 'Error', description: 'No se pudo cargar la configuración inicial.', variant: 'destructive' });
+      if (fiesta && fiesta.configuracion) {
+        const currentConfig = {
+          ...fiesta.configuracion,
+          fechaEvento: fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : undefined,
+          clienteId: fiesta.configuracion.clienteId || undefined,
+        };
+        setConfig(currentConfig);
+
+        if (currentConfig.clienteId) {
+          const customerDetails = await getCustomerById(currentConfig.clienteId);
+          setLinkedCustomer(customerDetails);
         }
-        setCustomers(fetchedCustomers);
-      } catch (error) {
-        console.error("Error loading event configuration or customers:", error);
-        toast({ title: 'Error al Cargar', description: 'No se pudo obtener la configuración del evento o los clientes.', variant: 'destructive' });
-      } finally {
-        setIsLoading(false);
-        setIsLoadingCustomers(false);
+      } else {
+        toast({ title: 'Error', description: 'No se pudo cargar la configuración inicial.', variant: 'destructive' });
       }
+      setCustomers(fetchedCustomers);
+    } catch (error) {
+      console.error("Error loading event configuration or customers:", error);
+      toast({ title: 'Error al Cargar', description: 'No se pudo obtener la configuración del evento o los clientes.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+      setIsLoadingCustomers(false);
     }
-    loadInitialData();
   }, [toast]);
+  
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
 
   const handleChange = (field: keyof ConfigFormState, value: any) => {
     setConfig(prev => prev ? ({ ...prev, [field]: value }) : null);
@@ -83,8 +93,15 @@ export default function ConfiguracionEventoPage() {
     }
   };
   
-  const handleClienteChange = (clienteId: string) => {
-    handleChange('clienteId', clienteId === "ninguno" ? undefined : clienteId);
+  const handleClienteChange = async (clienteId: string) => {
+    const newClienteId = clienteId === "ninguno" ? undefined : clienteId;
+    handleChange('clienteId', newClienteId);
+    if (newClienteId) {
+      const customerDetails = await getCustomerById(newClienteId);
+      setLinkedCustomer(customerDetails);
+    } else {
+      setLinkedCustomer(null);
+    }
   };
 
 
@@ -101,7 +118,7 @@ export default function ConfiguracionEventoPage() {
 
     setIsSaving(true);
     const configToSave: ConfigEventoDataStorage = {
-      ...(config as Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> & { fechaEvento?: string, clienteId?: string}), // Type assertion
+      ...(config as Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> & { fechaEvento?: string, clienteId?: string}),
       fechaEvento: config.fechaEvento ? config.fechaEvento.toISOString() : undefined,
       clienteId: config.clienteId || undefined,
     };
@@ -116,11 +133,20 @@ export default function ConfiguracionEventoPage() {
           title: "¡Configuración Guardada!",
           description: "Los detalles generales del evento se han actualizado.",
         });
-        setConfig({
+        const updatedConfig = {
             ...result.updatedData,
             fechaEvento: result.updatedData.fechaEvento ? new Date(result.updatedData.fechaEvento) : undefined,
             clienteId: result.updatedData.clienteId || undefined,
-        });
+        };
+        setConfig(updatedConfig);
+        // Re-fetch customer details if clienteId changed or for consistency
+        if (updatedConfig.clienteId) {
+          const customerDetails = await getCustomerById(updatedConfig.clienteId);
+          setLinkedCustomer(customerDetails);
+        } else {
+          setLinkedCustomer(null);
+        }
+
       } else {
         throw new Error(result.error || "Error desconocido al guardar la configuración.");
       }
@@ -212,6 +238,19 @@ export default function ConfiguracionEventoPage() {
                 {customers.length === 0 && !isLoadingCustomers && (
                     <p className="text-xs text-muted-foreground">No hay clientes. <Link href="/customers/new" className="underline text-primary">Crear nuevo cliente</Link>.</p>
                  )}
+                 {linkedCustomer?.contractFileName && (
+                  <a 
+                    href={`/api/contracts/${linkedCustomer.contractFileName}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-block mt-2"
+                  >
+                    <Button type="button" variant="outline" size="sm">
+                      <FileText className="w-4 h-4 mr-2"/>
+                      Ver/Descargar Contrato
+                    </Button>
+                  </a>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración</Label>
@@ -356,4 +395,3 @@ export default function ConfiguracionEventoPage() {
     </div>
   );
 }
-
