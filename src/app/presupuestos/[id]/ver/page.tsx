@@ -3,15 +3,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation'; // Import useRouter
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote, FileSignature } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Download } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
@@ -21,23 +22,67 @@ const formatCurrency = (amount: number) => {
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
+    return new Date(dateString).toLocaleDateString('es-UY', {
+      day: '2-digit', month: 'long', year: 'numeric'
     });
   } catch (e) {
     return "Fecha inválida";
   }
 };
 
+const COMPANY_NAME = "AK Producciones";
+const COMPANY_ADDRESS = "Montevideo, Uruguay"; // Placeholder
+const COMPANY_CONTACT = "contacto@akproducciones.com.uy"; // Placeholder
+const COMPANY_LOGO_URL = "https://placehold.co/200x80.png?text=AK+Logo"; // Placeholder - User should replace
+
 export default function VerPresupuestoPage() {
   const params = useParams();
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [whatsappLink, setWhatsappLink] = useState('');
+  const [mailtoLink, setMailtoLink] = useState('');
+
+  const generateShareableText = useCallback((currentPresupuesto: Presupuesto | null): string => {
+    if (!currentPresupuesto) return "Detalles del presupuesto no disponibles.";
+    
+    let texto = `📄 *PRESUPUESTO - ${COMPANY_NAME}*\n\n`;
+    texto += `*Nº Presupuesto:* ${currentPresupuesto.id.split('_').pop()}\n`;
+    texto += `*Fecha:* ${formatDate(currentPresupuesto.timestamp)}\n\n`;
+    texto += `*Cliente:* ${currentPresupuesto.clienteNombre}\n`;
+    texto += `*Evento:* ${currentPresupuesto.eventoTipo} para ${currentPresupuesto.invitadosCantidad} invitados\n`;
+    texto += `*Fecha Evento:* ${formatDate(currentPresupuesto.eventoFecha)}\n\n`;
+    texto += `*Detalle:*\n`;
+
+    if (currentPresupuesto.platosSeleccionados.length > 0) {
+      texto += `  _Menú:_\n`;
+      currentPresupuesto.platosSeleccionados.forEach(p => {
+        texto += `    - ${p.nombrePlato} (${p.cantidad} x ${formatCurrency(p.costoUnitario)}): ${formatCurrency(p.costoTotalPlato)}\n`;
+      });
+      texto += `    *Subtotal Menú:* ${formatCurrency(currentPresupuesto.costoSubtotalPlatos)}\n`;
+    }
+
+    if (currentPresupuesto.serviciosAdicionales.length > 0) {
+      texto += `\n  _Servicios Adicionales:_\n`;
+      currentPresupuesto.serviciosAdicionales.forEach(s => {
+        texto += `    - ${s.nombreServicio}: ${formatCurrency(s.costoServicio)}\n`;
+      });
+      texto += `    *Subtotal Servicios:* ${formatCurrency(currentPresupuesto.costoSubtotalServicios)}\n`;
+    }
+    
+    texto += `\n*TOTAL ESTIMADO:* *${formatCurrency(currentPresupuesto.costoTotalEstimado)}*\n\n`;
+
+    if (currentPresupuesto.notas) {
+      texto += `*Notas y Condiciones:*\n${currentPresupuesto.notas}\n\n`;
+    }
+    texto += `Gracias por su consulta,\n${COMPANY_NAME}`;
+    return texto;
+  }, []);
+
 
   const fetchPresupuesto = useCallback(async () => {
     if (!presupuestoId) {
@@ -51,6 +96,9 @@ export default function VerPresupuestoPage() {
       const fetchedPresupuesto = await getPresupuestoById(presupuestoId);
       if (fetchedPresupuesto) {
         setPresupuesto(fetchedPresupuesto);
+        const shareText = generateShareableText(fetchedPresupuesto);
+        setWhatsappLink(`https://wa.me/?text=${encodeURIComponent(shareText)}`);
+        setMailtoLink(`mailto:?subject=Presupuesto de ${COMPANY_NAME} para ${fetchedPresupuesto.clienteNombre}&body=${encodeURIComponent(shareText + "\n\nVer online: " + window.location.href)}`);
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
         toast({ title: "Error", description: `Presupuesto con ID ${presupuestoId} no encontrado.`, variant: "destructive"});
@@ -62,7 +110,7 @@ export default function VerPresupuestoPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [presupuestoId, toast]);
+  }, [presupuestoId, toast, generateShareableText]);
 
   useEffect(() => {
     fetchPresupuesto();
@@ -100,157 +148,154 @@ export default function VerPresupuestoPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 print:space-y-2">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
-        <Link href="/presupuestos" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Presupuestos
-          </Button>
-        </Link>
-        <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="w-4 h-4 mr-2" />
-            Imprimir Contrato
-          </Button>
-           <Button onClick={handleCreateInvoice} variant='default'>
-            <FileText className="w-4 h-4 mr-2" />
-            Crear Factura desde Presupuesto
-          </Button>
-          <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
-            <Button variant="secondary">
-              <Edit className="w-4 h-4 mr-2" />
-              Editar Presupuesto
+    <div className="max-w-4xl mx-auto space-y-6 print:space-y-2">
+      <Card className="shadow-lg print:shadow-none print:border-none">
+        <CardHeader className="p-6 print:p-2 flex flex-row justify-between items-start print:hidden">
+          <Link href="/presupuestos" passHref>
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver a Presupuestos
             </Button>
           </Link>
-        </div>
-      </div>
-
-      <Card className="overflow-hidden shadow-lg print:shadow-none print:border-none">
-        <CardHeader className="p-6 bg-muted/30 print:bg-transparent print:p-0">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-             <div>
-                <p className="text-sm font-semibold tracking-wider uppercase text-muted-foreground">Presupuesto Para:</p>
-                <h1 className="text-2xl md:text-3xl font-bold font-headline text-primary">{presupuesto.clienteNombre}</h1>
-             </div>
-            <div className="text-left sm:text-right">
-              <h2 className="text-lg font-semibold text-foreground">Presupuesto #{presupuesto.id.split('_').pop()}</h2>
-              <PresupuestoStatusBadge status={presupuesto.estado} />
-            </div>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => window.print()}>
+              <Download className="w-4 h-4 mr-2" />
+              Descargar/Imprimir PDF
+            </Button>
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
+                <MessageSquare className="w-4 h-4 mr-2" /> WhatsApp
+              </Button>
+            </a>
+            <a href={mailtoLink}>
+                <Button variant="outline" className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300">
+                    <Mail className="w-4 h-4 mr-2" /> Email
+                </Button>
+            </a>
+             <Button onClick={handleCreateInvoice} variant='default'>
+              <FileText className="w-4 h-4 mr-2" />
+              Crear Factura
+            </Button>
+            <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
+              <Button variant="secondary">
+                <Edit className="w-4 h-4 mr-2" />
+                Editar
+              </Button>
+            </Link>
           </div>
-           <Separator className="my-3 print:hidden" />
-           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm print:text-xs print:gap-1">
-                <div className="flex items-center gap-1.5">
-                    <FileSignature className="w-4 h-4 text-muted-foreground"/>
-                    <span className="font-medium text-muted-foreground">Tipo:</span>
-                    <span className="text-foreground">{presupuesto.eventoTipo}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                    <CalendarDays className="w-4 h-4 text-muted-foreground"/>
-                    <span className="font-medium text-muted-foreground">Fecha:</span>
-                    <span className="text-foreground">{formatDate(presupuesto.eventoFecha)}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-muted-foreground"/>
-                    <span className="font-medium text-muted-foreground">Invitados:</span>
-                    <span className="text-foreground">{presupuesto.invitadosCantidad}</span>
-                </div>
-           </div>
         </CardHeader>
-        <CardContent className="p-6 space-y-6 print:p-2">
-          {presupuesto.platosSeleccionados.length > 0 && (
-            <div>
-              <h3 className="mb-3 text-lg font-semibold font-headline text-foreground">Detalle de Platos</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="px-2 py-2 font-medium text-left text-muted-foreground">Plato</th>
-                      <th className="px-2 py-2 font-medium text-right text-muted-foreground">Cant.</th>
-                      <th className="px-2 py-2 font-medium text-right text-muted-foreground">Precio Unit.</th>
-                      <th className="px-2 py-2 font-medium text-right text-muted-foreground">Total Plato</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {presupuesto.platosSeleccionados.map((item) => (
-                      <tr key={item.idPlato} className="border-b last:border-b-0">
-                        <td className="px-2 py-2 text-foreground">{item.nombrePlato}</td>
-                        <td className="px-2 py-2 text-right text-muted-foreground">{item.cantidad}</td>
-                        <td className="px-2 py-2 text-right text-muted-foreground">{formatCurrency(item.costoUnitario)}</td>
-                        <td className="px-2 py-2 text-right text-foreground">{formatCurrency(item.costoTotalPlato)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                   <tfoot>
-                    <tr className="border-t">
-                        <td colSpan={3} className="px-2 py-2 text-right font-semibold text-muted-foreground">Subtotal Platos:</td>
-                        <td className="px-2 py-2 text-right font-semibold text-foreground">{formatCurrency(presupuesto.costoSubtotalPlatos)}</td>
-                    </tr>
-                  </tfoot>
-                </table>
+        
+        {/* Printable Area */}
+        <div id="printable-budget" className="p-4 md:p-8 print:p-0 border-t md:border print:border-none rounded-md">
+          <header className="mb-8 print:mb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div>
+                <Image src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME} Logo`} width={160} height={64} className="object-contain" data-ai-hint="company event logo"/>
+                <p className="text-sm text-muted-foreground mt-2">{COMPANY_ADDRESS}</p>
+                <p className="text-sm text-muted-foreground">{COMPANY_CONTACT}</p>
+              </div>
+              <div className="text-left sm:text-right">
+                <h1 className="text-3xl font-bold text-primary print:text-2xl">PRESUPUESTO</h1>
+                <p className="text-muted-foreground">Nº: {presupuesto.id.split('_').pop()}</p>
+                <p className="text-muted-foreground">Fecha: {formatDate(presupuesto.timestamp)}</p>
               </div>
             </div>
-          )}
-          
-          {presupuesto.serviciosAdicionales.length > 0 && (
-            <div>
-              <Separator className="my-4" />
-              <h3 className="mb-3 text-lg font-semibold font-headline text-foreground">Servicios Adicionales</h3>
-              <div className="overflow-x-auto">
-                 <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="px-2 py-2 font-medium text-left text-muted-foreground">Servicio</th>
-                      <th className="px-2 py-2 font-medium text-right text-muted-foreground">Costo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {presupuesto.serviciosAdicionales.map((item) => (
-                      <tr key={item.idServicio} className="border-b last:border-b-0">
-                        <td className="px-2 py-2 text-foreground">{item.nombreServicio}</td>
-                        <td className="px-2 py-2 text-right text-foreground">{formatCurrency(item.costoServicio)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="border-t">
-                        <td className="px-2 py-2 text-right font-semibold text-muted-foreground">Subtotal Servicios:</td>
-                        <td className="px-2 py-2 text-right font-semibold text-foreground">{formatCurrency(presupuesto.costoSubtotalServicios)}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-          )}
+          </header>
 
-          <Separator className="my-6 print:my-3" />
-          
-          <div className="space-y-2 text-right">
-            <div className="flex justify-end items-center gap-4">
-              <span className="text-xl font-semibold text-muted-foreground">Total Estimado:</span>
-              <span className="text-2xl font-bold text-primary">{formatCurrency(presupuesto.costoTotalEstimado)}</span>
+          <Separator className="my-6 print:my-3"/>
+
+          <section className="mb-8 print:mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:gap-3">
+              <div>
+                <h2 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider mb-1">Cliente:</h2>
+                <p className="text-lg font-medium text-foreground">{presupuesto.clienteNombre}</p>
+              </div>
+              <div className="md:text-right">
+                 <h2 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider mb-1">Evento:</h2>
+                 <p className="text-md text-foreground">{presupuesto.eventoTipo}</p>
+                 <p className="text-sm text-muted-foreground">Para {presupuesto.invitadosCantidad} invitados</p>
+                 <p className="text-sm text-muted-foreground">Fecha: {formatDate(presupuesto.eventoFecha)}</p>
+              </div>
             </div>
-          </div>
+          </section>
           
+          <PresupuestoStatusBadge status={presupuesto.estado} className="mb-6 print:text-xs print:px-1.5 print:py-0.5"/>
+          
+          <section>
+            <h3 className="mb-3 text-lg font-semibold font-headline text-foreground print:text-base">Detalle del Presupuesto:</h3>
+            <div className="overflow-x-auto border rounded-md">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 print:bg-gray-100">
+                  <tr className="border-b">
+                    <th className="px-3 py-2.5 font-semibold text-left text-muted-foreground print:px-2 print:py-1.5">Descripción</th>
+                    <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Cant.</th>
+                    <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Precio Unit.</th>
+                    <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {presupuesto.platosSeleccionados.map((item) => (
+                    <tr key={`plato-${item.idPlato}`} className="border-b last:border-b-0 hover:bg-muted/20">
+                      <td className="px-3 py-2.5 text-foreground print:px-2 print:py-1.5">{item.nombrePlato}</td>
+                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">{item.cantidad}</td>
+                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoUnitario)}</td>
+                      <td className="px-3 py-2.5 text-right text-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoTotalPlato)}</td>
+                    </tr>
+                  ))}
+                  {presupuesto.costoSubtotalPlatos > 0 && presupuesto.platosSeleccionados.length > 0 && (
+                     <tr className="bg-muted/30 print:bg-gray-50">
+                        <td colSpan={3} className="px-3 py-2 text-right font-semibold text-muted-foreground print:px-2 print:py-1.5">Subtotal Menú:</td>
+                        <td className="px-3 py-2 text-right font-semibold text-foreground print:px-2 print:py-1.5">{formatCurrency(presupuesto.costoSubtotalPlatos)}</td>
+                    </tr>
+                  )}
+                  {presupuesto.serviciosAdicionales.map((item) => (
+                    <tr key={`servicio-${item.idServicio}`} className="border-b last:border-b-0 hover:bg-muted/20">
+                      <td className="px-3 py-2.5 text-foreground print:px-2 print:py-1.5">{item.nombreServicio}</td>
+                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">-</td>
+                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">-</td>
+                      <td className="px-3 py-2.5 text-right text-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoServicio)}</td>
+                    </tr>
+                  ))}
+                   {presupuesto.costoSubtotalServicios > 0 && presupuesto.serviciosAdicionales.length > 0 && (
+                     <tr className="bg-muted/30 print:bg-gray-50">
+                        <td colSpan={3} className="px-3 py-2 text-right font-semibold text-muted-foreground print:px-2 print:py-1.5">Subtotal Servicios Adicionales:</td>
+                        <td className="px-3 py-2 text-right font-semibold text-foreground print:px-2 print:py-1.5">{formatCurrency(presupuesto.costoSubtotalServicios)}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <Separator className="my-8 print:my-4" />
+
+          <section className="flex justify-end mb-8 print:mb-4">
+            <div className="w-full max-w-xs space-y-2">
+              <div className="flex justify-between text-lg">
+                <span className="font-semibold text-muted-foreground">TOTAL ESTIMADO:</span>
+                <span className="font-bold text-primary">{formatCurrency(presupuesto.costoTotalEstimado)}</span>
+              </div>
+              <p className="text-xs text-muted-foreground text-right">Precios en UYU. IVA incluido si aplica.</p>
+            </div>
+          </section>
+
           {presupuesto.notas && (
-            <div className="pt-6 print:pt-3">
-                <Separator className="mb-3 print:hidden" />
-                <div className="flex items-start gap-2">
-                    <StickyNote className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0"/>
-                    <div>
-                        <h4 className="text-sm font-semibold text-muted-foreground">Notas Adicionales:</h4>
-                        <p className="text-sm text-foreground whitespace-pre-wrap">{presupuesto.notas}</p>
-                    </div>
-                </div>
-            </div>
+            <section className="pt-6 border-t print:pt-3 print:border-gray-300">
+              <h4 className="text-md font-semibold text-muted-foreground mb-2 print:text-sm">Notas y Condiciones:</h4>
+              <div className="p-3 border rounded-md bg-muted/20 print:border-gray-200 print:bg-gray-50">
+                <p className="text-sm text-foreground whitespace-pre-wrap print:text-xs">{presupuesto.notas}</p>
+              </div>
+            </section>
            )}
-        </CardContent>
-        <CardFooter className="p-6 text-center bg-muted/30 print:hidden">
-            <p className="text-xs text-muted-foreground">
-                Presupuesto generado el {formatDate(presupuesto.timestamp)}. Válido por 30 días.
-            </p>
-        </CardFooter>
+          
+          <footer className="mt-12 pt-6 border-t text-center text-xs text-muted-foreground print:mt-6 print:pt-3 print:border-gray-300">
+            <p>Gracias por confiar en {COMPANY_NAME}.</p>
+            <p>Este presupuesto es válido por 30 días a partir de su fecha de emisión.</p>
+            <p className="mt-2 print:hidden">{COMPANY_CONTACT}</p>
+          </footer>
+        </div> {/* End Printable Area */}
       </Card>
     </div>
   );
 }
+
