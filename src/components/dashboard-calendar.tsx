@@ -7,19 +7,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { es } from 'date-fns/locale'; // Import Spanish locale
 
 interface DashboardCalendarProps {
-  eventDate?: Date;
+  eventDate?: string; // Changed to string to match common data source type
 }
 
 export function DashboardCalendar({ eventDate }: DashboardCalendarProps) {
   const [clientSideMonth, setClientSideMonth] = useState<Date | undefined>(undefined);
+  const [parsedEventDate, setParsedEventDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    // This effect runs only on the client, after hydration
-    setClientSideMonth(eventDate || new Date());
+    let validDate: Date | undefined = undefined;
+    if (eventDate) {
+      const d = new Date(eventDate);
+      if (!isNaN(d.getTime())) {
+        validDate = d;
+      }
+    }
+    setParsedEventDate(validDate);
+    // Initialize clientSideMonth after hydration, using eventDate if valid, else current date
+    setClientSideMonth(validDate || new Date());
   }, [eventDate]);
 
-  const modifiers = eventDate ? { booked: [eventDate] } : {};
-  const modifiersStyles = eventDate ? {
+  const modifiers = parsedEventDate ? { booked: [parsedEventDate] } : {};
+  const modifiersStyles = parsedEventDate ? {
     booked: {
       fontWeight: 'bold',
       color: 'hsl(var(--primary-foreground))',
@@ -39,14 +48,14 @@ export function DashboardCalendar({ eventDate }: DashboardCalendarProps) {
   return (
     <Calendar
       mode="single"
-      selected={eventDate} // Can also be used to show the date as selected
-      defaultMonth={clientSideMonth}
+      selected={parsedEventDate}
+      defaultMonth={clientSideMonth} // Use clientSideMonth which is set after hydration
       month={clientSideMonth} // Control the displayed month
       onMonthChange={setClientSideMonth} // Allow user to navigate months
       modifiers={modifiers}
       modifiersStyles={modifiersStyles}
       locale={es} // Set locale to Spanish
-      className="p-0 rounded-md border shadow-sm mx-auto" // Added mx-auto for centering
+      className="p-0 rounded-md border shadow-sm mx-auto"
       classNames={{
         caption_label: "text-base font-medium",
         head_cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm",

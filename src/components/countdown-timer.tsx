@@ -24,7 +24,12 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
       return { message: 'Fecha del evento no definida.' };
     }
 
-    const difference = +new Date(targetDate) - +new Date();
+    const dateObj = new Date(targetDate);
+    if (isNaN(dateObj.getTime())) { // Check if date is valid
+      return { message: 'Fecha del evento inválida.' };
+    }
+
+    const difference = +dateObj - +new Date();
     let timeLeft: TimeLeft = {};
 
     if (difference <= 0) {
@@ -34,7 +39,7 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60), // Included for completeness, but might not display
+        seconds: Math.floor((difference / 1000) % 60),
       };
     }
     return timeLeft;
@@ -43,7 +48,9 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
 
   useEffect(() => {
-    if (!targetDate || timeLeft.ended) {
+    // Ensure targetDate is valid and not ended before starting timer
+    if (!targetDate || isNaN(new Date(targetDate).getTime()) || timeLeft.ended) {
+      setTimeLeft(calculateTimeLeft()); // Recalculate to show message if date is invalid/past
       return;
     }
 
@@ -54,21 +61,14 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
     return () => clearTimeout(timer);
   }, [timeLeft, calculateTimeLeft, targetDate]);
 
-  if (!targetDate) {
+  if (timeLeft.message) {
     return (
         <div className="text-center py-2">
-            <p className="text-sm text-muted-foreground">{timeLeft.message || 'Calculando...'}</p>
+            <p className={timeLeft.ended ? "font-semibold text-primary" : "text-sm text-muted-foreground"}>{timeLeft.message}</p>
         </div>
     );
   }
 
-  if (timeLeft.ended) {
-     return (
-        <div className="text-center py-2">
-            <p className="font-semibold text-primary">{timeLeft.message}</p>
-        </div>
-    );
-  }
 
   return (
     <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-center">
