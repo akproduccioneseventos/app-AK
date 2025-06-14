@@ -11,6 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import type { BudgetDisplaySettings } from '@/types/settings';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -31,9 +33,9 @@ const formatDate = (dateString?: string) => {
 };
 
 const COMPANY_NAME = "AK Producciones";
-const COMPANY_ADDRESS = "Montevideo, Uruguay"; // Placeholder
-const COMPANY_CONTACT = "contacto@akproducciones.com.uy"; // Placeholder
-const COMPANY_LOGO_URL = "https://placehold.co/200x80.png?text=AK+Logo"; // Placeholder - User should replace
+const COMPANY_ADDRESS = "Montevideo, Uruguay";
+const COMPANY_CONTACT = "contacto@akproducciones.com.uy";
+const COMPANY_LOGO_URL = "https://placehold.co/200x80.png?text=AK+Logo"; 
 
 export default function VerPresupuestoPage() {
   const params = useParams();
@@ -42,49 +44,57 @@ export default function VerPresupuestoPage() {
   const { toast } = useToast();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
+  const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [whatsappLink, setWhatsappLink] = useState('');
   const [mailtoLink, setMailtoLink] = useState('');
 
-  const generateShareableText = useCallback((currentPresupuesto: Presupuesto | null): string => {
-    if (!currentPresupuesto) return "Detalles del presupuesto no disponibles.";
+  const generateShareableText = useCallback((currentPresupuesto: Presupuesto | null, settings: BudgetDisplaySettings | null): string => {
+    if (!currentPresupuesto || !settings) return "Detalles del presupuesto no disponibles o configuración no cargada.";
     
     let texto = `📄 *PRESUPUESTO - ${COMPANY_NAME}*\n\n`;
     texto += `*Nº Presupuesto:* ${currentPresupuesto.id.split('_').pop()}\n`;
     texto += `*Fecha:* ${formatDate(currentPresupuesto.timestamp)}\n\n`;
-    texto += `*Cliente:* ${currentPresupuesto.clienteNombre}\n`;
-    texto += `*Evento:* ${currentPresupuesto.eventoTipo} para ${currentPresupuesto.invitadosCantidad} invitados\n`;
-    texto += `*Fecha Evento:* ${formatDate(currentPresupuesto.eventoFecha)}\n\n`;
-    texto += `*Detalle:*\n`;
 
-    if (currentPresupuesto.platosSeleccionados.length > 0) {
-      texto += `  _Menú:_\n`;
-      currentPresupuesto.platosSeleccionados.forEach(p => {
-        texto += `    - ${p.nombrePlato} (${p.cantidad} x ${formatCurrency(p.costoUnitario)}): ${formatCurrency(p.costoTotalPlato)}\n`;
-      });
-      texto += `    *Subtotal Menú:* ${formatCurrency(currentPresupuesto.costoSubtotalPlatos)}\n`;
+    if (settings.showClientData) {
+      texto += `*Cliente:* ${currentPresupuesto.clienteNombre}\n`;
     }
+    if (settings.showEventTypeAndDate) {
+      texto += `*Evento:* ${currentPresupuesto.eventoTipo} para ${currentPresupuesto.invitadosCantidad} invitados\n`;
+      texto += `*Fecha Evento:* ${formatDate(currentPresupuesto.eventoFecha)}\n`;
+    }
+    texto += `\n`;
 
-    if (currentPresupuesto.serviciosAdicionales.length > 0) {
-      texto += `\n  _Servicios Adicionales:_\n`;
-      currentPresupuesto.serviciosAdicionales.forEach(s => {
-        texto += `    - ${s.nombreServicio}: ${formatCurrency(s.costoServicio)}\n`;
-      });
-      texto += `    *Subtotal Servicios:* ${formatCurrency(currentPresupuesto.costoSubtotalServicios)}\n`;
+    if (settings.showPriceBreakdown) {
+      texto += `*Detalle:*\n`;
+      if (currentPresupuesto.platosSeleccionados.length > 0) {
+        texto += `  _Menú:_\n`;
+        currentPresupuesto.platosSeleccionados.forEach(p => {
+          texto += `    - ${p.nombrePlato} (${p.cantidad} x ${formatCurrency(p.costoUnitario)} c/u): ${formatCurrency(p.costoTotalPlato)}\n`;
+        });
+        texto += `    *Subtotal Menú:* ${formatCurrency(currentPresupuesto.costoSubtotalPlatos)}\n`;
+      }
+      if (currentPresupuesto.serviciosAdicionales.length > 0) {
+        texto += `\n  _Servicios Adicionales:_\n`;
+        currentPresupuesto.serviciosAdicionales.forEach(s => {
+          texto += `    - ${s.nombreServicio}: ${formatCurrency(s.costoServicio)}\n`;
+        });
+        texto += `    *Subtotal Servicios:* ${formatCurrency(currentPresupuesto.costoSubtotalServicios)}\n`;
+      }
+      texto += `\n`;
     }
     
-    texto += `\n*TOTAL ESTIMADO:* *${formatCurrency(currentPresupuesto.costoTotalEstimado)}*\n\n`;
+    texto += `*TOTAL ESTIMADO:* *${formatCurrency(currentPresupuesto.costoTotalEstimado)}*\n\n`;
 
-    if (currentPresupuesto.notas) {
+    if (settings.showPaymentMethodNotes && currentPresupuesto.notas) {
       texto += `*Notas y Condiciones:*\n${currentPresupuesto.notas}\n\n`;
     }
     texto += `Gracias por su consulta,\n${COMPANY_NAME}`;
     return texto;
   }, []);
 
-
-  const fetchPresupuesto = useCallback(async () => {
+  const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) {
         setError("ID de presupuesto no válido.");
         setIsLoading(false);
@@ -93,19 +103,27 @@ export default function VerPresupuestoPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const fetchedPresupuesto = await getPresupuestoById(presupuestoId);
+      const [fetchedPresupuesto, fetchedSettings] = await Promise.all([
+        getPresupuestoById(presupuestoId),
+        getBudgetDisplaySettings()
+      ]);
+      
+      setDisplaySettings(fetchedSettings);
+
       if (fetchedPresupuesto) {
         setPresupuesto(fetchedPresupuesto);
-        const shareText = generateShareableText(fetchedPresupuesto);
-        setWhatsappLink(`https://wa.me/?text=${encodeURIComponent(shareText)}`);
-        setMailtoLink(`mailto:?subject=Presupuesto de ${COMPANY_NAME} para ${fetchedPresupuesto.clienteNombre}&body=${encodeURIComponent(shareText + "\n\nVer online: " + window.location.href)}`);
+        if (fetchedSettings) {
+          const shareText = generateShareableText(fetchedPresupuesto, fetchedSettings);
+          setWhatsappLink(`https://wa.me/?text=${encodeURIComponent(shareText)}`);
+          setMailtoLink(`mailto:?subject=Presupuesto de ${COMPANY_NAME} para ${fetchedPresupuesto.clienteNombre}&body=${encodeURIComponent(shareText + "\n\nVer online: " + (typeof window !== "undefined" ? window.location.href : ''))}`);
+        }
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
         toast({ title: "Error", description: `Presupuesto con ID ${presupuestoId} no encontrado.`, variant: "destructive"});
       }
     } catch (err: any) {
-      console.error("Error fetching presupuesto:", err);
-      setError(err.message || "No se pudo cargar el presupuesto.");
+      console.error("Error fetching presupuesto or settings:", err);
+      setError(err.message || "No se pudo cargar el presupuesto o la configuración.");
       toast({ title: "Error al Cargar", description: err.message || "Ocurrió un problema inesperado.", variant: "destructive"});
     } finally {
       setIsLoading(false);
@@ -113,8 +131,8 @@ export default function VerPresupuestoPage() {
   }, [presupuestoId, toast, generateShareableText]);
 
   useEffect(() => {
-    fetchPresupuesto();
-  }, [fetchPresupuesto]);
+    fetchPresupuestoAndSettings();
+  }, [fetchPresupuestoAndSettings]);
 
   const handleCreateInvoice = () => {
     if (presupuesto) {
@@ -122,7 +140,7 @@ export default function VerPresupuestoPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !displaySettings) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-16 h-16 animate-spin text-primary" />
@@ -185,13 +203,14 @@ export default function VerPresupuestoPage() {
           </div>
         </CardHeader>
         
-        {/* Printable Area */}
         <div id="printable-budget" className="p-4 md:p-8 print:p-0 border-t md:border print:border-none rounded-md">
           <header className="mb-8 print:mb-4">
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
               <div>
-                <Image src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME} Logo`} width={160} height={64} className="object-contain" data-ai-hint="company event logo"/>
-                <p className="text-sm text-muted-foreground mt-2">{COMPANY_ADDRESS}</p>
+                {displaySettings.showCompanyLogo && (
+                  <Image src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME} Logo`} width={160} height={64} className="object-contain mb-2" data-ai-hint="company event logo"/>
+                )}
+                <p className="text-sm text-muted-foreground">{COMPANY_ADDRESS}</p>
                 <p className="text-sm text-muted-foreground">{COMPANY_CONTACT}</p>
               </div>
               <div className="text-left sm:text-right">
@@ -206,68 +225,74 @@ export default function VerPresupuestoPage() {
 
           <section className="mb-8 print:mb-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:gap-3">
-              <div>
-                <h2 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider mb-1">Cliente:</h2>
-                <p className="text-lg font-medium text-foreground">{presupuesto.clienteNombre}</p>
-              </div>
-              <div className="md:text-right">
+              {displaySettings.showClientData && (
+                <div>
+                  <h2 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider mb-1">Cliente:</h2>
+                  <p className="text-lg font-medium text-foreground">{presupuesto.clienteNombre}</p>
+                </div>
+              )}
+              {displaySettings.showEventTypeAndDate && (
+                <div className={cn(displaySettings.showClientData ? "md:text-right" : "")}>
                  <h2 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider mb-1">Evento:</h2>
                  <p className="text-md text-foreground">{presupuesto.eventoTipo}</p>
                  <p className="text-sm text-muted-foreground">Para {presupuesto.invitadosCantidad} invitados</p>
                  <p className="text-sm text-muted-foreground">Fecha: {formatDate(presupuesto.eventoFecha)}</p>
-              </div>
+                </div>
+              )}
             </div>
           </section>
           
           <PresupuestoStatusBadge status={presupuesto.estado} className="mb-6 print:text-xs print:px-1.5 print:py-0.5"/>
           
-          <section>
-            <h3 className="mb-3 text-lg font-semibold font-headline text-foreground print:text-base">Detalle del Presupuesto:</h3>
-            <div className="overflow-x-auto border rounded-md">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50 print:bg-gray-100">
-                  <tr className="border-b">
-                    <th className="px-3 py-2.5 font-semibold text-left text-muted-foreground print:px-2 print:py-1.5">Descripción</th>
-                    <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Cant.</th>
-                    <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Precio Unit.</th>
-                    <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {presupuesto.platosSeleccionados.map((item) => (
-                    <tr key={`plato-${item.idPlato}`} className="border-b last:border-b-0 hover:bg-muted/20">
-                      <td className="px-3 py-2.5 text-foreground print:px-2 print:py-1.5">{item.nombrePlato}</td>
-                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">{item.cantidad}</td>
-                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoUnitario)}</td>
-                      <td className="px-3 py-2.5 text-right text-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoTotalPlato)}</td>
+          {displaySettings.showPriceBreakdown && (
+            <section>
+              <h3 className="mb-3 text-lg font-semibold font-headline text-foreground print:text-base">Detalle del Presupuesto:</h3>
+              <div className="overflow-x-auto border rounded-md">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 print:bg-gray-100">
+                    <tr className="border-b">
+                      <th className="px-3 py-2.5 font-semibold text-left text-muted-foreground print:px-2 print:py-1.5">Descripción</th>
+                      <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Cant.</th>
+                      <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Precio Unit.</th>
+                      <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-2 print:py-1.5">Subtotal</th>
                     </tr>
-                  ))}
-                  {presupuesto.costoSubtotalPlatos > 0 && presupuesto.platosSeleccionados.length > 0 && (
-                     <tr className="bg-muted/30 print:bg-gray-50">
-                        <td colSpan={3} className="px-3 py-2 text-right font-semibold text-muted-foreground print:px-2 print:py-1.5">Subtotal Menú:</td>
-                        <td className="px-3 py-2 text-right font-semibold text-foreground print:px-2 print:py-1.5">{formatCurrency(presupuesto.costoSubtotalPlatos)}</td>
-                    </tr>
-                  )}
-                  {presupuesto.serviciosAdicionales.map((item) => (
-                    <tr key={`servicio-${item.idServicio}`} className="border-b last:border-b-0 hover:bg-muted/20">
-                      <td className="px-3 py-2.5 text-foreground print:px-2 print:py-1.5">{item.nombreServicio}</td>
-                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">-</td>
-                      <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">-</td>
-                      <td className="px-3 py-2.5 text-right text-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoServicio)}</td>
-                    </tr>
-                  ))}
-                   {presupuesto.costoSubtotalServicios > 0 && presupuesto.serviciosAdicionales.length > 0 && (
-                     <tr className="bg-muted/30 print:bg-gray-50">
-                        <td colSpan={3} className="px-3 py-2 text-right font-semibold text-muted-foreground print:px-2 print:py-1.5">Subtotal Servicios Adicionales:</td>
-                        <td className="px-3 py-2 text-right font-semibold text-foreground print:px-2 print:py-1.5">{formatCurrency(presupuesto.costoSubtotalServicios)}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                  </thead>
+                  <tbody>
+                    {presupuesto.platosSeleccionados.map((item) => (
+                      <tr key={`plato-${item.idPlato}`} className="border-b last:border-b-0 hover:bg-muted/20">
+                        <td className="px-3 py-2.5 text-foreground print:px-2 print:py-1.5">{item.nombrePlato}</td>
+                        <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">{item.cantidad}</td>
+                        <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoUnitario)}</td>
+                        <td className="px-3 py-2.5 text-right text-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoTotalPlato)}</td>
+                      </tr>
+                    ))}
+                    {presupuesto.costoSubtotalPlatos > 0 && presupuesto.platosSeleccionados.length > 0 && (
+                       <tr className="bg-muted/30 print:bg-gray-50">
+                          <td colSpan={3} className="px-3 py-2 text-right font-semibold text-muted-foreground print:px-2 print:py-1.5">Subtotal Menú:</td>
+                          <td className="px-3 py-2 text-right font-semibold text-foreground print:px-2 print:py-1.5">{formatCurrency(presupuesto.costoSubtotalPlatos)}</td>
+                      </tr>
+                    )}
+                    {presupuesto.serviciosAdicionales.map((item) => (
+                      <tr key={`servicio-${item.idServicio}`} className="border-b last:border-b-0 hover:bg-muted/20">
+                        <td className="px-3 py-2.5 text-foreground print:px-2 print:py-1.5">{item.nombreServicio}</td>
+                        <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">-</td>
+                        <td className="px-3 py-2.5 text-right text-muted-foreground print:px-2 print:py-1.5">-</td>
+                        <td className="px-3 py-2.5 text-right text-foreground print:px-2 print:py-1.5">{formatCurrency(item.costoServicio)}</td>
+                      </tr>
+                    ))}
+                     {presupuesto.costoSubtotalServicios > 0 && presupuesto.serviciosAdicionales.length > 0 && (
+                       <tr className="bg-muted/30 print:bg-gray-50">
+                          <td colSpan={3} className="px-3 py-2 text-right font-semibold text-muted-foreground print:px-2 print:py-1.5">Subtotal Servicios Adicionales:</td>
+                          <td className="px-3 py-2 text-right font-semibold text-foreground print:px-2 print:py-1.5">{formatCurrency(presupuesto.costoSubtotalServicios)}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
 
-          <Separator className="my-8 print:my-4" />
+          <Separator className="my-8 print:my-4"/>
 
           <section className="flex justify-end mb-8 print:mb-4">
             <div className="w-full max-w-xs space-y-2">
@@ -279,7 +304,7 @@ export default function VerPresupuestoPage() {
             </div>
           </section>
 
-          {presupuesto.notas && (
+          {displaySettings.showPaymentMethodNotes && presupuesto.notas && (
             <section className="pt-6 border-t print:pt-3 print:border-gray-300">
               <h4 className="text-md font-semibold text-muted-foreground mb-2 print:text-sm">Notas y Condiciones:</h4>
               <div className="p-3 border rounded-md bg-muted/20 print:border-gray-200 print:bg-gray-50">
@@ -293,9 +318,8 @@ export default function VerPresupuestoPage() {
             <p>Este presupuesto es válido por 30 días a partir de su fecha de emisión.</p>
             <p className="mt-2 print:hidden">{COMPANY_CONTACT}</p>
           </footer>
-        </div> {/* End Printable Area */}
+        </div>
       </Card>
     </div>
   );
 }
-

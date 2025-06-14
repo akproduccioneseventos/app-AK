@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Palette, Building, Bell, ShieldCheck } from 'lucide-react';
+import { Palette, Building, Bell, ShieldCheck, Settings as SettingsIcon } from 'lucide-react'; // Added SettingsIcon
 
 const settingsCards = [
   {
@@ -10,7 +10,14 @@ const settingsCards = [
     description: "Ajusta el logo, colores y diseño de tus facturas y presupuestos.",
     href: "/settings/templates",
     icon: Palette,
-    buttonLabel: "Diseño"
+    buttonLabel: "Diseño Documentos"
+  },
+  {
+    title: "Configuración de Presupuestos",
+    description: "Define qué elementos mostrar al imprimir o compartir presupuestos.",
+    href: "/settings/budget-display",
+    icon: SettingsIcon, // Using SettingsIcon for general settings
+    buttonLabel: "Contenido Presupuesto"
   },
   {
     title: "Información de la Empresa",
