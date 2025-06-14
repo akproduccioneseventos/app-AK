@@ -27,7 +27,6 @@ import {
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  // Asumimos UYU como moneda por defecto para visualización, puede ser un parámetro si es necesario.
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
@@ -63,8 +62,8 @@ export default function TodosLosServiciosPage() {
     const lowercasedFilter = searchTerm.toLowerCase();
     const filteredData = allServicios.filter(servicio =>
       servicio.nombre.toLowerCase().includes(lowercasedFilter) ||
-      (servicio.categoria && servicio.categoria.toLowerCase().includes(lowercasedFilter)) ||
-      (servicio.descripcion && servicio.descripcion.toLowerCase().includes(lowercasedFilter))
+      (servicio.categoria && servicio.categoria.toLowerCase().includes(lowercasedFilter))
+      // Descripcion ya no existe en el tipo ServicioEmpresa
     );
     setFilteredServicios(filteredData);
   }, [searchTerm, allServicios]);
@@ -88,7 +87,7 @@ export default function TodosLosServiciosPage() {
 
 
   const serviciosAgrupados = filteredServicios.reduce((acc, servicio) => {
-    const categoria = servicio.categoria || 'Otros servicios'; // Default to 'Otros servicios' if somehow undefined
+    const categoria = servicio.categoria || 'Otros servicios';
     if (!acc[categoria]) {
       acc[categoria] = [];
     }
@@ -120,7 +119,7 @@ export default function TodosLosServiciosPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Buscar servicios por nombre, categoría o descripción..."
+              placeholder="Buscar servicios por nombre o categoría..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 text-base"
@@ -205,7 +204,6 @@ export default function TodosLosServiciosPage() {
                          {servicio.categoria && <Badge variant="outline" className="text-xs mt-1">{servicio.categoria}</Badge>}
                       </CardHeader>
                       <CardContent className="px-3 pb-3 text-sm">
-                        {servicio.descripcion && <p className="text-muted-foreground text-xs mb-1.5">{servicio.descripcion}</p>}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-1">
                             {servicio.unidad && (
                                 <p className="text-xs">

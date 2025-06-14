@@ -8,6 +8,7 @@ export type CategoriaServicio =
   | 'Servicio de bebidas'
   | 'Servicio de discoteca'
   | 'Servicio de repostería y regalos'
+  | 'Servicio de regalo exclusivo' // Added
   | 'Otros servicios';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
@@ -19,6 +20,7 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Servicio de bebidas',
   'Servicio de discoteca',
   'Servicio de repostería y regalos',
+  'Servicio de regalo exclusivo', // Added
   'Otros servicios'
 ];
 
@@ -30,8 +32,8 @@ export interface ServicioEmpresa {
   id: string;
   nombre: string;
   categoria: CategoriaServicio;
-  descripcion?: string;
-  precioVenta?: number; // Renombrado de precioEstimado
-  costoReal?: number;   // Nuevo campo
-  unidad?: UnidadServicio; // Actualizado
+  // descripcion?: string; // Removed
+  precioVenta?: number;
+  costoReal?: number;
+  unidad?: UnidadServicio;
 }

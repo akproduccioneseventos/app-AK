@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, PlusCircle, Save, Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -23,7 +22,6 @@ export default function NuevoServicioPage() {
 
   const [nombre, setNombre] = useState('');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
-  const [descripcion, setDescripcion] = useState('');
   const [precioVenta, setPrecioVenta] = useState<string>('');
   const [costoReal, setCostoReal] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
@@ -46,8 +44,7 @@ export default function NuevoServicioPage() {
     setIsSaving(true);
     const servicioData: Omit<ServicioEmpresa, 'id'> = {
       nombre: nombre.trim(),
-      categoria: categoria as CategoriaServicio, // Cast as it's validated
-      descripcion: descripcion.trim() || undefined,
+      categoria: categoria as CategoriaServicio, 
       precioVenta: precioVenta ? parseFloat(precioVenta) : undefined,
       costoReal: costoReal ? parseFloat(costoReal) : undefined,
       unidad: unidad as UnidadServicio,
@@ -122,18 +119,7 @@ export default function NuevoServicioPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="servicio-descripcion" className="text-base">Descripción (Opcional)</Label>
-              <Textarea 
-                id="servicio-descripcion" 
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                placeholder="Describe brevemente qué incluye el servicio, características especiales, etc." 
-                rows={3} 
-                className="text-base p-3"
-                disabled={isSaving}
-              />
-            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="servicio-unidad" className="text-base">Unidad de Precio *</Label>
@@ -156,7 +142,7 @@ export default function NuevoServicioPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="servicio-precio-venta" className="text-base">Precio de Venta (Opcional)</Label>
+                <Label htmlFor="servicio-precio-venta" className="text-base">Precio de Venta</Label>
                 <Input 
                   id="servicio-precio-venta" 
                   type="number" 
@@ -170,7 +156,7 @@ export default function NuevoServicioPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="servicio-costo-real" className="text-base">Costo Real del Servicio (Opcional)</Label>
+                <Label htmlFor="servicio-costo-real" className="text-base">Costo Real del Servicio</Label>
                 <Input 
                   id="servicio-costo-real" 
                   type="number" 
@@ -184,11 +170,11 @@ export default function NuevoServicioPage() {
                 />
               </div>
             </div>
-            <img 
+             <img 
                 src="https://placehold.co/600x200.png" 
                 alt="Formulario de servicio" 
                 className="mt-6 rounded-md shadow-md mx-auto"
-                data-ai-hint="service form illustration"
+                data-ai-hint="service form abstract"
             />
           </CardContent>
           <CardFooter className="border-t pt-6">

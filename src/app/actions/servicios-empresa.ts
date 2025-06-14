@@ -47,7 +47,7 @@ export async function saveServicioEmpresa(
     return { success: false, error: "Firestore no está inicializado." };
   }
   try {
-    let finalServicioData: ServicioEmpresa;
+    let finalServicioData: Partial<ServicioEmpresa>; // Use Partial to allow deleting fields
     let servicioId: string;
 
     const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
@@ -55,12 +55,16 @@ export async function saveServicioEmpresa(
       precioVenta: servicioData.precioVenta !== undefined ? Number(servicioData.precioVenta) : undefined,
       costoReal: servicioData.costoReal !== undefined ? Number(servicioData.costoReal) : undefined,
     };
-    if (dataWithParsedNumbers.precioVenta !== undefined && isNaN(dataWithParsedNumbers.precioVenta)) {
+    // Remove fields if NaN or undefined after parsing, so they don't get stored in Firestore
+    if (dataWithParsedNumbers.precioVenta === undefined || isNaN(dataWithParsedNumbers.precioVenta)) {
         delete dataWithParsedNumbers.precioVenta;
     }
-    if (dataWithParsedNumbers.costoReal !== undefined && isNaN(dataWithParsedNumbers.costoReal)) {
+    if (dataWithParsedNumbers.costoReal === undefined || isNaN(dataWithParsedNumbers.costoReal)) {
         delete dataWithParsedNumbers.costoReal;
     }
+    // Ensure 'descripcion' is not part of the payload
+    delete (dataWithParsedNumbers as any).descripcion;
+
     
     // Validar nombre y categoría
     if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") {
@@ -95,7 +99,7 @@ export async function saveServicioEmpresa(
       };
       await newServicioRef.set(finalServicioData);
     }
-    return { success: true, id: servicioId, servicio: finalServicioData };
+    return { success: true, id: servicioId, servicio: finalServicioData as ServicioEmpresa };
   } catch (error: any) {
     console.error('Error guardando servicio en Firestore:', error);
     return { success: false, error: error.message || 'No se pudo guardar el servicio.' };
