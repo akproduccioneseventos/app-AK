@@ -90,12 +90,6 @@ export default function EmpresaHubPage() {
           </Card>
         ))}
       </div>
-       <img 
-          src="https://placehold.co/800x300.png" 
-          alt="Gestión empresarial" 
-          className="mt-8 rounded-lg shadow-md mx-auto"
-          data-ai-hint="business management office"
-      />
     </div>
   );
 }

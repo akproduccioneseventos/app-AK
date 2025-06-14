@@ -10,10 +10,12 @@ import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual'
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getMenuById } from '@/app/actions/menus-catering';
+import { getCustomerById } from '@/app/actions/customers'; // Import getCustomerById
 import type { FiestaEnPlanificacion, Tarea, Reunion, SalonLayoutData, DecoracionData } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import type { FullMenu } from '@/types/catering';
+import type { Customer } from '@/types/customer'; // Import Customer type
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
@@ -133,11 +135,11 @@ const planningModules: PlanningModule[] = [
   }
 ];
 
-const formatCurrency = (amount?: number | string, currency: string = 'ARS') => {
+const formatCurrency = (amount?: number | string, currency: string = 'UYU') => { // Changed default to UYU
   if (amount === undefined || amount === null || amount === '') return "N/A";
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(numericAmount)) return "N/A";
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: currency }).format(numericAmount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(numericAmount);
 };
 
 
@@ -161,6 +163,7 @@ interface TaskSummary {
 export default function PlanificarFiestaHubPage() {
   const { toast } = useToast();
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
+  const [linkedClient, setLinkedClient] = useState<Customer | null>(null); // State for linked client details
   const [linkedInvoices, setLinkedInvoices] = useState<Invoice[]>([]);
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
 
@@ -171,11 +174,17 @@ export default function PlanificarFiestaHubPage() {
   const loadFiestaData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setLinkedClient(null); // Reset linked client
     try {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
 
       if (fiesta) {
+        if (fiesta.configuracion.clienteId) {
+          const clientDetails = await getCustomerById(fiesta.configuracion.clienteId);
+          setLinkedClient(clientDetails);
+        }
+
         if (fiesta.invoiceIds && fiesta.invoiceIds.length > 0) {
           const invoiceDetailsPromises = fiesta.invoiceIds.map(id => getInvoiceById(id));
           const invoicesDetails = (await Promise.all(invoiceDetailsPromises)).filter(inv => inv !== null) as Invoice[];
@@ -213,7 +222,7 @@ export default function PlanificarFiestaHubPage() {
           title: "¡Planificador Reiniciado!",
           description: "Se ha iniciado una nueva planificación de fiesta desde cero.",
         });
-        await loadFiestaData(); // Recargar para mostrar la nueva fiesta vacía
+        await loadFiestaData(); 
       } else {
         throw new Error(result.error || "No se pudo reiniciar el planificador.");
       }
@@ -233,7 +242,7 @@ export default function PlanificarFiestaHubPage() {
     const paymentsTotal = invoice.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
     return sum + paymentsTotal;
   }, 0);
-  const saldoPorPagar = (typeof presupuestoEstimado === 'number' ? presupuestoEstimado : parseFloat(presupuestoEstimado)) - totalPagado;
+  const saldoPorPagar = (typeof presupuestoEstimado === 'number' ? presupuestoEstimado : parseFloat(presupuestoEstimado.toString())) - totalPagado;
 
 
   return (
@@ -298,7 +307,6 @@ export default function PlanificarFiestaHubPage() {
         </div>
       ) : (
         <>
-          {/* Main Event Info & Countdown */}
           <Card className="shadow-xl bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20 print:shadow-none print:border-2 print:border-primary/50">
             <CardHeader className="pb-4 print:pb-2">
                 <CardTitle className="font-headline text-2xl md:text-3xl text-primary text-center print:text-xl">
@@ -306,6 +314,7 @@ export default function PlanificarFiestaHubPage() {
                 </CardTitle>
                 <CardDescription className="text-md text-muted-foreground text-center print:text-sm">
                     {fiestaActual.configuracion.tipoCelebracion} - {formatDate(fiestaActual.configuracion.fechaEvento)}
+                     {linkedClient && <span className="block mt-1 text-xs">(Cliente: {linkedClient.name || linkedClient.companyName})</span>}
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center space-y-4 print:space-y-2">
@@ -320,10 +329,28 @@ export default function PlanificarFiestaHubPage() {
                         </p>
                     )}
                 </div>
+                {/* Display Budget/Contract buttons if client is linked and files exist */}
+                {linkedClient && (linkedClient.budgetFileName || linkedClient.contractFileName) && (
+                    <div className="flex flex-wrap justify-center gap-2 pt-3 border-t print:hidden w-full max-w-md mx-auto mt-3">
+                        {linkedClient.budgetFileName && (
+                            <a href={`/api/budgets/${linkedClient.budgetFileName}`} target="_blank" rel="noopener noreferrer">
+                                <Button variant="outline" size="sm">
+                                    <FileText className="w-4 h-4 mr-2"/> Ver Presupuesto Cliente
+                                </Button>
+                            </a>
+                        )}
+                        {linkedClient.contractFileName && (
+                            <a href={`/api/contracts/${linkedClient.contractFileName}`} target="_blank" rel="noopener noreferrer">
+                                <Button variant="outline" size="sm">
+                                    <FileText className="w-4 h-4 mr-2"/> Ver Contrato Cliente
+                                </Button>
+                            </a>
+                        )}
+                    </div>
+                )}
             </CardContent>
           </Card>
 
-          {/* Task & Financial Summary Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:grid-cols-2 print:gap-4 print:break-inside-avoid-page">
             <Card className="md:col-span-1 hover:shadow-md transition-shadow print:shadow-none print:border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
@@ -357,7 +384,6 @@ export default function PlanificarFiestaHubPage() {
                     <p className="text-xs text-muted-foreground">Suma de pagos recibidos.</p>
                 </CardContent>
             </Card>
-            {/* Saldo por Pagar - podría ser condicional si el presupuesto no está definido */}
              <Card className="hover:shadow-md transition-shadow md:col-start-2 print:shadow-none print:border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
                     <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Saldo por Pagar</CardTitle>
@@ -432,5 +458,3 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
-
-    

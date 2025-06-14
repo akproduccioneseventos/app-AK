@@ -17,6 +17,7 @@ import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomers, getCustomerById } from '@/app/actions/customers';
+import { Separator } from '@/components/ui/separator';
 
 
 interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> {
@@ -29,8 +30,8 @@ const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 
 export default function ConfiguracionEventoPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ConfigFormState | null>(null);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null); // Para contrato
+  const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
+  const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
@@ -45,22 +46,35 @@ export default function ConfiguracionEventoPage() {
         getCustomers()
       ]);
 
+      setAllCustomers(fetchedCustomers);
+
       if (fiesta && fiesta.configuracion) {
-        const currentConfig = {
+        let currentConfig: ConfigFormState = {
           ...fiesta.configuracion,
           fechaEvento: fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : undefined,
           clienteId: fiesta.configuracion.clienteId || undefined,
         };
-        setConfig(currentConfig);
-
+        
         if (currentConfig.clienteId) {
           const customerDetails = await getCustomerById(currentConfig.clienteId);
           setLinkedCustomer(customerDetails);
+          if (customerDetails) {
+            // Auto-populate from client if fields are empty or default in party config
+            currentConfig = {
+              ...currentConfig,
+              nombreEvento: currentConfig.nombreEvento || customerDetails.name || customerDetails.companyName || '',
+              tipoCelebracion: currentConfig.tipoCelebracion && currentConfig.tipoCelebracion !== 'Cumpleaños' ? currentConfig.tipoCelebracion : (customerDetails.partyType || currentConfig.tipoCelebracion),
+              fechaEvento: currentConfig.fechaEvento || (customerDetails.partyDate ? new Date(customerDetails.partyDate) : undefined),
+              horaInicio: currentConfig.horaInicio || customerDetails.partyTime || '19:00',
+              invitadosEstimados: currentConfig.invitadosEstimados || customerDetails.guestCount || 50,
+              nombreLugar: currentConfig.nombreLugar || customerDetails.venueName || 'Salón de Ensueño',
+            };
+          }
         }
+        setConfig(currentConfig);
       } else {
         toast({ title: 'Error', description: 'No se pudo cargar la configuración inicial.', variant: 'destructive' });
       }
-      setCustomers(fetchedCustomers);
     } catch (error) {
       console.error("Error loading event configuration or customers:", error);
       toast({ title: 'Error al Cargar', description: 'No se pudo obtener la configuración del evento o los clientes.', variant: 'destructive' });
@@ -93,15 +107,33 @@ export default function ConfiguracionEventoPage() {
     }
   };
   
-  const handleClienteChange = async (clienteId: string) => {
-    const newClienteId = clienteId === "ninguno" ? undefined : clienteId;
-    handleChange('clienteId', newClienteId);
-    if (newClienteId) {
-      const customerDetails = await getCustomerById(newClienteId);
-      setLinkedCustomer(customerDetails);
-    } else {
-      setLinkedCustomer(null);
-    }
+  const handleClienteChange = async (newClienteIdValue: string) => {
+    const newClienteId = newClienteIdValue === "ninguno" || newClienteIdValue === "" ? undefined : newClienteIdValue;
+    
+    setConfig(prevConfig => {
+      if (!prevConfig) return null;
+      let updatedConfig = { ...prevConfig, clienteId: newClienteId };
+
+      if (newClienteId) {
+        const customerDetails = allCustomers.find(c => c.id === newClienteId);
+        setLinkedCustomer(customerDetails || null);
+        if (customerDetails) {
+          updatedConfig = {
+            ...updatedConfig,
+            nombreEvento: customerDetails.name || customerDetails.companyName || updatedConfig.nombreEvento,
+            tipoCelebracion: customerDetails.partyType || updatedConfig.tipoCelebracion,
+            fechaEvento: customerDetails.partyDate ? new Date(customerDetails.partyDate) : updatedConfig.fechaEvento,
+            horaInicio: customerDetails.partyTime || updatedConfig.horaInicio,
+            invitadosEstimados: customerDetails.guestCount || updatedConfig.invitadosEstimados,
+            nombreLugar: customerDetails.venueName || updatedConfig.nombreLugar,
+          };
+        }
+      } else {
+        setLinkedCustomer(null);
+        // Optionally reset fields if client is removed, or keep them as they were edited
+      }
+      return updatedConfig;
+    });
   };
 
 
@@ -115,6 +147,10 @@ export default function ConfiguracionEventoPage() {
         toast({ title: "Nombre Requerido", description: "El nombre del evento no puede estar vacío.", variant: "destructive"});
         return;
     }
+    if (!config.clienteId) {
+        toast({ title: "Cliente Requerido", description: "Debe seleccionar un cliente para la fiesta.", variant: "destructive"});
+        return;
+    }
 
     setIsSaving(true);
     const configToSave: ConfigEventoDataStorage = {
@@ -125,7 +161,6 @@ export default function ConfiguracionEventoPage() {
     
     if (!configToSave.clienteId) delete configToSave.clienteId;
 
-
     try {
       const result = await updateConfiguracionFiestaActual(configToSave);
       if (result.success && result.updatedData) {
@@ -133,20 +168,18 @@ export default function ConfiguracionEventoPage() {
           title: "¡Configuración Guardada!",
           description: "Los detalles generales del evento se han actualizado.",
         });
-        const updatedConfig = {
+        const updatedConfigFromServer = {
             ...result.updatedData,
             fechaEvento: result.updatedData.fechaEvento ? new Date(result.updatedData.fechaEvento) : undefined,
             clienteId: result.updatedData.clienteId || undefined,
         };
-        setConfig(updatedConfig);
-        // Re-fetch customer details if clienteId changed or for consistency
-        if (updatedConfig.clienteId) {
-          const customerDetails = await getCustomerById(updatedConfig.clienteId);
+        setConfig(updatedConfigFromServer);
+        if (updatedConfigFromServer.clienteId) {
+          const customerDetails = await getCustomerById(updatedConfigFromServer.clienteId);
           setLinkedCustomer(customerDetails);
         } else {
           setLinkedCustomer(null);
         }
-
       } else {
         throw new Error(result.error || "Error desconocido al guardar la configuración.");
       }
@@ -198,13 +231,80 @@ export default function ConfiguracionEventoPage() {
               <Settings2 className="w-8 h-8 text-primary" />
               <div>
                 <CardTitle className="font-headline text-xl">Detalles Clave de tu Evento</CardTitle>
-                <CardDescription>Establece la información fundamental para la planificación.</CardDescription>
+                <CardDescription>Asocia un cliente y establece la información fundamental.</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="nombre-evento" className="text-base">Nombre del Evento</Label>
+                <Label htmlFor="cliente-principal" className="text-base">Cliente Principal del Evento *</Label>
+                <div className="flex items-center gap-2">
+                    <Select
+                        value={config.clienteId || "ninguno"}
+                        onValueChange={handleClienteChange}
+                        disabled={isSaving || isLoadingCustomers}
+                    >
+                        <SelectTrigger id="cliente-principal" className="text-base p-3 h-auto flex-grow">
+                        <SelectValue placeholder={isLoadingCustomers ? "Cargando clientes..." : "Seleccionar cliente"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="ninguno" className="text-base text-muted-foreground">Ninguno asignado / Crear Nuevo</SelectItem>
+                        {allCustomers.map(customer => (
+                            <SelectItem key={customer.id} value={customer.id} className="text-base">
+                            {customer.companyName || customer.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                    <Link href="/customers/new?redirectTo=/fiestas/nueva/configuracion" passHref>
+                        <Button type="button" variant="outline" size="icon" title="Crear Nuevo Cliente">
+                            <UserCircle className="w-5 h-5" />
+                        </Button>
+                    </Link>
+                </div>
+                {allCustomers.length === 0 && !isLoadingCustomers && (
+                    <p className="text-xs text-muted-foreground">No hay clientes creados.</p>
+                 )}
+                 {linkedCustomer && (
+                    <div className="mt-3 p-3 border rounded-md bg-muted/10 space-y-2">
+                        <h4 className="text-sm font-medium text-muted-foreground">Archivos del Cliente:</h4>
+                        <div className="flex flex-wrap gap-2">
+                            {linkedCustomer.contractFileName && (
+                            <a 
+                                href={`/api/contracts/${linkedCustomer.contractFileName}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                            >
+                                <Button type="button" variant="outline" size="sm">
+                                <FileText className="w-4 h-4 mr-2"/>
+                                Ver/Descargar Contrato
+                                </Button>
+                            </a>
+                            )}
+                             {linkedCustomer.budgetFileName && (
+                            <a 
+                                href={`/api/budgets/${linkedCustomer.budgetFileName}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                            >
+                                <Button type="button" variant="outline" size="sm">
+                                <FileText className="w-4 h-4 mr-2"/>
+                                Ver/Descargar Presupuesto
+                                </Button>
+                            </a>
+                            )}
+                            {!linkedCustomer.contractFileName && !linkedCustomer.budgetFileName && (
+                                <p className="text-xs text-muted-foreground italic">No hay archivos PDF asociados a este cliente.</p>
+                            )}
+                        </div>
+                    </div>
+                 )}
+              </div>
+
+            <Separator />
+
+            <div className="space-y-2">
+                <Label htmlFor="nombre-evento" className="text-base">Nombre del Evento *</Label>
                 <Input
                   id="nombre-evento"
                   value={config.nombreEvento}
@@ -216,44 +316,8 @@ export default function ConfiguracionEventoPage() {
                 />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="space-y-2">
-                <Label htmlFor="cliente-principal" className="text-base">Cliente Principal del Evento</Label>
-                <Select
-                  value={config.clienteId || "ninguno"}
-                  onValueChange={handleClienteChange}
-                  disabled={isSaving || isLoadingCustomers}
-                >
-                  <SelectTrigger id="cliente-principal" className="text-base p-3 h-auto">
-                    <SelectValue placeholder={isLoadingCustomers ? "Cargando clientes..." : "Seleccionar cliente"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ninguno" className="text-base text-muted-foreground">Ninguno asignado</SelectItem>
-                    {customers.map(customer => (
-                      <SelectItem key={customer.id} value={customer.id} className="text-base">
-                        {customer.companyName || customer.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {customers.length === 0 && !isLoadingCustomers && (
-                    <p className="text-xs text-muted-foreground">No hay clientes. <Link href="/customers/new" className="underline text-primary">Crear nuevo cliente</Link>.</p>
-                 )}
-                 {linkedCustomer?.contractFileName && (
-                  <a 
-                    href={`/api/contracts/${linkedCustomer.contractFileName}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-block mt-2"
-                  >
-                    <Button type="button" variant="outline" size="sm">
-                      <FileText className="w-4 h-4 mr-2"/>
-                      Ver/Descargar Contrato
-                    </Button>
-                  </a>
-                )}
-              </div>
               <div className="space-y-2">
-                <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración</Label>
+                <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración *</Label>
                  <Select 
                     value={tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) ? config.tipoCelebracion : "Otro"}
                     onValueChange={handleTipoEventoChange}
@@ -269,7 +333,7 @@ export default function ConfiguracionEventoPage() {
                       <SelectItem value="Otro" className="text-base">Otro (especificar)</SelectItem>
                     </SelectContent>
                   </Select>
-                  {(config.tipoCelebracion === '' || (!tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) && config.tipoCelebracion !== 'Otro')) && (
+                  {(!tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) && config.tipoCelebracion !== 'Otro' && config.tipoCelebracion !== '') && (
                      <Input 
                         id="eventoTipoOtro" 
                         placeholder="Especificá el tipo de evento" 
@@ -277,6 +341,7 @@ export default function ConfiguracionEventoPage() {
                         onChange={(e) => handleChange('tipoCelebracion', e.target.value)}
                         className="text-base p-3 mt-2"
                         disabled={isSaving}
+                        required
                     />
                   )}
               </div>
@@ -284,11 +349,11 @@ export default function ConfiguracionEventoPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="fecha-evento" className="text-base">Fecha del Evento</Label>
+                <Label htmlFor="fecha-evento" className="text-base">Fecha del Evento *</Label>
                 <DatePickerDemo selectedDate={config.fechaEvento} onDateChange={handleDateChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="hora-inicio" className="text-base">Hora de Inicio</Label>
+                <Label htmlFor="hora-inicio" className="text-base">Hora de Inicio *</Label>
                 <Input
                   id="hora-inicio"
                   type="time"
@@ -296,6 +361,7 @@ export default function ConfiguracionEventoPage() {
                   onChange={(e) => handleChange('horaInicio', e.target.value)}
                   className="text-base p-3"
                   disabled={isSaving}
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -312,7 +378,7 @@ export default function ConfiguracionEventoPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nombre-lugar" className="text-base">Lugar del Evento (Nombre)</Label>
+              <Label htmlFor="nombre-lugar" className="text-base">Lugar del Evento (Nombre) *</Label>
               <Input
                 id="nombre-lugar"
                 value={config.nombreLugar}
@@ -320,6 +386,7 @@ export default function ConfiguracionEventoPage() {
                 placeholder="Ej: Salón Paraíso, Finca Los Robles"
                 className="text-base p-3"
                 disabled={isSaving}
+                required
               />
             </div>
             <div className="space-y-2">
@@ -337,7 +404,7 @@ export default function ConfiguracionEventoPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados</Label>
+                    <Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados *</Label>
                     <Input
                     id="invitados-estimados"
                     type="number"
@@ -347,10 +414,11 @@ export default function ConfiguracionEventoPage() {
                     min="1"
                     className="text-base p-3"
                     disabled={isSaving}
+                    required
                     />
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="presupuesto-estimado" className="text-base">Presupuesto Total Estimado (ARS)</Label>
+                    <Label htmlFor="presupuesto-estimado" className="text-base">Presupuesto Total Estimado (UYU)</Label>
                     <Input
                     id="presupuesto-estimado"
                     type="number"
@@ -377,15 +445,9 @@ export default function ConfiguracionEventoPage() {
                 disabled={isSaving}
               />
             </div>
-             <img 
-                src="https://placehold.co/600x300.png" 
-                alt="Configuración de evento" 
-                className="mt-6 rounded-md shadow-md mx-auto"
-                data-ai-hint="event details form"
-             />
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers || !config.clienteId}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Configuración'}
             </Button>

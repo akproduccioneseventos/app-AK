@@ -17,5 +17,14 @@ export interface Customer {
   companyName?: string;
   taxId?: string; 
   estadoCliente?: CustomerStatus; // 'Actual' o 'Antiguo'
-  contractFileName?: string; // Nuevo campo para el nombre del archivo del contrato
+  
+  // Party-related fields
+  partyDate?: string; // ISO string
+  partyTime?: string; // e.g., "19:00 - 02:00"
+  partyType?: string; // e.g., "Boda", "Cumpleaños de 15"
+  guestCount?: number;
+  venueName?: string; // Nombre del salón o lugar
+  
+  contractFileName?: string; 
+  budgetFileName?: string; 
 }
