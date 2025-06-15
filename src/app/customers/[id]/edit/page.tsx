@@ -99,27 +99,17 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!customer) return;
-    if (!name.trim() && !companyName.trim()) {
-      toast({ title: "Nombre Requerido", variant: "destructive" });
-      return;
-    }
-     if (!partyDate || !partyTime.trim() || !partyType.trim() || !guestCount.trim() || parseInt(guestCount) <= 0 || !venueName.trim()) {
-       toast({ title: "Campos de Fiesta Obligatorios", description: "Fecha, horario, tipo, invitados y salón son obligatorios.", variant: "destructive"});
-       return;
-    }
-    // File validation: if no current file, new file is required
-    if (!currentContractFile && !newContractFile) {
-        toast({ title: "Contrato Requerido", description: "Debe cargar un archivo de contrato.", variant: "destructive"}); return;
-    }
-    if (!currentBudgetFile && !newBudgetFile) {
-        toast({ title: "Presupuesto Requerido", description: "Debe cargar un archivo de presupuesto.", variant: "destructive"}); return;
-    }
 
+    // Client-side validations removed as per request
+    // Server-side will still require name or companyName
 
     setIsSaving(true);
     const formData = new FormData();
     formData.append('id', customer.id); // Important for update
-    formData.append('name', name.trim() || companyName.trim());
+    
+    if (name.trim()) formData.append('name', name.trim());
+    else if (companyName.trim()) formData.append('name', companyName.trim()); // Fallback if name is empty but companyName is not
+
     if (companyName.trim()) formData.append('companyName', companyName.trim());
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
@@ -129,10 +119,10 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     
     // Append party fields
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
-    formData.append('partyTime', partyTime.trim());
-    formData.append('partyType', partyType.trim());
-    formData.append('guestCount', guestCount.trim());
-    formData.append('venueName', venueName.trim());
+    if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
+    if (partyType.trim()) formData.append('partyType', partyType.trim());
+    if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
+    if (venueName.trim()) formData.append('venueName', venueName.trim());
 
     if (newContractFile) formData.append('contract', newContractFile);
     else if (currentContractFile) formData.append('contractFileName', currentContractFile); // Preserve if no new file
@@ -209,8 +199,8 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div><Label htmlFor="customer-name">Nombre Completo *</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving || isDeleting} required/></div>
-              <div><Label htmlFor="company-name">Empresa (Opcional)</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={isSaving || isDeleting}/></div>
+              <div><Label htmlFor="customer-name">Nombre Completo</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving || isDeleting} /></div>
+              <div><Label htmlFor="company-name">Empresa</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={isSaving || isDeleting}/></div>
             </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div><Label htmlFor="customer-email">Email</Label><Input id="customer-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSaving || isDeleting}/></div>
@@ -237,36 +227,36 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
 
           <CardHeader>
             <CardTitle className="font-headline">Información de la Fiesta Contratada</CardTitle>
-             <CardDescription>Estos campos son obligatorios para el cliente.</CardDescription>
+             <CardDescription>Puedes completar esta información ahora o más tarde.</CardDescription>
           </CardHeader>
            <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="party-date">Fecha de la Fiesta *</Label>
+                  <Label htmlFor="party-date">Fecha de la Fiesta</Label>
                   <DatePickerDemo selectedDate={partyDate} onDateChange={setPartyDate} />
                 </div>
                 <div>
-                  <Label htmlFor="party-time">Horario del Evento *</Label>
-                  <Input id="party-time" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" required disabled={isSaving || isDeleting}/>
+                  <Label htmlFor="party-time">Horario del Evento</Label>
+                  <Input id="party-time" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" disabled={isSaving || isDeleting}/>
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="party-type">Tipo de Fiesta *</Label>
-                  <Input id="party-type" value={partyType} onChange={(e) => setPartyType(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" required disabled={isSaving || isDeleting}/>
+                  <Label htmlFor="party-type">Tipo de Fiesta</Label>
+                  <Input id="party-type" value={partyType} onChange={(e) => setPartyType(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" disabled={isSaving || isDeleting}/>
                 </div>
                 <div>
-                  <Label htmlFor="guest-count">Cantidad de Invitados *</Label>
-                  <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1" required disabled={isSaving || isDeleting}/>
+                  <Label htmlFor="guest-count">Cantidad de Invitados</Label>
+                  <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1" disabled={isSaving || isDeleting}/>
                 </div>
             </div>
              <div>
-                <Label htmlFor="venue-name">Salón de Fiestas / Lugar *</Label>
-                <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso" required disabled={isSaving || isDeleting}/>
+                <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>
+                <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso" disabled={isSaving || isDeleting}/>
              </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                    <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Presupuesto (PDF) *</Label>
+                    <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Presupuesto (PDF)</Label>
                     <Input id="budget-file" type="file" accept="application/pdf" onChange={(e) => setNewBudgetFile(e.target.files?.[0] || null)} 
                            className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                            disabled={isSaving || isDeleting}/>
@@ -274,7 +264,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                     {newBudgetFile && <p className="text-xs text-muted-foreground mt-1">Nuevo: {newBudgetFile.name}</p>}
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Contrato (PDF) *</Label>
+                    <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Contrato (PDF)</Label>
                     <Input id="contract-file" type="file" accept="application/pdf" onChange={(e) => setNewContractFile(e.target.files?.[0] || null)} 
                            className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                            disabled={isSaving || isDeleting}/>
