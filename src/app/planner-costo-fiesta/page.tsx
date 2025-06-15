@@ -70,15 +70,14 @@ export default function PlanificadorGastronomicoPage() {
 
   const costoTotalMenuPorPersona = useMemo(() => {
     if (!selectedMenu) return 0;
-    // Suma de costo por porción de cada item. Si no está, calcula desde totalDishCost.
     return selectedMenu.items.reduce((sum, item) => {
       let costForItemPerPerson = 0;
       if (typeof item.costPerPortion === 'number') {
         costForItemPerPerson = item.costPerPortion;
       } else if (typeof item.totalDishCost === 'number' && typeof item.basePortions === 'number' && item.basePortions > 0) {
         costForItemPerPerson = item.totalDishCost / item.basePortions;
-      } else if (typeof item.totalDishCost === 'number') { // Fallback si solo hay totalDishCost
-        costForItemPerPerson = item.totalDishCost; // Asume que es para 1 porción si basePortions no está
+      } else if (typeof item.totalDishCost === 'number') {
+        costForItemPerPerson = item.totalDishCost;
       }
       return sum + costForItemPerPerson;
     }, 0);
@@ -88,9 +87,31 @@ export default function PlanificadorGastronomicoPage() {
     return costoTotalMenuPorPersona * numberOfGuests;
   }, [costoTotalMenuPorPersona, numberOfGuests]);
 
-  // Placeholder values for now
-  const costoTotalReposteria = 0; 
-  const costoTotalBebidas = 0;    
+  // Placeholder for actual calculation based on selected items in Reposteria module
+  const costoTotalReposteria = useMemo(() => {
+    let total = 0;
+    fiestaActual?.reposteria?.categorias.forEach(cat => {
+      if (cat.activada) {
+        cat.items.forEach(item => {
+          total += (item.costoEstimado || 0) * (item.cantidad || 1);
+        });
+      }
+    });
+    return total;
+  }, [fiestaActual?.reposteria]);
+
+  // Placeholder for actual calculation based on selected items in Bebidas module
+  const costoTotalBebidas = useMemo(() => {
+    let total = 0;
+    fiestaActual?.bebidas?.categorias.forEach(cat => {
+      if (cat.activada) {
+        cat.items.forEach(item => {
+          total += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0));
+        });
+      }
+    });
+    return total;
+  }, [fiestaActual?.bebidas]);
 
   const costoTotalGastronomia = useMemo(() => {
     return costoTotalCatering + costoTotalReposteria + costoTotalBebidas;
@@ -144,7 +165,6 @@ export default function PlanificadorGastronomicoPage() {
         </Link>
       </div>
 
-      {/* Configuración del Evento */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/> Configuración del Evento</CardTitle>
@@ -157,7 +177,7 @@ export default function PlanificadorGastronomicoPage() {
               <Input id="guest-count-planner" type="number" value={numberOfGuests} onChange={(e) => setNumberOfGuests(Number(e.target.value) || 0)} min="0" className="text-lg p-3"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="menu-select-planner" className="text-base">Menú Principal</Label>
+              <Label htmlFor="menu-select-planner" className="text-base">Menú Principal (Catering)</Label>
               <Select value={selectedMenuId} onValueChange={(value) => setSelectedMenuId(value === "none" ? undefined : value)}>
                 <SelectTrigger id="menu-select-planner" className="text-lg p-3 h-auto"><SelectValue placeholder="Seleccionar menú..." /></SelectTrigger>
                 <SelectContent>
@@ -172,68 +192,72 @@ export default function PlanificadorGastronomicoPage() {
               <Input id="costo-operativo" type="number" value={costoOperativoFijo} onChange={(e) => setCostoOperativoFijo(Number(e.target.value) || 0)} min="0" placeholder="Ej: 5000" className="text-lg p-3"/>
             </div>
           </div>
-           <div className="pt-2">
-              <Link href="/fiestas/nueva/catering" passHref>
-                <Button variant="outline">
-                  <ChefHat className="w-4 h-4 mr-2"/> Diseñar/Gestionar Menús Detallados
-                </Button>
-              </Link>
-            </div>
         </CardContent>
       </Card>
 
-      {/* Detalle del Menú Seleccionado */}
-      {selectedMenu && (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2"><ChefHat className="text-primary"/> Detalle Menú: {selectedMenu.name}</CardTitle>
-            <CardDescription>Costo por persona para este menú: {formatCurrency(costoTotalMenuPorPersona)}</CardDescription>
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering</CardTitle>
+            <CardDescription>Costo actual: {formatCurrency(costoTotalCatering)}</CardDescription>
           </CardHeader>
           <CardContent>
-            {selectedMenu.items.length > 0 ? (
-              <ScrollArea className="h-[150px] pr-3 text-sm">
-                <ul className="space-y-1">
-                  {selectedMenu.items.map(item => {
-                    const costPerPortionForItem = item.costPerPortion ?? 
-                                                 (item.basePortions && item.basePortions > 0 ? item.totalDishCost / item.basePortions : item.totalDishCost) ?? 
-                                                 0;
-                    return (
-                      <li key={item.id} className="flex justify-between p-1.5 rounded hover:bg-muted/50">
-                        <div>
-                          <span className="font-medium">{item.name}</span> 
-                          <span className="text-xs text-muted-foreground"> ({item.type})</span>
-                          {item.notes && <span className="block text-xs text-muted-foreground italic ml-2">- {item.notes}</span>}
-                        </div>
-                        <span className="font-medium">{formatCurrency(costPerPortionForItem)} c/u</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </ScrollArea>
-            ) : (
-              <p className="text-sm text-muted-foreground">Este menú no tiene platos detallados.</p>
-            )}
+            {selectedMenu ? (
+                 <ScrollArea className="h-[120px] pr-3 text-sm">
+                    <p className="font-medium mb-1">Platos de "{selectedMenu.name}":</p>
+                    <ul className="space-y-0.5">
+                      {selectedMenu.items.map(item => (
+                        <li key={item.id} className="flex justify-between text-xs">
+                          <span>{item.name}</span>
+                          <span>{formatCurrency((item.costPerPortion ?? (item.totalDishCost / (item.basePortions || 1))) || 0)} c/u</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+            ) : <p className="text-sm text-muted-foreground">No hay menú de catering seleccionado.</p>}
           </CardContent>
+          <CardFooter>
+            <Link href="/fiestas/nueva/catering" passHref className="w-full">
+              <Button variant="outline" className="w-full">Gestionar Menús</Button>
+            </Link>
+          </CardFooter>
         </Card>
-      )}
 
-      {/* Módulos de Repostería y Bebidas (Placeholders) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="shadow-md">
-          <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><Cake className="text-primary"/>Módulo de Repostería</CardTitle></CardHeader>
-          <CardContent className="flex flex-col items-center justify-center text-center h-32"><HardHat className="w-8 h-8 text-muted-foreground mb-2"/><p className="text-sm text-muted-foreground">En Desarrollo.</p><p className="text-xs text-muted-foreground">Costo Repostería: {formatCurrency(costoTotalReposteria)}</p></CardContent>
+          <CardHeader>
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><Cake className="text-primary"/>Módulo de Repostería</CardTitle>
+             <CardDescription>Costo actual: {formatCurrency(costoTotalReposteria)}</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <p className="text-sm text-muted-foreground">Define tortas, candy bar, mesas dulces, etc.</p>
+          </CardContent>
+          <CardFooter>
+            <Link href="/planner-costo-fiesta/reposteria" passHref className="w-full">
+              <Button variant="outline" className="w-full">Gestionar Repostería</Button>
+            </Link>
+          </CardFooter>
         </Card>
+
         <Card className="shadow-md">
-          <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><GlassWater className="text-primary"/>Módulo de Bebidas</CardTitle></CardHeader>
-          <CardContent className="flex flex-col items-center justify-center text-center h-32"><HardHat className="w-8 h-8 text-muted-foreground mb-2"/><p className="text-sm text-muted-foreground">En Desarrollo.</p><p className="text-xs text-muted-foreground">Costo Bebidas: {formatCurrency(costoTotalBebidas)}</p></CardContent>
+          <CardHeader>
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><GlassWater className="text-primary"/>Módulo de Bebidas</CardTitle>
+            <CardDescription>Costo actual: {formatCurrency(costoTotalBebidas)}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Calcula refrescos, jugos, alcohol, barra de tragos.</p>
+          </CardContent>
+          <CardFooter>
+            <Link href="/planner-costo-fiesta/bebidas" passHref className="w-full">
+              <Button variant="outline" className="w-full">Gestionar Bebidas</Button>
+            </Link>
+          </CardFooter>
         </Card>
       </div>
 
-      {/* Resumen de Costos y Precios */}
       <Card className="shadow-xl border-t-4 border-primary">
-        <CardHeader><CardTitle className="font-headline text-2xl flex items-center gap-2"><DollarSign className="text-primary w-8 h-8"/>Resumen de Costos y Precios</CardTitle><CardDescription>Visualiza el costo total, precio sugerido y margen.</CardDescription></CardHeader>
+        <CardHeader><CardTitle className="font-headline text-2xl flex items-center gap-2"><DollarSign className="text-primary w-8 h-8"/>Resumen Final de Costos y Precios</CardTitle><CardDescription>Visualiza el costo total, precio sugerido y margen.</CardDescription></CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center md:text-left">
-          <div className="p-4 bg-muted/30 rounded-lg"><p className="text-sm font-medium text-muted-foreground">Costo Gastronomía</p><p className="text-2xl font-bold">{formatCurrency(costoTotalGastronomia)}</p></div>
+          <div className="p-4 bg-muted/30 rounded-lg"><p className="text-sm font-medium text-muted-foreground">Costo Gastronomía Total</p><p className="text-2xl font-bold">{formatCurrency(costoTotalGastronomia)}</p></div>
           <div className="p-4 bg-muted/30 rounded-lg"><p className="text-sm font-medium text-muted-foreground">Costo Op. Fijo</p><p className="text-2xl font-bold">{formatCurrency(costoOperativoFijo)}</p></div>
           <div className="p-4 bg-primary/10 rounded-lg"><p className="text-sm font-medium text-primary/80">COSTO TOTAL EVENTO</p><p className="text-3xl font-bold text-primary">{formatCurrency(costoTotalEvento)}</p></div>
         </CardContent>
@@ -253,3 +277,4 @@ export default function PlanificadorGastronomicoPage() {
     </div>
   );
 }
+

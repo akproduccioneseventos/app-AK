@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -13,7 +13,11 @@ import {
   defaultDecoracion,
   defaultSalonLayout,
   defaultWebPageSettings,
-  defaultMusicaFiesta
+  defaultMusicaFiesta,
+  defaultReposteriaData,
+  defaultBebidasData,
+  defaultReposteriaCategorias,
+  defaultBebidasCategorias
 } from '@/lib/fiesta-defaults';
 
 
@@ -110,6 +114,25 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
    // Remove direccionLugar if it exists from defaults or data
    delete (validatedConfig as any).direccionLugar;
 
+    const mergedReposteriaCategorias = defaultReposteriaCategorias.map(defaultCat => {
+        const savedCat = data.reposteria?.categorias?.find(sc => sc.id === defaultCat.id);
+        return savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
+    });
+    const validatedReposteria: ReposteriaData = {
+        ...defaultReposteriaData,
+        ...(data.reposteria || {}),
+        categorias: mergedReposteriaCategorias,
+    };
+
+    const mergedBebidasCategorias = defaultBebidasCategorias.map(defaultCat => {
+        const savedCat = data.bebidas?.categorias?.find(sc => sc.id === defaultCat.id);
+        return savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
+    });
+    const validatedBebidas: BebidasData = {
+        ...defaultBebidasData,
+        ...(data.bebidas || {}),
+        categorias: mergedBebidasCategorias,
+    };
 
    const validatedData: FiestaEnPlanificacion = {
     id: data.id || `fiesta_${Date.now()}`,
@@ -162,7 +185,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         },
         moodboardImageUrl: data.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl || '',
         colorCubremantel: data.decoracion?.colorCubremantel || defaultDecoracion.colorCubremantel || '',
-        decoracionTorta: data.decoracion?.decoracionTorta || defaultDecoracion.decoracionTorta,
+        decoracionTorta: data.decoracion?.decoracionTorta || { descripcion: '', imageUrl: '', dataAiHint: 'cake design' },
         items: (data.decoracion?.items || []).map(item => ({
             id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
             name: item.name || 'Ítem sin nombre',
@@ -196,6 +219,8 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       ...defaultMusicaFiesta,
       ...(data.musica || {}),
     },
+    reposteria: validatedReposteria,
+    bebidas: validatedBebidas,
   };
   return JSON.parse(JSON.stringify(validatedData));
 }
@@ -618,6 +643,52 @@ export async function updateMusicaFiestaActual(
     return { success: false, error: e.message || "Error al actualizar la música de la fiesta." };
   }
 }
+
+
+export async function updateReposteriaFiestaActual(
+  reposteriaData: ReposteriaData
+): Promise<{ success: boolean; updatedData?: ReposteriaData; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    // Ensure all default categories are present, merging with received data
+    const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
+        const receivedCat = reposteriaData.categorias?.find(rc => rc.id === defaultCat.id);
+        return receivedCat ? { ...defaultCat, ...receivedCat } : { ...defaultCat };
+    });
+
+    fiestaActual.reposteria = {
+      ...defaultReposteriaData, // Ensure all base fields like notasGenerales are present
+      ...reposteriaData,
+      categorias: mergedCategorias,
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.reposteria)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar los datos de repostería." };
+  }
+}
+
+export async function updateBebidasFiestaActual(
+  bebidasData: BebidasData
+): Promise<{ success: boolean; updatedData?: BebidasData; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+     const mergedCategorias = defaultBebidasCategorias.map(defaultCat => {
+        const receivedCat = bebidasData.categorias?.find(rc => rc.id === defaultCat.id);
+        return receivedCat ? { ...defaultCat, ...receivedCat } : { ...defaultCat };
+    });
+    fiestaActual.bebidas = {
+      ...defaultBebidasData,
+      ...bebidasData,
+      categorias: mergedCategorias,
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.bebidas)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar los datos de bebidas." };
+  }
+}
+
 
 export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta?: FiestaEnPlanificacion, error?: string }> {
   try {

@@ -1,6 +1,6 @@
 
 // src/lib/fiesta-defaults.ts
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, SalonLayoutData, MusicaFiesta, ZonaContratada } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, SalonLayoutData, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ReposteriaCategoriaId, BebidaCategoriaId, TipoEventoAjusteBebidas } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -38,9 +38,9 @@ export const tareasPredeterminadasEjemplo: Pick<Tarea, 'texto' | 'descripcion' |
 
 
 export const defaultColorPalette: ColorPalette = {
-  primary: '#D9B8FF',
-  secondary: '#FCD3DE',
-  accent: '#F0E6CC',
+  primary: '#D9B8FF', // Lila pastel
+  secondary: '#FCD3DE', // Rosa pastel
+  accent: '#F0E6CC', // Crema/Beige claro
 };
 
 export const defaultZonasContratadas: ZonaContratada[] = [
@@ -99,6 +99,40 @@ export const defaultMusicaFiesta: MusicaFiesta = {
   listaNoReproducir: '',
 };
 
+// Defaults para Repostería
+export const defaultReposteriaCategorias: ReposteriaCategoria[] = [
+  { id: 'tortas_personalizadas', nombreDisplay: 'Tortas Personalizadas', activada: false, items: [], descripcion: 'Diseño y sabores a medida.', cantidadEstimadaPersonas: 0 },
+  { id: 'cupcakes_minitortas', nombreDisplay: 'Cupcakes / Mini Tortas', activada: false, items: [], descripcion: 'Pequeñas delicias individuales.', cantidadEstimadaPersonas: 0 },
+  { id: 'candy_bar', nombreDisplay: 'Candy Bar Temático', activada: false, items: [], descripcion: 'Mesa de dulces y golosinas variadas.', cantidadEstimadaPersonas: 0 },
+  { id: 'fuente_chocolate', nombreDisplay: 'Fuente de Chocolate', activada: false, items: [], descripcion: 'Con frutas, malvaviscos y más.', cantidadEstimadaPersonas: 0 },
+  { id: 'mesa_dulce_tradicional', nombreDisplay: 'Mesa Dulce Tradicional', activada: false, items: [], descripcion: 'Variedad de postres clásicos.', cantidadEstimadaPersonas: 0 },
+  { id: 'mesa_helada', nombreDisplay: 'Mesa Helada', activada: false, items: [], descripcion: 'Selección de helados y toppings.', cantidadEstimadaPersonas: 0 },
+  { id: 'postres_individuales', nombreDisplay: 'Postres Individuales', activada: false, items: [], descripcion: 'Porciones individuales de postres variados.', cantidadEstimadaPersonas: 0 },
+];
+
+export const defaultReposteriaData: ReposteriaData = {
+  categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)),
+  notasGenerales: '',
+};
+
+// Defaults para Bebidas
+export const defaultBebidasCategorias: BebidaCategoria[] = [
+  { id: 'refrescos_gaseosas', nombreDisplay: 'Refrescos / Gaseosas', activada: false, items: [], descripcion: 'Variedad de bebidas carbonatadas.' },
+  { id: 'jugos', nombreDisplay: 'Jugos Naturales y Envasados', activada: false, items: [], descripcion: 'Opciones frutales y refrescantes.' },
+  { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
+  { id: 'bebidas_alcoholicas_varias', nombreDisplay: 'Bebidas Alcohólicas Varias', activada: false, items: [], descripcion: 'Licores, aperitivos, etc.' },
+  { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
+  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], descripcion: 'Cócteles con y sin alcohol preparados al momento.' },
+  { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' },
+];
+
+export const defaultBebidasData: BebidasData = {
+  categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)),
+  tipoEventoAjuste: 'mixto_estandar',
+  notasGenerales: '',
+};
+
+
 export const initialFiestaActualData: FiestaEnPlanificacion = {
   id: `fiesta_${Date.now()}`,
   configuracion: { ...defaultConfiguracion },
@@ -125,6 +159,8 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   invitados: [],
   webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },
   musica: { ...defaultMusicaFiesta },
+  reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
+  bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
 };
 
     

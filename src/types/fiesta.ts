@@ -134,6 +134,87 @@ export interface MusicaFiesta {
   listaNoReproducir?: string;
 }
 
+// Tipos para el Módulo de Repostería
+export interface ReposteriaItem {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  cantidad?: number;
+  unidad?: 'unidad' | 'docena' | 'kg' | 'porción';
+  costoEstimado?: number;
+  precioSugerido?: number;
+  imagenReferenciaUrl?: string;
+  dataAiHint?: string;
+  notas?: string;
+  // Futuro: link a receta/ingredientes
+}
+
+export type ReposteriaCategoriaId =
+  | 'tortas_personalizadas'
+  | 'cupcakes_minitortas'
+  | 'candy_bar'
+  | 'fuente_chocolate'
+  | 'mesa_dulce_tradicional'
+  | 'mesa_helada'
+  | 'postres_individuales';
+
+export interface ReposteriaCategoria {
+  id: ReposteriaCategoriaId;
+  nombreDisplay: string;
+  activada: boolean;
+  descripcion?: string;
+  cantidadEstimadaPersonas?: number;
+  items: ReposteriaItem[];
+  imagenReferenciaUrl?: string;
+  dataAiHint?: string;
+}
+
+export interface ReposteriaData {
+  categorias: ReposteriaCategoria[];
+  notasGenerales?: string;
+}
+
+// Tipos para el Módulo de Bebidas
+export interface BebidaItem {
+  id: string;
+  nombre: string;
+  marca?: string;
+  presentacion?: string; // Ej: Botella 2L, Lata 350ml
+  cantidadNecesaria?: number; // Calculada o manual
+  unidadCantidad?: 'unidades' | 'litros' | 'botellas';
+  costoUnitario?: number;
+  costoTotal?: number; // Calculado
+  proveedorHabitual?: string;
+  notas?: string;
+  // Futuro: link a producto/ingrediente
+}
+
+export type BebidaCategoriaId =
+  | 'refrescos_gaseosas'
+  | 'jugos'
+  | 'aguas_saborizadas'
+  | 'bebidas_alcoholicas_varias' // Ej: Aperitivos, licores
+  | 'vinos_espumantes'
+  | 'barra_tragos'
+  | 'cafeteria';
+
+export interface BebidaCategoria {
+  id: BebidaCategoriaId;
+  nombreDisplay: string;
+  activada: boolean;
+  descripcion?: string;
+  items: BebidaItem[];
+  // Futuro: configuraciones específicas de cálculo para esta categoría
+}
+
+export type TipoEventoAjusteBebidas = 'formal' | 'juvenil' | 'corporativo' | 'mixto_estandar';
+
+export interface BebidasData {
+  categorias: BebidaCategoria[];
+  tipoEventoAjuste?: TipoEventoAjusteBebidas;
+  notasGenerales?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -148,5 +229,7 @@ export interface FiestaEnPlanificacion {
   invitados?: Invitado[];
   webPageSettings?: EventWebPageSettings;
   musica?: MusicaFiesta;
+  reposteria?: ReposteriaData;
+  bebidas?: BebidasData;
 }
     

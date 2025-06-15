@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -97,6 +97,8 @@ const getPageTitle = (pathname: string): string => {
   
   // Planner Costo-Fiesta (Renombrado)
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
+  if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
+  if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
 
 
   // Rutas Actualizadas
@@ -180,6 +182,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/budget-display') return SettingsIcon;
   
   if (pathname === '/planner-costo-fiesta') return Calculator;
+  if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
+  if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
 
 
   return null;
