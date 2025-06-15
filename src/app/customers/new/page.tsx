@@ -14,10 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { saveCustomer } from '@/app/actions/customers';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Separator } from '@/components/ui/separator';
-import type { TipoEvento } from '@/types/presupuesto'; // Importar TipoEvento
-
-// Definir tipos de evento disponibles, igual que en presupuestos
-const tiposEventoDisponibles: TipoEvento[] = ['Boda', 'XV años', 'Cumpleaños', 'Evento corporativo', 'Cumpleaños infantil', 'Otro'];
+import type { TipoEvento } from '@/types/presupuesto';
+import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 
 
 export default function NewCustomerPage() {
@@ -27,56 +25,49 @@ export default function NewCustomerPage() {
 
   // Form state
   const [name, setName] = useState('');
-  const [customerCompanyName, setCustomerCompanyName] = useState(''); // Renamed to avoid conflict
+  const [customerCompanyName, setCustomerCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [email, setEmail] = useState('');
+  // Email state removed
   const [street, setStreet] = useState('');
 
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
   const [partyTime, setPartyTime] = useState('');
-  const [selectedPartyType, setSelectedPartyType] = useState<TipoEvento | string>(''); // Nuevo estado
-  const [corporateEventCompanyName, setCorporateEventCompanyName] = useState(''); // Nuevo estado para nombre de empresa condicional
+  const [selectedPartyType, setSelectedPartyType] = useState<TipoEvento | string>('');
+  const [corporateEventCompanyName, setCorporateEventCompanyName] = useState('');
 
   const [guestCount, setGuestCount] = useState<string>('');
   const [venueName, setVenueName] = useState('');
   const [contractFile, setContractFile] = useState<File | null>(null);
   const [budgetFile, setBudgetFile] = useState<File | null>(null);
 
-  const handlePartyTypeChange = (value: TipoEvento | string) => {
+  const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
       setSelectedPartyType(''); 
     } else {
-      setSelectedPartyType(value);
+      setSelectedPartyType(value as TipoEvento);
     }
     if (value !== 'Evento corporativo') {
-      setCorporateEventCompanyName(''); // Limpiar si no es evento corporativo
+      setCorporateEventCompanyName(''); 
     }
   };
+  
+  const finalEventType = selectedPartyType === '' && formData.eventoTipo ? formData.eventoTipo.trim() : selectedPartyType.trim();
+
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!name.trim() && !customerCompanyName.trim()) {
-      toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del cliente o de la empresa.", variant: "destructive" });
-      return;
-    }
-    if (!partyDate || !partyTime.trim() || !selectedPartyType.trim() || !guestCount.trim() || parseInt(guestCount) <= 0 || !venueName.trim() || !contractFile || !budgetFile) {
-       toast({ title: "Campos de Fiesta Obligatorios", description: "Fecha, horario, tipo de fiesta, invitados, salón, presupuesto y contrato son obligatorios.", variant: "destructive"});
-       return;
-    }
-    if (selectedPartyType === 'Evento corporativo' && !corporateEventCompanyName.trim()) {
-        toast({ title: "Nombre de Empresa Requerido", description: "Por favor, ingresa el nombre de la empresa para el evento corporativo.", variant: "destructive" });
-        return;
-    }
-
+    // Client-side validation for name/companyName removed
+    // Client-side validation for party fields removed
+    // Client-side validation for corporateEventCompanyName removed
 
     setIsSaving(true);
     
     const formData = new FormData();
-    formData.append('name', name.trim() || customerCompanyName.trim());
-    
-    // Usar corporateEventCompanyName si es un evento corporativo, sino el customerCompanyName general
+    if (name.trim()) formData.append('name', name.trim());
+    else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim()); // Fallback if name is empty but company has value
+
     if (selectedPartyType === 'Evento corporativo' && corporateEventCompanyName.trim()) {
         formData.append('companyName', corporateEventCompanyName.trim());
     } else if (customerCompanyName.trim()) {
@@ -85,14 +76,14 @@ export default function NewCustomerPage() {
 
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-    if (email.trim()) formData.append('email', email.trim());
+    // Email append removed
     if (street.trim()) formData.append('street', street.trim());
 
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
-    formData.append('partyTime', partyTime.trim());
-    formData.append('partyType', selectedPartyType.trim()); // Usar el nuevo estado
-    formData.append('guestCount', guestCount.trim());
-    formData.append('venueName', venueName.trim());
+    if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
+    if (selectedPartyType.trim()) formData.append('partyType', selectedPartyType.trim());
+    if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
+    if (venueName.trim()) formData.append('venueName', venueName.trim());
     
     if (contractFile) formData.append('contract', contractFile);
     if (budgetFile) formData.append('budget', budgetFile);
@@ -100,7 +91,7 @@ export default function NewCustomerPage() {
     try {
       const result = await saveCustomer(formData); 
       if (result.success && result.id) {
-        toast({ title: "¡Cliente Guardado!", description: `El cliente "${name.trim() || customerCompanyName.trim()}" ha sido guardado.` });
+        toast({ title: "¡Cliente Guardado!", description: `El cliente "${name.trim() || customerCompanyName.trim() || 'Cliente sin nombre'}" ha sido guardado.` });
         router.push('/customers');
       } else {
         throw new Error(result.error || "Error desconocido al guardar el cliente.");
@@ -133,96 +124,93 @@ export default function NewCustomerPage() {
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="font-headline">Información del Cliente</CardTitle>
+            <CardDescription>Completa la información que tengas disponible. Puedes editarla más tarde.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div><Label htmlFor="customer-name">Nombre Completo *</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" required/></div>
-              <div><Label htmlFor="customer-company-name">Empresa (Opcional)</Label><Input id="customer-company-name" value={customerCompanyName} onChange={(e) => setCustomerCompanyName(e.target.value)} /></div>
+              <div><Label htmlFor="customer-name">Nombre Completo</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" /></div>
+              <div><Label htmlFor="customer-company-name">Empresa</Label><Input id="customer-company-name" value={customerCompanyName} onChange={(e) => setCustomerCompanyName(e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div><Label htmlFor="customer-email">Email</Label><Input id="customer-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="cliente@ejemplo.com" /></div>
+              {/* Email field removed */}
               <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div><Label htmlFor="customer-taxid">Cédula / RUT</Label><Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} /></div>
-              <div><Label htmlFor="street">Calle y Número</Label><Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} /></div>
             </div>
+            <div><Label htmlFor="street">Calle y Número</Label><Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} /></div>
           </CardContent>
 
           <Separator className="my-6" />
 
           <CardHeader>
-            <CardTitle className="font-headline">Información de la Fiesta Contratada</CardTitle>
-            <CardDescription>Estos campos son obligatorios para el cliente.</CardDescription>
+            <CardTitle className="font-headline">Información de la Fiesta Contratada (Opcional)</CardTitle>
+            <CardDescription>Estos campos se pueden completar ahora o más tarde.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="party-date">Fecha de la Fiesta *</Label>
+                  <Label htmlFor="party-date">Fecha de la Fiesta</Label>
                   <DatePickerDemo selectedDate={partyDate} onDateChange={setPartyDate} />
                 </div>
                 <div>
-                  <Label htmlFor="party-time">Horario del Evento *</Label>
-                  <Input id="party-time" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" required />
+                  <Label htmlFor="party-time">Horario del Evento</Label>
+                  <Input id="party-time" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" />
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="party-type">Tipo de Fiesta *</Label>
+                  <Label htmlFor="party-type-select">Tipo de Fiesta</Label>
                    <Select 
-                    value={tiposEventoDisponibles.includes(selectedPartyType as TipoEvento) ? selectedPartyType : "Otro"}
+                    value={ALL_TIPOS_EVENTO.includes(selectedPartyType as TipoEvento) ? selectedPartyType : (selectedPartyType ? "Otro" : "")}
                     onValueChange={handlePartyTypeChange}
                   >
-                    <SelectTrigger id="party-type" className="text-base p-3 h-auto">
+                    <SelectTrigger id="party-type-select" className="text-base p-3 h-auto">
                       <SelectValue placeholder="Seleccioná un tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      {tiposEventoDisponibles.map(tipo => (
+                      {ALL_TIPOS_EVENTO.map(tipo => (
                         <SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {selectedPartyType === '' || (!tiposEventoDisponibles.includes(selectedPartyType as TipoEvento) && selectedPartyType !== 'Otro') && (
+                  {(selectedPartyType === '' || (!ALL_TIPOS_EVENTO.includes(selectedPartyType as TipoEvento) && selectedPartyType !== 'Otro')) && (
                      <Input 
                         id="party-type-otro" 
                         placeholder="Especificá el tipo de fiesta" 
                         value={selectedPartyType !== "Otro" ? selectedPartyType : ""}
                         onChange={(e) => setSelectedPartyType(e.target.value)}
                         className="text-base p-3 mt-2"
-                        required
                     />
                   )}
                 </div>
                 {selectedPartyType === 'Evento corporativo' && (
                     <div className="space-y-2">
-                        <Label htmlFor="corporate-event-company-name">Nombre de la Empresa (Evento Corp.)*</Label>
+                        <Label htmlFor="corporate-event-company-name">Nombre de la Empresa (Evento Corp.)</Label>
                         <Input 
                         id="corporate-event-company-name" 
                         value={corporateEventCompanyName} 
                         onChange={(e) => setCorporateEventCompanyName(e.target.value)} 
                         placeholder="Nombre de la empresa organizadora" 
-                        required 
                         />
                     </div>
                 )}
                 <div>
-                  <Label htmlFor="guest-count">Cantidad de Invitados *</Label>
-                  <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1" required/>
+                  <Label htmlFor="guest-count">Cantidad de Invitados</Label>
+                  <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1"/>
                 </div>
             </div>
              <div>
-                <Label htmlFor="venue-name">Salón de Fiestas / Lugar *</Label>
-                <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso" required/>
+                <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>
+                <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso"/>
              </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                    <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Presupuesto (PDF) *</Label>
-                    <Input id="budget-file" type="file" accept="application/pdf" onChange={(e) => setBudgetFile(e.target.files?.[0] || null)} required 
+                    <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Presupuesto (PDF)</Label>
+                    <Input id="budget-file" type="file" accept="application/pdf" onChange={(e) => setBudgetFile(e.target.files?.[0] || null)} 
                            className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                 </div>
                 <div>
-                    <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Contrato (PDF) *</Label>
-                    <Input id="contract-file" type="file" accept="application/pdf" onChange={(e) => setContractFile(e.target.files?.[0] || null)} required 
+                    <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Contrato (PDF)</Label>
+                    <Input id="contract-file" type="file" accept="application/pdf" onChange={(e) => setContractFile(e.target.files?.[0] || null)} 
                            className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                 </div>
              </div>
@@ -239,4 +227,3 @@ export default function NewCustomerPage() {
     </div>
   );
 }
-
