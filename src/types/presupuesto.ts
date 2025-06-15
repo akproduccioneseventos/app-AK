@@ -15,29 +15,33 @@ export interface PlatoPresupuesto {
   id: string;
   nombre: string;
   descripcion?: string;
-  imagenUrl?: string; 
-  dataAiHint?: string; 
+  imagenUrl?: string;
+  dataAiHint?: string;
   costoPorPersona: number;
-  seleccionado?: boolean; 
+  seleccionado?: boolean;
 }
 
 export interface ServicioAdicional {
   id: string;
   nombre: string;
   costo: number;
-  seleccionado?: boolean; 
+  seleccionado?: boolean;
 }
 
 export interface Presupuesto {
-  id: string; 
+  id: string;
   clienteNombre: string;
-  eventoTipo: TipoEvento | string; 
-  eventoFecha: string; 
+  eventoTipo: TipoEvento | string;
+  eventoFecha: string;
   invitadosCantidad: number;
+  // Campos relacionados con el salón y empresa, que se guardan en las notas o en campos dedicados si se decide.
+  // salonFiestas?: string; // Podría ser parte de las notas o un campo separado en el futuro
+  // nombreEmpresa?: string; // Para eventos corporativos, podría ir en notas o campo dedicado
+
   platosSeleccionados: {
     idPlato: string;
     nombrePlato: string;
-    cantidad: number; 
+    cantidad: number;
     costoUnitario: number;
     costoTotalPlato: number;
   }[];
@@ -49,29 +53,28 @@ export interface Presupuesto {
   costoSubtotalPlatos: number;
   costoSubtotalServicios: number;
   costoTotalEstimado: number;
-  timestamp: string; 
+  timestamp: string;
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
-  invoiceId?: string; 
+  invoiceId?: string;
 }
 
 export interface PresupuestoFormData {
   pasoActual: number;
-  
+
   clienteNombre: string;
-  eventoTipo: TipoEvento | string; 
+  eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
-  salonFiestas: string; 
-  nombreEmpresa: string; 
+  salonFiestas: string; // Campo obligatorio
+  nombreEmpresa: string; // Para "Evento corporativo"
 
-  platosDisponibles: PlatoPresupuesto[]; 
-  platosSeleccionadosIds: Set<string>; 
+  platosDisponibles: PlatoPresupuesto[];
+  platosSeleccionadosIds: Set<string>;
 
-  serviciosDisponibles: ServicioAdicional[]; 
-  serviciosSeleccionadosIds: Set<string>; 
+  serviciosDisponibles: ServicioAdicional[];
+  serviciosSeleccionadosIds: Set<string>;
 
-  resumen?: Presupuesto; 
+  resumen?: Presupuesto;
   notas: string;
 }
-
