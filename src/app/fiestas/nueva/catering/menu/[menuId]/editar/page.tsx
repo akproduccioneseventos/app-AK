@@ -30,7 +30,9 @@ import {
 import { DatePickerDemo } from '@/components/date-picker-demo';
 
 export default function EditarMenuEspecificoPage({ params: paramsProp }: { params: Promise<{ menuId: string }> }) {
-  const params = React.use(paramsProp); // Use React.use to unwrap the params Promise
+  const resolvedParams = React.use(paramsProp);
+  const menuIdFromParams = resolvedParams.menuId;
+
   const { toast } = useToast();
   const router = useRouter();
   const [menuData, setMenuData] = useState<FullMenu | null>(null);
@@ -98,10 +100,10 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
   }, [toast]); 
 
   useEffect(() => {
-    if (params.menuId) {
-      loadMenu(params.menuId);
+    if (menuIdFromParams) {
+      loadMenu(menuIdFromParams);
     }
-  }, [params.menuId, loadMenu]);
+  }, [menuIdFromParams, loadMenu]);
 
   const currentDishTotalCost = useMemo(() => {
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
@@ -238,12 +240,12 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
   const totalMenuCost = menuItems.reduce((sum, item) => sum + item.totalDishCost, 0);
 
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
-  if (notFound) return <div className="flex flex-col items-center justify-center h-screen text-center"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold mb-2">Menú no Encontrado</h1><p className="text-muted-foreground mb-6">ID: <span className="font-mono bg-muted px-1 rounded">{params.menuId}</span></p><Link href="/fiestas/nueva/catering/modificar-menu" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link></div>;
+  if (notFound) return <div className="flex flex-col items-center justify-center h-screen text-center"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold mb-2">Menú no Encontrado</h1><p className="text-muted-foreground mb-6">ID: <span className="font-mono bg-muted px-1 rounded">{menuIdFromParams}</span></p><Link href="/fiestas/nueva/catering/modificar-menu" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link></div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Editando Menú: <span className="text-primary">{menuData?.name || params.menuId}</span></h1>
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Editando Menú: <span className="text-primary">{menuData?.name || menuIdFromParams}</span></h1>
         <Link href="/fiestas/nueva/catering/modificar-menu" passHref><Button variant="outline" disabled={isSaving || isDeleting}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
@@ -301,4 +303,3 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
     </div>
   );
 }
-
