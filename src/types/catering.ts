@@ -4,15 +4,18 @@ export interface Ingredient {
   name: string;
   quantity: string;
   unit: string;
-  cost: string; // Se parseará a float para cálculos
+  cost: number; // Cambiado de string a number
 }
 
 export interface MenuItem { // Representa un Plato
   id: string;
   name: string;
-  type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | '';
+  type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | ''; // Categoría del plato
   ingredients: Ingredient[];
-  totalDishCost: number;
+  totalDishCost: number; // Costo total de ingredientes para las porciones base
+  basePortions?: number; // Cantidad de porciones base que rinde la receta
+  costPerPortion?: number; // Calculado: totalDishCost / basePortions (opcional, puede ser calculado en UI)
+  allergens?: string; // Texto simple para alérgenos, separados por coma
 }
 
 export interface FullMenu { // Representa un Menú completo guardado
@@ -20,6 +23,7 @@ export interface FullMenu { // Representa un Menú completo guardado
   name: string; // ej: 'Menú Clásico Casamiento'
   description: string; // Descripción general del menú
   items: MenuItem[]; // Lista de platos
+  templateType?: 'Económico' | 'Premium' | 'Infantil' | 'Personalizado'; // Tipo de plantilla
   createdAt?: string; // ISO date string
   updatedAt?: string; // ISO date string
 }
