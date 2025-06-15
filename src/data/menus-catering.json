@@ -1,1 +1,163 @@
-[]
+
+[
+  {
+    "id": "menu_importado_ak_general",
+    "name": "Menú General Importado (AK)",
+    "description": "Menú importado desde hoja de cálculo el ${new Date().toLocaleDateString()}.",
+    "items": [
+      {
+        "id": "dish_imported_entrada_0",
+        "name": "Bruschetta",
+        "type": "Entrada",
+        "ingredients": [],
+        "totalDishCost": 50,
+        "basePortions": 1,
+        "costPerPortion": 50,
+        "notes": "Porción: 3 unidades (unidad). Precio Sugerido: 100."
+      },
+      {
+        "id": "dish_imported_entrada_1",
+        "name": "Ensalada César",
+        "type": "Entrada",
+        "ingredients": [],
+        "totalDishCost": 80,
+        "basePortions": 1,
+        "costPerPortion": 80,
+        "notes": "Porción: 150 g (gramos). Precio Sugerido: 150."
+      },
+      {
+        "id": "dish_imported_entrada_2",
+        "name": "Empanadas",
+        "type": "Entrada",
+        "ingredients": [],
+        "totalDishCost": 40,
+        "basePortions": 1,
+        "costPerPortion": 40,
+        "notes": "Porción: 1 unidad (unidad). Precio Sugerido: 70."
+      },
+      {
+        "id": "dish_imported_platoprincipal_0",
+        "name": "Pollo a la crema",
+        "type": "Plato Principal",
+        "ingredients": [],
+        "totalDishCost": 120,
+        "basePortions": 1,
+        "costPerPortion": 120,
+        "notes": "Porción: 200 g (gramos). Precio Sugerido: 250."
+      },
+      {
+        "id": "dish_imported_platoprincipal_1",
+        "name": "Pasta al pesto",
+        "type": "Plato Principal",
+        "ingredients": [],
+        "totalDishCost": 90,
+        "basePortions": 1,
+        "costPerPortion": 90,
+        "notes": "Porción: 180 g (gramos). Precio Sugerido: 180."
+      },
+      {
+        "id": "dish_imported_platoprincipal_2",
+        "name": "Bife de chorizo",
+        "type": "Plato Principal",
+        "ingredients": [],
+        "totalDishCost": 200,
+        "basePortions": 1,
+        "costPerPortion": 200,
+        "notes": "Porción: 250 g (gramos). Precio Sugerido: 400."
+      },
+      {
+        "id": "dish_imported_reposteria_candybar_0",
+        "name": "Chocolates surtidos",
+        "type": "Postre",
+        "ingredients": [],
+        "totalDishCost": 60,
+        "basePortions": 1,
+        "costPerPortion": 60,
+        "notes": "Porción: 100 g (gramos). Precio Sugerido: 120."
+      },
+      {
+        "id": "dish_imported_reposteria_candybar_1",
+        "name": "Galletas decoradas",
+        "type": "Postre",
+        "ingredients": [],
+        "totalDishCost": 40,
+        "basePortions": 1,
+        "costPerPortion": 40,
+        "notes": "Porción: 4 unidades (unidad). Precio Sugerido: 80."
+      },
+      {
+        "id": "dish_imported_reposteria_mesahelada_0",
+        "name": "Helado artesanal",
+        "type": "Postre",
+        "ingredients": [],
+        "totalDishCost": 70,
+        "basePortions": 1,
+        "costPerPortion": 70,
+        "notes": "Porción: 150 g (gramos). Precio Sugerido: 140."
+      },
+      {
+        "id": "dish_imported_reposteria_fuentedechocolate_0",
+        "name": "Fuente chocolate con frutas",
+        "type": "Postre",
+        "ingredients": [],
+        "totalDishCost": 300,
+        "basePortions": 1,
+        "costPerPortion": 300,
+        "notes": "Porción: 1 fuente (unidad). Precio Sugerido: 600."
+      },
+      {
+        "id": "dish_imported_bebidas_refrescos_0",
+        "name": "Gaseosa cola 500ml",
+        "type": "Bebida",
+        "ingredients": [],
+        "totalDishCost": 30,
+        "basePortions": 1,
+        "costPerPortion": 30,
+        "notes": "Porción: 500 ml (mililitros). Precio Sugerido: 60."
+      },
+      {
+        "id": "dish_imported_bebidas_refrescos_1",
+        "name": "Agua mineral 500ml",
+        "type": "Bebida",
+        "ingredients": [],
+        "totalDishCost": 20,
+        "basePortions": 1,
+        "costPerPortion": 20,
+        "notes": "Porción: 500 ml (mililitros). Precio Sugerido: 40."
+      },
+      {
+        "id": "dish_imported_bebidas_jugos_0",
+        "name": "Jugo de naranja natural",
+        "type": "Bebida",
+        "ingredients": [],
+        "totalDishCost": 50,
+        "basePortions": 1,
+        "costPerPortion": 50,
+        "notes": "Porción: 250 ml (mililitros). Precio Sugerido: 100."
+      },
+      {
+        "id": "dish_imported_bebidas_barradetragos_0",
+        "name": "Caipirinha",
+        "type": "Bebida",
+        "ingredients": [],
+        "totalDishCost": 120,
+        "basePortions": 1,
+        "costPerPortion": 120,
+        "notes": "Porción: 1 porción (unidad). Precio Sugerido: 250."
+      },
+      {
+        "id": "dish_imported_bebidas_barradetragos_1",
+        "name": "Mojito",
+        "type": "Bebida",
+        "ingredients": [],
+        "totalDishCost": 130,
+        "basePortions": 1,
+        "costPerPortion": 130,
+        "notes": "Porción: 1 porción (unidad). Precio Sugerido: 270."
+      }
+    ],
+    "templateType": "Personalizado",
+    "createdAt": "${new Date().toISOString()}",
+    "updatedAt": "${new Date().toISOString()}"
+  }
+]

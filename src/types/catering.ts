@@ -4,7 +4,7 @@ export interface Ingredient {
   name: string;
   quantity: string;
   unit: string;
-  cost: number; // Cambiado de string a number
+  cost: number;
 }
 
 export interface MenuItem { // Representa un Plato
@@ -16,6 +16,7 @@ export interface MenuItem { // Representa un Plato
   basePortions?: number; // Cantidad de porciones base que rinde la receta
   costPerPortion?: number; // Calculado: totalDishCost / basePortions (opcional, puede ser calculado en UI)
   allergens?: string; // Texto simple para alérgenos, separados por coma
+  notes?: string; // Para información adicional como precio sugerido, observaciones, etc.
 }
 
 export interface FullMenu { // Representa un Menú completo guardado
