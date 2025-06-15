@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Palette, CakeSlice, ClipboardList, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera } from 'lucide-react';
+import { ArrowLeft, Printer, Palette, CakeSlice, ClipboardList, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera, Sparkles as SparklesIcon, Flower, Wand2, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ZonaPersonalizada, ColorPalette } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ZonaContratada, ColorPalette } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
@@ -92,15 +92,15 @@ function DecorationPdfPage() {
   const getCategoryIcon = (category?: string): React.ElementType => {
     if (!category) return ClipboardList;
     const catLower = category.toLowerCase();
-    if (catLower.includes("entrada")) return Building; // Placeholder, can be more specific
-    if (catLower.includes("mesa")) return PartyPopper; // Placeholder
+    if (catLower.includes("entrada")) return Building; 
+    if (catLower.includes("mesa")) return Flower; 
     if (catLower.includes("regalo")) return Gift;
     if (catLower.includes("firma") || catLower.includes("foto")) return Camera;
-    return ClipboardList;
+    return Wand2;
   }
 
-  const renderItemsByCategory = (filterKeywords: string[], sectionTitle: string, Icon: React.ElementType) => {
-    const items = decoracion.items?.filter(item => 
+  const renderItemsByCategory = (filterKeywords: string[], sectionTitle: string, Icon: React.ElementType, itemsToRender?: DecorationItem[]) => {
+    const items = (itemsToRender || decoracion.items || []).filter(item => 
         filterKeywords.some(keyword => 
             item.name.toLowerCase().includes(keyword) || (item.category && item.category.toLowerCase().includes(keyword))
         )
@@ -113,7 +113,7 @@ function DecorationPdfPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 print:gap-1">
           {items.map(item => (
             <div key={item.id} className="p-2 border border-gray-200 rounded bg-white print:p-1 print:border-gray-400">
-              <p className="font-medium text-xs print:text-[9pt]">{item.name} {item.quantity > 1 ? `(x${item.quantity})`: ''}</p>
+              <p className="font-medium text-xs print:text-[9pt]">{item.name} {item.quantity && item.quantity > 1 ? `(x${item.quantity})`: ''}</p>
               {item.notes && <p className="text-xs text-gray-600 print:text-[8pt] mt-0.5 whitespace-pre-line">{item.notes}</p>}
               {item.imageUrl && (
                 <div className="mt-1">
@@ -127,6 +127,17 @@ function DecorationPdfPage() {
     );
   };
 
+  const getZonaIcon = (zonaId: ZonaContratada['id']): React.ElementType => {
+    switch (zonaId) {
+        case 'atras_torta': return CakeSlice;
+        case 'frente_salon': return Building;
+        case 'zona_regalos': return Gift;
+        case 'zona_fotografia': return Camera;
+        case 'centro_salon': return SparklesIcon;
+        default: return LayoutDashboard;
+    }
+  };
+
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-body">
@@ -135,13 +146,13 @@ function DecorationPdfPage() {
           <Link href="/fiestas/nueva/decoracion" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
-          <Button onClick={() => window.print()} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
+          <Button onClick={() => window.print()} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
         </div>
 
         <header className="mb-4 print:mb-2 text-center print:text-left">
           <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-300 print:border-gray-400 pb-2 print:pb-1 mb-2 print:mb-1">
             <NextImage src={companyLogoUrl} alt="Logo Organizador" width={100} height={40} className="object-contain print:w-20 print:h-8" data-ai-hint="company event logo"/>
-            <h1 className="text-xl font-bold text-primary print:text-lg mt-1 sm:mt-0 font-headline">Plan de Decoración del Evento</h1>
+            <h1 className="text-xl font-bold text-primary print:text-lg mt-1 sm:mt-0 font-headline">🌸 Plan de Decoración del Evento</h1>
           </div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs print:text-[9pt]">
             <p><strong className="font-medium text-gray-600 print:text-black">Cliente:</strong> {cliente?.name || cliente?.companyName || configuracion.nombreEvento}</p>
@@ -155,15 +166,15 @@ function DecorationPdfPage() {
         <section className="mb-4 print:mb-2 print:break-inside-avoid">
           <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><Palette className="w-5 h-5 print:w-4 print:h-4"/>Paleta de Colores</h2>
           <div className="p-2 border border-gray-200 rounded bg-gray-50 print:p-1 print:border-gray-400 print:bg-white space-y-1">
-            {renderColorBox(decoracion.paletaColores?.primary, "Principal", decoracion.tema === 'Boda Noelia Damaceno' ? 'Lavanda Pastel' : undefined)}
-            {renderColorBox(decoracion.paletaColores?.secondary, "Secundario/Globos", decoracion.tema === 'Boda Noelia Damaceno' ? 'Rosa Suave' : undefined)}
-            {renderColorBox(decoracion.paletaColores?.accent, "Acento/Detalles", decoracion.tema === 'Boda Noelia Damaceno' ? 'Beige Claro' : undefined)}
+            {renderColorBox(decoracion.paletaColores?.primary, "Principal (ej. cubremantel)", decoracion.tema === 'Boda Noelia Damaceno' ? 'Lavanda Pastel' : undefined)}
+            {renderColorBox(decoracion.paletaColores?.secondary, "Secundario (ej. globos)", decoracion.tema === 'Boda Noelia Damaceno' ? 'Rosa Suave' : undefined)}
+            {renderColorBox(decoracion.paletaColores?.accent, "Acento / Detalles", decoracion.tema === 'Boda Noelia Damaceno' ? 'Beige Claro' : undefined)}
           </div>
         </section>
 
         {decoracion.moodboardImageUrl && (
           <section className="mb-4 print:mb-2 print:break-inside-avoid">
-            <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><ImageIconLucide className="w-5 h-5 print:w-4 print:h-4"/>Inspiración General</h2>
+            <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><ImageIconLucide className="w-5 h-5 print:w-4 print:h-4"/>Inspiración General / Portada</h2>
             <div className="border border-gray-200 p-2 rounded inline-block print:p-1 print:border-gray-400">
               <NextImage src={decoracion.moodboardImageUrl} alt="Moodboard General" width={300} height={200} className="rounded-sm object-contain max-h-[15rem] print:max-h-[10rem] w-auto mx-auto" data-ai-hint="event decoration moodboard"/>
             </div>
@@ -171,11 +182,11 @@ function DecorationPdfPage() {
         )}
         
         <section className="mb-4 print:mb-2 print:break-inside-avoid">
-          <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><Palette className="w-5 h-5 print:w-4 print:h-4"/>Decoración General</h2>
+          <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><Wand2 className="w-5 h-5 print:w-4 print:h-4"/>Decoración General</h2>
           <div className="p-2 border border-gray-200 rounded bg-gray-50 space-y-0.5 print:p-1 print:border-gray-400 print:bg-white">
             {decoracion.colorCubremantel && <p className="text-xs print:text-[9pt]"><strong className="font-medium text-gray-600 print:text-black">Color Cubremantel:</strong> {decoracion.colorCubremantel}</p>}
             {decoracion.generalNotes && <div className="text-xs text-gray-600 print:text-[9pt] whitespace-pre-line"><strong className="font-medium text-gray-600 print:text-black">Descripción General:</strong> {decoracion.generalNotes}</div>}
-            {!decoracion.colorCubremantel && !decoracion.generalNotes && <p className="text-xs text-gray-500 italic print:text-[9pt]">No hay detalles especificados.</p>}
+            {!decoracion.colorCubremantel && !decoracion.generalNotes && <p className="text-xs text-gray-500 italic print:text-[9pt]">No hay detalles generales especificados.</p>}
           </div>
         </section>
 
@@ -193,33 +204,36 @@ function DecorationPdfPage() {
           </section>
         )}
         
-        {renderItemsByCategory(['entrada', 'entradas'], 'Detalles de Entradas', Building)}
-        {renderItemsByCategory(['centro de mesa', 'centros de mesa'], 'Centros de Mesa', PartyPopper)}
-        {renderItemsByCategory(['regalo', 'regalos'], 'Zona de Regalos', Gift)}
-        {renderItemsByCategory(['firma', 'fotos', 'photocall'], 'Cuadro de Firmas / Photocall', Camera)}
+        {renderItemsByCategory(['entrada', 'entradas'], 'Elementos de Entrada', Building, decoracion.items)}
+        {renderItemsByCategory(['centro de mesa', 'centros de mesa'], 'Centros de Mesa', Flower, decoracion.items)}
+        {renderItemsByCategory(['regalo', 'regalos', 'obsequio'], 'Detalles para Zona de Regalos', Gift, decoracion.items)}
+        {renderItemsByCategory(['firma', 'fotos', 'photocall'], 'Detalles para Cuadro de Firmas / Photocall', Camera, decoracion.items)}
 
-        {decoracion.zonasPersonalizadas && decoracion.zonasPersonalizadas.length > 0 && (
+        {decoracion.zonasContratadas && decoracion.zonasContratadas.filter(z => z.activada).length > 0 && (
           <section className="mb-4 print:mb-2 print:break-inside-avoid">
-            <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><MapPin className="w-5 h-5 print:w-4 print:h-4"/>Zonas Personalizadas</h2>
+            <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><LayoutDashboard className="w-5 h-5 print:w-4 print:h-4"/>Zonas Destacadas del Evento</h2>
             <div className="space-y-2 print:space-y-1">
-              {decoracion.zonasPersonalizadas.map(zona => (
-                <div key={zona.id} className="p-2 border border-gray-200 rounded bg-gray-50 print:p-1 print:border-gray-400 print:bg-white">
-                  <h4 className="font-medium text-sm text-gray-700 print:text-[10pt]">{zona.nombreZona}</h4>
-                  {zona.descripcion && <p className="text-xs text-gray-600 print:text-[8pt] mt-0.5 whitespace-pre-line">{zona.descripcion}</p>}
-                  {zona.imageUrl && (
-                    <div className="mt-1">
-                      <NextImage src={zona.imageUrl} alt={zona.nombreZona} width={180} height={135} className="rounded-sm object-cover border print:w-32 print:h-24" data-ai-hint={zona.dataAiHint || "custom event zone"}/>
-                    </div>
-                  )}
-                </div>
-              ))}
+              {decoracion.zonasContratadas.filter(z => z.activada).map(zona => {
+                const Icon = getZonaIcon(zona.id);
+                return (
+                  <div key={zona.id} className="p-2 border border-gray-200 rounded bg-gray-50 print:p-1 print:border-gray-400 print:bg-white print:break-inside-avoid">
+                    <h4 className="font-medium text-sm text-gray-700 print:text-[10pt] flex items-center gap-1.5"><Icon className="w-3.5 h-3.5 print:w-3 print:h-3 text-primary/80"/>{zona.nombreDisplay}</h4>
+                    {zona.descripcion && <p className="text-xs text-gray-600 print:text-[8pt] mt-0.5 whitespace-pre-line">{zona.descripcion}</p>}
+                    {zona.imagenReferenciaUrl && (
+                      <div className="mt-1">
+                        <NextImage src={zona.imagenReferenciaUrl} alt={zona.nombreDisplay} width={180} height={135} className="rounded-sm object-cover border print:w-32 print:h-24" data-ai-hint={zona.dataAiHint || "custom event zone"}/>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </section>
         )}
         
         {decoracion.pdfNotasAdicionales && (
           <section className="mb-4 print:mb-2 print:break-inside-avoid">
-            <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><StickyNote className="w-5 h-5 print:w-4 print:h-4"/>Notas Adicionales (PDF)</h2>
+            <h2 className="text-lg font-semibold mb-1.5 text-primary print:text-base flex items-center gap-1.5"><StickyNote className="w-5 h-5 print:w-4 print:h-4"/>Notas Adicionales</h2>
             <div className="p-2 border border-gray-200 rounded bg-yellow-50 text-yellow-800 print:p-1 print:border-gray-400 print:bg-white print:text-black">
               <p className="text-xs whitespace-pre-line print:text-[9pt]">{decoracion.pdfNotasAdicionales}</p>
             </div>
@@ -237,6 +251,7 @@ function DecorationPdfPage() {
 }
 
 export default function Page() {
+  // Podríamos añadir Suspense si la carga de datos fuera más compleja o asíncrona aquí
   return <DecorationPdfPage />;
 }
 

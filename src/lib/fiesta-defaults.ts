@@ -1,6 +1,6 @@
 
 // src/lib/fiesta-defaults.ts
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, SalonLayoutData, MusicaFiesta } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, SalonLayoutData, MusicaFiesta, ZonaContratada } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -9,14 +9,12 @@ export const defaultConfiguracion: ConfigEventoDataStorage = {
   horaInicio: '19:00',
   horaFin: '02:00',
   nombreLugar: 'Salón de Ensueño',
-  // direccionLugar: 'Calle Principal 123, Ciudad', // Eliminado
   invitadosEstimados: 50,
   presupuestoEstimado: 100000,
   notasAdicionales: 'Planificación inicial.',
   clienteId: undefined,
 };
 
-// Define defaultTareas without IDs, they will be assigned in initialFiestaActualData
 export const baseDefaultTareas: Omit<Tarea, 'id'>[] = [
   { texto: 'Definir lista de invitados', completada: false },
   { texto: 'Seleccionar catering y menú', completada: false },
@@ -26,17 +24,29 @@ export const baseDefaultTareas: Omit<Tarea, 'id'>[] = [
 ];
 
 export const defaultColorPalette: ColorPalette = {
-  primary: '#007bff',
-  secondary: '#6c757d',
-  accent: '#28a745',
+  primary: '#D9B8FF', 
+  secondary: '#FCD3DE', 
+  accent: '#F0E6CC', 
 };
+
+export const defaultZonasContratadas: ZonaContratada[] = [
+  { id: 'atras_torta', nombreDisplay: 'Atrás de la torta', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'cake backdrop' },
+  { id: 'frente_salon', nombreDisplay: 'Frente del salón / Entrada principal', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'event entrance' },
+  { id: 'zona_regalos', nombreDisplay: 'Zona de regalos', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'gift table' },
+  { id: 'zona_fotografia', nombreDisplay: 'Zona de fotografía / Photocall', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'photo booth' },
+  { id: 'centro_salon', nombreDisplay: 'Centro del salón / Ambientación general', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'event hall center' },
+];
 
 export const defaultDecoracion: DecoracionData = {
   tema: 'Elegante y Moderno',
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
+  colorCubremantel: '',
+  decoracionTorta: { descripcion: '', imageUrl: '', dataAiHint: 'cake design' },
   items: [],
-  generalNotes: "Decoración base, detalles por definir.",
+  zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)), // Deep copy
+  generalNotes: "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.",
+  pdfNotasAdicionales: '',
 };
 
 export const defaultSalonLayout: SalonLayoutData = {
@@ -88,7 +98,8 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   decoracion: {
     ...defaultDecoracion,
     items: [],
-    paletaColores: { ...defaultColorPalette }
+    paletaColores: { ...defaultColorPalette },
+    zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)), // Deep copy for initial state
   },
   invitados: [],
   webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },

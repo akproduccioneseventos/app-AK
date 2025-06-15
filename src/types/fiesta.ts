@@ -39,7 +39,7 @@ export interface LayoutElement {
   height: number;
   rotation: number;
   type: 'predefined' | 'custom';
-  category?: string; 
+  category?: string;
   dataAiHint?: string;
 }
 
@@ -58,52 +58,53 @@ export interface Tarea {
 }
 
 export interface ColorPalette {
-  primary: string; // Ejemplo: Color Principal (ej. cubremantel)
-  secondary: string; // Ejemplo: Color Globos
-  accent: string; // Ejemplo: Colores de acento o detalles
+  primary: string; 
+  secondary: string; 
+  accent: string; 
 }
 
 export interface DecorationItem {
   id: string;
   name: string;
-  category?: string; // Ej: Flores, Iluminación, Textil, Mobiliario Pequeño, Centro de Mesa, Entrada, Zona de Regalos, Cuadro de Firmas
+  category?: string; 
   quantity: number;
-  estimatedCost?: number; 
+  estimatedCost?: number;
   supplier?: string;
-  notes?: string; // Esto puede ser la "Descripción" para el PDF
+  notes?: string; 
   imageUrl?: string;
   dataAiHint?: string;
 }
 
-export interface ZonaPersonalizada {
-  id: string;
-  nombreZona: string; // Ej: Atrás de la torta, Frente del salón, Zona de fotografía
+export interface ZonaContratada {
+  id: 'atras_torta' | 'frente_salon' | 'zona_regalos' | 'zona_fotografia' | 'centro_salon';
+  nombreDisplay: string;
+  activada: boolean;
   descripcion?: string;
-  imageUrl?: string;
+  imagenReferenciaUrl?: string;
   dataAiHint?: string;
 }
 
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
-  moodboardImageUrl?: string; // Para "Imagen de portada decorativa" del PDF
+  moodboardImageUrl?: string; 
   colorCubremantel?: string;
-  generalNotes?: string; // Para "Descripción general de la decoración" en la app y potencialmente en el PDF
   decoracionTorta?: {
     descripcion?: string;
     imageUrl?: string;
     dataAiHint?: string;
   };
-  items?: DecorationItem[]; // Para elementos generales
-  zonasPersonalizadas?: ZonaPersonalizada[]; // Para "Zonas activadas/personalizadas"
-  pdfNotasAdicionales?: string; // Notas específicas para el PDF
+  items?: DecorationItem[]; 
+  zonasContratadas?: ZonaContratada[];
+  generalNotes?: string; 
+  pdfNotasAdicionales?: string; 
 }
 
 export interface EventWebPageSettings {
   pageTitle?: string;
   heroSubtitle?: string;
   welcomeMessage?: string;
-  coverImageUrl?: string; 
+  coverImageUrl?: string;
   galleryImageUrls?: string[];
   showCountdown?: boolean;
   ourStoryTitle?: string;
@@ -111,12 +112,12 @@ export interface EventWebPageSettings {
   ourStoryImageUrl?: string;
   showOurStory?: boolean;
   eventDetailsTitle?: string;
-  eventDetailsText?: string; 
+  eventDetailsText?: string;
   showEventDetails?: boolean;
   dressCodeText?: string;
   showDressCode?: boolean;
   giftRegistryTitle?: string;
-  giftRegistryText?: string; 
+  giftRegistryText?: string;
   showGiftRegistry?: boolean;
   showGallery?: boolean;
   showRsvp?: boolean;
@@ -125,8 +126,8 @@ export interface EventWebPageSettings {
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
-  playlistFiesta?: string; 
-  listaNoReproducir?: string; 
+  playlistFiesta?: string;
+  listaNoReproducir?: string;
 }
 
 export interface FiestaEnPlanificacion {
@@ -142,6 +143,6 @@ export interface FiestaEnPlanificacion {
   decoracion?: DecoracionData;
   invitados?: Invitado[];
   webPageSettings?: EventWebPageSettings;
-  musica?: MusicaFiesta; 
+  musica?: MusicaFiesta;
 }
     
