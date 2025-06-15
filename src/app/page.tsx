@@ -178,13 +178,12 @@ export default function DashboardPage() {
                     <span className="font-medium">Fecha:</span> {formatDate(fiestaActual.configuracion.fechaEvento, true, fiestaActual.configuracion.horaInicio)}
                 </p>
                 {fiestaActual.configuracion.nombreLugar && (
-                     <p className="text-sm text-muted-foreground flex items-start">
+                     <div className="text-sm text-muted-foreground flex items-start">
                         <MapPin className="w-4 h-4 mr-1.5 mt-0.5 flex-shrink-0"/>
                         <div>
                             <span className="font-medium">Lugar:</span> {fiestaActual.configuracion.nombreLugar}
-                             {fiestaActual.configuracion.direccionLugar && <span className="block text-xs opacity-80">{fiestaActual.configuracion.direccionLugar}</span>}
                         </div>
-                    </p>
+                    </div>
                 )}
               <div className="pt-3">
                 <p className="text-xs font-medium text-muted-foreground mb-1">Cuenta Regresiva:</p>
