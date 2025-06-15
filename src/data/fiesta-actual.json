@@ -7,7 +7,6 @@
     "horaInicio": "20:27",
     "horaFin": "02:00",
     "nombreLugar": "Club Uruguay",
-    "direccionLugar": "Calle Principal 123, Ciudad",
     "invitadosEstimados": 100,
     "presupuestoEstimado": 100000,
     "notasAdicionales": "Planificación inicial.",
@@ -21,33 +20,7 @@
     "elements": [],
     "generalNotes": "Disposición estándar del salón."
   },
-  "tareas": [
-    {
-      "id": "task_1749928078016_o28d0u4",
-      "texto": "Definir lista de invitados",
-      "completada": false
-    },
-    {
-      "id": "task_1749928078016_ah6xrb9",
-      "texto": "Seleccionar catering y menú",
-      "completada": false
-    },
-    {
-      "id": "task_1749928078016_pt4jeau",
-      "texto": "Contratar DJ o música",
-      "completada": false
-    },
-    {
-      "id": "task_1749928078016_0wq91cr",
-      "texto": "Elegir decoración y temática",
-      "completada": false
-    },
-    {
-      "id": "task_1749928078016_cz1x39n",
-      "texto": "Enviar invitaciones",
-      "completada": false
-    }
-  ],
+  "tareas": [],
   "decoracion": {
     "tema": "Elegante y Moderno",
     "paletaColores": {

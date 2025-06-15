@@ -16,17 +16,31 @@ export const defaultConfiguracion: ConfigEventoDataStorage = {
 };
 
 export const baseDefaultTareas: Omit<Tarea, 'id'>[] = [
-  { texto: 'Definir lista de invitados', completada: false },
-  { texto: 'Seleccionar catering y menú', completada: false },
-  { texto: 'Contratar DJ o música', completada: false },
-  { texto: 'Elegir decoración y temática', completada: false },
-  { texto: 'Enviar invitaciones', completada: false },
+  { texto: 'Definir lista de invitados', completada: false, descripcion: 'Crear borrador inicial de la lista de invitados y estimar cantidad final.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
+  { texto: 'Seleccionar catering y menú', completada: false, descripcion: 'Contactar proveedores de catering, degustar opciones y definir el menú.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
+  { texto: 'Contratar DJ o música', completada: false, descripcion: 'Buscar y contratar DJ, banda o sistema de sonido.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
+  { texto: 'Elegir decoración y temática', completada: false, descripcion: 'Definir el estilo, colores y elementos decorativos principales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
+  { texto: 'Enviar invitaciones', completada: false, descripcion: 'Diseñar, imprimir y enviar las invitaciones físicas o digitales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
 ];
 
+export const tareasPredeterminadasEjemplo: Pick<Tarea, 'texto' | 'descripcion' | 'esPredeterminada'>[] = [
+  { texto: 'Confirmar catering y menú final', descripcion: 'Llamar al proveedor de catering para confirmar el número final de comensales y el menú seleccionado.', esPredeterminada: true },
+  { texto: 'Contratar fotógrafo y videógrafo', descripcion: 'Investigar, seleccionar y firmar contrato con los servicios de fotografía y video.', esPredeterminada: true },
+  { texto: 'Preparar playlist de música', descripcion: 'Crear o seleccionar listas de reproducción para los diferentes momentos del evento.', esPredeterminada: true },
+  { texto: 'Coordinar entrada de homenajeado/novios', descripcion: 'Planificar la música, el momento y los detalles de la entrada principal.', esPredeterminada: true },
+  { texto: 'Cargar presupuesto final y realizar pagos', descripcion: 'Actualizar el presupuesto con todos los costos finales y efectuar los pagos pendientes.', esPredeterminada: true },
+  { texto: 'Confirmar diseño de decoración y globos', descripcion: 'Revisar y aprobar con el decorador los arreglos florales, globos y otros elementos.', esPredeterminada: true },
+  { texto: 'Comprar bebidas y hielo', descripcion: 'Realizar la compra de bebidas no alcohólicas, alcohólicas (si aplica) y hielo suficiente.', esPredeterminada: true },
+  { texto: 'Definir cronograma del evento', descripcion: 'Establecer un horario detallado para cada actividad y momento importante de la fiesta.', esPredeterminada: true },
+  { texto: 'Prueba de peinado y maquillaje', descripcion: 'Agendar y realizar la prueba de peinado y maquillaje para la/el protagonista.', esPredeterminada: true },
+  { texto: 'Recoger traje/vestido', descripcion: 'Coordinar la prueba final y recogida del atuendo principal.', esPredeterminada: true },
+];
+
+
 export const defaultColorPalette: ColorPalette = {
-  primary: '#D9B8FF', 
-  secondary: '#FCD3DE', 
-  accent: '#F0E6CC', 
+  primary: '#D9B8FF',
+  secondary: '#FCD3DE',
+  accent: '#F0E6CC',
 };
 
 export const defaultZonasContratadas: ZonaContratada[] = [
@@ -86,7 +100,7 @@ export const defaultMusicaFiesta: MusicaFiesta = {
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {
-  id: `fiesta_${Date.now()}`, 
+  id: `fiesta_${Date.now()}`,
   configuracion: { ...defaultConfiguracion },
   personalAsignado: [],
   menuAsignadoId: undefined,
@@ -94,7 +108,14 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   invoiceIds: [],
   reuniones: [],
   salonLayout: { ...defaultSalonLayout, elements: [] },
-  tareas: [...baseDefaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))],
+  tareas: [...baseDefaultTareas.map(t => ({
+    ...t,
+    id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+    descripcion: t.descripcion || undefined,
+    horaVencimiento: t.horaVencimiento || undefined,
+    recordatorio: t.recordatorio || undefined,
+    esPredeterminada: t.esPredeterminada || false,
+   }))],
   decoracion: {
     ...defaultDecoracion,
     items: [],

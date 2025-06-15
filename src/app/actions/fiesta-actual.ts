@@ -5,8 +5,8 @@ import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDe
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
-import { 
-  initialFiestaActualData, 
+import {
+  initialFiestaActualData,
   defaultConfiguracion,
   baseDefaultTareas as defaultTareas, // Renamed to avoid conflict with Tarea type
   defaultColorPalette,
@@ -83,7 +83,7 @@ async function readHistorialFile(): Promise<FiestaEnPlanificacion[]> {
 async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> {
   try {
     await ensureDataDirectoryExists();
-    const sortedData = data.sort((a, b) => 
+    const sortedData = data.sort((a, b) =>
         new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime()
     );
     await fs.writeFile(historialFiestasFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
@@ -94,8 +94,8 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
 
 // Initialize files if they don't exist
 async function initializeLocalFiestaFiles() {
-  await readFiestaActualFile(); 
-  await readHistorialFile();   
+  await readFiestaActualFile();
+  await readHistorialFile();
 }
 initializeLocalFiestaFiles();
 
@@ -112,7 +112,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
 
 
    const validatedData: FiestaEnPlanificacion = {
-    id: data.id || `fiesta_${Date.now()}`, 
+    id: data.id || `fiesta_${Date.now()}`,
     configuracion: validatedConfig,
     personalAsignado: data.personalAsignado || [],
     menuAsignadoId: data.menuAsignadoId || undefined,
@@ -146,9 +146,13 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     tareas: (data.tareas && data.tareas.length > 0 ? data.tareas : [...defaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(t => ({
         id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
         texto: t.texto || 'Tarea sin descripción',
+        descripcion: t.descripcion || undefined,
         completada: t.completada || false,
         fechaLimite: t.fechaLimite,
-        asignadaA: t.asignadaA
+        horaVencimiento: t.horaVencimiento || undefined,
+        recordatorio: t.recordatorio || undefined,
+        asignadaA: t.asignadaA,
+        esPredeterminada: t.esPredeterminada || false,
     })),
     decoracion: {
         tema: data.decoracion?.tema || defaultDecoracion.tema || '',
@@ -157,6 +161,8 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
           ...(data.decoracion?.paletaColores || {}),
         },
         moodboardImageUrl: data.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl || '',
+        colorCubremantel: data.decoracion?.colorCubremantel || defaultDecoracion.colorCubremantel || '',
+        decoracionTorta: data.decoracion?.decoracionTorta || defaultDecoracion.decoracionTorta,
         items: (data.decoracion?.items || []).map(item => ({
             id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
             name: item.name || 'Ítem sin nombre',
@@ -166,8 +172,11 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
             supplier: item.supplier || undefined,
             notes: item.notes || undefined,
             imageUrl: item.imageUrl || undefined,
+            dataAiHint: item.dataAiHint || undefined,
         })),
+        zonasContratadas: data.decoracion?.zonasContratadas || defaultDecoracion.zonasContratadas,
         generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : (data.decoracion.generalNotes || ''),
+        pdfNotasAdicionales: data.decoracion?.pdfNotasAdicionales || defaultDecoracion.pdfNotasAdicionales || '',
     },
     invitados: (data.invitados || []).map(inv => ({
       id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
@@ -196,10 +205,10 @@ export async function updateConfiguracionFiestaActual(
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
   try {
     let fiestaActual = await getFiestaActual();
-    
+
     // Create a new config object without direccionLugar
     const { direccionLugar, ...validConfigDataFromInput } = configData as any; // Cast to any to allow delete
-    
+
     const newBaseConfig = { ...fiestaActual.configuracion };
     delete (newBaseConfig as any).direccionLugar; // Ensure base doesn't have it
 
@@ -209,7 +218,7 @@ export async function updateConfiguracionFiestaActual(
         invitadosEstimados: configData.invitadosEstimados !== undefined ? Number(configData.invitadosEstimados) || 0 : fiestaActual.configuracion.invitadosEstimados,
         presupuestoEstimado: configData.presupuestoEstimado !== undefined ? Number(configData.presupuestoEstimado) || 0 : fiestaActual.configuracion.presupuestoEstimado,
     };
-    
+
     await writeFiestaActualFile(fiestaActual);
     const finalConfig = { ...fiestaActual.configuracion };
     delete (finalConfig as any).direccionLugar;
@@ -383,9 +392,13 @@ export async function updateTareasFiestaActual(
     fiestaActual.tareas = nuevasTareas.map(t => ({
         id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
         texto: t.texto || 'Tarea sin descripción',
+        descripcion: t.descripcion || undefined,
         completada: t.completada || false,
         fechaLimite: t.fechaLimite,
-        asignadaA: t.asignadaA
+        horaVencimiento: t.horaVencimiento || undefined,
+        recordatorio: t.recordatorio || undefined,
+        asignadaA: t.asignadaA,
+        esPredeterminada: t.esPredeterminada || false,
     }));
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.tareas)) };
@@ -407,6 +420,8 @@ export async function updateDecoracionFiestaActual(
             ...(decoracionData.paletaColores || {})
         },
         moodboardImageUrl: decoracionData.moodboardImageUrl || fiestaActual.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl,
+        colorCubremantel: decoracionData.colorCubremantel || fiestaActual.decoracion?.colorCubremantel || defaultDecoracion.colorCubremantel,
+        decoracionTorta: decoracionData.decoracionTorta || fiestaActual.decoracion?.decoracionTorta || defaultDecoracion.decoracionTorta,
         items: (decoracionData.items || fiestaActual.decoracion?.items || []).map(item => ({
             id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
             name: item.name || 'Ítem sin nombre',
@@ -416,8 +431,11 @@ export async function updateDecoracionFiestaActual(
             supplier: item.supplier || undefined,
             notes: item.notes || undefined,
             imageUrl: item.imageUrl || undefined,
+            dataAiHint: item.dataAiHint || undefined,
         })),
+        zonasContratadas: decoracionData.zonasContratadas || fiestaActual.decoracion?.zonasContratadas || defaultDecoracion.zonasContratadas,
         generalNotes: decoracionData.generalNotes === undefined ? (fiestaActual.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : fiestaActual.decoracion.generalNotes) : decoracionData.generalNotes,
+        pdfNotasAdicionales: decoracionData.pdfNotasAdicionales === undefined ? (fiestaActual.decoracion?.pdfNotasAdicionales === undefined ? defaultDecoracion.pdfNotasAdicionales : fiestaActual.decoracion.pdfNotasAdicionales) : decoracionData.pdfNotasAdicionales,
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
@@ -474,7 +492,7 @@ export async function updateInvitadoFiestaActual(
     if (!invitadoEncontrado) {
         return { success: false, error: `Invitado con ID ${invitadoData.id} no encontrado para actualizar.` };
     }
-    
+
     await writeFiestaActualFile(fiestaActual);
     const updatedInvitado = fiestaActual.invitados.find(inv => inv.id === invitadoData.id);
     return { success: true, invitado: updatedInvitado ? JSON.parse(JSON.stringify(updatedInvitado)) : undefined };
@@ -537,7 +555,7 @@ export async function handleRsvpSubmission(
       ...invitadoActual,
       rsvp: newRsvpStatus,
       partySize: Number(submissionData.numeroAsistentes) || invitadoActual.partySize || 1,
-      contacto: submissionData.email?.trim() || invitadoActual.contacto, 
+      contacto: submissionData.email?.trim() || invitadoActual.contacto,
       notes: submissionData.mensaje?.trim()
         ? `${submissionData.mensaje.trim()}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}`
         : invitadoActual.notes,
@@ -559,12 +577,12 @@ export async function updateWebPageSettingsFiestaActual(
 ): Promise<{ success: boolean; updatedData?: EventWebPageSettings; error?: string }> {
   try {
     let fiestaActual = await getFiestaActual();
-    
+
     const currentWebSettings = fiestaActual.webPageSettings || {};
     const newWebSettings: EventWebPageSettings = {
-        ...defaultWebPageSettings, 
-        ...currentWebSettings,   
-        ...settings,             
+        ...defaultWebPageSettings,
+        ...currentWebSettings,
+        ...settings,
         galleryImageUrls: settings.galleryImageUrls || currentWebSettings.galleryImageUrls || [],
     };
     newWebSettings.showCountdown = settings.showCountdown !== undefined ? settings.showCountdown : newWebSettings.showCountdown;
@@ -576,7 +594,7 @@ export async function updateWebPageSettingsFiestaActual(
     newWebSettings.showRsvp = settings.showRsvp !== undefined ? settings.showRsvp : newWebSettings.showRsvp;
 
     fiestaActual.webPageSettings = newWebSettings;
-    
+
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.webPageSettings)) };
   } catch (e: any) {
@@ -620,7 +638,7 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
   try {
     const fiestaParaArchivar = await getFiestaActual();
     let historial = await readHistorialFile();
-    
+
     const archivada = { ...fiestaParaArchivar, id: fiestaParaArchivar.id || `hist_${Date.now()}` };
     historial.push(archivada);
     await writeHistorialFile(historial);

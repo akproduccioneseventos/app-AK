@@ -51,26 +51,30 @@ export interface SalonLayoutData {
 
 export interface Tarea {
   id: string;
-  texto: string;
+  texto: string; // Título de la tarea
+  descripcion?: string; // Descripción breve opcional
   completada: boolean;
-  fechaLimite?: string; // ISO string, opcional
+  fechaLimite?: string; // ISO string, opcional (Solo fecha)
+  horaVencimiento?: string; // Opcional, ej: "14:30"
+  recordatorio?: string; // Opcional, texto libre ej: "1h antes", "Al mediodía"
   asignadaA?: string;   // Opcional
+  esPredeterminada?: boolean; // Para el checkbox, UI only por ahora
 }
 
 export interface ColorPalette {
-  primary: string; 
-  secondary: string; 
-  accent: string; 
+  primary: string;
+  secondary: string;
+  accent: string;
 }
 
 export interface DecorationItem {
   id: string;
   name: string;
-  category?: string; 
+  category?: string;
   quantity: number;
   estimatedCost?: number;
   supplier?: string;
-  notes?: string; 
+  notes?: string;
   imageUrl?: string;
   dataAiHint?: string;
 }
@@ -87,17 +91,17 @@ export interface ZonaContratada {
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
-  moodboardImageUrl?: string; 
+  moodboardImageUrl?: string;
   colorCubremantel?: string;
   decoracionTorta?: {
     descripcion?: string;
     imageUrl?: string;
     dataAiHint?: string;
   };
-  items?: DecorationItem[]; 
+  items?: DecorationItem[];
   zonasContratadas?: ZonaContratada[];
-  generalNotes?: string; 
-  pdfNotasAdicionales?: string; 
+  generalNotes?: string;
+  pdfNotasAdicionales?: string;
 }
 
 export interface EventWebPageSettings {

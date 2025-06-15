@@ -4,22 +4,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UtensilsCrossed, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
-import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getInvoiceById } from '@/app/actions/invoices';
-import { getMenuById } from '@/app/actions/menus-catering';
-import { getCustomerById } from '@/app/actions/customers'; 
-import type { FiestaEnPlanificacion, Tarea, Reunion, SalonLayoutData, DecoracionData } from '@/types/fiesta';
-import type { Presupuesto } from '@/types/presupuesto';
-import type { Invoice } from '@/types/invoice';
-import type { FullMenu } from '@/types/catering';
-import type { Customer } from '@/types/customer'; 
+import { getCustomerById } from '@/app/actions/customers';
+import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
+import type { Customer } from '@/types/customer';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
-import { StatusBadge } from '@/components/status-badge';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -135,7 +127,7 @@ const planningModules: PlanningModule[] = [
   }
 ];
 
-const formatCurrency = (amount?: number | string, currency: string = 'UYU') => { 
+const formatCurrency = (amount?: number | string, currency: string = 'UYU') => {
   if (amount === undefined || amount === null || amount === '') return "N/A";
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(numericAmount)) return "N/A";
@@ -163,7 +155,7 @@ interface TaskSummary {
 export default function PlanificarFiestaHubPage() {
   const { toast } = useToast();
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-  const [linkedClient, setLinkedClient] = useState<Customer | null>(null); 
+  const [linkedClient, setLinkedClient] = useState<Customer | null>(null);
   const [linkedInvoices, setLinkedInvoices] = useState<Invoice[]>([]);
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
 
@@ -174,7 +166,7 @@ export default function PlanificarFiestaHubPage() {
   const loadFiestaData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    setLinkedClient(null); 
+    setLinkedClient(null);
     try {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
@@ -222,7 +214,7 @@ export default function PlanificarFiestaHubPage() {
           title: "¡Planificador Reiniciado!",
           description: "Se ha reiniciado la planificación de la fiesta actual. Cualquier dato no guardado se ha perdido.",
         });
-        await loadFiestaData(); 
+        await loadFiestaData();
       } else {
         throw new Error(result.error || "No se pudo reiniciar el planificador.");
       }
@@ -243,6 +235,8 @@ export default function PlanificarFiestaHubPage() {
     return sum + paymentsTotal;
   }, 0);
   const saldoPorPagar = (typeof presupuestoEstimado === 'number' ? presupuestoEstimado : parseFloat(presupuestoEstimado.toString())) - totalPagado;
+
+  const isFiestaConfigured = fiestaActual && fiestaActual.configuracion.nombreEvento && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble";
 
 
   return (
@@ -333,15 +327,15 @@ export default function PlanificarFiestaHubPage() {
                     <div className="flex flex-wrap justify-center gap-2 pt-3 border-t print:hidden w-full max-w-md mx-auto mt-3">
                         {linkedClient.budgetFileName && (
                             <a href={`/api/budgets/${linkedClient.budgetFileName}`} target="_blank" rel="noopener noreferrer">
-                                <Button variant="outline" size="sm">
-                                    <FileText className="w-4 h-4 mr-2"/> Ver Presupuesto Cliente
+                                <Button type="button" variant="outline" size="sm">
+                                <FileTextIcon className="w-4 h-4 mr-2"/> Ver Presupuesto Cliente
                                 </Button>
                             </a>
                         )}
                         {linkedClient.contractFileName && (
                             <a href={`/api/contracts/${linkedClient.contractFileName}`} target="_blank" rel="noopener noreferrer">
-                                <Button variant="outline" size="sm">
-                                    <FileText className="w-4 h-4 mr-2"/> Ver Contrato Cliente
+                                <Button type="button" variant="outline" size="sm">
+                                <FileTextIcon className="w-4 h-4 mr-2"/> Ver Contrato Cliente
                                 </Button>
                             </a>
                         )}
@@ -353,15 +347,21 @@ export default function PlanificarFiestaHubPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:grid-cols-2 print:gap-4 print:break-inside-avoid-page">
             <Card className="md:col-span-1 hover:shadow-md transition-shadow print:shadow-none print:border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
-                    <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Tareas Pendientes</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Resumen de Tareas</CardTitle>
                     <ClipboardCheck className="h-5 w-5 text-orange-500 print:h-4 print:w-4" />
                 </CardHeader>
                 <CardContent className="print:pt-1">
-                    <div className="text-2xl font-bold print:text-lg">{taskSummary?.pending ?? 'N/A'}</div>
-                    <p className="text-xs text-muted-foreground">
-                        De {taskSummary?.total ?? 'N/A'} tareas totales. {taskSummary?.progress.toFixed(0) ?? '0'}% completado.
+                    <div className="text-2xl font-bold print:text-lg">{taskSummary?.pending ?? '0'} <span className="text-base font-normal text-muted-foreground">pendientes</span></div>
+                    <Progress value={taskSummary?.progress ?? 0} className="mt-2 h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                        {taskSummary?.completed ?? '0'} de {taskSummary?.total ?? '0'} completadas ({taskSummary?.progress.toFixed(0) ?? '0'}%).
                     </p>
                 </CardContent>
+                <CardFooter className="pt-2 print:hidden">
+                  <Link href="/fiestas/nueva/tareas" passHref className="w-full">
+                    <Button variant="outline" size="sm" className="w-full">Ver/Administrar Tareas</Button>
+                  </Link>
+                </CardFooter>
             </Card>
             <Card className="hover:shadow-md transition-shadow print:shadow-none print:border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
@@ -457,3 +457,4 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
+
