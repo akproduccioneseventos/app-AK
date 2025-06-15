@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardList, UserCheck, Calculator, HardHat } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -135,7 +135,7 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
-  if (pathname.startsWith('/fiestas/nueva')) { // Group icon for planner section
+  if (pathname.startsWith('/fiestas/nueva')) { 
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
     if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
@@ -147,7 +147,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardList;
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
-    return PartyPopper; // Default for main planner page
+    return PartyPopper; 
   }
 
 
@@ -179,7 +179,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/budget-display') return SettingsIcon;
   
-  // Planner Costo-Fiesta (Renombrado)
   if (pathname === '/planner-costo-fiesta') return Calculator;
 
 
@@ -247,3 +246,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+

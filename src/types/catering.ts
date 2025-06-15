@@ -2,9 +2,12 @@
 export interface Ingredient {
   id: string;
   name: string;
-  quantity: string;
-  unit: string;
-  cost: number;
+  quantity: string; // Cantidad usada en ESTA receta específica
+  unit: string; // Unidad de la cantidad (ej: gr, ml, ud)
+  cost: number; // Costo de ESA cantidad específica para ESTA receta
+  proveedor?: string;
+  marca?: string;
+  fecha_actualizacion?: string; // ISO date string para la última vez que se actualizó el precio de este ingrediente
 }
 
 export interface MenuItem { // Representa un Plato
@@ -31,3 +34,4 @@ export interface FullMenu { // Representa un Menú completo guardado
 
 // Para el formulario, antes de tener un ID de FullMenu
 export type NewMenuFormData = Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>;
+

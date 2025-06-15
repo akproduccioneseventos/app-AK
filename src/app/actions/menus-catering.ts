@@ -24,14 +24,17 @@ async function readMenusFile(): Promise<FullMenu[]> {
     const fileContent = await fs.readFile(menusFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     const menus = JSON.parse(fileContent) as FullMenu[];
-    // Ensure costs are numbers for backward compatibility
+    // Ensure costs are numbers and new ingredient fields are present
     return menus.map(menu => ({
       ...menu,
       items: menu.items.map(item => ({
         ...item,
         ingredients: item.ingredients.map(ingredient => ({
           ...ingredient,
-          cost: Number(ingredient.cost) || 0, // Ensure cost is a number
+          cost: Number(ingredient.cost) || 0,
+          proveedor: ingredient.proveedor || undefined,
+          marca: ingredient.marca || undefined,
+          fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
         })),
         totalDishCost: Number(item.totalDishCost) || 0,
         basePortions: item.basePortions ? Number(item.basePortions) : undefined,
@@ -66,11 +69,13 @@ async function initializeLocalMenusFile() {
     if (fileContent.trim() === '') {
       await writeMenusFile([]);
     } else {
-      // Ensure data is valid JSON and costs are numbers on first read (if needed)
       const menus = JSON.parse(fileContent) as FullMenu[];
-      const needsResave = menus.some(menu => 
+      let needsResave = menus.some(menu => 
         menu.items.some(item => 
-          item.ingredients.some(ing => typeof ing.cost === 'string')
+          item.ingredients.some(ing => 
+            typeof ing.cost === 'string' || 
+            !('proveedor' in ing) // Check if new fields are missing for potential migration
+          )
         )
       );
       if (needsResave) {
@@ -81,6 +86,9 @@ async function initializeLocalMenusFile() {
             ingredients: item.ingredients.map(ingredient => ({
               ...ingredient,
               cost: Number(ingredient.cost) || 0,
+              proveedor: ingredient.proveedor || undefined,
+              marca: ingredient.marca || undefined,
+              fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
             })),
             totalDishCost: Number(item.totalDishCost) || 0,
             basePortions: item.basePortions ? Number(item.basePortions) : undefined,
@@ -109,7 +117,10 @@ function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updat
   const processedItems = menuData.items.map(item => {
     const ingredients = item.ingredients.map(ing => ({
       ...ing,
-      cost: Number(ing.cost) || 0, // Ensure cost is a number
+      cost: Number(ing.cost) || 0,
+      proveedor: ing.proveedor?.trim() || undefined,
+      marca: ing.marca?.trim() || undefined,
+      fecha_actualizacion: ing.fecha_actualizacion?.trim() || undefined,
     }));
     const totalDishCost = ingredients.reduce((sum, ing) => sum + ing.cost, 0);
     const basePortions = item.basePortions ? Number(item.basePortions) : undefined;
@@ -122,14 +133,14 @@ function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updat
       totalDishCost,
       basePortions,
       costPerPortion,
-      allergens: item.allergens || undefined, // Ensure allergens is string or undefined
+      allergens: item.allergens || undefined,
     };
   });
 
   return {
     ...menuData,
     items: processedItems,
-  } as FullMenu; // Cast needed if menuData doesn't have id/createdAt etc.
+  } as FullMenu;
 }
 
 
@@ -140,27 +151,24 @@ export async function saveMenu(
   let finalMenuData: FullMenu;
   let menuId: string;
 
-  // Process items to ensure costs are numbers and derived values are calculated
   const processedInput = processMenuForSave(menuDataInput);
 
   if ('id' in processedInput && processedInput.id) {
-    // Update
     menuId = processedInput.id;
     const index = menus.findIndex(m => m.id === menuId);
     if (index === -1) {
       return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
     }
     menus[index] = { 
-        ...menus[index], // Preserve existing fields like createdAt
-        ...processedInput, // Apply all processed updates
+        ...menus[index], 
+        ...processedInput, 
         updatedAt: new Date().toISOString() 
     };
     finalMenuData = menus[index];
   } else {
-    // Create
     menuId = `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalMenuData = {
-      ...(processedInput as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>), // Cast to ensure type safety for new menu
+      ...(processedInput as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
       id: menuId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -181,3 +189,4 @@ export async function deleteMenu(id: string): Promise<{ success: boolean; error?
   await writeMenusFile(menus);
   return { success: true };
 }
+
