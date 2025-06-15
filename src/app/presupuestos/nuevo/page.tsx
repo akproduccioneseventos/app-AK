@@ -77,24 +77,18 @@ export default function NuevoPresupuestoPage() {
             const config = fiestaActualData.configuracion;
 
             if (!prev.clienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                 // Si hay un clienteId, usar el nombre del evento como nombre de cliente por defecto
                 newClienteNombre = config.nombreEvento;
             }
             
             if (config.tipoCelebracion) {
-              // Directamente asignamos el tipo de la fiesta actual. 
-              // El componente Paso1DatosEvento se encargará de mostrar "Otro" en el Select si es un tipo personalizado.
-              newEventoTipo = config.tipoCelebracion;
+              newEventoTipo = config.tipoCelebracion; // Se asigna directamente. El componente Paso1 se encarga de si es 'Otro'
               
-              // Lógica para pre-rellenar campos de nombre basados en el tipo de evento de la fiesta actual
-              if (config.tipoCelebracion === 'Boda' && config.nombreEvento) {
-                // Para bodas, no hay forma estándar de separar nombres del nombreEvento, así que los dejamos
-                // para que el usuario los complete, pero podrías intentar alguna heurística si quisieras.
-                // Por ahora, se espera que se llenen manualmente.
-              } else if (config.tipoCelebracion === 'Evento corporativo' && config.nombreEvento) {
-                 newNombreEmpresa = config.nombreEvento; // Asumimos que nombreEvento es el nombre de la empresa
-              } else if (config.tipoCelebracion && config.tipoCelebracion !== 'Boda' && config.tipoCelebracion !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                  newNombreHomenajeado1 = config.nombreEvento; // Asumimos que nombreEvento es el del homenajeado
+              if (newEventoTipo === 'Boda' && config.nombreEvento) {
+                // Para Boda, es complejo separar, asumimos que el usuario lo ajustará o se deja vacío.
+              } else if (newEventoTipo === 'Evento corporativo' && config.nombreEvento) {
+                 newNombreEmpresa = config.nombreEvento; 
+              } else if (newEventoTipo && newEventoTipo !== 'Boda' && newEventoTipo !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
+                  newNombreHomenajeado1 = config.nombreEvento; 
               }
             }
 
@@ -139,9 +133,8 @@ export default function NuevoPresupuestoPage() {
   const handleNext = () => {
     if (formData.pasoActual < TOTAL_PASOS) {
       if (formData.pasoActual === 1) {
-        // Validaciones para el Paso 1
         if (!formData.clienteNombre.trim()) { toast({ title: "Dato Requerido", description: "El nombre del cliente es obligatorio.", variant: "destructive" }); return;}
-        if (!formData.eventoTipo?.trim()) { toast({ title: "Dato Requerido", description: "Por favor, selecciona o especifica un tipo de evento.", variant: "destructive" }); return;}
+        if (!formData.eventoTipo.trim()) { toast({ title: "Dato Requerido", description: "Por favor, selecciona o especifica un tipo de evento.", variant: "destructive" }); return;}
         if (!formData.eventoFecha) { toast({ title: "Dato Requerido", description: "La fecha del evento es obligatoria.", variant: "destructive" }); return;}
         if (!formData.invitadosCantidad || formData.invitadosCantidad <= 0) { toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser un número positivo.", variant: "destructive" }); return;}
         if (!formData.salonFiestas.trim()) { toast({ title: "Dato Requerido", description: "El salón de fiestas es obligatorio.", variant: "destructive" }); return;}
@@ -164,7 +157,6 @@ export default function NuevoPresupuestoPage() {
             }
         }
       }
-      // Aquí podrías añadir validaciones para el paso 2 si es necesario
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
   };

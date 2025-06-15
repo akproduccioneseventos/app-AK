@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerDemo } from '@/components/date-picker-demo'; 
 import type { Dispatch, SetStateAction } from 'react';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 interface Paso1Props {
   formData: PresupuestoFormData;
@@ -17,18 +17,21 @@ interface Paso1Props {
 
 export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
   
-  // Determine if formData.eventoTipo is a predefined type or a custom one
-  const isPredefinedEventType = formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento);
-  
-  // Value for the Select: if custom, show "Otro", otherwise show the type or placeholder
-  const selectValue = isPredefinedEventType ? formData.eventoTipo : (formData.eventoTipo ? "Otro" : "");
+  const handleChange = (field: keyof PresupuestoFormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-  // Show custom input if "Otro" is selected OR if formData.eventoTipo is already a custom string
-  const showCustomTipoInput = selectValue === "Otro";
+  const handleDateChange = (date: Date | undefined) => {
+    setFormData(prev => ({ ...prev, eventoFecha: date }));
+  };
+  
+  // Determine if formData.eventoTipo is a predefined type or a custom one for the Select value
+  const isPredefinedEventoTipo = formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento);
+  const selectValueForTipoEvento = isPredefinedEventoTipo ? formData.eventoTipo : (formData.eventoTipo ? "Otro" : "");
 
   const handleSelectTipoEventoChange = (value: string) => {
     if (value === "Otro") {
-      // User selected "Otro", clear eventoTipo to allow custom input, clear related name fields
+      // User selected "Otro", clear eventoTipo to allow custom input and clear related name fields
       setFormData(prev => ({ 
         ...prev, 
         eventoTipo: "", 
@@ -53,19 +56,11 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
   };
   
-  const handleChange = (field: keyof PresupuestoFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleDateChange = (date: Date | undefined) => {
-    setFormData(prev => ({ ...prev, eventoFecha: date }));
-  };
-  
   // Determine visibility for conditional name fields based on the *final* eventoTipo
-  const finalEventoTipo = formData.eventoTipo.trim();
-  const showBodaFields = finalEventoTipo === 'Boda';
-  const showEmpresaField = finalEventoTipo === 'Evento corporativo';
-  const showHomenajeadoField = finalEventoTipo && !showBodaFields && !showEmpresaField;
+  const finalEventoTipoTrimmed = formData.eventoTipo.trim();
+  const showBodaFields = finalEventoTipoTrimmed === 'Boda';
+  const showEmpresaField = finalEventoTipoTrimmed === 'Evento corporativo';
+  const showHomenajeadoField = finalEventoTipoTrimmed && !showBodaFields && !showEmpresaField;
 
   return (
     <div className="space-y-6">
@@ -97,7 +92,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
       <div className="space-y-2">
         <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento *</Label>
         <Select 
-          value={selectValue} // Controlled by derived state
+          value={selectValueForTipoEvento} // Controlled by derived state
           onValueChange={handleSelectTipoEventoChange}
         >
           <SelectTrigger id="eventoTipoSelect" className="text-base p-3 h-auto">
@@ -109,19 +104,18 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             ))}
           </SelectContent>
         </Select>
-        {showCustomTipoInput && (
+        {(selectValueForTipoEvento === "Otro" || (formData.eventoTipo && !isPredefinedEventoTipo)) && (
            <Input 
               id="eventoTipoOtroInput" 
               placeholder="Especificá el tipo de evento *" 
-              value={formData.eventoTipo} // Binds to the custom input value if "Otro" path is taken
+              value={formData.eventoTipo} 
               onChange={handleCustomTipoEventoInputChange}
               className="text-base p-3 mt-2"
-              required={showCustomTipoInput && !formData.eventoTipo.trim()} 
+              required={!formData.eventoTipo.trim()} // Required if no type has been entered
           />
         )}
       </div>
 
-      {/* Campos condicionales para nombres */}
       {showBodaFields && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">

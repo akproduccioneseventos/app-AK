@@ -34,11 +34,6 @@ export interface Presupuesto {
   eventoTipo: TipoEvento | string; 
   eventoFecha: string; 
   invitadosCantidad: number;
-  // Campos de Paso 1 que se guardan en notas o podrían ser campos propios si se expande el modelo
-  // salonFiestas: string; 
-  // nombreHomenajeado1?: string; 
-  // nombreHomenajeado2?: string; 
-  // nombreEmpresa?: string; 
   platosSeleccionados: {
     idPlato: string;
     nombrePlato: string;
@@ -64,12 +59,12 @@ export interface PresupuestoFormData {
   pasoActual: number;
   
   clienteNombre: string;
-  eventoTipo: TipoEvento | string; // Puede ser un tipo predefinido o un string personalizado si es "Otro"
+  eventoTipo: TipoEvento | string; 
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
   salonFiestas: string; 
-  nombreHomenajeado1: string; // Usado para Novio 1 o Homenajeado general o Hijo/a en cumple infantil
-  nombreHomenajeado2: string; // Usado para Novia 2
+  nombreHomenajeado1: string; 
+  nombreHomenajeado2: string; 
   nombreEmpresa: string; 
 
   platosDisponibles: PlatoPresupuesto[]; 
@@ -81,5 +76,3 @@ export interface PresupuestoFormData {
   resumen?: Presupuesto; 
   notas: string;
 }
-
-
