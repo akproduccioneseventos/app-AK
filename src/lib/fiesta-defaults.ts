@@ -1,6 +1,6 @@
 
 // src/lib/fiesta-defaults.ts
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, SalonLayoutData, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ReposteriaCategoriaId, BebidaCategoriaId, TipoEventoAjusteBebidas } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -56,17 +56,15 @@ export const defaultDecoracion: DecoracionData = {
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
   colorCubremantel: '',
+  colorGlobos: '', // Nuevo
   decoracionTorta: { descripcion: '', imageUrl: '', dataAiHint: 'cake design' },
   items: [],
-  zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)), // Deep copy
-  generalNotes: "Detalles pendientes de definir: colores de la fiesta, cubre mantel, decoración de torta, centros de mesa, zona de regalos, cuadro de firmas, gigantografía, alfombra roja, globos, telas, paneles shimmer, flores, tipo de mesas de torta, mobiliario, arreglos florales, números y letras.",
+  zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
+  generalNotesDecoracion: "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
   pdfNotasAdicionales: '',
-};
-
-export const defaultSalonLayout: SalonLayoutData = {
-    backgroundImageUrl: '',
-    elements: [],
-    generalNotes: 'Disposición estándar del salón.',
+  salonPlanBackgroundImageUrl: '', // fusionado de SalonLayoutData
+  salonElements: [],               // fusionado de SalonLayoutData
+  generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.', // fusionado de SalonLayoutData
 };
 
 export const defaultWebPageSettings: EventWebPageSettings = {
@@ -141,7 +139,6 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   presupuestoId: undefined,
   invoiceIds: [],
   reuniones: [],
-  salonLayout: { ...defaultSalonLayout, elements: [] },
   tareas: [...baseDefaultTareas.map(t => ({
     ...t,
     id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
@@ -150,11 +147,11 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     recordatorio: t.recordatorio || undefined,
     esPredeterminada: t.esPredeterminada || false,
    }))],
-  decoracion: {
-    ...defaultDecoracion,
+  decoracion: { // Contiene ahora todos los campos de decoración y layout
+    ...defaultDecoracion, // Esto ya incluye salonPlanBackgroundImageUrl, salonElements, etc.
     items: [],
     paletaColores: { ...defaultColorPalette },
-    zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)), // Deep copy for initial state
+    zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
   },
   invitados: [],
   webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },

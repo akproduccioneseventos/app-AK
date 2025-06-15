@@ -61,9 +61,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
   if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores (Fiesta Actual)';
-  if (pathname === '/fiestas/nueva/decoracion') return 'Diseño y Decoración';
+  if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento'; // Unificado
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
-  if (pathname === '/fiestas/nueva/diseno-salon') return 'Diseño del Salón';
+  // ruta /fiestas/nueva/diseno-salon eliminada
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
@@ -95,7 +95,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/login') return 'Iniciar Sesión';
   if (pathname === '/signup') return 'Crear Cuenta';
   
-  // Planner Costo-Fiesta (Renombrado)
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
   if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
@@ -140,9 +139,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/fiestas/nueva')) { 
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
-    if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
-    if (pathname === '/fiestas/nueva/decoracion') return Palette;
+    if (pathname === '/fiestas/nueva/decoracion') return Palette; // Icono unificado
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
+    // ruta /fiestas/nueva/diseno-salon eliminada
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;

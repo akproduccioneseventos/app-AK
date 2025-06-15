@@ -43,24 +43,6 @@ export interface LayoutElement {
   dataAiHint?: string;
 }
 
-export interface SalonLayoutData {
-  backgroundImageUrl?: string;
-  elements: LayoutElement[];
-  generalNotes?: string;
-}
-
-export interface Tarea {
-  id: string;
-  texto: string; // Título de la tarea
-  descripcion?: string; // Descripción breve opcional
-  completada: boolean;
-  fechaLimite?: string; // ISO string, opcional (Solo fecha)
-  horaVencimiento?: string; // Opcional, ej: "14:30"
-  recordatorio?: string; // Opcional, texto libre ej: "1h antes", "Al mediodía"
-  asignadaA?: string;   // Opcional
-  esPredeterminada?: boolean; // Para el checkbox, UI only por ahora
-}
-
 export interface ColorPalette {
   primary: string;
   secondary: string;
@@ -93,15 +75,21 @@ export interface DecoracionData {
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
   colorCubremantel?: string;
+  colorGlobos?: string; // NUEVO
   decoracionTorta?: {
     descripcion?: string;
     imageUrl?: string;
     dataAiHint?: string;
   };
-  items?: DecorationItem[];
+  items?: DecorationItem[]; // Elementos decorativos específicos no necesariamente en el plano
   zonasContratadas?: ZonaContratada[];
-  generalNotes?: string;
+  generalNotesDecoracion?: string; // Notas específicas de la estética
   pdfNotasAdicionales?: string;
+
+  // Campos fusionados del antiguo SalonLayoutData
+  salonPlanBackgroundImageUrl?: string; // Imagen de fondo para el plano del salón
+  salonElements?: LayoutElement[];       // Elementos ubicados en el plano (mesas, sillas, etc.)
+  generalNotesSalonLayout?: string;   // Notas específicas para la disposición del salón
 }
 
 export interface EventWebPageSettings {
@@ -146,7 +134,6 @@ export interface ReposteriaItem {
   imagenReferenciaUrl?: string;
   dataAiHint?: string;
   notas?: string;
-  // Futuro: link a receta/ingredientes
 }
 
 export type ReposteriaCategoriaId =
@@ -186,14 +173,13 @@ export interface BebidaItem {
   costoTotal?: number; // Calculado
   proveedorHabitual?: string;
   notas?: string;
-  // Futuro: link a producto/ingrediente
 }
 
 export type BebidaCategoriaId =
   | 'refrescos_gaseosas'
   | 'jugos'
   | 'aguas_saborizadas'
-  | 'bebidas_alcoholicas_varias' // Ej: Aperitivos, licores
+  | 'bebidas_alcoholicas_varias'
   | 'vinos_espumantes'
   | 'barra_tragos'
   | 'cafeteria';
@@ -204,7 +190,6 @@ export interface BebidaCategoria {
   activada: boolean;
   descripcion?: string;
   items: BebidaItem[];
-  // Futuro: configuraciones específicas de cálculo para esta categoría
 }
 
 export type TipoEventoAjusteBebidas = 'formal' | 'juvenil' | 'corporativo' | 'mixto_estandar';
@@ -223,9 +208,9 @@ export interface FiestaEnPlanificacion {
   presupuestoId?: string;
   invoiceIds?: string[];
   reuniones?: Reunion[];
-  salonLayout?: SalonLayoutData;
+  // salonLayout ya no existe, se fusiona en decoracion
   tareas?: Tarea[];
-  decoracion?: DecoracionData;
+  decoracion?: DecoracionData; // Contiene ahora también la info del plano del salón
   invitados?: Invitado[];
   webPageSettings?: EventWebPageSettings;
   musica?: MusicaFiesta;

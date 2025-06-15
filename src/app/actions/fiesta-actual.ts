@@ -1,17 +1,17 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, SalonLayoutData, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
 import {
   initialFiestaActualData,
   defaultConfiguracion,
-  baseDefaultTareas as defaultTareas, // Renamed to avoid conflict with Tarea type
+  baseDefaultTareas as defaultTareas,
   defaultColorPalette,
   defaultDecoracion,
-  defaultSalonLayout,
+  // defaultSalonLayout no se usa más directamente aquí, sus propiedades están en defaultDecoracion
   defaultWebPageSettings,
   defaultMusicaFiesta,
   defaultReposteriaData,
@@ -42,11 +42,36 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
     await fs.access(fiestaActualFilePath);
     const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
     if (fileContent.trim() === '') throw new Error('Fiesta actual file is empty');
-    const parsedData = JSON.parse(fileContent) as FiestaEnPlanificacion;
+    let parsedData = JSON.parse(fileContent) as FiestaEnPlanificacion;
+    
+    // --- MIGRATION LOGIC ---
+    // If old structure with separate salonLayout exists, merge it into decoracion
+    if ((parsedData as any).salonLayout) {
+      const oldSalonLayout = (parsedData as any).salonLayout as DecoracionData; // Assuming DecoracionData can hold these for temp cast
+      parsedData.decoracion = {
+        ...(parsedData.decoracion || defaultDecoracion), // Keep existing decoracion fields
+        salonPlanBackgroundImageUrl: oldSalonLayout.salonPlanBackgroundImageUrl || parsedData.decoracion?.salonPlanBackgroundImageUrl || defaultDecoracion.salonPlanBackgroundImageUrl,
+        salonElements: oldSalonLayout.salonElements || parsedData.decoracion?.salonElements || defaultDecoracion.salonElements,
+        generalNotesSalonLayout: oldSalonLayout.generalNotesSalonLayout || parsedData.decoracion?.generalNotesSalonLayout || defaultDecoracion.generalNotesSalonLayout,
+      };
+      delete (parsedData as any).salonLayout; // Remove old salonLayout
+    }
+    // Ensure decoracion exists and has the layout fields if they were missing
+    if (!parsedData.decoracion) {
+        parsedData.decoracion = { ...defaultDecoracion };
+    } else {
+        parsedData.decoracion.salonPlanBackgroundImageUrl = parsedData.decoracion.salonPlanBackgroundImageUrl ?? defaultDecoracion.salonPlanBackgroundImageUrl;
+        parsedData.decoracion.salonElements = parsedData.decoracion.salonElements ?? defaultDecoracion.salonElements;
+        parsedData.decoracion.generalNotesSalonLayout = parsedData.decoracion.generalNotesSalonLayout ?? defaultDecoracion.generalNotesSalonLayout;
+        parsedData.decoracion.generalNotesDecoracion = parsedData.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
+        parsedData.decoracion.colorGlobos = parsedData.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
+    }
     // Ensure direccionLugar is removed if present from old data structures
     if (parsedData.configuracion && 'direccionLugar' in parsedData.configuracion) {
       delete (parsedData.configuracion as any).direccionLugar;
     }
+    // --- END MIGRATION LOGIC ---
+
     return parsedData;
   } catch (error) {
     const cleanInitialData = { ...initialFiestaActualData };
@@ -61,11 +86,21 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
 async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void> {
   try {
     await ensureDataDirectoryExists();
-    // Ensure direccionLugar is removed before writing if it somehow crept in
     const dataToWrite = { ...data };
     if (dataToWrite.configuracion && 'direccionLugar' in dataToWrite.configuracion) {
       delete (dataToWrite.configuracion as any).direccionLugar;
     }
+    // Ensure decoracion exists before writing
+    if (!dataToWrite.decoracion) {
+      dataToWrite.decoracion = { ...defaultDecoracion };
+    } else {
+      dataToWrite.decoracion.salonPlanBackgroundImageUrl = dataToWrite.decoracion.salonPlanBackgroundImageUrl ?? defaultDecoracion.salonPlanBackgroundImageUrl;
+      dataToWrite.decoracion.salonElements = dataToWrite.decoracion.salonElements ?? defaultDecoracion.salonElements;
+      dataToWrite.decoracion.generalNotesSalonLayout = dataToWrite.decoracion.generalNotesSalonLayout ?? defaultDecoracion.generalNotesSalonLayout;
+      dataToWrite.decoracion.generalNotesDecoracion = dataToWrite.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
+      dataToWrite.decoracion.colorGlobos = dataToWrite.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
+    }
+    delete (dataToWrite as any).salonLayout; // Explicitly remove old structure if it somehow got here
     await fs.writeFile(fiestaActualFilePath, JSON.stringify(dataToWrite, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing fiesta-actual.json file:', error);
@@ -96,22 +131,20 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
   }
 }
 
-// Initialize files if they don't exist
 async function initializeLocalFiestaFiles() {
-  await readFiestaActualFile();
+  await readFiestaActualFile(); // This will now handle potential migration
   await readHistorialFile();
 }
 initializeLocalFiestaFiles();
 
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  const data = await readFiestaActualFile();
+  const data = await readFiestaActualFile(); // Read already handles migration
    const validatedConfig: ConfigEventoDataStorage = {
     ...defaultConfiguracion,
     ...(data.configuracion || {}),
     clienteId: data.configuracion?.clienteId || undefined,
    };
-   // Remove direccionLugar if it exists from defaults or data
    delete (validatedConfig as any).direccionLugar;
 
     const mergedReposteriaCategorias = defaultReposteriaCategorias.map(defaultCat => {
@@ -134,22 +167,30 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         categorias: mergedBebidasCategorias,
     };
 
-   const validatedData: FiestaEnPlanificacion = {
-    id: data.id || `fiesta_${Date.now()}`,
-    configuracion: validatedConfig,
-    personalAsignado: data.personalAsignado || [],
-    menuAsignadoId: data.menuAsignadoId || undefined,
-    presupuestoId: data.presupuestoId || undefined,
-    invoiceIds: data.invoiceIds || [],
-    reuniones: (data.reuniones || []).map(r => ({
-        id: r.id || `reunion_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-        titulo: r.titulo || 'Reunión sin título',
-        fecha: r.fecha,
-        notas: r.notas || ''
-    })),
-    salonLayout: {
-        backgroundImageUrl: data.salonLayout?.backgroundImageUrl || defaultSalonLayout.backgroundImageUrl || '',
-        elements: (data.salonLayout?.elements || []).map(el => ({
+    // Ensure decoracion includes all fields, including merged salon layout fields
+    const validatedDecoracion: DecoracionData = {
+      ...defaultDecoracion, // Start with full default structure
+      ...(data.decoracion || {}), // Override with saved data
+      paletaColores: { // Ensure paletaColores exists and has defaults
+        ...defaultColorPalette,
+        ...(data.decoracion?.paletaColores || {}),
+      },
+      zonasContratadas: (data.decoracion?.zonasContratadas || defaultDecoracion.zonasContratadas || []).map(zc => ({ ...zc})),
+      items: (data.decoracion?.items || defaultDecoracion.items || []).map(item => ({
+          id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+          name: item.name || 'Ítem sin nombre',
+          category: item.category || 'Otro',
+          quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
+          estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
+          supplier: item.supplier || undefined,
+          notes: item.notes || undefined,
+          imageUrl: item.imageUrl || undefined,
+          dataAiHint: item.dataAiHint || undefined,
+      })),
+      decoracionTorta: data.decoracion?.decoracionTorta || { ...defaultDecoracion.decoracionTorta },
+      // Explicitly ensure salon layout fields from defaultDecoracion if not present in data.decoracion
+      salonPlanBackgroundImageUrl: data.decoracion?.salonPlanBackgroundImageUrl ?? defaultDecoracion.salonPlanBackgroundImageUrl,
+      salonElements: (data.decoracion?.salonElements || defaultDecoracion.salonElements || []).map(el => ({
             id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
             name: el.name || 'Elemento sin nombre',
             quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
@@ -164,8 +205,25 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
             category: el.category || 'Otro',
             dataAiHint: el.dataAiHint
         })),
-        generalNotes: data.salonLayout?.generalNotes || defaultSalonLayout.generalNotes || '',
-    },
+      generalNotesSalonLayout: data.decoracion?.generalNotesSalonLayout ?? defaultDecoracion.generalNotesSalonLayout,
+      generalNotesDecoracion: data.decoracion?.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion,
+      colorGlobos: data.decoracion?.colorGlobos ?? defaultDecoracion.colorGlobos,
+    };
+
+
+   const validatedData: FiestaEnPlanificacion = {
+    id: data.id || `fiesta_${Date.now()}`,
+    configuracion: validatedConfig,
+    personalAsignado: data.personalAsignado || [],
+    menuAsignadoId: data.menuAsignadoId || undefined,
+    presupuestoId: data.presupuestoId || undefined,
+    invoiceIds: data.invoiceIds || [],
+    reuniones: (data.reuniones || []).map(r => ({
+        id: r.id || `reunion_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        titulo: r.titulo || 'Reunión sin título',
+        fecha: r.fecha,
+        notas: r.notas || ''
+    })),
     tareas: (data.tareas && data.tareas.length > 0 ? data.tareas : [...defaultTareas.map(t => ({...t, id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(t => ({
         id: t.id || `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
         texto: t.texto || 'Tarea sin descripción',
@@ -177,30 +235,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         asignadaA: t.asignadaA,
         esPredeterminada: t.esPredeterminada || false,
     })),
-    decoracion: {
-        tema: data.decoracion?.tema || defaultDecoracion.tema || '',
-        paletaColores: {
-          ...defaultColorPalette,
-          ...(data.decoracion?.paletaColores || {}),
-        },
-        moodboardImageUrl: data.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl || '',
-        colorCubremantel: data.decoracion?.colorCubremantel || defaultDecoracion.colorCubremantel || '',
-        decoracionTorta: data.decoracion?.decoracionTorta || { descripcion: '', imageUrl: '', dataAiHint: 'cake design' },
-        items: (data.decoracion?.items || []).map(item => ({
-            id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
-            name: item.name || 'Ítem sin nombre',
-            category: item.category || 'Otro',
-            quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
-            estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
-            supplier: item.supplier || undefined,
-            notes: item.notes || undefined,
-            imageUrl: item.imageUrl || undefined,
-            dataAiHint: item.dataAiHint || undefined,
-        })),
-        zonasContratadas: data.decoracion?.zonasContratadas || defaultDecoracion.zonasContratadas,
-        generalNotes: data.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : (data.decoracion.generalNotes || ''),
-        pdfNotasAdicionales: data.decoracion?.pdfNotasAdicionales || defaultDecoracion.pdfNotasAdicionales || '',
-    },
+    decoracion: validatedDecoracion,
     invitados: (data.invitados || []).map(inv => ({
       id: inv.id || `inv_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
       nombre: inv.nombre || 'Invitado sin nombre',
@@ -222,24 +257,25 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     reposteria: validatedReposteria,
     bebidas: validatedBebidas,
   };
+  // Remove old salonLayout key if it exists at the root of validatedData
+  if ((validatedData as any).salonLayout) {
+    delete (validatedData as any).salonLayout;
+  }
   return JSON.parse(JSON.stringify(validatedData));
 }
 
 export async function updateConfiguracionFiestaActual(
-  configData: Partial<Omit<ConfigEventoDataStorage, 'direccionLugar'>> // direccionLugar is no longer part of ConfigEventoDataStorage
+  configData: Partial<Omit<ConfigEventoDataStorage, 'direccionLugar'>>
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
   try {
     let fiestaActual = await getFiestaActual();
-
-    // Create a new config object without direccionLugar
-    const { direccionLugar, ...validConfigDataFromInput } = configData as any; // Cast to any to allow delete
-
+    const { direccionLugar, ...validConfigDataFromInput } = configData as any;
     const newBaseConfig = { ...fiestaActual.configuracion };
-    delete (newBaseConfig as any).direccionLugar; // Ensure base doesn't have it
+    delete (newBaseConfig as any).direccionLugar;
 
     fiestaActual.configuracion = {
         ...newBaseConfig,
-        ...validConfigDataFromInput, // Apply updates
+        ...validConfigDataFromInput,
         invitadosEstimados: configData.invitadosEstimados !== undefined ? Number(configData.invitadosEstimados) || 0 : fiestaActual.configuracion.invitadosEstimados,
         presupuestoEstimado: configData.presupuestoEstimado !== undefined ? Number(configData.presupuestoEstimado) || 0 : fiestaActual.configuracion.presupuestoEstimado,
     };
@@ -378,37 +414,6 @@ export async function deleteReunionFromFiestaActual(
   }
 }
 
-export async function updateSalonLayoutFiestaActual(
-  layoutData: Partial<SalonLayoutData>
-): Promise<{ success: boolean; updatedData?: SalonLayoutData; error?: string }> {
-  try {
-    let fiestaActual = await getFiestaActual();
-    fiestaActual.salonLayout = {
-        backgroundImageUrl: layoutData.backgroundImageUrl || fiestaActual.salonLayout?.backgroundImageUrl || '',
-        elements: (layoutData.elements || fiestaActual.salonLayout?.elements || []).map(el => ({
-            id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-            name: el.name || 'Elemento sin nombre',
-            quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
-            notes: el.notes || undefined,
-            imageUrl: el.imageUrl || undefined,
-            x: el.x ?? 0,
-            y: el.y ?? 0,
-            width: el.width ?? 50,
-            height: el.height ?? 50,
-            rotation: el.rotation ?? 0,
-            type: el.type ?? 'custom',
-            category: el.category || 'Otro',
-            dataAiHint: el.dataAiHint
-        })),
-        generalNotes: layoutData.generalNotes || fiestaActual.salonLayout?.generalNotes || ''
-    };
-    await writeFiestaActualFile(fiestaActual);
-    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.salonLayout)) };
-  } catch (e: any) {
-    return { success: false, error: e.message || "Error al actualizar el diseño del salón." };
-  }
-}
-
 export async function updateTareasFiestaActual(
   nuevasTareas: Tarea[]
 ): Promise<{ success: boolean; updatedData?: Tarea[]; error?: string }> {
@@ -432,22 +437,31 @@ export async function updateTareasFiestaActual(
   }
 }
 
+// Actualiza decoracionData, que ahora incluye campos del layout
 export async function updateDecoracionFiestaActual(
-  decoracionData: Partial<DecoracionData>
+  decoracionDataInput: Partial<DecoracionData>
 ): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
   try {
     let fiestaActual = await getFiestaActual();
+    
+    // Ensure we start with existing or default full decoracion structure
+    const currentDecoracion = fiestaActual.decoracion || { ...defaultDecoracion };
+
     fiestaActual.decoracion = {
-        tema: decoracionData.tema || fiestaActual.decoracion?.tema || defaultDecoracion.tema,
+        ...currentDecoracion, // Base with all fields (including salon layout fields)
+        ...decoracionDataInput, // Apply incoming partial updates
+
+        // Explicitly merge complex nested objects if necessary
         paletaColores: {
             ...defaultColorPalette,
-            ...(fiestaActual.decoracion?.paletaColores || {}),
-            ...(decoracionData.paletaColores || {})
+            ...(currentDecoracion.paletaColores || {}),
+            ...(decoracionDataInput.paletaColores || {})
         },
-        moodboardImageUrl: decoracionData.moodboardImageUrl || fiestaActual.decoracion?.moodboardImageUrl || defaultDecoracion.moodboardImageUrl,
-        colorCubremantel: decoracionData.colorCubremantel || fiestaActual.decoracion?.colorCubremantel || defaultDecoracion.colorCubremantel,
-        decoracionTorta: decoracionData.decoracionTorta || fiestaActual.decoracion?.decoracionTorta || defaultDecoracion.decoracionTorta,
-        items: (decoracionData.items || fiestaActual.decoracion?.items || []).map(item => ({
+        decoracionTorta: {
+            ...(currentDecoracion.decoracionTorta || defaultDecoracion.decoracionTorta),
+            ...(decoracionDataInput.decoracionTorta || {})
+        },
+        items: (decoracionDataInput.items || currentDecoracion.items || []).map(item => ({
             id: item.id || `decItem_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
             name: item.name || 'Ítem sin nombre',
             category: item.category || 'Otro',
@@ -458,14 +472,27 @@ export async function updateDecoracionFiestaActual(
             imageUrl: item.imageUrl || undefined,
             dataAiHint: item.dataAiHint || undefined,
         })),
-        zonasContratadas: decoracionData.zonasContratadas || fiestaActual.decoracion?.zonasContratadas || defaultDecoracion.zonasContratadas,
-        generalNotes: decoracionData.generalNotes === undefined ? (fiestaActual.decoracion?.generalNotes === undefined ? defaultDecoracion.generalNotes : fiestaActual.decoracion.generalNotes) : decoracionData.generalNotes,
-        pdfNotasAdicionales: decoracionData.pdfNotasAdicionales === undefined ? (fiestaActual.decoracion?.pdfNotasAdicionales === undefined ? defaultDecoracion.pdfNotasAdicionales : fiestaActual.decoracion.pdfNotasAdicionales) : decoracionData.pdfNotasAdicionales,
+        zonasContratadas: decoracionDataInput.zonasContratadas || currentDecoracion.zonasContratadas || defaultDecoracion.zonasContratadas,
+        salonElements: (decoracionDataInput.salonElements || currentDecoracion.salonElements || []).map(el => ({
+            id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+            name: el.name || 'Elemento sin nombre',
+            quantity: el.quantity === undefined ? 1 : (Number(el.quantity) || 1),
+            notes: el.notes || undefined,
+            imageUrl: el.imageUrl || undefined,
+            x: el.x ?? 0,
+            y: el.y ?? 0,
+            width: el.width ?? 50,
+            height: el.height ?? 50,
+            rotation: el.rotation ?? 0,
+            type: el.type ?? 'custom',
+            category: el.category || 'Otro',
+            dataAiHint: el.dataAiHint
+        })),
     };
     await writeFiestaActualFile(fiestaActual);
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.decoracion)) };
   } catch (e: any) {
-    return { success: false, error: e.message || "Error al actualizar la decoración." };
+    return { success: false, error: e.message || "Error al actualizar la decoración y diseño del salón." };
   }
 }
 
@@ -650,14 +677,13 @@ export async function updateReposteriaFiestaActual(
 ): Promise<{ success: boolean; updatedData?: ReposteriaData; error?: string }> {
   try {
     let fiestaActual = await getFiestaActual();
-    // Ensure all default categories are present, merging with received data
     const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
         const receivedCat = reposteriaData.categorias?.find(rc => rc.id === defaultCat.id);
         return receivedCat ? { ...defaultCat, ...receivedCat } : { ...defaultCat };
     });
 
     fiestaActual.reposteria = {
-      ...defaultReposteriaData, // Ensure all base fields like notasGenerales are present
+      ...defaultReposteriaData,
       ...reposteriaData,
       categorias: mergedCategorias,
     };
@@ -716,7 +742,6 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
 
     const resetResult = await resetFiestaActual();
     if (!resetResult.success || !resetResult.newFiesta) {
-      // Attempt to roll back archive if reset fails
       const newHistorial = await readHistorialFile();
       await writeHistorialFile(newHistorial.filter(f => f.id !== archivada.id));
       throw new Error(resetResult.error || "No se pudo reiniciar la fiesta actual después de archivar.");

@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, UserCheck, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
@@ -25,6 +25,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import type { Invoice } from '@/types/invoice'; // Asumiendo que tienes este tipo
+import { getInvoiceById } from '@/app/actions/invoices'; // Asumiendo que tienes esta acción
 
 
 interface PlanningModule {
@@ -62,20 +64,12 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Administrar Invitados"
   },
   {
-    title: "Diseño y Decoración",
-    description: "Planifica la estética, temática y decoración de tu evento.",
-    icon: Palette,
-    href: "/fiestas/nueva/decoracion",
+    title: "Decoración y Diseño del Evento", // Título unificado
+    description: "Planifica la estética, decoración por zonas y el diseño funcional del salón.", // Descripción unificada
+    icon: Palette, // Icono representativo
+    href: "/fiestas/nueva/decoracion", // Enlace al módulo unificado
     status: "Disponible",
-    actionLabel: "Definir Diseño"
-  },
-  {
-    title: "Diseño del Salón / Plano",
-    description: "Organiza la disposición de mesas, pista de baile y otros elementos del salón.",
-    icon: LayoutGrid,
-    href: "/fiestas/nueva/diseno-salon",
-    status: "Disponible",
-    actionLabel: "Diseñar Salón"
+    actionLabel: "Definir Diseño y Decoración"
   },
   {
     title: "Catering y Menú",
@@ -457,4 +451,5 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
+
 
