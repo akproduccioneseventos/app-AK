@@ -44,6 +44,8 @@ export default function NuevoPresupuestoPage() {
     invitadosCantidad: null,
     salonFiestas: '',
     nombreEmpresa: '',
+    // nombreHomenajeado1: '', // Eliminado
+    // nombreHomenajeado2: '', // Eliminado
     platosDisponibles: [],
     platosSeleccionadosIds: new Set(),
     serviciosDisponibles: serviciosDisponiblesMock.map(s => ({...s, seleccionado: false })),
@@ -72,16 +74,13 @@ export default function NuevoPresupuestoPage() {
             const config = fiestaActualData.configuracion;
 
             if (!prev.clienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                newClienteNombre = config.nombreEvento; // Asumimos que nombreEvento es el nombre del cliente aquí
+                newClienteNombre = config.nombreEvento;
             }
 
             if (config.tipoCelebracion) {
-              // Si el tipo de la fiesta actual es uno de los predefinidos, usarlo.
-              // Si no, es un tipo personalizado, se asigna directamente.
-              // El componente Paso1 se encargará de mostrar "Otro" en el Select si es personalizado.
               newEventoTipo = config.tipoCelebracion;
               if (newEventoTipo === 'Evento corporativo' && config.nombreEvento && !newNombreEmpresa) {
-                 newNombreEmpresa = config.nombreEvento; // Si es corporativo, nombreEvento podría ser nombre de empresa
+                 newNombreEmpresa = config.nombreEvento;
               }
             }
 
@@ -124,20 +123,7 @@ export default function NuevoPresupuestoPage() {
   const handleNext = () => {
     if (formData.pasoActual < TOTAL_PASOS) {
       if (formData.pasoActual === 1) {
-        if (!formData.clienteNombre.trim()) { toast({ title: "Dato Requerido", description: "El nombre del cliente es obligatorio.", variant: "destructive" }); return;}
-        if (!formData.eventoTipo.trim()) { toast({ title: "Dato Requerido", description: "Por favor, selecciona o especifica un tipo de evento.", variant: "destructive" }); return;}
-        if (!formData.eventoFecha) { toast({ title: "Dato Requerido", description: "La fecha del evento es obligatoria.", variant: "destructive" }); return;}
-        if (!formData.invitadosCantidad || formData.invitadosCantidad <= 0) { toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser un número positivo.", variant: "destructive" }); return;}
-        if (!formData.salonFiestas.trim()) { toast({ title: "Dato Requerido", description: "El salón de fiestas es obligatorio.", variant: "destructive" }); return;}
-
-        const tipoEventoFinal = formData.eventoTipo.trim();
-        if (tipoEventoFinal === 'Evento corporativo') {
-            if (!formData.nombreEmpresa?.trim()) {
-                toast({ title: "Nombre de Empresa Requerido", description: "Para eventos corporativos, por favor ingresa el nombre de la empresa.", variant: "destructive" });
-                return;
-            }
-        }
-        // No hay más validaciones de nombres de homenajeados aquí
+        // Validaciones eliminadas para permitir avanzar
       }
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
@@ -150,13 +136,10 @@ export default function NuevoPresupuestoPage() {
   };
 
   const calcularResumen = useCallback((): Presupuesto | null => {
-    const tipoEventoFinal = formData.eventoTipo?.trim();
-    if (!formData.clienteNombre.trim() || !tipoEventoFinal || !formData.eventoFecha || !formData.invitadosCantidad || formData.invitadosCantidad <=0 || !formData.salonFiestas.trim()) {
-      return null;
-    }
-    if (tipoEventoFinal === 'Evento corporativo' && !formData.nombreEmpresa?.trim()) return null;
+    const tipoEventoFinal = formData.eventoTipo?.trim() || "Evento General"; // Fallback si está vacío
+    const clienteNombreFinal = formData.clienteNombre.trim() || "Cliente sin especificar"; // Fallback
 
-    const costoSubtotalPlatos = 0; // Menú detallado omitido en este flujo
+    const costoSubtotalPlatos = 0; 
     const platosFinales: Presupuesto['platosSeleccionados'] = [];
 
     let costoSubtotalServicios = 0;
@@ -174,16 +157,21 @@ export default function NuevoPresupuestoPage() {
     const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
 
     let notasCombinadas = formData.notas || '';
-    notasCombinadas += `\nSalón: ${formData.salonFiestas}`;
-    if(tipoEventoFinal === 'Evento corporativo' && formData.nombreEmpresa) notasCombinadas += `\nEmpresa: ${formData.nombreEmpresa}`;
-    // No se añaden nombres de homenajeados/novios a las notas aquí
+    if (formData.salonFiestas.trim()) {
+      notasCombinadas += `\nSalón: ${formData.salonFiestas.trim()}`;
+    } else {
+      notasCombinadas += `\nSalón: (Pendiente de definir)`;
+    }
+    if(finalEventType === 'Evento corporativo' && formData.nombreEmpresa.trim()) {
+      notasCombinadas += `\nEmpresa: ${formData.nombreEmpresa.trim()}`;
+    }
 
     return {
       id: `temp_${Date.now()}`,
-      clienteNombre: formData.clienteNombre.trim(),
+      clienteNombre: clienteNombreFinal,
       eventoTipo: tipoEventoFinal,
-      eventoFecha: formData.eventoFecha.toISOString(),
-      invitadosCantidad: formData.invitadosCantidad,
+      eventoFecha: formData.eventoFecha ? formData.eventoFecha.toISOString() : new Date().toISOString(), // Fallback a fecha actual si no hay
+      invitadosCantidad: formData.invitadosCantidad || 0, // Fallback a 0 si es null
       platosSeleccionados: platosFinales,
       serviciosAdicionales: serviciosFinales,
       costoSubtotalPlatos,
@@ -234,9 +222,20 @@ export default function NuevoPresupuestoPage() {
   const handleSave = async () => {
     const resumen = calcularResumen();
     if (!resumen) {
-      toast({ title: "Error", description: "Faltan datos para generar el resumen. Revisa el Paso 1.", variant: "destructive" });
+      toast({ title: "Error", description: "No se pudo generar el resumen. Revisa los datos ingresados.", variant: "destructive" });
       return;
     }
+    // Check for minimal required data before saving, even if step 1 validation is off
+    if (!resumen.clienteNombre.trim() || resumen.clienteNombre === "Cliente sin especificar") {
+        toast({ title: "Dato Requerido", description: "El nombre del cliente es necesario para guardar el presupuesto.", variant: "destructive" });
+        return;
+    }
+     if (!resumen.eventoTipo.trim() || resumen.eventoTipo === "Evento General") {
+        toast({ title: "Dato Requerido", description: "El tipo de evento es necesario para guardar el presupuesto.", variant: "destructive" });
+        return;
+    }
+
+
     setIsSaving(true);
     try {
       const {id, ...presupuestoParaGuardar} = resumen;

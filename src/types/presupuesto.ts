@@ -34,9 +34,9 @@ export interface Presupuesto {
   eventoTipo: TipoEvento | string;
   eventoFecha: string;
   invitadosCantidad: number;
-  // Campos relacionados con el salón y empresa, que se guardan en las notas o en campos dedicados si se decide.
-  // salonFiestas?: string; // Podría ser parte de las notas o un campo separado en el futuro
-  // nombreEmpresa?: string; // Para eventos corporativos, podría ir en notas o campo dedicado
+  // nombreHomenajeado1?: string; // Eliminado
+  // nombreHomenajeado2?: string; // Eliminado
+  // nombreEmpresa?: string; // Se mantiene, pero se gestiona en notas o de forma separada si se prefiere
 
   platosSeleccionados: {
     idPlato: string;
@@ -63,11 +63,13 @@ export interface PresupuestoFormData {
   pasoActual: number;
 
   clienteNombre: string;
-  eventoTipo: TipoEvento | string;
+  eventoTipo: TipoEvento | string; // Puede ser uno de los predefinidos o un string personalizado
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
-  salonFiestas: string; // Campo obligatorio
+  salonFiestas: string; 
   nombreEmpresa: string; // Para "Evento corporativo"
+  // nombreHomenajeado1: string; // Eliminado
+  // nombreHomenajeado2: string; // Eliminado
 
   platosDisponibles: PlatoPresupuesto[];
   platosSeleccionadosIds: Set<string>;
