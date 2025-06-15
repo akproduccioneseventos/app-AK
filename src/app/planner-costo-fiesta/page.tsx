@@ -54,7 +54,7 @@ export default function PlanificadorGastronomicoPage() {
     } catch (err: any) {
       console.error("Error loading planner data:", err);
       setError("No se pudieron cargar los datos necesarios para el planificador.");
-      toast({ title: "Error de Carga", description: err.message, variant: "destructive" });
+      toast({ title: "Error de Carga", description: (err as Error).message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -70,14 +70,15 @@ export default function PlanificadorGastronomicoPage() {
 
   const costoTotalMenuPorPersona = useMemo(() => {
     if (!selectedMenu) return 0;
+    // Suma de costo por porción de cada item. Si no está, calcula desde totalDishCost.
     return selectedMenu.items.reduce((sum, item) => {
       let costForItemPerPerson = 0;
       if (typeof item.costPerPortion === 'number') {
         costForItemPerPerson = item.costPerPortion;
       } else if (typeof item.totalDishCost === 'number' && typeof item.basePortions === 'number' && item.basePortions > 0) {
         costForItemPerPerson = item.totalDishCost / item.basePortions;
-      } else if (typeof item.totalDishCost === 'number') {
-        costForItemPerPerson = item.totalDishCost; 
+      } else if (typeof item.totalDishCost === 'number') { // Fallback si solo hay totalDishCost
+        costForItemPerPerson = item.totalDishCost; // Asume que es para 1 porción si basePortions no está
       }
       return sum + costForItemPerPerson;
     }, 0);
@@ -87,6 +88,7 @@ export default function PlanificadorGastronomicoPage() {
     return costoTotalMenuPorPersona * numberOfGuests;
   }, [costoTotalMenuPorPersona, numberOfGuests]);
 
+  // Placeholder values for now
   const costoTotalReposteria = 0; 
   const costoTotalBebidas = 0;    
 
@@ -142,6 +144,7 @@ export default function PlanificadorGastronomicoPage() {
         </Link>
       </div>
 
+      {/* Configuración del Evento */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/> Configuración del Evento</CardTitle>
@@ -165,8 +168,8 @@ export default function PlanificadorGastronomicoPage() {
               {allMenus.length === 0 && <p className="text-xs text-muted-foreground mt-1">No hay menús. <Link href="/fiestas/nueva/catering/nuevo-menu" className="underline">Crear Menús</Link></p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="costo-operativo" className="text-base">Costo Operativo Fijo</Label>
-              <Input id="costo-operativo" type="number" value={costoOperativoFijo} onChange={(e) => setCostoOperativoFijo(Number(e.target.value) || 0)} min="0" className="text-lg p-3"/>
+              <Label htmlFor="costo-operativo" className="text-base">Costo Operativo Fijo (UYU)</Label>
+              <Input id="costo-operativo" type="number" value={costoOperativoFijo} onChange={(e) => setCostoOperativoFijo(Number(e.target.value) || 0)} min="0" placeholder="Ej: 5000" className="text-lg p-3"/>
             </div>
           </div>
            <div className="pt-2">
@@ -179,17 +182,42 @@ export default function PlanificadorGastronomicoPage() {
         </CardContent>
       </Card>
 
+      {/* Detalle del Menú Seleccionado */}
       {selectedMenu && (
         <Card className="shadow-md">
-          <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><ChefHat className="text-primary"/> Detalle Menú: {selectedMenu.name}</CardTitle><CardDescription>Costo por persona para este menú: {formatCurrency(costoTotalMenuPorPersona)}</CardDescription></CardHeader>
+          <CardHeader>
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><ChefHat className="text-primary"/> Detalle Menú: {selectedMenu.name}</CardTitle>
+            <CardDescription>Costo por persona para este menú: {formatCurrency(costoTotalMenuPorPersona)}</CardDescription>
+          </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[150px] pr-3 text-sm"><ul className="space-y-1">
-              {selectedMenu.items.map(item => (<li key={item.id} className="flex justify-between p-1.5 rounded hover:bg-muted/50"><div><span className="font-medium">{item.name}</span> <span className="text-xs text-muted-foreground">({item.type})</span></div><span className="font-medium">{formatCurrency(item.costPerPortion ?? (item.basePortions && item.basePortions > 0 ? item.totalDishCost / item.basePortions : item.totalDishCost) ?? 0)} c/u</span></li>))}
-            </ul></ScrollArea>
+            {selectedMenu.items.length > 0 ? (
+              <ScrollArea className="h-[150px] pr-3 text-sm">
+                <ul className="space-y-1">
+                  {selectedMenu.items.map(item => {
+                    const costPerPortionForItem = item.costPerPortion ?? 
+                                                 (item.basePortions && item.basePortions > 0 ? item.totalDishCost / item.basePortions : item.totalDishCost) ?? 
+                                                 0;
+                    return (
+                      <li key={item.id} className="flex justify-between p-1.5 rounded hover:bg-muted/50">
+                        <div>
+                          <span className="font-medium">{item.name}</span> 
+                          <span className="text-xs text-muted-foreground"> ({item.type})</span>
+                          {item.notes && <span className="block text-xs text-muted-foreground italic ml-2">- {item.notes}</span>}
+                        </div>
+                        <span className="font-medium">{formatCurrency(costPerPortionForItem)} c/u</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </ScrollArea>
+            ) : (
+              <p className="text-sm text-muted-foreground">Este menú no tiene platos detallados.</p>
+            )}
           </CardContent>
         </Card>
       )}
 
+      {/* Módulos de Repostería y Bebidas (Placeholders) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="shadow-md">
           <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><Cake className="text-primary"/>Módulo de Repostería</CardTitle></CardHeader>
@@ -201,6 +229,7 @@ export default function PlanificadorGastronomicoPage() {
         </Card>
       </div>
 
+      {/* Resumen de Costos y Precios */}
       <Card className="shadow-xl border-t-4 border-primary">
         <CardHeader><CardTitle className="font-headline text-2xl flex items-center gap-2"><DollarSign className="text-primary w-8 h-8"/>Resumen de Costos y Precios</CardTitle><CardDescription>Visualiza el costo total, precio sugerido y margen.</CardDescription></CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center md:text-left">
