@@ -28,13 +28,13 @@ export default function NewCustomerPage() {
   const [customerCompanyName, setCustomerCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
-  // Email state removed
   const [street, setStreet] = useState('');
 
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
   const [partyTime, setPartyTime] = useState('');
   const [selectedPartyType, setSelectedPartyType] = useState<TipoEvento | string>('');
+  const [customPartyType, setCustomPartyType] = useState('');
   const [corporateEventCompanyName, setCorporateEventCompanyName] = useState('');
 
   const [guestCount, setGuestCount] = useState<string>('');
@@ -44,29 +44,34 @@ export default function NewCustomerPage() {
 
   const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
-      setSelectedPartyType(''); 
+      setSelectedPartyType("Otro"); 
+      setCustomPartyType(''); // Clear custom input when "Otro" is re-selected
     } else {
       setSelectedPartyType(value as TipoEvento);
+      setCustomPartyType(''); // Clear custom input if a predefined type is chosen
     }
     if (value !== 'Evento corporativo') {
       setCorporateEventCompanyName(''); 
     }
   };
   
-  const finalEventType = selectedPartyType === '' && formData.eventoTipo ? formData.eventoTipo.trim() : selectedPartyType.trim();
-
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Client-side validation for name/companyName removed
-    // Client-side validation for party fields removed
-    // Client-side validation for corporateEventCompanyName removed
+    // Client-side validation for name/companyName (server-side handles it)
+    // if (!name.trim() && !customerCompanyName.trim()) {
+    //   toast({ title: "Información Mínima Requerida", description: "Por favor, ingresa el nombre del cliente o de la empresa.", variant: "destructive" });
+    //   return;
+    // }
+
+    // All party-related field validations are removed to make them optional.
+    // The server action `saveCustomer` already handles these as optional.
 
     setIsSaving(true);
     
     const formData = new FormData();
     if (name.trim()) formData.append('name', name.trim());
-    else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim()); // Fallback if name is empty but company has value
+    else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim());
 
     if (selectedPartyType === 'Evento corporativo' && corporateEventCompanyName.trim()) {
         formData.append('companyName', corporateEventCompanyName.trim());
@@ -76,12 +81,14 @@ export default function NewCustomerPage() {
 
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-    // Email append removed
     if (street.trim()) formData.append('street', street.trim());
 
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
-    if (selectedPartyType.trim()) formData.append('partyType', selectedPartyType.trim());
+    
+    const finalPartyType = selectedPartyType === "Otro" ? customPartyType.trim() : selectedPartyType.trim();
+    if (finalPartyType) formData.append('partyType', finalPartyType);
+
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
     
@@ -132,7 +139,6 @@ export default function NewCustomerPage() {
               <div><Label htmlFor="customer-company-name">Empresa</Label><Input id="customer-company-name" value={customerCompanyName} onChange={(e) => setCustomerCompanyName(e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* Email field removed */}
               <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
               <div><Label htmlFor="customer-taxid">Cédula / RUT</Label><Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} /></div>
             </div>
@@ -160,7 +166,7 @@ export default function NewCustomerPage() {
                 <div className="space-y-2">
                   <Label htmlFor="party-type-select">Tipo de Fiesta</Label>
                    <Select 
-                    value={ALL_TIPOS_EVENTO.includes(selectedPartyType as TipoEvento) ? selectedPartyType : (selectedPartyType ? "Otro" : "")}
+                    value={selectedPartyType}
                     onValueChange={handlePartyTypeChange}
                   >
                     <SelectTrigger id="party-type-select" className="text-base p-3 h-auto">
@@ -172,12 +178,12 @@ export default function NewCustomerPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {(selectedPartyType === '' || (!ALL_TIPOS_EVENTO.includes(selectedPartyType as TipoEvento) && selectedPartyType !== 'Otro')) && (
+                  {selectedPartyType === 'Otro' && (
                      <Input 
                         id="party-type-otro" 
                         placeholder="Especificá el tipo de fiesta" 
-                        value={selectedPartyType !== "Otro" ? selectedPartyType : ""}
-                        onChange={(e) => setSelectedPartyType(e.target.value)}
+                        value={customPartyType}
+                        onChange={(e) => setCustomPartyType(e.target.value)}
                         className="text-base p-3 mt-2"
                     />
                   )}
@@ -227,3 +233,4 @@ export default function NewCustomerPage() {
     </div>
   );
 }
+
