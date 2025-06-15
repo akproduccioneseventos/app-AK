@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react'; // Added React and useCallback
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, CalendarIcon } from 'lucide-react'; // Added CalendarIcon
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, CalendarIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
@@ -27,9 +27,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { DatePickerDemo } from '@/components/date-picker-demo'; // Assuming you have this component
+import { DatePickerDemo } from '@/components/date-picker-demo';
 
-export default function EditarMenuEspecificoPage({ params }: { params: { menuId: string } }) {
+export default function EditarMenuEspecificoPage({ params: paramsProp }: { params: Promise<{ menuId: string }> }) {
+  const params = React.use(paramsProp); // Use React.use to unwrap the params Promise
   const { toast } = useToast();
   const router = useRouter();
   const [menuData, setMenuData] = useState<FullMenu | null>(null);
@@ -59,47 +60,48 @@ export default function EditarMenuEspecificoPage({ params }: { params: { menuId:
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    async function loadMenu() {
-      setIsLoading(true);
-      setNotFound(false);
-      try {
-        const loadedMenu = await getMenuById(params.menuId);
-        if (loadedMenu) {
-          setMenuData(loadedMenu);
-          setMenuName(loadedMenu.name);
-          setMenuDescription(loadedMenu.description || '');
-          setMenuTemplateType(loadedMenu.templateType || 'Personalizado');
-          setMenuItems(loadedMenu.items.map(item => ({
-            ...item,
-            totalDishCost: item.ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0),
-            costPerPortion: (item.basePortions && item.basePortions > 0 && item.ingredients.length > 0)
-                              ? item.ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0) / item.basePortions
-                              : undefined,
-            allergens: item.allergens || '',
-            ingredients: item.ingredients.map(ing => ({
-                ...ing,
-                proveedor: ing.proveedor || undefined,
-                marca: ing.marca || undefined,
-                fecha_actualizacion: ing.fecha_actualizacion ? new Date(ing.fecha_actualizacion).toISOString() : undefined,
-            }))
-          })));
-        } else {
-          setNotFound(true);
-          toast({ title: 'Error', description: `No se encontró el menú con ID ${params.menuId}.`, variant: 'destructive'});
-        }
-      } catch (error) {
-        console.error("Error al cargar el menú:", error);
+  const loadMenu = useCallback(async () => {
+    setIsLoading(true);
+    setNotFound(false);
+    try {
+      const loadedMenu = await getMenuById(params.menuId);
+      if (loadedMenu) {
+        setMenuData(loadedMenu);
+        setMenuName(loadedMenu.name);
+        setMenuDescription(loadedMenu.description || '');
+        setMenuTemplateType(loadedMenu.templateType || 'Personalizado');
+        setMenuItems(loadedMenu.items.map(item => ({
+          ...item,
+          totalDishCost: item.ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0),
+          costPerPortion: (item.basePortions && item.basePortions > 0 && item.ingredients.length > 0)
+                            ? item.ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0) / item.basePortions
+                            : undefined,
+          allergens: item.allergens || '',
+          ingredients: item.ingredients.map(ing => ({
+              ...ing,
+              proveedor: ing.proveedor || undefined,
+              marca: ing.marca || undefined,
+              fecha_actualizacion: ing.fecha_actualizacion ? new Date(ing.fecha_actualizacion).toISOString() : undefined,
+          }))
+        })));
+      } else {
         setNotFound(true);
-        toast({ title: 'Error al Cargar Menú', description: 'No se pudo obtener el menú.', variant: 'destructive'});
-      } finally {
-        setIsLoading(false);
+        toast({ title: 'Error', description: `No se encontró el menú con ID ${params.menuId}.`, variant: 'destructive'});
       }
+    } catch (error) {
+      console.error("Error al cargar el menú:", error);
+      setNotFound(true);
+      toast({ title: 'Error al Cargar Menú', description: 'No se pudo obtener el menú.', variant: 'destructive'});
+    } finally {
+      setIsLoading(false);
     }
+  }, [params.menuId, toast]); // params.menuId is now stable after React.use
+
+  useEffect(() => {
     if (params.menuId) {
       loadMenu();
     }
-  }, [params.menuId, toast]);
+  }, [params.menuId, loadMenu]); // Use loadMenu in dependency array
 
   const currentDishTotalCost = useMemo(() => {
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
