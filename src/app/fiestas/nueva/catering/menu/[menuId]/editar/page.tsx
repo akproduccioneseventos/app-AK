@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react'; // Added React and useCallback
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -60,11 +60,11 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  const loadMenu = useCallback(async () => {
+  const loadMenu = useCallback(async (idToLoad: string) => {
     setIsLoading(true);
     setNotFound(false);
     try {
-      const loadedMenu = await getMenuById(params.menuId);
+      const loadedMenu = await getMenuById(idToLoad);
       if (loadedMenu) {
         setMenuData(loadedMenu);
         setMenuName(loadedMenu.name);
@@ -86,7 +86,7 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
         })));
       } else {
         setNotFound(true);
-        toast({ title: 'Error', description: `No se encontró el menú con ID ${params.menuId}.`, variant: 'destructive'});
+        toast({ title: 'Error', description: `No se encontró el menú con ID ${idToLoad}.`, variant: 'destructive'});
       }
     } catch (error) {
       console.error("Error al cargar el menú:", error);
@@ -95,13 +95,13 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
     } finally {
       setIsLoading(false);
     }
-  }, [params.menuId, toast]); // params.menuId is now stable after React.use
+  }, [toast]); 
 
   useEffect(() => {
     if (params.menuId) {
-      loadMenu();
+      loadMenu(params.menuId);
     }
-  }, [params.menuId, loadMenu]); // Use loadMenu in dependency array
+  }, [params.menuId, loadMenu]);
 
   const currentDishTotalCost = useMemo(() => {
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
