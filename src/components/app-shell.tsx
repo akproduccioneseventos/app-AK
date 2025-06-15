@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardList, UserCheck, Calculator } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardList, UserCheck, Calculator, HardHat } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -95,8 +95,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/login') return 'Iniciar Sesión';
   if (pathname === '/signup') return 'Crear Cuenta';
   
-  // Planner Costo-Fiesta
-  if (pathname === '/planner-costo-fiesta') return 'Planner Costo-Fiesta';
+  // Planner Costo-Fiesta (Renombrado)
+  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
 
   // Rutas Actualizadas
@@ -179,6 +179,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/budget-display') return SettingsIcon;
   
+  // Planner Costo-Fiesta (Renombrado)
   if (pathname === '/planner-costo-fiesta') return Calculator;
 
 
