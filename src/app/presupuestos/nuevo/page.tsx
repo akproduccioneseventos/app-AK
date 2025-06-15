@@ -44,8 +44,6 @@ export default function NuevoPresupuestoPage() {
     eventoFecha: undefined,
     invitadosCantidad: null,
     salonFiestas: '', 
-    nombreHomenajeado1: '', 
-    nombreHomenajeado2: '', 
     nombreEmpresa: '', 
     platosDisponibles: [], 
     platosSeleccionadosIds: new Set(), 
@@ -69,8 +67,6 @@ export default function NuevoPresupuestoPage() {
           let newEventoFecha = prev.eventoFecha;
           let newInvitadosCantidad = prev.invitadosCantidad;
           let newSalonFiestas = prev.salonFiestas;
-          let newNombreHomenajeado1 = prev.nombreHomenajeado1;
-          let newNombreHomenajeado2 = prev.nombreHomenajeado2;
           let newNombreEmpresa = prev.nombreEmpresa;
 
           if (fiestaActualData && fiestaActualData.configuracion) {
@@ -81,14 +77,18 @@ export default function NuevoPresupuestoPage() {
             }
             
             if (config.tipoCelebracion) {
-              newEventoTipo = config.tipoCelebracion; // Se asigna directamente. El componente Paso1 se encarga de si es 'Otro'
+              // Si el tipo de la fiesta actual no es uno de los predefinidos,
+              // se considera "Otro" y el valor específico se guarda en eventoTipo.
+              // El componente Paso1DatosEvento se encargará de que el Select muestre "Otro"
+              // y el Input muestre el valor de config.tipoCelebracion.
+              if (ALL_TIPOS_EVENTO.includes(config.tipoCelebracion as TipoEvento)) {
+                newEventoTipo = config.tipoCelebracion as TipoEvento;
+              } else {
+                newEventoTipo = config.tipoCelebracion; // Guardamos el tipo personalizado
+              }
               
-              if (newEventoTipo === 'Boda' && config.nombreEvento) {
-                // Para Boda, es complejo separar, asumimos que el usuario lo ajustará o se deja vacío.
-              } else if (newEventoTipo === 'Evento corporativo' && config.nombreEvento) {
+              if (newEventoTipo === 'Evento corporativo' && config.nombreEvento) {
                  newNombreEmpresa = config.nombreEvento; 
-              } else if (newEventoTipo && newEventoTipo !== 'Boda' && newEventoTipo !== 'Evento corporativo' && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                  newNombreHomenajeado1 = config.nombreEvento; 
               }
             }
 
@@ -115,8 +115,6 @@ export default function NuevoPresupuestoPage() {
             eventoFecha: newEventoFecha,
             invitadosCantidad: newInvitadosCantidad,
             salonFiestas: newSalonFiestas,
-            nombreHomenajeado1: newNombreHomenajeado1,
-            nombreHomenajeado2: newNombreHomenajeado2,
             nombreEmpresa: newNombreEmpresa,
           };
         });
@@ -134,25 +132,17 @@ export default function NuevoPresupuestoPage() {
     if (formData.pasoActual < TOTAL_PASOS) {
       if (formData.pasoActual === 1) {
         if (!formData.clienteNombre.trim()) { toast({ title: "Dato Requerido", description: "El nombre del cliente es obligatorio.", variant: "destructive" }); return;}
-        if (!formData.eventoTipo.trim()) { toast({ title: "Dato Requerido", description: "Por favor, selecciona o especifica un tipo de evento.", variant: "destructive" }); return;}
+        
+        const tipoEventoFinal = formData.eventoTipo.trim();
+        if (!tipoEventoFinal) { toast({ title: "Dato Requerido", description: "Por favor, selecciona o especifica un tipo de evento.", variant: "destructive" }); return;}
+
         if (!formData.eventoFecha) { toast({ title: "Dato Requerido", description: "La fecha del evento es obligatoria.", variant: "destructive" }); return;}
         if (!formData.invitadosCantidad || formData.invitadosCantidad <= 0) { toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser un número positivo.", variant: "destructive" }); return;}
         if (!formData.salonFiestas.trim()) { toast({ title: "Dato Requerido", description: "El salón de fiestas es obligatorio.", variant: "destructive" }); return;}
 
-        const tipoEventoFinal = formData.eventoTipo.trim();
-        if (tipoEventoFinal === 'Boda') {
-            if (!formData.nombreHomenajeado1?.trim() || !formData.nombreHomenajeado2?.trim()) {
-                toast({ title: "Nombres Requeridos", description: "Para bodas, por favor ingresa el nombre de ambos novios.", variant: "destructive" });
-                return;
-            }
-        } else if (tipoEventoFinal === 'Evento corporativo') {
+        if (tipoEventoFinal === 'Evento corporativo') {
             if (!formData.nombreEmpresa?.trim()) {
                 toast({ title: "Nombre de Empresa Requerido", description: "Para eventos corporativos, por favor ingresa el nombre de la empresa.", variant: "destructive" });
-                return;
-            }
-        } else if (tipoEventoFinal) { // Para otros tipos válidos y no vacíos
-            if (!formData.nombreHomenajeado1?.trim()) {
-                 toast({ title: "Nombre del Homenajeado Requerido", description: `Por favor, ingresa el nombre del homenajeado/a para el evento de tipo "${tipoEventoFinal}".`, variant: "destructive" });
                 return;
             }
         }
@@ -172,9 +162,7 @@ export default function NuevoPresupuestoPage() {
     if (!formData.clienteNombre.trim() || !tipoEventoFinal || !formData.eventoFecha || !formData.invitadosCantidad || formData.invitadosCantidad <=0 || !formData.salonFiestas.trim()) {
       return null;
     }
-    if (tipoEventoFinal === 'Boda' && (!formData.nombreHomenajeado1?.trim() || !formData.nombreHomenajeado2?.trim())) return null;
     if (tipoEventoFinal === 'Evento corporativo' && !formData.nombreEmpresa?.trim()) return null;
-    if (tipoEventoFinal && tipoEventoFinal !== 'Boda' && tipoEventoFinal !== 'Evento corporativo' && !formData.nombreHomenajeado1?.trim()) return null;
 
 
     const costoSubtotalPlatos = 0; 
@@ -196,8 +184,6 @@ export default function NuevoPresupuestoPage() {
 
     let notasCombinadas = formData.notas || '';
     notasCombinadas += `\nSalón: ${formData.salonFiestas}`;
-    if(tipoEventoFinal === 'Boda' && formData.nombreHomenajeado1 && formData.nombreHomenajeado2) notasCombinadas += `\nNovios: ${formData.nombreHomenajeado1} y ${formData.nombreHomenajeado2}`;
-    else if (tipoEventoFinal && tipoEventoFinal !== 'Boda' && tipoEventoFinal !== 'Evento corporativo' && formData.nombreHomenajeado1) notasCombinadas += `\nHomenajeado/a: ${formData.nombreHomenajeado1}`;
     if(tipoEventoFinal === 'Evento corporativo' && formData.nombreEmpresa) notasCombinadas += `\nEmpresa: ${formData.nombreEmpresa}`;
 
 
@@ -225,8 +211,6 @@ export default function NuevoPresupuestoPage() {
     formData.serviciosSeleccionadosIds,
     formData.notas,
     formData.salonFiestas,
-    formData.nombreHomenajeado1,
-    formData.nombreHomenajeado2,
     formData.nombreEmpresa
   ]);
 
@@ -253,7 +237,7 @@ export default function NuevoPresupuestoPage() {
         setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
       }
     }
-  }, [formData.pasoActual, calcularResumen, formData.resumen, formData.clienteNombre, formData.eventoTipo, formData.eventoFecha, formData.invitadosCantidad, formData.serviciosSeleccionadosIds, formData.notas, formData.salonFiestas, formData.nombreHomenajeado1, formData.nombreHomenajeado2, formData.nombreEmpresa]);
+  }, [formData.pasoActual, calcularResumen, formData.resumen, formData.clienteNombre, formData.eventoTipo, formData.eventoFecha, formData.invitadosCantidad, formData.serviciosSeleccionadosIds, formData.notas, formData.salonFiestas, formData.nombreEmpresa]);
 
 
   const handleSave = async () => {

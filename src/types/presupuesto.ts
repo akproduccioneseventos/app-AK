@@ -63,8 +63,6 @@ export interface PresupuestoFormData {
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
   salonFiestas: string; 
-  nombreHomenajeado1: string; 
-  nombreHomenajeado2: string; 
   nombreEmpresa: string; 
 
   platosDisponibles: PlatoPresupuesto[]; 
@@ -76,3 +74,4 @@ export interface PresupuestoFormData {
   resumen?: Presupuesto; 
   notas: string;
 }
+

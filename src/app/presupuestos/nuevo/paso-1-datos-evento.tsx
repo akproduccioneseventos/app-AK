@@ -25,27 +25,27 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({ ...prev, eventoFecha: date }));
   };
   
-  // Determine if formData.eventoTipo is a predefined type or a custom one for the Select value
-  const isPredefinedEventoTipo = formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento);
-  const selectValueForTipoEvento = isPredefinedEventoTipo ? formData.eventoTipo : (formData.eventoTipo ? "Otro" : "");
+  // This local state will hold the value for the Select component.
+  // It's "Otro" if formData.eventoTipo is custom, otherwise it's formData.eventoTipo.
+  const selectValueForTipoEvento = 
+    formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento) 
+    ? formData.eventoTipo 
+    : (formData.eventoTipo ? "Otro" : ""); // If eventoTipo is not empty and not predefined, it means "Otro" was implicitly selected. If empty, show placeholder.
+
 
   const handleSelectTipoEventoChange = (value: string) => {
     if (value === "Otro") {
-      // User selected "Otro", clear eventoTipo to allow custom input and clear related name fields
+      // User selected "Otro", clear eventoTipo to allow custom input, and clear specific name fields
       setFormData(prev => ({ 
         ...prev, 
-        eventoTipo: "", 
-        nombreHomenajeado1: '',
-        nombreHomenajeado2: '',
+        eventoTipo: "", // Clear eventoTipo, custom input will fill it
         nombreEmpresa: '',
       }));
     } else {
-      // User selected a predefined type, clear related name fields
+      // User selected a predefined type, clear specific name fields
       setFormData(prev => ({ 
         ...prev, 
         eventoTipo: value as TipoEvento,
-        nombreHomenajeado1: '',
-        nombreHomenajeado2: '',
         nombreEmpresa: '',
       }));
     }
@@ -53,14 +53,13 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
   
   const handleCustomTipoEventoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // This updates formData.eventoTipo directly with the custom text
+    // This is for when the Select is "Otro" and user types in the Input
     setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
   };
   
   // Determine visibility for conditional name fields based on the *final* eventoTipo
   const finalEventoTipoTrimmed = formData.eventoTipo.trim();
-  const showBodaFields = finalEventoTipoTrimmed === 'Boda';
   const showEmpresaField = finalEventoTipoTrimmed === 'Evento corporativo';
-  const showHomenajeadoField = finalEventoTipoTrimmed && !showBodaFields && !showEmpresaField;
 
   return (
     <div className="space-y-6">
@@ -92,7 +91,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
       <div className="space-y-2">
         <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento *</Label>
         <Select 
-          value={selectValueForTipoEvento} // Controlled by derived state
+          value={selectValueForTipoEvento} 
           onValueChange={handleSelectTipoEventoChange}
         >
           <SelectTrigger id="eventoTipoSelect" className="text-base p-3 h-auto">
@@ -104,44 +103,18 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             ))}
           </SelectContent>
         </Select>
-        {(selectValueForTipoEvento === "Otro" || (formData.eventoTipo && !isPredefinedEventoTipo)) && (
+        {/* Show custom input if "Otro" is selected OR if formData.eventoTipo is already a custom value */}
+        {(selectValueForTipoEvento === "Otro" || (formData.eventoTipo && !ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento))) && (
            <Input 
               id="eventoTipoOtroInput" 
               placeholder="Especificá el tipo de evento *" 
-              value={formData.eventoTipo} 
+              value={formData.eventoTipo} // Bind to formData.eventoTipo, which holds the custom value
               onChange={handleCustomTipoEventoInputChange}
               className="text-base p-3 mt-2"
-              required={!formData.eventoTipo.trim()} // Required if no type has been entered
+              required={!formData.eventoTipo.trim()}
           />
         )}
       </div>
-
-      {showBodaFields && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="nombreNovio" className="text-base">Nombre del Novio *</Label>
-            <Input 
-              id="nombreNovio" 
-              placeholder="Ej: Juan Pérez" 
-              value={formData.nombreHomenajeado1}
-              onChange={(e) => handleChange('nombreHomenajeado1', e.target.value)}
-              className="text-base p-3"
-              required={showBodaFields}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="nombreNovia" className="text-base">Nombre de la Novia *</Label>
-            <Input 
-              id="nombreNovia" 
-              placeholder="Ej: María González" 
-              value={formData.nombreHomenajeado2}
-              onChange={(e) => handleChange('nombreHomenajeado2', e.target.value)}
-              className="text-base p-3"
-              required={showBodaFields}
-            />
-          </div>
-        </div>
-      )}
 
       {showEmpresaField && (
          <div className="space-y-2">
@@ -157,20 +130,6 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
         </div>
       )}
       
-      {showHomenajeadoField && (
-        <div className="space-y-2">
-          <Label htmlFor="nombreHomenajeado" className="text-base">Nombre del Homenajeado/a *</Label>
-          <Input 
-            id="nombreHomenajeado" 
-            placeholder="Ej: Sofía (para Cumpleaños, XV años, etc.)" 
-            value={formData.nombreHomenajeado1}
-            onChange={(e) => handleChange('nombreHomenajeado1', e.target.value)}
-            className="text-base p-3"
-            required={showHomenajeadoField}
-          />
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento *</Label>
