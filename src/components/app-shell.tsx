@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardList, UserCheck } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -62,6 +62,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
   if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores (Fiesta Actual)';
   if (pathname === '/fiestas/nueva/decoracion') return 'Diseño y Decoración';
+  if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
   if (pathname === '/fiestas/nueva/diseno-salon') return 'Diseño del Salón';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
@@ -83,6 +84,7 @@ const getPageTitle = (pathname: string): string => {
   // Configuración
   if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
+  if (pathname === '/settings/budget-display') return 'Configuración de Presupuestos';
   if (pathname === '/settings/company') return 'Información de la Empresa';
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
@@ -135,6 +137,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
     if (pathname === '/fiestas/nueva/diseno-salon') return LayoutGrid;
     if (pathname === '/fiestas/nueva/decoracion') return Palette;
+    if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
@@ -171,6 +174,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/contabilidad/crm') return KanbanSquare;
   
   if (pathname === '/settings') return SettingsIcon;
+  if (pathname === '/settings/budget-display') return SettingsIcon;
 
 
   return null;
@@ -184,8 +188,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
   const isPublicEventPage = pathname.startsWith('/evento/actual');
+  const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
 
-  if (isAuthPage || isPublicEventPage) {
+  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage) {
     return <main className="min-h-screen">{children}</main>;
   }
 
