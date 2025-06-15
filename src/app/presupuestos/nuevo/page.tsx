@@ -43,9 +43,9 @@ export default function NuevoPresupuestoPage() {
     eventoFecha: undefined,
     invitadosCantidad: null,
     salonFiestas: '',
-    nombreEmpresa: '',
-    // nombreHomenajeado1: '', // Eliminado
-    // nombreHomenajeado2: '', // Eliminado
+    nombreEmpresa: '', // Se mantiene para eventos corporativos si se implementa
+    protagonista1Nombre: '', // Nuevo: Para homenajeado o novio/a 1
+    protagonista2Nombre: '', // Nuevo: Para novio/a 2 (solo en bodas)
     platosDisponibles: [],
     platosSeleccionadosIds: new Set(),
     serviciosDisponibles: serviciosDisponiblesMock.map(s => ({...s, seleccionado: false })),
@@ -68,19 +68,32 @@ export default function NuevoPresupuestoPage() {
           let newEventoFecha = prev.eventoFecha;
           let newInvitadosCantidad = prev.invitadosCantidad;
           let newSalonFiestas = prev.salonFiestas;
-          let newNombreEmpresa = prev.nombreEmpresa;
+          let newNombreEmpresa = prev.nombreEmpresa; // Se mantiene por si se usa para "Evento corporativo"
+          let newProtagonista1 = prev.protagonista1Nombre;
+          let newProtagonista2 = prev.protagonista2Nombre;
+
 
           if (fiestaActualData && fiestaActualData.configuracion) {
             const config = fiestaActualData.configuracion;
 
             if (!prev.clienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                newClienteNombre = config.nombreEvento;
+                newClienteNombre = config.nombreEvento; // Asumiendo que el nombre del evento es el del cliente principal
             }
 
             if (config.tipoCelebracion) {
-              newEventoTipo = config.tipoCelebracion;
-              if (newEventoTipo === 'Evento corporativo' && config.nombreEvento && !newNombreEmpresa) {
-                 newNombreEmpresa = config.nombreEvento;
+              if (ALL_TIPOS_EVENTO.includes(config.tipoCelebracion as TipoEvento)) {
+                newEventoTipo = config.tipoCelebracion as TipoEvento;
+              } else {
+                newEventoTipo = config.tipoCelebracion; // Es un tipo personalizado
+              }
+              // Limpiar campos de protagonista por si el tipo de fiesta actual no coincide
+              newProtagonista1 = '';
+              newProtagonista2 = '';
+              newNombreEmpresa = '';
+
+              // Pre-llenar nombre de empresa si es corporativo
+              if (newEventoTipo === 'Evento corporativo' && config.nombreEvento) {
+                 newNombreEmpresa = config.nombreEvento; // Asumir que el nombre del evento es el de la empresa
               }
             }
 
@@ -107,7 +120,9 @@ export default function NuevoPresupuestoPage() {
             eventoFecha: newEventoFecha,
             invitadosCantidad: newInvitadosCantidad,
             salonFiestas: newSalonFiestas,
-            nombreEmpresa: newNombreEmpresa,
+            nombreEmpresa: newNombreEmpresa, // Se mantiene
+            protagonista1Nombre: newProtagonista1,
+            protagonista2Nombre: newProtagonista2,
           };
         });
       } catch (error) {
@@ -121,10 +136,10 @@ export default function NuevoPresupuestoPage() {
   }, [toast]);
 
   const handleNext = () => {
+    if (formData.pasoActual === 1) {
+      // No hay validaciones obligatorias para avanzar
+    }
     if (formData.pasoActual < TOTAL_PASOS) {
-      if (formData.pasoActual === 1) {
-        // Validaciones eliminadas para permitir avanzar
-      }
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
   };
@@ -136,8 +151,11 @@ export default function NuevoPresupuestoPage() {
   };
 
   const calcularResumen = useCallback((): Presupuesto | null => {
-    const tipoEventoFinal = formData.eventoTipo?.trim() || "Evento General"; // Fallback si está vacío
-    const clienteNombreFinal = formData.clienteNombre.trim() || "Cliente sin especificar"; // Fallback
+    const clienteNombreFinal = formData.clienteNombre.trim() || "Cliente sin especificar";
+    const tipoEventoFinal = formData.eventoTipo.trim() || "Evento General";
+    const fechaEventoFinal = formData.eventoFecha ? formData.eventoFecha.toISOString() : new Date().toISOString();
+    const invitadosFinal = formData.invitadosCantidad || 0;
+    const salonFiestasFinal = formData.salonFiestas.trim() || "(Salón pendiente)";
 
     const costoSubtotalPlatos = 0; 
     const platosFinales: Presupuesto['platosSeleccionados'] = [];
@@ -157,21 +175,42 @@ export default function NuevoPresupuestoPage() {
     const costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
 
     let notasCombinadas = formData.notas || '';
-    if (formData.salonFiestas.trim()) {
-      notasCombinadas += `\nSalón: ${formData.salonFiestas.trim()}`;
-    } else {
-      notasCombinadas += `\nSalón: (Pendiente de definir)`;
-    }
-    if(finalEventType === 'Evento corporativo' && formData.nombreEmpresa.trim()) {
-      notasCombinadas += `\nEmpresa: ${formData.nombreEmpresa.trim()}`;
+    notasCombinadas += `\nSalón: ${salonFiestasFinal}`;
+
+    let protagonistasTexto = '';
+    if (tipoEventoFinal === 'Boda') {
+      if (formData.protagonista1Nombre && formData.protagonista2Nombre) {
+        protagonistasTexto = `Evento para ${formData.protagonista1Nombre} y ${formData.protagonista2Nombre}.`;
+      } else if (formData.protagonista1Nombre) {
+        protagonistasTexto = `Evento para ${formData.protagonista1Nombre} y acompañante.`;
+      }
+    } else if (tipoEventoFinal === 'Evento corporativo') {
+      if (formData.protagonista1Nombre) { // Aquí protagonista1Nombre guarda el nombre de la empresa/contacto
+        protagonistasTexto = `Evento para ${formData.protagonista1Nombre}.`;
+      }
+    } else if (formData.protagonista1Nombre) {
+      protagonistasTexto = `Evento para ${formData.protagonista1Nombre}.`;
     }
 
+    if(protagonistasTexto) {
+        notasCombinadas += `\n${protagonistasTexto}`;
+    }
+    
+    // El campo formData.nombreEmpresa se usaba antes, pero ahora la lógica de empresa se maneja con protagonista1Nombre si el tipo es corporativo.
+    // Si aún se desea usar formData.nombreEmpresa específicamente, se puede añadir aquí.
+
+
     return {
-      id: `temp_${Date.now()}`,
+      id: `temp_${Date.now()}`, // Este ID es temporal
       clienteNombre: clienteNombreFinal,
       eventoTipo: tipoEventoFinal,
-      eventoFecha: formData.eventoFecha ? formData.eventoFecha.toISOString() : new Date().toISOString(), // Fallback a fecha actual si no hay
-      invitadosCantidad: formData.invitadosCantidad || 0, // Fallback a 0 si es null
+      eventoFecha: fechaEventoFinal,
+      invitadosCantidad: invitadosFinal,
+      salonFiestas: salonFiestasFinal, 
+      protagonista1Nombre: formData.protagonista1Nombre?.trim() || undefined,
+      protagonista2Nombre: formData.protagonista2Nombre?.trim() || undefined,
+      // nombreEmpresa ya no se pasa directamente aquí si se usa protagonista1Nombre para ello.
+      // Si se quiere mantener separado: nombreEmpresa: formData.nombreEmpresa?.trim() || undefined,
       platosSeleccionados: platosFinales,
       serviciosAdicionales: serviciosFinales,
       costoSubtotalPlatos,
@@ -186,11 +225,13 @@ export default function NuevoPresupuestoPage() {
     formData.eventoTipo,
     formData.eventoFecha,
     formData.invitadosCantidad,
+    formData.salonFiestas,
+    formData.protagonista1Nombre,
+    formData.protagonista2Nombre,
+    // formData.nombreEmpresa, // Si se decide mantenerlo separado
     formData.serviciosDisponibles,
     formData.serviciosSeleccionadosIds,
-    formData.notas,
-    formData.salonFiestas,
-    formData.nombreEmpresa
+    formData.notas
   ]);
 
   useEffect(() => {
@@ -216,7 +257,21 @@ export default function NuevoPresupuestoPage() {
         setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
       }
     }
-  }, [formData.pasoActual, calcularResumen, formData.resumen, formData.clienteNombre, formData.eventoTipo, formData.eventoFecha, formData.invitadosCantidad, formData.serviciosSeleccionadosIds, formData.notas, formData.salonFiestas, formData.nombreEmpresa]);
+  }, [
+    formData.pasoActual, 
+    calcularResumen, 
+    formData.resumen, 
+    formData.clienteNombre, 
+    formData.eventoTipo, 
+    formData.eventoFecha, 
+    formData.invitadosCantidad, 
+    formData.salonFiestas,
+    formData.protagonista1Nombre,
+    formData.protagonista2Nombre,
+    // formData.nombreEmpresa, // Si se decide mantenerlo separado
+    formData.serviciosSeleccionadosIds, 
+    formData.notas
+  ]);
 
 
   const handleSave = async () => {
@@ -225,7 +280,6 @@ export default function NuevoPresupuestoPage() {
       toast({ title: "Error", description: "No se pudo generar el resumen. Revisa los datos ingresados.", variant: "destructive" });
       return;
     }
-    // Check for minimal required data before saving, even if step 1 validation is off
     if (!resumen.clienteNombre.trim() || resumen.clienteNombre === "Cliente sin especificar") {
         toast({ title: "Dato Requerido", description: "El nombre del cliente es necesario para guardar el presupuesto.", variant: "destructive" });
         return;
@@ -234,11 +288,21 @@ export default function NuevoPresupuestoPage() {
         toast({ title: "Dato Requerido", description: "El tipo de evento es necesario para guardar el presupuesto.", variant: "destructive" });
         return;
     }
+    if (!resumen.salonFiestas.trim() || resumen.salonFiestas === "(Salón pendiente)") {
+        toast({ title: "Dato Requerido", description: "El salón de fiestas es necesario para guardar el presupuesto.", variant: "destructive" });
+        return;
+    }
+    if (resumen.invitadosCantidad <= 0) {
+        toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser mayor a cero.", variant: "destructive" });
+        return;
+    }
 
 
     setIsSaving(true);
     try {
-      const {id, ...presupuestoParaGuardar} = resumen;
+      // Excluimos 'id' porque es temporal y se genera en el backend.
+      // Las propiedades 'protagonista1Nombre', 'protagonista2Nombre' ya están en el 'resumen'.
+      const {id, ...presupuestoParaGuardar} = resumen; 
       const result = await savePresupuesto(presupuestoParaGuardar as Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>);
       if (result.success && result.id) {
         toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumen.clienteNombre} ha sido guardado con éxito.` });

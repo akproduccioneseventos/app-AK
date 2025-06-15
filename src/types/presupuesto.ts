@@ -32,11 +32,12 @@ export interface Presupuesto {
   id: string;
   clienteNombre: string;
   eventoTipo: TipoEvento | string;
-  eventoFecha: string;
+  eventoFecha: string; // ISO String
   invitadosCantidad: number;
-  // nombreHomenajeado1?: string; // Eliminado
-  // nombreHomenajeado2?: string; // Eliminado
-  // nombreEmpresa?: string; // Se mantiene, pero se gestiona en notas o de forma separada si se prefiere
+  salonFiestas: string;
+  nombreEmpresa?: string; // Para eventos corporativos
+  protagonista1Nombre?: string; // Para homenajeado o novio/a 1
+  protagonista2Nombre?: string; // Para novio/a 2 (solo en bodas)
 
   platosSeleccionados: {
     idPlato: string;
@@ -53,7 +54,7 @@ export interface Presupuesto {
   costoSubtotalPlatos: number;
   costoSubtotalServicios: number;
   costoTotalEstimado: number;
-  timestamp: string;
+  timestamp: string; // ISO String
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
   invoiceId?: string;
@@ -66,10 +67,11 @@ export interface PresupuestoFormData {
   eventoTipo: TipoEvento | string; // Puede ser uno de los predefinidos o un string personalizado
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
-  salonFiestas: string; 
-  nombreEmpresa: string; // Para "Evento corporativo"
-  // nombreHomenajeado1: string; // Eliminado
-  // nombreHomenajeado2: string; // Eliminado
+  salonFiestas: string;
+  nombreEmpresa?: string; // Para "Evento corporativo"
+  protagonista1Nombre?: string; // Para homenajeado o novio/a 1
+  protagonista2Nombre?: string; // Para novio/a 2 (solo en bodas)
+
 
   platosDisponibles: PlatoPresupuesto[];
   platosSeleccionadosIds: Set<string>;
