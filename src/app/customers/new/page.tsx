@@ -28,11 +28,12 @@ export default function NewCustomerPage() {
   const [customerCompanyName, setCustomerCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [street, setStreet] = useState('');
+  // El campo de email se elimina
+  // El campo 'street' para dirección se elimina
 
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
-  const [partyTime, setPartyTime] = useState('');
+  const [partyTime, setPartyTime] = useState(''); // Campo de texto simple para horario
   const [selectedPartyType, setSelectedPartyType] = useState<TipoEvento | string>('');
   const [customPartyType, setCustomPartyType] = useState('');
   const [corporateEventCompanyName, setCorporateEventCompanyName] = useState('');
@@ -45,10 +46,10 @@ export default function NewCustomerPage() {
   const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
       setSelectedPartyType("Otro"); 
-      setCustomPartyType(''); // Clear custom input when "Otro" is re-selected
+      setCustomPartyType(''); 
     } else {
       setSelectedPartyType(value as TipoEvento);
-      setCustomPartyType(''); // Clear custom input if a predefined type is chosen
+      setCustomPartyType(''); 
     }
     if (value !== 'Evento corporativo') {
       setCorporateEventCompanyName(''); 
@@ -58,20 +59,14 @@ export default function NewCustomerPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Client-side validation for name/companyName (server-side handles it)
-    // if (!name.trim() && !customerCompanyName.trim()) {
-    //   toast({ title: "Información Mínima Requerida", description: "Por favor, ingresa el nombre del cliente o de la empresa.", variant: "destructive" });
-    //   return;
-    // }
-
-    // All party-related field validations are removed to make them optional.
-    // The server action `saveCustomer` already handles these as optional.
+    // Validaciones client-side eliminadas para permitir campos opcionales
+    // La validación del servidor (nombre o empresa) en saveCustomer se mantiene.
 
     setIsSaving(true);
     
     const formData = new FormData();
     if (name.trim()) formData.append('name', name.trim());
-    else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim());
+    else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim()); // Fallback si solo hay companyName
 
     if (selectedPartyType === 'Evento corporativo' && corporateEventCompanyName.trim()) {
         formData.append('companyName', corporateEventCompanyName.trim());
@@ -81,7 +76,7 @@ export default function NewCustomerPage() {
 
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-    if (street.trim()) formData.append('street', street.trim());
+    // No se añade 'street' al FormData
 
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
@@ -142,7 +137,7 @@ export default function NewCustomerPage() {
               <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
               <div><Label htmlFor="customer-taxid">Cédula / RUT</Label><Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} /></div>
             </div>
-            <div><Label htmlFor="street">Calle y Número</Label><Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} /></div>
+            {/* Campo de Email y Dirección (street) eliminados del formulario */}
           </CardContent>
 
           <Separator className="my-6" />
@@ -159,7 +154,7 @@ export default function NewCustomerPage() {
                 </div>
                 <div>
                   <Label htmlFor="party-time">Horario del Evento</Label>
-                  <Input id="party-time" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" />
+                  <Input id="party-time" type="text" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" />
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -234,3 +229,4 @@ export default function NewCustomerPage() {
   );
 }
 
+    

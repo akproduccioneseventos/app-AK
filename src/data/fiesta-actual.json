@@ -1,16 +1,17 @@
 {
   "id": "fiesta_1749928097473",
   "configuracion": {
-    "nombreEvento": "Mi Próximo Evento Increíble",
-    "tipoCelebracion": "Cumpleaños",
-    "fechaEvento": "2026-06-14T00:00:00.000Z",
-    "horaInicio": "19:00",
+    "nombreEvento": "Alexander",
+    "tipoCelebracion": "Boda",
+    "fechaEvento": "2025-06-29T03:00:00.000Z",
+    "horaInicio": "20:27",
     "horaFin": "02:00",
-    "nombreLugar": "Salón de Ensueño",
+    "nombreLugar": "Club Uruguay",
     "direccionLugar": "Calle Principal 123, Ciudad",
-    "invitadosEstimados": 50,
+    "invitadosEstimados": 100,
     "presupuestoEstimado": 100000,
-    "notasAdicionales": "Planificación inicial."
+    "notasAdicionales": "Planificación inicial.",
+    "clienteId": "cust_1750011641894_4w6ql"
   },
   "personalAsignado": [],
   "invoiceIds": [],

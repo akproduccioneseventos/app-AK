@@ -37,13 +37,13 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [street, setStreet] = useState('');
-  const [email, setEmail] = useState('');
+  // El campo de email se elimina
+  // El campo 'street' para dirección se elimina
   const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
 
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
-  const [partyTime, setPartyTime] = useState('');
+  const [partyTime, setPartyTime] = useState(''); // Campo de texto simple para horario
   const [partyType, setPartyType] = useState('');
   const [guestCount, setGuestCount] = useState<string>('');
   const [venueName, setVenueName] = useState('');
@@ -68,12 +68,11 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           setName(loadedCustomer.name || '');
           setCompanyName(loadedCustomer.companyName || '');
           setPhone(loadedCustomer.phone || '');
-          setEmail(loadedCustomer.email || '');
+          // setEmail(loadedCustomer.email || ''); // Email eliminado
           setTaxId(loadedCustomer.taxId || ''); 
-          setStreet(loadedCustomer.address?.street || '');
+          // setStreet(loadedCustomer.address?.street || ''); // Street eliminado
           setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
 
-          // Load party fields
           setPartyDate(loadedCustomer.partyDate ? new Date(loadedCustomer.partyDate) : undefined);
           setPartyTime(loadedCustomer.partyTime || '');
           setPartyType(loadedCustomer.partyType || '');
@@ -100,24 +99,21 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     e.preventDefault();
     if (!customer) return;
 
-    // Client-side validations removed as per request
-    // Server-side will still require name or companyName
+    // Validaciones client-side eliminadas. La validación del servidor para nombre/empresa se mantiene.
 
     setIsSaving(true);
     const formData = new FormData();
-    formData.append('id', customer.id); // Important for update
+    formData.append('id', customer.id); 
     
     if (name.trim()) formData.append('name', name.trim());
-    else if (companyName.trim()) formData.append('name', companyName.trim()); // Fallback if name is empty but companyName is not
+    else if (companyName.trim()) formData.append('name', companyName.trim()); 
 
     if (companyName.trim()) formData.append('companyName', companyName.trim());
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-    if (email.trim()) formData.append('email', email.trim());
-    if (street.trim()) formData.append('street', street.trim());
+    // No se añade email ni street al FormData
     formData.append('estadoCliente', estadoClienteForm);
     
-    // Append party fields
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
     if (partyType.trim()) formData.append('partyType', partyType.trim());
@@ -125,10 +121,10 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     if (venueName.trim()) formData.append('venueName', venueName.trim());
 
     if (newContractFile) formData.append('contract', newContractFile);
-    else if (currentContractFile) formData.append('contractFileName', currentContractFile); // Preserve if no new file
+    else if (currentContractFile) formData.append('contractFileName', currentContractFile); 
 
     if (newBudgetFile) formData.append('budget', newBudgetFile);
-    else if (currentBudgetFile) formData.append('budgetFileName', currentBudgetFile); // Preserve if no new file
+    else if (currentBudgetFile) formData.append('budgetFileName', currentBudgetFile); 
 
 
     try {
@@ -138,9 +134,9 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         setCustomer(result.customer); 
         setCurrentContractFile(result.customer.contractFileName || null);
         setCurrentBudgetFile(result.customer.budgetFileName || null);
-        setNewContractFile(null); // Reset file inputs
+        setNewContractFile(null); 
         setNewBudgetFile(null);
-        // Clear file input elements visually
+        
         const contractInput = document.getElementById('contract-file') as HTMLInputElement;
         if (contractInput) contractInput.value = "";
         const budgetInput = document.getElementById('budget-file') as HTMLInputElement;
@@ -196,6 +192,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="font-headline">Actualizar Información del Cliente</CardTitle>
+            <CardDescription>Completa la información que tengas disponible. Puedes editarla más tarde.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -203,11 +200,11 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
               <div><Label htmlFor="company-name">Empresa</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={isSaving || isDeleting}/></div>
             </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div><Label htmlFor="customer-email">Email</Label><Input id="customer-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSaving || isDeleting}/></div>
+                {/* Email field removed */}
                 <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/></div>
+                <div><Label htmlFor="customer-taxid">Cédula / RUT</Label><Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} disabled={isSaving || isDeleting}/></div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div><Label htmlFor="customer-taxid">Cédula / RUT</Label><Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} disabled={isSaving || isDeleting}/></div>
               <div>
                 <Label htmlFor="customer-status">Estado del Cliente</Label>
                 <Select value={estadoClienteForm} onValueChange={(value) => setEstadoClienteForm(value as CustomerStatus)} disabled={isSaving || isDeleting}>
@@ -220,13 +217,13 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                 </Select>
               </div>
             </div>
-            <div><Label htmlFor="street">Calle y Número</Label><Input id="street" value={street} onChange={(e) => setStreet(e.target.value)} disabled={isSaving || isDeleting}/></div>
+            {/* Dirección (street) field removed */}
           </CardContent>
 
           <Separator className="my-6" />
 
           <CardHeader>
-            <CardTitle className="font-headline">Información de la Fiesta Contratada</CardTitle>
+            <CardTitle className="font-headline">Información de la Fiesta Contratada (Opcional)</CardTitle>
              <CardDescription>Puedes completar esta información ahora o más tarde.</CardDescription>
           </CardHeader>
            <CardContent className="space-y-6">
@@ -237,7 +234,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                 </div>
                 <div>
                   <Label htmlFor="party-time">Horario del Evento</Label>
-                  <Input id="party-time" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" disabled={isSaving || isDeleting}/>
+                  <Input id="party-time" type="text" value={partyTime} onChange={(e) => setPartyTime(e.target.value)} placeholder="Ej: 19:00 - 02:00" disabled={isSaving || isDeleting}/>
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -308,3 +305,5 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     </div>
   );
 }
+
+    

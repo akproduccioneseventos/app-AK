@@ -110,8 +110,8 @@ export async function saveCustomer(
     customerToSave.phone = customerData.get('phone') as string | undefined;
     customerToSave.taxId = customerData.get('taxId') as string | undefined;
     customerToSave.email = customerData.get('email') as string | undefined;
-    const street = customerData.get('street') as string | undefined;
-    if (street) customerToSave.address = { street };
+    // El campo 'street' ya no se toma del FormData para la dirección del salón
+    // Si se quiere una dirección general del cliente, se debería agregar un campo separado
     
     customerToSave.partyDate = customerData.get('partyDate') as string | undefined;
     customerToSave.partyTime = customerData.get('partyTime') as string | undefined;
@@ -123,25 +123,23 @@ export async function saveCustomer(
     contractFile = customerData.get('contract') as File | null;
     budgetFile = customerData.get('budget') as File | null; // Get budget file
 
-    // Check if ID is passed in FormData (for updates)
     const formId = customerData.get('id') as string | undefined;
     if (formId) customerToSave.id = formId;
+
+    const estadoClienteForm = customerData.get('estadoCliente') as CustomerStatus | undefined;
+    if(estadoClienteForm) customerToSave.estadoCliente = estadoClienteForm;
+
   } else {
-    // If it's an object, it might be a new customer or an update
     customerToSave = { ...customerData };
   }
 
-  if (!customerToSave.name && !customerToSave.companyName) {
-    return { success: false, error: 'El nombre del cliente o empresa es obligatorio.' };
+  // Server-side validation: name OR companyName is required.
+  if (!customerToSave.name?.trim() && !customerToSave.companyName?.trim()) {
+    return { success: false, error: 'El nombre del cliente o de la empresa es obligatorio.' };
   }
   
-  // Mandatory party-related fields check (only when saving, not for CRM conversion that only passes name)
-  if (customerData instanceof FormData) { // Check only if it's from customer forms, not CRM conversion
-      if (!customerToSave.partyDate || !customerToSave.partyTime?.trim() || !customerToSave.partyType?.trim() || customerToSave.guestCount === undefined || customerToSave.guestCount <= 0 || !customerToSave.venueName?.trim()) {
-          // This condition might need to be smarter if CRM doesn't pass these
-          // For now, let's assume CRM calls might not have all party details immediately
-      }
-  }
+  // Los campos de fiesta ya no son obligatorios para la creación/edición del cliente en sí.
+  // La acción de crear una fiesta desde un cliente o vincularlos manejará esa lógica.
 
 
   if (customerToSave.id) { // Update
@@ -151,28 +149,34 @@ export async function saveCustomer(
       return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
     }
     const existingCustomer = customers[index];
-    // Merge, ensuring files are only overwritten if new ones are provided or explicitly cleared
     customers[index] = {
       ...existingCustomer,
       ...customerToSave,
       name: customerToSave.name || customerToSave.companyName || existingCustomer.name || 'Sin Nombre Asignado',
       estadoCliente: customerToSave.estadoCliente || existingCustomer.estadoCliente || 'Actual',
-      contractFileName: customerToSave.contractFileName || (contractFile ? undefined : existingCustomer.contractFileName), // Preserve if no new file
-      budgetFileName: customerToSave.budgetFileName || (budgetFile ? undefined : existingCustomer.budgetFileName), // Preserve if no new file
+      contractFileName: contractFile ? undefined : (customerToSave.contractFileName || existingCustomer.contractFileName),
+      budgetFileName: budgetFile ? undefined : (customerToSave.budgetFileName || existingCustomer.budgetFileName),
+      // address se mantiene tal cual si no se modifica. La UI ya no permite editar 'street'.
+      address: customerToSave.address || existingCustomer.address
     };
-    customerToSave = customers[index]; // Re-assign to ensure we operate on the array's reference
+    customerToSave = customers[index]; 
   } else { // Create
     customerId = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    // Ensure address is an object if street was part of the input, otherwise undefined
+    const newCustomerBase: Omit<Customer, 'id'> = {
+        ...(customerToSave as Omit<Customer, 'id'>), // Cast excluding id
+        name: customerToSave.name || customerToSave.companyName || 'Sin Nombre Asignado',
+        estadoCliente: customerToSave.estadoCliente || 'Actual',
+        // `address` solo se crea si 'street' viene, lo cual ya no sucede
+        address: undefined, // For new customers, address is not being set from form
+    };
     customers.push({
-      ...(customerToSave as Omit<Customer, 'id'>), // Cast to exclude id for new customer base
+      ...newCustomerBase,
       id: customerId,
-      name: customerToSave.name || customerToSave.companyName || 'Sin Nombre Asignado',
-      estadoCliente: customerToSave.estadoCliente || 'Actual',
     });
-    customerToSave = customers[customers.length - 1]; // Get reference from array
+    customerToSave = customers[customers.length - 1];
   }
   
-  // Handle contract file
   if (contractFile) {
     try {
       await ensureContractsDirectoryExists();
@@ -180,15 +184,13 @@ export async function saveCustomer(
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `contract_${customerId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       await fs.writeFile(path.join(contractsDirectoryPath, uniqueFilename), buffer);
-      customerToSave.contractFileName = uniqueFilename;
+      (customerToSave as Customer).contractFileName = uniqueFilename;
     } catch (fileError: any) {
       console.error("Error saving contract file:", fileError);
-      // Decide if this should be a hard error or just a warning
       return { success: false, error: `Error al guardar archivo de contrato: ${fileError.message}` };
     }
   }
 
-  // Handle budget file (New)
   if (budgetFile) {
     try {
       await ensureBudgetsDirectoryExists();
@@ -196,14 +198,13 @@ export async function saveCustomer(
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `budget_${customerId}_${Date.now()}_${budgetFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       await fs.writeFile(path.join(budgetsDirectoryPath, uniqueFilename), buffer);
-      customerToSave.budgetFileName = uniqueFilename;
+      (customerToSave as Customer).budgetFileName = uniqueFilename;
     } catch (fileError: any) {
       console.error("Error saving budget file:", fileError);
       return { success: false, error: `Error al guardar archivo de presupuesto: ${fileError.message}` };
     }
   }
   
-  // Update the customer in the array again if files were processed, to ensure filenames are set
   const finalIndex = customers.findIndex(c => c.id === customerId);
   if (finalIndex !== -1) customers[finalIndex] = customerToSave as Customer;
   
@@ -229,7 +230,7 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
       console.warn(`Error deleting contract file ${customerToDelete.contractFileName}:`, fileError.message);
     }
   }
-  if (customerToDelete?.budgetFileName) { // Delete budget file
+  if (customerToDelete?.budgetFileName) { 
     try {
       await fs.unlink(path.join(budgetsDirectoryPath, customerToDelete.budgetFileName));
     } catch (fileError: any) {
@@ -251,7 +252,6 @@ export async function getContractFilePath(filename: string): Promise<string | nu
   }
 }
 
-// New function to get budget file path
 export async function getBudgetFilePath(filename: string): Promise<string | null> {
   const filePath = path.join(budgetsDirectoryPath, filename);
   try {
@@ -261,3 +261,5 @@ export async function getBudgetFilePath(filename: string): Promise<string | null
     return null;
   }
 }
+
+    

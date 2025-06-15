@@ -19,7 +19,7 @@ import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-const formatDate = (dateString?: string, includeTime: boolean = true) => {
+const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
   if (!dateString) return "Fecha por confirmar";
   try {
     const date = new Date(dateString);
@@ -27,14 +27,21 @@ const formatDate = (dateString?: string, includeTime: boolean = true) => {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric', month: 'long', day: 'numeric'
     };
-    if (includeTime) {
-      options.hour = 'numeric';
-      options.minute = '2-digit';
-      options.hour12 = true;
+    let formattedDate = date.toLocaleDateString('es-ES', options);
+    if (includeTime && timeString) {
+      // Asumimos que timeString es HH:MM
+      const [hours, minutes] = timeString.split(':');
+      if (hours && minutes) {
+        let hourNum = parseInt(hours, 10);
+        const ampm = hourNum >= 12 ? 'PM' : 'AM';
+        hourNum = hourNum % 12 || 12; // Convert to 12-hour format
+        formattedDate += ` a las ${hourNum}:${minutes} ${ampm}`;
+      }
     }
-    return date.toLocaleDateString('es-ES', options);
+    return formattedDate;
   } catch (e) { return "Fecha inválida"; }
 };
+
 
 type RsvpFormData = {
   nombreCompleto: string;
@@ -182,14 +189,13 @@ export default function EventoPublicoPage() {
   const primaryColor = paletaColores?.primary || 'hsl(var(--primary))';
   const secondaryColor = paletaColores?.secondary || 'hsl(var(--secondary))';
   const accentColor = paletaColores?.accent || 'hsl(var(--accent))';
-  const shouldUseDarkTextOnPrimary = true; // Simplified assumption for now
-  const shouldUseDarkTextOnSecondary = false; // Simplified assumption for now
+  const shouldUseDarkTextOnPrimary = true; 
+  // const shouldUseDarkTextOnSecondary = false; // No se usa
 
   const heroTextStyle = shouldUseDarkTextOnPrimary ? 'text-gray-800' : 'text-white';
 
   return (
     <div className="min-h-screen bg-background text-foreground font-body">
-      {/* Hero Section */}
       <header 
         className="relative py-20 md:py-32 text-center bg-cover bg-center"
         style={{ backgroundImage: webSettings.coverImageUrl ? `url(${webSettings.coverImageUrl})` : 'none', backgroundColor: !webSettings.coverImageUrl ? primaryColor : 'transparent' }}
@@ -224,7 +230,7 @@ export default function EventoPublicoPage() {
         )}
 
         {webSettings.showOurStory && (webSettings.ourStoryText || webSettings.ourStoryImageUrl) && (
-            <section id="our-story" className="py-8" style={{ backgroundColor: `${secondaryColor}1A` /* secondary with low opacity */}}>
+            <section id="our-story" className="py-8" style={{ backgroundColor: `${secondaryColor}1A` }}>
                 <div className="container mx-auto px-4">
                     <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>{webSettings.ourStoryTitle || "Nuestra Historia"}</h2>
                     <div className="md:flex md:items-center md:gap-8">
@@ -252,7 +258,7 @@ export default function EventoPublicoPage() {
                             <CalendarDays className="w-6 h-6 mt-1" style={{color: accentColor}}/>
                             <div>
                                 <h3 className="font-semibold">Fecha y Hora</h3>
-                                <p className="text-muted-foreground">{formatDate(fiesta.configuracion.fechaEvento, true)}</p>
+                                <p className="text-muted-foreground">{formatDate(fiesta.configuracion.fechaEvento, true, fiesta.configuracion.horaInicio)}</p>
                             </div>
                         </div>
                         {fiesta.configuracion.nombreLugar && (
@@ -261,7 +267,7 @@ export default function EventoPublicoPage() {
                                 <div>
                                     <h3 className="font-semibold">Lugar</h3>
                                     <p className="text-muted-foreground">{fiesta.configuracion.nombreLugar}</p>
-                                    {fiesta.configuracion.direccionLugar && <p className="text-xs text-muted-foreground/80">{fiesta.configuracion.direccionLugar}</p>}
+                                    {/* Dirección del Lugar eliminada de la visualización */}
                                 </div>
                             </div>
                         )}
@@ -385,3 +391,5 @@ export default function EventoPublicoPage() {
     </div>
   );
 }
+
+    

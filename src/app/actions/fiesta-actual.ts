@@ -38,18 +38,31 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
     await fs.access(fiestaActualFilePath);
     const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
     if (fileContent.trim() === '') throw new Error('Fiesta actual file is empty');
-    return JSON.parse(fileContent) as FiestaEnPlanificacion;
+    const parsedData = JSON.parse(fileContent) as FiestaEnPlanificacion;
+    // Ensure direccionLugar is removed if present from old data structures
+    if (parsedData.configuracion && 'direccionLugar' in parsedData.configuracion) {
+      delete (parsedData.configuracion as any).direccionLugar;
+    }
+    return parsedData;
   } catch (error) {
-    // If file doesn't exist or is invalid, write and return initial data
-    await writeFiestaActualFile(initialFiestaActualData);
-    return initialFiestaActualData;
+    const cleanInitialData = { ...initialFiestaActualData };
+    if (cleanInitialData.configuracion && 'direccionLugar' in cleanInitialData.configuracion) {
+      delete (cleanInitialData.configuracion as any).direccionLugar;
+    }
+    await writeFiestaActualFile(cleanInitialData);
+    return cleanInitialData;
   }
 }
 
 async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void> {
   try {
     await ensureDataDirectoryExists();
-    await fs.writeFile(fiestaActualFilePath, JSON.stringify(data, null, 2), 'utf-8');
+    // Ensure direccionLugar is removed before writing if it somehow crept in
+    const dataToWrite = { ...data };
+    if (dataToWrite.configuracion && 'direccionLugar' in dataToWrite.configuracion) {
+      delete (dataToWrite.configuracion as any).direccionLugar;
+    }
+    await fs.writeFile(fiestaActualFilePath, JSON.stringify(dataToWrite, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing fiesta-actual.json file:', error);
   }
@@ -81,22 +94,26 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
 
 // Initialize files if they don't exist
 async function initializeLocalFiestaFiles() {
-  await readFiestaActualFile(); // This will create it if it doesn't exist
-  await readHistorialFile();   // This will ensure it's at least an empty array if it doesn't exist
+  await readFiestaActualFile(); 
+  await readHistorialFile();   
 }
 initializeLocalFiestaFiles();
 
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   const data = await readFiestaActualFile();
-   // Deep merge with defaults to ensure all fields are present, similar to Firestore logic
+   const validatedConfig: ConfigEventoDataStorage = {
+    ...defaultConfiguracion,
+    ...(data.configuracion || {}),
+    clienteId: data.configuracion?.clienteId || undefined,
+   };
+   // Remove direccionLugar if it exists from defaults or data
+   delete (validatedConfig as any).direccionLugar;
+
+
    const validatedData: FiestaEnPlanificacion = {
-    id: data.id || `fiesta_${Date.now()}`, // Ensure ID
-    configuracion: {
-        ...defaultConfiguracion,
-        ...(data.configuracion || {}),
-        clienteId: data.configuracion?.clienteId || undefined,
-    },
+    id: data.id || `fiesta_${Date.now()}`, 
+    configuracion: validatedConfig,
     personalAsignado: data.personalAsignado || [],
     menuAsignadoId: data.menuAsignadoId || undefined,
     presupuestoId: data.presupuestoId || undefined,
@@ -175,18 +192,28 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
 }
 
 export async function updateConfiguracionFiestaActual(
-  configData: Partial<ConfigEventoDataStorage>
+  configData: Partial<Omit<ConfigEventoDataStorage, 'direccionLugar'>> // direccionLugar is no longer part of ConfigEventoDataStorage
 ): Promise<{ success: boolean; updatedData?: ConfigEventoDataStorage; error?: string }> {
   try {
     let fiestaActual = await getFiestaActual();
+    
+    // Create a new config object without direccionLugar
+    const { direccionLugar, ...validConfigDataFromInput } = configData as any; // Cast to any to allow delete
+    
+    const newBaseConfig = { ...fiestaActual.configuracion };
+    delete (newBaseConfig as any).direccionLugar; // Ensure base doesn't have it
+
     fiestaActual.configuracion = {
-        ...fiestaActual.configuracion,
-        ...configData,
+        ...newBaseConfig,
+        ...validConfigDataFromInput, // Apply updates
         invitadosEstimados: configData.invitadosEstimados !== undefined ? Number(configData.invitadosEstimados) || 0 : fiestaActual.configuracion.invitadosEstimados,
         presupuestoEstimado: configData.presupuestoEstimado !== undefined ? Number(configData.presupuestoEstimado) || 0 : fiestaActual.configuracion.presupuestoEstimado,
     };
+    
     await writeFiestaActualFile(fiestaActual);
-    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.configuracion)) };
+    const finalConfig = { ...fiestaActual.configuracion };
+    delete (finalConfig as any).direccionLugar;
+    return { success: true, updatedData: JSON.parse(JSON.stringify(finalConfig)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la configuración." };
   }
@@ -612,3 +639,5 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
     return { success: false, error: e.message || "Error al archivar la fiesta." };
   }
 }
+
+    

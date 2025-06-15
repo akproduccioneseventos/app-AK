@@ -16,7 +16,7 @@ import type { TipoEvento } from '@/types/presupuesto';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
-import { initialFiestaActualData } from '@/lib/fiesta-defaults'; // Updated import
+import { initialFiestaActualData } from '@/lib/fiesta-defaults'; 
 import { getCustomers, getCustomerById } from '@/app/actions/customers';
 import { Separator } from '@/components/ui/separator';
 
@@ -26,7 +26,7 @@ interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 
   clienteId?: string;
 }
 
-const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto', 'Salón de Fiesta'];
+const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto', 'Salón de Fiesta', 'Otro'];
 const defaultEventConfigFromFiesta = initialFiestaActualData.configuracion;
 
 export default function ConfiguracionEventoPage() {
@@ -50,39 +50,50 @@ export default function ConfiguracionEventoPage() {
 
       setAllCustomers(fetchedCustomers);
 
-      if (fiesta && fiesta.configuracion) {
-        const currentClienteId = fiesta.configuracion.clienteId;
-        let tempConfig: ConfigFormState = {
-          ...fiesta.configuracion,
-          fechaEvento: fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : undefined,
-          clienteId: currentClienteId,
-        };
-        
-        if (currentClienteId) {
-          const customerDetails = fetchedCustomers.find(c => c.id === currentClienteId);
-          if (customerDetails) {
-            setLinkedCustomer(customerDetails);
-            // Populate from customer
-            tempConfig.nombreEvento = customerDetails.name || customerDetails.companyName || tempConfig.nombreEvento;
-            tempConfig.tipoCelebracion = customerDetails.partyType || tempConfig.tipoCelebracion;
-            tempConfig.fechaEvento = customerDetails.partyDate ? new Date(customerDetails.partyDate) : tempConfig.fechaEvento;
-            tempConfig.horaInicio = customerDetails.partyTime || tempConfig.horaInicio;
-            tempConfig.invitadosEstimados = customerDetails.guestCount !== undefined ? Number(customerDetails.guestCount) : (typeof tempConfig.invitadosEstimados === 'string' ? parseInt(tempConfig.invitadosEstimados) : tempConfig.invitadosEstimados);
-            tempConfig.nombreLugar = customerDetails.venueName || tempConfig.nombreLugar;
+      let tempConfig: ConfigFormState = {
+        ...(fiesta?.configuracion || defaultEventConfigFromFiesta),
+        fechaEvento: (fiesta?.configuracion?.fechaEvento) ? new Date(fiesta.configuracion.fechaEvento) : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined),
+        clienteId: fiesta?.configuracion?.clienteId || undefined,
+      };
+      // Eliminar direccionLugar si existe por migraciones antiguas
+      delete (tempConfig as any).direccionLugar;
+
+
+      if (tempConfig.clienteId) {
+        const customerDetails = fetchedCustomers.find(c => c.id === tempConfig.clienteId);
+        if (customerDetails) {
+          setLinkedCustomer(customerDetails);
+          // Pre-fill from customer, but only if the current config field is empty or default
+          tempConfig.nombreEvento = customerDetails.name || customerDetails.companyName || tempConfig.nombreEvento;
+          tempConfig.tipoCelebracion = customerDetails.partyType || tempConfig.tipoCelebracion;
+          tempConfig.fechaEvento = customerDetails.partyDate ? new Date(customerDetails.partyDate) : tempConfig.fechaEvento;
+          
+          // Para horaInicio, intentar parsear desde partyTime del cliente si es un formato simple como HH:MM
+          if (customerDetails.partyTime) {
+            const timeParts = customerDetails.partyTime.split(" - ")[0]; // Tomar la primera parte si hay rango
+            if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(timeParts)) { // Validar HH:MM
+              tempConfig.horaInicio = timeParts;
+            } else {
+              // Si no es HH:MM, no sobreescribir, mantener lo que haya en config o default
+            }
           }
+
+          tempConfig.invitadosEstimados = customerDetails.guestCount !== undefined ? Number(customerDetails.guestCount) : (tempConfig.invitadosEstimados);
+          tempConfig.nombreLugar = customerDetails.venueName || tempConfig.nombreLugar;
         }
-        setConfig(tempConfig);
-      } else {
-        toast({ title: 'Error', description: 'No se pudo cargar la configuración inicial.', variant: 'destructive' });
-         setConfig({
-            ...defaultEventConfigFromFiesta,
-             fechaEvento: defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined,
-            clienteId: undefined,
-         });
       }
+      setConfig(tempConfig);
+
     } catch (error) {
       console.error("Error loading event configuration or customers:", error);
       toast({ title: 'Error al Cargar', description: 'No se pudo obtener la configuración del evento o los clientes.', variant: 'destructive' });
+      const errorConfig: ConfigFormState = {
+        ...defaultEventConfigFromFiesta,
+        fechaEvento: defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined,
+        clienteId: undefined,
+      };
+      delete (errorConfig as any).direccionLugar;
+      setConfig(errorConfig);
     } finally {
       setIsLoading(false);
       setIsLoadingCustomers(false);
@@ -117,8 +128,9 @@ export default function ConfiguracionEventoPage() {
     
     setConfig(prevConfig => {
       if (!prevConfig) return null;
-      // Start with previous config to retain non-synced fields like horaFin, notasAdicionales, presupuestoEstimado
       let updatedConfig = { ...prevConfig, clienteId: newClienteId };
+      delete (updatedConfig as any).direccionLugar;
+
 
       if (newClienteId) {
         const customerDetails = allCustomers.find(c => c.id === newClienteId);
@@ -127,20 +139,32 @@ export default function ConfiguracionEventoPage() {
           updatedConfig.nombreEvento = customerDetails.name || customerDetails.companyName || defaultEventConfigFromFiesta.nombreEvento;
           updatedConfig.tipoCelebracion = customerDetails.partyType || defaultEventConfigFromFiesta.tipoCelebracion;
           updatedConfig.fechaEvento = customerDetails.partyDate ? new Date(customerDetails.partyDate) : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined);
-          updatedConfig.horaInicio = customerDetails.partyTime || defaultEventConfigFromFiesta.horaInicio;
+          
+          if (customerDetails.partyTime) {
+            const timeParts = customerDetails.partyTime.split(" - ")[0];
+            if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(timeParts)) {
+              updatedConfig.horaInicio = timeParts;
+            } else {
+              updatedConfig.horaInicio = defaultEventConfigFromFiesta.horaInicio;
+            }
+          } else {
+             updatedConfig.horaInicio = defaultEventConfigFromFiesta.horaInicio;
+          }
+
           const guestCountFromCustomer = customerDetails.guestCount !== undefined ? Number(customerDetails.guestCount) : defaultEventConfigFromFiesta.invitadosEstimados;
           updatedConfig.invitadosEstimados = guestCountFromCustomer;
           updatedConfig.nombreLugar = customerDetails.venueName || defaultEventConfigFromFiesta.nombreLugar;
+          // horaFin, notasAdicionales, presupuestoEstimado se mantienen del prevConfig
         }
       } else {
         setLinkedCustomer(null);
-        // Reset synced fields to defaults from initialFiestaActualData.configuracion
-        updatedConfig.nombreEvento = defaultEventConfigFromFiesta.nombreEvento;
-        updatedConfig.tipoCelebracion = defaultEventConfigFromFiesta.tipoCelebracion;
-        updatedConfig.fechaEvento = defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined;
-        updatedConfig.horaInicio = defaultEventConfigFromFiesta.horaInicio;
-        updatedConfig.invitadosEstimados = defaultEventConfigFromFiesta.invitadosEstimados;
-        updatedConfig.nombreLugar = defaultEventConfigFromFiesta.nombreLugar;
+        // Reset to defaults from initialFiestaActualData.configuracion, keeping some fields if they were manually edited
+        updatedConfig.nombreEvento = prevConfig.nombreEvento !== defaultEventConfigFromFiesta.nombreEvento ? prevConfig.nombreEvento : defaultEventConfigFromFiesta.nombreEvento;
+        updatedConfig.tipoCelebracion = prevConfig.tipoCelebracion !== defaultEventConfigFromFiesta.tipoCelebracion ? prevConfig.tipoCelebracion : defaultEventConfigFromFiesta.tipoCelebracion;
+        updatedConfig.fechaEvento = prevConfig.fechaEvento && prevConfig.fechaEvento?.toISOString() !== defaultEventConfigFromFiesta.fechaEvento ? prevConfig.fechaEvento : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined);
+        updatedConfig.horaInicio = prevConfig.horaInicio !== defaultEventConfigFromFiesta.horaInicio ? prevConfig.horaInicio : defaultEventConfigFromFiesta.horaInicio;
+        updatedConfig.invitadosEstimados = typeof prevConfig.invitadosEstimados === 'number' && prevConfig.invitadosEstimados !== defaultEventConfigFromFiesta.invitadosEstimados ? prevConfig.invitadosEstimados : defaultEventConfigFromFiesta.invitadosEstimados;
+        updatedConfig.nombreLugar = prevConfig.nombreLugar !== defaultEventConfigFromFiesta.nombreLugar ? prevConfig.nombreLugar : defaultEventConfigFromFiesta.nombreLugar;
       }
       return updatedConfig;
     });
@@ -153,40 +177,17 @@ export default function ConfiguracionEventoPage() {
       toast({ title: "Error", description: "No hay datos de configuración para guardar.", variant: "destructive" });
       return;
     }
-    if (!config.nombreEvento.trim()) {
-        toast({ title: "Nombre Requerido", description: "El nombre del evento no puede estar vacío.", variant: "destructive"});
-        return;
-    }
-    if (!config.clienteId) {
-        toast({ title: "Cliente Requerido", description: "Debe seleccionar un cliente para la fiesta.", variant: "destructive"});
-        return;
-    }
-     if (!config.tipoCelebracion?.trim()) {
-        toast({ title: "Tipo de Celebración Requerido", variant: "destructive" }); return;
-    }
-    if (!config.fechaEvento) {
-        toast({ title: "Fecha del Evento Requerida", variant: "destructive" }); return;
-    }
-    if (!config.horaInicio?.trim()) {
-        toast({ title: "Hora de Inicio Requerida", variant: "destructive" }); return;
-    }
-    if (!config.nombreLugar?.trim()) {
-        toast({ title: "Lugar del Evento Requerido", variant: "destructive" }); return;
-    }
-    const invitadosEstimadosNum = Number(config.invitadosEstimados);
-    if (isNaN(invitadosEstimadosNum) || invitadosEstimadosNum <= 0) {
-        toast({ title: "Invitados Estimados Requerido", description:"Debe ser un número positivo.", variant: "destructive" }); return;
-    }
-
+    // Validaciones client-side eliminadas para flexibilidad
 
     setIsSaving(true);
     const configToSave: ConfigEventoDataStorage = {
-      ...(config as Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId' | 'invitadosEstimados' | 'presupuestoEstimado'> & { fechaEvento?: string, clienteId?: string}),
+      ...(config as Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId' | 'invitadosEstimados' | 'presupuestoEstimado'>),
       fechaEvento: config.fechaEvento ? config.fechaEvento.toISOString() : undefined,
       clienteId: config.clienteId || undefined,
       invitadosEstimados: Number(config.invitadosEstimados) || 0,
       presupuestoEstimado: Number(config.presupuestoEstimado) || 0,
     };
+    delete (configToSave as any).direccionLugar; // Asegurarse de no enviar
     
     if (!configToSave.clienteId) delete configToSave.clienteId;
 
@@ -204,6 +205,7 @@ export default function ConfiguracionEventoPage() {
             invitadosEstimados: Number(result.updatedData.invitadosEstimados) || 0,
             presupuestoEstimado: Number(result.updatedData.presupuestoEstimado) || 0,
         };
+        delete (updatedConfigFromServer as any).direccionLugar;
         setConfig(updatedConfigFromServer);
         if (updatedConfigFromServer.clienteId) {
           const customerDetails = await getCustomerById(updatedConfigFromServer.clienteId);
@@ -268,7 +270,7 @@ export default function ConfiguracionEventoPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="cliente-principal" className="text-base">Cliente Principal del Evento *</Label>
+                <Label htmlFor="cliente-principal" className="text-base">Cliente Principal del Evento</Label>
                 <div className="flex items-center gap-2">
                     <Select
                         value={config.clienteId || "ninguno"}
@@ -335,19 +337,18 @@ export default function ConfiguracionEventoPage() {
             <Separator />
 
             <div className="space-y-2">
-                <Label htmlFor="nombre-evento" className="text-base">Nombre del Evento *</Label>
+                <Label htmlFor="nombre-evento" className="text-base">Nombre del Evento</Label>
                 <Input
                   id="nombre-evento"
                   value={config.nombreEvento || ''}
                   onChange={(e) => handleChange('nombreEvento', e.target.value)}
                   placeholder="Ej: Boda Ana y Juan, Mi Cumpleaños N°30"
                   className="text-base p-3"
-                  required
                   disabled={isSaving}
                 />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración *</Label>
+                <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración</Label>
                  <Select 
                     value={tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) ? config.tipoCelebracion : "Otro"}
                     onValueChange={handleTipoEventoChange}
@@ -360,7 +361,7 @@ export default function ConfiguracionEventoPage() {
                       {tiposEventoDisponibles.map(tipo => (
                         <SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>
                       ))}
-                      <SelectItem value="Otro" className="text-base">Otro (especificar)</SelectItem>
+                      {/* <SelectItem value="Otro" className="text-base">Otro (especificar)</SelectItem> */}
                     </SelectContent>
                   </Select>
                   {(!tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) && config.tipoCelebracion !== 'Otro' && config.tipoCelebracion !== '') && (
@@ -371,18 +372,17 @@ export default function ConfiguracionEventoPage() {
                         onChange={(e) => handleChange('tipoCelebracion', e.target.value)}
                         className="text-base p-3 mt-2"
                         disabled={isSaving}
-                        required
                     />
                   )}
               </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="fecha-evento" className="text-base">Fecha del Evento *</Label>
+                <Label htmlFor="fecha-evento" className="text-base">Fecha del Evento</Label>
                 <DatePickerDemo selectedDate={config.fechaEvento} onDateChange={handleDateChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="hora-inicio" className="text-base">Hora de Inicio *</Label>
+                <Label htmlFor="hora-inicio" className="text-base">Hora de Inicio</Label>
                 <Input
                   id="hora-inicio"
                   type="time"
@@ -390,7 +390,6 @@ export default function ConfiguracionEventoPage() {
                   onChange={(e) => handleChange('horaInicio', e.target.value)}
                   className="text-base p-3"
                   disabled={isSaving}
-                  required
                 />
               </div>
               <div className="space-y-2">
@@ -407,7 +406,7 @@ export default function ConfiguracionEventoPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nombre-lugar" className="text-base">Lugar del Evento (Nombre) *</Label>
+              <Label htmlFor="nombre-lugar" className="text-base">Lugar del Evento (Nombre)</Label>
               <Input
                 id="nombre-lugar"
                 value={config.nombreLugar || ''}
@@ -415,35 +414,22 @@ export default function ConfiguracionEventoPage() {
                 placeholder="Ej: Salón Paraíso, Finca Los Robles"
                 className="text-base p-3"
                 disabled={isSaving}
-                required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="direccion-lugar" className="text-base">Dirección del Lugar</Label>
-              <Textarea
-                id="direccion-lugar"
-                value={config.direccionLugar || ''}
-                onChange={(e) => handleChange('direccionLugar', e.target.value)}
-                placeholder="Ej: Calle Falsa 123, Ciudad, Provincia"
-                rows={2}
-                className="text-base p-3"
-                disabled={isSaving}
-              />
-            </div>
+            {/* Campo Dirección del Lugar eliminado */}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados *</Label>
+                    <Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados</Label>
                     <Input
                     id="invitados-estimados"
                     type="number"
                     value={config.invitadosEstimados === undefined || config.invitadosEstimados === null ? '' : String(config.invitadosEstimados)}
                     onChange={(e) => handleChange('invitadosEstimados', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
                     placeholder="Ej: 100"
-                    min="1"
+                    min="0" // Permitir 0 si no se sabe
                     className="text-base p-3"
                     disabled={isSaving}
-                    required
                     />
                 </div>
                  <div className="space-y-2">
@@ -476,7 +462,7 @@ export default function ConfiguracionEventoPage() {
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers || !config.clienteId}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Configuración'}
             </Button>
@@ -486,3 +472,5 @@ export default function ConfiguracionEventoPage() {
     </div>
   );
 }
+
+    

@@ -9,7 +9,7 @@ export interface ConfigEventoDataStorage {
   horaInicio: string;
   horaFin: string;
   nombreLugar: string;
-  direccionLugar: string;
+  // direccionLugar: string; // Eliminado
   invitadosEstimados: number | string;
   presupuestoEstimado: number | string;
   notasAdicionales: string;
@@ -128,3 +128,5 @@ export interface FiestaEnPlanificacion {
   webPageSettings?: EventWebPageSettings;
   musica?: MusicaFiesta; // Nueva sección de música
 }
+
+    

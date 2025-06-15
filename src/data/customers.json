@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "name": "Alexander",
+    "companyName": null,
+    "phone": "098355530",
+    "taxId": "46173508",
+    "email": null,
+    "address": {
+      "street": "gaboto 3390"
+    },
+    "partyDate": "2025-06-29T03:00:00.000Z",
+    "partyTime": "22 a 5",
+    "partyType": "XV años",
+    "guestCount": 100,
+    "venueName": "Club Uruguay",
+    "id": "cust_1750011641894_4w6ql",
+    "estadoCliente": "Actual"
+  }
+]

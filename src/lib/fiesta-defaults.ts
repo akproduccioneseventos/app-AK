@@ -9,7 +9,7 @@ export const defaultConfiguracion: ConfigEventoDataStorage = {
   horaInicio: '19:00',
   horaFin: '02:00',
   nombreLugar: 'Salón de Ensueño',
-  direccionLugar: 'Calle Principal 123, Ciudad',
+  // direccionLugar: 'Calle Principal 123, Ciudad', // Eliminado
   invitadosEstimados: 50,
   presupuestoEstimado: 100000,
   notasAdicionales: 'Planificación inicial.',
@@ -94,3 +94,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },
   musica: { ...defaultMusicaFiesta },
 };
+
+    
