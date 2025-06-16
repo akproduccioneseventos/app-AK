@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList, Archive } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList, Archive, PackageSearch } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
@@ -25,8 +25,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { Invoice } from '@/types/invoice'; 
-import { getInvoiceById } from '@/app/actions/invoices'; 
+import type { Invoice } from '@/types/invoice';
+import { getInvoiceById } from '@/app/actions/invoices';
 
 
 interface PlanningModule {
@@ -96,6 +96,14 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Asignar Personal"
   },
   {
+    title: "Lista de Carga Operativa",
+    description: "Planifica y sigue los elementos a trasladar para el evento.",
+    icon: PackageSearch,
+    href: "/fiestas/nueva/carga-operativa",
+    status: "Disponible",
+    actionLabel: "Gestionar Carga"
+  },
+  {
     title: "Servicios Contratados",
     description: "Visualiza todos los servicios y proveedores confirmados para tu evento.",
     icon: ClipboardList,
@@ -129,11 +137,11 @@ const planningModules: PlanningModule[] = [
   }
 ];
 
-const formatCurrency = (amount?: number | string, currency: string = 'UYU') => {
+const formatCurrency = (amount?: number | string) => {
   if (amount === undefined || amount === null || amount === '') return "N/A";
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(numericAmount)) return "N/A";
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(numericAmount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(numericAmount);
 };
 
 
@@ -368,7 +376,7 @@ export default function PlanificarFiestaHubPage() {
             <Card className="hover:shadow-md transition-shadow print:shadow-none print:border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
                     <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Presupuesto Estimado</CardTitle>
-                    <DollarSign className="h-5 w-5 text-primary print:h-4 print:w-4" />
+                    <DollarSignIcon className="h-5 w-5 text-primary print:h-4 print:w-4" />
                 </CardHeader>
                 <CardContent className="print:pt-1">
                     <div className="text-2xl font-bold print:text-lg">{formatCurrency(presupuestoEstimado)}</div>

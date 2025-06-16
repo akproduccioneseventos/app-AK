@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -55,15 +55,15 @@ export const defaultDecoracion: DecoracionData = {
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
   colorCubremantel: '',
-  colorGlobos: '', 
+  colorGlobos: '',
   decoracionTorta: { descripcion: '', imageUrl: '', dataAiHint: 'cake design' },
   items: [],
   zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
   generalNotesDecoracion: "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
   pdfNotasAdicionales: '',
-  salonPlanBackgroundImageUrl: '', 
-  salonElements: [],              
-  generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.', 
+  salonPlanBackgroundImageUrl: '',
+  salonElements: [],
+  generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.',
 };
 
 export const defaultWebPageSettings: EventWebPageSettings = {
@@ -129,6 +129,11 @@ export const defaultBebidasData: BebidasData = {
   notasGenerales: '',
 };
 
+export const defaultListaDeCargaOperativa: ListaDeCargaOperativa = {
+  categorias: [],
+  notasGenerales: '',
+};
+
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {
   id: `fiesta_${Date.now()}`,
@@ -146,8 +151,8 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     recordatorio: t.recordatorio || undefined,
     esPredeterminada: t.esPredeterminada || false,
    }))],
-  decoracion: { 
-    ...defaultDecoracion, 
+  decoracion: {
+    ...defaultDecoracion,
     items: [],
     paletaColores: { ...defaultColorPalette },
     zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
@@ -157,5 +162,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   musica: { ...defaultMusicaFiesta },
   reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
   bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
+  listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
 };
-    

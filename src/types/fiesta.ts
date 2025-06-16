@@ -75,19 +75,19 @@ export interface DecoracionData {
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
   colorCubremantel?: string;
-  colorGlobos?: string; 
+  colorGlobos?: string;
   decoracionTorta?: {
     descripcion?: string;
     imageUrl?: string;
     dataAiHint?: string;
   };
-  items?: DecorationItem[]; 
+  items?: DecorationItem[];
   zonasContratadas?: ZonaContratada[];
-  generalNotesDecoracion?: string; 
+  generalNotesDecoracion?: string;
   pdfNotasAdicionales?: string;
-  salonPlanBackgroundImageUrl?: string; 
-  salonElements?: LayoutElement[];       
-  generalNotesSalonLayout?: string;  
+  salonPlanBackgroundImageUrl?: string;
+  salonElements?: LayoutElement[];
+  generalNotesSalonLayout?: string;
 }
 
 export interface EventWebPageSettings {
@@ -111,7 +111,6 @@ export interface EventWebPageSettings {
   showGiftRegistry?: boolean;
   showGallery?: boolean;
   showRsvp?: boolean;
-  // Placeholder for optional sections from prompt
   programaEventoText?: string;
   musicaEspecialText?: string;
 }
@@ -165,11 +164,11 @@ export interface BebidaItem {
   id: string;
   nombre: string;
   marca?: string;
-  presentacion?: string; 
-  cantidadNecesaria?: number; 
+  presentacion?: string;
+  cantidadNecesaria?: number;
   unidadCantidad?: 'unidades' | 'litros' | 'botellas';
   costoUnitario?: number;
-  costoTotal?: number; 
+  costoTotal?: number;
   proveedorHabitual?: string;
   notas?: string;
 }
@@ -211,6 +210,25 @@ export interface Tarea {
   esPredeterminada?: boolean; // Indica si es una tarea base que se puede reutilizar
 }
 
+export interface CargaOperativaItem {
+  id: string;
+  nombre: string;
+  cantidad: string; // Puede ser "1 caja", "20 unidades", "Equipo completo"
+  cargado: boolean;
+  notas?: string;
+}
+
+export interface CargaOperativaCategoria {
+  id: string;
+  nombre: string;
+  items: CargaOperativaItem[];
+}
+
+export interface ListaDeCargaOperativa {
+  categorias: CargaOperativaCategoria[];
+  notasGenerales?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -220,11 +238,11 @@ export interface FiestaEnPlanificacion {
   invoiceIds?: string[];
   reuniones?: Reunion[];
   tareas?: Tarea[];
-  decoracion?: DecoracionData; 
+  decoracion?: DecoracionData;
   invitados?: Invitado[];
   webPageSettings?: EventWebPageSettings;
   musica?: MusicaFiesta;
   reposteria?: ReposteriaData;
   bebidas?: BebidasData;
+  listaDeCargaOperativa?: ListaDeCargaOperativa;
 }
-    

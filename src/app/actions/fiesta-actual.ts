@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -16,7 +16,8 @@ import {
   defaultReposteriaData,
   defaultBebidasData,
   defaultReposteriaCategorias,
-  defaultBebidasCategorias
+  defaultBebidasCategorias,
+  defaultListaDeCargaOperativa
 } from '@/lib/fiesta-defaults';
 
 
@@ -44,14 +45,14 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
     let parsedData = JSON.parse(fileContent) as FiestaEnPlanificacion;
     
     if ((parsedData as any).salonLayout) {
-      const oldSalonLayout = (parsedData as any).salonLayout as DecoracionData; 
+      const oldSalonLayout = (parsedData as any).salonLayout as DecoracionData;
       parsedData.decoracion = {
-        ...(parsedData.decoracion || defaultDecoracion), 
+        ...(parsedData.decoracion || defaultDecoracion),
         salonPlanBackgroundImageUrl: oldSalonLayout.salonPlanBackgroundImageUrl || parsedData.decoracion?.salonPlanBackgroundImageUrl || defaultDecoracion.salonPlanBackgroundImageUrl,
         salonElements: oldSalonLayout.salonElements || parsedData.decoracion?.salonElements || defaultDecoracion.salonElements,
         generalNotesSalonLayout: oldSalonLayout.generalNotesSalonLayout || parsedData.decoracion?.generalNotesSalonLayout || defaultDecoracion.generalNotesSalonLayout,
       };
-      delete (parsedData as any).salonLayout; 
+      delete (parsedData as any).salonLayout;
     }
     if (!parsedData.decoracion) {
         parsedData.decoracion = { ...defaultDecoracion };
@@ -66,17 +67,19 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
       delete (parsedData.configuracion as any).direccionLugar;
     }
     
-    // Initialize webPageSettings if not present
     if (!parsedData.webPageSettings) {
       parsedData.webPageSettings = { ...defaultWebPageSettings };
     } else {
-      // Ensure all keys from defaultWebPageSettings are present
       parsedData.webPageSettings = {
         ...defaultWebPageSettings,
         ...parsedData.webPageSettings,
-        galleryImageUrls: parsedData.webPageSettings.galleryImageUrls || [], // Ensure galleryImageUrls is always an array
+        galleryImageUrls: parsedData.webPageSettings.galleryImageUrls || [],
       };
     }
+    if (!parsedData.listaDeCargaOperativa) {
+      parsedData.listaDeCargaOperativa = { ...defaultListaDeCargaOperativa };
+    }
+
 
     return parsedData;
   } catch (error) {
@@ -105,9 +108,8 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
       dataToWrite.decoracion.generalNotesDecoracion = dataToWrite.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
       dataToWrite.decoracion.colorGlobos = dataToWrite.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
     }
-    delete (dataToWrite as any).salonLayout; 
+    delete (dataToWrite as any).salonLayout;
     
-    // Ensure webPageSettings exists before writing
     if (!dataToWrite.webPageSettings) {
       dataToWrite.webPageSettings = { ...defaultWebPageSettings };
     } else {
@@ -117,6 +119,10 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
         galleryImageUrls: dataToWrite.webPageSettings.galleryImageUrls || [],
       };
     }
+    if (!dataToWrite.listaDeCargaOperativa) {
+      dataToWrite.listaDeCargaOperativa = { ...defaultListaDeCargaOperativa };
+    }
+
 
     await fs.writeFile(fiestaActualFilePath, JSON.stringify(dataToWrite, null, 2), 'utf-8');
   } catch (error) {
@@ -149,14 +155,14 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
 }
 
 async function initializeLocalFiestaFiles() {
-  await readFiestaActualFile(); 
+  await readFiestaActualFile();
   await readHistorialFile();
 }
 initializeLocalFiestaFiles();
 
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  const data = await readFiestaActualFile(); 
+  const data = await readFiestaActualFile();
    const validatedConfig: ConfigEventoDataStorage = {
     ...defaultConfiguracion,
     ...(data.configuracion || {}),
@@ -185,9 +191,9 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     };
 
     const validatedDecoracion: DecoracionData = {
-      ...defaultDecoracion, 
-      ...(data.decoracion || {}), 
-      paletaColores: { 
+      ...defaultDecoracion,
+      ...(data.decoracion || {}),
+      paletaColores: {
         ...defaultColorPalette,
         ...(data.decoracion?.paletaColores || {}),
       },
@@ -230,6 +236,16 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       ...(data.webPageSettings || {}),
       galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
     };
+    
+   const validatedListaDeCargaOperativa: ListaDeCargaOperativa = {
+      ...defaultListaDeCargaOperativa,
+      ...(data.listaDeCargaOperativa || {}),
+      categorias: (data.listaDeCargaOperativa?.categorias || []).map(cat => ({
+        ...cat,
+        items: (cat.items || []).map(item => ({ ...item }))
+      }))
+    };
+
 
    const validatedData: FiestaEnPlanificacion = {
     id: data.id || `fiesta_${Date.now()}`,
@@ -272,6 +288,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     },
     reposteria: validatedReposteria,
     bebidas: validatedBebidas,
+    listaDeCargaOperativa: validatedListaDeCargaOperativa,
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -461,8 +478,8 @@ export async function updateDecoracionFiestaActual(
     const currentDecoracion = fiestaActual.decoracion || { ...defaultDecoracion };
 
     fiestaActual.decoracion = {
-        ...currentDecoracion, 
-        ...decoracionDataInput, 
+        ...currentDecoracion,
+        ...decoracionDataInput,
 
         paletaColores: {
             ...defaultColorPalette,
@@ -727,6 +744,26 @@ export async function updateBebidasFiestaActual(
   }
 }
 
+export async function updateListaDeCargaOperativa(
+  lista: ListaDeCargaOperativa
+): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.listaDeCargaOperativa = {
+      ...defaultListaDeCargaOperativa, // Ensure defaults
+      ...lista, // Apply incoming changes
+      categorias: lista.categorias.map(cat => ({
+        ...cat,
+        items: (cat.items || []).map(item => ({...item})) // Deep copy items
+      }))
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.listaDeCargaOperativa)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la lista de carga operativa." };
+  }
+}
+
 
 export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta?: FiestaEnPlanificacion, error?: string }> {
   try {
@@ -765,4 +802,3 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
     return { success: false, error: e.message || "Error al archivar la fiesta." };
   }
 }
-    
