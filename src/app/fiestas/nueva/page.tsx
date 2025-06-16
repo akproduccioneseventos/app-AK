@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList, Archive } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
@@ -98,8 +98,8 @@ const planningModules: PlanningModule[] = [
   {
     title: "Servicios Contratados",
     description: "Visualiza todos los servicios y proveedores confirmados para tu evento.",
-    icon: ClipboardList, // Nuevo icono
-    href: "/fiestas/nueva/servicios-contratados", // Nueva ruta
+    icon: ClipboardList,
+    href: "/fiestas/nueva/servicios-contratados",
     status: "Disponible",
     actionLabel: "Ver Servicios Contratados"
   },
@@ -118,6 +118,14 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/reuniones",
     status: "Disponible",
     actionLabel: "Gestionar Reuniones"
+  },
+  {
+    title: "Gestión Documental y Financiera",
+    description: "Centraliza contratos, presupuestos, facturas y pagos del evento.",
+    icon: Archive,
+    href: "/fiestas/nueva/gestion-documental",
+    status: "Disponible",
+    actionLabel: "Administrar Documentos"
   }
 ];
 
