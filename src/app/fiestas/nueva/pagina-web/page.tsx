@@ -15,43 +15,18 @@ import NextImage from 'next/image';
 import type { EventWebPageSettings } from '@/types/fiesta';
 import { getFiestaActual, updateWebPageSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { Separator } from '@/components/ui/separator';
-
-
-const defaultSettings: EventWebPageSettings = {
-  pageTitle: 'Mi Evento Especial',
-  heroSubtitle: '¡Una celebración inolvidable!',
-  welcomeMessage: '¡Bienvenidos a la celebración!',
-  coverImageUrl: '',
-  galleryImageUrls: [],
-  showCountdown: true,
-  ourStoryTitle: 'Nuestra Historia',
-  ourStoryText: '',
-  ourStoryImageUrl: '',
-  showOurStory: true,
-  eventDetailsTitle: 'Detalles del Evento',
-  eventDetailsText: '',
-  showEventDetails: true,
-  dressCodeText: '',
-  showDressCode: false,
-  giftRegistryTitle: 'Lista de Regalos',
-  giftRegistryText: '',
-  showGiftRegistry: false,
-  showGallery: true,
-  showRsvp: true,
-};
+import { defaultWebPageSettings } from '@/lib/fiesta-defaults';
 
 
 export default function PaginaWebEventoPage() {
   const { toast } = useToast();
   const [fiestaId, setFiestaId] = useState<string | null>(null);
-  const [pageSettings, setPageSettings] = useState<EventWebPageSettings>(defaultSettings);
+  const [pageSettings, setPageSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
   
-  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
-  const [storyImageFile, setStoryImageFile] = useState<File | null>(null);
-  
+  // For storing Data URIs for previews and for saving if no backend.
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
   const [storyImagePreview, setStoryImagePreview] = useState<string | null>(null);
-  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]); // Array of Data URIs
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -63,10 +38,15 @@ export default function PaginaWebEventoPage() {
     try {
       const fiestaData = await getFiestaActual();
       setFiestaId(fiestaData.id);
-      setPageSettings(fiestaData.webPageSettings || defaultSettings);
-      setCoverImagePreview(fiestaData.webPageSettings?.coverImageUrl || null);
-      setStoryImagePreview(fiestaData.webPageSettings?.ourStoryImageUrl || null);
-      setGalleryPreviews(fiestaData.webPageSettings?.galleryImageUrls || []);
+      const currentSettings = fiestaData.webPageSettings || defaultWebPageSettings;
+      setPageSettings({
+        ...defaultWebPageSettings, // Ensure all defaults are present
+        ...currentSettings,        // Override with saved data
+        galleryImageUrls: currentSettings.galleryImageUrls || [], // Ensure it's an array
+      });
+      setCoverImagePreview(currentSettings.coverImageUrl || null);
+      setStoryImagePreview(currentSettings.ourStoryImageUrl || null);
+      setGalleryPreviews(currentSettings.galleryImageUrls || []);
     } catch (err: any) {
       console.error("Error loading web page settings:", err);
       setError("No se pudo cargar la configuración de la página web.");
@@ -84,42 +64,32 @@ export default function PaginaWebEventoPage() {
     setPageSettings(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleImageChange = (
+  const handleImageFileChange = (
     event: ChangeEvent<HTMLInputElement>, 
-    setFile: (file: File | null) => void, 
     setPreview: (url: string | null) => void,
-    originalUrlField?: keyof EventWebPageSettings
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      setFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreview(reader.result as string);
+        setPreview(reader.result as string); // Store as Data URI
       };
       reader.readAsDataURL(file);
     } else {
-      setFile(null);
-      if (originalUrlField) {
-         setPreview(pageSettings[originalUrlField] as string || null);
-      } else {
-        setPreview(null);
-      }
+      setPreview(null); // Clear preview if no file or selection cancelled
     }
   };
   
   const handleGalleryImagesChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      const newFilesArray = Array.from(files);
-      const currentPreviews = [...galleryPreviews]; 
-      
-      newFilesArray.forEach(file => {
+      const newPreviews: string[] = [];
+      Array.from(files).forEach(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          currentPreviews.push(reader.result as string);
-          if (currentPreviews.length === galleryPreviews.length + newFilesArray.length) {
-            setGalleryPreviews(currentPreviews.slice(-10)); // Keep up to 10, merge new ones
+          newPreviews.push(reader.result as string);
+          if (newPreviews.length === files.length) {
+            setGalleryPreviews(prev => [...prev, ...newPreviews].slice(-10)); // Add new, keep up to 10
           }
         };
         reader.readAsDataURL(file);
@@ -137,7 +107,7 @@ export default function PaginaWebEventoPage() {
     
     const settingsToSave: EventWebPageSettings = {
       ...pageSettings,
-      coverImageUrl: coverImagePreview || undefined, // Use preview (data URI or existing URL)
+      coverImageUrl: coverImagePreview || undefined, 
       ourStoryImageUrl: storyImagePreview || undefined,
       galleryImageUrls: galleryPreviews.length > 0 ? galleryPreviews : [],
     };
@@ -149,13 +119,15 @@ export default function PaginaWebEventoPage() {
           title: "¡Configuración Guardada!",
           description: "Los detalles de la página web del evento se han actualizado.",
         });
-        setPageSettings(result.updatedData);
-        setCoverImagePreview(result.updatedData.coverImageUrl || null);
-        setStoryImagePreview(result.updatedData.ourStoryImageUrl || null);
-        setGalleryPreviews(result.updatedData.galleryImageUrls || []);
-        setCoverImageFile(null); 
-        setStoryImageFile(null);
-        // galleryImageFiles are not directly stored, only previews
+        const updatedSettings = {
+          ...defaultWebPageSettings,
+          ...result.updatedData,
+          galleryImageUrls: result.updatedData.galleryImageUrls || [],
+        };
+        setPageSettings(updatedSettings);
+        setCoverImagePreview(updatedSettings.coverImageUrl || null);
+        setStoryImagePreview(updatedSettings.ourStoryImageUrl || null);
+        setGalleryPreviews(updatedSettings.galleryImageUrls || []);
       } else {
         throw new Error(result.error || "Error desconocido al guardar la configuración.");
       }
@@ -243,7 +215,7 @@ export default function PaginaWebEventoPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="cover-image-upload" className="text-base">Imagen de Portada (Hero)</Label>
-              <Input id="cover-image-upload" type="file" accept="image/*" onChange={(e) => handleImageChange(e, setCoverImageFile, setCoverImagePreview, 'coverImageUrl')} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving}/>
+              <Input id="cover-image-upload" type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setCoverImagePreview)} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving}/>
               {coverImagePreview && (<div className="mt-3 p-2 border rounded-md inline-block bg-muted/50"><NextImage src={coverImagePreview} alt="Vista previa de Portada" width={300} height={200} className="rounded object-contain max-h-[200px]" data-ai-hint="event cover background"/></div>)}
               {!coverImagePreview && (<div className="mt-3 p-4 border border-dashed rounded-md flex flex-col items-center justify-center text-muted-foreground h-[150px] bg-muted/30"><ImageIcon className="w-10 h-10 mb-2" /><p className="text-sm">Sube una imagen de portada</p></div>)}
             </div>
@@ -270,7 +242,7 @@ export default function PaginaWebEventoPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ourStoryImageUrl" className="text-base">Imagen para "Nuestra Historia"</Label>
-                <Input id="ourStoryImageUrl" type="file" accept="image/*" onChange={(e) => handleImageChange(e, setStoryImageFile, setStoryImagePreview, 'ourStoryImageUrl')} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving}/>
+                <Input id="ourStoryImageUrl" type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setStoryImagePreview)} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving}/>
                 {storyImagePreview && (<div className="mt-3 p-2 border rounded-md inline-block bg-muted/50"><NextImage src={storyImagePreview} alt="Vista previa Historia" width={200} height={150} className="rounded object-contain max-h-[150px]" data-ai-hint="couple story photo"/></div>)}
                  {!storyImagePreview && (<div className="mt-3 p-4 border border-dashed rounded-md flex flex-col items-center justify-center text-muted-foreground h-[100px] bg-muted/30"><ImageIcon className="w-8 h-8 mb-1" /><p className="text-xs">Sube una imagen para la historia</p></div>)}
               </div>
@@ -289,8 +261,12 @@ export default function PaginaWebEventoPage() {
                 <Input id="eventDetailsTitle" value={pageSettings.eventDetailsTitle || ''} onChange={(e) => handleInputChange('eventDetailsTitle', e.target.value)} className="text-base p-3" disabled={isSaving}/>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="eventDetailsText" className="text-base">Texto de "Detalles del Evento"</Label>
+                <Label htmlFor="eventDetailsText" className="text-base">Texto de "Detalles del Evento" (incluye programa)</Label>
                 <Textarea id="eventDetailsText" value={pageSettings.eventDetailsText || ''} onChange={(e) => handleInputChange('eventDetailsText', e.target.value)} placeholder="Incluye aquí información sobre la ceremonia, recepción, horarios, dirección, mapa, etc." rows={6} className="text-base p-3" disabled={isSaving}/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="programaEventoText" className="text-base">Programa del Evento (opcional, puede ir arriba)</Label>
+                <Textarea id="programaEventoText" value={pageSettings.programaEventoText || ''} onChange={(e) => handleInputChange('programaEventoText', e.target.value)} placeholder="Ej: 18:00 Ceremonia, 19:30 Recepción..." rows={4} className="text-base p-3" disabled={isSaving}/>
               </div>
             </>)}
 
@@ -335,8 +311,8 @@ export default function PaginaWebEventoPage() {
             </div>
             {pageSettings.showGallery && (<>
               <div className="space-y-2">
-                <Label htmlFor="gallery-images-upload" className="text-base">Añadir Imágenes a la Galería</Label>
-                <Input id="gallery-images-upload" type="file" accept="image/*" multiple onChange={handleGalleryImagesChange} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving}/>
+                <Label htmlFor="gallery-images-upload" className="text-base">Añadir Imágenes a la Galería (máx. 10)</Label>
+                <Input id="gallery-images-upload" type="file" accept="image/*" multiple onChange={handleGalleryImagesChange} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving || galleryPreviews.length >= 10}/>
                 {galleryPreviews.length > 0 && (
                   <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     {galleryPreviews.map((preview, index) => (
@@ -350,6 +326,14 @@ export default function PaginaWebEventoPage() {
                 {galleryPreviews.length === 0 && (<div className="mt-3 p-4 border border-dashed rounded-md flex flex-col items-center justify-center text-muted-foreground h-[150px] bg-muted/30"><ImageIcon className="w-10 h-10 mb-2" /><p className="text-sm">Sube imágenes para la galería</p></div>)}
               </div>
             </>)}
+            
+             {/* Música Especial Section */}
+            <Separator className="my-6"/>
+            <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Sección: Música Especial</h3>
+            <div className="space-y-2">
+                <Label htmlFor="musicaEspecialText" className="text-base">Canción para brindis/torta u otro momento</Label>
+                <Textarea id="musicaEspecialText" value={pageSettings.musicaEspecialText || ''} onChange={(e) => handleInputChange('musicaEspecialText', e.target.value)} placeholder="Ej: 'Thinking Out Loud' - Ed Sheeran. O un enlace a Spotify/Youtube." rows={2} className="text-base p-3" disabled={isSaving}/>
+            </div>
 
             {/* RSVP Section */}
             <Separator className="my-6"/>
@@ -383,3 +367,4 @@ export default function PaginaWebEventoPage() {
     </div>
   );
 }
+    

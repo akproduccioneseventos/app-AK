@@ -9,10 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, ImageOff, Send, PartyPopper, CalendarDays, MapPin, CheckCircle, QrCode, Users, Info, BookOpen, Percent, Gift } from 'lucide-react';
+import { Loader2, AlertTriangle, ImageOff, Send, PartyPopper, CalendarDays, MapPin, CheckCircle, QrCode, Users, Info, BookOpen, Percent, Gift, Music2 as MusicIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette } from '@/types/fiesta';
-import type { Invitado } from '@/types/invitado';
+import type { Invitado, RsvpStatus } from '@/types/invitado';
 import { getFiestaActual, handleRsvpSubmission } from '@/app/actions/fiesta-actual';
 import QRCodeStylized from 'qrcode.react';
 import { CountdownTimer } from '@/components/countdown-timer'; 
@@ -29,13 +29,14 @@ const formatDate = (dateString?: string, includeTime: boolean = true, timeString
     };
     let formattedDate = date.toLocaleDateString('es-ES', options);
     if (includeTime && timeString) {
-      // Asumimos que timeString es HH:MM
       const [hours, minutes] = timeString.split(':');
       if (hours && minutes) {
         let hourNum = parseInt(hours, 10);
         const ampm = hourNum >= 12 ? 'PM' : 'AM';
-        hourNum = hourNum % 12 || 12; // Convert to 12-hour format
+        hourNum = hourNum % 12 || 12; 
         formattedDate += ` a las ${hourNum}:${minutes} ${ampm}`;
+      } else if (includeTime && date.getHours() !== 0 || date.getMinutes() !== 0) { // Fallback to date's time if timeString is bad but includeTime is true
+        formattedDate += ` a las ${date.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
       }
     }
     return formattedDate;
@@ -138,14 +139,13 @@ export default function EventoPublicoPage() {
       });
 
       if (result.success && result.invitado) {
-        if (result.invitado.rsvp === 'Confirmado') {
+        if (result.invitado.rsvp === 'Confirmado' || result.invitado.rsvp === 'Quizás') {
           setConfirmedGuestDetails(result.invitado);
           setRsvpSubmittedSuccessfully(true); 
-        } else {
+        } else { // Rechazado
           toast({
-            title: "¡Respuesta Recibida!",
-            description: `Gracias ${rsvpForm.nombreCompleto}, hemos recibido tu respuesta.`,
-            className: "bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900/70 dark:text-blue-200 dark:border-blue-700"
+            title: "Respuesta Recibida",
+            description: `Gracias ${rsvpForm.nombreCompleto}, hemos recibido tu respuesta. ¡Lamentamos que no puedas asistir!`,
           });
           setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numeroAsistentes: 1, mensaje: '' }); 
         }
@@ -189,10 +189,7 @@ export default function EventoPublicoPage() {
   const primaryColor = paletaColores?.primary || 'hsl(var(--primary))';
   const secondaryColor = paletaColores?.secondary || 'hsl(var(--secondary))';
   const accentColor = paletaColores?.accent || 'hsl(var(--accent))';
-  const shouldUseDarkTextOnPrimary = true; 
-  // const shouldUseDarkTextOnSecondary = false; // No se usa
-
-  const heroTextStyle = shouldUseDarkTextOnPrimary ? 'text-gray-800' : 'text-white';
+  const heroTextStyle = webSettings.coverImageUrl ? 'text-white' : 'text-primary-foreground';
 
   return (
     <div className="min-h-screen bg-background text-foreground font-body">
@@ -202,7 +199,7 @@ export default function EventoPublicoPage() {
       >
         <div className={cn("absolute inset-0 z-0", webSettings.coverImageUrl ? 'bg-black/50' : '')}></div>
         <div className={cn("relative z-10 p-6 rounded-lg max-w-3xl mx-auto", webSettings.coverImageUrl ? 'bg-black/30 backdrop-blur-sm' : '')}>
-            <PartyPopper className={cn("w-16 h-16 mx-auto mb-4", heroTextStyle)} style={{ color: webSettings.coverImageUrl ? 'white' : primaryColor }} />
+            <PartyPopper className={cn("w-16 h-16 mx-auto mb-4", heroTextStyle)} style={{ color: webSettings.coverImageUrl ? 'white' : (paletaColores?.accent || 'hsl(var(--accent-foreground))') }} />
             <h1 className={cn("text-4xl md:text-6xl font-bold font-headline", heroTextStyle)}>
               {webSettings.pageTitle || fiesta.configuracion.nombreEvento}
             </h1>
@@ -240,7 +237,7 @@ export default function EventoPublicoPage() {
                             </div>
                         )}
                         {webSettings.ourStoryText && (
-                            <div className={cn("md:w-1/2 prose prose-lg dark:prose-invert max-w-none", webSettings.ourStoryImageUrl ? '' : 'mx-auto text-center')}>
+                            <div className={cn("md:w-1/2 prose prose-lg dark:prose-invert max-w-none", !webSettings.ourStoryImageUrl && 'mx-auto text-center')}>
                                 <p className="whitespace-pre-line text-muted-foreground">{webSettings.ourStoryText}</p>
                             </div>
                         )}
@@ -267,7 +264,6 @@ export default function EventoPublicoPage() {
                                 <div>
                                     <h3 className="font-semibold">Lugar</h3>
                                     <p className="text-muted-foreground">{fiesta.configuracion.nombreLugar}</p>
-                                    {/* Dirección del Lugar eliminada de la visualización */}
                                 </div>
                             </div>
                         )}
@@ -276,8 +272,24 @@ export default function EventoPublicoPage() {
                                 {webSettings.eventDetailsText}
                             </div>
                         )}
+                        {webSettings.programaEventoText && (<>
+                            <Separator/>
+                            <h3 className="font-semibold pt-2">Programa del Evento:</h3>
+                             <div className="pt-1 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground">
+                                {webSettings.programaEventoText}
+                            </div>
+                        </>)}
                     </CardContent>
                  </Card>
+            </section>
+        )}
+         {webSettings.musicaEspecialText && (
+             <section id="musica-especial" className="text-center py-8" style={{ backgroundColor: `${secondaryColor}1A` }}>
+                 <h2 className="text-2xl md:text-3xl font-semibold font-headline mb-4" style={{color: primaryColor}}>Música Especial</h2>
+                 <div className="flex items-center justify-center gap-2 text-lg text-muted-foreground">
+                    <MusicIcon className="w-6 h-6" style={{color: accentColor}}/>
+                    <p>{webSettings.musicaEspecialText}</p>
+                 </div>
             </section>
         )}
 
@@ -290,7 +302,7 @@ export default function EventoPublicoPage() {
         
         {webSettings.showGiftRegistry && webSettings.giftRegistryText && (
             <section id="gift-registry" className="py-8">
-                 <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-6" style={{color: primaryColor}}>{webSettings.giftRegistryTitle || "Lista de Regalos"}</h2>
+                 <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-6" style={{color: primaryColor}}>{webSettings.giftRegistryTitle || "Regalos"}</h2>
                  <Card className="shadow-md">
                     <CardContent className="p-6 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground text-center">
                         {webSettings.giftRegistryText}
@@ -320,14 +332,16 @@ export default function EventoPublicoPage() {
                         {rsvpSubmittedSuccessfully && confirmedGuestDetails ? `¡Gracias, ${confirmedGuestDetails.nombre}!` : 'Confirma tu Asistencia'}
                     </CardTitle>
                     <CardDescription className="text-md">
-                        {rsvpSubmittedSuccessfully && confirmedGuestDetails ? 'Hemos recibido tu confirmación.' : 'Por favor, ayúdanos a organizar mejor el evento.'}
+                        {rsvpSubmittedSuccessfully && confirmedGuestDetails ? 'Hemos recibido tu respuesta.' : 'Por favor, ayúdanos a organizar mejor el evento.'}
                     </CardDescription>
                 </CardHeader>
                 {rsvpSubmittedSuccessfully && confirmedGuestDetails ? (
                     <CardContent className="text-center space-y-6 py-8">
                         <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
-                        <p className="text-xl">Tu asistencia para {confirmedGuestDetails.partySize} persona(s) ha sido registrada.</p>
-                        {confirmedGuestDetails.id && (
+                         <p className="text-xl">
+                            Tu estado de asistencia ({confirmedGuestDetails.rsvp}) para {confirmedGuestDetails.partySize} persona(s) ha sido registrado.
+                        </p>
+                        {confirmedGuestDetails.id && (confirmedGuestDetails.rsvp === 'Confirmado' || confirmedGuestDetails.rsvp === 'Quizás') && (
                             <div className="mt-8 space-y-4">
                                 <p className="font-semibold text-lg">Tu código QR para el evento:</p>
                                 <div className="flex justify-center p-4 bg-white rounded-lg border shadow-inner">
@@ -374,7 +388,7 @@ export default function EventoPublicoPage() {
                         </div>
                         </CardContent>
                         <CardFooter>
-                        <Button type="submit" className="w-full text-lg py-6" disabled={isSubmittingRsvp} style={{ backgroundColor: accentColor, color: shouldUseDarkTextOnPrimary ? 'hsl(var(--primary-foreground))' : 'hsl(var(--accent-foreground))' }}>
+                        <Button type="submit" className="w-full text-lg py-6" disabled={isSubmittingRsvp} style={{ backgroundColor: accentColor, color: paletaColores?.primary ? 'hsl(var(--primary-foreground))' : 'hsl(var(--accent-foreground))' }}>
                             {isSubmittingRsvp ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Send className="w-5 h-5 mr-2" />}
                             {isSubmittingRsvp ? 'Enviando Confirmación...' : 'Enviar Confirmación'}
                         </Button>
@@ -391,5 +405,4 @@ export default function EventoPublicoPage() {
     </div>
   );
 }
-
     

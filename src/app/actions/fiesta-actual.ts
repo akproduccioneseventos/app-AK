@@ -11,7 +11,6 @@ import {
   baseDefaultTareas as defaultTareas,
   defaultColorPalette,
   defaultDecoracion,
-  // defaultSalonLayout no se usa más directamente aquí, sus propiedades están en defaultDecoracion
   defaultWebPageSettings,
   defaultMusicaFiesta,
   defaultReposteriaData,
@@ -44,19 +43,16 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
     if (fileContent.trim() === '') throw new Error('Fiesta actual file is empty');
     let parsedData = JSON.parse(fileContent) as FiestaEnPlanificacion;
     
-    // --- MIGRATION LOGIC ---
-    // If old structure with separate salonLayout exists, merge it into decoracion
     if ((parsedData as any).salonLayout) {
-      const oldSalonLayout = (parsedData as any).salonLayout as DecoracionData; // Assuming DecoracionData can hold these for temp cast
+      const oldSalonLayout = (parsedData as any).salonLayout as DecoracionData; 
       parsedData.decoracion = {
-        ...(parsedData.decoracion || defaultDecoracion), // Keep existing decoracion fields
+        ...(parsedData.decoracion || defaultDecoracion), 
         salonPlanBackgroundImageUrl: oldSalonLayout.salonPlanBackgroundImageUrl || parsedData.decoracion?.salonPlanBackgroundImageUrl || defaultDecoracion.salonPlanBackgroundImageUrl,
         salonElements: oldSalonLayout.salonElements || parsedData.decoracion?.salonElements || defaultDecoracion.salonElements,
         generalNotesSalonLayout: oldSalonLayout.generalNotesSalonLayout || parsedData.decoracion?.generalNotesSalonLayout || defaultDecoracion.generalNotesSalonLayout,
       };
-      delete (parsedData as any).salonLayout; // Remove old salonLayout
+      delete (parsedData as any).salonLayout; 
     }
-    // Ensure decoracion exists and has the layout fields if they were missing
     if (!parsedData.decoracion) {
         parsedData.decoracion = { ...defaultDecoracion };
     } else {
@@ -66,11 +62,21 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         parsedData.decoracion.generalNotesDecoracion = parsedData.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
         parsedData.decoracion.colorGlobos = parsedData.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
     }
-    // Ensure direccionLugar is removed if present from old data structures
     if (parsedData.configuracion && 'direccionLugar' in parsedData.configuracion) {
       delete (parsedData.configuracion as any).direccionLugar;
     }
-    // --- END MIGRATION LOGIC ---
+    
+    // Initialize webPageSettings if not present
+    if (!parsedData.webPageSettings) {
+      parsedData.webPageSettings = { ...defaultWebPageSettings };
+    } else {
+      // Ensure all keys from defaultWebPageSettings are present
+      parsedData.webPageSettings = {
+        ...defaultWebPageSettings,
+        ...parsedData.webPageSettings,
+        galleryImageUrls: parsedData.webPageSettings.galleryImageUrls || [], // Ensure galleryImageUrls is always an array
+      };
+    }
 
     return parsedData;
   } catch (error) {
@@ -90,7 +96,6 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
     if (dataToWrite.configuracion && 'direccionLugar' in dataToWrite.configuracion) {
       delete (dataToWrite.configuracion as any).direccionLugar;
     }
-    // Ensure decoracion exists before writing
     if (!dataToWrite.decoracion) {
       dataToWrite.decoracion = { ...defaultDecoracion };
     } else {
@@ -100,7 +105,19 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
       dataToWrite.decoracion.generalNotesDecoracion = dataToWrite.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
       dataToWrite.decoracion.colorGlobos = dataToWrite.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
     }
-    delete (dataToWrite as any).salonLayout; // Explicitly remove old structure if it somehow got here
+    delete (dataToWrite as any).salonLayout; 
+    
+    // Ensure webPageSettings exists before writing
+    if (!dataToWrite.webPageSettings) {
+      dataToWrite.webPageSettings = { ...defaultWebPageSettings };
+    } else {
+      dataToWrite.webPageSettings = {
+        ...defaultWebPageSettings,
+        ...dataToWrite.webPageSettings,
+        galleryImageUrls: dataToWrite.webPageSettings.galleryImageUrls || [],
+      };
+    }
+
     await fs.writeFile(fiestaActualFilePath, JSON.stringify(dataToWrite, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing fiesta-actual.json file:', error);
@@ -132,14 +149,14 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
 }
 
 async function initializeLocalFiestaFiles() {
-  await readFiestaActualFile(); // This will now handle potential migration
+  await readFiestaActualFile(); 
   await readHistorialFile();
 }
 initializeLocalFiestaFiles();
 
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  const data = await readFiestaActualFile(); // Read already handles migration
+  const data = await readFiestaActualFile(); 
    const validatedConfig: ConfigEventoDataStorage = {
     ...defaultConfiguracion,
     ...(data.configuracion || {}),
@@ -167,11 +184,10 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         categorias: mergedBebidasCategorias,
     };
 
-    // Ensure decoracion includes all fields, including merged salon layout fields
     const validatedDecoracion: DecoracionData = {
-      ...defaultDecoracion, // Start with full default structure
-      ...(data.decoracion || {}), // Override with saved data
-      paletaColores: { // Ensure paletaColores exists and has defaults
+      ...defaultDecoracion, 
+      ...(data.decoracion || {}), 
+      paletaColores: { 
         ...defaultColorPalette,
         ...(data.decoracion?.paletaColores || {}),
       },
@@ -188,7 +204,6 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
           dataAiHint: item.dataAiHint || undefined,
       })),
       decoracionTorta: data.decoracion?.decoracionTorta || { ...defaultDecoracion.decoracionTorta },
-      // Explicitly ensure salon layout fields from defaultDecoracion if not present in data.decoracion
       salonPlanBackgroundImageUrl: data.decoracion?.salonPlanBackgroundImageUrl ?? defaultDecoracion.salonPlanBackgroundImageUrl,
       salonElements: (data.decoracion?.salonElements || defaultDecoracion.salonElements || []).map(el => ({
             id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
@@ -210,6 +225,11 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       colorGlobos: data.decoracion?.colorGlobos ?? defaultDecoracion.colorGlobos,
     };
 
+   const validatedWebPageSettings: EventWebPageSettings = {
+      ...defaultWebPageSettings,
+      ...(data.webPageSettings || {}),
+      galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
+    };
 
    const validatedData: FiestaEnPlanificacion = {
     id: data.id || `fiesta_${Date.now()}`,
@@ -245,11 +265,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       tableNumber: inv.tableNumber || undefined,
       notes: inv.notes || undefined,
     })),
-    webPageSettings: {
-      ...defaultWebPageSettings,
-      ...(data.webPageSettings || {}),
-      galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
-    },
+    webPageSettings: validatedWebPageSettings,
     musica: {
       ...defaultMusicaFiesta,
       ...(data.musica || {}),
@@ -257,7 +273,6 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     reposteria: validatedReposteria,
     bebidas: validatedBebidas,
   };
-  // Remove old salonLayout key if it exists at the root of validatedData
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
   }
@@ -437,21 +452,18 @@ export async function updateTareasFiestaActual(
   }
 }
 
-// Actualiza decoracionData, que ahora incluye campos del layout
 export async function updateDecoracionFiestaActual(
   decoracionDataInput: Partial<DecoracionData>
 ): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
   try {
     let fiestaActual = await getFiestaActual();
     
-    // Ensure we start with existing or default full decoracion structure
     const currentDecoracion = fiestaActual.decoracion || { ...defaultDecoracion };
 
     fiestaActual.decoracion = {
-        ...currentDecoracion, // Base with all fields (including salon layout fields)
-        ...decoracionDataInput, // Apply incoming partial updates
+        ...currentDecoracion, 
+        ...decoracionDataInput, 
 
-        // Explicitly merge complex nested objects if necessary
         paletaColores: {
             ...defaultColorPalette,
             ...(currentDecoracion.paletaColores || {}),
@@ -753,5 +765,4 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
     return { success: false, error: e.message || "Error al archivar la fiesta." };
   }
 }
-
     

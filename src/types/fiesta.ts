@@ -75,36 +75,34 @@ export interface DecoracionData {
   paletaColores?: ColorPalette;
   moodboardImageUrl?: string;
   colorCubremantel?: string;
-  colorGlobos?: string; // NUEVO
+  colorGlobos?: string; 
   decoracionTorta?: {
     descripcion?: string;
     imageUrl?: string;
     dataAiHint?: string;
   };
-  items?: DecorationItem[]; // Elementos decorativos específicos no necesariamente en el plano
+  items?: DecorationItem[]; 
   zonasContratadas?: ZonaContratada[];
-  generalNotesDecoracion?: string; // Notas específicas de la estética
+  generalNotesDecoracion?: string; 
   pdfNotasAdicionales?: string;
-
-  // Campos fusionados del antiguo SalonLayoutData
-  salonPlanBackgroundImageUrl?: string; // Imagen de fondo para el plano del salón
-  salonElements?: LayoutElement[];       // Elementos ubicados en el plano (mesas, sillas, etc.)
-  generalNotesSalonLayout?: string;   // Notas específicas para la disposición del salón
+  salonPlanBackgroundImageUrl?: string; 
+  salonElements?: LayoutElement[];       
+  generalNotesSalonLayout?: string;  
 }
 
 export interface EventWebPageSettings {
   pageTitle?: string;
   heroSubtitle?: string;
   welcomeMessage?: string;
-  coverImageUrl?: string;
-  galleryImageUrls?: string[];
+  coverImageUrl?: string; // Data URI or URL
+  galleryImageUrls?: string[]; // Array of Data URIs or URLs
   showCountdown?: boolean;
   ourStoryTitle?: string;
   ourStoryText?: string;
-  ourStoryImageUrl?: string;
+  ourStoryImageUrl?: string; // Data URI or URL
   showOurStory?: boolean;
   eventDetailsTitle?: string;
-  eventDetailsText?: string;
+  eventDetailsText?: string; // Can include program/schedule here
   showEventDetails?: boolean;
   dressCodeText?: string;
   showDressCode?: boolean;
@@ -113,6 +111,9 @@ export interface EventWebPageSettings {
   showGiftRegistry?: boolean;
   showGallery?: boolean;
   showRsvp?: boolean;
+  // Placeholder for optional sections from prompt
+  programaEventoText?: string;
+  musicaEspecialText?: string;
 }
 
 export interface MusicaFiesta {
@@ -122,7 +123,6 @@ export interface MusicaFiesta {
   listaNoReproducir?: string;
 }
 
-// Tipos para el Módulo de Repostería
 export interface ReposteriaItem {
   id: string;
   nombre: string;
@@ -161,16 +161,15 @@ export interface ReposteriaData {
   notasGenerales?: string;
 }
 
-// Tipos para el Módulo de Bebidas
 export interface BebidaItem {
   id: string;
   nombre: string;
   marca?: string;
-  presentacion?: string; // Ej: Botella 2L, Lata 350ml
-  cantidadNecesaria?: number; // Calculada o manual
+  presentacion?: string; 
+  cantidadNecesaria?: number; 
   unidadCantidad?: 'unidades' | 'litros' | 'botellas';
   costoUnitario?: number;
-  costoTotal?: number; // Calculado
+  costoTotal?: number; 
   proveedorHabitual?: string;
   notas?: string;
 }
@@ -200,6 +199,18 @@ export interface BebidasData {
   notasGenerales?: string;
 }
 
+export interface Tarea {
+  id: string;
+  texto: string;
+  descripcion?: string;
+  completada: boolean;
+  fechaLimite?: string; // ISO string
+  horaVencimiento?: string; // HH:mm
+  recordatorio?: string; // Ej: "1 día antes", "2 horas antes"
+  asignadaA?: string;
+  esPredeterminada?: boolean; // Indica si es una tarea base que se puede reutilizar
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -208,9 +219,8 @@ export interface FiestaEnPlanificacion {
   presupuestoId?: string;
   invoiceIds?: string[];
   reuniones?: Reunion[];
-  // salonLayout ya no existe, se fusiona en decoracion
   tareas?: Tarea[];
-  decoracion?: DecoracionData; // Contiene ahora también la info del plano del salón
+  decoracion?: DecoracionData; 
   invitados?: Invitado[];
   webPageSettings?: EventWebPageSettings;
   musica?: MusicaFiesta;

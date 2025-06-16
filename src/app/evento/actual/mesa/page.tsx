@@ -3,7 +3,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Home, User, Ticket, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
@@ -78,7 +78,6 @@ function MesaLookupContent() {
   }
 
   if (!invitado || !fiesta) {
-    // Should be caught by error state, but as a fallback
     return (
        <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
@@ -153,3 +152,4 @@ export default function MesaPage() {
         </div>
     );
 }
+    

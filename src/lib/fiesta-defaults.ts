@@ -1,5 +1,4 @@
 
-// src/lib/fiesta-defaults.ts
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
@@ -56,15 +55,15 @@ export const defaultDecoracion: DecoracionData = {
   paletaColores: { ...defaultColorPalette },
   moodboardImageUrl: '',
   colorCubremantel: '',
-  colorGlobos: '', // Nuevo
+  colorGlobos: '', 
   decoracionTorta: { descripcion: '', imageUrl: '', dataAiHint: 'cake design' },
   items: [],
   zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
   generalNotesDecoracion: "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
   pdfNotasAdicionales: '',
-  salonPlanBackgroundImageUrl: '', // fusionado de SalonLayoutData
-  salonElements: [],               // fusionado de SalonLayoutData
-  generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.', // fusionado de SalonLayoutData
+  salonPlanBackgroundImageUrl: '', 
+  salonElements: [],              
+  generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.', 
 };
 
 export const defaultWebPageSettings: EventWebPageSettings = {
@@ -88,6 +87,8 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   showGiftRegistry: false,
   showGallery: true,
   showRsvp: true,
+  programaEventoText: '',
+  musicaEspecialText: '',
 };
 
 export const defaultMusicaFiesta: MusicaFiesta = {
@@ -97,7 +98,6 @@ export const defaultMusicaFiesta: MusicaFiesta = {
   listaNoReproducir: '',
 };
 
-// Defaults para Repostería
 export const defaultReposteriaCategorias: ReposteriaCategoria[] = [
   { id: 'tortas_personalizadas', nombreDisplay: 'Tortas Personalizadas', activada: false, items: [], descripcion: 'Diseño y sabores a medida.', cantidadEstimadaPersonas: 0 },
   { id: 'cupcakes_minitortas', nombreDisplay: 'Cupcakes / Mini Tortas', activada: false, items: [], descripcion: 'Pequeñas delicias individuales.', cantidadEstimadaPersonas: 0 },
@@ -113,7 +113,6 @@ export const defaultReposteriaData: ReposteriaData = {
   notasGenerales: '',
 };
 
-// Defaults para Bebidas
 export const defaultBebidasCategorias: BebidaCategoria[] = [
   { id: 'refrescos_gaseosas', nombreDisplay: 'Refrescos / Gaseosas', activada: false, items: [], descripcion: 'Variedad de bebidas carbonatadas.' },
   { id: 'jugos', nombreDisplay: 'Jugos Naturales y Envasados', activada: false, items: [], descripcion: 'Opciones frutales y refrescantes.' },
@@ -147,8 +146,8 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     recordatorio: t.recordatorio || undefined,
     esPredeterminada: t.esPredeterminada || false,
    }))],
-  decoracion: { // Contiene ahora todos los campos de decoración y layout
-    ...defaultDecoracion, // Esto ya incluye salonPlanBackgroundImageUrl, salonElements, etc.
+  decoracion: { 
+    ...defaultDecoracion, 
     items: [],
     paletaColores: { ...defaultColorPalette },
     zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
@@ -159,5 +158,4 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
   bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
 };
-
     
