@@ -183,7 +183,6 @@ export default function ViewInvoicePage() {
         </div>
       </div>
 
-      {/* Invoice Details Card - Now includes Payments and Add Payment Form */}
       <Card className="overflow-hidden shadow-lg print:shadow-none">
         <CardHeader className="p-6 bg-muted/30 print:bg-transparent print:p-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -301,36 +300,38 @@ export default function ViewInvoicePage() {
                 <h3 className="font-headline text-xl">Pagos Registrados</h3>
             </div>
             {invoice.payments && invoice.payments.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="print:text-xs">Fecha Pago</TableHead>
-                    <TableHead className="print:text-xs">Importe</TableHead>
-                    <TableHead className="print:text-xs">Método</TableHead>
-                    <TableHead className="print:text-xs">Notas</TableHead>
-                    <TableHead className="print:text-xs">Comprobante</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invoice.payments.map(payment => (
-                    <TableRow key={payment.id}>
-                      <TableCell className="print:text-xs">{formatDate(payment.paymentDate)}</TableCell>
-                      <TableCell className="print:text-xs">{formatCurrency(payment.amount, invoice.currency)}</TableCell>
-                      <TableCell className="print:text-xs">{payment.method || 'N/A'}</TableCell>
-                      <TableCell className="print:text-xs">{payment.notes || '-'}</TableCell>
-                      <TableCell>
-                        {payment.receiptImageUrl ? (
-                          <a href={payment.receiptImageUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm flex items-center gap-1 print:text-xs">
-                            <LinkIconLucide className="w-3 h-3"/> Ver
-                          </a>
-                        ) : (
-                          <span className="print:text-xs">-</span>
-                        )}
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="print:text-xs">Fecha Pago</TableHead>
+                      <TableHead className="print:text-xs">Importe</TableHead>
+                      <TableHead className="print:text-xs">Método</TableHead>
+                      <TableHead className="print:text-xs">Notas</TableHead>
+                      <TableHead className="print:text-xs">Comprobante</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {invoice.payments.map(payment => (
+                      <TableRow key={payment.id}>
+                        <TableCell className="print:text-xs">{formatDate(payment.paymentDate)}</TableCell>
+                        <TableCell className="print:text-xs">{formatCurrency(payment.amount, invoice.currency)}</TableCell>
+                        <TableCell className="print:text-xs">{payment.method || 'N/A'}</TableCell>
+                        <TableCell className="print:text-xs">{payment.notes || '-'}</TableCell>
+                        <TableCell>
+                          {payment.receiptImageUrl ? (
+                            <a href={payment.receiptImageUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm flex items-center gap-1 print:text-xs">
+                              <LinkIconLucide className="w-3 h-3"/> Ver
+                            </a>
+                          ) : (
+                            <span className="print:text-xs">-</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="text-center py-6 text-muted-foreground bg-muted/20 rounded-md">
                 <Info className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -413,7 +414,6 @@ export default function ViewInvoicePage() {
               </form>
             </div>
           )}
-
         </CardContent>
         <CardFooter className="p-6 text-center bg-muted/30 print:mt-4 print:p-2 print:border-t print:border-gray-300">
             <p className="text-xs text-muted-foreground print:text-[8pt]">
