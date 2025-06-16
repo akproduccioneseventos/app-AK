@@ -19,7 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
 import { MonthlySalesChart, type MonthlyChartData } from '@/components/charts/MonthlySalesChart';
 import { PaymentStatusPieChart, type PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
-import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton import
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
 

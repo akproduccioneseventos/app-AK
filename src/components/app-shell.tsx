@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, BarChart3, PackagePlus, Edit } from 'lucide-react'; // Added PackagePlus and Edit
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, BarChart3, PackagePlus, Edit } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -169,7 +169,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
 
   if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/contabilidad') return BarChart3;
+  if (pathname === '/empresa/contabilidad') return BarChart3; 
   if (pathname === '/empresa/todos-los-servicios') return Package; 
   if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
   if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;
