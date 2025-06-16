@@ -2,7 +2,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import AppLogo from './app-logo';
+import AppLogo from '@/components/app-logo'; // Corrected import path
 import { Button } from '@/components/ui/button';
 import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -83,7 +83,6 @@ const getPageTitle = (pathname: string): string => {
 
 
   // Contabilidad & CRM
-  // if (pathname === '/contabilidad/pagos') return 'Registro de Pagos'; // Removed
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
 
@@ -192,7 +191,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
-  // if (pathname === '/contabilidad/pagos') return Banknote; // Removed
   if (pathname === '/contabilidad/crm') return KanbanSquare;
   
   if (pathname === '/settings') return SettingsIcon;

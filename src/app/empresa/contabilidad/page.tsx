@@ -84,13 +84,7 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: FileTextIcon,
     actionLabel: 'Ir a Facturas',
   },
-  // {
-  //   title: 'Registro de Pagos',
-  //   description: 'Lleva un control de todos los pagos recibidos y pendientes.',
-  //   href: '/contabilidad/pagos',
-  //   icon: Banknote,
-  //   actionLabel: 'Ver Pagos',
-  // },
+  // El "Registro de Pagos" general fue eliminado
   {
     title: 'Gestión de Clientes',
     description: 'Consulta y administra la información de tus clientes confirmados.',
@@ -303,7 +297,7 @@ export default function ContabilidadDashboardPage() {
           )}
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
-          <Info className="w-4 h-4 mr-2"/> Gráficos basados en los últimos 12 meses y estado actual de pagos. Filtros se añadirán.
+           <Info className="w-4 h-4 mr-2"/> Gráficos basados en los últimos 12 meses y estado actual de pagos. Filtros se añadirán.
         </CardFooter>
       </Card>
 
