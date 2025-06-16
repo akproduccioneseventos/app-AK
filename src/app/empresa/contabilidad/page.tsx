@@ -84,13 +84,13 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: FileTextIcon,
     actionLabel: 'Ir a Facturas',
   },
-  {
-    title: 'Registro de Pagos',
-    description: 'Lleva un control de todos los pagos recibidos y pendientes.',
-    href: '/contabilidad/pagos',
-    icon: Banknote,
-    actionLabel: 'Ver Pagos',
-  },
+  // {
+  //   title: 'Registro de Pagos',
+  //   description: 'Lleva un control de todos los pagos recibidos y pendientes.',
+  //   href: '/contabilidad/pagos',
+  //   icon: Banknote,
+  //   actionLabel: 'Ver Pagos',
+  // },
   {
     title: 'Gestión de Clientes',
     description: 'Consulta y administra la información de tus clientes confirmados.',
