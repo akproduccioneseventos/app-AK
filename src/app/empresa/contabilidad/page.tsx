@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'; // Added CardFooter
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomers } from '@/app/actions/customers';
@@ -14,9 +14,11 @@ import { getInvoices } from '@/app/actions/invoices';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
-import type { Invoice } from '@/types/invoice';
+import type { Invoice, Payment } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
+import { MonthlySalesChart, type MonthlyChartData } from '@/components/charts/MonthlySalesChart';
+import { PaymentStatusPieChart, type PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
 
 
 const formatCurrency = (amount?: number) => {
@@ -30,10 +32,11 @@ interface KpiCardProps {
   description?: string;
   icon: React.ElementType;
   isLoading?: boolean;
+  className?: string;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({ title, value, description, icon: Icon, isLoading }) => (
-  <Card className="shadow-md hover:shadow-lg transition-shadow">
+const KpiCard: React.FC<KpiCardProps> = ({ title, value, description, icon: Icon, isLoading, className }) => (
+  <Card className={cn("shadow-md hover:shadow-lg transition-shadow", className)}>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       <Icon className="h-5 w-5 text-primary" />
@@ -111,6 +114,14 @@ export default function ContabilidadDashboardPage() {
   const [montoPorPagar, setMontoPorPagar] = useState(0);
   const [ventasProyectadas, setVentasProyectadas] = useState(0);
 
+  // Smart Indicators
+  const [ventasPromedioCliente, setVentasPromedioCliente] = useState(0);
+  const [tasaConversionProspectos, setTasaConversionProspectos] = useState(0);
+
+  // Chart Data
+  const [monthlyChartData, setMonthlyChartData] = useState<MonthlyChartData[]>([]);
+  const [paymentPieChartData, setPaymentPieChartData] = useState<PaymentPieChartData[]>([]);
+
 
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
@@ -130,36 +141,87 @@ export default function ContabilidadDashboardPage() {
         getInvoices(),
       ]);
 
-      // Calcular KPIs
+      // Calculate KPIs
       setFiestasPasadas(historialFiestasData.length);
-      setFiestasFuturas((fiestaActualData && fiestaActualData.configuracion.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= new Date()) ? 1 : 0);
+      const esFiestaFutura = fiestaActualData?.configuracion?.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= new Date();
+      setFiestasFuturas(esFiestaFutura ? 1 : 0);
       setClientesActivos(customersData.filter(c => c.estadoCliente === 'Actual').length);
-      setProspectos(presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length);
       
-      setVentasTotales(
-        presupuestosData
-          .filter(p => p.estado === 'Aceptado' || p.estado === 'Facturado')
-          .reduce((sum, p) => sum + p.costoTotalEstimado, 0)
-      );
+      const prospectosActivos = presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length;
+      setProspectos(prospectosActivos);
+      
+      const ventasConfirmadas = presupuestosData
+        .filter(p => p.estado === 'Aceptado' || p.estado === 'Facturado')
+        .reduce((sum, p) => sum + p.costoTotalEstimado, 0);
+      setVentasTotales(ventasConfirmadas);
       
       const totalPaidFromInvoices = invoicesData.reduce(
         (total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0
       );
       setMontoPagado(totalPaidFromInvoices);
 
-      setMontoPorPagar(
-        invoicesData.reduce((total, inv) => {
-          const paidOnThisInvoice = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
-          const dueOnThisInvoice = inv.totalAmount - paidOnThisInvoice;
-          return total + (dueOnThisInvoice > 0 ? dueOnThisInvoice : 0);
-        }, 0)
-      );
+      const totalDueFromInvoices = invoicesData.reduce((total, inv) => {
+        const paidOnThisInvoice = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
+        const dueOnThisInvoice = inv.totalAmount - paidOnThisInvoice;
+        return total + (dueOnThisInvoice > 0 ? dueOnThisInvoice : 0);
+      }, 0);
+      setMontoPorPagar(totalDueFromInvoices);
       
       setVentasProyectadas(
         presupuestosData
-          .filter(p => p.estado === 'Aceptado') // Simplificación
+          .filter(p => p.estado === 'Aceptado') 
           .reduce((sum, p) => sum + p.costoTotalEstimado, 0)
       );
+
+      // Calculate Smart Indicators
+      const presupuestosAceptadosFacturados = presupuestosData.filter(p => p.estado === 'Aceptado' || p.estado === 'Facturado');
+      const clientesUnicos = new Set(presupuestosAceptadosFacturados.map(p => p.clienteNombre)).size;
+      setVentasPromedioCliente(clientesUnicos > 0 ? ventasConfirmadas / clientesUnicos : 0);
+
+      const totalPresupuestosNoBorrador = presupuestosData.filter(p => p.estado !== 'Borrador').length;
+      setTasaConversionProspectos(totalPresupuestosNoBorrador > 0 ? (presupuestosAceptadosFacturados.length / totalPresupuestosNoBorrador) * 100 : 0);
+
+      // Prepare data for MonthlySalesChart
+      const salesByMonth: { [key: string]: { sales: number, payments: number } } = {};
+      const today = new Date();
+      for (let i = 11; i >= 0; i--) {
+        const month = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+        salesByMonth[monthKey] = { sales: 0, payments: 0 };
+      }
+
+      invoicesData.forEach(inv => {
+        const issueMonth = new Date(inv.issueDate);
+        const monthKey = `${issueMonth.getFullYear()}-${String(issueMonth.getMonth() + 1).padStart(2, '0')}`;
+        if (salesByMonth[monthKey]) {
+          salesByMonth[monthKey].sales += inv.totalAmount;
+        }
+        inv.payments?.forEach(p => {
+          const paymentMonth = new Date(p.paymentDate);
+          const paymentMonthKey = `${paymentMonth.getFullYear()}-${String(paymentMonth.getMonth() + 1).padStart(2, '0')}`;
+           if (salesByMonth[paymentMonthKey]) {
+            salesByMonth[paymentMonthKey].payments += p.amount;
+          }
+        });
+      });
+      
+      const formattedMonthlyData = Object.entries(salesByMonth).map(([month, data]) => ({
+        month: new Date(month + '-01').toLocaleString('es-UY', { month: 'short', year: '2-digit' }),
+        ventas: data.sales,
+        pagos: data.payments,
+      }));
+      setMonthlyChartData(formattedMonthlyData);
+
+      // Prepare data for PaymentStatusPieChart
+      if (ventasConfirmadas > 0) {
+        setPaymentPieChartData([
+          { name: 'Pagado', value: totalPaidFromInvoices, fill: 'hsl(var(--chart-2))' },
+          { name: 'Pendiente', value: totalDueFromInvoices > 0 ? totalDueFromInvoices : 0, fill: 'hsl(var(--chart-5))' },
+        ]);
+      } else {
+         setPaymentPieChartData([]);
+      }
+
 
     } catch (err: any) {
       console.error("Error fetching dashboard data:", err);
@@ -214,45 +276,48 @@ export default function ContabilidadDashboardPage() {
         <KpiCard title="Ventas Totales Acumuladas" value={formatCurrency(ventasTotales)} icon={TrendingUp} isLoading={isLoading} description="Suma de presupuestos aceptados/facturados."/>
         <KpiCard title="Monto Total Pagado" value={formatCurrency(montoPagado)} icon={Banknote} isLoading={isLoading} description="Total de pagos recibidos."/>
         <KpiCard title="Saldo Pendiente General" value={formatCurrency(montoPorPagar)} icon={CircleDollarSign} isLoading={isLoading} description="De todas las facturas no saldadas."/>
-        <KpiCard title="Ventas Proyectadas" value={formatCurrency(ventasProyectadas)} icon={TrendingUp} isLoading={isLoading} description="Suma de presupuestos aceptados (potencial)." />
+        <KpiCard title="Ventas Proyectadas" value={formatCurrency(ventasProyectadas)} icon={TrendingUp} isLoading={isLoading} description="Suma de presupuestos aceptados." />
       </div>
       
       <Separator className="my-6" />
 
-      {/* Graphs Section (Placeholders) */}
+      {/* Graphs Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Análisis Gráfico (Próximamente)</CardTitle>
+          <CardTitle className="font-headline text-xl">Análisis Gráfico</CardTitle>
           <CardDescription>Visualizaciones de la evolución financiera y rendimiento.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-6 md:grid-cols-2">
-          <div className="p-6 border rounded-lg text-center text-muted-foreground bg-muted/30">
-            <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>Gráfico de Evolución Mensual de Ventas e Ingresos (Próximamente)</p>
-          </div>
-          <div className="p-6 border rounded-lg text-center text-muted-foreground bg-muted/30">
-            <CircleDollarSign className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>Gráfico de Distribución de Pagado vs. Pendiente (Próximamente)</p>
-          </div>
+        <CardContent className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
+          {isLoading ? (
+            <>
+              <Skeleton className="h-[300px] w-full" />
+              <Skeleton className="h-[300px] w-full" />
+            </>
+          ) : (
+            <>
+              <MonthlySalesChart data={monthlyChartData} />
+              <PaymentStatusPieChart data={paymentPieChartData} />
+            </>
+          )}
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
-          Filtros por fecha y comparativas se añadirán en futuras actualizaciones.
+          <Info className="w-4 h-4 mr-2"/> Gráficos basados en los últimos 12 meses y estado actual de pagos. Filtros se añadirán.
         </CardFooter>
       </Card>
 
-      {/* Indicadores Inteligentes (Placeholders) */}
+      {/* Indicadores Inteligentes */}
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Indicadores Inteligentes (Próximamente)</CardTitle>
+          <CardTitle className="font-headline text-xl">Indicadores Inteligentes</CardTitle>
           <CardDescription>Métricas clave para la toma de decisiones estratégicas.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <KpiCard title="Margen Promedio / Evento" value="N/A" icon={TrendingUp} isLoading={isLoading} description="Rentabilidad media por evento."/>
-            <KpiCard title="Venta Promedio / Cliente" value="N/A" icon={CircleDollarSign} isLoading={isLoading} description="Valor medio por cliente."/>
-            <KpiCard title="Tasa Conversión Prospectos" value="N/A" icon={CheckCircle} isLoading={isLoading} description="Prospectos vs. Clientes."/>
+            <KpiCard title="Venta Promedio / Cliente" value={formatCurrency(ventasPromedioCliente)} icon={CircleDollarSign} isLoading={isLoading} description="Valor medio por cliente con eventos confirmados." className="bg-amber-50 dark:bg-amber-900/20"/>
+            <KpiCard title="Tasa Conversión Prospectos" value={`${tasaConversionProspectos.toFixed(1)}%`} icon={CheckCircle} isLoading={isLoading} description="Presupuestos aceptados/facturados vs. total no borrador." className="bg-emerald-50 dark:bg-emerald-900/20"/>
+            <KpiCard title="Margen Promedio / Evento" value="N/A" icon={TrendingUp} isLoading={isLoading} description="Requiere costos detallados." className="bg-rose-50 dark:bg-rose-900/20"/>
         </CardContent>
          <CardFooter className="text-sm text-muted-foreground">
-           Estos indicadores se calcularán en base a costos detallados y seguimiento del embudo de ventas.
+           <Info className="w-4 h-4 mr-2"/> Indicadores basados en datos disponibles. "Margen" requiere seguimiento detallado de costos internos.
         </CardFooter>
       </Card>
       
