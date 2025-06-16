@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Download, Send, Edit, AlertTriangle, Loader2, PlusCircle, ReceiptText, Banknote, Info } from 'lucide-react';
+import { ArrowLeft, Download, Send, Edit, AlertTriangle, Loader2, PlusCircle, ReceiptText, Banknote, Info, Link as LinkIconLucide } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/status-badge';
@@ -36,7 +36,7 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-type NewPaymentData = Omit<Payment, 'id' | 'receiptImageUrl'>;
+type NewPaymentData = Omit<Payment, 'id'>; // Now includes receiptImageUrl
 
 export default function ViewInvoicePage() {
   const params = useParams();
@@ -53,6 +53,7 @@ export default function ViewInvoicePage() {
     amount: 0,
     method: 'Transferencia',
     notes: '',
+    receiptImageUrl: '', // Initialize receiptImageUrl
   });
   const [isAddingPayment, setIsAddingPayment] = useState(false);
 
@@ -104,7 +105,8 @@ export default function ViewInvoicePage() {
     try {
       const result = await addPaymentToInvoice(invoice.id, {
         ...newPayment,
-        amount: Number(newPayment.amount) // Ensure amount is number
+        amount: Number(newPayment.amount), // Ensure amount is number
+        receiptImageUrl: newPayment.receiptImageUrl?.trim() || undefined, // Ensure it's undefined if empty
       });
       if (result.success && result.invoice) {
         toast({ title: "¡Pago Añadido!", description: "El pago ha sido registrado correctamente." });
@@ -114,6 +116,7 @@ export default function ViewInvoicePage() {
           amount: 0,
           method: 'Transferencia',
           notes: '',
+          receiptImageUrl: '',
         });
       } else {
         throw new Error(result.error || "Error desconocido al añadir el pago.");
@@ -315,7 +318,8 @@ export default function ViewInvoicePage() {
                     <TableHead>Fecha Pago</TableHead>
                     <TableHead>Importe</TableHead>
                     <TableHead>Método</TableHead>
-                    <TableHead>Tipo Pago / Notas</TableHead>
+                    <TableHead>Notas</TableHead>
+                    <TableHead>Comprobante</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -325,6 +329,15 @@ export default function ViewInvoicePage() {
                       <TableCell>{formatCurrency(payment.amount, invoice.currency)}</TableCell>
                       <TableCell>{payment.method || 'N/A'}</TableCell>
                       <TableCell>{payment.notes || '-'}</TableCell>
+                      <TableCell>
+                        {payment.receiptImageUrl ? (
+                          <a href={payment.receiptImageUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm flex items-center gap-1">
+                            <LinkIconLucide className="w-3 h-3"/> Ver
+                          </a>
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -389,6 +402,16 @@ export default function ViewInvoicePage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="paymentReceiptUrl">URL de Comprobante (Opcional)</Label>
+                  <Input
+                    id="paymentReceiptUrl"
+                    type="text" 
+                    value={newPayment.receiptImageUrl || ''}
+                    onChange={(e) => handlePaymentInputChange('receiptImageUrl', e.target.value)}
+                    placeholder="https://ejemplo.com/comprobante.jpg"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="paymentNotes">Tipo de Pago / Notas (Opcional)</Label>
                   <Textarea
                     id="paymentNotes"
@@ -412,3 +435,4 @@ export default function ViewInvoicePage() {
     </div>
   );
 }
+
