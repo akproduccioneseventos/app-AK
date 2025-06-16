@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon } from 'lucide-react';
+import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
@@ -25,8 +25,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { Invoice } from '@/types/invoice'; // Asumiendo que tienes este tipo
-import { getInvoiceById } from '@/app/actions/invoices'; // Asumiendo que tienes esta acción
+import type { Invoice } from '@/types/invoice'; 
+import { getInvoiceById } from '@/app/actions/invoices'; 
 
 
 interface PlanningModule {
@@ -64,10 +64,10 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Administrar Invitados"
   },
   {
-    title: "Decoración y Diseño del Evento", // Título unificado
-    description: "Planifica la estética, decoración por zonas y el diseño funcional del salón.", // Descripción unificada
-    icon: Palette, // Icono representativo
-    href: "/fiestas/nueva/decoracion", // Enlace al módulo unificado
+    title: "Decoración y Diseño del Evento",
+    description: "Planifica la estética, decoración por zonas y el diseño funcional del salón.",
+    icon: Palette,
+    href: "/fiestas/nueva/decoracion",
     status: "Disponible",
     actionLabel: "Definir Diseño y Decoración"
   },
@@ -96,12 +96,12 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Asignar Personal"
   },
   {
-    title: "Proveedores y Servicios",
-    description: "Busca, selecciona y gestiona todos los proveedores para tu fiesta.",
-    icon: Users2,
-    href: "/fiestas/nueva/proveedores",
+    title: "Servicios Contratados",
+    description: "Visualiza todos los servicios y proveedores confirmados para tu evento.",
+    icon: ClipboardList, // Nuevo icono
+    href: "/fiestas/nueva/servicios-contratados", // Nueva ruta
     status: "Disponible",
-    actionLabel: "Buscar Proveedores"
+    actionLabel: "Ver Servicios Contratados"
   },
   {
     title: "Página Web del Evento",
@@ -451,5 +451,3 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
-
-

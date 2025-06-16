@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -60,10 +60,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
-  if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores (Fiesta Actual)';
-  if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento'; // Unificado
+  // if (pathname === '/fiestas/nueva/proveedores') return 'Proveedores (Fiesta Actual)'; // Reemplazado
+  if (pathname === '/fiestas/nueva/servicios-contratados') return 'Servicios Contratados'; // Nuevo
+  if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
-  // ruta /fiestas/nueva/diseno-salon eliminada
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
@@ -72,6 +72,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') {
     return `Editando Menú: ${pathSegments[4]}`;
   }
+  if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
@@ -139,15 +140,16 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/fiestas/nueva')) { 
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
-    if (pathname === '/fiestas/nueva/decoracion') return Palette; // Icono unificado
+    if (pathname === '/fiestas/nueva/decoracion') return Palette; 
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
-    // ruta /fiestas/nueva/diseno-salon eliminada
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
+    if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/invitados') return Users;
-    if (pathname === '/fiestas/nueva/tareas') return ClipboardList;
+    if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon; // Usar alias
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
+    if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardListIcon; // Nuevo
     return PartyPopper; 
   }
 
@@ -157,7 +159,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/empresa/todos-los-servicios') return Sparkles;
   if (pathname === '/empresa/todos-los-servicios/nuevo') return PlusCircleIcon;
 
-  if (pathname === '/proveedores') return Briefcase;
+  if (pathname === '/proveedores') return Briefcase; // Se mantiene por si se decide reactivar o tener gestión general
   if (pathname === '/proveedores/new') return UserPlusIcon;
   if (pathname === '/empleados') return ContactRound;
   if (pathname === '/empleados/roles') return SettingsIcon;
@@ -249,4 +251,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
-
