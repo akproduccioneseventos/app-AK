@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, Sparkles, CircleDollarSign, Building2 } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package } from 'lucide-react'; // Cambiado Sparkles por Package
 
 interface HubItem {
   title: string;
@@ -30,11 +30,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Proveedores',
   },
   {
-    title: 'Catálogo de Servicios de la Empresa',
-    description: 'Define y organiza los servicios que ofrece tu empresa.',
-    href: '/empresa/todos-los-servicios',
-    icon: Sparkles,
-    actionLabel: 'Ver Servicios',
+    title: 'Inventario General y Valor de Activos', // Actualizado
+    description: 'Define y organiza los ítems de tu inventario y consulta su valor.', // Actualizado
+    href: '/empresa/todos-los-servicios', // Ruta se mantiene, pero el contenido cambia
+    icon: Package, // Cambiado
+    actionLabel: 'Ver Inventario', // Actualizado
   },
   {
     title: 'Contabilidad',

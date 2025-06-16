@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package } from 'lucide-react'; // Added Package
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -45,8 +45,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/contabilidad') return 'Gestión Contable y Prospección';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
-  if (pathname === '/empresa/todos-los-servicios') return 'Catálogo de Servicios';
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Servicio';
+  if (pathname === '/empresa/todos-los-servicios') return 'Inventario General y Valor de Activos'; // Actualizado
+  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Ítem al Inventario'; // Actualizado
   if (pathname === '/compras') return 'Compras y Checklist';
 
   // Empleados
@@ -160,9 +160,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/empresa') return Building2;
   if (pathname === '/empresa/contabilidad') return CircleDollarSign;
-  if (pathname === '/empresa/todos-los-servicios') return Sparkles;
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return PlusCircleIcon;
-
+  if (pathname === '/empresa/todos-los-servicios') return Package; // Actualizado
+  if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus; // Actualizado
+  
   if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/proveedores/new') return UserPlusIcon;
   if (pathname === '/empleados') return ContactRound;
