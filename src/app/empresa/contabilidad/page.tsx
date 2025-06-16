@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'; // Added CardFooter
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -16,7 +16,7 @@ import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert'; // Renamed for clarity
+import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
 
 
 const formatCurrency = (amount?: number) => {
@@ -251,6 +251,9 @@ export default function ContabilidadDashboardPage() {
             <KpiCard title="Venta Promedio / Cliente" value="N/A" icon={CircleDollarSign} isLoading={isLoading} description="Valor medio por cliente."/>
             <KpiCard title="Tasa Conversión Prospectos" value="N/A" icon={CheckCircle} isLoading={isLoading} description="Prospectos vs. Clientes."/>
         </CardContent>
+         <CardFooter className="text-sm text-muted-foreground">
+           Estos indicadores se calcularán en base a costos detallados y seguimiento del embudo de ventas.
+        </CardFooter>
       </Card>
       
       <Separator className="my-6" />
