@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from './app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package } from 'lucide-react'; // Added Package
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, BarChart3 } from 'lucide-react'; // Added BarChart3
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -42,11 +42,15 @@ const getPageTitle = (pathname: string): string => {
   
   // Empresa
   if (pathname === '/empresa') return 'Gestión de la Empresa';
-  if (pathname === '/empresa/contabilidad') return 'Gestión Contable y Prospección';
+  if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero'; // Actualizado
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
-  if (pathname === '/empresa/todos-los-servicios') return 'Inventario General y Valor de Activos'; // Actualizado
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Ítem al Inventario'; // Actualizado
+  if (pathname === '/empresa/todos-los-servicios') return 'Inventario General y Valor de Activos';
+  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Ítem al Inventario';
+   if (pathname === '/empresa/todos-los-servicios/editar/[id]') return 'Editar Ítem del Inventario';
+   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Ítem #${pathSegments[3]}`;
+
+
   if (pathname === '/compras') return 'Compras y Checklist';
 
   // Empleados
@@ -115,11 +119,12 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) {
+        if (!isNaN(Number(title))) { // If the last segment is a number (likely an ID)
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
+             if (parentTitle.toLowerCase() === 'editar' && pathSegments[pathSegments.length-3]?.toLowerCase() === 'todos-los-servicios') return `Editar Ítem #${title}`; // Specific for item edit
             return `${parentTitle}: #${title}`;
         }
         if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
@@ -128,6 +133,12 @@ const getPageTitle = (pathname: string): string => {
         if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())){
              return title;
         }
+        
+        // Special case for item edit to avoid "Editar - Editar Ítem #id"
+        if (title === "Editar" && parentTitle.startsWith("Editar Ítem #")) {
+            return parentTitle;
+        }
+
 
         return `${parentTitle} - ${title}`;
     }
@@ -159,10 +170,12 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
 
   if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/contabilidad') return CircleDollarSign;
-  if (pathname === '/empresa/todos-los-servicios') return Package; // Actualizado
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus; // Actualizado
-  
+  if (pathname === '/empresa/contabilidad') return BarChart3; // Actualizado
+  if (pathname === '/empresa/todos-los-servicios') return Package; 
+  if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
+  if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;
+
+
   if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/proveedores/new') return UserPlusIcon;
   if (pathname === '/empleados') return ContactRound;
