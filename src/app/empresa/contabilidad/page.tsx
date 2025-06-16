@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3 } from 'lucide-react';
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomers } from '@/app/actions/customers';
@@ -16,6 +16,8 @@ import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert'; // Renamed for clarity
+
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return "N/A";
@@ -196,7 +198,7 @@ export default function ContabilidadDashboardPage() {
         <Alert variant="destructive" className="mb-6">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error} <Button variant="link" onClick={fetchDashboardData} className="p-0 h-auto">Reintentar</Button></AlertDescription>
+          <AlertDescriptionShadcn>{error} <Button variant="link" onClick={fetchDashboardData} className="p-0 h-auto">Reintentar</Button></AlertDescriptionShadcn>
         </Alert>
       )}
 
