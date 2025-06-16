@@ -2,7 +2,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import AppLogo from '@/components/app-logo'; // Corrected import path
+import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
 import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign as DollarSignIcon, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,25 +20,26 @@ import { cn } from '@/lib/utils';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
+  const idSegment = pathSegments[pathSegments.length -1];
 
   if (pathname === '/') return 'Menú Principal';
 
   // Presupuestos
   if (pathname === '/presupuestos') return 'Presupuestos';
   if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
-  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${pathSegments[1]}`;
-  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${pathSegments[1]}`;
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment}`;
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment}`;
 
   // Facturas
-  if (pathname === '/invoices') return 'Facturas';
+  if (pathname === '/invoices') return 'Gestión de Facturas';
   if (pathname === '/invoices/new') return 'Nueva Factura';
-  if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${pathSegments[1]}`;
-  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${pathSegments[1]}`;
+  if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${idSegment}`;
+  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${idSegment}`;
 
   // Clientes
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
-  if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${pathSegments[1]}`;
+  if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${idSegment}`;
   
   // Empresa
   if (pathname === '/empresa') return 'Gestión de la Empresa';
@@ -47,17 +48,15 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
   if (pathname === '/empresa/todos-los-servicios') return 'Inventario General y Valor de Activos';
   if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Ítem al Inventario';
-   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Ítem #${pathSegments[3]}`;
-
+  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Ítem #${pathSegments[3]}`;
 
   if (pathname === '/compras') return 'Compras y Checklist';
 
   // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
   if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
-  if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado #${pathSegments[1]}`;
+  if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado #${idSegment}`;
   if (pathname === '/empleados/roles') return 'Configuración de Roles';
-
 
   // Fiestas (Planificador)
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
@@ -71,9 +70,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
   if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
-  if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') {
-    return `Editando Menú: ${pathSegments[4]}`;
-  }
+  if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') return `Editando Menú: ${pathSegments[4]}`;
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
@@ -81,10 +78,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/gestion-documental') return 'Gestión Documental y Financiera';
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
 
-
   // Contabilidad & CRM
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
-
+  // La ruta /contabilidad/pagos fue eliminada
 
   // Configuración
   if (pathname === '/settings') return 'Configuración General';
@@ -104,7 +100,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
   if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
 
-
   // Rutas Actualizadas
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
@@ -117,32 +112,22 @@ const getPageTitle = (pathname: string): string => {
     if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
         const parentSegment = pathSegments[pathSegments.length-2];
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) { // If the last segment is a number (likely an ID)
+        if (!isNaN(Number(title))) { 
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
             if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
-             if (parentTitle.toLowerCase() === 'editar' && pathSegments[pathSegments.length-3]?.toLowerCase() === 'todos-los-servicios') return `Editar Ítem #${title}`; // Specific for item edit
+            if (parentTitle.toLowerCase() === 'editar' && pathSegments[pathSegments.length-3]?.toLowerCase() === 'todos-los-servicios') return `Editar Ítem #${title}`;
             return `${parentTitle}: #${title}`;
         }
         if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
         if(title.toLowerCase() === 'new' || title.toLowerCase() === 'nuevo' || title.toLowerCase() === 'nueva') title = "Nuevo";
-
-        if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())){
-             return title;
-        }
-        
-        // Special case for item edit to avoid "Editar - Editar Ítem #id"
-        if (title === "Editar" && parentTitle.startsWith("Editar Ítem #")) {
-            return parentTitle;
-        }
-
-
+        if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())) return title;
+        if (title === "Editar" && parentTitle.startsWith("Editar Ítem #")) return parentTitle;
         return `${parentTitle} - ${title}`;
     }
     return title;
   }
-
   return 'AK Producciones';
 };
 
@@ -166,20 +151,17 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     return PartyPopper;
   }
 
-
   if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/contabilidad') return BarChart3; 
+  if (pathname === '/empresa/contabilidad') return BarChart3;
   if (pathname === '/empresa/todos-los-servicios') return Package; 
   if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
   if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;
-
 
   if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/proveedores/new') return UserPlusIcon;
   if (pathname === '/empleados') return ContactRound;
   if (pathname === '/empleados/roles') return SettingsIcon;
   if (pathname === '/customers') return Users;
-
 
   if (pathname === '/eventos') return CalendarClock;
   if (pathname === '/compras') return ShoppingCart;
@@ -192,9 +174,14 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
-  
+  // La ruta /contabilidad/pagos fue eliminada
+
   if (pathname === '/settings') return SettingsIcon;
+  if (pathname === '/settings/templates') return Palette;
   if (pathname === '/settings/budget-display') return SettingsIcon;
+  if (pathname === '/settings/company') return Building2;
+  if (pathname === '/settings/notifications') return BellRing;
+  if (pathname === '/settings/account') return UserCog;
   
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
@@ -202,7 +189,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
-
 
   return null;
 }

@@ -32,28 +32,28 @@ export function InvoiceListItem({
   isDeleting,
   isAssignedToCurrentFiesta,
   onToggleAssign,
-  isAssigning
+  isAssigning 
 }: InvoiceListItemProps) {
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
-    } catch(e) {
-      return "Fecha inválida";
-    }
+      return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch(e) { return "Fecha inválida"; }
   };
 
+  const formatCurrency = (amount: number, currency: string = 'UYU') => {
+    if (isNaN(amount)) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(amount);
+  };
+
+
   return (
-    <TableRow>
+    <TableRow className={isAssignedToCurrentFiesta ? 'bg-primary/5 hover:bg-primary/10' : ''}>
       <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
       <TableCell>{invoice.customer.companyName || invoice.customer.name}</TableCell>
       <TableCell>{formatDate(invoice.issueDate)}</TableCell>
       <TableCell>{formatDate(invoice.dueDate)}</TableCell>
-      <TableCell className="text-right">
-        {invoice.totalAmount.toLocaleString('es-ES', { style: 'currency', currency: invoice.currency || 'EUR' })}
+      <TableCell className="text-right font-semibold">
+        {formatCurrency(invoice.totalAmount, invoice.currency)}
       </TableCell>
       <TableCell>
         <StatusBadge status={invoice.status} />
@@ -65,43 +65,42 @@ export function InvoiceListItem({
             size="sm" 
             onClick={onToggleAssign}
             disabled={isAssigning}
-            className="w-full max-w-[150px] text-xs"
+            className="w-full max-w-[120px] text-xs h-8" // Adjusted width and height
+            title={isAssignedToCurrentFiesta ? "Desasignar de fiesta actual" : "Asignar a fiesta actual"}
           >
             {isAssigning ? (
-              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
             ) : isAssignedToCurrentFiesta ? (
-              <Link2Off className="w-3 h-3 mr-1" />
+              <Link2Off className="w-3.5 h-3.5 mr-1" />
             ) : (
-              <LinkIcon className="w-3 h-3 mr-1" />
+              <LinkIcon className="w-3.5 h-3.5 mr-1" />
             )}
-            {isAssigning ? (isAssignedToCurrentFiesta ? 'Quitando...' : 'Asignando...') : (isAssignedToCurrentFiesta ? 'Quitar' : 'Asignar')}
+            {isAssigning ? (isAssignedToCurrentFiesta ? '...' : '...') : (isAssignedToCurrentFiesta ? 'Quitar' : 'Asignar')}
           </Button>
         )}
       </TableCell>
       <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-1.5">
           <Link href={`/invoices/${invoice.id}`} passHref>
-            <Button variant="outline" size="icon" aria-label={`Ver Factura ${invoice.invoiceNumber}`}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Ver Factura ${invoice.invoiceNumber}`} title="Ver Detalle">
               <Eye className="w-4 h-4" />
             </Button>
           </Link>
           <Link href={`/invoices/${invoice.id}/edit`} passHref>
-            <Button variant="outline" size="icon" aria-label={`Editar Factura ${invoice.invoiceNumber}`}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Editar Factura ${invoice.invoiceNumber}`} title="Editar Factura">
               <Edit className="w-4 h-4" />
             </Button>
           </Link>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="icon" aria-label={`Eliminar Factura ${invoice.invoiceNumber}`} disabled={isDeleting}>
+              <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 h-8 w-8" aria-label={`Eliminar Factura ${invoice.invoiceNumber}`} title="Eliminar Factura" disabled={isDeleting}>
                 {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción no se puede deshacer. La factura "{invoice.invoiceNumber}" será eliminada permanentemente.
-                </AlertDialogDescription>
+                <AlertDialogDescription>La factura "{invoice.invoiceNumber}" será eliminada. Esta acción no se puede deshacer.</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>

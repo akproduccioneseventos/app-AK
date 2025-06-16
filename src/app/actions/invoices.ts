@@ -4,7 +4,7 @@
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import fs from 'fs/promises';
 import path from 'path';
-import { markPresupuestoAsFacturado } from './presupuestos'; // Importar la acción
+import { markPresupuestoAsFacturado } from './presupuestos';
 
 const INVOICES_COLLECTION_JSON = 'invoices.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
@@ -70,7 +70,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
 
 export async function saveInvoice(
   invoiceDataInput: (Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }) | Invoice,
-  sourcePresupuestoId?: string // Nuevo parámetro opcional
+  sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
   let invoices = await readInvoicesFile();
   let finalInvoiceData: Invoice;
@@ -84,12 +84,17 @@ export async function saveInvoice(
       return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
     }
     const { id, ...dataToUpdate } = invoiceDataInput;
-    const updatedItems = dataToUpdate.items.map((item, idx) => ({
+    
+    // Ensure items have IDs, if they are being updated.
+    // For simplicity in this refactor, if items are passed in an update, we assume they are the new full set.
+    // More complex merging of items could be done if needed.
+    const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => ({
       ...item,
-      id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}`
+      id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`
     }));
+
     const subtotal = updatedItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-    const taxRate = dataToUpdate.taxRate ?? 0;
+    const taxRate = dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0; // Keep existing tax rate if not provided
     const taxAmount = (subtotal * taxRate) / 100;
     const totalAmount = subtotal + taxAmount;
     
@@ -97,7 +102,7 @@ export async function saveInvoice(
       ...invoices[index], 
       ...dataToUpdate, 
       items: updatedItems as InvoiceItem[],
-      payments: dataToUpdate.payments || [],
+      payments: dataToUpdate.payments || invoices[index].payments || [], // Preserve existing payments if not provided
       subtotal,
       taxRate,
       taxAmount,
@@ -109,7 +114,7 @@ export async function saveInvoice(
     invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => ({
       ...item,
-      id: `item_${invoiceId}_${index + 1}_${Date.now()}`
+      id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`
     }));
     finalInvoiceData = {
       ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
@@ -121,12 +126,10 @@ export async function saveInvoice(
   }
   await writeInvoicesFile(invoices);
 
-  // Si se creó a partir de un presupuesto, actualizar el presupuesto
-  if (sourcePresupuestoId && !('id' in invoiceDataInput)) { // Solo en creación
+  if (sourcePresupuestoId && !('id' in invoiceDataInput)) { 
     const markResult = await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
     if (!markResult.success) {
       console.warn(`Factura ${finalInvoiceData.id} creada, pero no se pudo marcar el presupuesto ${sourcePresupuestoId} como facturado: ${markResult.error}`);
-      // No devolver error aquí, la factura se creó. Es una advertencia.
     }
   }
 
@@ -141,6 +144,9 @@ export async function deleteInvoice(id: string): Promise<{ success: boolean; err
     return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
   }
   await writeInvoicesFile(invoices);
+  // Also remove from fiestaActual if assigned
+  // This might need to be a separate action or handled by the caller after successful deletion
+  // For now, just deleting from the invoices store.
   return { success: true };
 }
 
@@ -159,6 +165,7 @@ export async function addPaymentToInvoice(
   const payments = invoice.payments || [];
   const newPayment: Payment = {
     ...paymentData,
+    amount: Number(paymentData.amount), // Ensure amount is a number
     id: `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
   };
   payments.push(newPayment);
@@ -167,12 +174,11 @@ export async function addPaymentToInvoice(
   let newStatus = invoice.status;
   if (totalPaid >= invoice.totalAmount) {
     newStatus = 'Paid';
-  } else if (totalPaid > 0 && totalPaid < invoice.totalAmount) {
-    if (invoice.status !== 'Overdue') newStatus = 'Sent'; 
+  } else if (totalPaid > 0 && totalPaid < invoice.totalAmount && invoice.status !== 'Overdue') {
+    newStatus = 'Sent'; // Or keep 'Sent' / 'Viewed' if already that, just means partially paid
   }
   
   invoices[invoiceIndex] = { ...invoice, payments, status: newStatus };
   await writeInvoicesFile(invoices);
   return { success: true, invoice: invoices[invoiceIndex] };
 }
-

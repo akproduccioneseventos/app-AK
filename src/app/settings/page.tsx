@@ -2,21 +2,21 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Palette, Building, Bell, ShieldCheck, Settings as SettingsIcon } from 'lucide-react'; // Added SettingsIcon
+import { Palette, Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText } from 'lucide-react';
 
 const settingsCards = [
   {
-    title: "Personalizar Plantillas",
-    description: "Ajusta el logo, colores y diseño de tus facturas y presupuestos.",
+    title: "Personalizar Plantilla Documentos",
+    description: "Ajusta logo y colores para facturas y presupuestos.",
     href: "/settings/templates",
     icon: Palette,
     buttonLabel: "Diseño Documentos"
   },
   {
     title: "Configuración de Presupuestos",
-    description: "Define qué elementos mostrar al imprimir o compartir presupuestos.",
+    description: "Define qué elementos mostrar al imprimir o compartir.",
     href: "/settings/budget-display",
-    icon: SettingsIcon, // Using SettingsIcon for general settings
+    icon: FileText, // Changed Icon for budget specific settings
     buttonLabel: "Contenido Presupuesto"
   },
   {
@@ -24,7 +24,7 @@ const settingsCards = [
     description: "Actualiza los datos de tu empresa para los documentos.",
     href: "/settings/company", 
     icon: Building,
-    buttonLabel: "Empresa"
+    buttonLabel: "Datos Empresa"
   },
   {
     title: "Notificaciones",
@@ -35,39 +35,49 @@ const settingsCards = [
   },
   {
     title: "Seguridad y Cuenta",
-    description: "Gestiona tu contraseña y opciones de seguridad de la cuenta.",
+    description: "Gestiona tu contraseña y opciones de seguridad.",
     href: "/settings/account", 
     icon: ShieldCheck,
-    buttonLabel: "Cuenta"
+    buttonLabel: "Seguridad Cuenta"
   }
 ];
 
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight font-headline">
-        Configuración General
-      </h1>
+      <div className="flex items-center gap-3">
+        <SettingsIcon className="w-8 h-8 text-primary" />
+        <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Configuración General
+        </h1>
+      </div>
+      <p className="text-muted-foreground">
+        Administra las preferencias de la aplicación, apariencia de documentos y detalles de tu cuenta.
+      </p>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {settingsCards.map((item) => (
-          <Card key={item.title} className="flex flex-col">
-            <CardHeader className="flex flex-row items-start justify-between pb-2 space-y-0">
-              <CardTitle className="text-lg font-medium font-headline">{item.title}</CardTitle>
-              <item.icon className="w-6 h-6 text-muted-foreground flex-shrink-0" />
+          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="flex-row items-center justify-between pb-3 space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-md">
+                    <item.icon className="w-5 h-5 text-primary" />
+                </div>
+                <CardTitle className="text-lg font-semibold font-headline">{item.title}</CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground line-clamp-2">
                 {item.description}
               </p>
             </CardContent>
-            <CardContent>
-                 <Link href={item.href} passHref>
+            <CardFooter className="pt-3">
+                 <Link href={item.href} passHref className="w-full">
                     <Button variant="outline" className="w-full">
                         Ir a {item.buttonLabel}
                     </Button>
                 </Link>
-            </CardContent>
+            </CardFooter>
           </Card>
         ))}
       </div>

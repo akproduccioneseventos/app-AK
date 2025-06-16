@@ -1,14 +1,16 @@
 
 import type { Customer } from './customer';
 
+// Kept current statuses as they relate more to payment/interaction lifecycle
+// 'Emitida', 'Impresa' are harder to track systemically for now.
 export type InvoiceStatus = 'Draft' | 'Sent' | 'Viewed' | 'Paid' | 'Overdue';
 
 export interface InvoiceItem {
-  id: string;
+  id: string; // Will be generated on save for new items
   description: string;
   quantity: number;
   unitPrice: number;
-  total: number;
+  total: number; // quantity * unitPrice
 }
 
 export interface Payment {
@@ -17,25 +19,25 @@ export interface Payment {
   amount: number;
   method?: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro';
   notes?: string;
-  receiptImageUrl?: string; // Optional URL of an uploaded receipt image for the payment
+  receiptImageUrl?: string;
 }
 
 export interface Invoice {
   id: string;
   invoiceNumber: string;
-  customer: Customer;
+  customer: Customer; // Embeds the full customer object
   issueDate: string; // ISO date string
   dueDate: string; // ISO date string
   items: InvoiceItem[];
   subtotal: number;
-  taxRate?: number; // Optional tax rate as a percentage (e.g., 21 for 21%)
+  taxRate?: number; // e.g., 21 for 21%
   taxAmount?: number;
   totalAmount: number;
   status: InvoiceStatus;
   notes?: string;
-  currency: string; // e.g., 'USD', 'EUR'
+  currency: string; // e.g., 'UYU', 'USD'
   vendorName: string;
-  vendorAddress?: string; // Address of the company issuing the invoice
-  vendorTaxId?: string; // Tax ID of the company issuing the invoice
-  payments?: Payment[]; // Array of payments made for this invoice
+  vendorAddress?: string;
+  vendorTaxId?: string;
+  payments?: Payment[];
 }
