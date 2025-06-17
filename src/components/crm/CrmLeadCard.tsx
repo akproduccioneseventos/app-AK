@@ -21,10 +21,10 @@ import {
 interface CrmLeadCardProps {
   lead: CrmLead;
   stages: CrmStage[];
-  onMoveLead: (leadId: string, newStageId: string) => Promise<void>; // This will now also trigger modal
+  onMoveLead: (leadId: string, newStageId: string) => Promise<void>;
   onDeleteLead: (leadId: string) => Promise<void>;
-  isMoving: boolean; // Indicates general move loading, not specific to this card
-  isDeleting: boolean; // Indicates general delete loading
+  isMoving: boolean;
+  isDeleting: boolean;
 }
 
 export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, isDeleting }: CrmLeadCardProps) {
@@ -35,7 +35,6 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
 
   const handleMoveOrConvert = () => {
     if (nextStage) {
-      // onMoveLead will handle the logic if it's a conversion stage
       onMoveLead(lead.id, nextStage.id);
     }
   };
@@ -58,7 +57,7 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={cardIsProcessing} title="Eliminar Prospecto">
-              {isDeleting && movingLeadId !== lead.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5" />}
+              {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5" />}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -86,7 +85,7 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
             className="text-xs h-7 px-2 py-1"
             title={nextStage.isConversionStage ? `Convertir a Cliente (${nextStage.name})` : `Mover a ${nextStage.name}`}
           >
-            {isMoving && movingLeadId !== lead.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : (nextStage.isConversionStage ? <FileSignature className="w-3.5 h-3.5 mr-1" /> :<ArrowRight className="w-3.5 h-3.5 mr-1" />)}
+            {isMoving ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : (nextStage.isConversionStage ? <FileSignature className="w-3.5 h-3.5 mr-1" /> :<ArrowRight className="w-3.5 h-3.5 mr-1" />)}
             {nextStage.isConversionStage ? "Convertir" : "Mover"}
           </Button>
         ) : (
