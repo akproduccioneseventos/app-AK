@@ -78,10 +78,12 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/gestion-documental') return 'Gestión Documental y Financiera';
   if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
+  if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
+
 
   // Contabilidad & CRM
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
-  if (pathname === '/contabilidad/pagos') return 'Registro General de Pagos';
+  // if (pathname === '/contabilidad/pagos') return 'Registro General de Pagos'; // Removed
 
 
   // Configuración
@@ -145,6 +147,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/gestion-documental') return Archive;
     if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
+    if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
     return PartyPopper;
   }
 
@@ -171,7 +174,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
-  if (pathname === '/contabilidad/pagos') return Banknote;
+  // if (pathname === '/contabilidad/pagos') return Banknote; // Removed
 
 
   if (pathname === '/settings') return SettingsIcon;
@@ -200,8 +203,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isAuthPage = pathname === '/login' || pathname === '/signup';
   const isPublicEventPage = pathname.startsWith('/evento/actual');
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
+  const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
 
-  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage) {
+
+  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage) {
     return <main className="min-h-screen">{children}</main>;
   }
 

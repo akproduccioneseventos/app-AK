@@ -1,6 +1,7 @@
 
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; // Importar Invitado
+import type { UnidadServicio } from './empresa';
 
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
@@ -213,14 +214,16 @@ export interface Tarea {
 export interface CargaOperativaItem {
   id: string;
   nombre: string;
-  cantidad: string; // Puede ser "1 caja", "20 unidades", "Equipo completo"
+  cantidad: string; // Mantenemos string para flexibilidad (ej: "10", "1 caja", "Set completo")
   cargado: boolean;
   notas?: string;
+  origenId?: string; // ID del ítem original en el catálogo maestro (servicios-empresa.json)
+  unidad?: UnidadServicio | string; // Unidad del ítem, idealmente desde el catálogo
 }
 
 export interface CargaOperativaCategoria {
-  id: string;
-  nombre: string;
+  id: string; 
+  nombre: string; 
   items: CargaOperativaItem[];
 }
 
