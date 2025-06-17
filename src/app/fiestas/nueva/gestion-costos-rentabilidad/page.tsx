@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat } from 'lucide-react'; // Added ChefHat, HardHat, ShoppingCart
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
 import { getFiestaActual, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
@@ -75,7 +75,6 @@ export default function GestionCostosRentabilidadPage() {
         setCostoTotalMenu(0);
       }
       
-      // Placeholder for Reposteria and Bebidas cost summary
       let tempCostoReposteria = 0;
       fiesta.reposteria?.categorias.forEach(cat => {
         if(cat.activada) cat.items.forEach(item => tempCostoReposteria += (item.costoEstimado || 0) * (item.cantidad || 1));
@@ -139,8 +138,10 @@ export default function GestionCostosRentabilidadPage() {
   }, [gestionCostos.costosItems]);
 
   const costoTotalEstimadoEvento = useMemo(() => {
-    return costoManualItems + costoTotalMenu + costoTotalReposteria + costoTotalBebidas;
-  }, [costoManualItems, costoTotalMenu, costoTotalReposteria, costoTotalBebidas]);
+    const personalCost = fiestaActual?.personalAsignado?.reduce((sum, p) => sum + p.eventSalary, 0) || 0;
+    const decorCost = fiestaActual?.decoracion?.items?.reduce((s, i) => s + (i.estimatedCost || 0), 0) || 0;
+    return costoManualItems + costoTotalMenu + costoTotalReposteria + costoTotalBebidas + personalCost + decorCost;
+  }, [costoManualItems, costoTotalMenu, costoTotalReposteria, costoTotalBebidas, fiestaActual]);
 
   const gananciaNetaEstimada = useMemo(() => {
     return gestionCostos.ingresosTotalesEstimados - costoTotalEstimadoEvento;
@@ -206,12 +207,13 @@ export default function GestionCostosRentabilidadPage() {
         </CardFooter>
       </Card>
 
-      <Accordion type="multiple" defaultValue={['costos-manuales', 'costos-gastronomicos']} className="w-full space-y-4">
+      <Accordion type="multiple" defaultValue={['costos-manuales', 'costos-gastronomicos', 'otros-modulos']} className="w-full space-y-4">
         <AccordionItem value="costos-manuales" className="border rounded-lg shadow-md bg-card">
           <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
             <div className="flex items-center gap-2"><HardHat className="w-5 h-5 text-primary/80"/>Costos Directos Manuales</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border-t space-y-4">
+            <p className="text-sm text-muted-foreground">Añade aquí gastos varios como servicios de proveedores no detallados en otros módulos, compras generales, marketing, etc.</p>
             <form onSubmit={handleAddCostoItem} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end p-3 border rounded-md bg-muted/30">
               <div className="space-y-1 md:col-span-2"><Label htmlFor="costo-nombre">Nombre del Costo*</Label><Input id="costo-nombre" value={newCostoNombre} onChange={(e) => setNewCostoNombre(e.target.value)} placeholder="Ej: Alquiler Sonido Adicional" required/></div>
               <div className="space-y-1"><Label htmlFor="costo-categoria">Categoría*</Label><Select value={newCostoCategoria} onValueChange={(val) => setNewCostoCategoria(val as CostoCategoria)} required><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{COST_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select></div>
@@ -264,11 +266,12 @@ export default function GestionCostosRentabilidadPage() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-lg bg-muted/20 border-dashed">
           <CardHeader><CardTitle className="font-headline text-xl">Futuras Funcionalidades</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2"><ShoppingCart className="w-4 h-4"/>Lista de Compras Inteligente (Generación automática basada en menús y necesidades).</p>
-              <p className="flex items-center gap-2"><HardHat className="w-4 h-4"/>Plantillas de Costos Reutilizables (Para tipos de evento comunes).</p>
+              <p className="flex items-center gap-2"><ShoppingCart className="w-4 h-4 text-primary/70"/>Lista de Compras Inteligente (Generación automática basada en menús y necesidades).</p>
+              <p className="flex items-center gap-2"><HardHat className="w-4 h-4 text-primary/70"/>Plantillas de Costos Reutilizables (Para tipos de evento comunes).</p>
+              <p className="text-xs">Integración más profunda con Inventario y Proveedores para un seguimiento de costos aún más preciso.</p>
           </CardContent>
       </Card>
 
