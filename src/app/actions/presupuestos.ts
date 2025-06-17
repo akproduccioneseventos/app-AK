@@ -1,8 +1,9 @@
 
 'use server';
 
-import type { Presupuesto, PlatoPresupuesto, ServicioAdicional } from '@/types/presupuesto';
-import { getMenus } from './menus-catering'; 
+import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; // Updated import
+// getMenus is no longer needed here if getPlatos is removed
+// import { getMenus } from './menus-catering'; 
 
 import fs from 'fs/promises';
 import path from 'path';
@@ -26,7 +27,40 @@ async function readPresupuestosFile(): Promise<Presupuesto[]> {
     await fs.access(presupuestosFilePath);
     const fileContent = await fs.readFile(presupuestosFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Presupuesto[];
+    // Migration for old structure if needed (platosSeleccionados -> itemsPresupuestados)
+    return (JSON.parse(fileContent) as Presupuesto[]).map(p => {
+      if ((p as any).platosSeleccionados || (p as any).serviciosAdicionales) {
+        const newItems: ItemPresupuestado[] = [];
+        ((p as any).platosSeleccionados || []).forEach((plato: any) => {
+          newItems.push({
+            idServicioCatalogo: plato.idPlato || `plato_${plato.nombrePlato.replace(/\s+/g, '_')}`,
+            nombreServicio: plato.nombrePlato,
+            cantidad: plato.cantidad,
+            precioUnitario: plato.costoUnitario,
+            costoTotalItem: plato.costoTotalPlato,
+            categoriaServicio: 'Menú', // Or derive from plato.descripcion
+            unidad: 'porción', // Default or derive
+          });
+        });
+        ((p as any).serviciosAdicionales || []).forEach((sa: any) => {
+          newItems.push({
+            idServicioCatalogo: sa.idServicio || `sa_${sa.nombreServicio.replace(/\s+/g, '_')}`,
+            nombreServicio: sa.nombreServicio,
+            cantidad: 1, // Assume 1 for old services
+            precioUnitario: sa.costoServicio,
+            costoTotalItem: sa.costoServicio,
+            categoriaServicio: 'Servicio Adicional', // Or derive
+            unidad: 'evento', // Default
+          });
+        });
+        const { platosSeleccionados, serviciosAdicionales, costoSubtotalPlatos, costoSubtotalServicios, ...rest } = p as any;
+        return { ...rest, itemsPresupuestados: newItems };
+      }
+      return {
+        ...p,
+        itemsPresupuestados: p.itemsPresupuestados || [], // Ensure it exists
+      };
+    });
   } catch (error) {
     return [];
   }
@@ -50,7 +84,9 @@ async function initializeLocalPresupuestosFile() {
     if (fileContent.trim() === '') {
       await writePresupuestosFile([]);
     } else {
-      JSON.parse(fileContent);
+      // Potentially run migration logic here if structure significantly changed
+      const presupuestos = await readPresupuestosFile(); // This will apply migration if needed
+      await writePresupuestosFile(presupuestos); // Re-save if migration occurred
     }
   } catch (error) {
     await writePresupuestosFile([]);
@@ -58,52 +94,38 @@ async function initializeLocalPresupuestosFile() {
 }
 initializeLocalPresupuestosFile();
 
-function generateDataAiHint(name: string): string {
-  const commonWords = ['de', 'con', 'y', 'a', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'para', 'por', 'sin', 'sobre', 'tras'];
-  const cleanedName = name.toLowerCase()
-    .replace(/\((tradicional|gourmet|opción invierno|estimado por persona|lata \d+ml|botella \d+ml|porrón \d+ml|vaso|jarra \d+l)\)/gi, '')
-    .replace(/[^\w\s]/gi, '')
-    .trim();
-  
-  const words = cleanedName.split(/\s+/).filter(word => word.length > 2 && !commonWords.includes(word));
-  if (words.length === 0) return 'food item';
-  if (words.length === 1) return words[0];
-  return `${words[0]} ${words[1]}`;
-}
+// getPlatos is no longer relevant for the new structure as services are fetched from a different source
+// export async function getPlatos(): Promise<PlatoPresupuesto[]> { ... }
 
-export async function getPlatos(): Promise<PlatoPresupuesto[]> {
-  try {
-    const menus = await getMenus(); 
-    const platosPresupuesto: PlatoPresupuesto[] = [];
-
-    if (menus.length === 0) {
-      return [];
-    }
-
-    menus.forEach(menu => {
-      menu.items.forEach(item => {
-        platosPresupuesto.push({
-          id: item.id,
-          nombre: item.name,
-          descripcion: item.type || undefined,
-          costoPorPersona: item.totalDishCost,
-          imagenUrl: `https://placehold.co/300x200.png`,
-          dataAiHint: generateDataAiHint(item.name),
-          seleccionado: false,
-        });
-      });
-    });
-    return platosPresupuesto;
-  } catch (error) {
-    console.error('Error reading menus for getPlatos:', error);
-    return [{ id: 'fallback_error_read_platos', nombre: 'Error al cargar platos', descripcion: 'Contactar soporte', imagenUrl: 'https://placehold.co/300x200.png', costoPorPersona: 0, dataAiHint: "error sign" }];
-  }
-}
-
-export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'timestamp' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string }> {
+export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string }> {
   let presupuestos = await readPresupuestosFile();
+  
+  // Ensure all items have positive quantities and prices before saving
+  const validItems = presupuestoData.itemsPresupuestados.filter(item => item.cantidad > 0 && item.precioUnitario >= 0);
+  if(validItems.length !== presupuestoData.itemsPresupuestados.length) {
+    // Could return an error or just save valid items. For now, saving valid items.
+    console.warn("Some items had invalid quantities or prices and were filtered out.");
+  }
+
+  const costoTotalEstimadoRecalculado = validItems.reduce((sum, item) => sum + (item.cantidad * item.precioUnitario), 0);
+  let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
+  let descuentoAplicado = 0;
+
+  if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor && presupuestoData.descuentoValor > 0) {
+    if (presupuestoData.descuentoTipo === 'porcentaje') {
+      descuentoAplicado = (costoTotalEstimadoRecalculado * presupuestoData.descuentoValor) / 100;
+    } else {
+      descuentoAplicado = presupuestoData.descuentoValor;
+    }
+    finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
+  }
+
+
   const nuevoPresupuesto: Presupuesto = {
     ...presupuestoData,
+    itemsPresupuestados: validItems, // Use only valid items
+    costoTotalEstimado: costoTotalEstimadoRecalculado, // Base total before discount
+    totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined, // Final total after discount
     id: `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     timestamp: new Date().toISOString(),
     estado: 'Borrador', 
@@ -132,27 +154,26 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 
   const { id, ...dataToUpdate } = presupuestoData;
   
-  // Recalculate totals if items are part of the update (though typically items are not edited this way after creation from the "editar" page)
-  // For now, assume that if `platosSeleccionados` or `serviciosAdicionales` are present, they are the source of truth for totals
-  let costoSubtotalPlatos = dataToUpdate.costoSubtotalPlatos;
-  let costoSubtotalServicios = dataToUpdate.costoSubtotalServicios;
-  let costoTotalEstimado = dataToUpdate.costoTotalEstimado;
+  const validItems = dataToUpdate.itemsPresupuestados.filter(item => item.cantidad > 0 && item.precioUnitario >= 0);
+  const costoTotalEstimadoRecalculado = validItems.reduce((sum, item) => sum + (item.cantidad * item.precioUnitario), 0);
+  let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
+  let descuentoAplicado = 0;
 
-  if(dataToUpdate.platosSeleccionados){
-    costoSubtotalPlatos = dataToUpdate.platosSeleccionados.reduce((sum, plato) => sum + plato.costoTotalPlato, 0);
+  if (dataToUpdate.descuentoTipo && dataToUpdate.descuentoValor && dataToUpdate.descuentoValor > 0) {
+    if (dataToUpdate.descuentoTipo === 'porcentaje') {
+      descuentoAplicado = (costoTotalEstimadoRecalculado * dataToUpdate.descuentoValor) / 100;
+    } else {
+      descuentoAplicado = dataToUpdate.descuentoValor;
+    }
+    finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
   }
-  if(dataToUpdate.serviciosAdicionales){
-     costoSubtotalServicios = dataToUpdate.serviciosAdicionales.reduce((sum, servicio) => sum + servicio.costoServicio, 0);
-  }
-  costoTotalEstimado = costoSubtotalPlatos + costoSubtotalServicios;
-
-
-  const finalDataToUpdate = {
+  
+  const finalDataToUpdate: Omit<Presupuesto, 'id'> = {
     ...dataToUpdate,
-    costoSubtotalPlatos,
-    costoSubtotalServicios,
-    costoTotalEstimado,
-    timestamp: new Date().toISOString(), // Always update timestamp on any modification
+    itemsPresupuestados: validItems,
+    costoTotalEstimado: costoTotalEstimadoRecalculado,
+    totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
+    timestamp: new Date().toISOString(), // Always update timestamp
   };
   
   presupuestos[index] = { id, ...finalDataToUpdate };
@@ -171,18 +192,16 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
   return { success: true };
 }
 
-// Helper function that might be called by saveInvoice action
 export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceId: string): Promise<{ success: boolean; error?: string }> {
   let presupuestos = await readPresupuestosFile();
   const index = presupuestos.findIndex(p => p.id === presupuestoId);
   if (index === -1) {
-    return { success: false, error: `Presupuesto con ID ${presupuestoId} no encontrado para marcar como facturado.` };
+    return { success: false, error: `Presupuesto con ID ${presupuestoId} no encontrado.` };
   }
   presupuestos[index].estado = 'Facturado';
   presupuestos[index].invoiceId = invoiceId;
-  presupuestos[index].timestamp = new Date().toISOString(); // Update timestamp
+  presupuestos[index].timestamp = new Date().toISOString();
   
   await writePresupuestosFile(presupuestos);
   return { success: true };
 }
-

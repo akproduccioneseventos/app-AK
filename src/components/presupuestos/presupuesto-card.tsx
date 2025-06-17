@@ -2,7 +2,7 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature } from 'lucide-react';
+import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent } from 'lucide-react';
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 
@@ -13,8 +13,8 @@ interface PresupuestoCardProps {
   isAssigning?: boolean;
 }
 
-const formatCurrency = (amount: number) => {
-  if (isNaN(amount)) return 'N/A';
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
@@ -30,6 +30,7 @@ export default function PresupuestoCard({
   onToggleAssign,
   isAssigning 
 }: PresupuestoCardProps) {
+  const totalFinal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
   return (
     <Card className="shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between">
       <CardHeader>
@@ -43,9 +44,16 @@ export default function PresupuestoCard({
             <p className="text-sm text-muted-foreground">Invitados: {presupuesto.invitadosCantidad}</p>
             {presupuesto.estado && <PresupuestoStatusBadge status={presupuesto.estado} />}
         </div>
-        <p className="text-lg font-semibold">{formatCurrency(presupuesto.costoTotalEstimado)}</p>
+        <p className="text-lg font-semibold">{formatCurrency(totalFinal)}</p>
+        {presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
+          <p className="text-xs text-green-600 flex items-center gap-1">
+            <Percent className="w-3 h-3"/>
+            {presupuesto.nombrePromocion || 'Descuento Aplicado'}
+            {presupuesto.vigenciaPromocion && ` (hasta ${presupuesto.vigenciaPromocion})`}
+          </p>
+        )}
         {presupuesto.estado === 'Facturado' && presupuesto.invoiceId && (
-          <p className="text-xs text-green-600">Factura Nº: {presupuesto.invoiceId.split('_').pop()}</p>
+          <p className="text-xs text-blue-600">Factura Nº: {presupuesto.invoiceId.split('_').pop()?.substring(0,8)}</p>
         )}
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-2 pt-4">
@@ -57,35 +65,25 @@ export default function PresupuestoCard({
             disabled={isAssigning}
             className="w-full"
           >
-            {isAssigning ? (
-              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-            ) : isAssignedToCurrentFiesta ? (
-              <Link2Off className="w-4 h-4 mr-1" />
-            ) : (
-              <LinkIcon className="w-4 h-4 mr-1" />
-            )}
+            {isAssigning ? ( <Loader2 className="w-4 h-4 mr-1 animate-spin" /> ) : 
+             isAssignedToCurrentFiesta ? ( <Link2Off className="w-4 h-4 mr-1" /> ) : 
+             ( <LinkIcon className="w-4 h-4 mr-1" /> )}
             {isAssigning ? (isAssignedToCurrentFiesta ? 'Quitando...' : 'Asignando...') : (isAssignedToCurrentFiesta ? 'Quitar de Fiesta' : 'Asignar a Fiesta')}
           </Button>
         )}
         {presupuesto.estado === 'Facturado' && presupuesto.invoiceId && (
           <Link href={`/invoices/${presupuesto.invoiceId}`} passHref className="w-full">
             <Button variant="outline" size="sm" className="w-full border-green-500 text-green-600 hover:bg-green-50">
-              <FileSignature className="w-4 h-4 mr-2" /> Ver Factura Vinculada
+              <FileSignature className="w-4 h-4 mr-2" /> Ver Factura
             </Button>
           </Link>
         )}
         <div className="flex justify-end gap-2">
           <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
-            <Button variant="outline" size="sm" aria-label={`Ver presupuesto de ${presupuesto.clienteNombre}`}>
-              <Eye className="w-4 h-4 mr-1" /> Ver
-            </Button>
+            <Button variant="outline" size="sm"><Eye className="mr-1"/> Ver</Button>
           </Link>
-          {/* Permite editar incluso si está facturado, según la solicitud de poder modificar. 
-              La lógica de sincronización con factura NO está implementada. */}
           <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
-            <Button variant="outline" size="sm" aria-label={`Editar presupuesto de ${presupuesto.clienteNombre}`}>
-              <Edit className="w-4 h-4 mr-1" /> Editar
-            </Button>
+            <Button variant="outline" size="sm"><Edit className="mr-1"/> Editar</Button>
           </Link>
         </div>
       </CardFooter>
