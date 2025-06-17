@@ -20,6 +20,27 @@ import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Image from 'next/image'; // For company logo
 
+// Placeholder for fetching company/template settings
+// In a real app, these would come from a context or a fetched configuration
+const getCompanySettings = async () => {
+  // Simulate fetching settings
+  return {
+    companyName: "AK Producciones",
+    companyAddress: "Montevideo, Uruguay",
+    companyTaxId: "RUT Ejemplo 123456789012",
+    invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
+  };
+};
+const getInvoiceTemplateSettings = async () => {
+  return {
+    logoUrl: "https://placehold.co/180x70.png?text=Mi+Logo",
+    logoPosition: "left" as "left" | "center" | "right",
+    primaryColor: "#EF4444", // App default red
+    accentColor: "#F97316", // App default orange
+  };
+};
+
+
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
   if (isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(amount);
@@ -33,9 +54,6 @@ const formatDate = (dateString?: string) => {
 };
 
 type NewPaymentData = Omit<Payment, 'id'>;
-
-// Constants for vendor details - eventually move to settings
-const COMPANY_LOGO_URL = "https://placehold.co/180x70.png?text=Mi+Logo"; // Placeholder
 
 export default function ViewInvoicePage() {
   const params = useParams();
@@ -56,28 +74,40 @@ export default function ViewInvoicePage() {
   });
   const [isAddingPayment, setIsAddingPayment] = useState(false);
 
-  const fetchInvoice = useCallback(async () => {
+  // State for template settings
+  const [companySettings, setCompanySettings] = useState<any>(null);
+  const [templateSettings, setTemplateSettings] = useState<any>(null);
+
+  const fetchInvoiceAndSettings = useCallback(async () => {
     if (!invoiceId) return;
     setIsLoadingInvoice(true);
     setErrorInvoice(null);
     try {
-      const fetchedInvoice = await getInvoiceById(invoiceId);
+      const [fetchedInvoice, compSettings, tmplSettings] = await Promise.all([
+        getInvoiceById(invoiceId),
+        getCompanySettings(),      // Placeholder fetch
+        getInvoiceTemplateSettings() // Placeholder fetch
+      ]);
+      
       if (fetchedInvoice) {
         setInvoice(fetchedInvoice);
       } else {
         setErrorInvoice(`Factura con ID ${invoiceId} no encontrada.`);
       }
+      setCompanySettings(compSettings);
+      setTemplateSettings(tmplSettings);
+
     } catch (error: any) {
-      console.error("Error fetching invoice:", error);
-      setErrorInvoice(error.message || "No se pudo cargar la factura.");
+      console.error("Error fetching invoice or settings:", error);
+      setErrorInvoice(error.message || "No se pudo cargar la factura o su configuración.");
     } finally {
       setIsLoadingInvoice(false);
     }
   }, [invoiceId]);
 
   useEffect(() => {
-    fetchInvoice();
-  }, [fetchInvoice]);
+    fetchInvoiceAndSettings();
+  }, [fetchInvoiceAndSettings]);
 
   const handlePaymentInputChange = (field: keyof NewPaymentData, value: any) => {
     setNewPayment(prev => ({ ...prev, [field]: value }));
@@ -122,22 +152,28 @@ export default function ViewInvoicePage() {
   const amountDue = invoice ? invoice.totalAmount - totalPaid : 0;
 
   const handlePrint = () => {
-    // Temporarily hide non-printable elements
     const nonPrintable = document.querySelectorAll('.print\\:hidden');
     nonPrintable.forEach(el => el.classList.add('temp-hidden-for-print'));
-    
     const mainContent = document.querySelector('main');
     if (mainContent) mainContent.classList.add('print-main-override');
-
     window.print();
-
-    // Restore hidden elements
     nonPrintable.forEach(el => el.classList.remove('temp-hidden-for-print'));
     if (mainContent) mainContent.classList.remove('print-main-override');
   };
+  
+  const getLogoAlignmentClass = () => {
+    if (!templateSettings) return 'justify-start'; // Default to left
+    switch (templateSettings.logoPosition) {
+      case 'center': return 'justify-center';
+      case 'right': return 'justify-end';
+      case 'left':
+      default:
+        return 'justify-start';
+    }
+  };
 
 
-  if (isLoadingInvoice) {
+  if (isLoadingInvoice || !invoice || !companySettings || !templateSettings) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando factura...</p>
@@ -145,16 +181,20 @@ export default function ViewInvoicePage() {
     );
   }
 
-  if (errorInvoice || !invoice) {
+  if (errorInvoice) {
     return (
       <div className="max-w-4xl mx-auto space-y-6 text-center py-10">
         <AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" />
         <h1 className="text-2xl font-bold">Error al Cargar Factura</h1>
-        <p className="text-muted-foreground">{errorInvoice || "La factura no pudo ser encontrada."}</p>
+        <p className="text-muted-foreground">{errorInvoice}</p>
         <Link href="/invoices" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
     );
   }
+
+  // Style for elements using template colors
+  const primaryColorStyle = { color: templateSettings.primaryColor };
+  const accentColorStyle = { backgroundColor: templateSettings.accentColor };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 print:space-y-2 print:m-0 print:p-0">
@@ -170,18 +210,24 @@ export default function ViewInvoicePage() {
       <Card className="overflow-hidden shadow-lg print:shadow-none print:border-none" id="invoice-to-print">
         <CardHeader className="p-6 bg-muted/30 print:bg-transparent print:p-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <Image src={COMPANY_LOGO_URL} alt={`${invoice.vendorName} Logo`} width={150} height={60} className="object-contain mb-2 print:w-36 print:h-14" data-ai-hint="company logo finance"/>
-              <h1 className="text-xl font-semibold text-foreground print:text-lg">{invoice.vendorName}</h1>
-              {invoice.vendorAddress && <p className="text-xs text-muted-foreground print:text-[9pt]">{invoice.vendorAddress}</p>}
-              {invoice.vendorTaxId && <p className="text-xs text-muted-foreground print:text-[9pt]">RUT/NIF: {invoice.vendorTaxId}</p>}
+            {/* Apply Logo Position */}
+            <div className={`flex ${getLogoAlignmentClass()} w-full sm:w-auto mb-2 sm:mb-0`}>
+              {templateSettings.logoUrl && <Image src={templateSettings.logoUrl} alt={`${companySettings.companyName} Logo`} width={150} height={60} className="object-contain print:w-36 print:h-14" data-ai-hint="company logo invoice"/>}
             </div>
-            <div className="text-left sm:text-right mt-4 sm:mt-0">
-              <h2 className="text-2xl font-bold text-primary print:text-xl">FACTURA</h2>
+            <div className="text-left sm:text-right w-full sm:w-auto">
+              <h2 className="text-2xl font-bold print:text-xl" style={primaryColorStyle}>FACTURA</h2>
               <p className="text-md text-muted-foreground print:text-sm">Nº: {invoice.invoiceNumber}</p>
             </div>
           </div>
+          <div className="mt-2 text-xs text-muted-foreground print:text-[9pt] sm:text-left">
+             <p className="font-semibold text-sm text-foreground">{companySettings.companyName}</p>
+             <p>{companySettings.companyAddress}</p>
+             <p>RUT/NIF: {companySettings.companyTaxId}</p>
+          </div>
         </CardHeader>
+        {/* Line separator with accent color */}
+        <div className="h-1 print:h-[2px] mx-6 print:mx-4" style={accentColorStyle}></div>
+
         <CardContent className="p-6 space-y-6 print:p-4 print:space-y-3">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 print:grid-cols-2">
             <div>
@@ -203,10 +249,10 @@ export default function ViewInvoicePage() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50 print:bg-gray-100">
                 <tr className="border-b print:border-gray-300">
-                  <th className="px-3 py-2.5 font-semibold text-left text-muted-foreground print:px-1 print:py-1 print:text-xs">Descripción</th>
-                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs">Cant.</th>
-                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs">P. Unit.</th>
-                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs">Total</th>
+                  <th className="px-3 py-2.5 font-semibold text-left text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>Descripción</th>
+                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>Cant.</th>
+                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>P. Unit.</th>
+                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -235,7 +281,7 @@ export default function ViewInvoicePage() {
               <div className="flex justify-between"><span className="text-sm text-muted-foreground print:text-xs">Subtotal:</span><span className="text-sm font-medium text-foreground print:text-xs">{formatCurrency(invoice.subtotal, invoice.currency)}</span></div>
               {invoice.taxAmount !== undefined && invoice.taxRate !== undefined && invoice.taxRate > 0 && (<div className="flex justify-between"><span className="text-sm text-muted-foreground print:text-xs">IVA ({invoice.taxRate}%):</span><span className="text-sm font-medium text-foreground print:text-xs">{formatCurrency(invoice.taxAmount, invoice.currency)}</span></div>)}
               <Separator className="my-1 print:my-0.5"/>
-              <div className="flex justify-between text-md font-semibold print:text-sm"><span className="text-foreground">Total Factura:</span><span className="text-primary">{formatCurrency(invoice.totalAmount, invoice.currency)}</span></div>
+              <div className="flex justify-between text-md font-semibold print:text-sm"><span className="text-foreground">Total Factura:</span><span style={primaryColorStyle}>{formatCurrency(invoice.totalAmount, invoice.currency)}</span></div>
               <div className="flex justify-between text-sm print:text-xs"><span className="text-muted-foreground">Total Pagado:</span><span className="font-medium text-green-600">{formatCurrency(totalPaid, invoice.currency)}</span></div>
               <div className="flex justify-between text-sm font-semibold print:text-xs"><span className="text-foreground">Saldo Pendiente:</span><span className={amountDue <= 0 ? "text-green-600" : "text-destructive"}>{formatCurrency(amountDue, invoice.currency)}</span></div>
             </div>
@@ -268,7 +314,12 @@ export default function ViewInvoicePage() {
           )}
         </CardContent>
         <CardFooter className="p-6 text-center bg-muted/30 print:mt-6 print:pt-3 print:border-t print:border-gray-300">
-            <p className="text-xs text-muted-foreground print:text-[9pt]">Si tienes alguna pregunta sobre esta factura, por favor contacta con {invoice.vendorName}.</p>
+            {/* Custom Footer from Company Settings */}
+            {companySettings?.invoiceCustomFooter ? (
+                <p className="text-xs text-muted-foreground print:text-[9pt] whitespace-pre-line">{companySettings.invoiceCustomFooter}</p>
+            ) : (
+                <p className="text-xs text-muted-foreground print:text-[9pt]">Si tienes alguna pregunta sobre esta factura, por favor contacta con {companySettings.companyName}.</p>
+            )}
         </CardFooter>
       </Card>
       
@@ -308,7 +359,7 @@ export default function ViewInvoicePage() {
           .print\\:bg-gray-100 { background-color: #f3f4f6 !important; }
           .print\\:w-36 { width: 9rem !important; }
           .print\\:h-14 { height: 3.5rem !important; }
-          main.print-main-override { padding: 0.5in !important; } /* Ensure main content has print margins */
+          main.print-main-override { padding: 0.5in !important; }
            #invoice-to-print {
               width: 100%;
               margin: 0 auto;
@@ -321,3 +372,4 @@ export default function ViewInvoicePage() {
     </div>
   );
 }
+

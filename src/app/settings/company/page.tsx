@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { ArrowLeft, Building, Save, Loader2 } from 'lucide-react';
 import React, { useState, type FormEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 // Placeholder function for future save logic
 async function saveCompanyInfo(info: any) {
@@ -25,7 +26,8 @@ export default function CompanySettingsPage() {
   const [companyAddress, setCompanyAddress] = useState("Montevideo, Uruguay"); // Default or fetched
   const [companyTaxId, setCompanyTaxId] = useState("RUT Ejemplo 123456789012"); // Default or fetched
   const [companyContact, setCompanyContact] = useState("contacto@akproducciones.com.uy"); // Default or fetched
-  const [invoiceNotes, setInvoiceNotes] = useState("Gracias por su preferencia.\nEste presupuesto es válido por 30 días.");
+  const [defaultDocumentNotes, setDefaultDocumentNotes] = useState("Gracias por su preferencia.\nEste presupuesto es válido por 30 días.");
+  const [invoiceCustomFooter, setInvoiceCustomFooter] = useState("Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.");
   const [isSaving, setIsSaving] = useState(false);
 
   // TODO: useEffect to fetch company settings from backend/storage when available
@@ -38,7 +40,8 @@ export default function CompanySettingsPage() {
       companyAddress,
       companyTaxId,
       companyContact,
-      invoiceNotes,
+      defaultDocumentNotes,
+      invoiceCustomFooter, // Added new field
     };
     const result = await saveCompanyInfo(companyInfo); // Placeholder save
     if (result.success) {
@@ -86,12 +89,26 @@ export default function CompanySettingsPage() {
                     <Textarea id="company-address" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Calle, Número, Ciudad, País" rows={2} disabled={isSaving}/>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="company-contact">Email de Contacto (para facturas)</Label>
+                    <Label htmlFor="company-contact">Email de Contacto (para documentos)</Label>
                     <Input id="company-contact" type="email" value={companyContact} onChange={(e) => setCompanyContact(e.target.value)} placeholder="facturacion@tuempresa.com" disabled={isSaving}/>
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="invoice-notes">Notas por Defecto para Facturas/Presupuestos</Label>
-                    <Textarea id="invoice-notes" value={invoiceNotes} onChange={(e) => setInvoiceNotes(e.target.value)} placeholder="Ej: Términos y condiciones, información de pago." rows={3} disabled={isSaving}/>
+                    <Label htmlFor="default-document-notes">Notas por Defecto (Presupuestos/General)</Label>
+                    <Textarea id="default-document-notes" value={defaultDocumentNotes} onChange={(e) => setDefaultDocumentNotes(e.target.value)} placeholder="Ej: Términos y condiciones, información de pago general." rows={3} disabled={isSaving}/>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                    <Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label>
+                    <Textarea 
+                        id="invoice-custom-footer" 
+                        value={invoiceCustomFooter} 
+                        onChange={(e) => setInvoiceCustomFooter(e.target.value)} 
+                        placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." 
+                        rows={3} 
+                        disabled={isSaving}
+                        className="text-sm"
+                    />
+                     <p className="text-xs text-muted-foreground">Este texto aparecerá al final de tus facturas generadas.</p>
                 </div>
             </CardContent>
             <CardFooter className="border-t pt-6">

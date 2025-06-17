@@ -5,28 +5,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UploadCloud, Palette, Save, ArrowLeft, Info } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UploadCloud, Palette, Save, ArrowLeft, Info, Image as ImageIconLucide } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import React, { useState, type ChangeEvent } from 'react'; // Added React import for ChangeEvent
+import { Separator } from '@/components/ui/separator';
+
 
 // Placeholder function for future save logic
-async function saveTemplateSettings(settings: any) {
-  console.log("Simulating save for template settings:", settings);
+async function saveInvoiceTemplateSettings(settings: any) {
+  console.log("Simulating save for invoice template settings:", settings);
   await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
   return { success: true };
 }
 
+type LogoPosition = 'left' | 'center' | 'right';
 
-export default function TemplateCustomizationPage() {
+export default function InvoiceTemplateCustomizationPage() {
   const { toast } = useToast();
   const [logoPreview, setLogoPreview] = useState<string | null>("https://placehold.co/150x60.png?text=Mi+Logo");
-  const [primaryColor, setPrimaryColor] = useState("#EF4444"); // Default a nuestro rojo
-  const [accentColor, setAccentColor] = useState("#F97316"); // Default a un naranja
+  const [primaryColor, setPrimaryColor] = useState("#EF4444"); // Default app red
+  const [accentColor, setAccentColor] = useState("#F97316"); // Default app orange/accent
+  const [logoPosition, setLogoPosition] = useState<LogoPosition>('left');
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // TODO: useEffect to fetch and set these settings from a persistent store
+
+  const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -39,24 +46,41 @@ export default function TemplateCustomizationPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    // In a real app, you'd send this data to a backend
-    const settings = { logo: logoPreview, primaryColor, accentColor };
-    const result = await saveTemplateSettings(settings);
+    const settings = { 
+      logo: logoPreview, 
+      documentPrimaryColor: primaryColor, 
+      documentAccentColor: accentColor,
+      logoPosition 
+    };
+    const result = await saveInvoiceTemplateSettings(settings); // Placeholder save
     if (result.success) {
-      toast({ title: "Configuración Guardada", description: "Los cambios en la plantilla se han guardado (simulado)." });
+      toast({ title: "Configuración Guardada", description: "La apariencia de las facturas ha sido actualizada (simulado)." });
     } else {
       toast({ title: "Error", description: "No se pudo guardar la configuración (simulado).", variant: "destructive" });
     }
     setIsSaving(false);
+  };
+  
+  const getLogoAlignmentClass = () => {
+    switch (logoPosition) {
+      case 'center': return 'mx-auto';
+      case 'right': return 'ml-auto';
+      case 'left':
+      default:
+        return 'mr-auto';
+    }
   };
 
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Personalizar Plantilla de Documentos
-        </h1>
+        <div className="flex items-center gap-3">
+          <Palette className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Apariencia de Facturas
+          </h1>
+        </div>
         <Link href="/settings" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -67,24 +91,25 @@ export default function TemplateCustomizationPage() {
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Apariencia de Facturas y Presupuestos</CardTitle>
+          <CardTitle className="font-headline text-xl">Personalización Visual</CardTitle>
           <CardDescription>
-            Define el logo y los colores para que tus documentos reflejen tu marca. Los cambios aquí afectarán cómo se generan los PDFs (funcionalidad futura).
+            Define el logo, colores y disposición para tus facturas. Estos ajustes se aplicarán al generar los documentos PDF.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
+          {/* Logo Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Logotipo de la Empresa</h3>
+            <h3 className="text-lg font-medium font-headline text-primary border-b pb-1">Logotipo</h3>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="w-32 h-32 border rounded-md flex items-center justify-center bg-muted overflow-hidden flex-shrink-0">
+              <div className="w-36 h-20 border rounded-md flex items-center justify-center bg-muted overflow-hidden flex-shrink-0 p-1">
                 {logoPreview ? (
                   <Image 
                     src={logoPreview} 
                     alt="Logo Actual" 
-                    width={120} 
-                    height={120} 
+                    width={140} 
+                    height={70} 
                     className="object-contain"
-                    data-ai-hint="company logo placeholder"
+                    data-ai-hint="company invoice logo"
                   />
                 ) : (
                   <span className="text-xs text-muted-foreground">Sin logo</span>
@@ -92,74 +117,127 @@ export default function TemplateCustomizationPage() {
               </div>
               <div className="space-y-2 flex-grow">
                 <Label htmlFor="logo-upload">Subir nuevo logo (PNG, JPG)</Label>
-                <div className="flex gap-2">
-                  <Input id="logo-upload" type="file" accept="image/png, image/jpeg" onChange={handleLogoChange} className="max-w-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving} />
-                </div>
-                <p className="text-xs text-muted-foreground">Recomendado: 300x100px (horizontal), máx 1MB.</p>
+                <Input 
+                  id="logo-upload" 
+                  type="file" 
+                  accept="image/png, image/jpeg" 
+                  onChange={handleLogoChange} 
+                  className="max-w-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" 
+                  disabled={isSaving} 
+                />
+                <p className="text-xs text-muted-foreground">Recomendado: hasta 300px de ancho, máx 1MB.</p>
               </div>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="logo-position">Posición del Logo en el Documento</Label>
+                <Select value={logoPosition} onValueChange={(value) => setLogoPosition(value as LogoPosition)} disabled={isSaving}>
+                    <SelectTrigger id="logo-position" className="max-w-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="left">Izquierda</SelectItem>
+                        <SelectItem value="center">Centro</SelectItem>
+                        <SelectItem value="right">Derecha</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
           </div>
 
+          <Separator />
+
+          {/* Colors Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Colores de la Plantilla</h3>
+            <h3 className="text-lg font-medium font-headline text-primary border-b pb-1">Colores para Documentos</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="primary-color">Color Principal</Label>
+                <Label htmlFor="primary-color-doc">Color Principal (Documento)</Label>
                 <div className="flex items-center gap-2">
-                  <Input id="primary-color" type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-12 h-10 p-1 aspect-square" disabled={isSaving}/>
-                  <Input type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1 h-10" disabled={isSaving}/>
+                  <Input id="primary-color-doc" type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-12 h-10 p-1 aspect-square" disabled={isSaving}/>
+                  <Input type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1 h-10" placeholder="#RRGGBB" disabled={isSaving}/>
                 </div>
-                <p className="text-xs text-muted-foreground">Usado para encabezados y elementos destacados.</p>
+                <p className="text-xs text-muted-foreground">Para títulos y elementos principales.</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="accent-color">Color de Acento</Label>
+                <Label htmlFor="accent-color-doc">Color de Acento (Documento)</Label>
                  <div className="flex items-center gap-2">
-                  <Input id="accent-color" type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="w-12 h-10 p-1 aspect-square" disabled={isSaving}/>
-                  <Input type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="flex-1 h-10" disabled={isSaving}/>
+                  <Input id="accent-color-doc" type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="w-12 h-10 p-1 aspect-square" disabled={isSaving}/>
+                  <Input type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="flex-1 h-10" placeholder="#RRGGBB" disabled={isSaving}/>
                 </div>
-                <p className="text-xs text-muted-foreground">Usado para detalles y líneas.</p>
+                <p className="text-xs text-muted-foreground">Para líneas, detalles o fondos sutiles.</p>
               </div>
             </div>
           </div>
           
+          <Separator />
+
+          {/* Custom Footer Info */}
+           <div className="space-y-2">
+            <h3 className="text-lg font-medium font-headline text-primary border-b pb-1">Pie de Página</h3>
+            <div className="flex items-start gap-2 p-3 border rounded-md bg-muted/50">
+              <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"/>
+              <p className="text-sm text-muted-foreground">
+                El texto del pie de página personalizado para las facturas se gestiona en la sección <Link href="/settings/company" className="text-primary underline hover:text-primary/80">Información de la Empresa</Link>.
+              </p>
+            </div>
+          </div>
+
+          <Separator />
+          
+          {/* Future Enhancements Info */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium font-headline text-primary border-b pb-1">Próximas Opciones</h3>
+            <div className="p-3 border border-dashed rounded-md text-sm text-muted-foreground space-y-1">
+                <p>☑️ Selección de Fuente Tipográfica.</p>
+                <p>☑️ Ajuste del Tamaño General del Texto.</p>
+                <p>☑️ Configuración de Márgenes y Espaciado.</p>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Preview Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Previsualización Estimada de Plantilla</h3>
+            <h3 className="text-lg font-medium font-headline text-primary border-b pb-1">Previsualización Estimada de Factura</h3>
             <div className="p-4 border rounded-md aspect-[210/297] bg-white flex items-center justify-center shadow-inner">
                <div className="w-full h-full border border-dashed border-gray-300 p-4 flex flex-col">
-                  <div className="flex justify-between items-start mb-4">
-                    {logoPreview ? <Image src={logoPreview} alt="Logo" width={100} height={40} className="object-contain" data-ai-hint="company logo sample" /> : <div className="h-10 w-24 bg-gray-200 rounded text-xs flex items-center justify-center text-gray-500">Logo Aquí</div>}
-                    <div className="text-right">
-                      <h2 className="text-xl font-bold" style={{color: primaryColor}}>FACTURA</h2>
-                      <p className="text-xs text-gray-500">Nº: 2024-001</p>
-                    </div>
+                  {/* Header with Logo */}
+                  <div className={`flex items-start mb-4 ${logoPosition === 'center' ? 'justify-center' : logoPosition === 'right' ? 'justify-end' : 'justify-start'}`}>
+                    {logoPreview ? <Image src={logoPreview} alt="Logo Previsualización" width={100} height={40} className={`object-contain ${getLogoAlignmentClass()}`} data-ai-hint="company invoice logo" /> : <div className={`h-10 w-24 bg-gray-200 rounded text-xs flex items-center justify-center text-gray-500 ${getLogoAlignmentClass()}`}>Logo Aquí</div>}
                   </div>
-                  <div className="h-1 w-full rounded-full mb-4" style={{backgroundColor: accentColor}}></div>
-                  <div className="flex-grow text-xs text-gray-600 space-y-1">
-                    <p>Cliente: Nombre Cliente Ejemplo</p>
-                    <p>Fecha: DD/MM/AAAA</p>
+                  {/* Invoice Title (conditionally aligned if logo is not full width) */}
+                  <div className={`flex ${logoPosition === 'center' ? 'justify-center' : 'justify-between'} items-center mb-4`}>
+                    {logoPosition !== 'center' && <div className="w-1/3"></div>} {/* Spacer if logo not centered */}
+                    <h2 className="text-xl font-bold text-center flex-grow" style={{color: primaryColor}}>FACTURA</h2>
+                    {logoPosition !== 'center' && <div className="w-1/3 text-right"><p className="text-xs text-gray-500">Nº: 2024-001</p></div>}
+                  </div>
+                  {logoPosition === 'center' && <p className="text-xs text-gray-500 text-center mb-2">Nº: 2024-001</p>}
+
+                  <div className="h-0.5 w-full rounded-full mb-4" style={{backgroundColor: accentColor}}></div>
+                  <div className="flex-grow text-xs text-gray-700 space-y-1">
+                    <p><span className="font-medium">Cliente:</span> Nombre Cliente Ejemplo</p>
+                    <p><span className="font-medium">Fecha:</span> DD/MM/AAAA</p>
                     <div className="mt-3 border-t border-b border-dashed py-2">
-                        <p>Item 1 .......................... $XX.XX</p>
-                        <p>Item 2 .......................... $YY.YY</p>
+                        <p>Servicio Ejemplo 1 .......................... <span style={{color: primaryColor}}>$XX.XX</span></p>
+                        <p>Producto Ejemplo 2 .......................... <span style={{color: primaryColor}}>$YY.YY</span></p>
                     </div>
                     <p className="text-right font-bold mt-2">Total: <span style={{color: primaryColor}}>$ZZ.ZZ</span></p>
                   </div>
-                  <div className="mt-auto text-center text-[8px] text-gray-400 pt-2 border-t">
-                    Pie de página personalizado aquí. Datos fiscales.
+                  <div className="mt-auto text-center text-[8px] text-gray-500 pt-2 border-t">
+                    Pie de página simulado. El contenido real se define en "Información de la Empresa".
                   </div>
                </div>
             </div>
-             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-2"><Info className="w-3 h-3"/>La previsualización es una simulación. La generación de PDF con estos estilos es una funcionalidad futura.</p>
+             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-2"><Info className="w-3 h-3"/>La previsualización es una simulación. La aplicación real de estos estilos a la generación de PDF es una funcionalidad futura.</p>
           </div>
 
 
-          <div className="flex justify-end pt-6 border-t">
-            <Button size="lg" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? "Guardando..." : "Guardar Personalización"}
-            </Button>
-          </div>
         </CardContent>
+         <CardFooter className="border-t pt-6">
+            <Button size="lg" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2" />}
+                {isSaving ? "Guardando..." : "Guardar Personalización"}
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );
 }
+

@@ -6,17 +6,17 @@ import { Palette, Building, Bell, ShieldCheck, Settings as SettingsIcon, FileTex
 
 const settingsCards = [
   {
-    title: "Personalizar Plantilla Documentos",
-    description: "Ajusta logo y colores para facturas y presupuestos.",
+    title: "Apariencia de Facturas", // Updated Title
+    description: "Ajusta logo y colores para tus facturas.", // Updated Description
     href: "/settings/templates",
     icon: Palette,
-    buttonLabel: "Diseño Documentos"
+    buttonLabel: "Diseño Facturas" // Updated Button Label
   },
   {
     title: "Configuración de Presupuestos",
     description: "Define qué elementos mostrar al imprimir o compartir.",
     href: "/settings/budget-display",
-    icon: FileText, // Changed Icon for budget specific settings
+    icon: FileText, 
     buttonLabel: "Contenido Presupuesto"
   },
   {
@@ -84,3 +84,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
