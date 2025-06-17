@@ -1,2 +1,9 @@
-
-[]
+[
+  {
+    "id": "lead_1750185844840_z8x25rh",
+    "name": "Ejemplo",
+    "currentStageId": "s1",
+    "createdAt": "2025-06-17T18:44:04.840Z",
+    "updatedAt": "2025-06-17T18:44:04.840Z"
+  }
+]

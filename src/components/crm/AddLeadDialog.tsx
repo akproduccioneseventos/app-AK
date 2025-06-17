@@ -63,7 +63,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
       <DialogTrigger asChild>
         <Button variant="default">
           <PlusCircle className="w-5 h-5 mr-2" />
-          Nuevo Lead
+          nuevo prospecto
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
