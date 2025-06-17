@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -17,7 +17,8 @@ import {
   defaultBebidasData,
   defaultReposteriaCategorias,
   defaultBebidasCategorias,
-  defaultListaDeCargaOperativa
+  defaultListaDeCargaOperativa,
+  initialGestionCostosData
 } from '@/lib/fiesta-defaults';
 
 
@@ -79,6 +80,15 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
     if (!parsedData.listaDeCargaOperativa) {
       parsedData.listaDeCargaOperativa = { ...defaultListaDeCargaOperativa };
     }
+    if (!parsedData.gestionCostos) {
+      parsedData.gestionCostos = { ...initialGestionCostosData };
+    } else {
+      parsedData.gestionCostos = {
+        ...initialGestionCostosData,
+        ...parsedData.gestionCostos,
+        costosItems: parsedData.gestionCostos.costosItems || [],
+      };
+    }
 
 
     return parsedData;
@@ -121,6 +131,15 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
     }
     if (!dataToWrite.listaDeCargaOperativa) {
       dataToWrite.listaDeCargaOperativa = { ...defaultListaDeCargaOperativa };
+    }
+    if (!dataToWrite.gestionCostos) {
+      dataToWrite.gestionCostos = { ...initialGestionCostosData };
+    } else {
+      dataToWrite.gestionCostos = {
+        ...initialGestionCostosData,
+        ...dataToWrite.gestionCostos,
+        costosItems: dataToWrite.gestionCostos.costosItems || [],
+      };
     }
 
 
@@ -246,6 +265,17 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       }))
     };
 
+    const validatedGestionCostos: GestionCostosData = {
+        ...initialGestionCostosData,
+        ...(data.gestionCostos || {}),
+        costosItems: (data.gestionCostos?.costosItems || []).map(item => ({
+            ...item,
+            montoEstimado: Number(item.montoEstimado) || 0,
+            montoReal: item.montoReal !== undefined ? Number(item.montoReal) : undefined,
+        })),
+        ingresosTotalesEstimados: Number(data.gestionCostos?.ingresosTotalesEstimados) || 0,
+    };
+
 
    const validatedData: FiestaEnPlanificacion = {
     id: data.id || `fiesta_${Date.now()}`,
@@ -289,6 +319,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     reposteria: validatedReposteria,
     bebidas: validatedBebidas,
     listaDeCargaOperativa: validatedListaDeCargaOperativa,
+    gestionCostos: validatedGestionCostos,
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -761,6 +792,28 @@ export async function updateListaDeCargaOperativa(
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.listaDeCargaOperativa)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la lista de carga operativa." };
+  }
+}
+
+export async function updateGestionCostosFiestaActual(
+  data: Partial<GestionCostosData>
+): Promise<{ success: boolean; updatedData?: GestionCostosData; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.gestionCostos = {
+      ...(fiestaActual.gestionCostos || initialGestionCostosData),
+      ...data,
+      costosItems: (data.costosItems || fiestaActual.gestionCostos?.costosItems || []).map(item => ({
+        ...item,
+        montoEstimado: Number(item.montoEstimado) || 0,
+        montoReal: item.montoReal !== undefined ? Number(item.montoReal) : undefined,
+      })),
+      ingresosTotalesEstimados: data.ingresosTotalesEstimados !== undefined ? Number(data.ingresosTotalesEstimados) : (Number(fiestaActual.gestionCostos?.ingresosTotalesEstimados) || 0),
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.gestionCostos)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la gestión de costos." };
   }
 }
 

@@ -229,6 +229,34 @@ export interface ListaDeCargaOperativa {
   notasGenerales?: string;
 }
 
+// Tipos para Gestión de Costos y Rentabilidad
+export type CostoCategoria = 
+  | 'Servicio Proveedor' 
+  | 'Personal Evento' 
+  | 'Compra General' 
+  | 'Marketing y Publicidad'
+  | 'Gastronomía (Catering)'
+  | 'Gastronomía (Reposteria)'
+  | 'Gastronomía (Bebidas)'
+  | 'Imprevistos'
+  | 'Otro Costo Directo';
+
+export interface CostoItem {
+  id: string;
+  nombre: string;
+  categoria: CostoCategoria;
+  montoEstimado: number;
+  montoReal?: number;
+  notas?: string;
+  proveedorSugerido?: string; // Opcional, para referencia
+}
+
+export interface GestionCostosData {
+  costosItems: CostoItem[];
+  ingresosTotalesEstimados: number; // Ingreso manual del evento
+  notasGeneralesCostos?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -245,4 +273,5 @@ export interface FiestaEnPlanificacion {
   reposteria?: ReposteriaData;
   bebidas?: BebidasData;
   listaDeCargaOperativa?: ListaDeCargaOperativa;
+  gestionCostos?: GestionCostosData; // Nuevo módulo
 }

@@ -1,12 +1,13 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Archive, FileText, Printer, Share2, DollarSign, CreditCard, CalendarCheck, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle } from 'lucide-react';
-import { Label } from '@/components/ui/label'; // Added Label import
+import { Input } from '@/components/ui/input'; // Added for file input
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, ArrowRight, Archive, FileText, Printer, Share2, DollarSign, CreditCard, CalendarCheck, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle, BarChart3, UploadCloud } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
@@ -19,8 +20,8 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, Payment } from '@/types/invoice';
 import type { BudgetDisplaySettings } from '@/types/settings';
 
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { getCustomerById } from '@/app/actions/customers';
+import { getFiestaActual, updatePresupuestoAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getCustomerById, saveCustomer } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
@@ -46,6 +47,9 @@ export default function GestionDocumentalPage() {
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false); // General saving state
+  const [isUploadingContract, setIsUploadingContract] = useState(false);
+  const [selectedContractFile, setSelectedContractFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -64,12 +68,16 @@ export default function GestionDocumentalPage() {
       if (fiestaData.presupuestoId) {
         const presData = await getPresupuestoById(fiestaData.presupuestoId);
         setPresupuesto(presData);
+      } else {
+        setPresupuesto(null); // Ensure presupuesto is null if not linked
       }
 
       if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
         const invoicePromises = fiestaData.invoiceIds.map(id => getInvoiceById(id));
         const resolvedInvoices = (await Promise.all(invoicePromises)).filter(inv => inv !== null) as Invoice[];
         setFacturas(resolvedInvoices);
+      } else {
+        setFacturas([]);
       }
       
       const settings = await getBudgetDisplaySettings();
@@ -88,6 +96,50 @@ export default function GestionDocumentalPage() {
     loadData();
   }, [loadData]);
 
+  const handleContractFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === "application/pdf") {
+      setSelectedContractFile(file);
+    } else if (file) {
+      toast({ title: "Archivo Inválido", description: "Por favor, selecciona un archivo PDF.", variant: "destructive" });
+      setSelectedContractFile(null);
+      event.target.value = ""; // Clear the input
+    } else {
+      setSelectedContractFile(null);
+    }
+  };
+
+  const handleUploadClientContract = async () => {
+    if (!cliente || !selectedContractFile) {
+      toast({ title: "Error", description: "Por favor, selecciona un cliente y un archivo de contrato.", variant: "destructive" });
+      return;
+    }
+    setIsUploadingContract(true);
+    const formData = new FormData();
+    formData.append('id', cliente.id);
+    formData.append('name', cliente.name); // saveCustomer expects name or companyName
+    if (cliente.companyName) formData.append('companyName', cliente.companyName);
+    formData.append('contract', selectedContractFile);
+
+    try {
+      const result = await saveCustomer(formData);
+      if (result.success && result.customer) {
+        toast({ title: "Contrato Actualizado", description: `El contrato para ${cliente.name} ha sido actualizado.`});
+        await loadData(); // Refresh all data
+        setSelectedContractFile(null); 
+        // Clear file input
+        const fileInput = document.getElementById('contract-upload-fiesta') as HTMLInputElement;
+        if (fileInput) fileInput.value = "";
+      } else {
+        throw new Error(result.error || "No se pudo actualizar el contrato del cliente.");
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Subir Contrato", description: err.message, variant: "destructive" });
+    } finally {
+      setIsUploadingContract(false);
+    }
+  };
+
   const totalPagado = facturas.reduce((sum, inv) => {
     const pagosFactura = inv.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
     return sum + pagosFactura;
@@ -100,6 +152,37 @@ export default function GestionDocumentalPage() {
   const handlePrintSummary = () => {
     window.print();
   };
+  
+  const handleToggleAssignPresupuesto = async () => {
+    if (!fiesta) return;
+    if (!presupuesto && (!cliente || !cliente.id)) {
+        toast({title: "Acción no disponible", description: "Primero asigna un cliente a la fiesta y luego busca o crea un presupuesto para asignarlo.", variant: "default"});
+        return;
+    }
+    // If a budget is already assigned, we'd be unassigning it.
+    // If no budget is assigned, we'd redirect to the presupuestos list to pick one.
+    if (fiesta.presupuestoId) {
+        setIsSaving(true);
+        const result = await updatePresupuestoAsignadoFiestaActual(undefined); // Pass undefined to unassign
+        if (result.success) {
+            toast({title: "Presupuesto Desasignado", description: "El presupuesto ha sido desasignado de la fiesta actual."});
+            await loadData();
+        } else {
+            toast({title: "Error", description: result.error || "No se pudo desasignar el presupuesto.", variant: "destructive"});
+        }
+        setIsSaving(false);
+    } else {
+        // Redirect to presupuestos page to choose one to link
+        // Consider passing client ID if available to pre-filter or suggest
+        let redirectUrl = "/presupuestos";
+        if (cliente && cliente.id) {
+            // A future enhancement could be to pass client info to presupuestos page for filtering
+            // redirectUrl += `?clienteId=${cliente.id}&clienteNombre=${encodeURIComponent(cliente.name || cliente.companyName || '')}`;
+        }
+        router.push(redirectUrl);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -149,9 +232,28 @@ export default function GestionDocumentalPage() {
           </CardDescription>
         </CardHeader>
       </Card>
+      
+      <Card className="shadow-lg border-t-4 border-primary print:break-inside-avoid">
+        <CardHeader>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><BarChart3 className="w-6 h-6 text-primary"/>Gestión de Costos y Rentabilidad</CardTitle>
+          <CardDescription>Analiza los costos, ingresos y rentabilidad de este evento.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Centraliza todos los gastos e ingresos para obtener una visión clara del rendimiento económico del evento.
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Link href="/fiestas/nueva/gestion-costos-rentabilidad" passHref className="w-full">
+            <Button variant="default" className="w-full">
+              Acceder a Costos y Rentabilidad <ArrowRight className="w-4 h-4 ml-2"/>
+            </Button>
+          </Link>
+        </CardFooter>
+      </Card>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 print:gap-3">
-        {/* Contrato del Evento */}
         <Card className="print:break-inside-avoid">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Contrato del Evento</CardTitle>
@@ -159,16 +261,40 @@ export default function GestionDocumentalPage() {
           <CardContent className="space-y-3">
             {cliente?.contractFileName ? (
               <a href={`/api/contracts/${cliente.contractFileName}`} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="w-full"><FileText className="w-4 h-4 mr-2"/>Ver Contrato Firmado</Button>
+                <Button variant="outline" className="w-full"><FileText className="w-4 h-4 mr-2"/>Ver Contrato Actual (Cliente)</Button>
               </a>
+            ) : cliente ? (
+              <p className="text-sm text-muted-foreground italic">El cliente no tiene un contrato cargado.</p>
             ) : (
-              <p className="text-sm text-muted-foreground italic">No hay contrato del cliente cargado.</p>
+              <p className="text-sm text-muted-foreground italic">Asigna un cliente a la fiesta para ver/cargar su contrato.</p>
             )}
-            <Button variant="outline" className="w-full" disabled><PlusCircle className="w-4 h-4 mr-2"/>Subir Contrato (Próximamente)</Button>
+            {cliente && (
+              <div className="space-y-2 pt-2 border-t">
+                <Label htmlFor="contract-upload-fiesta" className="text-xs text-muted-foreground">Subir o Reemplazar Contrato del Cliente (PDF):</Label>
+                <Input 
+                  id="contract-upload-fiesta" 
+                  type="file" 
+                  accept="application/pdf" 
+                  onChange={handleContractFileChange}
+                  disabled={isUploadingContract}
+                  className="file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                />
+                {selectedContractFile && <p className="text-xs text-muted-foreground">Seleccionado: {selectedContractFile.name}</p>}
+                <Button 
+                  type="button" 
+                  onClick={handleUploadClientContract} 
+                  disabled={!selectedContractFile || isUploadingContract}
+                  className="w-full mt-1"
+                  size="sm"
+                >
+                  {isUploadingContract ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UploadCloud className="w-4 h-4 mr-2"/>}
+                  {isUploadingContract ? "Subiendo..." : "Actualizar Contrato"}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Presupuesto del Evento */}
         <Card className="print:break-inside-avoid">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><FileText className="w-5 h-5 text-primary"/>Presupuesto del Evento</CardTitle>
@@ -181,20 +307,29 @@ export default function GestionDocumentalPage() {
                 <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
                   <Button variant="outline" className="w-full">Ver Presupuesto Detallado</Button>
                 </Link>
-                {showAnnualAdjustmentLegend && (
+                 {showAnnualAdjustmentLegend && (
                   <p className="text-xs text-orange-600 mt-1">
                     <Info className="inline w-3 h-3 mr-1"/>
-                    Se aplicará ajuste anual del {displaySettings?.annualAdjustmentPercentage}%.
+                    Ajuste anual del {displaySettings?.annualAdjustmentPercentage}% aplicará.
                   </p>
                 )}
               </>
+            ) : cliente?.budgetFileName ? (
+                <>
+                    <p className="text-sm text-muted-foreground italic">Presupuesto asignado al sistema no encontrado.</p>
+                    <a href={`/api/budgets/${cliente.budgetFileName}`} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" className="w-full"><FileText className="w-4 h-4 mr-2"/>Ver Presupuesto PDF del Cliente</Button>
+                    </a>
+                </>
             ) : (
-              <p className="text-sm text-muted-foreground italic">No hay presupuesto asignado a esta fiesta.</p>
+              <p className="text-sm text-muted-foreground italic">No hay presupuesto asignado o cargado.</p>
             )}
+             <Button variant="default" className="w-full" onClick={handleToggleAssignPresupuesto} disabled={isSaving || !cliente}>
+              {fiesta.presupuestoId ? "Desvincular Presupuesto" : "Asignar/Crear Presupuesto"}
+            </Button>
           </CardContent>
         </Card>
 
-        {/* Facturas */}
         <Card className="md:col-span-2 lg:col-span-1 print:break-inside-avoid">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><FileText className="w-5 h-5 text-primary"/>Facturas Asociadas</CardTitle>
@@ -217,7 +352,10 @@ export default function GestionDocumentalPage() {
             ) : (
               <p className="text-sm text-muted-foreground italic">No hay facturas asignadas a esta fiesta.</p>
             )}
-            <Button variant="outline" className="w-full" disabled><PlusCircle className="w-4 h-4 mr-2"/>Generar Factura (Próximamente)</Button>
+             <Button variant="outline" className="w-full" disabled={!presupuesto || presupuesto.estado === 'Facturado'} onClick={() => presupuesto && router.push(`/invoices/new?fromPresupuesto=${presupuesto.id}`)}>
+              <PlusCircle className="w-4 h-4 mr-2"/>Generar Factura desde Presupuesto
+            </Button>
+            {presupuesto?.estado === 'Facturado' && <p className="text-xs text-green-600 mt-1">Este presupuesto ya ha sido facturado.</p>}
           </CardContent>
         </Card>
       </div>

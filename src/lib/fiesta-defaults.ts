@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -134,6 +134,12 @@ export const defaultListaDeCargaOperativa: ListaDeCargaOperativa = {
   notasGenerales: '',
 };
 
+export const initialGestionCostosData: GestionCostosData = {
+  costosItems: [],
+  ingresosTotalesEstimados: 0,
+  notasGeneralesCostos: '',
+};
+
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {
   id: `fiesta_${Date.now()}`,
@@ -163,4 +169,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
   bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
   listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
+  gestionCostos: { ...initialGestionCostosData }, // Nuevo módulo
 };

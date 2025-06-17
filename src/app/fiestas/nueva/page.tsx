@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList, Archive, PackageSearch } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
@@ -134,6 +134,14 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/gestion-documental",
     status: "Disponible",
     actionLabel: "Administrar Documentos"
+  },
+  {
+    title: "Costos y Rentabilidad",
+    description: "Analiza costos, ingresos y la rentabilidad de tu evento.",
+    icon: BarChart3,
+    href: "/fiestas/nueva/gestion-costos-rentabilidad",
+    status: "Disponible",
+    actionLabel: "Analizar Rentabilidad"
   }
 ];
 
@@ -338,14 +346,14 @@ export default function PlanificarFiestaHubPage() {
                         {linkedClient.budgetFileName && (
                             <a href={`/api/budgets/${linkedClient.budgetFileName}`} target="_blank" rel="noopener noreferrer">
                                 <Button type="button" variant="outline" size="sm">
-                                <FileText className="w-4 h-4 mr-2"/> Ver Presupuesto Cliente
+                                <FileTextIcon className="w-4 h-4 mr-2"/> Ver Presupuesto Cliente
                                 </Button>
                             </a>
                         )}
                         {linkedClient.contractFileName && (
                             <a href={`/api/contracts/${linkedClient.contractFileName}`} target="_blank" rel="noopener noreferrer">
                                 <Button type="button" variant="outline" size="sm">
-                                <FileText className="w-4 h-4 mr-2"/> Ver Contrato Cliente
+                                <FileTextIcon className="w-4 h-4 mr-2"/> Ver Contrato Cliente
                                 </Button>
                             </a>
                         )}

@@ -76,11 +76,13 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
   if (pathname === '/fiestas/nueva/gestion-documental') return 'Gestión Documental y Financiera';
+  if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
 
   // Contabilidad & CRM
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
-  // La ruta /contabilidad/pagos fue eliminada
+  if (pathname === '/contabilidad/pagos') return 'Registro General de Pagos';
+
 
   // Configuración
   if (pathname === '/settings') return 'Configuración General';
@@ -141,6 +143,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
     if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardListIcon;
     if (pathname === '/fiestas/nueva/gestion-documental') return Archive;
+    if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
     return PartyPopper;
   }
@@ -168,7 +171,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
-  // La ruta /contabilidad/pagos fue eliminada
+  if (pathname === '/contabilidad/pagos') return Banknote;
+
 
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/templates') return Palette;
