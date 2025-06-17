@@ -21,7 +21,7 @@ export default function NewProveedorPage() {
   // Form state
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [cedula, setCedula] = useState(''); // Usaremos 'taxId' internamente
+  // const [cedula, setCedula] = useState(''); // Campo eliminado
   const [servicio, setServicio] = useState(''); // Nuevo campo
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,10 +38,10 @@ export default function NewProveedorPage() {
     setIsSaving(true);
     // Adaptar los datos al tipo Customer por ahora
     // El campo 'servicio' no se guarda porque el tipo Customer no lo tiene.
-    const proveedorData: Omit<Customer, 'id' | 'email' | 'salesFunnelStage' | 'estadoCliente' | 'phone' | 'address'> & { address?: { street?: string } } = { 
+    const proveedorData: Omit<Customer, 'id' | 'email' | 'salesFunnelStage' | 'estadoCliente' | 'phone' | 'address' | 'taxId'> & { address?: { street?: string } } = { 
       name: name.trim() || companyName.trim(), 
       companyName: companyName.trim() || undefined,
-      taxId: cedula.trim() || undefined, // Cédula se guarda en taxId
+      // taxId: cedula.trim() || undefined, // Cédula se guarda en taxId - ELIMINADO
       // No se incluye 'phone' ni 'address.street'
       // El campo 'servicio' no se incluye aquí ya que no existe en el tipo Customer
     };
@@ -97,11 +97,8 @@ export default function NewProveedorPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="proveedor-cedula">Cédula / RUT</Label>
-                <Input id="proveedor-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="Ej: 1.234.567-8 o RUT" />
-              </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-1"> {/* Cambiado a 1 columna ya que se eliminó Cédula/RUT */}
+              {/* Campo Cédula / RUT eliminado */}
               <div className="space-y-2">
                 <Label htmlFor="proveedor-servicio">Servicio que Ofrece</Label>
                 <Input id="proveedor-servicio" value={servicio} onChange={(e) => setServicio(e.target.value)} placeholder="Ej: Catering, Fotografía, DJ" />
