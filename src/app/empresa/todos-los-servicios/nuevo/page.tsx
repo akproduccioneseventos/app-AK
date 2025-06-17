@@ -25,7 +25,7 @@ export default function NuevoItemInventarioPage() {
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
-  const [precioVenta, setPrecioVenta] = useState<string>(''); // Mantenido si es un servicio que también se vende
+  const [precioVenta, setPrecioVenta] = useState<string>(''); 
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -49,7 +49,7 @@ export default function NuevoItemInventarioPage() {
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
       unidad: unidad as UnidadServicio,
-      precioVenta: precioVenta ? parseFloat(precioVenta) : undefined, // Campo opcional para servicios
+      precioVenta: precioVenta ? parseFloat(precioVenta) : undefined,
     };
 
     try {

@@ -89,12 +89,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/company') return 'Información de la Empresa';
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
-
-  // Página Pública del Evento y Login/Signup
-  if (pathname === '/evento/actual') return 'Página del Evento';
-  if (pathname === '/evento/actual/mesa') return 'Consulta de Mesa';
-  if (pathname === '/login') return 'Iniciar Sesión';
-  if (pathname === '/signup') return 'Crear Cuenta';
   
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -152,7 +146,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   }
 
   if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/contabilidad') return BarChart3;
+  if (pathname === '/empresa/contabilidad') return BarChart3; 
   if (pathname === '/empresa/todos-los-servicios') return Package; 
   if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
   if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;

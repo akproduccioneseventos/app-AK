@@ -86,7 +86,7 @@ export default function InventarioGeneralPage() {
   };
 
   const itemsAgrupados = filteredItems.reduce((acc, item) => {
-    const categoria = item.categoria || 'Otros'; // 'Otros' como fallback
+    const categoria = item.categoria || 'Otros Activos'; // 'Otros Activos' como fallback
     if (!acc[categoria]) {
       acc[categoria] = [];
     }
@@ -219,9 +219,8 @@ export default function InventarioGeneralPage() {
                         <div className="flex justify-between items-start">
                           <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                            <div className="flex gap-1">
-                                <Button variant="ghost" size="icon" className="h-7 w-7" disabled> {/* TODO: Link to edit page */}
-                                    <Edit className="w-3.5 h-3.5" />
-                                </Button>
+                                {/* El botón de editar se elimina temporalmente hasta que se implemente la página de edición */}
+                                {/* <Button variant="ghost" size="icon" className="h-7 w-7" disabled> <Edit className="w-3.5 h-3.5" /> </Button> */}
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}>
@@ -265,7 +264,7 @@ export default function InventarioGeneralPage() {
         </Accordion>
       )}
       <CardFooter className="mt-6 text-xs text-muted-foreground">
-        La funcionalidad de edición de ítems y cálculo de depreciación se habilitará en futuras actualizaciones.
+        La funcionalidad de edición detallada de ítems y cálculo de depreciación se habilitará en futuras actualizaciones.
       </CardFooter>
     </div>
   );

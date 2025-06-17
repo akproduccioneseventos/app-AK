@@ -27,7 +27,8 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
     return (JSON.parse(fileContent) as ServicioEmpresa[]).map(item => ({
       ...item,
       cantidadDisponible: item.cantidadDisponible === undefined ? undefined : Number(item.cantidadDisponible),
-      valorUnitarioEstimado: item.valorUnitarioEstimado === undefined ? undefined : Number(item.valorUnitarioEstimado),
+      valorUnitarioEstimado: item.valorUnitarioEstimado === undefined ? undefined : Number(item.valorUnitarioEstimado), // Mapear desde costoReal si es necesario en una migración
+      unidad: item.unidad || 'Unidad', // Default a 'Unidad' si no está presente
     }));
   } catch (error) {
     return [];
@@ -57,7 +58,25 @@ async function initializeLocalServiciosFile() {
       await writeServiciosFile([]);
     } else {
       // Potentially add migration logic here if structure changes significantly over time
-      JSON.parse(fileContent);
+      // For example, mapping old 'costoReal' to 'valorUnitarioEstimado'
+      const items = JSON.parse(fileContent) as any[];
+      let needsMigration = false;
+      const migratedItems = items.map(item => {
+        if (item.hasOwnProperty('costoReal') && !item.hasOwnProperty('valorUnitarioEstimado')) {
+          item.valorUnitarioEstimado = Number(item.costoReal);
+          delete item.costoReal;
+          needsMigration = true;
+        }
+        if (!item.unidad) {
+          item.unidad = 'Unidad'; // Default unit
+          needsMigration = true;
+        }
+        return item as ServicioEmpresa;
+      });
+      if (needsMigration) {
+        await writeServiciosFile(migratedItems);
+        console.log("Migrated servicios-empresa.json to include 'valorUnitarioEstimado' and 'unidad'.");
+      }
     }
   } catch (error) {
     await writeServiciosFile([]);
@@ -105,7 +124,7 @@ export async function saveServicioEmpresa(
   if (!dataWithParsedNumbers.categoria) {
     return { success: false, error: "La categoría es obligatoria." };
   }
-  if (!dataWithParsedNumbers.unidad) {
+  if (!dataWithParsedNumbers.unidad) { // Unidad ahora es obligatoria para inventario
     return { success: false, error: "La unidad es obligatoria." };
   }
 
@@ -120,7 +139,7 @@ export async function saveServicioEmpresa(
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
-    // Create - Check for duplicates (simple check, can be more sophisticated)
+    // Create - Check for duplicates by name and category
     const existingItem = inventario.find(
       s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() &&
            s.categoria === dataWithParsedNumbers.categoria
