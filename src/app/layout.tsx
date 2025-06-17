@@ -1,8 +1,10 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 import { Poppins } from 'next/font/google';
+import { AuthGuard } from '@/components/auth-guard'; // Nueva importación
 
 // Configure Poppins font with specified weights
 const poppins = Poppins({
@@ -28,7 +30,9 @@ export default function RootLayout({
         {/* Google Font <link> tags for Poppins are removed as next/font handles it */}
       </head>
       <body className={`${poppins.className} font-body antialiased`}>
-        <AppShell>{children}</AppShell>
+        <AuthGuard>
+          <AppShell>{children}</AppShell>
+        </AuthGuard>
         <Toaster />
       </body>
     </html>
