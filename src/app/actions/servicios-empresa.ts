@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa } from '@/types/empresa'; // Added TipoItemEmpresa
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -23,12 +23,17 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
     await fs.access(serviciosFilePath);
     const fileContent = await fs.readFile(serviciosFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
-    // Ensure new fields are present or defaulted for existing items
     return (JSON.parse(fileContent) as ServicioEmpresa[]).map(item => ({
       ...item,
+      tipoItem: item.tipoItem || (item.categoria.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente'), // Default tipoItem if missing
       cantidadDisponible: item.cantidadDisponible === undefined ? undefined : Number(item.cantidadDisponible),
-      valorUnitarioEstimado: item.valorUnitarioEstimado === undefined ? undefined : Number(item.valorUnitarioEstimado), // Mapear desde costoReal si es necesario en una migración
-      unidad: item.unidad || 'Unidad', // Default a 'Unidad' si no está presente
+      valorUnitarioEstimado: item.valorUnitarioEstimado === undefined ? undefined : Number(item.valorUnitarioEstimado),
+      unidad: item.unidad || 'Unidad',
+      contactoPrincipal: item.contactoPrincipal || undefined,
+      telefonoContacto: item.telefonoContacto || undefined,
+      emailContacto: item.emailContacto || undefined,
+      descripcionServicio: item.descripcionServicio || undefined,
+      productosOfrecidos: item.productosOfrecidos || undefined,
     }));
   } catch (error) {
     return [];
@@ -57,25 +62,28 @@ async function initializeLocalServiciosFile() {
     if (fileContent.trim() === '') {
       await writeServiciosFile([]);
     } else {
-      // Potentially add migration logic here if structure changes significantly over time
-      // For example, mapping old 'costoReal' to 'valorUnitarioEstimado'
       const items = JSON.parse(fileContent) as any[];
       let needsMigration = false;
       const migratedItems = items.map(item => {
+        let migrated = { ...item };
         if (item.hasOwnProperty('costoReal') && !item.hasOwnProperty('valorUnitarioEstimado')) {
-          item.valorUnitarioEstimado = Number(item.costoReal);
-          delete item.costoReal;
+          migrated.valorUnitarioEstimado = Number(item.costoReal);
+          delete migrated.costoReal;
           needsMigration = true;
         }
         if (!item.unidad) {
-          item.unidad = 'Unidad'; // Default unit
+          migrated.unidad = 'Unidad';
           needsMigration = true;
         }
-        return item as ServicioEmpresa;
+        if (!item.tipoItem) { // Add tipoItem if missing
+           migrated.tipoItem = item.categoria?.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente';
+           needsMigration = true;
+        }
+        return migrated as ServicioEmpresa;
       });
       if (needsMigration) {
         await writeServiciosFile(migratedItems);
-        console.log("Migrated servicios-empresa.json to include 'valorUnitarioEstimado' and 'unidad'.");
+        console.log("Migrated servicios-empresa.json to include new fields like 'tipoItem'.");
       }
     }
   } catch (error) {
@@ -105,6 +113,7 @@ export async function saveServicioEmpresa(
     valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined ? Number(itemData.valorUnitarioEstimado) : undefined,
     cantidadDisponible: itemData.cantidadDisponible !== undefined ? Number(itemData.cantidadDisponible) : undefined,
     precioVenta: itemData.precioVenta !== undefined ? Number(itemData.precioVenta) : undefined,
+    tipoItem: itemData.tipoItem || (itemData.categoria.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente'),
   };
 
   if (dataWithParsedNumbers.valorUnitarioEstimado === undefined || isNaN(dataWithParsedNumbers.valorUnitarioEstimado)) {
@@ -117,20 +126,21 @@ export async function saveServicioEmpresa(
       delete dataWithParsedNumbers.precioVenta;
   }
 
-
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") {
     return { success: false, error: "El nombre del ítem/servicio es obligatorio." };
   }
   if (!dataWithParsedNumbers.categoria) {
     return { success: false, error: "La categoría es obligatoria." };
   }
-  if (!dataWithParsedNumbers.unidad) { // Unidad ahora es obligatoria para inventario
+  if (!dataWithParsedNumbers.unidad) {
     return { success: false, error: "La unidad es obligatoria." };
+  }
+  if (!dataWithParsedNumbers.tipoItem) {
+    return { success: false, error: "El tipo de ítem es obligatorio." };
   }
 
 
   if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
-    // Update
     itemId = dataWithParsedNumbers.id;
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) {
@@ -139,7 +149,6 @@ export async function saveServicioEmpresa(
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
-    // Create - Check for duplicates by name and category
     const existingItem = inventario.find(
       s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() &&
            s.categoria === dataWithParsedNumbers.categoria
@@ -168,3 +177,4 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
   await writeServiciosFile(inventario);
   return { success: true };
 }
+

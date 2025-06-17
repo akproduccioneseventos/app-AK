@@ -2,12 +2,14 @@
 export interface Ingredient {
   id: string;
   name: string;
-  quantity: string; // Cantidad usada en ESTA receta específica
+  quantityPerPerson: string; // Cantidad por persona para esta receta (ej: "100", "0.5")
   unit: string; // Unidad de la cantidad (ej: gr, ml, ud)
-  cost: number; // Costo de ESA cantidad específica para ESTA receta
-  proveedor?: string;
+  cost: number; // Costo de ESA quantityPerPerson para ESTA receta
+  proveedor?: string; // Nombre del proveedor (manual por ahora)
   marca?: string;
-  fecha_actualizacion?: string; // ISO date string para la última vez que se actualizó el precio de este ingrediente
+  fecha_actualizacion?: string; // ISO date string
+  // preferredSupplierId?: string; // For future linking to a supplier entity
+  // supplierNotes?: string; // Notes specific to sourcing this ingredient
 }
 
 export interface MenuItem { // Representa un Plato
@@ -15,11 +17,11 @@ export interface MenuItem { // Representa un Plato
   name: string;
   type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | ''; // Categoría del plato
   ingredients: Ingredient[];
-  totalDishCost: number; // Costo total de ingredientes para las porciones base
-  basePortions?: number; // Cantidad de porciones base que rinde la receta
-  costPerPortion?: number; // Calculado: totalDishCost / basePortions (opcional, puede ser calculado en UI)
+  // totalDishCost is the cost of this dish FOR ONE PERSON, calculated from sum of its ingredient costs (which are per person)
+  totalDishCost: number; 
   allergens?: string; // Texto simple para alérgenos, separados por coma
-  notes?: string; // Para información adicional como precio sugerido, observaciones, etc.
+  notes?: string; // Para información adicional
+  // basePortions and costPerPortion are removed as totalDishCost now represents per-person cost.
 }
 
 export interface FullMenu { // Representa un Menú completo guardado
@@ -34,4 +36,3 @@ export interface FullMenu { // Representa un Menú completo guardado
 
 // Para el formulario, antes de tener un ID de FullMenu
 export type NewMenuFormData = Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>;
-

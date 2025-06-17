@@ -31,21 +31,16 @@ async function readMenusFile(): Promise<FullMenu[]> {
         ...item,
         ingredients: item.ingredients.map(ingredient => ({
           ...ingredient,
+          quantityPerPerson: ingredient.quantityPerPerson || '0', // Ensure exists, default to '0' if migrating
           cost: Number(ingredient.cost) || 0,
           proveedor: ingredient.proveedor || undefined,
           marca: ingredient.marca || undefined,
           fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
         })),
         totalDishCost: Number(item.totalDishCost) || 0,
-        basePortions: item.basePortions ? Number(item.basePortions) : undefined,
-        costPerPortion: item.costPerPortion ? Number(item.costPerPortion) : undefined,
       }))
     }));
   } catch (error) {
-    // If the file doesn't exist or is invalid, and we expect a default,
-    // we should ideally write the default here.
-    // For now, if reading fails, it will return an empty array,
-    // which might be acceptable if the default content is already in the JSON file itself.
     console.error("Error reading menus file, returning empty array:", error);
     return [];
   }
@@ -69,63 +64,53 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 async function initializeLocalMenusFile() {
   try {
     await ensureDataDirectoryExists();
-    await fs.access(menusFilePath); // Check if the file exists
+    await fs.access(menusFilePath); 
     const fileContent = await fs.readFile(menusFilePath, 'utf-8');
     
     if (fileContent.trim() === '') {
-      // If the file is empty, it implies the default menu (if intended to be there)
-      // was not correctly placed or was overwritten.
-      // For this request, we assume `menus-catering.json` is pre-populated by the XML change.
-      // If it were truly *empty*, we might write a default initial array like `await writeMenusFile([]);`
-      // or the default AK menu if that was the design.
-      // Given the request, the file should NOT be empty after the XML change.
-      console.warn("menus-catering.json was found empty during initialization. This might indicate an issue if a default menu was expected.");
-      // Consider: await writeMenusFile(AK_DEFAULT_MENU_ARRAY); if needed.
-      // For now, if it's empty, it stays empty, and `readMenusFile` will return [].
+      console.warn("menus-catering.json was found empty during initialization.");
       return;
     }
 
-    // If file has content, parse and check for necessary migrations (like new fields)
     const menus = JSON.parse(fileContent) as FullMenu[];
     let needsResave = menus.some(menu => 
       menu.items.some(item => 
         item.ingredients.some(ing => 
           typeof ing.cost === 'string' || 
-          !('proveedor' in ing) || // Check if new fields are missing
+          !('proveedor' in ing) || 
           !('marca' in ing) ||
-          !('fecha_actualizacion' in ing)
-        )
+          !('fecha_actualizacion' in ing) ||
+          !('quantityPerPerson' in ing) // Check for new quantityPerPerson field
+        ) ||
+        item.hasOwnProperty('basePortions') || // Check for old fields to remove
+        item.hasOwnProperty('costPerPortion')
       )
     );
 
     if (needsResave) {
       const correctedMenus = menus.map(menu => ({
         ...menu,
-        items: menu.items.map(item => ({
-          ...item,
-          ingredients: item.ingredients.map(ingredient => ({
-            ...ingredient,
-            cost: Number(ingredient.cost) || 0,
-            proveedor: ingredient.proveedor || undefined,
-            marca: ingredient.marca || undefined,
-            fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
-          })),
-          totalDishCost: Number(item.totalDishCost) || 0,
-          basePortions: item.basePortions ? Number(item.basePortions) : undefined,
-          costPerPortion: item.costPerPortion ? Number(item.costPerPortion) : undefined,
-        }))
+        items: menu.items.map(item => {
+          const { basePortions, costPerPortion, ...restOfItem } = item as any; // Remove old fields
+          return {
+            ...restOfItem,
+            ingredients: item.ingredients.map(ingredient => ({
+              ...ingredient,
+              quantityPerPerson: ingredient.quantityPerPerson || '0', // Default for migration
+              cost: Number(ingredient.cost) || 0,
+              proveedor: ingredient.proveedor || undefined,
+              marca: ingredient.marca || undefined,
+              fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
+            })),
+            totalDishCost: Number(item.totalDishCost) || 0, // Recalculate if needed, but for now keep stored
+          };
+        })
       }));
       await writeMenusFile(correctedMenus);
-      console.log("Migrated existing menus-catering.json to include new ingredient fields.");
+      console.log("Migrated existing menus-catering.json for per-person ingredient quantities and removed old fields.");
     }
   } catch (error) {
-    // This catch block is for errors like file not found or JSON parse error.
-    // If the file doesn't exist, it implies the user is running for the first time OR
-    // the default file wasn't created by the XML change.
-    // The XML change *should* create/replace `menus-catering.json`.
-    // If it fails, `readMenusFile` will handle it and return [].
-    console.warn(`Warning during menus-catering.json initialization (file might not exist or is invalid, will be handled by readMenusFile):`, error);
-    // No need to write an empty file here if the expectation is that the XML places the default.
+    console.warn(`Warning during menus-catering.json initialization:`, error);
   }
 }
 initializeLocalMenusFile();
@@ -140,32 +125,34 @@ export async function getMenuById(id: string): Promise<FullMenu | null> {
   return menus.find(menu => menu.id === id) || null;
 }
 
+// Helper to calculate totalDishCost for a MenuItem based on its ingredients
+function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
+  return ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
+}
+
 function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): FullMenu {
   const processedItems = menuData.items.map(item => {
     const ingredients = item.ingredients.map(ing => ({
       ...ing,
       name: ing.name.trim(),
-      quantity: ing.quantity.trim(),
+      quantityPerPerson: ing.quantityPerPerson.trim() || '0', // Ensure it's a string
       unit: ing.unit.trim(),
       cost: Number(ing.cost) || 0,
       proveedor: ing.proveedor?.trim() || undefined,
       marca: ing.marca?.trim() || undefined,
       fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
     }));
-    const totalDishCost = ingredients.reduce((sum, ing) => sum + ing.cost, 0);
-    const basePortions = item.basePortions ? Number(item.basePortions) : undefined;
-    const costPerPortion = (basePortions && basePortions > 0 && totalDishCost > 0)
-                           ? totalDishCost / basePortions
-                           : undefined;
+    // totalDishCost is now cost per person for the dish
+    const totalDishCost = calculateDishCostPerPerson(ingredients);
+    
     return {
       ...item,
       name: item.name.trim(),
       ingredients,
-      totalDishCost,
-      basePortions,
-      costPerPortion,
+      totalDishCost, // This is now the cost per person for the dish
       allergens: item.allergens?.trim() || undefined,
       notes: item.notes?.trim() || undefined,
+      // basePortions and costPerPortion are no longer part of MenuItem
     };
   });
 
@@ -223,3 +210,4 @@ export async function deleteMenu(id: string): Promise<{ success: boolean; error?
   await writeMenusFile(menus);
   return { success: true };
 }
+

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type FormEvent } from 'react'; // Added FormEvent
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,15 +28,14 @@ export default function NuevoMenuPersonalizadoPage() {
   
   const [newItemName, setNewItemName] = useState('');
   const [newItemType, setNewItemType] = useState<MenuItem['type']>('');
-  const [newItemBasePortions, setNewItemBasePortions] = useState<number | undefined>(1);
   const [newItemAllergens, setNewItemAllergens] = useState('');
   
   const [currentDishIngredients, setCurrentDishIngredients] = useState<Ingredient[]>([]);
   // Ingredient form state
   const [ingredientName, setIngredientName] = useState('');
-  const [ingredientQuantity, setIngredientQuantity] = useState('');
+  const [ingredientQuantityPerPerson, setIngredientQuantityPerPerson] = useState(''); // Changed from ingredientQuantity
   const [ingredientUnit, setIngredientUnit] = useState('');
-  const [ingredientCost, setIngredientCost] = useState<string>('');
+  const [ingredientCost, setIngredientCost] = useState<string>(''); // Cost of quantityPerPerson
   const [ingredientProveedor, setIngredientProveedor] = useState('');
   const [ingredientMarca, setIngredientMarca] = useState('');
   const [ingredientFechaActualizacion, setIngredientFechaActualizacion] = useState<Date | undefined>(undefined);
@@ -44,22 +43,17 @@ export default function NuevoMenuPersonalizadoPage() {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const currentDishTotalCost = useMemo(() => {
+  const currentDishTotalCostPerPerson = useMemo(() => { // Renamed for clarity
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
   }, [currentDishIngredients]);
 
-  const currentItemCostPerPortion = useMemo(() => {
-    if (newItemBasePortions && newItemBasePortions > 0 && currentDishTotalCost > 0) {
-      return currentDishTotalCost / newItemBasePortions;
-    }
-    return 0;
-  }, [currentDishTotalCost, newItemBasePortions]);
+  // currentItemCostPerPortion is no longer needed as totalDishCost is per person.
 
   const handleAddIngredientToCurrentDish = () => {
-    if (!ingredientName || !ingredientQuantity || !ingredientUnit || !ingredientCost) {
+    if (!ingredientName || !ingredientQuantityPerPerson || !ingredientUnit || !ingredientCost) {
       toast({
         title: 'Campos de ingrediente incompletos',
-        description: 'Por favor, completa Nombre, Cantidad, Unidad y Costo del ingrediente.',
+        description: 'Por favor, completa Nombre, Cantidad por Persona, Unidad y Costo del ingrediente.',
         variant: 'destructive',
       });
       return;
@@ -77,17 +71,16 @@ export default function NuevoMenuPersonalizadoPage() {
     const newIngredient: Ingredient = {
       id: `ing_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: ingredientName,
-      quantity: ingredientQuantity,
+      quantityPerPerson: ingredientQuantityPerPerson, // Uses new field
       unit: ingredientUnit,
-      cost: costValue,
+      cost: costValue, // Cost for this quantityPerPerson
       proveedor: ingredientProveedor.trim() || undefined,
       marca: ingredientMarca.trim() || undefined,
       fecha_actualizacion: ingredientFechaActualizacion ? ingredientFechaActualizacion.toISOString() : undefined,
     };
     setCurrentDishIngredients(prev => [...prev, newIngredient]);
-    // Reset ingredient form fields
     setIngredientName('');
-    setIngredientQuantity('');
+    setIngredientQuantityPerPerson(''); // Reset new field
     setIngredientUnit('');
     setIngredientCost('');
     setIngredientProveedor('');
@@ -108,18 +101,18 @@ export default function NuevoMenuPersonalizadoPage() {
        toast({ title: 'Plato sin ingredientes', variant: 'destructive' });
        return;
     }
-    const totalDishCost = currentDishTotalCost;
-    const costPerPortionCalc = (newItemBasePortions && newItemBasePortions > 0 && totalDishCost > 0) 
-                               ? totalDishCost / newItemBasePortions 
-                               : undefined;
+    // totalDishCost is now the cost per person for this dish
+    const totalDishCost = currentDishTotalCostPerPerson; 
+    
     const newDish: MenuItem = {
       id: `dish_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: newItemName, type: newItemType, ingredients: [...currentDishIngredients], 
-      totalDishCost, basePortions: newItemBasePortions, costPerPortion: costPerPortionCalc,
+      totalDishCost, // This is cost per person
       allergens: newItemAllergens.trim() || undefined,
+      // basePortions and costPerPortion are removed
     };
     setMenuItems(prevItems => [...prevItems, newDish]);
-    setNewItemName(''); setNewItemType(''); setNewItemBasePortions(1); setNewItemAllergens(''); setCurrentDishIngredients([]);
+    setNewItemName(''); setNewItemType(''); setNewItemAllergens(''); setCurrentDishIngredients([]);
     toast({ title: 'Plato Añadido al Menú' });
   };
 
@@ -129,7 +122,8 @@ export default function NuevoMenuPersonalizadoPage() {
     if (itemToRemove) toast({ title: 'Plato Eliminado del Menú' });
   };
 
-  const handleSaveFullMenu = async () => {
+  const handleSaveFullMenu = async (e: FormEvent) => { // Added FormEvent
+    e.preventDefault(); // Prevent default form submission
     if (!menuName.trim()) {
         toast({ title: 'Nombre del Menú Requerido', variant: 'destructive' });
         return;
@@ -142,7 +136,10 @@ export default function NuevoMenuPersonalizadoPage() {
     const menuToSave: NewMenuFormData = {
       name: menuName,
       description: menuDescription || `Menú ${menuTemplateType || 'Personalizado'} creado el ${new Date().toLocaleDateString()}`,
-      items: menuItems,
+      items: menuItems.map(item => ({ // Ensure items are processed correctly
+        ...item,
+        totalDishCost: item.ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0) // Recalculate just in case
+      })),
       templateType: menuTemplateType,
     };
     try {
@@ -160,7 +157,8 @@ export default function NuevoMenuPersonalizadoPage() {
     }
   };
 
-  const totalMenuCost = menuItems.reduce((sum, item) => sum + item.totalDishCost, 0);
+  // Total cost per person for the entire menu
+  const totalMenuCostPerPerson = menuItems.reduce((sum, item) => sum + item.totalDishCost, 0);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -175,7 +173,7 @@ export default function NuevoMenuPersonalizadoPage() {
           </Button>
         </Link>
       </div>
-
+    <form onSubmit={handleSaveFullMenu}> {/* Wrap everything in a form */}
       <Card className="shadow-lg">
         <CardHeader><CardTitle className="font-headline text-xl">Información General del Menú</CardTitle></CardHeader>
         <CardContent className="space-y-4">
@@ -186,26 +184,23 @@ export default function NuevoMenuPersonalizadoPage() {
       </Card>
 
       <Card className="shadow-lg">
-        <CardHeader><CardTitle className="font-headline text-xl">Añadir Plato al Menú</CardTitle><CardDescription>Define nombre, categoría, porciones e ingredientes.</CardDescription></CardHeader>
+        <CardHeader><CardTitle className="font-headline text-xl">Añadir Plato al Menú</CardTitle><CardDescription>Define nombre, categoría e ingredientes por persona.</CardDescription></CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2"><Label htmlFor="new-item-name">Nombre del Plato *</Label><Input id="new-item-name" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} required/></div>
             <div className="space-y-2"><Label htmlFor="new-item-type">Categoría *</Label><Select value={newItemType} onValueChange={(value) => setNewItemType(value as MenuItem['type'])} required><SelectTrigger id="new-item-type"><SelectValue placeholder="Seleccionar" /></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem></SelectContent></Select></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2"><Label htmlFor="new-item-portions">Rinde (porciones base)</Label><Input id="new-item-portions" type="number" value={newItemBasePortions ?? ''} onChange={(e) => setNewItemBasePortions(e.target.value ? parseInt(e.target.value) : undefined)} min="1"/></div>
-            <div className="space-y-2"><Label htmlFor="new-item-allergens">Alérgenos (separados por coma)</Label><Input id="new-item-allergens" value={newItemAllergens} onChange={(e) => setNewItemAllergens(e.target.value)}/></div>
-          </div>
-          {newItemBasePortions && newItemBasePortions > 0 && currentDishTotalCost > 0 && (<p className="text-sm font-medium text-muted-foreground">Costo por Porción Estimado: ${(currentDishTotalCost / newItemBasePortions).toFixed(2)}</p>)}
+          <div className="space-y-2"><Label htmlFor="new-item-allergens">Alérgenos (separados por coma)</Label><Input id="new-item-allergens" value={newItemAllergens} onChange={(e) => setNewItemAllergens(e.target.value)}/></div>
+          <p className="text-sm font-medium text-muted-foreground">Costo por Persona Estimado para este Plato: ${currentDishTotalCostPerPerson.toFixed(2)}</p>
 
           <Separator />
           <div>
-            <h3 className="text-lg font-medium mb-3 font-headline">Ingredientes para "{newItemName || 'este Plato'}"</h3>
+            <h3 className="text-lg font-medium mb-3 font-headline">Ingredientes para "{newItemName || 'este Plato'}" (por persona)</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 items-end">
               <div className="space-y-1"><Label htmlFor="ing-name" className="text-xs">Nombre Ing. *</Label><Input id="ing-name" value={ingredientName} onChange={e => setIngredientName(e.target.value)} className="text-sm p-2 h-9"/></div>
-              <div className="space-y-1"><Label htmlFor="ing-qty" className="text-xs">Cantidad *</Label><Input id="ing-qty" value={ingredientQuantity} onChange={e => setIngredientQuantity(e.target.value)} className="text-sm p-2 h-9"/></div>
-              <div className="space-y-1"><Label htmlFor="ing-unit" className="text-xs">Unidad *</Label><Input id="ing-unit" value={ingredientUnit} onChange={e => setIngredientUnit(e.target.value)} className="text-sm p-2 h-9"/></div>
-              <div className="space-y-1"><Label htmlFor="ing-cost" className="text-xs">Costo Unidad Ing. *</Label><Input id="ing-cost" type="number" value={ingredientCost} onChange={e => setIngredientCost(e.target.value)} className="text-sm p-2 h-9" step="any"/></div>
+              <div className="space-y-1"><Label htmlFor="ing-qty-pp">Cant. p/Persona *</Label><Input id="ing-qty-pp" value={ingredientQuantityPerPerson} onChange={e => setIngredientQuantityPerPerson(e.target.value)} placeholder="Ej: 100, 0.5" className="text-sm p-2 h-9"/></div>
+              <div className="space-y-1"><Label htmlFor="ing-unit" className="text-xs">Unidad *</Label><Input id="ing-unit" value={ingredientUnit} onChange={e => setIngredientUnit(e.target.value)} placeholder="Ej: gr, ml, ud" className="text-sm p-2 h-9"/></div>
+              <div className="space-y-1"><Label htmlFor="ing-cost" className="text-xs">Costo (de esa cant. p/p) *</Label><Input id="ing-cost" type="number" value={ingredientCost} onChange={e => setIngredientCost(e.target.value)} className="text-sm p-2 h-9" step="any"/></div>
               <div className="space-y-1"><Label htmlFor="ing-proveedor" className="text-xs">Proveedor</Label><Input id="ing-proveedor" value={ingredientProveedor} onChange={e => setIngredientProveedor(e.target.value)} className="text-sm p-2 h-9"/></div>
               <div className="space-y-1"><Label htmlFor="ing-marca" className="text-xs">Marca</Label><Input id="ing-marca" value={ingredientMarca} onChange={e => setIngredientMarca(e.target.value)} className="text-sm p-2 h-9"/></div>
               <div className="space-y-1 md:col-span-3"><Label htmlFor="ing-fecha-act" className="text-xs">Fecha Actualización Precio</Label><DatePickerDemo selectedDate={ingredientFechaActualizacion} onDateChange={setIngredientFechaActualizacion} /></div>
@@ -213,13 +208,13 @@ export default function NuevoMenuPersonalizadoPage() {
             <Button onClick={handleAddIngredientToCurrentDish} type="button" variant="outline" size="sm"><PlusCircle className="w-4 h-4 mr-1.5" />Añadir Ingrediente</Button>
             {currentDishIngredients.length > 0 && (
               <div className="mt-4 space-y-2">
-                <h4 className="text-sm font-medium">Ingredientes añadidos:</h4>
+                <h4 className="text-sm font-medium">Ingredientes añadidos (p/persona):</h4>
                 <ScrollArea className="h-[120px] border rounded-md p-2 bg-muted/30">
                   <ul className="text-sm">
                     {currentDishIngredients.map(ing => (
                       <li key={ing.id} className="flex justify-between items-center py-1 border-b last:border-b-0">
                         <div>
-                          {ing.name} ({ing.quantity} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
+                          {ing.name} ({ing.quantityPerPerson} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
                           {(ing.proveedor || ing.marca || ing.fecha_actualizacion) && (
                             <span className="block text-xs text-muted-foreground">
                               {ing.proveedor && `Prov: ${ing.proveedor} `}
@@ -233,7 +228,7 @@ export default function NuevoMenuPersonalizadoPage() {
                     ))}
                   </ul>
                 </ScrollArea>
-                <p className="text-sm text-right font-medium">Costo Total Ingredientes Plato: ${currentDishTotalCost.toFixed(2)}</p>
+                <p className="text-sm text-right font-medium">Costo Total Ingredientes (p/persona): ${currentDishTotalCostPerPerson.toFixed(2)}</p>
               </div>
             )}
           </div>
@@ -243,7 +238,7 @@ export default function NuevoMenuPersonalizadoPage() {
       </Card>
       
       <Card className="shadow-lg">
-        <CardHeader><CardTitle className="font-headline text-xl">Platos en "{menuName || 'Nuevo Menú'}"</CardTitle><CardDescription>Costo total menú: ${totalMenuCost.toFixed(2)}</CardDescription></CardHeader>
+        <CardHeader><CardTitle className="font-headline text-xl">Platos en "{menuName || 'Nuevo Menú'}"</CardTitle><CardDescription>Costo total del menú por persona: ${totalMenuCostPerPerson.toFixed(2)}</CardDescription></CardHeader>
         <CardContent>
             {menuItems.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-md">
@@ -258,18 +253,18 @@ export default function NuevoMenuPersonalizadoPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h4 className="font-semibold text-lg text-primary">{item.name} <span className="text-xs text-muted-foreground">({item.type})</span></h4>
-                          <p className="text-sm text-muted-foreground">Costo Plato: ${item.totalDishCost.toFixed(2)}{item.basePortions && item.costPerPortion !== undefined ? ` (Rinde ${item.basePortions} porc. / $${item.costPerPortion.toFixed(2)} c/u)` : ''}</p>
+                          <p className="text-sm text-muted-foreground">Costo por Persona: ${item.totalDishCost.toFixed(2)}</p>
                           {item.allergens && <p className="text-xs text-destructive/80">Alérgenos: {item.allergens}</p>}
                         </div>
                         <Button variant="ghost" size="icon" onClick={() => handleRemoveDishFromMenu(item.id)} className="text-destructive hover:bg-destructive/10" aria-label={`Eliminar ${item.name}`}><Trash2 className="w-4 h-4" /></Button>
                       </div>
                       {item.ingredients.length > 0 && (
                         <div>
-                          <h5 className="text-xs font-medium text-muted-foreground mb-1">INGREDIENTES:</h5>
+                          <h5 className="text-xs font-medium text-muted-foreground mb-1">INGREDIENTES (por persona):</h5>
                           <ul className="text-xs list-disc list-inside pl-2 space-y-0.5 bg-muted/20 p-2 rounded-sm">
                             {item.ingredients.map(ing => (
                               <li key={ing.id}>
-                                {ing.name} ({ing.quantity} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
+                                {ing.name} ({ing.quantityPerPerson} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
                                 {(ing.proveedor || ing.marca || ing.fecha_actualizacion) && (
                                   <span className="block text-[10px] text-muted-foreground/80">
                                     {ing.proveedor && `Prov: ${ing.proveedor} `}
@@ -289,12 +284,14 @@ export default function NuevoMenuPersonalizadoPage() {
             )}
         </CardContent>
         <CardFooter className="border-t pt-6">
-            <Button onClick={handleSaveFullMenu} size="lg" className="w-full sm:w-auto" disabled={isSaving}>
+            <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSaving}> {/* Changed onClick to type="submit" */}
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Menú Completo'}
             </Button>
         </CardFooter>
       </Card>
+     </form> {/* Close the form */}
     </div>
   );
 }
+

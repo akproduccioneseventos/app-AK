@@ -32,7 +32,7 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent as AlertDialogContentConfirm, 
+  AlertDialogContent as AlertDialogContentConfirm,
   AlertDialogDescription as AlertDialogDescriptionConfirm,
   AlertDialogFooter as AlertDialogFooterConfirm,
   AlertDialogHeader as AlertDialogHeaderConfirm,
@@ -46,7 +46,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectValue } from '@/components/ui/select'; // For layout element type
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from '@/components/ui/select'; // For layout element type
 
 // --- START: Logic from diseno-salon (merged here) ---
 const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
@@ -87,7 +87,7 @@ export default function DecoracionYDisenoEventoPage() {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<DecorationItem> | null>(null);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
-  
+
   // State for salon layout elements modal
   const [isLayoutElementModalOpen, setIsLayoutElementModalOpen] = useState(false);
   const [currentLayoutElement, setCurrentLayoutElement] = useState<Partial<LayoutElement> & { tempId?: string } | null>(null);
@@ -121,7 +121,7 @@ export default function DecoracionYDisenoEventoPage() {
     try {
       const fiestaData = await getFiestaActual();
       const currentDecoracion = fiestaData.decoracion || {};
-      
+
       const mergedZonas = defaultZonasContratadas.map(defaultZona => {
         const savedZona = currentDecoracion.zonasContratadas?.find(sz => sz.id === defaultZona.id);
         return savedZona ? { ...defaultZona, ...savedZona } : { ...defaultZona };
@@ -170,7 +170,7 @@ export default function DecoracionYDisenoEventoPage() {
   useEffect(() => {
     loadDecoracionData();
   }, [loadDecoracionData]);
-  
+
   useEffect(() => {
     const handleClickOutsideContextMenu = (event: MouseEvent) => {
       if (contextMenuOpen) {
@@ -227,8 +227,8 @@ export default function DecoracionYDisenoEventoPage() {
         imageUrl: currentItem.imageUrl?.trim() || undefined,
     };
     setDecoracionData(prev => {
-        const newItems = currentItem.id 
-            ? (prev.items || []).map(it => it.id === finalItem.id ? finalItem : it) 
+        const newItems = currentItem.id
+            ? (prev.items || []).map(it => it.id === finalItem.id ? finalItem : it)
             : [...(prev.items || []), finalItem];
         return { ...prev, items: newItems };
     });
@@ -241,7 +241,7 @@ export default function DecoracionYDisenoEventoPage() {
     toast({ title: "Elemento Eliminado", variant: "destructive" });
     setDeletingItemId(null);
   };
-  
+
   // Handlers for Zonas Decorativas
   const handleZonaChange = (zonaId: ZonaContratada['id'], field: keyof Omit<ZonaContratada, 'id' | 'nombreDisplay' | 'activada'>, value: string) => {
     if (field === 'imagenReferenciaUrl') setFailedZonaImageUrls(prev => { const newSet = new Set(prev); newSet.delete(value); return newSet; });
@@ -266,29 +266,29 @@ export default function DecoracionYDisenoEventoPage() {
     if (element) {
       setCurrentLayoutElement({ ...element });
       setSelectedLayoutElementId(element.id);
-    } else { 
-      setCurrentLayoutElement({ 
-        name: '', quantity: 1, type: 'custom', 
-        x: Math.round(50 / GRID_SNAP_SIZE) * GRID_SNAP_SIZE, 
+    } else {
+      setCurrentLayoutElement({
+        name: '', quantity: 1, type: 'custom',
+        x: Math.round(50 / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
         y: Math.round(50 / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
         width: 100, height: 50, rotation: 0,
         imageUrl: '', notes: '', category: 'Otro'
       });
       setSelectedLayoutElementId(null);
     }
-    setFailedModalLayoutElementImageUrl(false); 
+    setFailedModalLayoutElementImageUrl(false);
     setIsLayoutElementModalOpen(true);
   };
   const addFromPalette = (paletteItem: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>) => {
-     setCurrentLayoutElement({ 
+     setCurrentLayoutElement({
         name: paletteItem.name, quantity: 1, type: 'predefined',
-        x: Math.round((Math.random() * 200 + 50)/GRID_SNAP_SIZE)*GRID_SNAP_SIZE, 
+        x: Math.round((Math.random() * 200 + 50)/GRID_SNAP_SIZE)*GRID_SNAP_SIZE,
         y: Math.round((Math.random() * 200 + 50)/GRID_SNAP_SIZE)*GRID_SNAP_SIZE,
         width: paletteItem.width || 50, height: paletteItem.height || 50,
         rotation: paletteItem.rotation || 0, imageUrl: paletteItem.imageUrl,
         notes: '', category: paletteItem.category || 'Otro', dataAiHint: paletteItem.dataAiHint
      });
-     setSelectedLayoutElementId(null); 
+     setSelectedLayoutElementId(null);
      setFailedModalLayoutElementImageUrl(false);
      setIsLayoutElementModalOpen(true);
   };
@@ -302,7 +302,7 @@ export default function DecoracionYDisenoEventoPage() {
         if (field === 'quantity' && (processedValue as number) < 1) processedValue = 1;
       }
       if (field === 'imageUrl') setFailedModalLayoutElementImageUrl(false);
-      
+
       const updatedModalElement = { ...prevModalElement, [field]: processedValue } as Partial<LayoutElement>;
 
       if (prevModalElement.id && (decoracionData.salonElements || []).find(el => el.id === prevModalElement.id)) {
@@ -325,7 +325,7 @@ export default function DecoracionYDisenoEventoPage() {
     const isEditing = !!currentLayoutElement.id && (decoracionData.salonElements || []).find(el => el.id === currentLayoutElement.id);
     if (isEditing) {
       toast({ title: "Elemento Actualizado", description: `${currentLayoutElement.name || 'El elemento'} ha sido actualizado.` });
-    } else { 
+    } else {
       const newElementData: LayoutElement = {
         id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         name: currentLayoutElement.name.trim(),
@@ -356,12 +356,12 @@ export default function DecoracionYDisenoEventoPage() {
       salonElements: (prev.salonElements || []).filter(el => el.id !== idToRemove),
     }));
     toast({ title: "Elemento del Plano Eliminado", variant: "destructive" });
-    setContextMenuOpen(false); 
+    setContextMenuOpen(false);
   };
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
     setDecoracionData(prev => ({
       ...prev,
-      salonElements: (prev.salonElements || []).map(el => 
+      salonElements: (prev.salonElements || []).map(el =>
         el.id === elementId ? { ...el, x: Math.round(data.x), y: Math.round(data.y) } : el
       ),
     }));
@@ -372,9 +372,9 @@ export default function DecoracionYDisenoEventoPage() {
     const elementToDuplicate = (decoracionData.salonElements || []).find(el => el.id === idToDuplicate);
     if (elementToDuplicate) {
       const duplicatedElement: LayoutElement = {
-        ...JSON.parse(JSON.stringify(elementToDuplicate)), 
+        ...JSON.parse(JSON.stringify(elementToDuplicate)),
         id: `elem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        x: Math.round(((elementToDuplicate.x || 0) + GRID_SNAP_SIZE * 2) / GRID_SNAP_SIZE) * GRID_SNAP_SIZE, 
+        x: Math.round(((elementToDuplicate.x || 0) + GRID_SNAP_SIZE * 2) / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
         y: Math.round(((elementToDuplicate.y || 0) + GRID_SNAP_SIZE * 2) / GRID_SNAP_SIZE) * GRID_SNAP_SIZE,
       };
       setDecoracionData(prev => ({
@@ -438,11 +438,11 @@ export default function DecoracionYDisenoEventoPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const cleanZonas = (decoracionData.zonasContratadas || []).map(zona => 
+      const cleanZonas = (decoracionData.zonasContratadas || []).map(zona =>
           zona.activada ? zona : { ...zona, descripcion: '', imagenReferenciaUrl: '', dataAiHint: '' }
       );
-      const dataToSave: DecoracionData = { 
-        ...decoracionData, 
+      const dataToSave: DecoracionData = {
+        ...decoracionData,
         zonasContratadas: cleanZonas,
         salonElements: (decoracionData.salonElements || []).map(el => ({
           ...el,
@@ -590,7 +590,7 @@ export default function DecoracionYDisenoEventoPage() {
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-0 pb-3 space-y-3">
                 <div className="flex justify-end mt-2"><Button type="button" onClick={() => openItemModal()} disabled={isSaving} size="sm"><PlusCircle className="w-4 h-4 mr-2" />Añadir Elemento</Button></div>
-                {(decoracionData.items?.length || 0) > 0 ? (<ScrollArea className="h-auto max-h-[300px] pr-2"><div className="space-y-2">{decoracionData.items?.map(item => (<Card key={item.id} className="bg-muted/40 p-2"><div className="flex justify-between items-start gap-1"><div className="flex-grow"><h4 className="font-semibold text-sm">{item.name} ({item.quantity || 1}x)</h4>{item.category && <p className="text-xs text-muted-foreground">Cat: {item.category}</p>}{item.estimatedCost !== undefined && <p className="text-xs">Costo: ${item.estimatedCost.toFixed(2)}</p>}{item.notes && <p className="text-xs italic">Notas: {item.notes}</p>}</div><div className="flex gap-1 flex-shrink-0"><Button type="button" variant="ghost" size="icon" onClick={() => openItemModal(item)} className="h-6 w-6"><Edit3 className="w-3 h-3" /></Button><AlertDialogContentConfirm open={deletingItemId === item.id} onOpenChange={(open) => !open && setDeletingItemId(null)}><AlertDialogTrigger asChild><Button type="button" variant="ghost" size="icon" onClick={() => setDeletingItemId(item.id)} className="h-6 w-6 text-destructive"><Trash2 className="w-3 h-3" /></Button></AlertDialogTrigger><AlertDialogContentConfirm><AlertDialogHeaderConfirm><AlertDialogTitleConfirm>Eliminar</AlertDialogTitleConfirm><AlertDialogDescriptionConfirm>¿Eliminar "{item.name}"?</AlertDialogDescriptionConfirm></AlertDialogHeaderConfirm><AlertDialogFooterConfirm><AlertDialogCancel>No</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteItem(item.id)} className="bg-destructive">Sí</AlertDialogAction></AlertDialogFooterConfirm></AlertDialogContentConfirm></AlertDialogContentConfirm></div></div></Card>))}</div></ScrollArea>) : (<p className="text-center text-sm text-muted-foreground py-3">No hay elementos específicos.</p>)}
+                {(decoracionData.items?.length || 0) > 0 ? (<ScrollArea className="h-auto max-h-[300px] pr-2"><div className="space-y-2">{decoracionData.items?.map(item => (<Card key={item.id} className="bg-muted/40 p-2"><div className="flex justify-between items-start gap-1"><div className="flex-grow"><h4 className="font-semibold text-sm">{item.name} ({item.quantity || 1}x)</h4>{item.category && <p className="text-xs text-muted-foreground">Cat: {item.category}</p>}{item.estimatedCost !== undefined && <p className="text-xs">Costo: ${item.estimatedCost.toFixed(2)}</p>}{item.notes && <p className="text-xs italic">Notas: {item.notes}</p>}</div><div className="flex gap-1 flex-shrink-0"><Button type="button" variant="ghost" size="icon" onClick={() => openItemModal(item)} className="h-6 w-6"><Edit3 className="w-3 h-3" /></Button><AlertDialog open={deletingItemId === item.id} onOpenChange={(open) => !open && setDeletingItemId(null)}><AlertDialogTrigger asChild><Button type="button" variant="ghost" size="icon" onClick={() => setDeletingItemId(item.id)} className="h-6 w-6 text-destructive"><Trash2 className="w-3 h-3" /></Button></AlertDialogTrigger><AlertDialogContentConfirm><AlertDialogHeaderConfirm><AlertDialogTitleConfirm>Eliminar</AlertDialogTitleConfirm><AlertDialogDescriptionConfirm>¿Eliminar "{item.name}"?</AlertDialogDescriptionConfirm></AlertDialogHeaderConfirm><AlertDialogFooterConfirm><AlertDialogCancel>No</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteItem(item.id)} className="bg-destructive">Sí</AlertDialogAction></AlertDialogFooterConfirm></AlertDialogContentConfirm></AlertDialog></div></div></Card>))}</div></ScrollArea>) : (<p className="text-center text-sm text-muted-foreground py-3">No hay elementos específicos.</p>)}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -613,7 +613,7 @@ export default function DecoracionYDisenoEventoPage() {
           </form>
         </DialogContent>
       </Dialog>
-      
+
       {/* Modal para Elementos del Plano (LayoutElement) */}
       <Dialog open={isLayoutElementModalOpen} onOpenChange={(isOpen) => { setIsLayoutElementModalOpen(isOpen); if (!isOpen) setSelectedLayoutElementId(null); }}>
         <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle className="font-headline text-lg">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento al Plano</DialogTitle></DialogHeader>
@@ -657,4 +657,3 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
-    

@@ -68,26 +68,18 @@ export default function PlanificadorGastronomicoPage() {
     return allMenus.find(menu => menu.id === selectedMenuId);
   }, [selectedMenuId, allMenus]);
 
+  // Costo total del menú SELECCIONADO por persona
   const costoTotalMenuPorPersona = useMemo(() => {
     if (!selectedMenu) return 0;
-    return selectedMenu.items.reduce((sum, item) => {
-      let costForItemPerPerson = 0;
-      if (typeof item.costPerPortion === 'number') {
-        costForItemPerPerson = item.costPerPortion;
-      } else if (typeof item.totalDishCost === 'number' && typeof item.basePortions === 'number' && item.basePortions > 0) {
-        costForItemPerPerson = item.totalDishCost / item.basePortions;
-      } else if (typeof item.totalDishCost === 'number') {
-        costForItemPerPerson = item.totalDishCost;
-      }
-      return sum + costForItemPerPerson;
-    }, 0);
+    // Each item's totalDishCost in selectedMenu.items is already the per-person cost for that dish
+    return selectedMenu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
   }, [selectedMenu]);
 
+  // Costo total del catering para TODOS los invitados
   const costoTotalCatering = useMemo(() => {
     return costoTotalMenuPorPersona * numberOfGuests;
   }, [costoTotalMenuPorPersona, numberOfGuests]);
 
-  // Placeholder for actual calculation based on selected items in Reposteria module
   const costoTotalReposteria = useMemo(() => {
     let total = 0;
     fiestaActual?.reposteria?.categorias.forEach(cat => {
@@ -100,7 +92,6 @@ export default function PlanificadorGastronomicoPage() {
     return total;
   }, [fiestaActual?.reposteria]);
 
-  // Placeholder for actual calculation based on selected items in Bebidas module
   const costoTotalBebidas = useMemo(() => {
     let total = 0;
     fiestaActual?.bebidas?.categorias.forEach(cat => {
@@ -199,17 +190,18 @@ export default function PlanificadorGastronomicoPage() {
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering</CardTitle>
-            <CardDescription>Costo actual: {formatCurrency(costoTotalCatering)}</CardDescription>
+            <CardDescription>Costo total catering ({numberOfGuests} inv.): {formatCurrency(costoTotalCatering)}</CardDescription>
           </CardHeader>
           <CardContent>
             {selectedMenu ? (
                  <ScrollArea className="h-[120px] pr-3 text-sm">
-                    <p className="font-medium mb-1">Platos de "{selectedMenu.name}":</p>
+                    <p className="font-medium mb-1">Platos de "{selectedMenu.name}" (Costo por persona: {formatCurrency(costoTotalMenuPorPersona)}):</p>
                     <ul className="space-y-0.5">
                       {selectedMenu.items.map(item => (
                         <li key={item.id} className="flex justify-between text-xs">
                           <span>{item.name}</span>
-                          <span>{formatCurrency((item.costPerPortion ?? (item.totalDishCost / (item.basePortions || 1))) || 0)} c/u</span>
+                          {/* totalDishCost is already per person for the dish */}
+                          <span>{formatCurrency(item.totalDishCost || 0)} c/u</span> 
                         </li>
                       ))}
                     </ul>
@@ -226,7 +218,7 @@ export default function PlanificadorGastronomicoPage() {
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><Cake className="text-primary"/>Módulo de Repostería</CardTitle>
-             <CardDescription>Costo actual: {formatCurrency(costoTotalReposteria)}</CardDescription>
+             <CardDescription>Costo total repostería: {formatCurrency(costoTotalReposteria)}</CardDescription>
           </CardHeader>
           <CardContent>
              <p className="text-sm text-muted-foreground">Define tortas, candy bar, mesas dulces, etc.</p>
@@ -241,7 +233,7 @@ export default function PlanificadorGastronomicoPage() {
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><GlassWater className="text-primary"/>Módulo de Bebidas</CardTitle>
-            <CardDescription>Costo actual: {formatCurrency(costoTotalBebidas)}</CardDescription>
+            <CardDescription>Costo total bebidas: {formatCurrency(costoTotalBebidas)}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">Calcula refrescos, jugos, alcohol, barra de tragos.</p>
