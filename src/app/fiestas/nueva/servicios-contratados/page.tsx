@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, ClipboardList, ChefHat, Palette, Camera, Music2, Shield } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, ClipboardList, ChefHat, Palette, Camera, Music2, Shield, Printer } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -155,7 +155,7 @@ export default function ServiciosContratadosPage() {
       decoracionItems.push({ id: 'deco-tema', nombre: `Tema: ${fiestaActual.decoracion.tema}`, estado: 'Confirmado' });
     }
     fiestaActual.decoracion.zonasContratadas?.filter(z => z.activada).forEach(zona => {
-      decoracionItems.push({ id: `zona-${zona.id}`, nombre: `Zona: ${zona.nombreDisplay}`, descripcion: zona.descripcion, estado: 'Confirmado' });
+      decoracionItems.push({ id: `zona-${zona.id}`, nombre: `Zona: ${zona.nombreDisplay}`, comentarios: zona.descripcion, estado: 'Confirmado' });
     });
      if (fiestaActual.decoracion.colorGlobos) {
       decoracionItems.push({ id: 'deco-globos', nombre: `Globos: ${fiestaActual.decoracion.colorGlobos}`, estado: 'Confirmado' });
