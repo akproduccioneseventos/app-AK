@@ -46,6 +46,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const [partyTime, setPartyTime] = useState(''); // Campo de texto simple para horario
   const [partyType, setPartyType] = useState('');
   const [guestCount, setGuestCount] = useState<string>('');
+  const [partyForWhom, setPartyForWhom] = useState(''); // Nuevo campo
   const [venueName, setVenueName] = useState('');
   const [currentContractFile, setCurrentContractFile] = useState<string | null>(null);
   const [currentBudgetFile, setCurrentBudgetFile] = useState<string | null>(null);
@@ -77,6 +78,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
           setPartyTime(loadedCustomer.partyTime || '');
           setPartyType(loadedCustomer.partyType || '');
           setGuestCount(loadedCustomer.guestCount?.toString() || '');
+          setPartyForWhom(loadedCustomer.partyForWhom || ''); // Cargar nuevo campo
           setVenueName(loadedCustomer.venueName || '');
           setCurrentContractFile(loadedCustomer.contractFileName || null);
           setCurrentBudgetFile(loadedCustomer.budgetFileName || null);
@@ -118,6 +120,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
     if (partyType.trim()) formData.append('partyType', partyType.trim());
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
+    if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim()); // Añadir nuevo campo al FormData
     if (venueName.trim()) formData.append('venueName', venueName.trim());
 
     if (newContractFile) formData.append('contract', newContractFile);
@@ -246,6 +249,17 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                   <Label htmlFor="guest-count">Cantidad de Invitados</Label>
                   <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1" disabled={isSaving || isDeleting}/>
                 </div>
+            </div>
+            {/* Nuevo campo "Para quién es la fiesta" */}
+            <div className="space-y-2">
+              <Label htmlFor="party-for-whom">Para quién es la Fiesta</Label>
+              <Input 
+                id="party-for-whom" 
+                value={partyForWhom} 
+                onChange={(e) => setPartyForWhom(e.target.value)} 
+                placeholder="Ej: “Lucía – 15 años”, “Bautismo de Thiago”, “Aniversario de Juan y Laura”"
+                disabled={isSaving || isDeleting}
+              />
             </div>
              <div>
                 <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>

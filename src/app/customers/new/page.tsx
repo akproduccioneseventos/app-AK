@@ -39,6 +39,7 @@ export default function NewCustomerPage() {
   const [corporateEventCompanyName, setCorporateEventCompanyName] = useState('');
 
   const [guestCount, setGuestCount] = useState<string>('');
+  const [partyForWhom, setPartyForWhom] = useState(''); // Nuevo campo
   const [venueName, setVenueName] = useState('');
   const [contractFile, setContractFile] = useState<File | null>(null);
   const [budgetFile, setBudgetFile] = useState<File | null>(null);
@@ -85,6 +86,7 @@ export default function NewCustomerPage() {
     if (finalPartyType) formData.append('partyType', finalPartyType);
 
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
+    if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim()); // Añadir nuevo campo al FormData
     if (venueName.trim()) formData.append('venueName', venueName.trim());
     
     if (contractFile) formData.append('contract', contractFile);
@@ -198,6 +200,16 @@ export default function NewCustomerPage() {
                   <Label htmlFor="guest-count">Cantidad de Invitados</Label>
                   <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1"/>
                 </div>
+            </div>
+            {/* Nuevo campo "Para quién es la fiesta" */}
+            <div className="space-y-2">
+              <Label htmlFor="party-for-whom">Para quién es la Fiesta</Label>
+              <Input 
+                id="party-for-whom" 
+                value={partyForWhom} 
+                onChange={(e) => setPartyForWhom(e.target.value)} 
+                placeholder="Ej: “Lucía – 15 años”, “Bautismo de Thiago”, “Aniversario de Juan y Laura”"
+              />
             </div>
              <div>
                 <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>

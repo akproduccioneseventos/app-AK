@@ -116,6 +116,7 @@ export async function saveCustomer(
     customerToSave.partyDate = customerData.get('partyDate') as string | undefined;
     customerToSave.partyTime = customerData.get('partyTime') as string | undefined;
     customerToSave.partyType = customerData.get('partyType') as string | undefined;
+    customerToSave.partyForWhom = customerData.get('partyForWhom') as string | undefined; // Leer el nuevo campo
     const guestCountStr = customerData.get('guestCount') as string | undefined;
     customerToSave.guestCount = guestCountStr ? parseInt(guestCountStr, 10) : undefined;
     customerToSave.venueName = customerData.get('venueName') as string | undefined;
