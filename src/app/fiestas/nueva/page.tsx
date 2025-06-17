@@ -338,14 +338,14 @@ export default function PlanificarFiestaHubPage() {
                         {linkedClient.budgetFileName && (
                             <a href={`/api/budgets/${linkedClient.budgetFileName}`} target="_blank" rel="noopener noreferrer">
                                 <Button type="button" variant="outline" size="sm">
-                                <FileTextIcon className="w-4 h-4 mr-2"/> Ver Presupuesto Cliente
+                                <FileText className="w-4 h-4 mr-2"/> Ver Presupuesto Cliente
                                 </Button>
                             </a>
                         )}
                         {linkedClient.contractFileName && (
                             <a href={`/api/contracts/${linkedClient.contractFileName}`} target="_blank" rel="noopener noreferrer">
                                 <Button type="button" variant="outline" size="sm">
-                                <FileTextIcon className="w-4 h-4 mr-2"/> Ver Contrato Cliente
+                                <FileText className="w-4 h-4 mr-2"/> Ver Contrato Cliente
                                 </Button>
                             </a>
                         )}
@@ -376,7 +376,7 @@ export default function PlanificarFiestaHubPage() {
             <Card className="hover:shadow-md transition-shadow print:shadow-none print:border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
                     <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Presupuesto Estimado</CardTitle>
-                    <DollarSignIcon className="h-5 w-5 text-primary print:h-4 print:w-4" />
+                    <DollarSign className="h-5 w-5 text-primary print:h-4 print:w-4" />
                 </CardHeader>
                 <CardContent className="print:pt-1">
                     <div className="text-2xl font-bold print:text-lg">{formatCurrency(presupuestoEstimado)}</div>
