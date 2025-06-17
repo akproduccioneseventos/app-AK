@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, CalendarIcon } from 'lucide-react'; // Added CalendarIcon
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, CalendarIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
@@ -16,7 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import type { Ingredient, MenuItem, NewMenuFormData, FullMenu } from '@/types/catering';
 import { saveMenu } from '@/app/actions/menus-catering';
-import { DatePickerDemo } from '@/components/date-picker-demo'; // Assuming you have this component
+import { DatePickerDemo } from '@/components/date-picker-demo';
 
 export default function NuevoMenuPersonalizadoPage() {
   const { toast } = useToast();
@@ -80,8 +80,8 @@ export default function NuevoMenuPersonalizadoPage() {
       quantity: ingredientQuantity,
       unit: ingredientUnit,
       cost: costValue,
-      proveedor: ingredientProveedor || undefined,
-      marca: ingredientMarca || undefined,
+      proveedor: ingredientProveedor.trim() || undefined,
+      marca: ingredientMarca.trim() || undefined,
       fecha_actualizacion: ingredientFechaActualizacion ? ingredientFechaActualizacion.toISOString() : undefined,
     };
     setCurrentDishIngredients(prev => [...prev, newIngredient]);
@@ -211,7 +211,31 @@ export default function NuevoMenuPersonalizadoPage() {
               <div className="space-y-1 md:col-span-3"><Label htmlFor="ing-fecha-act" className="text-xs">Fecha Actualización Precio</Label><DatePickerDemo selectedDate={ingredientFechaActualizacion} onDateChange={setIngredientFechaActualizacion} /></div>
             </div>
             <Button onClick={handleAddIngredientToCurrentDish} type="button" variant="outline" size="sm"><PlusCircle className="w-4 h-4 mr-1.5" />Añadir Ingrediente</Button>
-            {currentDishIngredients.length > 0 && (<div className="mt-4 space-y-2"><h4 className="text-sm font-medium">Ingredientes añadidos:</h4><ScrollArea className="h-[120px] border rounded-md p-2 bg-muted/30"><ul className="text-sm">{currentDishIngredients.map(ing => (<li key={ing.id} className="flex justify-between items-center py-1 border-b last:border-b-0"><span>{ing.name} ({ing.quantity} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}</span><Button variant="ghost" size="icon" onClick={() => handleRemoveIngredientFromCurrentDish(ing.id)} className="h-6 w-6 text-destructive hover:bg-destructive/10"><Trash2 className="w-3 h-3" /></Button></li>))}</ul></ScrollArea><p className="text-sm text-right font-medium">Costo Total Ingredientes Plato: ${currentDishTotalCost.toFixed(2)}</p></div>)}
+            {currentDishIngredients.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <h4 className="text-sm font-medium">Ingredientes añadidos:</h4>
+                <ScrollArea className="h-[120px] border rounded-md p-2 bg-muted/30">
+                  <ul className="text-sm">
+                    {currentDishIngredients.map(ing => (
+                      <li key={ing.id} className="flex justify-between items-center py-1 border-b last:border-b-0">
+                        <div>
+                          {ing.name} ({ing.quantity} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
+                          {(ing.proveedor || ing.marca || ing.fecha_actualizacion) && (
+                            <span className="block text-xs text-muted-foreground">
+                              {ing.proveedor && `Prov: ${ing.proveedor} `}
+                              {ing.marca && `Marca: ${ing.marca} `}
+                              {ing.fecha_actualizacion && `Act: ${new Date(ing.fecha_actualizacion).toLocaleDateString()}`}
+                            </span>
+                          )}
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveIngredientFromCurrentDish(ing.id)} className="h-6 w-6 text-destructive hover:bg-destructive/10"><Trash2 className="w-3 h-3" /></Button>
+                      </li>
+                    ))}
+                  </ul>
+                </ScrollArea>
+                <p className="text-sm text-right font-medium">Costo Total Ingredientes Plato: ${currentDishTotalCost.toFixed(2)}</p>
+              </div>
+            )}
           </div>
           <Separator />
           <Button onClick={handleAddDishToMenu} type="button" size="lg" className="w-full sm:w-auto"><PlusCircle className="w-5 h-5 mr-2" />Confirmar y Añadir Plato al Menú</Button>
@@ -221,12 +245,56 @@ export default function NuevoMenuPersonalizadoPage() {
       <Card className="shadow-lg">
         <CardHeader><CardTitle className="font-headline text-xl">Platos en "{menuName || 'Nuevo Menú'}"</CardTitle><CardDescription>Costo total menú: ${totalMenuCost.toFixed(2)}</CardDescription></CardHeader>
         <CardContent>
-            {menuItems.length === 0 ? (<div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-md"><p>Aún no has añadido ningún plato.</p><Image src="https://placehold.co/400x200.png" alt="Formulario vacío" width={300} height={150} className="mt-4 rounded-md shadow-sm mx-auto opacity-70" data-ai-hint="empty menu food"/></div>
-            ) : (<ScrollArea className="h-auto max-h-[500px] pr-3"><ul className="space-y-4">{menuItems.map((item) => (<li key={item.id} className="border rounded-md p-4 hover:shadow-md transition-shadow"><div className="flex items-start justify-between mb-2"><div><h4 className="font-semibold text-lg text-primary">{item.name} <span className="text-xs text-muted-foreground">({item.type})</span></h4><p className="text-sm text-muted-foreground">Costo Plato: ${item.totalDishCost.toFixed(2)}{item.basePortions && item.costPerPortion !== undefined ? ` (Rinde ${item.basePortions} porc. / $${item.costPerPortion.toFixed(2)} c/u)` : ''}</p>{item.allergens && <p className="text-xs text-destructive/80">Alérgenos: {item.allergens}</p>}</div><Button variant="ghost" size="icon" onClick={() => handleRemoveDishFromMenu(item.id)} className="text-destructive hover:bg-destructive/10" aria-label={`Eliminar ${item.name}`}><Trash2 className="w-4 h-4" /></Button></div>{item.ingredients.length > 0 && (<div><h5 className="text-xs font-medium text-muted-foreground mb-1">INGREDIENTES:</h5><ul className="text-xs list-disc list-inside pl-2 space-y-0.5 bg-muted/20 p-2 rounded-sm">{item.ingredients.map(ing => (<li key={ing.id}>{ing.name} ({ing.quantity} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}{ing.proveedor ? ` Prov: ${ing.proveedor}`:''}{ing.marca ? ` Marca: ${ing.marca}`:''}{ing.fecha_actualizacion ? ` Act: ${new Date(ing.fecha_actualizacion).toLocaleDateString()}`:''}</li>))}</ul></div>)}</li>))}</ul></ScrollArea>)}
+            {menuItems.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-md">
+                <p>Aún no has añadido ningún plato.</p>
+                <Image src="https://placehold.co/400x200.png" alt="Formulario vacío" width={300} height={150} className="mt-4 rounded-md shadow-sm mx-auto opacity-70" data-ai-hint="empty menu food"/>
+              </div>
+            ) : (
+              <ScrollArea className="h-auto max-h-[500px] pr-3">
+                <ul className="space-y-4">
+                  {menuItems.map((item) => (
+                    <li key={item.id} className="border rounded-md p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className="font-semibold text-lg text-primary">{item.name} <span className="text-xs text-muted-foreground">({item.type})</span></h4>
+                          <p className="text-sm text-muted-foreground">Costo Plato: ${item.totalDishCost.toFixed(2)}{item.basePortions && item.costPerPortion !== undefined ? ` (Rinde ${item.basePortions} porc. / $${item.costPerPortion.toFixed(2)} c/u)` : ''}</p>
+                          {item.allergens && <p className="text-xs text-destructive/80">Alérgenos: {item.allergens}</p>}
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveDishFromMenu(item.id)} className="text-destructive hover:bg-destructive/10" aria-label={`Eliminar ${item.name}`}><Trash2 className="w-4 h-4" /></Button>
+                      </div>
+                      {item.ingredients.length > 0 && (
+                        <div>
+                          <h5 className="text-xs font-medium text-muted-foreground mb-1">INGREDIENTES:</h5>
+                          <ul className="text-xs list-disc list-inside pl-2 space-y-0.5 bg-muted/20 p-2 rounded-sm">
+                            {item.ingredients.map(ing => (
+                              <li key={ing.id}>
+                                {ing.name} ({ing.quantity} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
+                                {(ing.proveedor || ing.marca || ing.fecha_actualizacion) && (
+                                  <span className="block text-[10px] text-muted-foreground/80">
+                                    {ing.proveedor && `Prov: ${ing.proveedor} `}
+                                    {ing.marca && `Marca: ${ing.marca} `}
+                                    {ing.fecha_actualizacion && `Act: ${new Date(ing.fecha_actualizacion).toLocaleDateString()}`}
+                                  </span>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </ScrollArea>
+            )}
         </CardContent>
-        <CardFooter className="border-t pt-6"><Button onClick={handleSaveFullMenu} size="lg" className="w-full sm:w-auto" disabled={isSaving}>{isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}{isSaving ? 'Guardando...' : 'Guardar Menú Completo'}</Button></CardFooter>
+        <CardFooter className="border-t pt-6">
+            <Button onClick={handleSaveFullMenu} size="lg" className="w-full sm:w-auto" disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+              {isSaving ? 'Guardando...' : 'Guardar Menú Completo'}
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );
 }
-
