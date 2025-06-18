@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Download, Tag, Percent } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -155,6 +155,11 @@ export default function VerPresupuestoPage() {
   const handleCreateInvoice = () => {
     if (presupuesto) router.push(`/invoices/new?fromPresupuesto=${presupuesto.id}`);
   };
+  
+  const handlePrint = () => {
+    console.log('Print button clicked, attempting window.print()');
+    window.print();
+  };
 
   const eventYear = presupuesto ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
   const currentYear = new Date().getFullYear();
@@ -182,7 +187,7 @@ export default function VerPresupuestoPage() {
         <CardHeader className="p-0 mb-6 flex flex-row justify-between items-start print:hidden">
           <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
-            <Button variant="outline" size="sm" onClick={() => window.print()}><Download className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+            <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300"><MessageSquare className="mr-2 h-4 w-4"/>WhatsApp</Button></a>
             <a href={mailtoLink}><Button variant="outline" size="sm" className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"><Mail className="mr-2 h-4 w-4"/>Email</Button></a>
             {presupuesto.estado !== 'Facturado' ? 
