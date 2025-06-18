@@ -207,7 +207,7 @@ export default function NuevoPresupuestoPage() {
       protagonista2Nombre: formData.protagonista2Nombre?.trim() || undefined,
       nombreEmpresa: formData.nombreEmpresa?.trim() || undefined,
       itemsPresupuestados: itemsPresupuestadosFinales,
-      costoTotalEstimado: costoTotalEstimado, // This is the total after discount for the server
+      costoTotalEstimado: costoTotalEstimado, 
       nombrePromocion: formData.nombrePromocion?.trim() || undefined,
       descuentoTipo: formData.descuentoTipo,
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
@@ -222,7 +222,7 @@ export default function NuevoPresupuestoPage() {
     formData.invitadosCantidad, formData.salonFiestas,
     formData.protagonista1Nombre, formData.protagonista2Nombre,
     formData.nombreEmpresa,
-    JSON.stringify(Array.from(formData.serviciosSeleccionados.entries())), // Stable dependency for Map
+    JSON.stringify(Array.from(formData.serviciosSeleccionados.entries())),
     formData.nombrePromocion, formData.descuentoTipo,
     formData.descuentoValor, formData.vigenciaPromocion, formData.notas,
   ]);
@@ -230,7 +230,6 @@ export default function NuevoPresupuestoPage() {
   useEffect(() => {
     if (formData.pasoActual === TOTAL_PASOS) {
       const resumenCalculado = calcularResumen();
-      // Only update if the content of resumen has actually changed.
       if (JSON.stringify(formData.resumen) !== JSON.stringify(resumenCalculado)) {
           setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
       }
@@ -239,7 +238,7 @@ export default function NuevoPresupuestoPage() {
 
 
   const handleSave = async () => {
-    const resumen = calcularResumen(); // Recalculate with latest formData state
+    const resumen = calcularResumen(); 
     if (!resumen) {
       toast({ title: "Error", description: "No se pudo generar el resumen. Revisa los datos ingresados.", variant: "destructive" });
       return;
@@ -306,7 +305,6 @@ export default function NuevoPresupuestoPage() {
       case 2:
         return <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} />;
       case 3:
-        // Pass the dynamically calculated resumen to Paso4Resumen
         return <Paso4Resumen presupuesto={calcularResumen() ?? undefined} formData={formData} setFormData={setFormData} />;
       default:
         return null;
@@ -348,4 +346,4 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
-
+    
