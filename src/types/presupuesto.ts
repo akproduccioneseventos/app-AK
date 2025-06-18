@@ -9,16 +9,15 @@ export type TipoEvento =
 
 export const ALL_TIPOS_EVENTO: TipoEvento[] = ['Boda', 'XV años', 'Cumpleaños', 'Evento corporativo', 'Cumpleaños infantil', 'Otro'];
 
-// This interface will now represent a selected service in the budget
 export interface ItemPresupuestado {
-  idServicioCatalogo: string; // ID from servicios-empresa.json
+  idServicioCatalogo: string;
   nombreServicio: string;
-  descripcionServicio?: string; // Optional, can be copied from catalog or edited
+  descripcionServicio?: string;
   cantidad: number;
-  unidad?: string; // From catalog, e.g., "unidad", "evento", "persona"
-  precioUnitario: number; // Can be default from catalog or overridden for this budget
-  costoTotalItem: number; // cantidad * precioUnitario
-  categoriaServicio?: string; // From catalog, for grouping/display
+  unidad?: string;
+  precioUnitario: number;
+  costoTotalItem: number;
+  categoriaServicio?: string;
 }
 
 export interface Presupuesto {
@@ -28,35 +27,30 @@ export interface Presupuesto {
   eventoFecha: string; // ISO String
   invitadosCantidad: number;
   salonFiestas: string;
-  nombreEmpresa?: string; // Para eventos corporativos
-  protagonista1Nombre?: string; // Para homenajeado o novio/a 1
-  protagonista2Nombre?: string; // Para novio/a 2 (solo en bodas)
-
+  nombreEmpresa?: string;
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
   itemsPresupuestados: ItemPresupuestado[];
-
-  costoTotalEstimado: number; // Sum of all costoTotalItem (subtotal BEFORE discount)
-
-  // Discount fields
+  costoTotalEstimado: number; // Suma de itemsPresupuestados (subtotal ANTES de descuento)
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
   descuentoValor?: number;
-  totalConDescuento?: number; // Calculated: costoTotalEstimado - descuento
-  vigenciaPromocion?: string; // e.g., "Válido hasta DD/MM/AAAA"
-
+  totalConDescuento?: number; // Calculado: costoTotalEstimado - descuento
+  vigenciaPromocion?: string;
   timestamp: string; // ISO String
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
   invoiceId?: string;
 }
 
-// FormData for the multi-step creation process
-// Kept clean of derived data like 'resumen'
+// FormData para el proceso de creación de varios pasos.
+// Mantiene solo los datos de entrada, el objeto Presupuesto completo se construye al final.
 export interface PresupuestoFormData {
   pasoActual: number;
 
-  // Step 1
+  // Paso 1
   clienteNombre: string;
-  eventoTipo: TipoEvento | string; // Can be one of TipoEvento or a custom string if "Otro"
+  eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
   salonFiestas: string;
@@ -64,20 +58,21 @@ export interface PresupuestoFormData {
   protagonista1Nombre?: string;
   protagonista2Nombre?: string;
 
-  // Step 2 - Service Selection
-  serviciosSeleccionados: Map<string, { // Key is servicioId from catalog
+  // Paso 2 - Selección de Servicios
+  // La clave es el ID del servicio del catálogo.
+  serviciosSeleccionados: Map<string, {
     cantidad: number;
-    precioUnitarioOriginal: number;
-    precioUnitarioPresupuesto: number;
+    precioUnitarioOriginal: number; // Precio del catálogo
+    precioUnitarioPresupuesto: number; // Precio ajustado para este presupuesto
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
   }>;
 
-  // Step 3 - Discount and Notes
+  // Paso 3 (integrado en el resumen ahora) - Descuentos y Notas
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
-  descuentoValor?: string; // Input as string, convert to number on save/calculation
+  descuentoValor?: string; // Como string para el input, se convierte a número al guardar/calcular
   vigenciaPromocion?: string;
   notas: string;
 }

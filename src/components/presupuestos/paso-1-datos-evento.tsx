@@ -37,7 +37,6 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({
       ...prev,
       eventoTipo: newTipoEvento,
-      // Limpiar campos condicionales al cambiar tipo
       nombreEmpresa: newTipoEvento === 'Evento corporativo' ? prev.nombreEmpresa : '', 
       protagonista1Nombre: (newTipoEvento !== 'Evento corporativo' && newTipoEvento !== 'Boda') ? prev.protagonista1Nombre : '',
       protagonista2Nombre: newTipoEvento === 'Boda' ? prev.protagonista2Nombre : '',
@@ -48,7 +47,6 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
   };
   
-  // Determina el tipo de evento final para la lógica de visualización
   const finalEventType = formData.eventoTipo.trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
 
@@ -99,7 +97,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
           <Input
             id="eventoTipoOtroInput"
             placeholder="Especificá el tipo de evento"
-            value={finalEventType !== "Otro" ? finalEventType : ""} // Mostrar el tipo personalizado si ya existe
+            value={finalEventType !== "Otro" ? finalEventType : ""}
             onChange={handleCustomTipoEventoInputChange}
             className="text-base p-3 mt-2"
             required={showCustomTipoInput}
@@ -139,12 +137,12 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
           <Input
             id="nombreEmpresaCorp"
             placeholder="Ej: Empresa S.A. / Juan Pérez (Gerente)"
-            value={formData.nombreEmpresa || ''} // Usar formData.nombreEmpresa aquí
+            value={formData.nombreEmpresa || ''}
             onChange={(e) => handleChange('nombreEmpresa', e.target.value)}
             className="text-base p-3"
           />
         </div>
-      ) : (finalEventType && finalEventType.trim() !== '') ? ( // Para cualquier otro tipo de evento no Boda ni Corporativo
+      ) : (finalEventType && finalEventType.trim() !== '') ? (
         <div className="space-y-2">
           <Label htmlFor="protagonistaNombreGeneral" className="text-base">Nombre del Agasajado/Protagonista</Label>
           <Input
@@ -157,9 +155,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
         </div>
       ) : null}
 
-
       <Separator className="my-4" />
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
