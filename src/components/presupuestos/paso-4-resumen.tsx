@@ -65,51 +65,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   }
   const totalFinalConDescuento = costoTotalAntesDescuento - descuentoAplicado;
 
-  const generarTextoWhatsApp = () => {
-    let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
-    texto += `Estimado/a *${presupuesto.clienteNombre}*,\n\n`;
-    texto += `Gracias por considerar a *AK Producciones* para tu *${presupuesto.eventoTipo}*.\n`;
-    texto += `*Salón:* ${presupuesto.salonFiestas}\n`;
-    texto += `*Fecha del Evento:* ${formatDate(presupuesto.eventoFecha)}\n`;
-    texto += `*Cantidad de Invitados:* ${presupuesto.invitadosCantidad}\n`;
-    if (presupuesto.protagonista1Nombre) {
-      texto += `*Agasajado/s:* ${presupuesto.protagonista1Nombre}`;
-      if (presupuesto.protagonista2Nombre) texto += ` y ${presupuesto.protagonista2Nombre}`;
-      texto += `\n`;
-    }
-    if (presupuesto.nombreEmpresa) texto += `*Empresa:* ${presupuesto.nombreEmpresa}\n`;
-    texto += `\n`;
-    texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-    presupuesto.itemsPresupuestados.forEach(item => {
-      texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-    });
-    texto += `\n  SUBTOTAL: *${formatCurrency(costoTotalAntesDescuento)}*\n\n`;
-    if (descuentoAplicado > 0 && formData.nombrePromocion) {
-      texto += `🎁 *Promoción Aplicada: ${formData.nombrePromocion}*\n`;
-      if (formData.descuentoTipo === 'porcentaje') texto += `  Descuento: ${formData.descuentoValor}% (${formatCurrency(descuentoAplicado)})\n`;
-      else texto += `  Descuento: ${formatCurrency(descuentoAplicado)}\n`;
-      if (formData.vigenciaPromocion) texto += `  Válido hasta: ${formData.vigenciaPromocion}\n`;
-      texto += `\n`;
-    }
-    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinalConDescuento)}*\n\n`;
-    if(presupuesto.notas && presupuesto.notas.trim() !== ''){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
-    texto += `------------------------------------\n\n¡Esperamos tu consulta!\n*El equipo de AK Producciones*`;
-    return texto;
-  };
-
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(generarTextoWhatsApp())
-      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado." }))
-      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
-  };
-  
-  const handleWhatsAppSend = () => window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
-  
-  const handlePrint = () => {
-    console.log('Print button on Resumen step (paso-4-resumen.tsx) clicked, attempting window.print()');
-    window.print();
-  };
-
   return (
     <div className="space-y-6">
       <Card className="border-primary shadow-lg" id="budget-summary-printable">
@@ -169,18 +124,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           <div className="text-right mt-6"><p className="text-sm text-muted-foreground">Total General Estimado</p><p className="text-3xl font-bold text-primary">{formatCurrency(totalFinalConDescuento)}</p></div>
         </CardContent>
       </Card>
-      <Card className="shadow-md border-primary/20">
-        <CardHeader className="bg-primary/5 p-6"><CardTitle className="font-headline text-xl text-primary">Acciones y Compartir</CardTitle><CardDescription>Copia, imprime o envía el resumen.</CardDescription></CardHeader>
-        <CardContent className="p-6 space-y-3">
-           <Textarea value={generarTextoWhatsApp()} readOnly rows={10} className="text-xs bg-muted/30 border-dashed"/>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Button variant="outline" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar</Button>
-            <Button onClick={handleWhatsAppSend} className="w-full bg-green-500 hover:bg-green-600"><Send className="w-4 h-4 mr-2"/>WhatsApp</Button>
-            <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* The "Acciones y Compartir" Card below has been removed as per request */}
     </div>
   );
 }
-
