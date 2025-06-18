@@ -37,19 +37,19 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!leadName.trim()) {
-      toast({ title: "Nombre Requerido", description: "Por favor, ingresa un nombre para el lead.", variant: "destructive" });
+      toast({ title: "Nombre Requerido", description: "Por favor, ingresa un nombre para el prospecto.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
     try {
       const result = await addCrmLead({ name: leadName, currentStageId: defaultStageId || firstStageId });
       if (result.success) {
-        toast({ title: "Lead Añadido", description: `El lead "${leadName}" ha sido añadido.` });
+        toast({ title: "Prospecto Añadido", description: `El prospecto "${leadName}" ha sido añadido.` });
         setLeadName('');
         setIsOpen(false);
         onLeadAdded();
       } else {
-        throw new Error(result.error || "No se pudo añadir el lead.");
+        throw new Error(result.error || "No se pudo añadir el prospecto.");
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -63,19 +63,19 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
       <DialogTrigger asChild>
         <Button variant="default">
           <PlusCircle className="w-5 h-5 mr-2" />
-          nuevo prospecto
+          Añadir Prospecto
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">Añadir Nuevo Lead</DialogTitle>
+          <DialogTitle className="font-headline">Añadir Nuevo Prospecto</DialogTitle>
           <DialogDescription>
-            Ingresa el nombre del nuevo lead. Se añadirá a la primera etapa por defecto.
+            Ingresa el nombre del nuevo prospecto. Se añadirá a la primera etapa por defecto.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-1">
-            <Label htmlFor="lead-name">Nombre del Lead</Label>
+            <Label htmlFor="lead-name">Nombre del Prospecto</Label>
             <Input
               id="lead-name"
               value={leadName}
@@ -91,7 +91,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
             </DialogClose>
             <Button type="submit" disabled={isSaving || !firstStageId}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlusCircle className="w-4 h-4 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Añadir Lead'}
+              {isSaving ? 'Guardando...' : 'Añadir prospecto'}
             </Button>
           </DialogFooter>
         </form>
