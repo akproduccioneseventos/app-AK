@@ -184,9 +184,6 @@ export default function NuevoPresupuestoPage() {
     }
     
     let notasCombinadas = formData.notas || '';
-    // This note generation logic was slightly different from the version in Paso4Resumen,
-    // which is fine as this is the "source of truth" for saving.
-    // For consistency, one could extract this into a shared helper.
     notasCombinadas += `\nSalón: ${salonFiestasFinal}`;
     let protagonistasTexto = '';
     if (tipoEventoFinal === 'Boda') {
@@ -351,3 +348,4 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
+
