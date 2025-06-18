@@ -3,24 +3,27 @@
     "nombre": "Mozo",
     "categoria": "Servicio de catering",
     "precioVenta": 2900,
-    "costoReal": 2900,
     "unidad": "Por evento",
-    "id": "serv_1749933215223_3tmlplq"
+    "id": "serv_1749933215223_3tmlplq",
+    "valorUnitarioEstimado": 2900,
+    "tipoItem": "Prestador de Servicio"
   },
   {
     "nombre": "Decoracion basica",
     "categoria": "Servicio de decoración",
     "precioVenta": 8000,
-    "costoReal": 2000,
     "unidad": "Por evento",
-    "id": "serv_1749932774671_yiesfx9"
+    "id": "serv_1749932774671_yiesfx9",
+    "valorUnitarioEstimado": 2000,
+    "tipoItem": "Prestador de Servicio"
   },
   {
     "nombre": "Discoteca basica",
     "categoria": "Servicio de discoteca",
     "precioVenta": 9000,
-    "costoReal": 2600,
     "unidad": "Por evento",
-    "id": "serv_1749931693763_3jvujlt"
+    "id": "serv_1749931693763_3jvujlt",
+    "valorUnitarioEstimado": 2600,
+    "tipoItem": "Prestador de Servicio"
   }
 ]
