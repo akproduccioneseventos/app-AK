@@ -182,7 +182,7 @@ export default function VerPresupuestoPage() {
         <CardHeader className="p-0 mb-6 flex flex-row justify-between items-start print:hidden">
           <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
-            <Button variant="outline" size="sm" onClick={() => window.print()}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+            <Button variant="outline" size="sm" onClick={() => window.print()}><Download className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300"><MessageSquare className="mr-2 h-4 w-4"/>WhatsApp</Button></a>
             <a href={mailtoLink}><Button variant="outline" size="sm" className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"><Mail className="mr-2 h-4 w-4"/>Email</Button></a>
             {presupuesto.estado !== 'Facturado' ? 
@@ -299,7 +299,7 @@ export default function VerPresupuestoPage() {
           <footer className="mt-8 pt-4 border-t border-gray-200 print:mt-4 print:pt-2 print:border-gray-300 text-center text-[9pt] text-gray-500 print:text-[8pt]">
             <p>Gracias por confiar en {COMPANY_NAME}.</p>
             <p>Este presupuesto es válido por {BUDGET_VALIDITY_DAYS} días desde su emisión.</p>
-            <p className="mt-1 print:hidden">{COMPANY_CONTACT_EMAIL} | {COMPANY_CONTACT_PHONE}</p>
+            <p className="mt-0.5 print:hidden">{COMPANY_CONTACT_EMAIL} | {COMPANY_CONTACT_PHONE}</p>
           </footer>
         </div>
       </div>
