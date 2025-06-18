@@ -144,6 +144,24 @@ export default function NuevoPresupuestoPage() {
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual - 1 }));
     }
   };
+  
+  // Memoize the stringified representation of dependencies for calcularResumen
+  // This string will be stable if the underlying values don't change.
+  const calcularResumenDepsString = JSON.stringify({
+    clienteNombre: formData.clienteNombre,
+    eventoTipo: formData.eventoTipo,
+    eventoFecha: formData.eventoFecha?.toISOString(), // Use ISO string for date stability
+    invitadosCantidad: formData.invitadosCantidad,
+    salonFiestas: formData.salonFiestas,
+    protagonista1Nombre: formData.protagonista1Nombre,
+    protagonista2Nombre: formData.protagonista2Nombre,
+    nombreEmpresa: formData.nombreEmpresa,
+    serviciosSeleccionados: Array.from(formData.serviciosSeleccionados.entries()), // Array of entries for stringification
+    nombrePromocion: formData.nombrePromocion,
+    descuentoTipo: formData.descuentoTipo,
+    descuentoValor: formData.descuentoValor,
+    notas: formData.notas,
+  });
 
   const calcularResumen = useCallback((): Presupuesto | null => {
     const clienteNombreFinal = formData.clienteNombre.trim() || "Cliente sin especificar";
@@ -170,7 +188,7 @@ export default function NuevoPresupuestoPage() {
       costoTotalSinDescuento += costoTotalItem;
     });
 
-    let costoTotalEstimado = costoTotalSinDescuento;
+    let costoTotalEstimadoConDescuento = costoTotalSinDescuento;
     let descuentoAplicado = 0;
     const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
 
@@ -180,7 +198,7 @@ export default function NuevoPresupuestoPage() {
       } else {
         descuentoAplicado = descuentoValorNum;
       }
-      costoTotalEstimado = costoTotalSinDescuento - descuentoAplicado;
+      costoTotalEstimadoConDescuento = costoTotalSinDescuento - descuentoAplicado;
     }
     
     let notasCombinadas = formData.notas || '';
@@ -197,7 +215,7 @@ export default function NuevoPresupuestoPage() {
     if(protagonistasTexto) notasCombinadas += `\n${protagonistasTexto}`;
 
     return {
-      id: `temp_${Date.now()}`,
+      id: `temp_${Date.now()}`, // This ID is temporary for calculation, real ID assigned on save
       clienteNombre: clienteNombreFinal,
       eventoTipo: tipoEventoFinal,
       eventoFecha: fechaEventoFinal,
@@ -207,65 +225,49 @@ export default function NuevoPresupuestoPage() {
       protagonista2Nombre: formData.protagonista2Nombre?.trim() || undefined,
       nombreEmpresa: formData.nombreEmpresa?.trim() || undefined,
       itemsPresupuestados: itemsPresupuestadosFinales,
-      costoTotalEstimado: costoTotalEstimado, 
+      costoTotalEstimado: costoTotalSinDescuento, // This is the subtotal BEFORE discount
       nombrePromocion: formData.nombrePromocion?.trim() || undefined,
       descuentoTipo: formData.descuentoTipo,
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
-      totalConDescuento: descuentoValorNum > 0 ? costoTotalEstimado : undefined,
+      totalConDescuento: descuentoAplicado > 0 ? costoTotalEstimadoConDescuento : undefined, // Total after discount
       vigenciaPromocion: formData.vigenciaPromocion?.trim() || undefined,
       timestamp: new Date().toISOString(),
       notas: notasCombinadas.trim(),
-      estado: 'Borrador',
+      estado: 'Borrador', // Default for new budget summary
     };
-  }, [
-    formData.clienteNombre, formData.eventoTipo, formData.eventoFecha,
-    formData.invitadosCantidad, formData.salonFiestas,
-    formData.protagonista1Nombre, formData.protagonista2Nombre,
-    formData.nombreEmpresa,
-    JSON.stringify(Array.from(formData.serviciosSeleccionados.entries())),
-    formData.nombrePromocion, formData.descuentoTipo,
-    formData.descuentoValor, formData.vigenciaPromocion, formData.notas,
-  ]);
-
-  useEffect(() => {
-    if (formData.pasoActual === TOTAL_PASOS) {
-      const resumenCalculado = calcularResumen();
-      if (JSON.stringify(formData.resumen) !== JSON.stringify(resumenCalculado)) {
-          setFormData(prev => ({ ...prev, resumen: resumenCalculado ?? undefined }));
-      }
-    }
-  }, [formData.pasoActual, calcularResumen, formData.resumen]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calcularResumenDepsString, formData]); // formData is used in closure, depsString controls memoization
 
 
   const handleSave = async () => {
-    const resumen = calcularResumen(); 
-    if (!resumen) {
+    const resumenParaGuardar = calcularResumen(); 
+    if (!resumenParaGuardar) {
       toast({ title: "Error", description: "No se pudo generar el resumen. Revisa los datos ingresados.", variant: "destructive" });
       return;
     }
-    if (!resumen.clienteNombre.trim() || resumen.clienteNombre === "Cliente sin especificar") {
+    if (!resumenParaGuardar.clienteNombre.trim() || resumenParaGuardar.clienteNombre === "Cliente sin especificar") {
         toast({ title: "Dato Requerido", description: "El nombre del cliente es necesario.", variant: "destructive" }); return;
     }
-    if (!resumen.eventoTipo.trim() || resumen.eventoTipo === "Evento General") {
+    if (!resumenParaGuardar.eventoTipo.trim() || resumenParaGuardar.eventoTipo === "Evento General") {
         toast({ title: "Dato Requerido", description: "El tipo de evento es necesario.", variant: "destructive" }); return;
     }
-    if (!resumen.salonFiestas.trim() || resumen.salonFiestas === "(Salón pendiente)") {
+     if (!resumenParaGuardar.salonFiestas.trim() || resumenParaGuardar.salonFiestas === "(Salón pendiente)") {
       toast({ title: "Dato Requerido", description: "El salón de fiestas es necesario.", variant: "destructive" }); return;
     }
-    if (resumen.invitadosCantidad <= 0) {
+    if (resumenParaGuardar.invitadosCantidad <= 0) {
         toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser mayor a cero.", variant: "destructive" }); return;
     }
-    if (resumen.itemsPresupuestados.length === 0) {
+    if (resumenParaGuardar.itemsPresupuestados.length === 0) {
         toast({ title: "Sin Servicios", description: "Debes seleccionar al menos un servicio para el presupuesto.", variant: "destructive" }); return;
     }
 
     setIsSaving(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {id, ...presupuestoParaGuardar} = resumen; 
-      const result = await savePresupuesto(presupuestoParaGuardar as Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>);
+      const {id, ...presupuestoParaGuardarSinId} = resumenParaGuardar; 
+      const result = await savePresupuesto(presupuestoParaGuardarSinId as Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>);
       if (result.success && result.id) {
-        toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumen.clienteNombre} ha sido guardado.` });
+        toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumenParaGuardar.clienteNombre} ha sido guardado.` });
         router.push('/presupuestos');
       } else {
         throw new Error(result.error || "Error desconocido al guardar.");
@@ -336,7 +338,7 @@ export default function NuevoPresupuestoPage() {
             </Button>
           )}
           {formData.pasoActual === TOTAL_PASOS && (
-            <Button onClick={handleSave} disabled={isSaving || isLoadingInitialData || !formData.resumen} className="w-full sm:w-auto">
+            <Button onClick={handleSave} disabled={isSaving || isLoadingInitialData || !calcularResumen()} className="w-full sm:w-auto">
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Presupuesto'}
             </Button>
@@ -346,4 +348,3 @@ export default function NuevoPresupuestoPage() {
     </div>
   );
 }
-    

@@ -76,16 +76,12 @@ export interface PresupuestoFormData {
     categoriaServicio?: string; // From catalog
   }>;
 
-  // Step 3 - Discount and Notes
+  // Step 3 - Discount and Notes (Now part of Paso4Resumen logic, but fields stored here)
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
   descuentoValor?: string; // Input as string, convert to number on save
   vigenciaPromocion?: string;
   notas: string;
 
-  // Generated summary for review before saving
-  resumen?: Presupuesto;
-
-  // This is no longer used for general services, platosDisponibles is also removed
-  // serviciosDisponibles and serviciosSeleccionadosIds are replaced by serviciosSeleccionados Map
+  // Removed: resumen?: Presupuesto; // This was causing issues. Will be calculated on the fly.
 }
