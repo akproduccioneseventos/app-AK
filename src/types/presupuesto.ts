@@ -34,17 +34,16 @@ export interface Presupuesto {
   costoTotalEstimado: number; // Suma de itemsPresupuestados (subtotal ANTES de descuento)
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
-  descuentoValor?: number;
-  totalConDescuento?: number; // Calculado: costoTotalEstimado - descuento
-  vigenciaPromocion?: string;
+  descuentoValor?: number; // El valor numérico del descuento
+  totalConDescuento?: number; // Calculado: costoTotalEstimado - (descuento si aplica)
+  vigenciaPromocion?: string; // Ej: "Hasta 30/06/2024" o una fecha
   timestamp: string; // ISO String
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
-  invoiceId?: string;
+  invoiceId?: string; // ID de la factura si este presupuesto fue facturado
 }
 
 // FormData para el proceso de creación de varios pasos.
-// Mantiene solo los datos de entrada, el objeto Presupuesto completo se construye al final.
 export interface PresupuestoFormData {
   pasoActual: number;
 
@@ -59,17 +58,16 @@ export interface PresupuestoFormData {
   protagonista2Nombre?: string;
 
   // Paso 2 - Selección de Servicios
-  // La clave es el ID del servicio del catálogo.
   serviciosSeleccionados: Map<string, {
     cantidad: number;
-    precioUnitarioOriginal: number; // Precio del catálogo
-    precioUnitarioPresupuesto: number; // Precio ajustado para este presupuesto
+    precioUnitarioOriginal: number;
+    precioUnitarioPresupuesto: number;
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
   }>;
 
-  // Paso 3 (integrado en el resumen ahora) - Descuentos y Notas
+  // Paso 3 (Resumen) - Descuentos y Notas
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
   descuentoValor?: string; // Como string para el input, se convierte a número al guardar/calcular

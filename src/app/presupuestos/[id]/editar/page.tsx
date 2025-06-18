@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, TipoEvento, ItemPresupuestado } from '@/types/presupuesto';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
@@ -127,8 +127,8 @@ export default function EditarPresupuestoPage() {
       nombrePromocion: nombrePromocion.trim() || undefined,
       descuentoTipo: descuentoTipo,
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
-      vigenciaPromocion: vigenciaPromocion.trim() || undefined,
       // totalConDescuento will be recalculated in the server action
+      vigenciaPromocion: vigenciaPromocion.trim() || undefined,
       timestamp: new Date().toISOString(),
     };
 
@@ -180,14 +180,29 @@ export default function EditarPresupuestoPage() {
             
             {/* Discount fields - Step 3 equivalent fields */}
             <div className="pt-4 border-t mt-4 space-y-4">
-              <h3 className="text-md font-medium">Promoción / Descuento (Opcional)</h3>
+              <h3 className="text-md font-medium flex items-center gap-2"><Tag className="w-5 h-5 text-primary"/>Promoción / Descuento (Opcional)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1"><Label htmlFor="promo-nombre-edit">Nombre Promoción</Label><Input id="promo-nombre-edit" value={nombrePromocion} onChange={e => setNombrePromocion(e.target.value)} disabled={isSaving}/></div>
-                <div className="space-y-1"><Label htmlFor="promo-vigencia-edit">Vigencia</Label><Input id="promo-vigencia-edit" value={vigenciaPromocion} onChange={e => setVigenciaPromocion(e.target.value)} disabled={isSaving}/></div>
+                <div className="space-y-1"><Label htmlFor="promo-nombre-edit">Nombre Promoción</Label><Input id="promo-nombre-edit" value={nombrePromocion} onChange={e => setNombrePromocion(e.target.value)} disabled={isSaving} placeholder="Ej: Descuento Amigos"/></div>
+                <div className="space-y-1"><Label htmlFor="promo-vigencia-edit">Vigencia</Label><Input id="promo-vigencia-edit" value={vigenciaPromocion} onChange={e => setVigenciaPromocion(e.target.value)} disabled={isSaving} placeholder="Ej: Hasta 31/12"/></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1"><Label htmlFor="descuento-tipo-edit">Tipo Descuento</Label><Select value={descuentoTipo || ''} onValueChange={val => setDescuentoTipo(val as Presupuesto['descuentoTipo'])} disabled={isSaving}><SelectTrigger id="descuento-tipo-edit"><SelectValue placeholder="Seleccionar..."/></SelectTrigger><SelectContent><SelectItem value="porcentaje">Porcentaje (%)</SelectItem><SelectItem value="fijo">Monto Fijo ($)</SelectItem></SelectContent></Select></div>
-                <div className="space-y-1"><Label htmlFor="descuento-valor-edit">Valor Descuento</Label><Input id="descuento-valor-edit" type="number" value={descuentoValor} onChange={e => setDescuentoValor(e.target.value)} min="0" step="any" disabled={isSaving || !descuentoTipo}/></div>
+                <div className="space-y-1">
+                  <Label htmlFor="descuento-tipo-edit">Tipo Descuento</Label>
+                  <Select value={descuentoTipo || ''} onValueChange={val => setDescuentoTipo(val as Presupuesto['descuentoTipo'])} disabled={isSaving}>
+                    <SelectTrigger id="descuento-tipo-edit"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="porcentaje">Porcentaje (%)</SelectItem>
+                      <SelectItem value="fijo">Monto Fijo ($)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="descuento-valor-edit" className="flex items-center gap-1">
+                    {descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
+                    Valor Descuento
+                  </Label>
+                  <Input id="descuento-valor-edit" type="number" value={descuentoValor} onChange={e => setDescuentoValor(e.target.value)} min="0" step="any" disabled={isSaving || !descuentoTipo} placeholder="Ej: 10 o 5000"/>
+                </div>
               </div>
             </div>
 
@@ -197,7 +212,7 @@ export default function EditarPresupuestoPage() {
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
-              {isSaving ? <Loader2 className="mr-2"/> : <Save className="mr-2" />}
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
               {isSaving ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
           </CardFooter>

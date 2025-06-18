@@ -190,11 +190,11 @@ export default function NuevoPresupuestoPage() {
       protagonista2Nombre: currentFormData.protagonista2Nombre?.trim() || undefined,
       nombreEmpresa: currentFormData.nombreEmpresa?.trim() || undefined,
       itemsPresupuestados,
-      costoTotalEstimado: costoTotalSinDescuento, // Este es el subtotal antes de descuento
+      costoTotalEstimado: costoTotalSinDescuento, 
       nombrePromocion: currentFormData.nombrePromocion?.trim() || undefined,
       descuentoTipo: currentFormData.descuentoTipo,
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
-      totalConDescuento: descuentoValorNum > 0 ? totalConDescuentoCalculado : undefined, // Solo si hay descuento
+      totalConDescuento: descuentoValorNum > 0 ? totalConDescuentoCalculado : undefined, 
       vigenciaPromocion: currentFormData.vigenciaPromocion?.trim() || undefined,
       timestamp: new Date().toISOString(),
       notas: notasCombinadas.trim() || undefined,
