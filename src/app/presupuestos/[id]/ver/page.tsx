@@ -177,7 +177,7 @@ export default function VerPresupuestoPage() {
         <CardHeader className="p-6 print:p-2 flex flex-row justify-between items-start print:hidden">
           <Link href="/presupuestos" passHref><Button variant="outline">Volver</Button></Link>
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={() => window.print()}><Download className="mr-2"/>PDF</Button>
+            <Button variant="outline" onClick={() => window.print()}><Printer className="mr-2"/>Previsualizar / Imprimir</Button>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer"><Button variant="outline" className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300"><MessageSquare className="mr-2"/>WhatsApp</Button></a>
             <a href={mailtoLink}><Button variant="outline" className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"><Mail className="mr-2"/>Email</Button></a>
             {presupuesto.estado !== 'Facturado' ? 
