@@ -13,8 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-interface Paso4ResumenProps { // Renamed from Paso4Props
-  presupuesto?: Presupuesto; // This is the calculated summary
+interface Paso4ResumenProps {
+  presupuesto?: Presupuesto; // This is the calculated summary object
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }

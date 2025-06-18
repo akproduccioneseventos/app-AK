@@ -5,7 +5,7 @@ import type { PresupuestoFormData, TipoEvento } from '@/types/presupuesto';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerDemo } from '@/components/date-picker-demo'; 
+import { DatePickerDemo } from '@/components/date-picker-demo';
 import type { Dispatch, SetStateAction } from 'react';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import React from 'react';
@@ -31,6 +31,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
       ? formData.eventoTipo
       : (formData.eventoTipo && formData.eventoTipo.trim() !== "" ? "Otro" : "");
 
+
   const handleSelectTipoEventoChange = (value: string) => {
     const newTipoEvento = value === "Otro" ? "" : value as TipoEvento;
     setFormData(prev => ({
@@ -47,6 +48,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
   };
   
+  // Determina el tipo de evento final para la lógica de visualización
   const finalEventType = formData.eventoTipo.trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
 
@@ -97,7 +99,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
           <Input
             id="eventoTipoOtroInput"
             placeholder="Especificá el tipo de evento"
-            value={finalEventType !== "Otro" ? finalEventType : ""}
+            value={finalEventType !== "Otro" ? finalEventType : ""} // Mostrar el tipo personalizado si ya existe
             onChange={handleCustomTipoEventoInputChange}
             className="text-base p-3 mt-2"
             required={showCustomTipoInput}
@@ -108,7 +110,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
       <Separator className="my-4" />
       <h3 className="text-md font-medium text-muted-foreground">Protagonista(s) del Evento (Opcional)</h3>
 
-      {finalEventType === 'Boda' && (
+      {finalEventType === 'Boda' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="protagonista1NombreBoda" className="text-base">Nombre Novio/a 1</Label>
@@ -131,22 +133,18 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             />
           </div>
         </div>
-      )}
-
-      {finalEventType === 'Evento corporativo' && (
+      ) : finalEventType === 'Evento corporativo' ? (
         <div className="space-y-2">
           <Label htmlFor="nombreEmpresaCorp" className="text-base">Nombre Empresa / Contacto</Label>
           <Input
             id="nombreEmpresaCorp"
             placeholder="Ej: Empresa S.A. / Juan Pérez (Gerente)"
-            value={formData.nombreEmpresa || ''}
+            value={formData.nombreEmpresa || ''} // Usar formData.nombreEmpresa aquí
             onChange={(e) => handleChange('nombreEmpresa', e.target.value)}
             className="text-base p-3"
           />
         </div>
-      )}
-
-      {finalEventType && finalEventType !== 'Boda' && finalEventType !== 'Evento corporativo' && finalEventType.trim() !== '' && (
+      ) : (finalEventType && finalEventType.trim() !== '') ? ( // Para cualquier otro tipo de evento no Boda ni Corporativo
         <div className="space-y-2">
           <Label htmlFor="protagonistaNombreGeneral" className="text-base">Nombre del Agasajado/Protagonista</Label>
           <Input
@@ -157,9 +155,11 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             className="text-base p-3"
           />
         </div>
-      )}
+      ) : null}
+
 
       <Separator className="my-4" />
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">

@@ -32,11 +32,9 @@ export interface Presupuesto {
   protagonista1Nombre?: string; // Para homenajeado o novio/a 1
   protagonista2Nombre?: string; // Para novio/a 2 (solo en bodas)
 
-  itemsPresupuestados: ItemPresupuestado[]; // Replaces platosSeleccionados and serviciosAdicionales
+  itemsPresupuestados: ItemPresupuestado[];
 
-  // Totals will be calculated based on itemsPresupuestados
-  // costoSubtotalPlatos and costoSubtotalServicios are removed
-  costoTotalEstimado: number; // Sum of all costoTotalItem
+  costoTotalEstimado: number; // Sum of all costoTotalItem (subtotal BEFORE discount)
 
   // Discount fields
   nombrePromocion?: string;
@@ -52,36 +50,34 @@ export interface Presupuesto {
 }
 
 // FormData for the multi-step creation process
+// Kept clean of derived data like 'resumen'
 export interface PresupuestoFormData {
   pasoActual: number;
 
   // Step 1
   clienteNombre: string;
-  eventoTipo: TipoEvento | string;
+  eventoTipo: TipoEvento | string; // Can be one of TipoEvento or a custom string if "Otro"
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null;
   salonFiestas: string;
-  nombreEmpresa?: string; // For "Evento corporativo"
-  protagonista1Nombre?: string; // For main honoree or one partner
-  protagonista2Nombre?: string; // For second partner (weddings)
+  nombreEmpresa?: string;
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
 
-  // Step 2 - Service Selection from Catalog (servicios-empresa.json)
-  // Stores IDs of selected services from the catalog and their quantities + overridden prices if any
+  // Step 2 - Service Selection
   serviciosSeleccionados: Map<string, { // Key is servicioId from catalog
     cantidad: number;
-    precioUnitarioOriginal: number; // From catalog
-    precioUnitarioPresupuesto: number; // Potentially overridden for this budget
-    nombreServicio: string; // For display in summary
-    unidad?: string; // From catalog
-    categoriaServicio?: string; // From catalog
+    precioUnitarioOriginal: number;
+    precioUnitarioPresupuesto: number;
+    nombreServicio: string;
+    unidad?: string;
+    categoriaServicio?: string;
   }>;
 
-  // Step 3 - Discount and Notes (Now part of Paso4Resumen logic, but fields stored here)
+  // Step 3 - Discount and Notes
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
-  descuentoValor?: string; // Input as string, convert to number on save
+  descuentoValor?: string; // Input as string, convert to number on save/calculation
   vigenciaPromocion?: string;
   notas: string;
-
-  // Removed: resumen?: Presupuesto; // This was causing issues. Will be calculated on the fly.
 }

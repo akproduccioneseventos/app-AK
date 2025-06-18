@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 
 import Paso1DatosEvento from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
-import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
+import Paso4Resumen from '@/components/presupuestos/paso-4-resumen'; // Paso3 is integrated into Paso4
 
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto, TipoEvento } from '@/types/presupuesto';
 import { savePresupuesto } from '@/app/actions/presupuestos';
@@ -19,7 +19,7 @@ import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 
-const TOTAL_PASOS = 3;
+const TOTAL_PASOS = 3; // Step 1, Step 2, Step 3 (Resumen/Descuentos/Notas)
 
 export default function NuevoPresupuestoPage() {
   const router = useRouter();
@@ -70,21 +70,22 @@ export default function NuevoPresupuestoPage() {
           if (fiestaActualData && fiestaActualData.configuracion) {
             const config = fiestaActualData.configuracion;
             if (!prev.clienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                newClienteNombre = config.nombreEvento;
+                newClienteNombre = config.nombreEvento; // Default to event name if client is linked
             }
-            if (config.tipoCelebracion) {
+             if (config.tipoCelebracion) {
               if (ALL_TIPOS_EVENTO.includes(config.tipoCelebracion as TipoEvento)) {
                 newEventoTipo = config.tipoCelebracion as TipoEvento;
               } else {
-                newEventoTipo = config.tipoCelebracion;
+                newEventoTipo = config.tipoCelebracion; // If it's a custom string
               }
+              // Clear conditional fields when event type is sourced from fiestaActual
               newProtagonista1 = ''; newProtagonista2 = ''; newNombreEmpresa = '';
               if (newEventoTipo === 'Evento corporativo' && config.nombreEvento) {
                  newNombreEmpresa = config.nombreEvento;
               }
             }
             if (!prev.eventoFecha && config.fechaEvento) {
-              try { newEventoFecha = new Date(config.fechaEvento); } catch (e) {}
+              try { newEventoFecha = new Date(config.fechaEvento); } catch (e) { /* ignore invalid date */ }
             }
             const invitadosEst = typeof config.invitadosEstimados === 'string' ? parseInt(config.invitadosEstimados, 10) : config.invitadosEstimados;
             if (prev.invitadosCantidad === null && typeof invitadosEst === 'number' && invitadosEst > 0) {
@@ -134,6 +135,11 @@ export default function NuevoPresupuestoPage() {
         toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser mayor a cero.", variant: "destructive" }); return;
       }
     }
+    // Add validation for Step 2 if needed before proceeding to Step 3
+    if (formData.pasoActual === 2 && formData.serviciosSeleccionados.size === 0) {
+        // Optionally allow empty services or show a warning
+        // toast({ title: "Sin Servicios", description: "No has seleccionado ningún servicio. Puedes continuar si es un presupuesto base.", variant: "info" });
+    }
     if (formData.pasoActual < TOTAL_PASOS) {
       setFormData(prev => ({ ...prev, pasoActual: prev.pasoActual + 1 }));
     }
@@ -145,40 +151,23 @@ export default function NuevoPresupuestoPage() {
     }
   };
   
-  // Memoize the stringified representation of dependencies for calcularResumen
-  // This string will be stable if the underlying values don't change.
-  const calcularResumenDepsString = JSON.stringify({
-    clienteNombre: formData.clienteNombre,
-    eventoTipo: formData.eventoTipo,
-    eventoFecha: formData.eventoFecha?.toISOString(), // Use ISO string for date stability
-    invitadosCantidad: formData.invitadosCantidad,
-    salonFiestas: formData.salonFiestas,
-    protagonista1Nombre: formData.protagonista1Nombre,
-    protagonista2Nombre: formData.protagonista2Nombre,
-    nombreEmpresa: formData.nombreEmpresa,
-    serviciosSeleccionados: Array.from(formData.serviciosSeleccionados.entries()), // Array of entries for stringification
-    nombrePromocion: formData.nombrePromocion,
-    descuentoTipo: formData.descuentoTipo,
-    descuentoValor: formData.descuentoValor,
-    notas: formData.notas,
-  });
-
-  const calcularResumen = useCallback((): Presupuesto | null => {
-    const clienteNombreFinal = formData.clienteNombre.trim() || "Cliente sin especificar";
-    const tipoEventoFinal = formData.eventoTipo.trim() || "Evento General";
-    const fechaEventoFinal = formData.eventoFecha ? formData.eventoFecha.toISOString() : new Date().toISOString();
-    const invitadosFinal = formData.invitadosCantidad || 1;
-    const salonFiestasFinal = formData.salonFiestas.trim() || "(Salón pendiente)";
+  // This function will be called directly when needed (for Resumen display and for saving)
+  const calcularPresupuestoActual = (currentFormData: PresupuestoFormData): Presupuesto | null => {
+    const clienteNombreFinal = currentFormData.clienteNombre.trim() || "Cliente sin especificar";
+    const tipoEventoFinal = currentFormData.eventoTipo.trim() || "Evento General";
+    const fechaEventoFinal = currentFormData.eventoFecha ? currentFormData.eventoFecha.toISOString() : new Date().toISOString();
+    const invitadosFinal = currentFormData.invitadosCantidad || 1;
+    const salonFiestasFinal = currentFormData.salonFiestas.trim() || "(Salón pendiente)";
 
     const itemsPresupuestadosFinales: ItemPresupuestado[] = [];
     let costoTotalSinDescuento = 0;
 
-    formData.serviciosSeleccionados.forEach((servicioInfo, servicioId) => {
+    currentFormData.serviciosSeleccionados.forEach((servicioInfo, servicioId) => {
       const costoTotalItem = servicioInfo.cantidad * servicioInfo.precioUnitarioPresupuesto;
       itemsPresupuestadosFinales.push({
         idServicioCatalogo: servicioId,
         nombreServicio: servicioInfo.nombreServicio,
-        descripcionServicio: undefined,
+        descripcionServicio: undefined, 
         cantidad: servicioInfo.cantidad,
         unidad: servicioInfo.unidad,
         precioUnitario: servicioInfo.precioUnitarioPresupuesto,
@@ -190,10 +179,10 @@ export default function NuevoPresupuestoPage() {
 
     let costoTotalEstimadoConDescuento = costoTotalSinDescuento;
     let descuentoAplicado = 0;
-    const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
+    const descuentoValorNum = parseFloat(currentFormData.descuentoValor || '0');
 
-    if (formData.descuentoTipo && descuentoValorNum > 0) {
-      if (formData.descuentoTipo === 'porcentaje') {
+    if (currentFormData.descuentoTipo && descuentoValorNum > 0) {
+      if (currentFormData.descuentoTipo === 'porcentaje') {
         descuentoAplicado = (costoTotalSinDescuento * descuentoValorNum) / 100;
       } else {
         descuentoAplicado = descuentoValorNum;
@@ -201,73 +190,74 @@ export default function NuevoPresupuestoPage() {
       costoTotalEstimadoConDescuento = costoTotalSinDescuento - descuentoAplicado;
     }
     
-    let notasCombinadas = formData.notas || '';
+    let notasCombinadas = currentFormData.notas || '';
     notasCombinadas += `\nSalón: ${salonFiestasFinal}`;
     let protagonistasTexto = '';
     if (tipoEventoFinal === 'Boda') {
-      if (formData.protagonista1Nombre && formData.protagonista2Nombre) protagonistasTexto = `Boda de ${formData.protagonista1Nombre} y ${formData.protagonista2Nombre}.`;
-      else if (formData.protagonista1Nombre) protagonistasTexto = `Boda de ${formData.protagonista1Nombre}.`;
+      if (currentFormData.protagonista1Nombre && currentFormData.protagonista2Nombre) protagonistasTexto = `Boda de ${currentFormData.protagonista1Nombre} y ${currentFormData.protagonista2Nombre}.`;
+      else if (currentFormData.protagonista1Nombre) protagonistasTexto = `Boda de ${currentFormData.protagonista1Nombre}.`;
     } else if (tipoEventoFinal === 'Evento corporativo') {
-        protagonistasTexto = `Evento para empresa: ${formData.nombreEmpresa || formData.protagonista1Nombre || 'No especificada'}.`;
-    } else if (formData.protagonista1Nombre) {
-      protagonistasTexto = `Evento para ${formData.protagonista1Nombre}.`;
+        protagonistasTexto = `Evento para empresa: ${currentFormData.nombreEmpresa || currentFormData.protagonista1Nombre || 'No especificada'}.`;
+    } else if (currentFormData.protagonista1Nombre) {
+      protagonistasTexto = `Evento para ${currentFormData.protagonista1Nombre}.`;
     }
     if(protagonistasTexto) notasCombinadas += `\n${protagonistasTexto}`;
 
+
     return {
-      id: `temp_${Date.now()}`, // This ID is temporary for calculation, real ID assigned on save
+      id: `temp_${Date.now()}`,
       clienteNombre: clienteNombreFinal,
       eventoTipo: tipoEventoFinal,
       eventoFecha: fechaEventoFinal,
       invitadosCantidad: invitadosFinal,
       salonFiestas: salonFiestasFinal,
-      protagonista1Nombre: formData.protagonista1Nombre?.trim() || undefined,
-      protagonista2Nombre: formData.protagonista2Nombre?.trim() || undefined,
-      nombreEmpresa: formData.nombreEmpresa?.trim() || undefined,
+      protagonista1Nombre: currentFormData.protagonista1Nombre?.trim() || undefined,
+      protagonista2Nombre: currentFormData.protagonista2Nombre?.trim() || undefined,
+      nombreEmpresa: currentFormData.nombreEmpresa?.trim() || undefined,
       itemsPresupuestados: itemsPresupuestadosFinales,
-      costoTotalEstimado: costoTotalSinDescuento, // This is the subtotal BEFORE discount
-      nombrePromocion: formData.nombrePromocion?.trim() || undefined,
-      descuentoTipo: formData.descuentoTipo,
+      costoTotalEstimado: costoTotalSinDescuento,
+      nombrePromocion: currentFormData.nombrePromocion?.trim() || undefined,
+      descuentoTipo: currentFormData.descuentoTipo,
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
-      totalConDescuento: descuentoAplicado > 0 ? costoTotalEstimadoConDescuento : undefined, // Total after discount
-      vigenciaPromocion: formData.vigenciaPromocion?.trim() || undefined,
+      totalConDescuento: descuentoAplicado > 0 ? costoTotalEstimadoConDescuento : undefined,
+      vigenciaPromocion: currentFormData.vigenciaPromocion?.trim() || undefined,
       timestamp: new Date().toISOString(),
       notas: notasCombinadas.trim(),
-      estado: 'Borrador', // Default for new budget summary
+      estado: 'Borrador',
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [calcularResumenDepsString, formData]); // formData is used in closure, depsString controls memoization
+  };
 
 
   const handleSave = async () => {
-    const resumenParaGuardar = calcularResumen(); 
-    if (!resumenParaGuardar) {
-      toast({ title: "Error", description: "No se pudo generar el resumen. Revisa los datos ingresados.", variant: "destructive" });
+    const presupuestoParaGuardar = calcularPresupuestoActual(formData);
+    if (!presupuestoParaGuardar) {
+      toast({ title: "Error", description: "No se pudo generar el resumen. Revisa los datos.", variant: "destructive" });
       return;
     }
-    if (!resumenParaGuardar.clienteNombre.trim() || resumenParaGuardar.clienteNombre === "Cliente sin especificar") {
+     if (!presupuestoParaGuardar.clienteNombre.trim() || presupuestoParaGuardar.clienteNombre === "Cliente sin especificar") {
         toast({ title: "Dato Requerido", description: "El nombre del cliente es necesario.", variant: "destructive" }); return;
     }
-    if (!resumenParaGuardar.eventoTipo.trim() || resumenParaGuardar.eventoTipo === "Evento General") {
+    if (!presupuestoParaGuardar.eventoTipo.trim() || presupuestoParaGuardar.eventoTipo === "Evento General") {
         toast({ title: "Dato Requerido", description: "El tipo de evento es necesario.", variant: "destructive" }); return;
     }
-     if (!resumenParaGuardar.salonFiestas.trim() || resumenParaGuardar.salonFiestas === "(Salón pendiente)") {
+     if (!presupuestoParaGuardar.salonFiestas.trim() || presupuestoParaGuardar.salonFiestas === "(Salón pendiente)") {
       toast({ title: "Dato Requerido", description: "El salón de fiestas es necesario.", variant: "destructive" }); return;
     }
-    if (resumenParaGuardar.invitadosCantidad <= 0) {
+    if (presupuestoParaGuardar.invitadosCantidad <= 0) {
         toast({ title: "Dato Requerido", description: "La cantidad de invitados debe ser mayor a cero.", variant: "destructive" }); return;
     }
-    if (resumenParaGuardar.itemsPresupuestados.length === 0) {
+    if (presupuestoParaGuardar.itemsPresupuestados.length === 0) {
         toast({ title: "Sin Servicios", description: "Debes seleccionar al menos un servicio para el presupuesto.", variant: "destructive" }); return;
     }
+
 
     setIsSaving(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {id, ...presupuestoParaGuardarSinId} = resumenParaGuardar; 
-      const result = await savePresupuesto(presupuestoParaGuardarSinId as Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>);
+      const {id, ...presupuestoSinId} = presupuestoParaGuardar;
+      const result = await savePresupuesto(presupuestoSinId as Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>);
       if (result.success && result.id) {
-        toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${resumenParaGuardar.clienteNombre} ha sido guardado.` });
+        toast({ title: "¡Presupuesto Guardado!", description: `El presupuesto para ${presupuestoParaGuardar.clienteNombre} ha sido guardado.` });
         router.push('/presupuestos');
       } else {
         throw new Error(result.error || "Error desconocido al guardar.");
@@ -307,7 +297,9 @@ export default function NuevoPresupuestoPage() {
       case 2:
         return <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} />;
       case 3:
-        return <Paso4Resumen presupuesto={calcularResumen() ?? undefined} formData={formData} setFormData={setFormData} />;
+        // Calcular el presupuesto actual para pasar al resumen
+        const presupuestoCalculado = calcularPresupuestoActual(formData);
+        return <Paso4Resumen presupuesto={presupuestoCalculado ?? undefined} formData={formData} setFormData={setFormData} />;
       default:
         return null;
     }
@@ -332,13 +324,12 @@ export default function NuevoPresupuestoPage() {
           <Button variant="outline" onClick={handlePrev} disabled={formData.pasoActual === 1 || isSaving || isLoadingInitialData} className="w-full sm:w-auto">
             <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
           </Button>
-          {formData.pasoActual < TOTAL_PASOS && (
+          {formData.pasoActual < TOTAL_PASOS ? (
             <Button onClick={handleNext} disabled={isSaving || isLoadingInitialData} className="w-full sm:w-auto">
               Siguiente <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-          )}
-          {formData.pasoActual === TOTAL_PASOS && (
-            <Button onClick={handleSave} disabled={isSaving || isLoadingInitialData || !calcularResumen()} className="w-full sm:w-auto">
+          ) : (
+            <Button onClick={handleSave} disabled={isSaving || isLoadingInitialData || !calcularPresupuestoActual(formData)} className="w-full sm:w-auto">
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Presupuesto'}
             </Button>

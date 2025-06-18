@@ -20,6 +20,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Link from 'next/link';
+
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -43,9 +45,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         newSelected.delete(servicioId);
       } else {
         newSelected.set(servicioId, {
-          cantidad: 1, // Default quantity
+          cantidad: 1, 
           precioUnitarioOriginal: servicioInfo.precioUnitarioOriginal,
-          precioUnitarioPresupuesto: servicioInfo.precioUnitarioOriginal, // Initially same as original
+          precioUnitarioPresupuesto: servicioInfo.precioUnitarioOriginal,
           nombreServicio: servicioInfo.nombreServicio,
           unidad: servicioInfo.unidad,
           categoriaServicio: servicioInfo.categoriaServicio,
@@ -64,7 +66,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       const newSelected = new Map(prev.serviciosSeleccionados);
       const currentServicio = newSelected.get(servicioId);
       if (currentServicio) {
-        const numericValue = Number(value);
+        let numericValue = Number(value);
+        if (field === 'cantidad') {
+            numericValue = Math.max(1, Math.floor(numericValue)); // Ensure quantity is at least 1 and an integer
+        } else if (field === 'precioUnitarioPresupuesto') {
+            numericValue = Math.max(0, numericValue); // Ensure price is not negative
+        }
         newSelected.set(servicioId, {
           ...currentServicio,
           [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
@@ -91,7 +98,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       const matchesSearch = s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             s.categoria.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(s.categoria);
-      return matchesSearch && matchesCategory;
+      return matchesSearch && matchesCategory && s.precioVenta !== undefined && s.precioVenta > 0; // Only show items with a sale price > 0
     });
   }, [serviciosCatalogo, searchTerm, selectedCategories]);
 
@@ -104,7 +111,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   }, [formData.serviciosSeleccionados]);
   
   const uniqueCategories = useMemo(() => {
-    const cats = new Set(serviciosCatalogo.map(s => s.categoria));
+    // Filter categories to only include those from services with a sale price
+    const cats = new Set(
+        serviciosCatalogo
+        .filter(s => s.precioVenta !== undefined && s.precioVenta > 0)
+        .map(s => s.categoria)
+    );
     return Array.from(cats).sort();
   }, [serviciosCatalogo]);
 
@@ -147,12 +159,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 </AccordionTrigger>
                 <AccordionContent className="p-0">
                     <ScrollArea className="h-auto max-h-48 p-2 border-t">
-                        {uniqueCategories.map(cat => (
+                        {uniqueCategories.length > 0 ? uniqueCategories.map(cat => (
                             <div key={cat} className="flex items-center space-x-2 py-1.5 px-1 hover:bg-muted/50 rounded-sm">
                                 <Checkbox id={`cat-${cat}`} checked={selectedCategories.has(cat)} onCheckedChange={() => handleCategoryFilterToggle(cat)} />
                                 <Label htmlFor={`cat-${cat}`} className="text-sm font-normal cursor-pointer flex-grow">{cat}</Label>
                             </div>
-                        ))}
+                        )) : <p className="text-xs text-muted-foreground p-2 text-center">No hay categorías con servicios costeables.</p>}
                     </ScrollArea>
                 </AccordionContent>
               </AccordionItem>
@@ -165,7 +177,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       <Label className="text-xl font-semibold">Servicios Disponibles del Catálogo</Label>
       <p className="text-sm text-muted-foreground">
         Selecciona los servicios de tu empresa para incluirlos en el presupuesto.
-        Puedes ajustar la cantidad y el precio unitario para este presupuesto específico si es necesario.
+        Puedes ajustar la cantidad y el precio unitario para este presupuesto específico si es necesario. Solo se muestran servicios con precio de venta definido.
       </p>
       <ScrollArea className="h-[450px] pr-4 border rounded-md p-1">
         {filteredServicios.length > 0 ? (
@@ -183,7 +195,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                         checked={isSelected}
                         onCheckedChange={() => handleServicioToggle(servicio.id, {
                             nombreServicio: servicio.nombre,
-                            precioUnitarioOriginal: servicio.precioVenta || 0,
+                            precioUnitarioOriginal: servicio.precioVenta || 0, // Default to 0 if undefined
                             unidad: servicio.unidad,
                             categoriaServicio: servicio.categoria
                         })}
@@ -236,7 +248,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         ) : (
             <div className="text-center py-10 text-muted-foreground">
                 <Search className="w-12 h-12 mx-auto mb-3 opacity-50"/>
-                No se encontraron servicios con los filtros actuales.
+                No se encontraron servicios con los filtros actuales o que tengan un precio de venta definido.
             </div>
         )}
       </ScrollArea>
