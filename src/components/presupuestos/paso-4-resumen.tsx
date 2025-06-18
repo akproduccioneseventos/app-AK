@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent } from 'lucide-react';
+import { AlertTriangle, Tag, Percent } from 'lucide-react'; // Imports eliminados: ClipboardCopy, Send, Printer
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -36,7 +36,7 @@ const formatDate = (dateString?: string) => {
 };
 
 export default function Paso4Resumen({ presupuesto, formData, setFormData }: Paso4ResumenProps) {
-  const { toast } = useToast();
+  const { toast } = useToast(); // Sigue siendo necesario para otros toasts potenciales
 
   const handleDiscountChange = (field: keyof Pick<PresupuestoFormData, 'nombrePromocion' | 'descuentoTipo' | 'descuentoValor' | 'vigenciaPromocion'>, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -64,6 +64,8 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     }
   }
   const totalFinalConDescuento = costoTotalAntesDescuento - descuentoAplicado;
+
+  // Las funciones generarTextoWhatsApp, handleCopyToClipboard, handleWhatsAppSend, handlePrint se eliminan
 
   return (
     <div className="space-y-6">
@@ -124,7 +126,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           <div className="text-right mt-6"><p className="text-sm text-muted-foreground">Total General Estimado</p><p className="text-3xl font-bold text-primary">{formatCurrency(totalFinalConDescuento)}</p></div>
         </CardContent>
       </Card>
-      {/* The "Acciones y Compartir" Card below has been removed as per request */}
+      {/* La tarjeta "Acciones y Compartir" ha sido eliminada completamente */}
     </div>
   );
 }
