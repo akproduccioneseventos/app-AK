@@ -14,8 +14,8 @@ import type { Dispatch, SetStateAction } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Paso4ResumenProps {
-  presupuesto: Presupuesto; // Ahora es el objeto Presupuesto completo (con ID temporal)
-  formData: PresupuestoFormData; // Se sigue usando para manejar descuentos y notas
+  presupuesto: Presupuesto; 
+  formData: PresupuestoFormData; 
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }
 
@@ -52,15 +52,14 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     );
   }
 
-  // Los cálculos de descuento ahora se hacen directamente con el objeto `presupuesto` (que es derivado de formData)
-  const costoTotalAntesDescuento = presupuesto.costoTotalEstimado; // Este es el subtotal antes de descuento
+  const costoTotalAntesDescuento = presupuesto.costoTotalEstimado;
   let descuentoAplicado = 0;
-  const descuentoValorNum = parseFloat(formData.descuentoValor || '0'); // Usamos formData para los inputs de descuento
+  const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
 
   if (formData.descuentoTipo && descuentoValorNum > 0) {
     if (formData.descuentoTipo === 'porcentaje') {
       descuentoAplicado = (costoTotalAntesDescuento * descuentoValorNum) / 100;
-    } else { // fijo
+    } else { 
       descuentoAplicado = descuentoValorNum;
     }
   }
@@ -107,7 +106,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   const handleWhatsAppSend = () => window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   
   const handlePrint = () => {
-    console.log('Print button on Resumen step clicked, attempting window.print()'); // For debugging
+    console.log('Print button on Resumen step (paso-4-resumen.tsx) clicked, attempting window.print()');
     window.print();
   };
 

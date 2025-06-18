@@ -18,9 +18,8 @@ import Image from 'next/image';
 
 const formatCurrency = (amount?: number, includeSymbol = true) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  // Using a simple replace for UYU to $ as es-UY might still prefix with UYU
   const options = { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 };
-  const formatted = new Intl.NumberFormat('es-ES', options).format(amount); // Use es-ES for dot/comma
+  const formatted = new Intl.NumberFormat('es-UY', options).format(amount);
   return includeSymbol ? `$ ${formatted}` : formatted;
 };
 
@@ -28,9 +27,8 @@ const formatDate = (dateString?: string, shortMonth = false) => {
   if (!dateString) return "Fecha no especificada";
   try {
     const date = new Date(dateString);
-    // Ensure UTC date parts are used if the date string is a simple YYYY-MM-DD from server
     const year = date.getUTCFullYear();
-    const month = date.getUTCMonth(); // 0-indexed
+    const month = date.getUTCMonth(); 
     const day = date.getUTCDate();
 
     if (shortMonth) {
@@ -44,7 +42,6 @@ const formatDate = (dateString?: string, shortMonth = false) => {
   }
 };
 
-// Updated Company Details to match PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos";
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
@@ -54,9 +51,8 @@ const COMPANY_CONTACT_EMAIL = "akproduccionessalto@gmail.com";
 const COMPANY_WEBSITE = "www.akproduccioneseventos.com";
 const COMPANY_LOGO_URL = "https://placehold.co/120x120/EF4444/FFFFFF.png?text=AK&font=montserrat"; 
 const COMPANY_LOGO_AI_HINT = "company logo AK circle red";
-const BUDGET_VALIDITY_DAYS = 30; // As per PDF
+const BUDGET_VALIDITY_DAYS = 30;
 const BUDGET_DEPOSIT_NOTE = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
-
 
 export default function VerPresupuestoPage() {
   const params = useParams();
@@ -101,6 +97,7 @@ export default function VerPresupuestoPage() {
   };
   
   const handlePrint = () => {
+    console.log('Print button on VerPresupuestoPage clicked, attempting window.print()');
     window.print();
   };
 
@@ -108,7 +105,7 @@ export default function VerPresupuestoPage() {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   }
   if (error || !presupuesto) {
-    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado."}</p><Link href="/presupuestos" passHref><Button variant="outline" className="mt-6">Volver</Button></Link></div>;
+    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado."}</p><Link href="/presupuestos" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
   }
 
   const costoTotalSinDescuento = presupuesto.itemsPresupuestados.reduce((sum, item) => sum + item.costoTotalItem, 0);
@@ -120,7 +117,6 @@ export default function VerPresupuestoPage() {
   return (
     <div className="max-w-4xl mx-auto bg-white print:bg-white font-sans text-gray-800 print:text-black">
       <div className="p-4 md:p-8 print:p-2">
-        {/* Action buttons - hidden on print */}
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
           <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
@@ -134,7 +130,6 @@ export default function VerPresupuestoPage() {
           </div>
         </div>
         
-        {/* Header Section - Based on PDF */}
         <header className="mb-6 print:mb-4">
           <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE} - {COMPANY_NAME_BRAND}</h1>
           <div className="flex justify-between items-start text-xs print:text-[8pt]">
@@ -145,29 +140,31 @@ export default function VerPresupuestoPage() {
               <p>{COMPANY_CONTACT_EMAIL}</p>
               <p>{COMPANY_WEBSITE}</p>
             </div>
-            <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-              <Image src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT}/>
-            </div>
+            {displaySettings.showCompanyLogo && (
+                <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
+                    <Image src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT}/>
+                </div>
+            )}
           </div>
         </header>
 
-        {/* Client/Event Info Line */}
-        <section className="my-4 print:my-2 text-sm print:text-[9pt] text-center">
-          <p>
-            <span className="font-semibold">{presupuesto.clienteNombre}</span> {presupuesto.eventoTipo} - {formatDate(presupuesto.eventoFecha, true)}
-          </p>
-        </section>
+        {displaySettings.showClientData && displaySettings.showEventTypeAndDate && (
+            <section className="my-4 print:my-2 text-sm print:text-[9pt] text-center">
+                <p>
+                <span className="font-semibold">{presupuesto.clienteNombre}</span> {presupuesto.eventoTipo} - {formatDate(presupuesto.eventoFecha, true)}
+                </p>
+            </section>
+        )}
         
-        {/* Metadata Table */}
         <section className="mb-6 print:mb-3">
           <table className="w-full text-xs print:text-[8pt] border-collapse">
             <thead className="print:bg-gray-100">
               <tr>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-100">Número de cliente</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-100">Número de Documento</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-100">Página</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-100">Fecha</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-100">Válido hasta</th>
+                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Número de cliente</th>
+                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Número de Documento</th>
+                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Página</th>
+                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Fecha</th>
+                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
               </tr>
             </thead>
             <tbody>
@@ -182,42 +179,42 @@ export default function VerPresupuestoPage() {
           </table>
         </section>
 
-        {/* Items Table */}
-        <section className="mb-6 print:mb-3">
-          <table className="w-full text-xs print:text-[8pt] border-collapse">
-            <thead className="print:bg-gray-100">
-              <tr>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-100 w-2/5">Artículo</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-100 w-[10%]">Cantidad</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-100 w-[10%]">Unidad</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right font-medium bg-gray-100 w-[15%]">Precio</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-100 w-[10%]">Desc.%</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right font-medium bg-gray-100 w-[15%]">Importe total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {presupuesto.itemsPresupuestados.map((item) => (
-                <tr key={item.idServicioCatalogo}>
-                  <td className="border border-gray-300 print:border-gray-400 px-2 py-1 align-top">
-                    {item.nombreServicio}
-                    {presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
-                      <div className="text-gray-500 print:text-gray-600 text-[7pt]">{presupuesto.descuentoValor}% de descuento</div>
-                    )}
-                  </td>
-                  <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">{item.cantidad}</td>
-                  <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">$</td>
-                  <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right align-top">{formatCurrency(item.precioUnitario, false)}</td>
-                  <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">
-                    {presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor && presupuesto.descuentoValor > 0 ? `${presupuesto.descuentoValor}%` : ''}
-                  </td>
-                  <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right align-top">{formatCurrency(item.costoTotalItem, false)}</td>
+        {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
+            <section className="mb-6 print:mb-3">
+            <table className="w-full text-xs print:text-[8pt] border-collapse">
+                <thead className="print:bg-gray-100">
+                <tr>
+                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
+                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
+                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-50 w-[10%]">Unidad</th>
+                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
+                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
+                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+                </thead>
+                <tbody>
+                {presupuesto.itemsPresupuestados.map((item) => (
+                    <tr key={item.idServicioCatalogo}>
+                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 align-top">
+                        {item.nombreServicio}
+                        {presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
+                        <div className="text-gray-500 print:text-gray-600 text-[7pt]">{presupuesto.descuentoValor}% de descuento</div>
+                        )}
+                    </td>
+                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">{item.cantidad}</td>
+                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">$</td>
+                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right align-top">{formatCurrency(item.precioUnitario, false)}</td>
+                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">
+                        {presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor && presupuesto.descuentoValor > 0 ? `${presupuesto.descuentoValor}%` : ''}
+                    </td>
+                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right align-top">{formatCurrency(item.costoTotalItem, false)}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+            </section>
+        )}
         
-        {/* Totals Section */}
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-[220px] print:max-w-[180px] space-y-0.5">
             {presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
@@ -239,12 +236,17 @@ export default function VerPresupuestoPage() {
           </div>
         </section>
         
-        {/* Footer Notes */}
         <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p>{BUDGET_DEPOSIT_NOTE}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-2 whitespace-pre-line">{presupuesto.notas}</p>}
+          {displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && presupuesto.estado !== 'Facturado' && (
+            <p className="mt-2 text-orange-600">
+                Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
+            </p>
+          )}
         </footer>
       </div>
     </div>
   );
 }
+

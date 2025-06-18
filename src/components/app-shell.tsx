@@ -17,7 +17,7 @@ import {
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { triggerAppLogout } from '@/components/auth-guard'; // Import the trigger
+import { triggerAppLogout } from '@/components/auth-guard';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -25,24 +25,20 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/') return 'Menú Principal';
 
-  // Presupuestos
   if (pathname === '/presupuestos') return 'Presupuestos';
   if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
-  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment}`;
-  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment}`;
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
 
-  // Facturas
   if (pathname === '/invoices') return 'Gestión de Facturas';
   if (pathname === '/invoices/new') return 'Nueva Factura';
   if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${idSegment}`;
   if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${idSegment}`;
 
-  // Clientes
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${idSegment}`;
   
-  // Empresa
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/proveedores') return 'Proveedores';
@@ -53,13 +49,11 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/compras') return 'Compras y Checklist';
 
-  // Empleados
   if (pathname === '/empleados') return 'Gestión de Personal';
   if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
   if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado #${idSegment}`;
   if (pathname === '/empleados/roles') return 'Configuración de Roles';
 
-  // Fiestas (Planificador)
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
@@ -81,13 +75,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
 
-
-  // Contabilidad & CRM
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
-  // if (pathname === '/contabilidad/pagos') return 'Registro General de Pagos'; // Removed
 
-
-  // Configuración
   if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
   if (pathname === '/settings/budget-display') return 'Configuración de Presupuestos';
@@ -102,12 +91,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
 
-  // Rutas Actualizadas
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
 
-  // Fallback para rutas no definidas explícitamente
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
     let title = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
@@ -116,7 +103,7 @@ const getPageTitle = (pathname: string): string => {
         const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
         if (!isNaN(Number(title))) { 
             if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
-            if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title}`;
+            if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title.substring(0,5)}`;
             if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
             if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
             if (parentTitle.toLowerCase() === 'editar' && pathSegments[pathSegments.length-3]?.toLowerCase() === 'todos-los-servicios') return `Editar Ítem #${title}`;
@@ -178,8 +165,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
-  // if (pathname === '/contabilidad/pagos') return Banknote; // Removed
-
 
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/templates') return Palette;
@@ -198,7 +183,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   return null;
 }
 
-
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
@@ -211,16 +195,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
 
-
   if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isBudgetViewPage || isInvoiceViewPage) {
-    // For these specific pages, we might not want the full AppShell (e.g. no sidebar)
-    // Or we might want a different layout entirely.
-    // For now, just rendering children directly.
     return <main className="min-h-screen">{children}</main>;
   }
   
   const handleLogoutClick = () => {
-    triggerAppLogout(); // Call the global logout trigger
+    triggerAppLogout();
   };
 
   return (
@@ -255,7 +235,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator />
-            {/* Changed to a button that triggers logout, instead of linking to /login */}
             <DropdownMenuItem onClick={handleLogoutClick}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Cerrar Sesión</span>
@@ -269,4 +248,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
-
