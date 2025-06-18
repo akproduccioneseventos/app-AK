@@ -98,6 +98,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
   if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
+  
+  if (pathname === '/evento/actual') return 'Página Pública del Evento';
+  if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
 
   // Rutas Actualizadas
   if (pathname === '/eventos') return 'Todas las Fiestas';
@@ -205,9 +208,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isPublicEventPage = pathname.startsWith('/evento/actual');
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
+  const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
+  const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
 
 
-  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage) {
+  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isBudgetViewPage || isInvoiceViewPage) {
     // For these specific pages, we might not want the full AppShell (e.g. no sidebar)
     // Or we might want a different layout entirely.
     // For now, just rendering children directly.
@@ -220,7 +225,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
         <div className="flex items-center gap-2">
           <AppLogo />
           <span className="mx-2 text-muted-foreground">|</span>
@@ -264,3 +269,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+

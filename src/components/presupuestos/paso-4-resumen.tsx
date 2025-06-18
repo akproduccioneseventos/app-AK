@@ -107,13 +107,13 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   const handleWhatsAppSend = () => window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   
   const handlePrint = () => {
-    console.log('Print button on Resumen step clicked, attempting window.print()');
+    console.log('Print button on Resumen step clicked, attempting window.print()'); // For debugging
     window.print();
   };
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary shadow-lg">
+      <Card className="border-primary shadow-lg" id="budget-summary-printable">
         <CardHeader className="bg-primary/5 p-6"><CardTitle className="font-headline text-2xl text-primary">Resumen del Presupuesto</CardTitle><CardDescription>Revisa los detalles, aplica descuentos y añade notas.</CardDescription></CardHeader>
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
