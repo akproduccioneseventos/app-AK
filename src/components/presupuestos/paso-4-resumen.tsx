@@ -105,7 +105,11 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   };
   
   const handleWhatsAppSend = () => window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
-  const handlePrint = () => window.print();
+  
+  const handlePrint = () => {
+    console.log('Print button on Resumen step clicked, attempting window.print()');
+    window.print();
+  };
 
   return (
     <div className="space-y-6">
@@ -150,7 +154,13 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                   <SelectContent><SelectItem value="porcentaje">Porcentaje (%)</SelectItem><SelectItem value="fijo">Monto Fijo ($)</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1"><Label htmlFor="descuento-valor">Valor Descuento</Label><Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} placeholder="Ej: 10 o 5000" min="0" step="any" disabled={!formData.descuentoTipo}/></div>
+              <div className="space-y-1">
+                <Label htmlFor="descuento-valor" className="flex items-center gap-1">
+                  {formData.descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
+                  Valor Descuento
+                </Label>
+                <Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} placeholder="Ej: 10 o 5000" min="0" step="any" disabled={!formData.descuentoTipo}/>
+              </div>
             </div>
             {descuentoAplicado > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoAplicado)}</p>}
           </Card>
@@ -174,3 +184,4 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     </div>
   );
 }
+
