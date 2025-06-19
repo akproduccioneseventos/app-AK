@@ -259,10 +259,10 @@ export default function ContabilidadDashboardPage() {
               Panel Contable y Financiero
             </h1>
         </div>
-         <Link href="/empresa" passHref>
+         <Link href="/" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Empresa
+            Volver al Panel Principal
           </Button>
         </Link>
       </div>
