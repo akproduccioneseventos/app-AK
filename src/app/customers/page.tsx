@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye } from 'lucide-react'; // Added Eye icon
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
@@ -181,16 +181,21 @@ export default function CustomersPage() {
                       </TableCell>
                       <TableCell className="min-w-[180px]">{customer.email || '-'}</TableCell>
                       <TableCell className="min-w-[130px]">{customer.phone || '-'}</TableCell>
-                      <TableCell className="text-right min-w-[150px] print:hidden">
+                      <TableCell className="text-right min-w-[200px] print:hidden"> {/* Increased min-width for new button */}
                         <div className="flex items-center justify-end gap-2">
+                          <Link href={`/customers/${customer.id}`} passHref> {/* Link to new details page */}
+                            <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${customer.companyName || customer.name}`} title="Ver Detalles">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </Link>
                           <Link href={`/customers/${customer.id}/edit`} passHref>
-                            <Button variant="outline" size="icon" aria-label={`Editar Cliente ${customer.companyName || customer.name}`}>
+                            <Button variant="outline" size="icon" aria-label={`Editar Cliente ${customer.companyName || customer.name}`} title="Editar Cliente">
                               <Edit className="w-4 h-4" />
                             </Button>
                           </Link>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="icon" aria-label={`Eliminar Cliente ${customer.companyName || customer.name}`} disabled={deletingId === customer.id}>
+                              <Button variant="destructive" size="icon" aria-label={`Eliminar Cliente ${customer.companyName || customer.name}`} title="Eliminar Cliente" disabled={deletingId === customer.id}>
                                 {deletingId === customer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                               </Button>
                             </AlertDialogTrigger>
