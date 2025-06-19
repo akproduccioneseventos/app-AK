@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FilePlus2, Loader2, AlertTriangle, Search, Filter, Settings } from 'lucide-react';
+import { FilePlus2, Loader2, AlertTriangle, Search, Filter, Settings, Palette } from 'lucide-react'; // Added Palette
 import { InvoiceListItem } from '@/components/invoice-list-item';
 import type { Invoice, InvoiceStatus } from '@/types/invoice';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -136,7 +136,7 @@ export default function InvoicesPage() {
         </h1>
         <div className="flex gap-2 flex-wrap">
           <Link href="/settings/templates" passHref>
-            <Button variant="outline"><Settings className="w-4 h-4 mr-2"/>Config. Plantilla</Button>
+            <Button variant="outline"><Palette className="w-4 h-4 mr-2"/>Config. Factura</Button>
           </Link>
           <Link href="/invoices/new" passHref>
             <Button>
@@ -252,3 +252,4 @@ export default function InvoicesPage() {
     </div>
   );
 }
+
