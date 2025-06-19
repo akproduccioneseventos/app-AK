@@ -2,7 +2,7 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent } from 'lucide-react';
+import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon } from 'lucide-react'; // Added FileTextIcon
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 
@@ -71,6 +71,15 @@ export default function PresupuestoCard({
             {isAssigning ? (isAssignedToCurrentFiesta ? 'Quitando...' : 'Asignando...') : (isAssignedToCurrentFiesta ? 'Quitar de Fiesta' : 'Asignar a Fiesta')}
           </Button>
         )}
+        
+        {presupuesto.estado === 'Aceptado' && !presupuesto.invoiceId && (
+          <Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref className="w-full">
+            <Button variant="default" size="sm" className="w-full">
+              <FileTextIcon className="w-4 h-4 mr-2" /> Crear Factura
+            </Button>
+          </Link>
+        )}
+
         {presupuesto.estado === 'Facturado' && presupuesto.invoiceId && (
           <Link href={`/invoices/${presupuesto.invoiceId}`} passHref className="w-full">
             <Button variant="outline" size="sm" className="w-full border-green-500 text-green-600 hover:bg-green-50">

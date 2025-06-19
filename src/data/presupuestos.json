@@ -1,1 +1,34 @@
-[]
+[
+  {
+    "clienteNombre": "Alexander",
+    "eventoTipo": "Boda",
+    "eventoFecha": "2025-06-29T03:00:00.000Z",
+    "invitadosCantidad": 100,
+    "salonFiestas": "Club Uruguay",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_1749932774671_yiesfx9",
+        "nombreServicio": "Decoracion basica",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 8000,
+        "costoTotalItem": 8000,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_1749933215223_3tmlplq",
+        "nombreServicio": "Mozo",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "categoriaServicio": "Servicio de catering"
+      }
+    ],
+    "costoTotalEstimado": 10900,
+    "timestamp": "2025-06-19T01:57:41.586Z",
+    "notas": "Salón: Club Uruguay",
+    "id": "pres_1750298261586_4k4zp91",
+    "estado": "Borrador"
+  }
+]
