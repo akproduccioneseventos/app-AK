@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, type FormEvent } from 'react';
+import React, { useState, useEffect, type FormEvent } from 'react'; // Ensure React is imported for React.use
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function EditCustomerPage({ params }: { params: { id: string } }) {
+export default function EditCustomerPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+  const params = React.use(paramsProp); // Unwrap the params promise
   const router = useRouter();
   const { toast } = useToast();
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -37,16 +38,14 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
-  // El campo de email se elimina
-  // El campo 'street' para dirección se elimina
   const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
 
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
-  const [partyTime, setPartyTime] = useState(''); // Campo de texto simple para horario
+  const [partyTime, setPartyTime] = useState('');
   const [partyType, setPartyType] = useState('');
   const [guestCount, setGuestCount] = useState<string>('');
-  const [partyForWhom, setPartyForWhom] = useState(''); // Nuevo campo
+  const [partyForWhom, setPartyForWhom] = useState('');
   const [venueName, setVenueName] = useState('');
   const [currentContractFile, setCurrentContractFile] = useState<string | null>(null);
   const [currentBudgetFile, setCurrentBudgetFile] = useState<string | null>(null);
@@ -58,27 +57,28 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
+  // Use the unwrapped params.id
+  const customerIdFromParams = params.id;
+
   useEffect(() => {
     async function loadCustomer() {
       setIsLoading(true);
       setNotFound(false);
       try {
-        const loadedCustomer = await getCustomerById(params.id);
+        const loadedCustomer = await getCustomerById(customerIdFromParams); // Use unwrapped ID
         if (loadedCustomer) {
           setCustomer(loadedCustomer);
           setName(loadedCustomer.name || '');
           setCompanyName(loadedCustomer.companyName || '');
           setPhone(loadedCustomer.phone || '');
-          // setEmail(loadedCustomer.email || ''); // Email eliminado
           setTaxId(loadedCustomer.taxId || ''); 
-          // setStreet(loadedCustomer.address?.street || ''); // Street eliminado
           setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
 
           setPartyDate(loadedCustomer.partyDate ? new Date(loadedCustomer.partyDate) : undefined);
           setPartyTime(loadedCustomer.partyTime || '');
           setPartyType(loadedCustomer.partyType || '');
           setGuestCount(loadedCustomer.guestCount?.toString() || '');
-          setPartyForWhom(loadedCustomer.partyForWhom || ''); // Cargar nuevo campo
+          setPartyForWhom(loadedCustomer.partyForWhom || '');
           setVenueName(loadedCustomer.venueName || '');
           setCurrentContractFile(loadedCustomer.contractFileName || null);
           setCurrentBudgetFile(loadedCustomer.budgetFileName || null);
@@ -92,16 +92,14 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         setIsLoading(false);
       }
     }
-    if (params.id) {
+    if (customerIdFromParams) { // Use unwrapped ID
       loadCustomer();
     }
-  }, [params.id]);
+  }, [customerIdFromParams]); // Use unwrapped ID in dependency array
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!customer) return;
-
-    // Validaciones client-side eliminadas. La validación del servidor para nombre/empresa se mantiene.
 
     setIsSaving(true);
     const formData = new FormData();
@@ -113,14 +111,13 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     if (companyName.trim()) formData.append('companyName', companyName.trim());
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-    // No se añade email ni street al FormData
     formData.append('estadoCliente', estadoClienteForm);
     
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
     if (partyType.trim()) formData.append('partyType', partyType.trim());
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
-    if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim()); // Añadir nuevo campo al FormData
+    if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
 
     if (newContractFile) formData.append('contract', newContractFile);
@@ -183,7 +180,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         <div className="flex items-center gap-3">
           <Edit3 className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Editando: <span className="text-primary">{customer?.companyName || customer?.name || params.id}</span>
+            Editando: <span className="text-primary">{customer?.companyName || customer?.name || customerIdFromParams}</span>
           </h1>
         </div>
         <Link href="/customers" passHref>
@@ -203,7 +200,6 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
               <div><Label htmlFor="company-name">Empresa</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={isSaving || isDeleting}/></div>
             </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {/* Email field removed */}
                 <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/></div>
                 <div><Label htmlFor="customer-taxid">Cédula / RUT</Label><Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} disabled={isSaving || isDeleting}/></div>
             </div>
@@ -220,7 +216,6 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                 </Select>
               </div>
             </div>
-            {/* Dirección (street) field removed */}
           </CardContent>
 
           <Separator className="my-6" />
@@ -250,7 +245,6 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
                   <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1" disabled={isSaving || isDeleting}/>
                 </div>
             </div>
-            {/* Nuevo campo "Para quién es la fiesta" */}
             <div className="space-y-2">
               <Label htmlFor="party-for-whom">Para quién es la Fiesta</Label>
               <Input 
