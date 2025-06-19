@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UploadCloud, Palette, Save, ArrowLeft, Info, Image as ImageIconLucide, AlertTriangle, Loader2 } from 'lucide-react';
-import NextImage from 'next/image'; // Changed from 'next/image' to NextImage
+import NextImage from 'next/image'; 
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import React, { useState, type ChangeEvent, useEffect, useCallback } from 'react';
@@ -138,7 +138,7 @@ export default function InvoiceTemplateCustomizationPage() {
             Apariencia de Facturas
           </h1>
         </div>
-        <Link href="/settings" passHref>
+        <Link href="/invoices" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver
