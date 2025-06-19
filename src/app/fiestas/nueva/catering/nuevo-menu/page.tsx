@@ -179,7 +179,19 @@ export default function NuevoMenuPersonalizadoPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2"><Label htmlFor="menu-name" className="text-base">Nombre del Menú *</Label><Input id="menu-name" value={menuName} onChange={(e) => setMenuName(e.target.value)} className="text-base p-3" required/></div>
           <div className="space-y-2"><Label htmlFor="menu-description" className="text-base">Descripción (Opcional)</Label><Input id="menu-description" value={menuDescription} onChange={(e) => setMenuDescription(e.target.value)} className="text-base p-3"/></div>
-          <div className="space-y-2"><Label htmlFor="menu-template-type" className="text-base">Tipo de Plantilla</Label><Select value={menuTemplateType} onValueChange={(value) => setMenuTemplateType(value as FullMenu['templateType'])}><SelectTrigger id="menu-template-type" className="text-base p-3 h-auto"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Personalizado">Personalizado</SelectItem><SelectItem value="Económico">Económico</SelectItem><SelectItem value="Premium">Premium</SelectItem><SelectItem value="Infantil">Infantil</SelectItem></SelectContent></Select></div>
+          <div className="space-y-2">
+            <Label htmlFor="menu-template-type" className="text-base">Tipo de Menú</Label>
+            <Select value={menuTemplateType} onValueChange={(value) => setMenuTemplateType(value as FullMenu['templateType'])}>
+              <SelectTrigger id="menu-template-type" className="text-base p-3 h-auto"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Personalizado">Personalizado</SelectItem>
+                <SelectItem value="Menú de Entradas">Menú de Entradas</SelectItem>
+                <SelectItem value="Menú de Platos Principales">Menú de Platos Principales</SelectItem>
+                <SelectItem value="Menú para Adolescente">Menú para Adolescente</SelectItem>
+                <SelectItem value="Menú para Niños">Menú para Niños</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
 

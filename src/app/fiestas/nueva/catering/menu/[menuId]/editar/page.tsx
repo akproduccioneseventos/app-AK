@@ -250,7 +250,19 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
         <CardContent className="space-y-4">
           <div className="space-y-2"><Label htmlFor="menu-name-edit" className="text-base">Nombre del Menú *</Label><Input id="menu-name-edit" value={menuName} onChange={(e) => setMenuName(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/></div>
           <div className="space-y-2"><Label htmlFor="menu-description-edit" className="text-base">Descripción (Opcional)</Label><Input id="menu-description-edit" value={menuDescription} onChange={(e) => setMenuDescription(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting}/></div>
-          <div className="space-y-2"><Label htmlFor="menu-template-type-edit" className="text-base">Tipo de Plantilla</Label><Select value={menuTemplateType} onValueChange={(value) => setMenuTemplateType(value as FullMenu['templateType'])} disabled={isSaving || isDeleting}><SelectTrigger id="menu-template-type-edit" className="text-base p-3 h-auto"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Personalizado">Personalizado</SelectItem><SelectItem value="Económico">Económico</SelectItem><SelectItem value="Premium">Premium</SelectItem><SelectItem value="Infantil">Infantil</SelectItem></SelectContent></Select></div>
+          <div className="space-y-2">
+            <Label htmlFor="menu-template-type-edit" className="text-base">Tipo de Menú</Label>
+            <Select value={menuTemplateType} onValueChange={(value) => setMenuTemplateType(value as FullMenu['templateType'])} disabled={isSaving || isDeleting}>
+              <SelectTrigger id="menu-template-type-edit" className="text-base p-3 h-auto"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Personalizado">Personalizado</SelectItem>
+                <SelectItem value="Menú de Entradas">Menú de Entradas</SelectItem>
+                <SelectItem value="Menú de Platos Principales">Menú de Platos Principales</SelectItem>
+                <SelectItem value="Menú para Adolescente">Menú para Adolescente</SelectItem>
+                <SelectItem value="Menú para Niños">Menú para Niños</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
 

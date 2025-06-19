@@ -29,10 +29,11 @@ export interface FullMenu { // Representa un Menú completo guardado
   name: string; // ej: 'Menú Clásico Casamiento'
   description: string; // Descripción general del menú
   items: MenuItem[]; // Lista de platos
-  templateType?: 'Económico' | 'Premium' | 'Infantil' | 'Personalizado'; // Tipo de plantilla
+  templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú para Niños'; // Tipo de plantilla/menu
   createdAt?: string; // ISO date string
   updatedAt?: string; // ISO date string
 }
 
 // Para el formulario, antes de tener un ID de FullMenu
 export type NewMenuFormData = Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>;
+
