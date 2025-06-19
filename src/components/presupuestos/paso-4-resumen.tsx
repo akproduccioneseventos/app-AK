@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -9,12 +10,12 @@ import { Label } from '@/components/ui/label';
 import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
-import React, { useEffect, useState } from 'react'; // Import React
+import React, { useEffect, useState } from 'react'; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
-import { Separator } from '../ui/separator'; // Added Separator
+import { Separator } from '../ui/separator'; 
 
 // Company Info Constants from PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
@@ -48,7 +49,6 @@ const formatDate = (dateString?: string, shortMonth = false) => {
   if (!dateString) return 'Fecha no especificada';
   try {
     const date = new Date(dateString);
-     // For dates coming from DatePicker, they are already local. For ISO strings, ensure UTC.
     const year = dateString.includes('T') ? date.getUTCFullYear() : date.getFullYear();
     const month = dateString.includes('T') ? date.getUTCMonth() : date.getMonth();
     const day = dateString.includes('T') ? date.getUTCDate() : date.getDate();
@@ -167,6 +167,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   };
   
   const handleWhatsAppSend = () => window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
+  
   const handlePrint = () => {
     console.log('Print button on Resumen step clicked, attempting window.print()');
     window.print();
@@ -175,7 +176,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   return (
     <div className="space-y-6">
       <Card className="shadow-lg print:shadow-none print:border-none" id="budget-summary-printable">
-        <CardHeader className="bg-muted/10 p-4 md:p-6 print:p-2">
+        <CardHeader className="bg-muted/10 p-4 md:p-6 print:p-2 print:bg-transparent">
           <h2 className="text-lg md:text-xl font-bold text-center mb-2 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h2>
           <div className="flex flex-col md:flex-row justify-between items-start text-xs print:text-[8pt]">
             <div className="space-y-px mb-2 md:mb-0">
@@ -192,7 +193,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
             )}
           </div>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 print:p-2 space-y-4">
+        <CardContent className="p-4 md:p-6 print:p-2 space-y-4 print:space-y-2">
           {displaySettings.showClientData && displaySettings.showEventTypeAndDate && (
             <section className="my-2 print:my-1 text-sm print:text-[9pt] text-center">
                 <p>
@@ -262,7 +263,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
             <div className="w-full max-w-[250px] print:max-w-[200px] space-y-0.5">
-              {descuentoAplicado > 0 && displaySettings.showPriceBreakdown && ( // Solo mostrar subtotal y descuento si hay desglose
+              {descuentoAplicado > 0 && displaySettings.showPriceBreakdown && ( 
                 <>
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
@@ -323,7 +324,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           </footer>
         </CardContent>
       </Card>
-
+      
       <Card className="shadow-md border-primary/20 print:hidden">
         <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle><CardDescription>Copia, imprime o envía el resumen.</CardDescription></CardHeader>
         <CardContent className="p-4 md:p-6 space-y-3">

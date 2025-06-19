@@ -238,10 +238,9 @@ export default function NuevoPresupuestoPage() {
       case 2: return <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} />;
       case 3:
         const presupuestoCalculado = calcularPresupuestoDesdeForm(formData);
-        // Creamos un objeto Presupuesto completo temporal para el resumen, aunque no tenga ID real aún
         const presupuestoParaResumen: Presupuesto = {
             ...presupuestoCalculado,
-            id: 'temp-summary', // ID temporal solo para la prop
+            id: 'temp-summary', 
             estado: 'Borrador',
             invoiceId: undefined,
         };
@@ -252,16 +251,16 @@ export default function NuevoPresupuestoPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-0">
-      <Card className="shadow-xl overflow-hidden border-primary/20">
-        <CardHeader className="bg-primary/10 p-6">
+      <Card className="shadow-xl overflow-hidden border-primary/20 print:p-0 print:m-0 print:shadow-none print:border-none">
+        <CardHeader className="bg-primary/10 p-6 print:hidden">
           <Progress value={progreso} className="w-full h-2 mb-4" />
           <CardTitle className="font-headline text-3xl text-primary">{titulosPasos[formData.pasoActual - 1]}</CardTitle>
           <CardDescription className="text-lg">{descripcionesPasos[formData.pasoActual - 1]} (Paso {formData.pasoActual} de {TOTAL_PASOS})</CardDescription>
         </CardHeader>
-        <CardContent className="p-6 md:p-8 min-h-[400px]">
+        <CardContent className="p-6 md:p-8 min-h-[400px] print:p-0 print:pt-0 print:pb-0">
           {renderPaso()}
         </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 bg-muted/50 border-t">
+        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 bg-muted/50 border-t print:hidden">
           <Button variant="outline" onClick={handlePrev} disabled={formData.pasoActual === 1 || isSaving || isLoadingInitialData} className="w-full sm:w-auto">
             <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
           </Button>
