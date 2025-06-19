@@ -111,7 +111,7 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     actionLabel: 'Ir a Clientes',
   },
   {
-    title: "Configuración de Factura",
+    title: "Configuración de factura",
     description: "Personaliza el logo, colores y diseño de tus facturas.",
     href: "/settings/templates",
     icon: Palette,
