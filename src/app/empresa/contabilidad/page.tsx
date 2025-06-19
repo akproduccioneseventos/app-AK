@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info } from 'lucide-react';
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon } from 'lucide-react'; // Added Palette and SettingsIcon
 import { useToast } from '@/hooks/use-toast';
 import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomers } from '@/app/actions/customers';
@@ -84,13 +84,26 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: FileTextIcon,
     actionLabel: 'Ir a Facturas',
   },
-  // El "Registro de Pagos" general fue eliminado
   {
     title: 'Gestión de Clientes',
     description: 'Consulta y administra la información de tus clientes confirmados.',
     href: '/customers',
     icon: Users,
     actionLabel: 'Ir a Clientes',
+  },
+  {
+    title: "Apariencia de Facturas",
+    description: "Personaliza el logo, colores y diseño de tus facturas.",
+    href: "/settings/templates",
+    icon: Palette,
+    actionLabel: "Diseño Facturas"
+  },
+  {
+    title: "Configuración de Presupuestos",
+    description: "Define qué elementos mostrar al imprimir o compartir presupuestos.",
+    href: "/settings/budget-display",
+    icon: SettingsIcon,
+    actionLabel: "Contenido Presupuesto"
   },
 ];
 
