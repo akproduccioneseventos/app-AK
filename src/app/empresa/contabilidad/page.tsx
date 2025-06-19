@@ -83,7 +83,7 @@ interface AccesoDirectoItem {
 
 const accesosDirectosItems: AccesoDirectoItem[] = [
   {
-    title: 'Gestión de Prospectos (CRM)',
+    title: 'CRM',
     description: 'Visualiza y gestiona tu embudo de ventas y clientes potenciales.',
     href: '/contabilidad/crm',
     icon: KanbanSquare,
@@ -373,3 +373,4 @@ export default function ContabilidadDashboardPage() {
     </div>
   );
 }
+
