@@ -7,20 +7,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban, CakeSlice, PlusCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { MusicaFiesta } from '@/types/fiesta';
 import { getFiestaActual, updateMusicaFiestaActual } from '@/app/actions/fiesta-actual';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge'; // Para mostrar las canciones
+
+const cancionesSugeridasTortaBrindis = [
+  "Llego la hora de cortar la torta",
+  "Quince primaveras",
+  "Brindis",
+  "Amigos",
+  "Feliz cumpleaños"
+];
 
 export default function MusicaFiestaPage() {
   const { toast } = useToast();
   const [musicaData, setMusicaData] = useState<MusicaFiesta>({
     cancionEntrada: '',
     cancionVals: '',
+    cancionesTortaBrindis: [],
     playlistFiesta: '',
     listaNoReproducir: '',
   });
+  const [nuevaCancionTorta, setNuevaCancionTorta] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,12 +43,15 @@ export default function MusicaFiestaPage() {
     try {
       const fiestaData = await getFiestaActual();
       if (fiestaData.musica) {
-        setMusicaData(fiestaData.musica);
+        setMusicaData({
+          ...fiestaData.musica,
+          cancionesTortaBrindis: fiestaData.musica.cancionesTortaBrindis || [], // Asegurar que sea un array
+        });
       } else {
-        // Si no hay datos de música, inicializa con valores por defecto
         setMusicaData({
           cancionEntrada: '',
           cancionVals: '',
+          cancionesTortaBrindis: [],
           playlistFiesta: '',
           listaNoReproducir: '',
         });
@@ -54,8 +69,27 @@ export default function MusicaFiestaPage() {
     loadMusicaData();
   }, [loadMusicaData]);
 
-  const handleInputChange = (field: keyof MusicaFiesta, value: string) => {
+  const handleInputChange = (field: Exclude<keyof MusicaFiesta, 'cancionesTortaBrindis'>, value: string) => {
     setMusicaData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddCancionTortaBrindis = (songName: string) => {
+    if (songName.trim() === '') return;
+    setMusicaData(prev => {
+      const currentSongs = prev.cancionesTortaBrindis || [];
+      if (!currentSongs.includes(songName.trim())) {
+        return { ...prev, cancionesTortaBrindis: [...currentSongs, songName.trim()] };
+      }
+      return prev;
+    });
+    setNuevaCancionTorta(''); // Limpiar input después de añadir
+  };
+
+  const handleRemoveCancionTortaBrindis = (songToRemove: string) => {
+    setMusicaData(prev => ({
+      ...prev,
+      cancionesTortaBrindis: (prev.cancionesTortaBrindis || []).filter(song => song !== songToRemove),
+    }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -68,7 +102,10 @@ export default function MusicaFiestaPage() {
           title: "¡Música Guardada!",
           description: "Las preferencias musicales para la fiesta han sido guardadas.",
         });
-        setMusicaData(result.updatedData);
+        setMusicaData({
+            ...result.updatedData,
+            cancionesTortaBrindis: result.updatedData.cancionesTortaBrindis || [],
+        });
       } else {
         throw new Error(result.error || "Error desconocido al guardar la música.");
       }
@@ -119,7 +156,7 @@ export default function MusicaFiestaPage() {
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl">Preferencias Musicales</CardTitle>
+            <CardTitle className="font-headline text-xl">Preferencias Musicales Generales</CardTitle>
             <CardDescription>Define las canciones clave y el ambiente musical para tu evento.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -151,9 +188,75 @@ export default function MusicaFiestaPage() {
               />
             </div>
 
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium font-headline text-primary flex items-center gap-2">
+                <CakeSlice className="w-5 h-5"/> Música para el Corte de la Torta y Brindis
+              </h3>
+              <div className="space-y-2">
+                <Label htmlFor="nueva-cancion-torta" className="text-sm">Añadir canción manualmente:</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="nueva-cancion-torta"
+                    value={nuevaCancionTorta}
+                    onChange={(e) => setNuevaCancionTorta(e.target.value)}
+                    placeholder="Nombre de la canción - Artista"
+                    className="text-sm p-2"
+                    disabled={isSaving}
+                  />
+                  <Button type="button" size="sm" onClick={() => handleAddCancionTortaBrindis(nuevaCancionTorta)} disabled={isSaving || !nuevaCancionTorta.trim()}>
+                    <PlusCircle className="w-4 h-4 mr-1"/> Añadir
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm mb-2 text-muted-foreground">Sugerencias (haz clic para añadir):</p>
+                <div className="flex flex-wrap gap-2">
+                  {cancionesSugeridasTortaBrindis.map(song => (
+                    <Button
+                      key={song}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAddCancionTortaBrindis(song)}
+                      disabled={isSaving || musicaData.cancionesTortaBrindis?.includes(song)}
+                      className="text-xs"
+                    >
+                      {song}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              {musicaData.cancionesTortaBrindis && musicaData.cancionesTortaBrindis.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-sm font-medium">Canciones seleccionadas para Torta/Brindis:</p>
+                  <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-muted/50">
+                    {musicaData.cancionesTortaBrindis.map(song => (
+                      <Badge key={song} variant="secondary" className="text-sm py-1 px-2">
+                        {song}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 ml-1.5 text-muted-foreground hover:text-destructive"
+                          onClick={() => handleRemoveCancionTortaBrindis(song)}
+                          disabled={isSaving}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+            
             <div className="space-y-2">
               <Label htmlFor="playlist-fiesta" className="text-base flex items-center gap-2">
-                <ListMusic className="w-5 h-5 text-primary/80" /> Lista de Canciones para la Fiesta
+                <ListMusic className="w-5 h-5 text-primary/80" /> Playlist General para la Fiesta
               </Label>
               <Textarea
                 id="playlist-fiesta"

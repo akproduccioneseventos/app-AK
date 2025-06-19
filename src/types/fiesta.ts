@@ -119,6 +119,7 @@ export interface EventWebPageSettings {
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
+  cancionesTortaBrindis?: string[]; // Música para corte de torta y brindis
   playlistFiesta?: string;
   listaNoReproducir?: string;
 }

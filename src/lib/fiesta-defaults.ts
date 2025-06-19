@@ -94,6 +94,7 @@ export const defaultWebPageSettings: EventWebPageSettings = {
 export const defaultMusicaFiesta: MusicaFiesta = {
   cancionEntrada: '',
   cancionVals: '',
+  cancionesTortaBrindis: [],
   playlistFiesta: '',
   listaNoReproducir: '',
 };
@@ -165,7 +166,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   },
   invitados: [],
   webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },
-  musica: { ...defaultMusicaFiesta },
+  musica: { ...defaultMusicaFiesta, cancionesTortaBrindis: [] },
   reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
   bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
   listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
