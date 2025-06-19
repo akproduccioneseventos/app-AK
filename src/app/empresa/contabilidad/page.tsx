@@ -17,10 +17,29 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, Payment } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
-import { MonthlySalesChart, type MonthlyChartData } from '@/components/charts/MonthlySalesChart';
-import { PaymentStatusPieChart, type PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
+// import { MonthlySalesChart, type MonthlyChartData } from '@/components/charts/MonthlySalesChart'; // Original import
+// import { PaymentStatusPieChart, type PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart'; // Original import
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import dynamic from 'next/dynamic'; // Import dynamic
+import type { MonthlyChartData } from '@/components/charts/MonthlySalesChart'; // Type import
+import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart'; // Type import
+
+const MonthlySalesChart = dynamic(() => 
+  import('@/components/charts/MonthlySalesChart').then(mod => mod.MonthlySalesChart), 
+  { 
+    ssr: false, 
+    loading: () => <Skeleton className="h-[300px] w-full" /> 
+  }
+);
+
+const PaymentStatusPieChart = dynamic(() => 
+  import('@/components/charts/PaymentStatusPieChart').then(mod => mod.PaymentStatusPieChart), 
+  { 
+    ssr: false, 
+    loading: () => <Skeleton className="h-[300px] w-full" /> 
+  }
+);
 
 
 const formatCurrency = (amount?: number) => {
@@ -297,17 +316,8 @@ export default function ContabilidadDashboardPage() {
           <CardDescription>Visualizaciones de la evolución financiera y rendimiento.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-[300px] w-full" />
-              <Skeleton className="h-[300px] w-full" />
-            </>
-          ) : (
-            <>
-              <MonthlySalesChart data={monthlyChartData} />
-              <PaymentStatusPieChart data={paymentPieChartData} />
-            </>
-          )}
+          <MonthlySalesChart data={monthlyChartData} />
+          <PaymentStatusPieChart data={paymentPieChartData} />
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
            <Info className="w-4 h-4 mr-2"/> Gráficos basados en los últimos 12 meses y estado actual de pagos. Filtros se añadirán.

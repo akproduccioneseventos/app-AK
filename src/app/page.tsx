@@ -8,13 +8,22 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, ClipboardList, Users, PlusCircle, PartyPopper, MapPin, FileText as FileTextIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { DashboardCalendar } from '@/components/dashboard-calendar';
+// import { DashboardCalendar } from '@/components/dashboard-calendar'; // Original import
 import { CountdownTimer } from '@/components/countdown-timer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { useToast } from '@/hooks/use-toast';
+import dynamic from 'next/dynamic'; // Import dynamic
+
+const DashboardCalendar = dynamic(() => 
+  import('@/components/dashboard-calendar').then(mod => mod.DashboardCalendar), 
+  { 
+    ssr: false,
+    loading: () => <Skeleton className="h-[304px] w-full max-w-[274px] mx-auto rounded-md border shadow-sm" /> 
+  }
+);
 
 const formatCurrency = (amount?: number | string) => {
   if (amount === undefined || amount === null || amount === '') return "N/A";
@@ -197,7 +206,7 @@ export default function DashboardPage() {
               <CardTitle className="font-headline text-lg">Calendario del Evento</CardTitle>
             </CardHeader>
             <CardContent className="p-0 flex justify-center">
-              <DashboardCalendar eventDate={fiestaActual.configuracion.fechaEvento ? new Date(fiestaActual.configuracion.fechaEvento) : undefined} />
+              <DashboardCalendar eventDate={fiestaActual.configuracion.fechaEvento ? new Date(fiestaActual.configuracion.fechaEvento).toISOString() : undefined} />
             </CardContent>
              <CardFooter className="pt-3 text-center">
                 <p className="text-xs text-muted-foreground">Fecha del evento marcada.</p>
