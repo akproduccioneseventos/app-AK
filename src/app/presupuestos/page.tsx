@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter } from 'lucide-react';
+import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon } from 'lucide-react'; // Added SettingsIcon
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -120,12 +120,20 @@ export default function PresupuestosPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8 text-center">
-          <Link href="/presupuestos/nuevo" passHref>
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-10 py-6 text-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <PlusCircle className="w-7 h-7 mr-3" />
-              Crear Nuevo Presupuesto
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <Link href="/presupuestos/nuevo" passHref>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-10 py-6 text-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
+                <PlusCircle className="w-7 h-7 mr-3" />
+                Crear Nuevo Presupuesto
+              </Button>
+            </Link>
+            <Link href="/settings/budget-display" passHref>
+              <Button variant="outline" size="lg" className="rounded-full px-10 py-6 text-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-primary text-primary hover:bg-primary/5 w-full sm:w-auto">
+                <SettingsIcon className="w-6 h-6 mr-3"/>
+                Configurar Presupuestos
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
 

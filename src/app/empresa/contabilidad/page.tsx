@@ -117,13 +117,6 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: Palette,
     actionLabel: "Diseño Facturas"
   },
-  {
-    title: "Configuración de Presupuestos",
-    description: "Define qué elementos mostrar al imprimir o compartir presupuestos.",
-    href: "/settings/budget-display",
-    icon: SettingsIcon,
-    actionLabel: "Contenido Presupuesto"
-  },
 ];
 
 
