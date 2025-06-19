@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
@@ -11,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, LayoutElement } from '@/types/fiesta';
@@ -32,8 +33,10 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
+  // AccordionTrigger, // We will use AccordionPrimitive.Trigger for the specific case
 } from "@/components/ui/accordion";
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
+import { cn } from "@/lib/utils";
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
   'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Centros de Mesa', 'Señalética', 'Detalles Especiales', 'Globos', 'Otro'
@@ -173,7 +176,7 @@ export default function DecoracionYDisenoEventoPage() {
     }
     setDecoracionData(prev => {
       const items = prev.items || [];
-      if (currentItem.id) { // Editing existing
+      if (currentItem.id && items.some(it => it.id === currentItem.id)) { // Editing existing
         return { ...prev, items: items.map(it => it.id === currentItem.id ? (currentItem as DecorationItem) : it) };
       } else { // Adding new
         return { ...prev, items: [...items, { ...currentItem, id: `decItem_${Date.now()}` } as DecorationItem] };
@@ -317,18 +320,32 @@ export default function DecoracionYDisenoEventoPage() {
             <Accordion type="multiple" className="w-full space-y-3">
               {(decoracionData.zonasContratadas || defaultZonasContratadas).map(zona => (
                 <AccordionItem key={zona.id} value={zona.id} className="border rounded-lg shadow-sm bg-card">
-                  <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-                    <div className="flex items-center justify-between w-full">
-                        <span className="flex items-center gap-2">{React.createElement(
-                            zona.id === 'atras_torta' ? CakeSlice :
-                            zona.id === 'frente_salon' ? Building :
-                            zona.id === 'zona_regalos' ? Gift :
-                            zona.id === 'zona_fotografia' ? Camera : SparklesIcon,
-                        { className: 'w-5 h-5 text-primary/80'})} {zona.nombreDisplay}</span>
-                        <Switch checked={zona.activada} onCheckedChange={value => handleZonaChange(zona.id, 'activada', value)} onClick={e => e.stopPropagation()} className="ml-auto mr-2"/>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pt-0 pb-4 space-y-3 border-t">
+                  <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
+                    <AccordionPrimitive.Trigger
+                      className={cn(
+                        "flex flex-1 items-center gap-2 text-lg font-medium text-primary hover:no-underline",
+                        "[&[data-state=open]>svg:last-child]:rotate-180"
+                      )}
+                    >
+                      {React.createElement(
+                        zona.id === 'atras_torta' ? CakeSlice :
+                        zona.id === 'frente_salon' ? Building :
+                        zona.id === 'zona_regalos' ? Gift :
+                        zona.id === 'zona_fotografia' ? Camera : SparklesIcon,
+                        { className: 'w-5 h-5 text-primary/80'}
+                      )}
+                      {zona.nombreDisplay}
+                      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
+                    </AccordionPrimitive.Trigger>
+                    <Switch
+                        checked={zona.activada}
+                        onCheckedChange={value => handleZonaChange(zona.id, 'activada', value)}
+                        onClick={e => e.stopPropagation()}
+                        className="ml-4 flex-shrink-0"
+                        aria-label={`Activar ${zona.nombreDisplay}`}
+                    />
+                  </AccordionPrimitive.Header>
+                  <AccordionContent className="px-4 pt-0 pb-4 space-y-4 border-t">
                     {zona.activada && (<>
                         <div className="space-y-2 mt-2"><Label htmlFor={`zona-desc-${zona.id}`}>Descripción</Label><Textarea id={`zona-desc-${zona.id}`} value={zona.descripcion || ''} onChange={e => handleZonaChange(zona.id, 'descripcion', e.target.value)} rows={2} placeholder="Detalles de decoración para esta zona"/></div>
                         <div className="space-y-2"><Label htmlFor={`zona-img-${zona.id}`}>URL Imagen de Referencia</Label><Input id={`zona-img-${zona.id}`} type="url" value={zona.imagenReferenciaUrl || ''} onChange={e => handleZonaChange(zona.id, 'imagenReferenciaUrl', e.target.value)} placeholder="https://ejemplo.com/imagen_zona.jpg"/>
@@ -409,5 +426,6 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
-
         
+
+    
