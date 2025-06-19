@@ -477,6 +477,7 @@ export default function DecoracionYDisenoEventoPage() {
     }
   };
 
+
   if (isLoading) return ( <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando datos...</p></div>);
   if (error) return ( <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error</h2><p className="text-muted-foreground">{error}</p><Button onClick={loadDecoracionData} className="mt-4">Reintentar</Button></div>);
 
@@ -657,4 +658,3 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
-    
