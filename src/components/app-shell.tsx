@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog } from 'lucide-react'; // Added BellRing and UserCog
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -194,8 +194,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
+  const isBudgetCreationStep4 = pathname === '/presupuestos/nuevo' && (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('pasoActual') === '4'); // Example check
 
-  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isBudgetViewPage || isInvoiceViewPage) {
+
+  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isBudgetViewPage || isInvoiceViewPage || isBudgetCreationStep4) {
     return <main className="min-h-screen">{children}</main>;
   }
   
