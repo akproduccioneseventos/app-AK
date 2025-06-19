@@ -47,7 +47,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from '@/components/ui/select'; // For layout element type
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from '@/components/ui/select';
 
 // --- START: Logic from diseno-salon (merged here) ---
 const predefinedElementsPalette: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>[] = [
@@ -74,7 +74,6 @@ const groupedPaletteItems = predefinedElementsPalette.reduce((acc, item) => {
 
 const uniqueCategoriesLayout = Object.keys(groupedPaletteItems).sort();
 const GRID_SNAP_SIZE = 10;
-
 // --- END: Logic from diseno-salon ---
 
 export default function DecoracionYDisenoEventoPage() {
@@ -84,17 +83,14 @@ export default function DecoracionYDisenoEventoPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // State for specific decor items modal
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<DecorationItem> | null>(null);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
 
-  // State for salon layout elements modal
   const [isLayoutElementModalOpen, setIsLayoutElementModalOpen] = useState(false);
   const [currentLayoutElement, setCurrentLayoutElement] = useState<Partial<LayoutElement> & { tempId?: string } | null>(null);
   const [selectedLayoutElementId, setSelectedLayoutElementId] = useState<string | null>(null);
 
-  // Image loading error states
   const [failedMoodboardUrl, setFailedMoodboardUrl] = useState(false);
   const [failedTortaImageUrl, setFailedTortaImageUrl] = useState(false);
   const [failedItemImageUrls, setFailedItemImageUrls] = useState<Set<string>>(new Set());
@@ -182,18 +178,18 @@ export default function DecoracionYDisenoEventoPage() {
     return () => document.removeEventListener('click', handleClickOutsideContextMenu);
   }, [contextMenuOpen]);
 
-
-  // Handlers for Decoracion General
   const handleGeneralDecorChange = (field: keyof Omit<DecoracionData, 'items' | 'paletaColores' | 'decoracionTorta' | 'zonasContratadas' | 'salonElements' | 'salonPlanBackgroundImageUrl' | 'generalNotesSalonLayout'>, value: string) => {
     if (field === 'moodboardImageUrl') setFailedMoodboardUrl(false);
     setDecoracionData(prev => ({ ...prev, [field]: value }));
   };
+
   const handleColorChange = (colorName: keyof ColorPalette, value: string) => {
     setDecoracionData(prev => ({
       ...prev,
       paletaColores: { ...(prev.paletaColores || defaultColorPalette), [colorName]: value },
     }));
   };
+
   const handleDecoracionTortaChange = (field: keyof NonNullable<DecoracionData['decoracionTorta']>, value: string) => {
      if (field === 'imageUrl') setFailedTortaImageUrl(false);
     setDecoracionData(prev => ({
@@ -202,16 +198,17 @@ export default function DecoracionYDisenoEventoPage() {
     }));
   };
 
-  // Handlers for Elementos Decorativos Específicos (Items)
   const openItemModal = (item?: DecorationItem) => {
     setCurrentItem(item ? { ...item } : { name: '', quantity: 1, category: '', estimatedCost: undefined, supplier: '', notes: '', imageUrl: '', dataAiHint: '' });
     setFailedItemImageUrls(prev => { const newSet = new Set(prev); if(item?.imageUrl) newSet.delete(item.imageUrl); return newSet; });
     setIsItemModalOpen(true);
   };
+
   const handleItemFormChange = (field: keyof DecorationItem, value: string | number | undefined) => {
     if(field === 'imageUrl') setFailedItemImageUrls(prev => { const newSet = new Set(prev); if(typeof value === 'string') newSet.delete(value); return newSet; });
     setCurrentItem(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
+
   const handleSaveItem = (e: FormEvent) => {
     e.preventDefault();
     if (!currentItem || !currentItem.name?.trim()) {
@@ -237,13 +234,13 @@ export default function DecoracionYDisenoEventoPage() {
     setCurrentItem(null);
     toast({ title: currentItem.id ? "Elemento Actualizado" : "Elemento Añadido" });
   };
+
   const handleDeleteItem = (itemId: string) => {
     setDecoracionData(prev => ({ ...prev, items: (prev.items || []).filter(it => it.id !== itemId) }));
     toast({ title: "Elemento Eliminado", variant: "destructive" });
     setDeletingItemId(null);
   };
 
-  // Handlers for Zonas Decorativas
   const handleZonaChange = (zonaId: ZonaContratada['id'], field: keyof Omit<ZonaContratada, 'id' | 'nombreDisplay' | 'activada'>, value: string) => {
     if (field === 'imagenReferenciaUrl') setFailedZonaImageUrls(prev => { const newSet = new Set(prev); newSet.delete(value); return newSet; });
     setDecoracionData(prev => ({
@@ -253,6 +250,7 @@ export default function DecoracionYDisenoEventoPage() {
       )
     }));
   };
+
   const toggleZonaActivada = (zonaId: ZonaContratada['id']) => {
     setDecoracionData(prev => ({
       ...prev,
@@ -262,7 +260,6 @@ export default function DecoracionYDisenoEventoPage() {
     }));
   };
 
-  // --- START: Handlers from diseno-salon (merged here) ---
   const openLayoutElementFormModal = (element?: LayoutElement) => {
     if (element) {
       setCurrentLayoutElement({ ...element });
@@ -280,6 +277,7 @@ export default function DecoracionYDisenoEventoPage() {
     setFailedModalLayoutElementImageUrl(false);
     setIsLayoutElementModalOpen(true);
   };
+
   const addFromPalette = (paletteItem: Omit<LayoutElement, 'id' | 'x' | 'y' | 'quantity'>) => {
      setCurrentLayoutElement({
         name: paletteItem.name, quantity: 1, type: 'predefined',
@@ -293,6 +291,7 @@ export default function DecoracionYDisenoEventoPage() {
      setFailedModalLayoutElementImageUrl(false);
      setIsLayoutElementModalOpen(true);
   };
+
   const handleLayoutElementFieldChange = (field: keyof Omit<LayoutElement, 'id'>, rawValue: string | undefined | number) => {
     setCurrentLayoutElement(prevModalElement => {
       if (!prevModalElement) return null;
@@ -317,6 +316,7 @@ export default function DecoracionYDisenoEventoPage() {
       return updatedModalElement;
     });
   };
+
   const handleLayoutElementFormSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!currentLayoutElement || !currentLayoutElement.name?.trim()) {
@@ -349,6 +349,7 @@ export default function DecoracionYDisenoEventoPage() {
     setCurrentLayoutElement(null);
     setSelectedLayoutElementId(null);
   };
+
   const handleRemoveLayoutElement = (elementId?: string) => {
     const idToRemove = elementId || contextMenuTargetId;
     if (!idToRemove) return;
@@ -359,6 +360,7 @@ export default function DecoracionYDisenoEventoPage() {
     toast({ title: "Elemento del Plano Eliminado", variant: "destructive" });
     setContextMenuOpen(false);
   };
+
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
     setDecoracionData(prev => ({
       ...prev,
@@ -367,6 +369,7 @@ export default function DecoracionYDisenoEventoPage() {
       ),
     }));
   };
+
   const handleDuplicateLayoutElement = (elementId?: string) => {
     const idToDuplicate = elementId || contextMenuTargetId;
     if(!idToDuplicate) return;
@@ -386,6 +389,7 @@ export default function DecoracionYDisenoEventoPage() {
     }
     setContextMenuOpen(false);
   };
+
   const moveLayoutElement = (elementId: string | null, direction: 'up' | 'down' | 'front' | 'back') => {
     const idToMove = elementId || contextMenuTargetId;
     if(!idToMove) return;
@@ -404,6 +408,7 @@ export default function DecoracionYDisenoEventoPage() {
     });
     setContextMenuOpen(false);
   };
+
   const handleContextMenu = (event: React.MouseEvent, elementId: string) => {
     event.preventDefault();
     setContextMenuTargetId(elementId);
@@ -416,24 +421,6 @@ export default function DecoracionYDisenoEventoPage() {
       }
     }, 0);
   };
-  const targetLayoutElementForContextMenu = contextMenuTargetId ? (decoracionData.salonElements || []).find(el => el.id === contextMenuTargetId) : null;
-  const canvasGridStyle: CSSProperties = !decoracionData.salonPlanBackgroundImageUrl ? {
-    backgroundImage: `linear-gradient(to right, hsl(var(--border)/0.4) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)/0.4) 1px, transparent 1px)`,
-    backgroundSize: `${GRID_SNAP_SIZE*2}px ${GRID_SNAP_SIZE*2}px, ${GRID_SNAP_SIZE*2}px ${GRID_SNAP_SIZE*2}px`,
-  } : {};
-  const getPaletteIcon = (category?: string) => {
-    switch (category) {
-        case 'Mobiliario': return <Sofa className="w-4 h-4 mr-2 text-primary/80" />;
-        case 'Iluminación': return <Lightbulb className="w-4 h-4 mr-2 text-primary/80" />;
-        case 'Decoración Floral': return <Flower2 className="w-4 h-4 mr-2 text-primary/80" />;
-        case 'Decoración': return <PackageSearch className="w-4 h-4 mr-2 text-primary/80" />;
-        case 'Estructuras': return <LayoutGrid className="w-4 h-4 mr-2 text-primary/80" />;
-        case 'Zona': return <Maximize className="w-4 h-4 mr-2 text-primary/80" />;
-        case 'Equipamiento': return <Music2 className="w-4 h-4 mr-2 text-primary/80" />;
-        default: return <Wand2 className="w-4 h-4 mr-2 text-primary/80" />;
-    }
-  };
-  // --- END: Handlers from diseno-salon ---
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -459,7 +446,6 @@ export default function DecoracionYDisenoEventoPage() {
       const result = await updateDecoracionFiestaActual(dataToSave);
       if (result.success && result.updatedData) {
         toast({ title: "¡Decoración y Diseño Guardados!", description: "Los detalles se han guardado."});
-        // Reload data to ensure consistency, especially for IDs and defaults
         await loadDecoracionData();
       } else {
         throw new Error(result.error || "Error desconocido al guardar.");
@@ -471,16 +457,25 @@ export default function DecoracionYDisenoEventoPage() {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutsideContextMenu = (event: MouseEvent) => {
-      if (contextMenuOpen) {
-        setContextMenuOpen(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutsideContextMenu);
-    return () => document.removeEventListener('click', handleClickOutsideContextMenu);
-  }, [contextMenuOpen]);
+  const targetLayoutElementForContextMenu = contextMenuTargetId ? (decoracionData.salonElements || []).find(el => el.id === contextMenuTargetId) : null;
 
+  const canvasGridStyle: CSSProperties = !decoracionData.salonPlanBackgroundImageUrl ? {
+    backgroundImage: `linear-gradient(to right, hsl(var(--border)/0.4) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)/0.4) 1px, transparent 1px)`,
+    backgroundSize: `${GRID_SNAP_SIZE*2}px ${GRID_SNAP_SIZE*2}px, ${GRID_SNAP_SIZE*2}px ${GRID_SNAP_SIZE*2}px`,
+  } : {};
+
+  const getPaletteIcon = (category?: string): React.ReactElement => {
+    switch (category) {
+        case 'Mobiliario': return <Sofa className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Iluminación': return <Lightbulb className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Decoración Floral': return <Flower2 className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Decoración': return <PackageSearch className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Estructuras': return <LayoutGrid className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Zona': return <Maximize className="w-4 h-4 mr-2 text-primary/80" />;
+        case 'Equipamiento': return <Music2 className="w-4 h-4 mr-2 text-primary/80" />;
+        default: return <Wand2 className="w-4 h-4 mr-2 text-primary/80" />;
+    }
+  };
 
   if (isLoading) return ( <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando datos...</p></div>);
   if (error) return ( <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error</h2><p className="text-muted-foreground">{error}</p><Button onClick={loadDecoracionData} className="mt-4">Reintentar</Button></div>);
@@ -516,7 +511,6 @@ export default function DecoracionYDisenoEventoPage() {
             </AccordionContent>
           </AccordionItem>
 
-          {/* Diseño del Salón (Plano Interactivo) */}
           <AccordionItem value="disenoSalon" className="border rounded-lg shadow-md bg-card">
             <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg">
                 <div className="flex items-center gap-2"><LayoutGrid className="w-5 h-5 text-primary/80"/>Diseño del Salón y Disposición</div>
@@ -577,7 +571,6 @@ export default function DecoracionYDisenoEventoPage() {
             </AccordionContent>
           </AccordionItem>
 
-          {/* Zonas del Evento */}
           <AccordionItem value="zonas" className="border rounded-lg shadow-md bg-card">
              <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg">
                 <div className="flex items-center gap-2"><LayoutDashboard className="w-5 h-5 text-primary/80"/>Zonas Decorativas Específicas</div>
@@ -595,7 +588,6 @@ export default function DecoracionYDisenoEventoPage() {
             </AccordionContent>
           </AccordionItem>
 
-          {/* Elementos Decorativos Específicos (Items) */}
           <AccordionItem value="elementos" className="border rounded-lg shadow-md bg-card">
             <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg">
                 <div className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary/80"/>Otros Elementos Decorativos</div>
@@ -610,7 +602,6 @@ export default function DecoracionYDisenoEventoPage() {
         <CardFooter className="border-t pt-6 mt-6"><Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoading}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}{isSaving ? 'Guardando...' : 'Guardar Decoración y Diseño'}</Button></CardFooter>
       </form>
 
-      {/* Modal para Elementos Decorativos Específicos (Items) */}
       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
         <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle className="font-headline text-lg">{currentItem?.id ? 'Editar' : 'Añadir'} Elemento Decorativo</DialogTitle></DialogHeader>
           <form onSubmit={handleSaveItem} className="space-y-3 py-2 max-h-[70vh] overflow-y-auto pr-2">
@@ -626,7 +617,6 @@ export default function DecoracionYDisenoEventoPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal para Elementos del Plano (LayoutElement) */}
       <Dialog open={isLayoutElementModalOpen} onOpenChange={(isOpen) => { setIsLayoutElementModalOpen(isOpen); if (!isOpen) setSelectedLayoutElementId(null); }}>
         <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle className="font-headline text-lg">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento al Plano</DialogTitle></DialogHeader>
           <form onSubmit={handleLayoutElementFormSubmit} className="space-y-3 py-2 max-h-[70vh] overflow-y-auto pr-2">
@@ -647,7 +637,6 @@ export default function DecoracionYDisenoEventoPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Context Menu for Draggable Elements */}
       <DropdownMenu open={contextMenuOpen} onOpenChange={setContextMenuOpen}>
         <DropdownMenuTrigger ref={contextMenuTriggerRef} className="fixed opacity-0 pointer-events-none" />
          {targetLayoutElementForContextMenu && (
@@ -668,3 +657,4 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
+    
