@@ -32,6 +32,7 @@ import {
   AlertDialogFooter as AlertDialogFooterConfirm,
   AlertDialogHeader as AlertDialogHeaderConfirm,
   AlertDialogTitle as AlertDialogTitleConfirm,
+  AlertDialogTrigger, // Added AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 
 
@@ -50,7 +51,7 @@ export default function GestionRolesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentRol, setCurrentRol] = useState<Partial<Omit<Rol, 'notas'>> | null>(null); 
+  const [currentRol, setCurrentRol] = useState<Partial<Omit<Rol, 'notas'>>> | null>(null); 
   const [porcentajeAportesInput, setPorcentajeAportesInput] = useState<string>(String(DEFAULT_APORTES_PERCENTAGE));
   
   const fetchRoles = useCallback(async () => {
