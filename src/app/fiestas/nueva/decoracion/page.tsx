@@ -37,6 +37,7 @@ import {
   AlertDialogFooter as AlertDialogFooterConfirm,
   AlertDialogHeader as AlertDialogHeaderConfirm,
   AlertDialogTitle as AlertDialogTitleConfirm,
+  AlertDialogTrigger as AlertDialogConfirmTrigger,
 } from "@/components/ui/alert-dialog";
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import {
@@ -452,7 +453,7 @@ export default function DecoracionYDisenoEventoPage() {
           width: Number(el.width) || 50,
           height: Number(el.height) || 50,
           rotation: Number(el.rotation) || 0,
-        }))
+        })),
       };
 
       const result = await updateDecoracionFiestaActual(dataToSave);
@@ -469,6 +470,17 @@ export default function DecoracionYDisenoEventoPage() {
       setIsSaving(false);
     }
   };
+
+  useEffect(() => {
+    const handleClickOutsideContextMenu = (event: MouseEvent) => {
+      if (contextMenuOpen) {
+        setContextMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutsideContextMenu);
+    return () => document.removeEventListener('click', handleClickOutsideContextMenu);
+  }, [contextMenuOpen]);
+
 
   if (isLoading) return ( <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando datos...</p></div>);
   if (error) return ( <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error</h2><p className="text-muted-foreground">{error}</p><Button onClick={loadDecoracionData} className="mt-4">Reintentar</Button></div>);
@@ -590,7 +602,7 @@ export default function DecoracionYDisenoEventoPage() {
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-0 pb-3 space-y-3">
                 <div className="flex justify-end mt-2"><Button type="button" onClick={() => openItemModal()} disabled={isSaving} size="sm"><PlusCircle className="w-4 h-4 mr-2" />Añadir Elemento</Button></div>
-                {(decoracionData.items?.length || 0) > 0 ? (<ScrollArea className="h-auto max-h-[300px] pr-2"><div className="space-y-2">{decoracionData.items?.map(item => (<Card key={item.id} className="bg-muted/40 p-2"><div className="flex justify-between items-start gap-1"><div className="flex-grow"><h4 className="font-semibold text-sm">{item.name} ({item.quantity || 1}x)</h4>{item.category && <p className="text-xs text-muted-foreground">Cat: {item.category}</p>}{item.estimatedCost !== undefined && <p className="text-xs">Costo: ${item.estimatedCost.toFixed(2)}</p>}{item.notes && <p className="text-xs italic">Notas: {item.notes}</p>}</div><div className="flex gap-1 flex-shrink-0"><Button type="button" variant="ghost" size="icon" onClick={() => openItemModal(item)} className="h-6 w-6"><Edit3 className="w-3 h-3" /></Button><AlertDialog open={deletingItemId === item.id} onOpenChange={(open) => !open && setDeletingItemId(null)}><AlertDialogTrigger asChild><Button type="button" variant="ghost" size="icon" onClick={() => setDeletingItemId(item.id)} className="h-6 w-6 text-destructive"><Trash2 className="w-3 h-3" /></Button></AlertDialogTrigger><AlertDialogContentConfirm><AlertDialogHeaderConfirm><AlertDialogTitleConfirm>Eliminar</AlertDialogTitleConfirm><AlertDialogDescriptionConfirm>¿Eliminar "{item.name}"?</AlertDialogDescriptionConfirm></AlertDialogHeaderConfirm><AlertDialogFooterConfirm><AlertDialogCancel>No</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteItem(item.id)} className="bg-destructive">Sí</AlertDialogAction></AlertDialogFooterConfirm></AlertDialogContentConfirm></AlertDialog></div></div></Card>))}</div></ScrollArea>) : (<p className="text-center text-sm text-muted-foreground py-3">No hay elementos específicos.</p>)}
+                {(decoracionData.items?.length || 0) > 0 ? (<ScrollArea className="h-auto max-h-[300px] pr-2"><div className="space-y-2">{decoracionData.items?.map(item => (<Card key={item.id} className="bg-muted/40 p-2"><div className="flex justify-between items-start gap-1"><div className="flex-grow"><h4 className="font-semibold text-sm">{item.name} ({item.quantity || 1}x)</h4>{item.category && <p className="text-xs text-muted-foreground">Cat: {item.category}</p>}{item.estimatedCost !== undefined && <p className="text-xs">Costo: ${item.estimatedCost.toFixed(2)}</p>}{item.notes && <p className="text-xs italic">Notas: {item.notes}</p>}</div><div className="flex gap-1 flex-shrink-0"><Button type="button" variant="ghost" size="icon" onClick={() => openItemModal(item)} className="h-6 w-6"><Edit3 className="w-3 h-3" /></Button><AlertDialogConfirm open={deletingItemId === item.id} onOpenChange={(open) => !open && setDeletingItemId(null)}><AlertDialogConfirmTrigger asChild><Button type="button" variant="ghost" size="icon" onClick={() => setDeletingItemId(item.id)} className="h-6 w-6 text-destructive"><Trash2 className="w-3 h-3" /></Button></AlertDialogConfirmTrigger><AlertDialogContentConfirm><AlertDialogHeaderConfirm><AlertDialogTitleConfirm>Eliminar</AlertDialogTitleConfirm><AlertDialogDescriptionConfirm>¿Eliminar "{item.name}"?</AlertDialogDescriptionConfirm></AlertDialogHeaderConfirm><AlertDialogFooterConfirm><AlertDialogCancel>No</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteItem(item.id)} className="bg-destructive">Sí</AlertDialogAction></AlertDialogFooterConfirm></AlertDialogContentConfirm></AlertDialogConfirm></div></div></Card>))}</div></ScrollArea>) : (<p className="text-center text-sm text-muted-foreground py-3">No hay elementos específicos.</p>)}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -648,9 +660,8 @@ export default function DecoracionYDisenoEventoPage() {
                 <DropdownMenuItem onClick={() => moveLayoutElement(null, 'down')}><ArrowDown className="mr-2 h-4 w-4" /> Atrás</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => moveLayoutElement(null, 'back')}><ChevronsDown className="mr-2 h-4 w-4" /> Al Fondo</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                 <AlertDialog><AlertDialogTrigger asChild><DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" /> Eliminar</DropdownMenuItem></AlertDialogTrigger>
+                 <AlertDialogConfirmTrigger asChild><DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" /> Eliminar</DropdownMenuItem></AlertDialogConfirmTrigger>
                     <AlertDialogContentConfirm><AlertDialogHeaderConfirm><AlertDialogTitleConfirm>Eliminar Elemento del Plano</AlertDialogTitleConfirm><AlertDialogDescriptionConfirm>¿Eliminar "{targetLayoutElementForContextMenu.name}"?</AlertDialogDescriptionConfirm></AlertDialogHeaderConfirm><AlertDialogFooterConfirm><AlertDialogCancel onClick={() => setContextMenuOpen(false)}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveLayoutElement()} className="bg-destructive">Eliminar</AlertDialogAction></AlertDialogFooterConfirm></AlertDialogContentConfirm>
-                </AlertDialog>
             </DropdownMenuContent>
          )}
       </DropdownMenu>
