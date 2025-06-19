@@ -35,7 +35,7 @@ export default function InvitadosEventoPage() {
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoContacto, setNuevoContacto] = useState('');
   const [nuevoPartySize, setNuevoPartySize] = useState<number>(1);
-  const [nuevoNotes, setNuevoNotes] = useState('');
+  // nuevoNotes state removed
 
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -70,7 +70,7 @@ export default function InvitadosEventoPage() {
       contacto: nuevoContacto.trim() || undefined,
       rsvp: 'Pendiente',
       partySize: Number(nuevoPartySize) || 1,
-      notes: nuevoNotes.trim() || undefined,
+      notes: undefined, // Notes field is no longer collected from this form
     };
     const result = await addInvitadoFiestaActual(nuevoInvitadoData);
     if (result.success && result.invitado) {
@@ -79,7 +79,7 @@ export default function InvitadosEventoPage() {
       setNuevoNombre('');
       setNuevoContacto('');
       setNuevoPartySize(1);
-      setNuevoNotes('');
+      // No need to reset nuevoNotes
       toast({ title: "Invitado Añadido", description: `${result.invitado.nombre} ha sido añadido.` });
     } else {
       toast({ title: "Error al Añadir", description: result.error || "No se pudo añadir el invitado.", variant: "destructive" });
@@ -197,10 +197,7 @@ export default function InvitadosEventoPage() {
                 <Label htmlFor="partysize-invitado">Nº Personas (Invitación)</Label>
                 <Input id="partysize-invitado" type="number" value={nuevoPartySize} onChange={(e) => setNuevoPartySize(Number(e.target.value))} min="1" />
                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="notes-invitado">Notas (Alergias, etc.)</Label>
-                    <Input id="notes-invitado" value={nuevoNotes} onChange={(e) => setNuevoNotes(e.target.value)} placeholder="Ej: Alergia al maní" />
-                </div>
+                 {/* Notes field removed from here */}
             </div>
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus2 className="w-4 h-4 mr-2" />}
@@ -338,3 +335,4 @@ export default function InvitadosEventoPage() {
     </div>
   );
 }
+
