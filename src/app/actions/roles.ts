@@ -1,17 +1,12 @@
 
 'use server';
 
-// Firebase Firestore (Commented out)
-// import { dbAdmin as db } from '@/lib/firebase/server';
-// const ROLES_COLLECTION = 'roles';
-
 import fs from 'fs/promises';
 import path from 'path';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
 
 const DEFAULT_APORTES_PERCENTAGE = 30;
 
-// JSON Logic (Now Primary)
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const rolesFilePath = path.join(dataDirectory, 'roles.json');
 
@@ -29,7 +24,11 @@ async function readRolesFile(): Promise<Rol[]> {
     await fs.access(rolesFilePath);
     const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Rol[];
+    // Asegurarse de que los roles leídos no tengan 'notas' si se eliminó del tipo
+    return (JSON.parse(fileContent) as any[]).map(r => {
+      const { notas, ...rest } = r; // Eliminar 'notas' si existe
+      return rest as Rol;
+    });
   } catch (error) {
     return [];
   }
@@ -39,7 +38,12 @@ async function writeRolesFile(data: Rol[]): Promise<void> {
   try {
     await ensureDataDirectoryExists();
     const sortedData = data.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
-    await fs.writeFile(rolesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
+    // Asegurarse de que los roles guardados no tengan 'notas'
+    const dataWithoutNotas = sortedData.map(r => {
+      const { notas, ...rest } = r as any; // Castear a any para acceder a notas si aún existe
+      return rest;
+    });
+    await fs.writeFile(rolesFilePath, JSON.stringify(dataWithoutNotas, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing roles JSON file:', error);
   }
@@ -53,7 +57,9 @@ async function initializeLocalRolesFile() {
     if (fileContent.trim() === '') {
       await writeRolesFile([]);
     } else {
-      JSON.parse(fileContent); 
+      // Aplicar limpieza de 'notas' al inicializar si es necesario
+      const roles = await readRolesFile();
+      await writeRolesFile(roles); 
     }
   } catch (error) { 
     await writeRolesFile([]);
@@ -63,23 +69,24 @@ initializeLocalRolesFile();
 
 
 export async function getRoles(): Promise<Rol[]> {
-  // console.log("Firebase is disabled. Reading roles from JSON.");
   return readRolesFile();
 }
 
 export async function getRolById(id: string): Promise<Rol | null> {
-  // console.log(`Firebase is disabled. Reading rol ${id} from JSON.`);
   const localRoles = await readRolesFile();
   return localRoles.find(r => r.id === id) || null;
 }
 
 export async function saveRol(
-  rolData: NuevoRolFormData | Rol
+  rolData: Omit<NuevoRolFormData, 'notas'> | Omit<Rol, 'notas'> // Tipos actualizados
 ): Promise<{ success: boolean; id?: string; rol?: Rol; error?: string }> {
   let rolToProcess: Partial<Rol> = { 
     ...rolData,
     tipoSalario: 'Por evento', 
   };
+  // Eliminar 'notas' explícitamente si llegara a estar en rolData
+  delete (rolToProcess as any).notas;
+
 
   const montoSalarioNum = Number(rolToProcess.montoSalario);
   const porcentajeAportesNum = Number(rolToProcess.porcentajeAportes);
@@ -109,28 +116,10 @@ export async function saveRol(
     localRoles[index] = savedRol;
   } else {
     const newRolId = `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    savedRol = { ...(rolToProcess as NuevoRolFormData), id: newRolId } as Rol;
+    savedRol = { ...(rolToProcess as Omit<NuevoRolFormData, 'notas'>), id: newRolId } as Rol;
     localRoles.push(savedRol);
   }
   
-  // // Firestore operation (Commented out)
-  // // if (!db) { // db would be null now
-  // //   console.warn("Firestore no está inicializado. Guardando rol solo en JSON local.");
-  // // } else {
-  // //   try {
-  // //     const firestoreRolData = { ...savedRol }; // Clone to avoid modifying original for JSON
-  // //     if ('id' in rolData && rolData.id) {
-  // //       await db.collection(ROLES_COLLECTION).doc(savedRol.id).set(firestoreRolData, { merge: true });
-  // //     } else {
-  // //       await db.collection(ROLES_COLLECTION).doc(savedRol.id).set(firestoreRolData);
-  // //     }
-  // //   } catch (dbError: any) {
-  // //     console.error(`Firestore saveRol failed for ID ${savedRol.id}, but JSON backup will be attempted:`, dbError);
-  // //     // Optionally, decide if this should be a hard failure or just a warning
-  // //     // For now, we proceed to save to JSON as a backup.
-  // //   }
-  // // }
-
   await writeRolesFile(localRoles);
   return { success: true, id: savedRol.id, rol: savedRol };
 }
@@ -144,24 +133,7 @@ export async function deleteRol(id: string): Promise<{ success: boolean; error?:
     return { success: false, error: `Rol ID ${id} no encontrado en JSON local para eliminar.` };
   }
   
-  // // Firestore operation (Commented out)
-  // // if (!db) { // db would be null
-  // //   console.warn(`Firestore no está inicializado. Eliminando rol ${id} solo de JSON local.`);
-  // // } else {
-  // //   try {
-  // //     const docRef = db.collection(ROLES_COLLECTION).doc(id);
-  // //     const doc = await docRef.get();
-  // //     if (!doc.exists) {
-  // //         console.warn(`Rol ID ${id} no encontrado en Firestore para eliminar, pero se eliminará localmente.`);
-  // //     } else {
-  // //         await docRef.delete();
-  // //     }
-  // //   } catch (dbError: any) {
-  // //     console.error(`Firestore deleteRol failed for ID ${id}, JSON backup will be updated:`, dbError);
-  // //     // Proceed to delete from JSON
-  // //   }
-  // // }
-  
   await writeRolesFile(localRoles);
   return { success: true };
 }
+

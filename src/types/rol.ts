@@ -6,7 +6,7 @@ export interface Rol {
   montoSalario?: number; // Sueldo por evento
   porcentajeAportes?: number; // Porcentaje definido por el usuario, ej: 30 para 30%
   aportesCalculados?: number; // Calculado: montoSalario * (porcentajeAportes / 100)
-  notas?: string; // Descripción o detalles adicionales del rol
+  // notas?: string; // Campo eliminado
 }
 
 // Para el formulario, antes de tener un ID

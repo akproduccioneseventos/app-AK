@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "nombre": "Mozo",
+    "tipoSalario": "Por evento",
+    "montoSalario": 2100,
+    "porcentajeAportes": 30,
+    "notas": "",
+    "aportesCalculados": 630,
+    "id": "rol_1750300783093_hf1a0"
+  }
+]

@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-// Select no es necesario para tipoSalario si solo hay una opción
+// Textarea ya no es necesario si eliminamos el campo de notas
+// import { Textarea } from '@/components/ui/textarea'; 
 import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, BadgeHelp, UsersRound, DollarSign, Percent } from 'lucide-react';
 import { getRoles, saveRol, deleteRol as deleteRolAction } from '@/app/actions/roles';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
@@ -50,7 +50,7 @@ export default function GestionRolesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); 
+  const [currentRol, setCurrentRol] = useState<Partial<Omit<Rol, 'notas'>> | null>(null); 
   const [porcentajeAportesInput, setPorcentajeAportesInput] = useState<string>(String(DEFAULT_APORTES_PERCENTAGE));
   
   const fetchRoles = useCallback(async () => {
@@ -69,9 +69,9 @@ export default function GestionRolesPage() {
     fetchRoles();
   }, [fetchRoles]);
 
-  const openModal = (rol?: Rol) => {
+  const openModal = (rol?: Omit<Rol, 'notas'>) => {
     if (rol) {
-      setCurrentRol({ ...rol, tipoSalario: 'Por evento' }); // Asegurar tipoSalario
+      setCurrentRol({ ...rol, tipoSalario: 'Por evento' }); 
       setPorcentajeAportesInput(String(rol.porcentajeAportes ?? DEFAULT_APORTES_PERCENTAGE));
     } else {
       setCurrentRol({ 
@@ -80,7 +80,6 @@ export default function GestionRolesPage() {
         montoSalario: undefined, 
         porcentajeAportes: DEFAULT_APORTES_PERCENTAGE,
         aportesCalculados: undefined, 
-        notas: '' 
       });
       setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE));
     }
@@ -90,7 +89,7 @@ export default function GestionRolesPage() {
   const aportesCalculadosModal = useMemo(() => {
     if (!currentRol) return undefined;
     const monto = Number(currentRol.montoSalario || 0);
-    const porcentaje = Number(porcentajeAportesInput || 0); // Usar el input para cálculo en UI
+    const porcentaje = Number(porcentajeAportesInput || 0);
     if (monto >= 0 && porcentaje >= 0) {
       return (monto * porcentaje) / 100;
     }
@@ -98,7 +97,7 @@ export default function GestionRolesPage() {
   }, [currentRol?.montoSalario, porcentajeAportesInput]);
 
 
-  const handleModalFieldChange = (field: keyof Rol, value: string | number | undefined) => {
+  const handleModalFieldChange = (field: keyof Omit<Rol, 'notas'>, value: string | number | undefined) => {
     setCurrentRol(prev => {
       if (!prev) return null;
       let updatedRol = { ...prev, [field]: value, tipoSalario: 'Por evento' as 'Por evento' };
@@ -133,17 +132,18 @@ export default function GestionRolesPage() {
     }
 
     setIsSaving(true);
-    const rolDataForSave: Partial<Rol> = { 
+    const rolDataForSave: Partial<Omit<Rol, 'notas'>> = { 
       ...currentRol, 
       tipoSalario: 'Por evento',
       porcentajeAportes: porcentajeAportesNum,
     };
     
-    // El backend calculará aportesCalculados.
-    const rolToSave = rolDataForSave as NuevoRolFormData | Rol;
+    const rolToSave = rolDataForSave as Omit<NuevoRolFormData, 'notas'> | Omit<Rol, 'notas'>;
 
     try {
-      const result = await saveRol(rolToSave);
+      // @ts-ignore saveRol espera Rol o NuevoRolFormData, que pueden incluir notas opcionales.
+      // El backend ya no procesará 'notas'.
+      const result = await saveRol(rolToSave); 
       if (result.success && result.rol) {
         toast({ title: currentRol.id ? "Rol Actualizado" : "Rol Creado", description: `El rol "${result.rol.nombre}" ha sido guardado.` });
         setIsModalOpen(false);
@@ -212,7 +212,6 @@ export default function GestionRolesPage() {
                 <Input id="rol-nombre" value={currentRol.nombre || ''} onChange={(e) => handleModalFieldChange('nombre', e.target.value)} placeholder="Ej: Mozo, DJ, Coordinador" required />
               </div>
               
-              {/* Tipo de Salario - ya no es un select, es fijo "Por evento" */}
               <div className="space-y-1">
                 <Label>Tipo de Salario</Label>
                 <Input value="Por evento" readOnly disabled className="bg-muted/50"/>
@@ -233,10 +232,8 @@ export default function GestionRolesPage() {
                   <Input value={aportesCalculadosModal !== undefined ? formatCurrency(aportesCalculadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
               </div>
               
-              <div className="space-y-1">
-                <Label htmlFor="rol-notas">Notas / Descripción (Opcional)</Label>
-                <Textarea id="rol-notas" value={currentRol.notas || ''} onChange={(e) => handleModalFieldChange('notas', e.target.value)} placeholder="Responsabilidades, detalles importantes del rol..." rows={3}/>
-              </div>
+              {/* El campo de Notas / Descripción se ha eliminado */}
+
               <DialogFooter className="pt-3">
                 <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
                 <Button type="submit" disabled={isSaving}>
@@ -275,7 +272,7 @@ export default function GestionRolesPage() {
                           </>
                         )}
                       </p>
-                      {rol.notas && <p className="text-xs text-muted-foreground italic mt-1">Notas: {rol.notas.substring(0, 100)}{rol.notas.length > 100 ? '...' : ''}</p>}
+                      {/* La visualización de notas se elimina */}
                     </div>
                     <div className="flex gap-1.5 self-start sm:self-center flex-shrink-0">
                       <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openModal(rol)}><Edit3 className="w-4 h-4" /></Button>
