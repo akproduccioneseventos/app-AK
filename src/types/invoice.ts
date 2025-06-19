@@ -19,7 +19,6 @@ export interface Payment {
   amount: number;
   method?: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro';
   notes?: string;
-  receiptImageUrl?: string;
 }
 
 export interface Invoice {
@@ -41,3 +40,4 @@ export interface Invoice {
   vendorTaxId?: string;
   payments?: Payment[];
 }
+

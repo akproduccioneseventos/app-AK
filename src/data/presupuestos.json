@@ -26,9 +26,10 @@
       }
     ],
     "costoTotalEstimado": 10900,
-    "timestamp": "2025-06-19T01:57:41.586Z",
+    "timestamp": "2025-06-19T02:00:57.457Z",
     "notas": "Salón: Club Uruguay",
     "id": "pres_1750298261586_4k4zp91",
-    "estado": "Borrador"
+    "estado": "Facturado",
+    "invoiceId": "inv_1750298457455_soqwlk8"
   }
 ]

@@ -1,1 +1,45 @@
-[]
+[
+  {
+    "invoiceNumber": "FACT-PRE4k4zp",
+    "customer": {
+      "name": "Alexander",
+      "companyName": null,
+      "phone": "098355530",
+      "taxId": "46173508",
+      "email": null,
+      "address": {
+        "street": "gaboto 3390"
+      },
+      "partyDate": "2025-06-29T03:00:00.000Z",
+      "partyTime": "22 a 5",
+      "partyType": "XV años",
+      "guestCount": 100,
+      "venueName": "Club Uruguay",
+      "id": "cust_1750011641894_4w6ql",
+      "estadoCliente": "Actual"
+    },
+    "issueDate": "2025-06-29T03:00:00.000Z",
+    "dueDate": "2025-07-19T02:00:45.371Z",
+    "items": [
+      {
+        "description": "Servicios según Presupuesto #4k4zp (Boda para Alexander)",
+        "quantity": 1,
+        "unitPrice": 10900,
+        "total": 10900,
+        "id": "item_inv_1750298457455_soqwlk8_1_1750298457455_create"
+      }
+    ],
+    "subtotal": 10900,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 10900,
+    "status": "Draft",
+    "notes": "Salón: Club Uruguay",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "id": "inv_1750298457455_soqwlk8",
+    "payments": []
+  }
+]

@@ -70,7 +70,6 @@ export default function ViewInvoicePage() {
     amount: 0,
     method: 'Transferencia',
     notes: '',
-    receiptImageUrl: '',
   });
   const [isAddingPayment, setIsAddingPayment] = useState(false);
 
@@ -132,12 +131,11 @@ export default function ViewInvoicePage() {
       const result = await addPaymentToInvoice(invoice.id, {
         ...newPayment,
         amount: Number(newPayment.amount),
-        receiptImageUrl: newPayment.receiptImageUrl?.trim() || undefined,
       });
       if (result.success && result.invoice) {
         toast({ title: "¡Pago Añadido!", description: "El pago ha sido registrado correctamente." });
         setInvoice(result.invoice); 
-        setNewPayment({ paymentDate: new Date().toISOString(), amount: 0, method: 'Transferencia', notes: '', receiptImageUrl: '' });
+        setNewPayment({ paymentDate: new Date().toISOString(), amount: 0, method: 'Transferencia', notes: '' });
       } else {
         throw new Error(result.error || "Error desconocido al añadir el pago.");
       }
@@ -292,7 +290,7 @@ export default function ViewInvoicePage() {
           <div className="space-y-3 print:hidden">
             <div className="flex items-center gap-2"><Banknote className="w-6 h-6 text-primary" /><h3 className="font-headline text-lg">Pagos Registrados</h3></div>
             {invoice.payments && invoice.payments.length > 0 ? (
-              <div className="overflow-x-auto border rounded-md"><Table><TableHeader><TableRow><TableHead>Fecha</TableHead><TableHead>Importe</TableHead><TableHead>Método</TableHead><TableHead>Notas</TableHead><TableHead>Comprobante</TableHead></TableRow></TableHeader><TableBody>{invoice.payments.map(p => (<TableRow key={p.id}><TableCell>{formatDate(p.paymentDate)}</TableCell><TableCell>{formatCurrency(p.amount, invoice.currency)}</TableCell><TableCell>{p.method || 'N/A'}</TableCell><TableCell className="max-w-[150px] truncate" title={p.notes}>{p.notes || '-'}</TableCell><TableCell>{p.receiptImageUrl ? <a href={p.receiptImageUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm flex items-center gap-1"><LinkIconLucide className="w-3 h-3"/>Ver</a> : '-'}</TableCell></TableRow>))}</TableBody></Table></div>
+              <div className="overflow-x-auto border rounded-md"><Table><TableHeader><TableRow><TableHead>Fecha</TableHead><TableHead>Importe</TableHead><TableHead>Método</TableHead><TableHead>Notas</TableHead></TableRow></TableHeader><TableBody>{invoice.payments.map(p => (<TableRow key={p.id}><TableCell>{formatDate(p.paymentDate)}</TableCell><TableCell>{formatCurrency(p.amount, invoice.currency)}</TableCell><TableCell>{p.method || 'N/A'}</TableCell><TableCell className="max-w-[150px] truncate" title={p.notes}>{p.notes || '-'}</TableCell></TableRow>))}</TableBody></Table></div>
             ) : (<div className="text-center py-4 text-muted-foreground bg-muted/20 rounded-md text-sm"><Info className="w-5 h-5 mx-auto mb-1 opacity-50" />No hay pagos registrados.</div>)}
           </div>
           
@@ -306,7 +304,6 @@ export default function ViewInvoicePage() {
                     <div className="space-y-1"><Label htmlFor="paymentAmount">Importe ({invoice.currency})</Label><Input id="paymentAmount" type="number" value={newPayment.amount} onChange={(e) => handlePaymentInputChange('amount', parseFloat(e.target.value) || 0)} placeholder="0.00" min="0.01" step="any" required /></div>
                   </div>
                   <div className="space-y-1"><Label htmlFor="paymentMethod">Método</Label><Select value={newPayment.method || 'Transferencia'} onValueChange={(value) => handlePaymentInputChange('method', value as Payment['method'])}><SelectTrigger id="paymentMethod"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Transferencia">Transferencia</SelectItem><SelectItem value="Efectivo">Efectivo</SelectItem><SelectItem value="Tarjeta">Tarjeta</SelectItem><SelectItem value="Otro">Otro</SelectItem></SelectContent></Select></div>
-                  <div className="space-y-1"><Label htmlFor="paymentReceiptUrl">URL Comprobante</Label><Input id="paymentReceiptUrl" type="text" value={newPayment.receiptImageUrl || ''} onChange={(e) => handlePaymentInputChange('receiptImageUrl', e.target.value)} placeholder="https://..." /></div>
                   <div className="space-y-1"><Label htmlFor="paymentNotes">Notas</Label><Textarea id="paymentNotes" value={newPayment.notes || ''} onChange={(e) => handlePaymentInputChange('notes', e.target.value)} placeholder="Ej: Seña, Pago final..." rows={2} /></div>
                   <Button type="submit" disabled={isAddingPayment} size="sm">{isAddingPayment ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ReceiptText className="w-4 h-4 mr-2" />}{isAddingPayment ? 'Registrando...' : 'Registrar Pago'}</Button>
               </form>
