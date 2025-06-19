@@ -33,13 +33,21 @@
     "taxRate": 0,
     "taxAmount": 0,
     "totalAmount": 10900,
-    "status": "Draft",
+    "status": "Sent",
     "notes": "Salón: Club Uruguay",
     "currency": "UYU",
     "vendorName": "AK Producciones",
     "vendorAddress": "Montevideo, Uruguay",
     "vendorTaxId": "RUT Ejemplo 123456789012",
     "id": "inv_1750298457455_soqwlk8",
-    "payments": []
+    "payments": [
+      {
+        "paymentDate": "2025-06-19T02:01:22.577Z",
+        "amount": 10000,
+        "method": "Efectivo",
+        "notes": "Seña",
+        "id": "pay_inv_1750298457455_soqwlk8_1750298746172_ae765"
+      }
+    ]
   }
 ]

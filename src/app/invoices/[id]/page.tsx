@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, type FormEvent, useCallback } from 'react';
+import { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -65,11 +65,18 @@ export default function ViewInvoicePage() {
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(true);
   const [errorInvoice, setErrorInvoice] = useState<string | null>(null);
 
+  // Memoize initial notes calculation based on invoice
+  const initialNotes = useMemo(() => {
+    if (!invoice) return '';
+    const paymentNumber = (invoice.payments?.length || 0) + 1;
+    return paymentNumber === 1 ? `Pago ${paymentNumber} - Seña` : `Pago ${paymentNumber} - `;
+  }, [invoice]);
+
   const [newPayment, setNewPayment] = useState<NewPaymentData>({
     paymentDate: new Date().toISOString(),
     amount: 0,
     method: 'Transferencia',
-    notes: '',
+    notes: '', // Will be set by useEffect based on initialNotes or when invoice changes
   });
   const [isAddingPayment, setIsAddingPayment] = useState(false);
 
@@ -108,6 +115,16 @@ export default function ViewInvoicePage() {
     fetchInvoiceAndSettings();
   }, [fetchInvoiceAndSettings]);
 
+  // Effect to update newPayment.notes when invoice (and thus initialNotes) changes
+  useEffect(() => {
+    if (initialNotes) { // Only update if initialNotes has been calculated
+        // Update notes only if the form is "fresh" (amount is 0) or the current note is empty
+        if (newPayment.amount === 0 || newPayment.notes === '') {
+             setNewPayment(prev => ({ ...prev, notes: initialNotes }));
+        }
+    }
+  }, [initialNotes, newPayment.amount, newPayment.notes]); // Add newPayment.notes and newPayment.amount to prevent re-triggering if user typed something
+
   const handlePaymentInputChange = (field: keyof NewPaymentData, value: any) => {
     setNewPayment(prev => ({ ...prev, [field]: value }));
   };
@@ -130,12 +147,16 @@ export default function ViewInvoicePage() {
     try {
       const result = await addPaymentToInvoice(invoice.id, {
         ...newPayment,
+        notes: newPayment.notes.trim(), // Ensure notes are trimmed
         amount: Number(newPayment.amount),
       });
       if (result.success && result.invoice) {
         toast({ title: "¡Pago Añadido!", description: "El pago ha sido registrado correctamente." });
         setInvoice(result.invoice); 
-        setNewPayment({ paymentDate: new Date().toISOString(), amount: 0, method: 'Transferencia', notes: '' });
+        // Recalculate suggested note for next payment
+        const nextPaymentNumber = (result.invoice.payments?.length || 0) + 1;
+        const nextSuggestedNote = nextPaymentNumber === 1 ? `Pago ${nextPaymentNumber} - Seña` : `Pago ${nextPaymentNumber} - `;
+        setNewPayment({ paymentDate: new Date().toISOString(), amount: 0, method: 'Transferencia', notes: nextSuggestedNote });
       } else {
         throw new Error(result.error || "Error desconocido al añadir el pago.");
       }
@@ -304,7 +325,16 @@ export default function ViewInvoicePage() {
                     <div className="space-y-1"><Label htmlFor="paymentAmount">Importe ({invoice.currency})</Label><Input id="paymentAmount" type="number" value={newPayment.amount} onChange={(e) => handlePaymentInputChange('amount', parseFloat(e.target.value) || 0)} placeholder="0.00" min="0.01" step="any" required /></div>
                   </div>
                   <div className="space-y-1"><Label htmlFor="paymentMethod">Método</Label><Select value={newPayment.method || 'Transferencia'} onValueChange={(value) => handlePaymentInputChange('method', value as Payment['method'])}><SelectTrigger id="paymentMethod"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Transferencia">Transferencia</SelectItem><SelectItem value="Efectivo">Efectivo</SelectItem><SelectItem value="Tarjeta">Tarjeta</SelectItem><SelectItem value="Otro">Otro</SelectItem></SelectContent></Select></div>
-                  <div className="space-y-1"><Label htmlFor="paymentNotes">Notas</Label><Textarea id="paymentNotes" value={newPayment.notes || ''} onChange={(e) => handlePaymentInputChange('notes', e.target.value)} placeholder="Ej: Seña, Pago final..." rows={2} /></div>
+                  <div className="space-y-1">
+                    <Label htmlFor="paymentNotes">Notas del Pago</Label>
+                    <Textarea 
+                        id="paymentNotes" 
+                        value={newPayment.notes || ''} 
+                        onChange={(e) => handlePaymentInputChange('notes', e.target.value)} 
+                        placeholder="Descripción adicional (Ej: Transferencia Banco X)" 
+                        rows={2} 
+                    />
+                  </div>
                   <Button type="submit" disabled={isAddingPayment} size="sm">{isAddingPayment ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ReceiptText className="w-4 h-4 mr-2" />}{isAddingPayment ? 'Registrando...' : 'Registrar Pago'}</Button>
               </form>
             </div>
