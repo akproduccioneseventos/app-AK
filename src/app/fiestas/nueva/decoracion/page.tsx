@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+// Checkbox import removed as it's not used in this version for Zonas, Switch is.
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown } from 'lucide-react';
@@ -30,12 +30,11 @@ import {
   DialogClose
 } from "@/components/ui/dialog";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  // AccordionTrigger, // We will use AccordionPrimitive.Trigger for the specific case
+  Accordion, // Main Accordion from shadcn/ui
+  AccordionContent, // From shadcn/ui
+  AccordionItem, // From shadcn/ui
 } from "@/components/ui/accordion";
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
+import * as AccordionPrimitive from "@radix-ui/react-accordion"; // For finer control
 import { cn } from "@/lib/utils";
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -50,7 +49,6 @@ export default function DecoracionYDisenoEventoPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Modal states for DecorationItem
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<DecorationItem> | null>(null);
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
@@ -157,7 +155,6 @@ export default function DecoracionYDisenoEventoPage() {
     }
   };
   
-  // DecorationItem Modal Functions
   const openItemModal = (item?: DecorationItem) => {
     setCurrentItem(item ? { ...item } : { id: '', name: '', quantity: 1, category: 'Otro' });
     setItemImagePreview(item?.imageUrl || null);
@@ -176,9 +173,9 @@ export default function DecoracionYDisenoEventoPage() {
     }
     setDecoracionData(prev => {
       const items = prev.items || [];
-      if (currentItem.id && items.some(it => it.id === currentItem.id)) { // Editing existing
+      if (currentItem.id && items.some(it => it.id === currentItem.id)) {
         return { ...prev, items: items.map(it => it.id === currentItem.id ? (currentItem as DecorationItem) : it) };
-      } else { // Adding new
+      } else {
         return { ...prev, items: [...items, { ...currentItem, id: `decItem_${Date.now()}` } as DecorationItem] };
       }
     });
@@ -238,7 +235,6 @@ export default function DecoracionYDisenoEventoPage() {
       </div>
 
       <form onSubmit={handleSaveDecoracion}>
-        {/* General Decoration Settings */}
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/>Configuración General de Decoración</CardTitle></CardHeader>
           <CardContent className="space-y-6">
@@ -269,7 +265,6 @@ export default function DecoracionYDisenoEventoPage() {
           </CardContent>
         </Card>
 
-        {/* Cake Decoration */}
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><CakeSlice className="text-primary"/>Decoración de la Torta</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -281,7 +276,6 @@ export default function DecoracionYDisenoEventoPage() {
           </CardContent>
         </Card>
         
-        {/* Otros Elementos Decorativos */}
         <Card className="shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Otros Elementos Decorativos Específicos</CardTitle>
@@ -313,18 +307,17 @@ export default function DecoracionYDisenoEventoPage() {
           </CardContent>
         </Card>
 
-        {/* Zonas Decorativas Específicas */}
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Zonas Decorativas Específicas</CardTitle></CardHeader>
           <CardContent>
-            <Accordion type="multiple" className="w-full space-y-3">
+            <Accordion type="multiple" className="w-full space-y-3" defaultValue={(decoracionData.zonasContratadas || []).filter(z => z.activada).map(z => z.id)}>
               {(decoracionData.zonasContratadas || defaultZonasContratadas).map(zona => (
                 <AccordionItem key={zona.id} value={zona.id} className="border rounded-lg shadow-sm bg-card">
                   <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
                     <AccordionPrimitive.Trigger
                       className={cn(
                         "flex flex-1 items-center gap-2 text-lg font-medium text-primary hover:no-underline",
-                        "[&[data-state=open]>svg:last-child]:rotate-180"
+                        "[&[data-state=open]>svg:last-child]:rotate-180" // Ensure Chevron rotates
                       )}
                     >
                       {React.createElement(
@@ -340,7 +333,7 @@ export default function DecoracionYDisenoEventoPage() {
                     <Switch
                         checked={zona.activada}
                         onCheckedChange={value => handleZonaChange(zona.id, 'activada', value)}
-                        onClick={e => e.stopPropagation()}
+                        onClick={e => e.stopPropagation()} // Prevent accordion toggle when clicking switch
                         className="ml-4 flex-shrink-0"
                         aria-label={`Activar ${zona.nombreDisplay}`}
                     />
@@ -360,14 +353,12 @@ export default function DecoracionYDisenoEventoPage() {
           </CardContent>
         </Card>
 
-        {/* Salón y Disposición */}
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Diseño del Salón y Disposición de Elementos</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2"><Label htmlFor="salon-plan-bg">URL Imagen de Fondo para Plano del Salón</Label><Input id="salon-plan-bg" type="url" value={decoracionData.salonPlanBackgroundImageUrl || ''} onChange={e => handleInputChange('salonPlanBackgroundImageUrl', e.target.value)} placeholder="https://ejemplo.com/plano_salon.png"/>
             {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && <NextImage src={decoracionData.salonPlanBackgroundImageUrl} alt="Plano Salón Preview" width={300} height={200} className="mt-1 rounded border object-contain max-h-[200px]" data-ai-hint="event floor plan" onError={()=>setFailedImageUrls(p=>({...p, salonPlanBackgroundImageUrl:true}))}/>}
             </div>
-             {/* Placeholder for interactive salon designer - for future enhancement */}
             <div className="p-4 border border-dashed rounded-md text-center text-muted-foreground">
               <p className="text-sm">El diseñador interactivo de planos estará disponible próximamente.</p>
               <p className="text-xs">Por ahora, puedes subir una imagen de fondo y añadir notas sobre la disposición.</p>
@@ -376,7 +367,6 @@ export default function DecoracionYDisenoEventoPage() {
           </CardContent>
         </Card>
 
-        {/* Notas para PDF */}
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><StickyNote className="text-primary"/>Notas Adicionales para el PDF de Decoración</CardTitle></CardHeader>
           <CardContent><Textarea value={decoracionData.pdfNotasAdicionales || ''} onChange={e => handleInputChange('pdfNotasAdicionales', e.target.value)} rows={3} placeholder="Aclaraciones, detalles importantes para el equipo, etc."/></CardContent>
@@ -390,7 +380,6 @@ export default function DecoracionYDisenoEventoPage() {
         </CardFooter>
       </form>
 
-       {/* Modal for Adding/Editing DecorationItem */}
       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -426,6 +415,5 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
-        
 
     
