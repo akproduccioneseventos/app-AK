@@ -25,6 +25,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger, // Added AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 
 export default function EditCustomerPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
@@ -37,7 +38,7 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
-  const [taxId, setTaxId] = useState('');
+  const [taxId, setTaxId] = useState(''); 
   const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
 
   // Party-related fields
