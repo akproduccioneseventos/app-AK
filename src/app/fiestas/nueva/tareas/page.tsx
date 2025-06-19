@@ -18,7 +18,7 @@ import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Tarea } from '@/types/fiesta';
 import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';
-import { tareasPredeterminadasEjemplo } from '@/lib/fiesta-defaults';
+// tareasPredeterminadasEjemplo import has been removed
 import {
   AlertDialog,
   AlertDialogAction,
@@ -133,14 +133,7 @@ export default function TareasEventoPage() {
     }
   };
   
-  const handleUsePredeterminadaTask = (taskTemplate: Pick<Tarea, 'texto' | 'descripcion'>) => {
-    setNewTaskText(taskTemplate.texto);
-    setNewTaskDescription(taskTemplate.descripcion || '');
-    setNewIsDefaultTask(false); // It's being used, not saved as new default from here
-    toast({ description: `Datos de "${taskTemplate.texto}" cargados en el formulario.`});
-    // Scroll to form or focus first field could be a UX improvement here.
-    document.getElementById('task-text')?.focus();
-  };
+  // handleUsePredeterminadaTask is removed as predefined tasks are removed.
 
   const formatDateDisplay = (dateString?: string, timeString?: string): string => {
     if (!dateString) return 'Sin fecha';
@@ -241,35 +234,7 @@ export default function TareasEventoPage() {
         </CardContent>
       </Card>
       
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><FolderOpen className="w-5 h-5 text-primary/80"/>Plantillas de Tareas Comunes</CardTitle>
-          <CardDescription>Selecciona una tarea predefinida para cargarla rápidamente en el formulario de arriba.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {tareasPredeterminadasEjemplo.length > 0 ? (
-            <ScrollArea className="h-[200px] pr-2">
-              <div className="space-y-2">
-                {tareasPredeterminadasEjemplo.map((task, index) => (
-                  <Card key={`predet-${index}`} className="p-2 bg-muted/50 hover:bg-muted/70">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm font-medium">{task.texto}</p>
-                        {task.descripcion && <p className="text-xs text-muted-foreground">{task.descripcion.substring(0,60)}...</p>}
-                      </div>
-                      <Button size="sm" variant="outline" onClick={() => handleUsePredeterminadaTask(task)} disabled={isSaving} className="text-xs">
-                        Usar
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
-          ) : (
-            <p className="text-sm text-muted-foreground">No hay tareas predeterminadas disponibles.</p>
-          )}
-        </CardContent>
-      </Card>
+      {/* Removed predefined tasks section */}
 
       <Card className="shadow-lg">
         <CardHeader>
@@ -317,4 +282,3 @@ export default function TareasEventoPage() {
     </div>
   );
 }
-

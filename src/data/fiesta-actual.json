@@ -13,6 +13,7 @@
     "clienteId": "cust_1750011641894_4w6ql"
   },
   "personalAsignado": [],
+  "presupuestoId": "pres_1750298261586_4k4zp91",
   "invoiceIds": [],
   "reuniones": [],
   "tareas": [
@@ -20,34 +21,6 @@
       "id": "task_1750298271695_fub3snb",
       "texto": "Definir lista de invitados",
       "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
-      "completada": false,
-      "esPredeterminada": false
-    },
-    {
-      "id": "task_1750298271695_yonv0gv",
-      "texto": "Seleccionar catering y menú",
-      "descripcion": "Contactar proveedores de catering, degustar opciones y definir el menú.",
-      "completada": false,
-      "esPredeterminada": false
-    },
-    {
-      "id": "task_1750298271695_ktpzwjy",
-      "texto": "Contratar DJ o música",
-      "descripcion": "Buscar y contratar DJ, banda o sistema de sonido.",
-      "completada": false,
-      "esPredeterminada": false
-    },
-    {
-      "id": "task_1750298271695_skap823",
-      "texto": "Elegir decoración y temática",
-      "descripcion": "Definir el estilo, colores y elementos decorativos principales.",
-      "completada": false,
-      "esPredeterminada": false
-    },
-    {
-      "id": "task_1750298271695_14u6d1q",
-      "texto": "Enviar invitaciones",
-      "descripcion": "Diseñar, imprimir y enviar las invitaciones físicas o digitales.",
       "completada": false,
       "esPredeterminada": false
     }
@@ -145,6 +118,7 @@
   "musica": {
     "cancionEntrada": "",
     "cancionVals": "",
+    "cancionesTortaBrindis": [],
     "playlistFiesta": "",
     "listaNoReproducir": ""
   },
@@ -272,6 +246,5 @@
     "costosItems": [],
     "ingresosTotalesEstimados": 0,
     "notasGeneralesCostos": ""
-  },
-  "presupuestoId": "pres_1750298261586_4k4zp91"
+  }
 }
