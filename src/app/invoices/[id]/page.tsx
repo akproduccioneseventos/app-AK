@@ -306,16 +306,36 @@ export default function ViewInvoicePage() {
             </div>
           </div>
           
-          <Separator className="my-4 print:hidden" />
-          {/* Payments Section */}
-          <div className="space-y-3 print:hidden">
-            <div className="flex items-center gap-2"><Banknote className="w-6 h-6 text-primary" /><h3 className="font-headline text-lg">Pagos Registrados</h3></div>
+          {/* Payments Section - Visible on screen and print */}
+          <div className="space-y-3 print:mt-4 print:break-inside-avoid">
+            <div className="flex items-center gap-2"><Banknote className="w-5 h-5 text-primary print:w-4 print:h-4" /><h3 className="font-headline text-md print:text-sm">Pagos Registrados</h3></div>
             {invoice.payments && invoice.payments.length > 0 ? (
-              <div className="overflow-x-auto border rounded-md"><Table><TableHeader><TableRow><TableHead>Fecha</TableHead><TableHead>Importe</TableHead><TableHead>Método</TableHead><TableHead>Notas</TableHead></TableRow></TableHeader><TableBody>{invoice.payments.map(p => (<TableRow key={p.id}><TableCell>{formatDate(p.paymentDate)}</TableCell><TableCell>{formatCurrency(p.amount, invoice.currency)}</TableCell><TableCell>{p.method || 'N/A'}</TableCell><TableCell className="max-w-[150px] truncate" title={p.notes}>{p.notes || '-'}</TableCell></TableRow>))}</TableBody></Table></div>
-            ) : (<div className="text-center py-4 text-muted-foreground bg-muted/20 rounded-md text-sm"><Info className="w-5 h-5 mx-auto mb-1 opacity-50" />No hay pagos registrados.</div>)}
+              <div className="overflow-x-auto border rounded-md print:border-gray-300">
+                <table className="w-full text-xs print:text-[9pt]">
+                  <thead className="bg-muted/30 print:bg-gray-50">
+                    <tr className="border-b print:border-gray-300">
+                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Fecha</th>
+                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Importe</th>
+                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Método</th>
+                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Notas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoice.payments.map(p => (
+                      <tr key={p.id} className="border-b print:border-gray-200 last:border-b-0">
+                        <td className="px-2 py-1.5 print:px-1 print:py-1">{formatDate(p.paymentDate)}</td>
+                        <td className="px-2 py-1.5 print:px-1 print:py-1">{formatCurrency(p.amount, invoice.currency)}</td>
+                        <td className="px-2 py-1.5 print:px-1 print:py-1">{p.method || 'N/A'}</td>
+                        <td className="px-2 py-1.5 print:px-1 print:py-1 max-w-[150px] print:max-w-[100px] truncate" title={p.notes}>{p.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (<div className="text-center py-3 text-muted-foreground bg-muted/20 rounded-md text-xs print:text-[9pt]"><Info className="w-4 h-4 mx-auto mb-1 opacity-50 print:hidden" />No hay pagos registrados.</div>)}
           </div>
           
-          {/* Add New Payment Form */}
+          {/* Add New Payment Form - Hidden on print */}
           {invoice.status !== 'Paid' && (
             <div className="mt-6 pt-4 border-t print:hidden">
               <div className="flex items-center gap-2 mb-3"><PlusCircle className="w-6 h-6 text-primary" /><h3 className="font-headline text-lg">Añadir Nuevo Pago</h3></div>
@@ -354,6 +374,7 @@ export default function ViewInvoicePage() {
         @media print {
           body { -webkit-print-color-adjust: exact; color-adjust: exact; }
           .print\\:hidden { display: none !important; }
+          .print\\:block { display: block !important; } /* Added to ensure payment list shows */
           .print\\:text-xs { font-size: 0.7rem !important; line-height: 0.9rem !important; }
           .print\\:text-\\[9pt\\] { font-size: 9pt !important; line-height: 1.1 !important; }
           .print\\:text-sm { font-size: 0.8rem !important; line-height: 1.1rem !important; }
@@ -383,9 +404,14 @@ export default function ViewInvoicePage() {
           .print\\:border-gray-200 { border-color: #e5e7eb !important; }
           .print\\:border-gray-300 { border-color: #d1d5db !important; }
           .print\\:bg-transparent { background-color: transparent !important; }
+          .print\\:bg-gray-50 { background-color: #f9fafb !important; }
           .print\\:bg-gray-100 { background-color: #f3f4f6 !important; }
           .print\\:w-36 { width: 9rem !important; }
           .print\\:h-14 { height: 3.5rem !important; }
+          .print\\:w-4 { width: 1rem !important; }
+          .print\\:h-4 { height: 1rem !important; }
+          .print\\:max-w-\\[100px\\] { max-width: 100px !important; }
+          .print\\:break-inside-avoid { break-inside: avoid !important; }
           main.print-main-override { padding: 0.5in !important; }
            #invoice-to-print {
               width: 100%;
