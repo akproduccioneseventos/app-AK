@@ -32,7 +32,7 @@ import {
   AlertDialogFooter as AlertDialogFooterConfirm,
   AlertDialogHeader as AlertDialogHeaderConfirm,
   AlertDialogTitle as AlertDialogTitleConfirm,
-  AlertDialogTrigger, // Added AlertDialogTrigger
+  AlertDialogTrigger, // Asegurarse que AlertDialogTrigger está aquí
 } from "@/components/ui/alert-dialog";
 
 
