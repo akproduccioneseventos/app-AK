@@ -99,7 +99,7 @@ export default function BudgetDisplaySettingsPage() {
             Configuración de Visualización de Presupuestos
           </h1>
         </div>
-        <Link href="/settings" passHref>
+        <Link href="/presupuestos" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver
