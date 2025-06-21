@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -28,13 +27,6 @@ const empresaHubItems: HubItem[] = [
     href: '/proveedores',
     icon: Briefcase,
     actionLabel: 'Ir a Proveedores',
-  },
-  {
-    title: 'Inventario General y Valor de Activos', // Actualizado
-    description: 'Define y organiza los ítems de tu inventario y consulta su valor.', // Actualizado
-    href: '/empresa/todos-los-servicios', // Ruta se mantiene, pero el contenido cambia
-    icon: Package, // Cambiado
-    actionLabel: 'Ver Inventario', // Actualizado
   },
   {
     title: 'Contabilidad',
