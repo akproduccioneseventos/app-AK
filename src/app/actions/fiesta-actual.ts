@@ -310,6 +310,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       partySize: inv.partySize === undefined ? 1 : (Number(inv.partySize) || 1),
       tableNumber: inv.tableNumber || undefined,
       notes: inv.notes || undefined,
+      companionNames: inv.companionNames || [],
     })),
     webPageSettings: validatedWebPageSettings,
     musica: {
@@ -574,6 +575,7 @@ export async function addInvitadoFiestaActual(
       partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
       tableNumber: invitadoData.tableNumber || undefined,
       notes: invitadoData.notes || undefined,
+      companionNames: invitadoData.companionNames || [],
     };
     fiestaActual.invitados = [...(fiestaActual.invitados || []), nuevoInvitado];
     await writeFiestaActualFile(fiestaActual);
@@ -596,6 +598,7 @@ export async function updateInvitadoFiestaActual(
           ...inv,
           ...invitadoData,
           partySize: invitadoData.partySize === undefined ? 1 : Number(invitadoData.partySize) || 1,
+          companionNames: invitadoData.companionNames || [],
         };
       }
       return inv;
@@ -634,9 +637,10 @@ export async function deleteInvitadoFiestaActual(
 interface RsvpSubmissionData {
   nombreCompleto: string;
   email?: string;
-  confirmacion: 'si' | 'no' | 'quizas' | '';
-  numeroAsistentes: number;
+  confirmacion: 'si' | 'no';
+  numeroAsistentes: number; // This is the TOTAL party size
   mensaje?: string;
+  companionNames?: string[];
 }
 
 export async function handleRsvpSubmission(
@@ -661,7 +665,6 @@ export async function handleRsvpSubmission(
     let newRsvpStatus: RsvpStatus = 'Pendiente';
     if (submissionData.confirmacion === 'si') newRsvpStatus = 'Confirmado';
     else if (submissionData.confirmacion === 'no') newRsvpStatus = 'Rechazado';
-    else if (submissionData.confirmacion === 'quizas') newRsvpStatus = 'Quizás';
 
     const updatedInvitado: Invitado = {
       ...invitadoActual,
@@ -671,6 +674,7 @@ export async function handleRsvpSubmission(
       notes: submissionData.mensaje?.trim()
         ? `${submissionData.mensaje.trim()}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}`
         : invitadoActual.notes,
+      companionNames: submissionData.companionNames?.filter(name => name.trim() !== '') || [],
     };
 
     fiestaActual.invitados[guestIndex] = updatedInvitado;

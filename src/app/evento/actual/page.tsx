@@ -47,8 +47,9 @@ const formatDate = (dateString?: string, includeTime: boolean = true, timeString
 type RsvpFormData = {
   nombreCompleto: string;
   email: string;
-  confirmacion: 'si' | 'no' | 'quizas' | '';
-  numeroAsistentes: number;
+  confirmacion: 'si' | 'no' | '';
+  numberOfCompanions: number;
+  companionNames: string[];
   mensaje: string;
 };
 
@@ -64,7 +65,8 @@ export default function EventoPublicoPage() {
     nombreCompleto: '',
     email: '',
     confirmacion: '',
-    numeroAsistentes: 1,
+    numberOfCompanions: 0,
+    companionNames: [],
     mensaje: ''
   });
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
@@ -100,15 +102,38 @@ export default function EventoPublicoPage() {
     loadEventData();
   }, [loadEventData]);
 
-  const handleRsvpInputChange = (field: keyof RsvpFormData, value: string | number) => {
+  // Effect to sync companionNames array with numberOfCompanions
+  useEffect(() => {
+    const num = rsvpForm.numberOfCompanions || 0;
+    setRsvpForm(prev => {
+        const currentNames = prev.companionNames;
+        const newNames = Array(num).fill('');
+        for (let i = 0; i < Math.min(num, currentNames.length); i++) {
+            newNames[i] = currentNames[i];
+        }
+        return { ...prev, companionNames: newNames };
+    });
+  }, [rsvpForm.numberOfCompanions]);
+
+
+  const handleRsvpInputChange = (field: keyof Omit<RsvpFormData, 'companionNames'>, value: string | number) => {
     setRsvpForm(prev => ({...prev, [field]: value}));
+  };
+
+  const handleCompanionNameChange = (index: number, value: string) => {
+    setRsvpForm(prev => {
+        const newCompanionNames = [...prev.companionNames];
+        newCompanionNames[index] = value;
+        return { ...prev, companionNames: newCompanionNames };
+    });
   };
   
   const handleRsvpConfirmacionChange = (value: RsvpFormData['confirmacion']) => {
     setRsvpForm(prev => ({
       ...prev, 
       confirmacion: value,
-      numeroAsistentes: (value === 'si' || value === 'quizas') ? (prev.numeroAsistentes || 1) : 1,
+      numberOfCompanions: value === 'si' ? prev.numberOfCompanions : 0,
+      companionNames: value === 'si' ? prev.companionNames : [],
     }));
   };
 
@@ -122,10 +147,6 @@ export default function EventoPublicoPage() {
       toast({ title: "Confirmación Requerida", description: "Por favor, selecciona una opción de asistencia.", variant: "destructive" });
       return;
     }
-    if ((rsvpForm.confirmacion === 'si' || rsvpForm.confirmacion === 'quizas') && rsvpForm.numeroAsistentes < 1) {
-      toast({ title: "Número de Asistentes Inválido", description: "El número de asistentes debe ser al menos 1.", variant: "destructive" });
-      return;
-    }
 
     setIsSubmittingRsvp(true);
     
@@ -134,7 +155,8 @@ export default function EventoPublicoPage() {
         nombreCompleto: rsvpForm.nombreCompleto,
         email: rsvpForm.email,
         confirmacion: rsvpForm.confirmacion,
-        numeroAsistentes: rsvpForm.numeroAsistentes,
+        numeroAsistentes: (rsvpForm.numberOfCompanions || 0) + 1,
+        companionNames: rsvpForm.companionNames.filter(name => name.trim()),
         mensaje: rsvpForm.mensaje,
       });
 
@@ -147,7 +169,7 @@ export default function EventoPublicoPage() {
             title: "Respuesta Recibida",
             description: `Gracias ${rsvpForm.nombreCompleto}, hemos recibido tu respuesta. ¡Lamentamos que no puedas asistir!`,
           });
-          setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numeroAsistentes: 1, mensaje: '' }); 
+          setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numberOfCompanions: 0, companionNames: [], mensaje: '' }); 
         }
       } else {
         toast({ title: "Error en la Confirmación", description: result.error || "No se pudo procesar tu respuesta. Por favor, contacta al organizador.", variant: "destructive" });
@@ -372,15 +394,40 @@ export default function EventoPublicoPage() {
                             <SelectContent>
                                 <SelectItem value="si" className="text-base">Sí, ¡allí estaré!</SelectItem>
                                 <SelectItem value="no" className="text-base">No, lamentablemente no podré asistir.</SelectItem>
-                                <SelectItem value="quizas" className="text-base">Quizás, aún no estoy seguro/a.</SelectItem>
                             </SelectContent>
                             </Select>
                         </div>
-                        {(rsvpForm.confirmacion === 'si' || rsvpForm.confirmacion === 'quizas') && (
-                            <div className="space-y-1">
-                            <Label htmlFor="rsvp-asistentes" className="font-medium">¿Cuántas personas en total (incluyéndote)?</Label>
-                            <Input id="rsvp-asistentes" type="number" value={rsvpForm.numeroAsistentes} onChange={(e) => handleRsvpInputChange('numeroAsistentes', parseInt(e.target.value, 10) || 1)} min="1" className="text-base p-3" disabled={isSubmittingRsvp}/>
-                            </div>
+                        {rsvpForm.confirmacion === 'si' && (
+                            <>
+                                <div className="space-y-1">
+                                    <Label htmlFor="rsvp-companions" className="font-medium">¿Vas con acompañantes?</Label>
+                                    <Input
+                                        id="rsvp-companions"
+                                        type="number"
+                                        value={rsvpForm.numberOfCompanions}
+                                        onChange={(e) => handleRsvpInputChange('numberOfCompanions', parseInt(e.target.value, 10) || 0)}
+                                        min="0"
+                                        max="10"
+                                        className="text-base p-3"
+                                        disabled={isSubmittingRsvp}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Ingresa el número de personas que irán contigo (sin contarte a ti).</p>
+                                </div>
+
+                                {rsvpForm.companionNames.map((name, index) => (
+                                    <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
+                                        <Label htmlFor={`companion-name-${index}`} className="font-medium">Nombre Acompañante {index + 1}</Label>
+                                        <Input
+                                            id={`companion-name-${index}`}
+                                            value={name}
+                                            onChange={(e) => handleCompanionNameChange(index, e.target.value)}
+                                            placeholder={`Nombre completo del acompañante ${index + 1}`}
+                                            className="text-base p-3"
+                                            disabled={isSubmittingRsvp}
+                                        />
+                                    </div>
+                                ))}
+                            </>
                         )}
                         <div className="space-y-1">
                             <Label htmlFor="rsvp-mensaje" className="font-medium">Mensaje Adicional (Opcional)</Label>
@@ -405,4 +452,3 @@ export default function EventoPublicoPage() {
     </div>
   );
 }
-    

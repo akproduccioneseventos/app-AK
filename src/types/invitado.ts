@@ -9,6 +9,7 @@ export interface Invitado {
   partySize?: number; // Cuántas personas vienen con esta invitación (ej. +1)
   tableNumber?: string; // Número de mesa asignado
   notes?: string; // Notas adicionales (alergias, comentarios)
+  companionNames?: string[]; // Nombres de los acompañantes
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID
