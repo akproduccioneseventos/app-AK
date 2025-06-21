@@ -33,12 +33,6 @@ export default function ComprasPage() {
           <p className="text-muted-foreground">
             Podrás llevar un control de todas las compras necesarias para tus eventos y crear listas de verificación personalizadas.
           </p>
-          <img 
-            src="https://placehold.co/600x300.png" 
-            alt="Compras y checklist en construcción" 
-            className="mt-6 rounded-md shadow-md mx-auto"
-            data-ai-hint="shopping list construction"
-          />
            <p className="text-sm text-muted-foreground pt-4">
             Por ahora, puedes usar la sección de "Tareas del Evento" dentro del planificador de la fiesta actual.
           </p>
