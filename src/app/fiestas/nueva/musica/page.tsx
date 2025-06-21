@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -283,12 +282,6 @@ export default function MusicaFiestaPage() {
                 disabled={isSaving}
               />
             </div>
-             <img 
-                src="https://placehold.co/600x300.png" 
-                alt="Ambiente musical de fiesta" 
-                className="mt-6 rounded-md shadow-md mx-auto"
-                data-ai-hint="party music dj"
-            />
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoading}>
