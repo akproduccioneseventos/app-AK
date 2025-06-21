@@ -24,6 +24,8 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Badge } from '@/components/ui/badge';
+
 
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
@@ -35,7 +37,6 @@ export default function InvitadosEventoPage() {
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoContacto, setNuevoContacto] = useState('');
   const [nuevoPartySize, setNuevoPartySize] = useState<number>(1);
-  // nuevoNotes state removed
 
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -58,6 +59,37 @@ export default function InvitadosEventoPage() {
     fetchInvitados();
   }, [fetchInvitados]);
 
+  // Effect to sync companionNames array with partySize in the modal
+  useEffect(() => {
+    if (!isEditModalOpen || !editingInvitado) return;
+
+    const partySize = editingInvitado.partySize || 1;
+    const numberOfCompanions = partySize > 0 ? partySize - 1 : 0;
+    
+    setEditingInvitado(prev => {
+        if (!prev) return null;
+        const currentNames = prev.companionNames || [];
+        const newNames = Array(numberOfCompanions).fill('');
+        for (let i = 0; i < Math.min(numberOfCompanions, currentNames.length); i++) {
+            newNames[i] = currentNames[i];
+        }
+        // Only update if the array is actually different to prevent infinite loops
+        if (JSON.stringify(newNames) !== JSON.stringify(prev.companionNames)) {
+            return { ...prev, companionNames: newNames };
+        }
+        return prev;
+    });
+  }, [isEditModalOpen, editingInvitado?.partySize]);
+
+  const handleCompanionNameChangeInModal = (index: number, value: string) => {
+    setEditingInvitado(prev => {
+        if (!prev) return null;
+        const newCompanionNames = [...(prev.companionNames || [])];
+        newCompanionNames[index] = value;
+        return { ...prev, companionNames: newCompanionNames };
+    });
+  };
+
   const handleAddInvitado = async (e: FormEvent) => {
     e.preventDefault();
     if (!nuevoNombre.trim()) {
@@ -70,16 +102,15 @@ export default function InvitadosEventoPage() {
       contacto: nuevoContacto.trim() || undefined,
       rsvp: 'Pendiente',
       partySize: Number(nuevoPartySize) || 1,
-      notes: undefined, // Notes field is no longer collected from this form
+      notes: undefined, 
+      companionNames: [],
     };
     const result = await addInvitadoFiestaActual(nuevoInvitadoData);
     if (result.success && result.invitado) {
-      //setInvitados(prev => [result.invitado!, ...prev].sort((a,b) => a.nombre.localeCompare(b.nombre)));
-      await fetchInvitados(); // Recargar para asegurar el orden y IDs correctos
+      await fetchInvitados(); 
       setNuevoNombre('');
       setNuevoContacto('');
       setNuevoPartySize(1);
-      // No need to reset nuevoNotes
       toast({ title: "Invitado Añadido", description: `${result.invitado.nombre} ha sido añadido.` });
     } else {
       toast({ title: "Error al Añadir", description: result.error || "No se pudo añadir el invitado.", variant: "destructive" });
@@ -98,7 +129,7 @@ export default function InvitadosEventoPage() {
     
     // Persist change
     const invitadoActualizado = { ...invitadoOriginal, [field]: value };
-     if (field === 'partySize' || field === 'tableNumber') { // Ensure numeric conversion for these
+     if (field === 'partySize' || field === 'tableNumber') {
         invitadoActualizado[field] = value === '' ? undefined : Number(value) || (field === 'partySize' ? 1 : undefined);
      }
     
@@ -112,22 +143,18 @@ export default function InvitadosEventoPage() {
   const handleDeleteInvitado = async (invitadoId: string) => {
     const invitadoAEliminar = invitados.find(inv => inv.id === invitadoId);
     if (!invitadoAEliminar) return;
-    
-    // Optimistic update
-    // setInvitados(prev => prev.filter(inv => inv.id !== invitadoId));
 
     const result = await deleteInvitadoFiestaActual(invitadoId);
     if (result.success) {
-      await fetchInvitados(); // Recargar
+      await fetchInvitados();
       toast({ title: "Invitado Eliminado", description: `${invitadoAEliminar.nombre} ha sido eliminado.`, variant: "destructive" });
     } else {
       toast({ title: "Error al Eliminar", description: result.error || "No se pudo eliminar el invitado.", variant: "destructive" });
-      // setInvitados(prev => [...prev, invitadoAEliminar].sort((a,b)=>a.nombre.localeCompare(b.nombre))); // Revert
     }
   };
 
   const openEditModal = (invitado: Invitado) => {
-    setEditingInvitado({ ...invitado }); // Clonar para evitar modificar el estado directamente
+    setEditingInvitado({ ...invitado, companionNames: invitado.companionNames || [] });
     setIsEditModalOpen(true);
   };
 
@@ -139,9 +166,13 @@ export default function InvitadosEventoPage() {
       return;
     }
     setIsSaving(true);
-    const result = await updateInvitadoFiestaActual(editingInvitado);
+    const dataToSave = {
+      ...editingInvitado,
+      companionNames: (editingInvitado.companionNames || []).filter(name => name.trim() !== '')
+    };
+    const result = await updateInvitadoFiestaActual(dataToSave);
     if (result.success && result.invitado) {
-      await fetchInvitados(); // Recargar
+      await fetchInvitados(); 
       setIsEditModalOpen(false);
       setEditingInvitado(null);
       toast({ title: "Invitado Actualizado", description: `${result.invitado.nombre} guardado.` });
@@ -194,10 +225,9 @@ export default function InvitadosEventoPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                <Label htmlFor="partysize-invitado">Nº Personas (Invitación)</Label>
+                <Label htmlFor="partysize-invitado">Nº Personas (Total, incl. invitado)</Label>
                 <Input id="partysize-invitado" type="number" value={nuevoPartySize} onChange={(e) => setNuevoPartySize(Number(e.target.value))} min="1" />
                 </div>
-                 {/* Notes field removed from here */}
             </div>
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus2 className="w-4 h-4 mr-2" />}
@@ -223,8 +253,13 @@ export default function InvitadosEventoPage() {
                 {invitados.map((invitado) => (
                   <Card key={invitado.id} className="p-3 hover:shadow-md transition-shadow bg-muted/30">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <div className="flex-grow space-y-0.5">
+                      <div className="flex-grow space-y-1">
                         <p className="font-semibold text-foreground">{invitado.nombre}</p>
+                        {invitado.companionNames && invitado.companionNames.length > 0 && (
+                            <p className="text-xs text-muted-foreground pl-2">
+                                <span className="font-medium">Acompañantes:</span> {invitado.companionNames.join(', ')}
+                            </p>
+                        )}
                         {invitado.contacto && (
                           <div className="text-xs text-muted-foreground flex items-center gap-1">
                             {invitado.contacto.includes('@') ? <Mail className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
@@ -240,7 +275,7 @@ export default function InvitadosEventoPage() {
                             <Select value={invitado.rsvp} onValueChange={(value: RsvpStatus) => handleFieldChange(invitado.id, 'rsvp', value)}>
                                 <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                {(['Pendiente', 'Confirmado', 'Rechazado', 'Quizás'] as RsvpStatus[]).map(status => (
+                                {(['Pendiente', 'Confirmado', 'Rechazado'] as RsvpStatus[]).map(status => (
                                     <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
                                 ))}
                                 </SelectContent>
@@ -298,15 +333,27 @@ export default function InvitadosEventoPage() {
                 <Input id="edit-contacto" value={editingInvitado.contacto || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, contacto: e.target.value} : null)} />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="edit-partySize">Nº Personas</Label>
+                <Label htmlFor="edit-partySize">Nº Personas (Total, incl. invitado)</Label>
                 <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => setEditingInvitado(p => p ? {...p, partySize: Number(e.target.value) || 1} : null)} min="1" />
               </div>
+              {editingInvitado.companionNames && editingInvitado.companionNames.map((name, index) => (
+                <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
+                  <Label htmlFor={`companion-name-${index}`} className="text-sm">Nombre Acompañante {index + 1}</Label>
+                  <Input
+                      id={`companion-name-${index}`}
+                      value={name}
+                      onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
+                      placeholder={`Nombre completo del acompañante ${index + 1}`}
+                      disabled={isSaving}
+                  />
+                </div>
+              ))}
                <div className="space-y-1">
                 <Label htmlFor="edit-rsvp">Estado RSVP</Label>
                  <Select value={editingInvitado.rsvp} onValueChange={(value: RsvpStatus) => setEditingInvitado(p => p ? {...p, rsvp: value} : null)}>
                     <SelectTrigger id="edit-rsvp"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                    {(['Pendiente', 'Confirmado', 'Rechazado', 'Quizás'] as RsvpStatus[]).map(status => (
+                    {(['Pendiente', 'Confirmado', 'Rechazado'] as RsvpStatus[]).map(status => (
                         <SelectItem key={status} value={status}>{status}</SelectItem>
                     ))}
                     </SelectContent>
@@ -335,4 +382,3 @@ export default function InvitadosEventoPage() {
     </div>
   );
 }
-
