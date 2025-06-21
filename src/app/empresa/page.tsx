@@ -35,6 +35,13 @@ const empresaHubItems: HubItem[] = [
     icon: CircleDollarSign,
     actionLabel: 'Ir a Contabilidad',
   },
+  {
+    title: 'Inventario General y Valor de Activos',
+    description: 'Gestiona tu catálogo maestro de insumos, activos y servicios.',
+    href: '/empresa/todos-los-servicios',
+    icon: Package,
+    actionLabel: 'Ir a Inventario',
+  },
 ];
 
 export default function EmpresaHubPage() {
