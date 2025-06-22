@@ -402,7 +402,7 @@ export default function EventoPublicoPage() {
                             </Select>
                         </div>
                         {rsvpForm.confirmacion === 'si' && (
-                            <>
+                            <div className="space-y-4 pt-3 border-t">
                                 <div className="space-y-1">
                                     <Label htmlFor="rsvp-companions" className="font-medium">¿Vas con acompañantes?</Label>
                                     <Input
@@ -431,7 +431,7 @@ export default function EventoPublicoPage() {
                                         />
                                     </div>
                                 ))}
-                            </>
+                            </div>
                         )}
                         <div className="space-y-1">
                             <Label htmlFor="rsvp-mensaje" className="font-medium">Mensaje Adicional (Opcional)</Label>
@@ -457,4 +457,3 @@ export default function EventoPublicoPage() {
   );
 }
 
-    

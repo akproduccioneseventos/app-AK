@@ -59,11 +59,11 @@ export default function InvitadosEventoPage() {
     fetchInvitados();
   }, [fetchInvitados]);
 
-  const handlePartySizeChangeInModal = (newSize: number) => {
+  const handlePartySizeChangeInModal = (newSizeStr: string) => {
     setEditingInvitado(prev => {
       if (!prev) return null;
-
-      const partySize = newSize > 0 ? newSize : 1;
+      const newSize = parseInt(newSizeStr, 10);
+      const partySize = isNaN(newSize) || newSize < 1 ? 1 : newSize;
       const numberOfCompanions = partySize > 0 ? partySize - 1 : 0;
       
       const currentNames = prev.companionNames || [];
@@ -149,7 +149,14 @@ export default function InvitadosEventoPage() {
   };
 
   const openEditModal = (invitado: Invitado) => {
-    setEditingInvitado({ ...invitado, companionNames: invitado.companionNames || [] });
+    const partySize = invitado.partySize || 1;
+    const numberOfCompanions = partySize > 0 ? partySize - 1 : 0;
+    const existingNames = invitado.companionNames || [];
+    const companionNames = Array(numberOfCompanions).fill('');
+    for (let i = 0; i < Math.min(numberOfCompanions, existingNames.length); i++) {
+        companionNames[i] = existingNames[i];
+    }
+    setEditingInvitado({ ...invitado, partySize, companionNames });
     setIsEditModalOpen(true);
   };
 
@@ -329,7 +336,7 @@ export default function InvitadosEventoPage() {
               </div>
               <div className="space-y-1">
                 <Label htmlFor="edit-partySize">Nº Personas (Total, incl. invitado)</Label>
-                <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => handlePartySizeChangeInModal(Number(e.target.value))} min="1" />
+                <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => handlePartySizeChangeInModal(e.target.value)} min="1" />
               </div>
               
               {editingInvitado.companionNames && editingInvitado.companionNames.length > 0 && (
@@ -338,7 +345,7 @@ export default function InvitadosEventoPage() {
                     {editingInvitado.companionNames.map((name, index) => (
                       <div key={index} className="space-y-1">
                           <Input
-                              id={`companion-name-${index}`}
+                              id={`companion-name-edit-${index}`}
                               value={name}
                               onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
                               placeholder={`Nombre completo del acompañante ${index + 1}`}
@@ -384,4 +391,3 @@ export default function InvitadosEventoPage() {
   );
 }
 
-    
