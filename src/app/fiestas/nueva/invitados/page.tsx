@@ -59,27 +59,22 @@ export default function InvitadosEventoPage() {
     fetchInvitados();
   }, [fetchInvitados]);
 
-  // Effect to sync companionNames array with partySize in the modal
-  useEffect(() => {
-    if (!isEditModalOpen || !editingInvitado) return;
-
-    const partySize = editingInvitado.partySize || 1;
-    const numberOfCompanions = partySize > 0 ? partySize - 1 : 0;
-    
+  const handlePartySizeChangeInModal = (newSize: number) => {
     setEditingInvitado(prev => {
-        if (!prev) return null;
-        const currentNames = prev.companionNames || [];
-        const newNames = Array(numberOfCompanions).fill('');
-        for (let i = 0; i < Math.min(numberOfCompanions, currentNames.length); i++) {
-            newNames[i] = currentNames[i];
-        }
-        // Only update if the array is actually different to prevent infinite loops
-        if (JSON.stringify(newNames) !== JSON.stringify(prev.companionNames)) {
-            return { ...prev, companionNames: newNames };
-        }
-        return prev;
+      if (!prev) return null;
+
+      const partySize = newSize > 0 ? newSize : 1;
+      const numberOfCompanions = partySize > 0 ? partySize - 1 : 0;
+      
+      const currentNames = prev.companionNames || [];
+      const newCompanionNames = Array(numberOfCompanions).fill('');
+      for (let i = 0; i < Math.min(numberOfCompanions, currentNames.length); i++) {
+          newCompanionNames[i] = currentNames[i];
+      }
+
+      return { ...prev, partySize, companionNames: newCompanionNames };
     });
-  }, [isEditModalOpen, editingInvitado?.partySize]);
+  };
 
   const handleCompanionNameChangeInModal = (index: number, value: string) => {
     setEditingInvitado(prev => {
@@ -334,20 +329,26 @@ export default function InvitadosEventoPage() {
               </div>
               <div className="space-y-1">
                 <Label htmlFor="edit-partySize">Nº Personas (Total, incl. invitado)</Label>
-                <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => setEditingInvitado(p => p ? {...p, partySize: Number(e.target.value) || 1} : null)} min="1" />
+                <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => handlePartySizeChangeInModal(Number(e.target.value))} min="1" />
               </div>
-              {editingInvitado.companionNames && editingInvitado.companionNames.map((name, index) => (
-                <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
-                  <Label htmlFor={`companion-name-${index}`} className="text-sm">Nombre Acompañante {index + 1}</Label>
-                  <Input
-                      id={`companion-name-${index}`}
-                      value={name}
-                      onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
-                      placeholder={`Nombre completo del acompañante ${index + 1}`}
-                      disabled={isSaving}
-                  />
+              
+              {editingInvitado.companionNames && editingInvitado.companionNames.length > 0 && (
+                  <div className="space-y-2 pl-4 border-l-2 border-primary/50">
+                     <Label className="text-sm">Nombres de Acompañantes</Label>
+                    {editingInvitado.companionNames.map((name, index) => (
+                      <div key={index} className="space-y-1">
+                          <Input
+                              id={`companion-name-${index}`}
+                              value={name}
+                              onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
+                              placeholder={`Nombre completo del acompañante ${index + 1}`}
+                              disabled={isSaving}
+                          />
+                      </div>
+                    ))}
                 </div>
-              ))}
+              )}
+
                <div className="space-y-1">
                 <Label htmlFor="edit-rsvp">Estado RSVP</Label>
                  <Select value={editingInvitado.rsvp} onValueChange={(value: RsvpStatus) => setEditingInvitado(p => p ? {...p, rsvp: value} : null)}>

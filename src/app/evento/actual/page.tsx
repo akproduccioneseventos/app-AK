@@ -102,22 +102,22 @@ export default function EventoPublicoPage() {
     loadEventData();
   }, [loadEventData]);
 
-  // Effect to sync companionNames array with numberOfCompanions
-  useEffect(() => {
-    const num = rsvpForm.numberOfCompanions || 0;
-    setRsvpForm(prev => {
-        const currentNames = prev.companionNames;
-        const newNames = Array(num).fill('');
-        for (let i = 0; i < Math.min(num, currentNames.length); i++) {
-            newNames[i] = currentNames[i];
-        }
-        return { ...prev, companionNames: newNames };
-    });
-  }, [rsvpForm.numberOfCompanions]);
-
-
   const handleRsvpInputChange = (field: keyof Omit<RsvpFormData, 'companionNames'>, value: string | number) => {
-    setRsvpForm(prev => ({...prev, [field]: value}));
+    setRsvpForm(prev => {
+        const newForm = {...prev, [field]: value};
+        
+        if (field === 'numberOfCompanions') {
+            const num = Number(value) || 0;
+            const currentNames = prev.companionNames || [];
+            const newCompanionNames = Array(num).fill('');
+            for (let i = 0; i < Math.min(num, currentNames.length); i++) {
+                newCompanionNames[i] = currentNames[i];
+            }
+            newForm.companionNames = newCompanionNames;
+        }
+
+        return newForm;
+    });
   };
 
   const handleCompanionNameChange = (index: number, value: string) => {
