@@ -48,7 +48,7 @@ type RsvpFormData = {
   nombreCompleto: string;
   email: string;
   confirmacion: 'si' | 'no' | '';
-  numberOfCompanions: number;
+  numberOfCompanions: string;
   companionNames: string[];
   mensaje: string;
 };
@@ -65,7 +65,7 @@ export default function EventoPublicoPage() {
     nombreCompleto: '',
     email: '',
     confirmacion: '',
-    numberOfCompanions: 0,
+    numberOfCompanions: '0',
     companionNames: [],
     mensaje: ''
   });
@@ -118,7 +118,7 @@ export default function EventoPublicoPage() {
         }
         return {
             ...prev,
-            numberOfCompanions: count,
+            numberOfCompanions: value, // Store raw string value
             companionNames: newCompanionNames,
         };
     });
@@ -136,8 +136,7 @@ export default function EventoPublicoPage() {
     setRsvpForm(prev => ({
       ...prev, 
       confirmacion: value,
-      numberOfCompanions: value === 'si' ? prev.numberOfCompanions : 0,
-      companionNames: value === 'si' ? prev.companionNames : [],
+      // Companion info is preserved when toggling, just hidden by the JSX conditional.
     }));
   };
 
@@ -159,7 +158,7 @@ export default function EventoPublicoPage() {
         nombreCompleto: rsvpForm.nombreCompleto,
         email: rsvpForm.email,
         confirmacion: rsvpForm.confirmacion,
-        numeroAsistentes: (rsvpForm.numberOfCompanions || 0) + 1,
+        numeroAsistentes: (parseInt(rsvpForm.numberOfCompanions, 10) || 0) + 1,
         companionNames: rsvpForm.companionNames.filter(name => name.trim()),
         mensaje: rsvpForm.mensaje,
       });
@@ -173,7 +172,7 @@ export default function EventoPublicoPage() {
             title: "Respuesta Recibida",
             description: `Gracias ${rsvpForm.nombreCompleto}, hemos recibido tu respuesta. ¡Lamentamos que no puedas asistir!`,
           });
-          setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numberOfCompanions: 0, companionNames: [], mensaje: '' }); 
+          setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numberOfCompanions: '0', companionNames: [], mensaje: '' }); 
         }
       } else {
         toast({ title: "Error en la Confirmación", description: result.error || "No se pudo procesar tu respuesta. Por favor, contacta al organizador.", variant: "destructive" });

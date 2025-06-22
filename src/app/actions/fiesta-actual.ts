@@ -676,18 +676,19 @@ export async function handleRsvpSubmission(
 
     const invitadoActual = fiestaActual.invitados[guestIndex];
     let newRsvpStatus: RsvpStatus = 'Pendiente';
-    if (submissionData.confirmacion === 'si') newRsvpStatus = 'Confirmado';
-    else if (submissionData.confirmacion === 'no') newRsvpStatus = 'Rechazado';
+    const isAttending = submissionData.confirmacion === 'si';
+    if (isAttending) newRsvpStatus = 'Confirmado';
+    else newRsvpStatus = 'Rechazado';
 
     const updatedInvitado: Invitado = {
       ...invitadoActual,
       rsvp: newRsvpStatus,
-      partySize: Number(submissionData.numeroAsistentes) || invitadoActual.partySize || 1,
+      partySize: isAttending ? (Number(submissionData.numeroAsistentes) || 1) : 1,
       contacto: submissionData.email?.trim() || invitadoActual.contacto,
       notes: submissionData.mensaje?.trim()
         ? `${submissionData.mensaje.trim()}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}`
         : invitadoActual.notes,
-      companionNames: submissionData.companionNames?.filter(name => name.trim() !== '') || [],
+      companionNames: isAttending ? (submissionData.companionNames?.filter(name => name.trim() !== '') || []) : [],
     };
 
     fiestaActual.invitados[guestIndex] = updatedInvitado;

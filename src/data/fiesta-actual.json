@@ -115,6 +115,15 @@
     "programaEventoText": "",
     "musicaEspecialText": ""
   },
+  "clientPortalSettings": {
+    "enabled": true,
+    "showPresupuesto": true,
+    "showPagos": true,
+    "showContrato": true,
+    "showInvitados": true,
+    "showMusica": true,
+    "showMenu": false
+  },
   "musica": {
     "cancionEntrada": "",
     "cancionVals": "",
