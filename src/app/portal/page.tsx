@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, FileSignature, Users, Music2, ChefHat, ExternalLink, ClipboardUser, Globe } from 'lucide-react';
+import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, FileSignature, Users, Music2, ChefHat, ExternalLink, ClipboardCheck, Globe } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import Link from 'next/link';
@@ -119,7 +119,7 @@ export default function ClientPortalPage() {
         <div className="min-h-screen bg-muted/40 p-4 sm:p-6 md:p-8">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-8 text-center">
-                    <ClipboardUser className="w-12 h-12 mx-auto text-primary mb-3" />
+                    <ClipboardCheck className="w-12 h-12 mx-auto text-primary mb-3" />
                     <h1 className="text-4xl font-bold tracking-tight font-headline">{configuracion.nombreEvento}</h1>
                     <p className="text-lg text-muted-foreground">Portal del Cliente | {formatDate(configuracion.fechaEvento)}</p>
                 </header>
@@ -153,4 +153,3 @@ export default function ClientPortalPage() {
         </div>
     );
 }
-

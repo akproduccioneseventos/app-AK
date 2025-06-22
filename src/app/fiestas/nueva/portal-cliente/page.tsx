@@ -19,7 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import NextImage from 'next/image';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
-  ClipboardUser, FileText, Banknote, FileSignature, Users,
+  ClipboardCheck, FileText, Banknote, FileSignature, Users,
   Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink
 } from 'lucide-react';
 
@@ -165,7 +165,7 @@ export default function PortalClientePage() {
         <div className="max-w-4xl mx-auto space-y-8">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <ClipboardUser className="w-8 h-8 text-primary" />
+                    <ClipboardCheck className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del Cliente y Página Pública</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
