@@ -102,21 +102,25 @@ export default function EventoPublicoPage() {
     loadEventData();
   }, [loadEventData]);
 
-  const handleRsvpInputChange = (field: keyof Omit<RsvpFormData, 'companionNames'>, value: string | number) => {
-    setRsvpForm(prev => {
-        const newForm = {...prev, [field]: value};
-        
-        if (field === 'numberOfCompanions') {
-            const num = Number(value) || 0;
-            const currentNames = prev.companionNames || [];
-            const newCompanionNames = Array(num).fill('');
-            for (let i = 0; i < Math.min(num, currentNames.length); i++) {
-                newCompanionNames[i] = currentNames[i];
-            }
-            newForm.companionNames = newCompanionNames;
-        }
+  const handleRsvpInputChange = (field: keyof Omit<RsvpFormData, 'companionNames' | 'numberOfCompanions'>, value: string) => {
+    setRsvpForm(prev => ({...prev, [field]: value}));
+  };
 
-        return newForm;
+  const handleCompanionNumberChange = (value: string) => {
+    const num = parseInt(value, 10);
+    const count = isNaN(num) || num < 0 ? 0 : num;
+
+    setRsvpForm(prev => {
+        const currentNames = prev.companionNames || [];
+        const newCompanionNames = Array(count).fill('');
+        for (let i = 0; i < Math.min(count, currentNames.length); i++) {
+            newCompanionNames[i] = currentNames[i];
+        }
+        return {
+            ...prev,
+            numberOfCompanions: count,
+            companionNames: newCompanionNames,
+        };
     });
   };
 
@@ -161,7 +165,7 @@ export default function EventoPublicoPage() {
       });
 
       if (result.success && result.invitado) {
-        if (result.invitado.rsvp === 'Confirmado' || result.invitado.rsvp === 'Quizás') {
+        if (result.invitado.rsvp === 'Confirmado') {
           setConfirmedGuestDetails(result.invitado);
           setRsvpSubmittedSuccessfully(true); 
         } else { // Rechazado
@@ -363,7 +367,7 @@ export default function EventoPublicoPage() {
                          <p className="text-xl">
                             Tu estado de asistencia ({confirmedGuestDetails.rsvp}) para {confirmedGuestDetails.partySize} persona(s) ha sido registrado.
                         </p>
-                        {confirmedGuestDetails.id && (confirmedGuestDetails.rsvp === 'Confirmado' || confirmedGuestDetails.rsvp === 'Quizás') && (
+                        {confirmedGuestDetails.id && confirmedGuestDetails.rsvp === 'Confirmado' && (
                             <div className="mt-8 space-y-4">
                                 <p className="font-semibold text-lg">Tu código QR para el evento:</p>
                                 <div className="flex justify-center p-4 bg-white rounded-lg border shadow-inner">
@@ -405,7 +409,7 @@ export default function EventoPublicoPage() {
                                         id="rsvp-companions"
                                         type="number"
                                         value={rsvpForm.numberOfCompanions}
-                                        onChange={(e) => handleRsvpInputChange('numberOfCompanions', parseInt(e.target.value, 10) || 0)}
+                                        onChange={(e) => handleCompanionNumberChange(e.target.value)}
                                         min="0"
                                         max="10"
                                         className="text-base p-3"
