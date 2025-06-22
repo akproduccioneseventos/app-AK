@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -21,8 +21,6 @@ export const baseDefaultTareas: Omit<Tarea, 'id'>[] = [
   { texto: 'Elegir decoración y temática', completada: false, descripcion: 'Definir el estilo, colores y elementos decorativos principales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
   { texto: 'Enviar invitaciones', completada: false, descripcion: 'Diseñar, imprimir y enviar las invitaciones físicas o digitales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
 ];
-
-// tareasPredeterminadasEjemplo has been removed as per user request.
 
 export const defaultColorPalette: ColorPalette = {
   primary: '#D9B8FF', // Lila pastel
@@ -77,6 +75,16 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   showRsvp: true,
   programaEventoText: '',
   musicaEspecialText: '',
+};
+
+export const defaultClientPortalSettings: ClientPortalSettings = {
+  enabled: false,
+  showPresupuesto: true,
+  showPagos: true,
+  showContrato: true,
+  showInvitados: false,
+  showMusica: false,
+  showMenu: true,
 };
 
 export const defaultMusicaFiesta: MusicaFiesta = {
@@ -154,9 +162,10 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   },
   invitados: [],
   webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },
+  clientPortalSettings: { ...defaultClientPortalSettings },
   musica: { ...defaultMusicaFiesta, cancionesTortaBrindis: [] },
   reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
   bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
   listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
-  gestionCostos: { ...initialGestionCostosData }, // Nuevo módulo
+  gestionCostos: { ...initialGestionCostosData },
 };

@@ -116,6 +116,18 @@ export interface EventWebPageSettings {
   musicaEspecialText?: string;
 }
 
+export interface ClientPortalSettings {
+  enabled: boolean;
+  accessKey?: string; // For future password/link protection
+  showPresupuesto: boolean;
+  showPagos: boolean;
+  showContrato: boolean;
+  showInvitados: boolean;
+  showMusica: boolean;
+  showMenu: boolean;
+  // Note: showOrganizacion can link to the public page
+}
+
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
@@ -273,6 +285,7 @@ export interface FiestaEnPlanificacion {
   decoracion?: DecoracionData;
   invitados?: Invitado[];
   webPageSettings?: EventWebPageSettings;
+  clientPortalSettings?: ClientPortalSettings;
   musica?: MusicaFiesta;
   reposteria?: ReposteriaData;
   bebidas?: BebidasData;

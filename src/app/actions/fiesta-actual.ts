@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -12,6 +12,7 @@ import {
   defaultColorPalette,
   defaultDecoracion,
   defaultWebPageSettings,
+  defaultClientPortalSettings,
   defaultMusicaFiesta,
   defaultReposteriaData,
   defaultBebidasData,
@@ -77,6 +78,9 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         galleryImageUrls: parsedData.webPageSettings.galleryImageUrls || [],
       };
     }
+    if (!parsedData.clientPortalSettings) {
+      parsedData.clientPortalSettings = { ...defaultClientPortalSettings };
+    }
     if (!parsedData.listaDeCargaOperativa) {
       parsedData.listaDeCargaOperativa = { ...defaultListaDeCargaOperativa };
     }
@@ -128,6 +132,9 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
         ...dataToWrite.webPageSettings,
         galleryImageUrls: dataToWrite.webPageSettings.galleryImageUrls || [],
       };
+    }
+    if (!dataToWrite.clientPortalSettings) {
+      dataToWrite.clientPortalSettings = { ...defaultClientPortalSettings };
     }
     if (!dataToWrite.listaDeCargaOperativa) {
       dataToWrite.listaDeCargaOperativa = { ...defaultListaDeCargaOperativa };
@@ -256,6 +263,11 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
     };
     
+    const validatedClientPortalSettings: ClientPortalSettings = {
+      ...defaultClientPortalSettings,
+      ...(data.clientPortalSettings || {}),
+    };
+    
    const validatedListaDeCargaOperativa: ListaDeCargaOperativa = {
       ...defaultListaDeCargaOperativa,
       ...(data.listaDeCargaOperativa || {}),
@@ -313,6 +325,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       companionNames: inv.companionNames || [],
     })),
     webPageSettings: validatedWebPageSettings,
+    clientPortalSettings: validatedClientPortalSettings,
     musica: {
       ...defaultMusicaFiesta,
       ...(data.musica || {}),
@@ -715,6 +728,23 @@ export async function updateWebPageSettingsFiestaActual(
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.webPageSettings)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la configuración de la página web." };
+  }
+}
+
+export async function updateClientPortalSettings(
+  settings: ClientPortalSettings
+): Promise<{ success: boolean; updatedData?: ClientPortalSettings; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.clientPortalSettings = {
+      ...defaultClientPortalSettings,
+      ...(fiestaActual.clientPortalSettings || {}),
+      ...settings,
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.clientPortalSettings)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la configuración del portal del cliente." };
   }
 }
 
