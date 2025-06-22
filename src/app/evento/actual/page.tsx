@@ -48,7 +48,7 @@ type RsvpFormData = {
   nombreCompleto: string;
   email: string;
   confirmacion: 'si' | 'no' | '';
-  numberOfCompanions: string;
+  numberOfCompanions: number;
   companionNames: string[];
   mensaje: string;
 };
@@ -65,7 +65,7 @@ export default function EventoPublicoPage() {
     nombreCompleto: '',
     email: '',
     confirmacion: '',
-    numberOfCompanions: '0',
+    numberOfCompanions: 0,
     companionNames: [],
     mensaje: ''
   });
@@ -107,18 +107,15 @@ export default function EventoPublicoPage() {
   };
 
   const handleCompanionNumberChange = (value: string) => {
-    const num = parseInt(value, 10);
-    const count = isNaN(num) || num < 0 ? 0 : num;
+    const newCount = parseInt(value, 10);
+    const count = isNaN(newCount) || newCount < 0 ? 0 : newCount;
 
     setRsvpForm(prev => {
         const currentNames = prev.companionNames || [];
-        const newCompanionNames = Array(count).fill('');
-        for (let i = 0; i < Math.min(count, currentNames.length); i++) {
-            newCompanionNames[i] = currentNames[i];
-        }
+        const newCompanionNames = Array.from({ length: count }, (_, i) => currentNames[i] || '');
         return {
             ...prev,
-            numberOfCompanions: value, // Store raw string value
+            numberOfCompanions: count,
             companionNames: newCompanionNames,
         };
     });
@@ -136,7 +133,6 @@ export default function EventoPublicoPage() {
     setRsvpForm(prev => ({
       ...prev, 
       confirmacion: value,
-      // Companion info is preserved when toggling, just hidden by the JSX conditional.
     }));
   };
 
@@ -158,7 +154,7 @@ export default function EventoPublicoPage() {
         nombreCompleto: rsvpForm.nombreCompleto,
         email: rsvpForm.email,
         confirmacion: rsvpForm.confirmacion,
-        numeroAsistentes: (parseInt(rsvpForm.numberOfCompanions, 10) || 0) + 1,
+        numeroAsistentes: rsvpForm.numberOfCompanions + 1,
         companionNames: rsvpForm.companionNames.filter(name => name.trim()),
         mensaje: rsvpForm.mensaje,
       });
@@ -172,7 +168,7 @@ export default function EventoPublicoPage() {
             title: "Respuesta Recibida",
             description: `Gracias ${rsvpForm.nombreCompleto}, hemos recibido tu respuesta. ¡Lamentamos que no puedas asistir!`,
           });
-          setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numberOfCompanions: '0', companionNames: [], mensaje: '' }); 
+          setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numberOfCompanions: 0, companionNames: [], mensaje: '' }); 
         }
       } else {
         toast({ title: "Error en la Confirmación", description: result.error || "No se pudo procesar tu respuesta. Por favor, contacta al organizador.", variant: "destructive" });
@@ -403,7 +399,7 @@ export default function EventoPublicoPage() {
                         {rsvpForm.confirmacion === 'si' && (
                             <div className="space-y-4 pt-3 border-t">
                                 <div className="space-y-1">
-                                    <Label htmlFor="rsvp-companions" className="font-medium">¿Vas con acompañantes?</Label>
+                                    <Label htmlFor="rsvp-companions" className="font-medium">¿Cuántas personas irán contigo (además de ti)?</Label>
                                     <Input
                                         id="rsvp-companions"
                                         type="number"
@@ -414,15 +410,13 @@ export default function EventoPublicoPage() {
                                         className="text-base p-3"
                                         disabled={isSubmittingRsvp}
                                     />
-                                    <p className="text-xs text-muted-foreground">Ingresa el número de personas que irán contigo (sin contarte a ti).</p>
                                 </div>
-
-                                {rsvpForm.companionNames.map((name, index) => (
+                                {Array.from({ length: rsvpForm.numberOfCompanions }).map((_, index) => (
                                     <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
                                         <Label htmlFor={`companion-name-${index}`} className="font-medium">Nombre Acompañante {index + 1}</Label>
                                         <Input
                                             id={`companion-name-${index}`}
-                                            value={name}
+                                            value={rsvpForm.companionNames[index] || ''}
                                             onChange={(e) => handleCompanionNameChange(index, e.target.value)}
                                             placeholder={`Nombre completo del acompañante ${index + 1}`}
                                             className="text-base p-3"

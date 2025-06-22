@@ -67,10 +67,7 @@ export default function InvitadosEventoPage() {
       const numberOfCompanions = partySize > 0 ? partySize - 1 : 0;
       
       const currentNames = prev.companionNames || [];
-      const newCompanionNames = Array(numberOfCompanions).fill('');
-      for (let i = 0; i < Math.min(numberOfCompanions, currentNames.length); i++) {
-          newCompanionNames[i] = currentNames[i];
-      }
+      const newCompanionNames = Array.from({ length: numberOfCompanions }, (_, i) => currentNames[i] || '');
 
       return { ...prev, partySize, companionNames: newCompanionNames };
     });
@@ -152,10 +149,7 @@ export default function InvitadosEventoPage() {
     const partySize = invitado.partySize || 1;
     const numberOfCompanions = partySize > 0 ? partySize - 1 : 0;
     const existingNames = invitado.companionNames || [];
-    const companionNames = Array(numberOfCompanions).fill('');
-    for (let i = 0; i < Math.min(numberOfCompanions, existingNames.length); i++) {
-        companionNames[i] = existingNames[i];
-    }
+    const companionNames = Array.from({ length: numberOfCompanions }, (_, i) => existingNames[i] || '');
     setEditingInvitado({ ...invitado, partySize, companionNames });
     setIsEditModalOpen(true);
   };
@@ -339,22 +333,18 @@ export default function InvitadosEventoPage() {
                 <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => handlePartySizeChangeInModal(e.target.value)} min="1" />
               </div>
               
-              {editingInvitado.companionNames && editingInvitado.companionNames.length > 0 && (
-                  <div className="space-y-2 pl-4 border-l-2 border-primary/50">
-                     <Label className="text-sm">Nombres de Acompañantes</Label>
-                    {editingInvitado.companionNames.map((name, index) => (
-                      <div key={index} className="space-y-1">
-                          <Input
-                              id={`companion-name-edit-${index}`}
-                              value={name}
-                              onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
-                              placeholder={`Nombre completo del acompañante ${index + 1}`}
-                              disabled={isSaving}
-                          />
-                      </div>
-                    ))}
-                </div>
-              )}
+              {Array.from({ length: (editingInvitado.partySize || 1) - 1 }).map((_, index) => (
+                  <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
+                      <Label htmlFor={`companion-name-edit-${index}`} className="text-sm">Nombre Acompañante {index + 1}</Label>
+                      <Input
+                          id={`companion-name-edit-${index}`}
+                          value={editingInvitado.companionNames?.[index] || ''}
+                          onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
+                          placeholder={`Nombre completo del acompañante ${index + 1}`}
+                          disabled={isSaving}
+                      />
+                  </div>
+              ))}
 
                <div className="space-y-1">
                 <Label htmlFor="edit-rsvp">Estado RSVP</Label>
@@ -390,4 +380,3 @@ export default function InvitadosEventoPage() {
     </div>
   );
 }
-
