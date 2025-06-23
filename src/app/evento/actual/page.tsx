@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
 import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -44,19 +44,16 @@ const formatDate = (dateString?: string, includeTime: boolean = true, timeString
 function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
   const [nombreCompleto, setNombreCompleto] = useState('');
   const [confirmacion, setConfirmacion] = useState<'si' | 'no' | null>(null);
-  const [numeroAsistentes, setNumeroAsistentes] = useState('1');
+  const [numeroAsistentes, setNumeroAsistentes] = useState(1);
   const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [mensaje, setMensaje] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const { toast } = useToast();
 
-  const handlePartySizeChange = (value: string) => {
-    let size = parseInt(value, 10);
-    if (isNaN(size) || size < 1) {
-      size = 1;
-    }
-    setNumeroAsistentes(String(size));
+  const handlePartySizeChange = (newSize: number) => {
+    const size = isNaN(newSize) || newSize < 1 ? 1 : newSize;
+    setNumeroAsistentes(size);
 
     const companionCount = size > 1 ? size - 1 : 0;
     setCompanionNames(currentNames => {
@@ -79,8 +76,7 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
   const handleConfirmacionChange = (value: 'si' | 'no') => {
       setConfirmacion(value);
       if (value === 'no') {
-          setNumeroAsistentes('1');
-          setCompanionNames([]);
+          handlePartySizeChange(1); // Reset to 1 person (the main guest)
       }
   };
 
@@ -101,7 +97,7 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
     const submissionData = {
       nombreCompleto: nombreCompleto.trim(),
       confirmacion,
-      numeroAsistentes: parseInt(numeroAsistentes, 10) || 1,
+      numeroAsistentes: numeroAsistentes,
       mensaje: mensaje.trim(),
       companionNames: companionNames.map(name => name.trim()).filter(name => name !== ''),
     };
@@ -113,8 +109,7 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
         // Reset form
         setNombreCompleto('');
         setConfirmacion(null);
-        setNumeroAsistentes('1');
-        setCompanionNames([]);
+        handlePartySizeChange(1);
         setMensaje('');
       } else {
         throw new Error(result.error || "No se pudo procesar tu respuesta.");
@@ -163,18 +158,18 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
               <div className="p-4 border-l-4 rounded-r-md space-y-4 bg-muted/50" style={{borderColor: primaryColor}}>
                  <div className="space-y-2">
                     <Label htmlFor="numero-asistentes">¿Cuántas personas asistirán en total (incluyéndote)?</Label>
-                    <Input id="numero-asistentes" type="number" min="1" value={numeroAsistentes} onChange={(e) => handlePartySizeChange(e.target.value)} disabled={isSubmitting} />
+                    <Input id="numero-asistentes" type="number" min="1" value={numeroAsistentes} onChange={(e) => handlePartySizeChange(parseInt(e.target.value, 10))} disabled={isSubmitting} />
                  </div>
 
-                {parseInt(numeroAsistentes, 10) > 1 && (
+                {numeroAsistentes > 1 && (
                      <div className="space-y-3">
                         <Label>Nombres de tus acompañantes:</Label>
-                        {companionNames.map((_, index) => (
+                        {Array.from({ length: numeroAsistentes - 1 }).map((_, index) => (
                              <div key={index} className="space-y-1">
                                 <Input
                                     id={`companion-name-${index}`}
                                     placeholder={`Nombre del acompañante ${index + 1}`}
-                                    value={companionNames[index]}
+                                    value={companionNames[index] || ''}
                                     onChange={(e) => handleCompanionNameChange(index, e.target.value)}
                                     disabled={isSubmitting}
                                 />
