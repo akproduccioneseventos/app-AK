@@ -1,22 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, ImageOff, Send, PartyPopper, CalendarDays, MapPin, CheckCircle, QrCode, Users, Info, BookOpen, Percent, Gift, Music2 as MusicIcon } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette } from '@/types/fiesta';
-import type { Invitado, RsvpStatus } from '@/types/invitado';
-import { getFiestaActual, handleRsvpSubmission } from '@/app/actions/fiesta-actual';
-import QRCodeStylized from 'qrcode.react';
-import { CountdownTimer } from '@/components/countdown-timer'; 
-import { Separator } from '@/components/ui/separator';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { CountdownTimer } from '@/components/countdown-timer';
 import { cn } from '@/lib/utils';
 
 const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
@@ -44,15 +36,6 @@ const formatDate = (dateString?: string, includeTime: boolean = true, timeString
 };
 
 
-type RsvpFormData = {
-  nombreCompleto: string;
-  email: string;
-  confirmacion: 'si' | 'no' | '';
-  numberOfCompanions: number;
-  companionNames: string[];
-  mensaje: string;
-};
-
 export default function EventoPublicoPage() {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -60,18 +43,6 @@ export default function EventoPublicoPage() {
   const [paletaColores, setPaletaColores] = useState<ColorPalette | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const [rsvpForm, setRsvpForm] = useState<RsvpFormData>({
-    nombreCompleto: '',
-    email: '',
-    confirmacion: '',
-    numberOfCompanions: 0,
-    companionNames: [],
-    mensaje: ''
-  });
-  const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
-  const [rsvpSubmittedSuccessfully, setRsvpSubmittedSuccessfully] = useState(false);
-  const [confirmedGuestDetails, setConfirmedGuestDetails] = useState<Invitado | null>(null);
 
   const loadEventData = useCallback(async () => {
     setIsLoading(true);
@@ -102,90 +73,6 @@ export default function EventoPublicoPage() {
     loadEventData();
   }, [loadEventData]);
 
-  const handleRsvpInputChange = (field: keyof Omit<RsvpFormData, 'companionNames' | 'numberOfCompanions'>, value: string) => {
-    setRsvpForm(prev => ({...prev, [field]: value}));
-  };
-
-  const handleCompanionNumberChange = (value: string) => {
-    const newCount = parseInt(value, 10);
-    const count = isNaN(newCount) || newCount < 0 ? 0 : newCount;
-
-    setRsvpForm(prev => {
-        const currentNames = prev.companionNames || [];
-        const newCompanionNames = Array.from({ length: count }, (_, i) => currentNames[i] || '');
-        return {
-            ...prev,
-            numberOfCompanions: count,
-            companionNames: newCompanionNames,
-        };
-    });
-  };
-
-  const handleCompanionNameChange = (index: number, value: string) => {
-    setRsvpForm(prev => {
-        const newCompanionNames = [...prev.companionNames];
-        newCompanionNames[index] = value;
-        return { ...prev, companionNames: newCompanionNames };
-    });
-  };
-  
-  const handleRsvpConfirmacionChange = (value: RsvpFormData['confirmacion']) => {
-    setRsvpForm(prev => ({
-      ...prev, 
-      confirmacion: value,
-    }));
-  };
-
-  const handleRsvpSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!rsvpForm.nombreCompleto.trim()) {
-      toast({ title: "Nombre Requerido", description: "Por favor, ingresa tu nombre completo.", variant: "destructive" });
-      return;
-    }
-    if (!rsvpForm.confirmacion) {
-      toast({ title: "Confirmación Requerida", description: "Por favor, selecciona una opción de asistencia.", variant: "destructive" });
-      return;
-    }
-
-    setIsSubmittingRsvp(true);
-    
-    try {
-      const result = await handleRsvpSubmission({
-        nombreCompleto: rsvpForm.nombreCompleto,
-        email: rsvpForm.email,
-        confirmacion: rsvpForm.confirmacion,
-        numeroAsistentes: rsvpForm.numberOfCompanions + 1,
-        companionNames: rsvpForm.companionNames.filter(name => name.trim()),
-        mensaje: rsvpForm.mensaje,
-      });
-
-      if (result.success && result.invitado) {
-        if (result.invitado.rsvp === 'Confirmado') {
-          setConfirmedGuestDetails(result.invitado);
-          setRsvpSubmittedSuccessfully(true); 
-        } else { // Rechazado
-          toast({
-            title: "Respuesta Recibida",
-            description: `Gracias ${rsvpForm.nombreCompleto}, hemos recibido tu respuesta. ¡Lamentamos que no puedas asistir!`,
-          });
-          setRsvpForm({ nombreCompleto: '', email: '', confirmacion: '', numberOfCompanions: 0, companionNames: [], mensaje: '' }); 
-        }
-      } else {
-        toast({ title: "Error en la Confirmación", description: result.error || "No se pudo procesar tu respuesta. Por favor, contacta al organizador.", variant: "destructive" });
-      }
-    } catch (err:any) {
-        toast({ title: "Error", description: err.message || "Ocurrió un problema al enviar tu confirmación.", variant: "destructive" });
-    } finally {
-        setIsSubmittingRsvp(false);
-    }
-  };
-  
-  const getTableAssignmentUrl = (guestId: string) => {
-    if (typeof window !== 'undefined') {
-      return `${window.location.origin}/evento/actual/mesa?guestId=${guestId}`;
-    }
-    return '';
-  };
 
   if (isLoading) {
     return (
@@ -202,7 +89,6 @@ export default function EventoPublicoPage() {
         <AlertTriangle className="w-16 h-16 mb-4" />
         <h2 className="text-2xl font-semibold mb-2">Error al Cargar el Evento</h2>
         <p>{error || "No se pudo encontrar la información del evento."}</p>
-        <Button onClick={loadEventData} variant="destructive" className="mt-6">Intentar de Nuevo</Button>
       </div>
     );
   }
@@ -293,13 +179,6 @@ export default function EventoPublicoPage() {
                                 {webSettings.eventDetailsText}
                             </div>
                         )}
-                        {webSettings.programaEventoText && (<>
-                            <Separator/>
-                            <h3 className="font-semibold pt-2">Programa del Evento:</h3>
-                             <div className="pt-1 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground">
-                                {webSettings.programaEventoText}
-                            </div>
-                        </>)}
                     </CardContent>
                  </Card>
             </section>
@@ -345,103 +224,6 @@ export default function EventoPublicoPage() {
           </section>
         )}
         
-        {webSettings.showRsvp && (
-            <section id="rsvp" className="py-8">
-                <Card className="shadow-xl border-t-4" style={{ borderColor: primaryColor }}>
-                <CardHeader className="text-center">
-                    <CardTitle className="font-headline text-2xl md:text-3xl" style={{ color: primaryColor }}>
-                        {rsvpSubmittedSuccessfully && confirmedGuestDetails ? `¡Gracias, ${confirmedGuestDetails.nombre}!` : 'Confirma tu Asistencia'}
-                    </CardTitle>
-                    <CardDescription className="text-md">
-                        {rsvpSubmittedSuccessfully && confirmedGuestDetails ? 'Hemos recibido tu respuesta.' : 'Por favor, ayúdanos a organizar mejor el evento.'}
-                    </CardDescription>
-                </CardHeader>
-                {rsvpSubmittedSuccessfully && confirmedGuestDetails ? (
-                    <CardContent className="text-center space-y-6 py-8">
-                        <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
-                         <p className="text-xl">
-                            Tu estado de asistencia ({confirmedGuestDetails.rsvp}) para {confirmedGuestDetails.partySize} persona(s) ha sido registrado.
-                        </p>
-                        {confirmedGuestDetails.id && confirmedGuestDetails.rsvp === 'Confirmado' && (
-                            <div className="mt-8 space-y-4">
-                                <p className="font-semibold text-lg">Tu código QR para el evento:</p>
-                                <div className="flex justify-center p-4 bg-white rounded-lg border shadow-inner">
-                                    <QRCodeStylized value={getTableAssignmentUrl(confirmedGuestDetails.id)} size={180} level="H" fgColor={primaryColor} />
-                                </div>
-                                <p className="text-md text-muted-foreground">Escanea este código QR al llegar al salón para conocer tu número de mesa asignado.</p>
-                                {confirmedGuestDetails.tableNumber && <p className="text-lg font-bold mt-2">Mesa Asignada: {confirmedGuestDetails.tableNumber}</p>}
-                                {!confirmedGuestDetails.tableNumber && <p className="text-md text-muted-foreground mt-2">Tu mesa será asignada pronto. ¡Vuelve a escanear el QR más cerca de la fecha!</p>}
-                            </div>
-                        )}
-                        {confirmedGuestDetails.notes && <p className="text-sm italic mt-4 text-muted-foreground">Mensaje Adicional: {confirmedGuestDetails.notes}</p>}
-                    </CardContent>
-                ) : (
-                    <form onSubmit={handleRsvpSubmit}>
-                        <CardContent className="space-y-4 pt-2">
-                        <div className="space-y-1">
-                            <Label htmlFor="rsvp-nombre" className="font-medium">Nombre Completo (como figura en la invitación)</Label>
-                            <Input id="rsvp-nombre" value={rsvpForm.nombreCompleto} onChange={(e) => handleRsvpInputChange('nombreCompleto', e.target.value)} placeholder="Tu nombre y apellido" required className="text-base p-3" disabled={isSubmittingRsvp}/>
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="rsvp-email" className="font-medium">Email (Opcional)</Label>
-                            <Input id="rsvp-email" type="email" value={rsvpForm.email} onChange={(e) => handleRsvpInputChange('email', e.target.value)} placeholder="tu@correo.com" className="text-base p-3" disabled={isSubmittingRsvp}/>
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="rsvp-confirmacion" className="font-medium">¿Asistirás al evento?</Label>
-                            <Select value={rsvpForm.confirmacion} onValueChange={(value: RsvpFormData['confirmacion']) => handleRsvpConfirmacionChange(value)} required disabled={isSubmittingRsvp}>
-                            <SelectTrigger id="rsvp-confirmacion" className="text-base p-3 h-auto"><SelectValue placeholder="Selecciona una opción..." /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="si" className="text-base">Sí, ¡allí estaré!</SelectItem>
-                                <SelectItem value="no" className="text-base">No, lamentablemente no podré asistir.</SelectItem>
-                            </SelectContent>
-                            </Select>
-                        </div>
-                        {rsvpForm.confirmacion === 'si' && (
-                            <div className="space-y-4 pt-3 border-t">
-                                <div className="space-y-1">
-                                    <Label htmlFor="rsvp-companions" className="font-medium">¿Cuántas personas irán contigo (además de ti)?</Label>
-                                    <Input
-                                        id="rsvp-companions"
-                                        type="number"
-                                        value={rsvpForm.numberOfCompanions}
-                                        onChange={(e) => handleCompanionNumberChange(e.target.value)}
-                                        min="0"
-                                        max="10"
-                                        className="text-base p-3"
-                                        disabled={isSubmittingRsvp}
-                                    />
-                                </div>
-                                {Array.from({ length: rsvpForm.numberOfCompanions }).map((_, index) => (
-                                    <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
-                                        <Label htmlFor={`companion-name-${index}`} className="font-medium">Nombre Acompañante {index + 1}</Label>
-                                        <Input
-                                            id={`companion-name-${index}`}
-                                            value={rsvpForm.companionNames[index] || ''}
-                                            onChange={(e) => handleCompanionNameChange(index, e.target.value)}
-                                            placeholder={`Nombre completo del acompañante ${index + 1}`}
-                                            className="text-base p-3"
-                                            disabled={isSubmittingRsvp}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        <div className="space-y-1">
-                            <Label htmlFor="rsvp-mensaje" className="font-medium">Mensaje Adicional (Opcional)</Label>
-                            <Textarea id="rsvp-mensaje" value={rsvpForm.mensaje} onChange={(e) => handleRsvpInputChange('mensaje', e.target.value)} placeholder="Ej: Alergias, canción favorita, ¡muchas felicidades!, etc." rows={3} className="text-base p-3" disabled={isSubmittingRsvp}/>
-                        </div>
-                        </CardContent>
-                        <CardFooter>
-                        <Button type="submit" className="w-full text-lg py-6" disabled={isSubmittingRsvp} style={{ backgroundColor: accentColor, color: paletaColores?.primary ? 'hsl(var(--primary-foreground))' : 'hsl(var(--accent-foreground))' }}>
-                            {isSubmittingRsvp ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Send className="w-5 h-5 mr-2" />}
-                            {isSubmittingRsvp ? 'Enviando Confirmación...' : 'Enviar Confirmación'}
-                        </Button>
-                        </CardFooter>
-                    </form>
-                )}
-                </Card>
-            </section>
-        )}
       </main>
       <footer className="text-center py-10 mt-12 border-t" style={{ borderColor: `${secondaryColor}33` }}>
         <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} {fiesta.configuracion.nombreEvento}. Creado con cariño.</p>
@@ -449,4 +231,3 @@ export default function EventoPublicoPage() {
     </div>
   );
 }
-
