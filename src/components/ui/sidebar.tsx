@@ -545,8 +545,8 @@ const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenu
       className,
       href,
       children,
-      asChild, // Capture the asChild prop
-      ...props // The rest of the props
+      asChild,
+      ...props
     },
     ref
   ) => {
@@ -557,7 +557,7 @@ const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenu
       "data-size": size,
       "data-active": String(isActive),
       className: cn(sidebarMenuButtonVariants({ variant, size, className })),
-      ...props, // Spread the remaining props (which now correctly excludes asChild)
+      ...props,
     };
 
     let interactiveElement;
@@ -618,7 +618,7 @@ const SidebarMenuAction = React.forwardRef<
       ref={ref}
       data-sidebar="menu-action"
       className={cn(
-        "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
+        "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "after:absolute after:-inset-2 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
@@ -718,38 +718,44 @@ SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 const SidebarMenuSubButton = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a"> & {
-    size?: "sm" | "md";
-    isActive?: boolean;
-    asChild?: boolean;
+    size?: "sm" | "md"
+    isActive?: boolean
+    asChild?: boolean
   }
->(({
-  size = "md",
-  isActive,
-  className,
-  children,
-  asChild, // Destructure asChild here
-  ...props // These are the rest of the props, which will not include asChild
-}, ref) => {
-  return (
-    <a
-      ref={ref}
-      data-sidebar="menu-sub-button"
-      data-size={size}
-      data-active={String(isActive)}
-      className={cn(
-        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-        size === "sm" && "text-xs",
-        size === "md" && "text-sm",
-        "group-data-[collapsible=icon]:hidden",
-        className
-      )}
-      {...props} // Spread the props that do not include `asChild`
-    >
-      {children}
-    </a>
-  );
-});
+>(
+  (
+    {
+      size = "md",
+      isActive,
+      className,
+      children,
+      asChild = false,
+      ...props
+    },
+    ref
+  ) => {
+    const Comp = asChild ? Slot : "a"
+    return (
+      <Comp
+        ref={ref as any}
+        data-sidebar="menu-sub-button"
+        data-size={size}
+        data-active={String(isActive)}
+        className={cn(
+          "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+          size === "sm" && "text-xs",
+          size === "md" && "text-sm",
+          "group-data-[collapsible=icon]:hidden",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
+  }
+)
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 
