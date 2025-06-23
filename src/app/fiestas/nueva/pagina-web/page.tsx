@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -37,7 +36,7 @@ export default function RedirectToNewWebSettingsPage() {
             </p>
         </CardContent>
         <CardFooter>
-            <Link href="/fiestas/nueva/portal-cliente" passHref>
+            <Link href="/fiestas/nueva/portal-cliente" asChild>
                 <Button>
                     Ir a la Nueva Página de Gestión <ArrowRight className="w-4 h-4 ml-2"/>
                 </Button>

@@ -30,12 +30,12 @@ const SectionCard: React.FC<SectionCardProps> = ({ title, description, icon: Ico
         </CardHeader>
         <CardContent><p className="text-sm text-muted-foreground">{description}</p></CardContent>
         <CardFooter>
-            <Link href={href} passHref legacyBehavior>
-                <a target={isExternal ? "_blank" : "_self"} rel={isExternal ? "noopener noreferrer" : undefined} className="w-full">
-                    <Button className="w-full">
-                        <Eye className="w-4 h-4 mr-2" /> Ver Sección
-                    </Button>
+            <Link href={href} asChild>
+              <Button asChild className="w-full">
+                <a target={isExternal ? "_blank" : "_self"} rel={isExternal ? "noopener noreferrer" : undefined}>
+                    <Eye className="w-4 h-4 mr-2" /> Ver Sección
                 </a>
+              </Button>
             </Link>
         </CardFooter>
     </Card>
