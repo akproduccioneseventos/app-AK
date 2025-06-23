@@ -169,6 +169,37 @@ interface TaskSummary {
   progress: number;
 }
 
+interface ModuleCardProps {
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+}
+
+const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon: Icon }) => (
+    <Card className="group flex flex-col h-full shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2.5 bg-primary/10 rounded-lg">
+            <Icon className="w-6 h-6 text-primary" />
+          </div>
+          <CardTitle className="font-headline text-lg text-foreground group-hover:text-primary transition-colors">
+            {title}
+          </CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </CardContent>
+      <CardFooter className="pt-2">
+        <Button asChild variant="link" className="p-0 h-auto text-sm text-primary group-hover:underline">
+          <Link href={href}>
+            Acceder al Módulo <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
+);
 
 export default function PlanificarFiestaHubPage() {
   const { toast } = useToast();
@@ -366,7 +397,7 @@ export default function PlanificarFiestaHubPage() {
             <Card className="md:col-span-1 hover:shadow-md transition-shadow print:shadow-none print:border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 print:pb-1">
                     <CardTitle className="text-sm font-medium text-muted-foreground print:text-xs">Resumen de Tareas</CardTitle>
-                    <ClipboardCheck className="h-5 w-5 text-orange-500 print:h-4 print:w-4" />
+                    <ClipboardList className="h-5 w-5 text-orange-500 print:h-4 print:w-4" />
                 </CardHeader>
                 <CardContent className="print:pt-1">
                     <div className="text-2xl font-bold print:text-lg">{taskSummary?.pending ?? '0'} <span className="text-base font-normal text-muted-foreground">pendientes</span></div>
@@ -428,7 +459,7 @@ export default function PlanificarFiestaHubPage() {
             <CardContent className="print:p-0">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-1 print:gap-4">
                     {planningModules.map((module) => (
-                    <Card key={module.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300 bg-card print:shadow-none print:border print:rounded-md print:break-inside-avoid">
+                    <Card key={module.title} className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 bg-card print:shadow-none print:border print:rounded-md print:break-inside-avoid">
                         <CardHeader className="flex-row items-start gap-3 space-y-0 pb-3 print:pb-2 print:items-center">
                         <div className="p-2.5 bg-primary/10 rounded-md print:hidden">
                             <module.icon className="w-6 h-6 text-primary" />
@@ -442,17 +473,17 @@ export default function PlanificarFiestaHubPage() {
                         </CardContent>
                         <CardFooter className="pt-0 print:hidden">
                         {module.href ? (
-                            <Link href={module.href} passHref className="w-full">
-                            <Button
+                            <Button asChild
                                 className="w-full text-sm"
                                 variant={module.status === "Disponible" ? "default" : "secondary"}
                                 size="sm"
                                 disabled={module.status !== "Disponible"}
                             >
+                            <Link href={module.href}>
                                 {module.actionLabel}
                                 {module.status !== "Disponible" && <span className="ml-1.5 text-xs opacity-70">({module.status})</span>}
-                            </Button>
                             </Link>
+                            </Button>
                         ) : (
                             <Button
                             className="w-full mt-auto text-sm"

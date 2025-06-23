@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -30,13 +31,11 @@ const SectionCard: React.FC<SectionCardProps> = ({ title, description, icon: Ico
         </CardHeader>
         <CardContent><p className="text-sm text-muted-foreground">{description}</p></CardContent>
         <CardFooter>
-            <Link href={href} asChild>
-              <Button asChild className="w-full">
-                <a target={isExternal ? "_blank" : "_self"} rel={isExternal ? "noopener noreferrer" : undefined}>
+            <Button asChild className="w-full">
+                <Link href={href} target={isExternal ? "_blank" : "_self"} rel={isExternal ? "noopener noreferrer" : undefined}>
                     <Eye className="w-4 h-4 mr-2" /> Ver Sección
-                </a>
-              </Button>
-            </Link>
+                </Link>
+            </Button>
         </CardFooter>
     </Card>
 );
@@ -129,13 +128,11 @@ export default function ClientPortalPage() {
                         <CardDescription>Este es el enlace que puedes compartir con tus invitados.</CardDescription>
                     </CardHeader>
                     <CardFooter>
-                        <Link href="/evento/actual" passHref legacyBehavior>
-                           <a target="_blank" rel="noopener noreferrer" className="w-full">
-                                <Button className="w-full">
-                                    Visitar Página Pública <ExternalLink className="w-4 h-4 ml-2"/>
-                                </Button>
+                        <Button asChild className="w-full">
+                           <a href="/evento/actual" target="_blank" rel="noopener noreferrer" className="w-full">
+                                Visitar Página Pública <ExternalLink className="w-4 h-4 ml-2"/>
                             </a>
-                        </Link>
+                        </Button>
                     </CardFooter>
                 </Card>
 
