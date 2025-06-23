@@ -1,15 +1,21 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado } from '@/types/fiesta';
+import { getFiestaActual, handleRsvpSubmission } from '@/app/actions/fiesta-actual';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 
 const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
   if (!dateString) return "Fecha por confirmar";
@@ -27,13 +33,180 @@ const formatDate = (dateString?: string, includeTime: boolean = true, timeString
         const ampm = hourNum >= 12 ? 'PM' : 'AM';
         hourNum = hourNum % 12 || 12; 
         formattedDate += ` a las ${hourNum}:${minutes} ${ampm}`;
-      } else if (includeTime && date.getHours() !== 0 || date.getMinutes() !== 0) { // Fallback to date's time if timeString is bad but includeTime is true
+      } else if (includeTime && date.getHours() !== 0 || date.getMinutes() !== 0) {
         formattedDate += ` a las ${date.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
       }
     }
     return formattedDate;
   } catch (e) { return "Fecha inválida"; }
 };
+
+function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
+  const [nombreCompleto, setNombreCompleto] = useState('');
+  const [confirmacion, setConfirmacion] = useState<'si' | 'no' | null>(null);
+  const [numeroAsistentes, setNumeroAsistentes] = useState('1');
+  const [companionNames, setCompanionNames] = useState<string[]>([]);
+  const [mensaje, setMensaje] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const { toast } = useToast();
+
+  const handlePartySizeChange = (value: string) => {
+    let size = parseInt(value, 10);
+    if (isNaN(size) || size < 1) {
+      size = 1;
+    }
+    setNumeroAsistentes(String(size));
+
+    const companionCount = size > 1 ? size - 1 : 0;
+    setCompanionNames(currentNames => {
+      const newNames = [...currentNames];
+      while (newNames.length < companionCount) {
+        newNames.push('');
+      }
+      return newNames.slice(0, companionCount);
+    });
+  };
+
+  const handleCompanionNameChange = (index: number, name: string) => {
+    setCompanionNames(currentNames => {
+      const newNames = [...currentNames];
+      newNames[index] = name;
+      return newNames;
+    });
+  };
+  
+  const handleConfirmacionChange = (value: 'si' | 'no') => {
+      setConfirmacion(value);
+      if (value === 'no') {
+          setNumeroAsistentes('1');
+          setCompanionNames([]);
+      }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!nombreCompleto.trim()) {
+      toast({ title: "Nombre requerido", description: "Por favor, ingresa tu nombre completo.", variant: "destructive" });
+      return;
+    }
+    if (!confirmacion) {
+      toast({ title: "Confirmación requerida", description: "Por favor, selecciona si asistirás o no.", variant: "destructive" });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setFormMessage(null);
+
+    const submissionData = {
+      nombreCompleto: nombreCompleto.trim(),
+      confirmacion,
+      numeroAsistentes: parseInt(numeroAsistentes, 10) || 1,
+      mensaje: mensaje.trim(),
+      companionNames: companionNames.map(name => name.trim()).filter(name => name !== ''),
+    };
+
+    try {
+      const result = await handleRsvpSubmission(submissionData);
+      if (result.success) {
+        setFormMessage({ type: 'success', text: '¡Gracias por confirmar! Tu respuesta ha sido enviada.' });
+        // Reset form
+        setNombreCompleto('');
+        setConfirmacion(null);
+        setNumeroAsistentes('1');
+        setCompanionNames([]);
+        setMensaje('');
+      } else {
+        throw new Error(result.error || "No se pudo procesar tu respuesta.");
+      }
+    } catch (error: any) {
+      setFormMessage({ type: 'error', text: error.message || 'Ocurrió un error. Por favor, intenta de nuevo.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const primaryColor = fiesta.decoracion?.paletaColores?.primary || 'hsl(var(--primary))';
+
+  return (
+    <section id="rsvp" className="py-8">
+      <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{ color: primaryColor }}>
+        Confirmar Asistencia
+      </h2>
+      <Card className="max-w-xl mx-auto shadow-lg">
+        <CardHeader>
+          <CardTitle>Formulario de RSVP</CardTitle>
+          <CardDescription>Por favor, confirma tu asistencia antes de la fecha límite.</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="nombre-completo">Tu Nombre Completo *</Label>
+              <Input id="nombre-completo" placeholder="Ej: Maria García" value={nombreCompleto} onChange={(e) => setNombreCompleto(e.target.value)} required disabled={isSubmitting} />
+            </div>
+
+            <div className="space-y-3">
+              <Label>¿Asistirás a la fiesta? *</Label>
+              <RadioGroup value={confirmacion || ''} onValueChange={handleConfirmacionChange} className="flex flex-col sm:flex-row gap-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="si" id="rsvp-si" />
+                  <Label htmlFor="rsvp-si" className="font-normal text-base">Sí, ¡allí estaré!</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="rsvp-no" />
+                  <Label htmlFor="rsvp-no" className="font-normal text-base">No, lamentablemente no podré asistir.</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            
+            {confirmacion === 'si' && (
+              <div className="p-4 border-l-4 rounded-r-md space-y-4 bg-muted/50" style={{borderColor: primaryColor}}>
+                 <div className="space-y-2">
+                    <Label htmlFor="numero-asistentes">¿Cuántas personas asistirán en total (incluyéndote)?</Label>
+                    <Input id="numero-asistentes" type="number" min="1" value={numeroAsistentes} onChange={(e) => handlePartySizeChange(e.target.value)} disabled={isSubmitting} />
+                 </div>
+
+                {parseInt(numeroAsistentes, 10) > 1 && (
+                     <div className="space-y-3">
+                        <Label>Nombres de tus acompañantes:</Label>
+                        {companionNames.map((_, index) => (
+                             <div key={index} className="space-y-1">
+                                <Input
+                                    id={`companion-name-${index}`}
+                                    placeholder={`Nombre del acompañante ${index + 1}`}
+                                    value={companionNames[index]}
+                                    onChange={(e) => handleCompanionNameChange(index, e.target.value)}
+                                    disabled={isSubmitting}
+                                />
+                             </div>
+                        ))}
+                    </div>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="mensaje">Mensaje para los anfitriones (opcional)</Label>
+              <Textarea id="mensaje" placeholder="Puedes dejar un mensaje, canción favorita, o detalles de alergias aquí." value={mensaje} onChange={(e) => setMensaje(e.target.value)} disabled={isSubmitting} rows={3} />
+            </div>
+
+          </CardContent>
+          <CardFooter className="flex flex-col items-stretch gap-4">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+              Enviar Confirmación
+            </Button>
+             {formMessage && (
+              <div className={`text-sm text-center p-2 rounded-md ${formMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-destructive/10 text-destructive'}`}>
+                {formMessage.text}
+              </div>
+            )}
+          </CardFooter>
+        </form>
+      </Card>
+    </section>
+  );
+}
 
 
 export default function EventoPublicoPage() {
@@ -223,6 +396,8 @@ export default function EventoPublicoPage() {
             </div>
           </section>
         )}
+        
+        {webSettings.showRsvp && <RsvpForm fiesta={fiesta} />}
         
       </main>
       <footer className="text-center py-10 mt-12 border-t" style={{ borderColor: `${secondaryColor}33` }}>
