@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useMemo, type FormEvent } from 'react';
+import { useState, useMemo, type FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, CalendarIcon, Utensils, Info } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, CalendarIcon, Utensils, Info, Sparkles, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
@@ -17,6 +17,18 @@ import Image from 'next/image';
 import type { Ingredient, MenuItem, NewMenuFormData, FullMenu } from '@/types/catering';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export default function NuevoMenuPersonalizadoPage() {
   const { toast } = useToast();
@@ -41,6 +53,37 @@ export default function NuevoMenuPersonalizadoPage() {
   const [ingredientFechaActualizacion, setIngredientFechaActualizacion] = useState<Date | undefined>(undefined);
 
   const [isSaving, setIsSaving] = useState(false);
+
+  // States for ingredient catalog
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+  const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
+
+  useEffect(() => {
+    async function loadCatalog() {
+        try {
+            const servicios = await getServiciosEmpresa();
+            const insumos = servicios.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)');
+            setServiciosCatalogo(insumos);
+        } catch (error) {
+            toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos.", variant: "destructive" });
+        }
+    }
+    loadCatalog();
+  }, [toast]);
+
+
+  const handleSelectIngredientFromCatalog = (insumo: ServicioEmpresa) => {
+    setIngredientName(insumo.nombre);
+    setIngredientUnit(insumo.unidad || '');
+    setIngredientProveedor(insumo.contactoPrincipal || '');
+    setIsCatalogModalOpen(false); // Close modal
+    toast({ description: `"${insumo.nombre}" seleccionado. Completa cantidad y costo.`});
+  };
+
+  const filteredCatalog = useMemo(() => {
+    return serviciosCatalogo.filter(s => s.nombre.toLowerCase().includes(catalogSearchTerm.toLowerCase()));
+  }, [serviciosCatalogo, catalogSearchTerm]);
 
   const currentDishTotalCostPerPerson = useMemo(() => {
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
@@ -227,7 +270,46 @@ export default function NuevoMenuPersonalizadoPage() {
                 <div className="space-y-2"><Label htmlFor="new-item-allergens">Alérgenos (separados por coma)</Label><Input id="new-item-allergens" value={newItemAllergens} onChange={(e) => setNewItemAllergens(e.target.value)}/></div>
 
                 <div>
-                  <h4 className="text-md font-medium mb-3">Ingredientes para "{newItemName || 'este Plato'}" (por persona)</h4>
+                   <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-md font-medium">Ingredientes para "{newItemName || 'este Plato'}" (por persona)</h4>
+                        <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button type="button" variant="secondary" size="sm" disabled={isSaving}><Sparkles className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle>Seleccionar Insumo del Catálogo</DialogTitle>
+                                <DialogDescription>Busca y selecciona un ingrediente pre-cargado.</DialogDescription>
+                            </DialogHeader>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                                <Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/>
+                            </div>
+                            <ScrollArea className="h-64 border rounded-md">
+                                {filteredCatalog.length > 0 ? (
+                                    <ul className="p-2 space-y-1">
+                                    {filteredCatalog.map(insumo => (
+                                        <li key={insumo.id}>
+                                            <Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleSelectIngredientFromCatalog(insumo)}>
+                                                <div>
+                                                    <p className="font-medium text-sm">{insumo.nombre}</p>
+                                                    <p className="text-xs text-muted-foreground">Un: {insumo.unidad} | Cat: {insumo.categoria}</p>
+                                                </div>
+                                            </Button>
+                                        </li>
+                                    ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-center text-sm text-muted-foreground p-4">No se encontraron insumos.</p>
+                                )}
+                            </ScrollArea>
+                            <DialogFooter>
+                                <DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                        </Dialog>
+                    </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 items-end">
                     <div className="space-y-1"><Label htmlFor="ing-name" className="text-xs">Nombre Ing. *</Label><Input id="ing-name" value={ingredientName} onChange={e => setIngredientName(e.target.value)} className="text-sm p-2 h-9"/></div>
                     <div className="space-y-1"><Label htmlFor="ing-qty-pp">Cant. p/Persona *</Label><Input id="ing-qty-pp" value={ingredientQuantityPerPerson} onChange={e => setIngredientQuantityPerPerson(e.target.value)} placeholder="Ej: 100, 0.5" className="text-sm p-2 h-9"/></div>
