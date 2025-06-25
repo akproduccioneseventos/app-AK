@@ -1,14 +1,14 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback, type FormEvent } from 'react'; // Added FormEvent
+import React, { useState, useEffect, useMemo, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Trash2, Loader2, AlertTriangle, CalendarIcon, Utensils } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
@@ -47,11 +47,10 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
   const [newItemAllergens, setNewItemAllergens] = useState('');
   
   const [currentDishIngredients, setCurrentDishIngredients] = useState<Ingredient[]>([]);
-  // Ingredient form state
   const [ingredientName, setIngredientName] = useState('');
-  const [ingredientQuantityPerPerson, setIngredientQuantityPerPerson] = useState(''); // Changed from ingredientQuantity
+  const [ingredientQuantityPerPerson, setIngredientQuantityPerPerson] = useState('');
   const [ingredientUnit, setIngredientUnit] = useState('');
-  const [ingredientCost, setIngredientCost] = useState<string>(''); // Cost of quantityPerPerson
+  const [ingredientCost, setIngredientCost] = useState<string>('');
   const [ingredientProveedor, setIngredientProveedor] = useState('');
   const [ingredientMarca, setIngredientMarca] = useState('');
   const [ingredientFechaActualizacion, setIngredientFechaActualizacion] = useState<Date | undefined>(undefined);
@@ -73,17 +72,15 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
         setMenuTemplateType(loadedMenu.templateType || 'Personalizado');
         setMenuItems(loadedMenu.items.map(item => ({
           ...item,
-          // totalDishCost should already be per person based on new type
           totalDishCost: item.totalDishCost || 0, 
           allergens: item.allergens || '',
           ingredients: item.ingredients.map(ing => ({
               ...ing,
-              quantityPerPerson: ing.quantityPerPerson || '0', // Ensure exists
+              quantityPerPerson: ing.quantityPerPerson || '0',
               proveedor: ing.proveedor || undefined,
               marca: ing.marca || undefined,
               fecha_actualizacion: ing.fecha_actualizacion ? new Date(ing.fecha_actualizacion).toISOString() : undefined,
           }))
-          // basePortions and costPerPortion are removed
         })));
       } else {
         setNotFound(true);
@@ -104,7 +101,7 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
     }
   }, [menuIdFromParams, loadMenu]);
 
-  const currentDishTotalCostPerPerson = useMemo(() => { // Renamed for clarity
+  const currentDishTotalCostPerPerson = useMemo(() => {
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
   }, [currentDishIngredients]);
 
@@ -121,9 +118,9 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
     const newIngredient: Ingredient = {
       id: `ing_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: ingredientName, 
-      quantityPerPerson: ingredientQuantityPerPerson, // Use new field
+      quantityPerPerson: ingredientQuantityPerPerson,
       unit: ingredientUnit, 
-      cost: costValue, // Cost for this quantityPerPerson
+      cost: costValue,
       proveedor: ingredientProveedor.trim() || undefined,
       marca: ingredientMarca.trim() || undefined,
       fecha_actualizacion: ingredientFechaActualizacion ? ingredientFechaActualizacion.toISOString() : undefined,
@@ -146,14 +143,13 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
        toast({ title: 'Plato sin ingredientes', variant: 'destructive' });
        return;
     }
-    const totalDishCost = currentDishTotalCostPerPerson; // This is cost per person
+    const totalDishCost = currentDishTotalCostPerPerson;
 
     const newDish: MenuItem = {
       id: `dish_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: newItemName, type: newItemType, ingredients: [...currentDishIngredients], 
-      totalDishCost, // Cost per person for the dish
+      totalDishCost,
       allergens: newItemAllergens.trim() || undefined,
-      // basePortions and costPerPortion are removed
     };
     setMenuItems(prevItems => [...prevItems, newDish]);
     setNewItemName(''); setNewItemType(''); setNewItemAllergens(''); setCurrentDishIngredients([]);
@@ -166,8 +162,8 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
     if (itemToRemove) toast({ title: 'Plato Eliminado del Menú' });
   };
 
-  const handleSaveChanges = async (e: FormEvent) => { // Added FormEvent
-    e.preventDefault(); // Prevent default form submission
+  const handleSaveChanges = async (e: FormEvent) => {
+    e.preventDefault();
     if (!menuName.trim()) {
         toast({ title: 'Nombre del Menú Requerido', variant: 'destructive' });
         return;
@@ -184,16 +180,15 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
       templateType: menuTemplateType,
       items: menuItems.map(item => ({
         ...item,
-        totalDishCost: item.ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0), // Recalculate just in case
+        totalDishCost: item.ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0),
         allergens: item.allergens || undefined,
         ingredients: item.ingredients.map(ing => ({
             ...ing,
-            quantityPerPerson: ing.quantityPerPerson || '0', // Ensure exists
+            quantityPerPerson: ing.quantityPerPerson || '0',
             proveedor: ing.proveedor || undefined,
             marca: ing.marca || undefined,
             fecha_actualizacion: ing.fecha_actualizacion ? new Date(ing.fecha_actualizacion).toISOString() : undefined,
         }))
-        // basePortions and costPerPortion are removed
       })),
       updatedAt: new Date().toISOString(),
     };
@@ -231,9 +226,7 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
     }
   };
 
-  // Total cost per person for the entire menu
   const totalMenuCostPerPerson = menuItems.reduce((sum, item) => sum + item.totalDishCost, 0);
-
 
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   if (notFound) return <div className="flex flex-col items-center justify-center h-screen text-center"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold mb-2">Menú no Encontrado</h1><p className="text-muted-foreground mb-6">ID: <span className="font-mono bg-muted px-1 rounded">{menuIdFromParams}</span></p><Link href="/fiestas/nueva/catering/modificar-menu" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link></div>;
@@ -244,136 +237,123 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
         <h1 className="text-3xl font-bold tracking-tight font-headline">Editando Menú: <span className="text-primary">{menuData?.name || menuIdFromParams}</span></h1>
         <Link href="/fiestas/nueva/catering/modificar-menu" passHref><Button variant="outline" disabled={isSaving || isDeleting}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
-    <form onSubmit={handleSaveChanges}> {/* Wrap cards in a form */}
-      <Card className="shadow-lg">
-        <CardHeader><CardTitle className="font-headline text-xl">Información General del Menú</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2"><Label htmlFor="menu-name-edit" className="text-base">Nombre del Menú *</Label><Input id="menu-name-edit" value={menuName} onChange={(e) => setMenuName(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/></div>
-          <div className="space-y-2"><Label htmlFor="menu-description-edit" className="text-base">Descripción (Opcional)</Label><Input id="menu-description-edit" value={menuDescription} onChange={(e) => setMenuDescription(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting}/></div>
-          <div className="space-y-2">
-            <Label htmlFor="menu-template-type-edit" className="text-base">Tipo de Menú</Label>
-            <Select value={menuTemplateType} onValueChange={(value) => setMenuTemplateType(value as FullMenu['templateType'])} disabled={isSaving || isDeleting}>
-              <SelectTrigger id="menu-template-type-edit" className="text-base p-3 h-auto"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Personalizado">Personalizado</SelectItem>
-                <SelectItem value="Menú de Entradas">Menú de Entradas</SelectItem>
-                <SelectItem value="Menú de Platos Principales">Menú de Platos Principales</SelectItem>
-                <SelectItem value="Menú para Adolescente">Menú para Adolescente</SelectItem>
-                <SelectItem value="Menú para Niños">Menú para Niños</SelectItem>
-                <SelectItem value="Menu del personal">Menu del personal</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
 
-      <Card className="shadow-lg">
-        <CardHeader><CardTitle className="font-headline text-xl">Añadir/Modificar Plato al Menú</CardTitle><CardDescription>Define nombre, categoría e ingredientes por persona. Para modificar, elimina y vuelve a añadir.</CardDescription></CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2"><Label htmlFor="new-item-name-edit">Nombre del Plato *</Label><Input id="new-item-name-edit" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} required disabled={isSaving || isDeleting} /></div>
-            <div className="space-y-2"><Label htmlFor="new-item-type-edit">Categoría *</Label><Select value={newItemType} onValueChange={(value) => setNewItemType(value as MenuItem['type'])} required disabled={isSaving || isDeleting}><SelectTrigger id="new-item-type-edit"><SelectValue placeholder="Seleccionar" /></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem></SelectContent></Select></div>
-          </div>
-          <div className="space-y-2"><Label htmlFor="new-item-allergens-edit">Alérgenos (separados por coma)</Label><Input id="new-item-allergens-edit" value={newItemAllergens} onChange={(e) => setNewItemAllergens(e.target.value)} disabled={isSaving || isDeleting}/></div>
-          <p className="text-sm font-medium text-muted-foreground">Costo por Persona Estimado para este Plato: ${currentDishTotalCostPerPerson.toFixed(2)}</p>
+      <form onSubmit={handleSaveChanges}>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-2xl">Editar Menú</CardTitle>
+            <CardDescription>Modifica los detalles, platos e ingredientes del menú. Para editar un plato existente, elimínalo de la lista y vuelve a añadirlo con los cambios.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            {/* === Section 1: Menu Details === */}
+            <section>
+              <h3 className="text-lg font-medium font-headline text-primary border-b pb-2 mb-4">1. Detalles del Menú</h3>
+              <div className="space-y-4">
+                <div className="space-y-2"><Label htmlFor="menu-name-edit" className="text-base">Nombre del Menú *</Label><Input id="menu-name-edit" value={menuName} onChange={(e) => setMenuName(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/></div>
+                <div className="space-y-2"><Label htmlFor="menu-description-edit" className="text-base">Descripción (Opcional)</Label><Input id="menu-description-edit" value={menuDescription} onChange={(e) => setMenuDescription(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting}/></div>
+                <div className="space-y-2">
+                  <Label htmlFor="menu-template-type-edit" className="text-base">Tipo de Menú</Label>
+                  <Select value={menuTemplateType} onValueChange={(value) => setMenuTemplateType(value as FullMenu['templateType'])} disabled={isSaving || isDeleting}>
+                    <SelectTrigger id="menu-template-type-edit" className="text-base p-3 h-auto"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Personalizado">Personalizado</SelectItem>
+                      <SelectItem value="Menú de Entradas">Menú de Entradas</SelectItem>
+                      <SelectItem value="Menú de Platos Principales">Menú de Platos Principales</SelectItem>
+                      <SelectItem value="Menú para Adolescente">Menú para Adolescente</SelectItem>
+                      <SelectItem value="Menú para Niños">Menú para Niños</SelectItem>
+                      <SelectItem value="Menu del personal">Menu del personal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </section>
 
-          <Separator />
-          <div>
-            <h3 className="text-lg font-medium mb-3 font-headline">Ingredientes para "{newItemName || 'este Plato'}" (por persona)</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 items-end">
-              <div className="space-y-1"><Label htmlFor="ing-name-edit" className="text-xs">Nombre Ing. *</Label><Input id="ing-name-edit" value={ingredientName} onChange={e => setIngredientName(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
-              <div className="space-y-1"><Label htmlFor="ing-qty-pp-edit" className="text-xs">Cant. p/Persona *</Label><Input id="ing-qty-pp-edit" value={ingredientQuantityPerPerson} onChange={e => setIngredientQuantityPerPerson(e.target.value)} placeholder="Ej: 100, 0.5" className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
-              <div className="space-y-1"><Label htmlFor="ing-unit-edit" className="text-xs">Unidad *</Label><Input id="ing-unit-edit" value={ingredientUnit} onChange={e => setIngredientUnit(e.target.value)} placeholder="Ej: gr, ml, ud" className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
-              <div className="space-y-1"><Label htmlFor="ing-cost-edit" className="text-xs">Costo (de esa cant. p/p) *</Label><Input id="ing-cost-edit" type="number" value={ingredientCost} onChange={e => setIngredientCost(e.target.value)} className="text-sm p-2 h-9" step="any" disabled={isSaving || isDeleting}/></div>
-              <div className="space-y-1"><Label htmlFor="ing-proveedor-edit" className="text-xs">Proveedor</Label><Input id="ing-proveedor-edit" value={ingredientProveedor} onChange={e => setIngredientProveedor(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
-              <div className="space-y-1"><Label htmlFor="ing-marca-edit" className="text-xs">Marca</Label><Input id="ing-marca-edit" value={ingredientMarca} onChange={e => setIngredientMarca(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
-              <div className="space-y-1 md:col-span-3"><Label htmlFor="ing-fecha-act-edit" className="text-xs">Fecha Actualización Precio</Label><DatePickerDemo selectedDate={ingredientFechaActualizacion} onDateChange={setIngredientFechaActualizacion} /></div>
-            </div>
-            <Button onClick={handleAddIngredientToCurrentDish} type="button" variant="outline" size="sm" disabled={isSaving || isDeleting}><PlusCircle className="w-4 h-4 mr-1.5" />Añadir Ingrediente</Button>
-            {currentDishIngredients.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <h4 className="text-sm font-medium">Ingredientes añadidos (p/persona):</h4>
-                <ScrollArea className="h-[120px] border rounded-md p-2 bg-muted/30">
-                  <ul className="text-sm">
-                    {currentDishIngredients.map(ing => (
-                      <li key={ing.id} className="flex justify-between items-center py-1 border-b last:border-b-0">
-                        <div>
-                          {ing.name} ({ing.quantityPerPerson} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
-                          {(ing.proveedor || ing.marca || ing.fecha_actualizacion) && (
-                            <span className="block text-xs text-muted-foreground">
-                              {ing.proveedor && `Prov: ${ing.proveedor} `}
-                              {ing.marca && `Marca: ${ing.marca} `}
-                              {ing.fecha_actualizacion && `Act: ${new Date(ing.fecha_actualizacion).toLocaleDateString()}`}
-                            </span>
-                          )}
+            <Separator />
+            
+            {/* === Section 2: Dish List === */}
+            <section>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium font-headline text-primary">2. Platos del Menú</h3>
+                <span className="text-lg font-semibold">Costo Total por Persona: {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(totalMenuCostPerPerson)}</span>
+              </div>
+              {menuItems.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-md">
+                  <Utensils className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50"/>
+                  <p>Este menú aún no tiene platos.</p>
+                </div>
+              ) : (
+                <ScrollArea className="h-auto max-h-[300px] pr-3">
+                  <ul className="space-y-3">
+                    {menuItems.map((item) => (
+                      <li key={item.id} className="border rounded-md p-3 hover:shadow-sm transition-shadow">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-semibold text-foreground">{item.name} <span className="text-xs text-muted-foreground">({item.type})</span></h4>
+                            <p className="text-sm text-muted-foreground">Costo p/Persona: ${item.totalDishCost.toFixed(2)}</p>
+                          </div>
+                          <Button variant="ghost" size="icon" onClick={() => handleRemoveDishFromMenu(item.id)} className="text-destructive hover:bg-destructive/10 h-7 w-7" aria-label={`Eliminar ${item.name}`}><Trash2 className="w-4 h-4" /></Button>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleRemoveIngredientFromCurrentDish(ing.id)} className="h-6 w-6 text-destructive hover:bg-destructive/10" disabled={isSaving || isDeleting}><Trash2 className="w-3 h-3" /></Button>
                       </li>
                     ))}
                   </ul>
                 </ScrollArea>
-                <p className="text-sm text-right font-medium">Costo Total Ingredientes Plato (p/persona): ${currentDishTotalCostPerPerson.toFixed(2)}</p>
+              )}
+            </section>
+            
+            <Separator />
+
+            {/* === Section 3: Add New Dish Form === */}
+            <section className="p-4 border rounded-lg bg-muted/20">
+              <h3 className="text-lg font-medium font-headline text-primary mb-4">3. Añadir Nuevo Plato</h3>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label htmlFor="new-item-name-edit">Nombre del Plato *</Label><Input id="new-item-name-edit" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} required disabled={isSaving || isDeleting} /></div>
+                  <div className="space-y-2"><Label htmlFor="new-item-type-edit">Categoría *</Label><Select value={newItemType} onValueChange={(value) => setNewItemType(value as MenuItem['type'])} required disabled={isSaving || isDeleting}><SelectTrigger id="new-item-type-edit"><SelectValue placeholder="Seleccionar" /></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem></SelectContent></Select></div>
+                </div>
+                <div className="space-y-2"><Label htmlFor="new-item-allergens-edit">Alérgenos (separados por coma)</Label><Input id="new-item-allergens-edit" value={newItemAllergens} onChange={(e) => setNewItemAllergens(e.target.value)} disabled={isSaving || isDeleting}/></div>
+
+                <div>
+                  <h4 className="text-md font-medium mb-3">Ingredientes para "{newItemName || 'este Plato'}" (por persona)</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 items-end">
+                    <div className="space-y-1"><Label htmlFor="ing-name-edit" className="text-xs">Nombre Ing. *</Label><Input id="ing-name-edit" value={ingredientName} onChange={e => setIngredientName(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1"><Label htmlFor="ing-qty-pp-edit" className="text-xs">Cant. p/Persona *</Label><Input id="ing-qty-pp-edit" value={ingredientQuantityPerPerson} onChange={e => setIngredientQuantityPerPerson(e.target.value)} placeholder="Ej: 100, 0.5" className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1"><Label htmlFor="ing-unit-edit" className="text-xs">Unidad *</Label><Input id="ing-unit-edit" value={ingredientUnit} onChange={e => setIngredientUnit(e.target.value)} placeholder="Ej: gr, ml, ud" className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1"><Label htmlFor="ing-cost-edit" className="text-xs">Costo (de esa cant. p/p) *</Label><Input id="ing-cost-edit" type="number" value={ingredientCost} onChange={e => setIngredientCost(e.target.value)} className="text-sm p-2 h-9" step="any" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1"><Label htmlFor="ing-proveedor-edit" className="text-xs">Proveedor</Label><Input id="ing-proveedor-edit" value={ingredientProveedor} onChange={e => setIngredientProveedor(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1"><Label htmlFor="ing-marca-edit" className="text-xs">Marca</Label><Input id="ing-marca-edit" value={ingredientMarca} onChange={e => setIngredientMarca(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1 md:col-span-3"><Label htmlFor="ing-fecha-act-edit" className="text-xs">Fecha Actualización Precio</Label><DatePickerDemo selectedDate={ingredientFechaActualizacion} onDateChange={setIngredientFechaActualizacion} /></div>
+                  </div>
+                  <Button onClick={handleAddIngredientToCurrentDish} type="button" variant="outline" size="sm" disabled={isSaving || isDeleting}><PlusCircle className="w-4 h-4 mr-1.5" />Añadir Ingrediente</Button>
+                  {currentDishIngredients.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <h5 className="text-sm font-medium">Ingredientes para este plato:</h5>
+                      <ScrollArea className="h-[120px] border rounded-md p-2 bg-background">
+                        <ul className="text-sm">
+                          {currentDishIngredients.map(ing => (
+                            <li key={ing.id} className="flex justify-between items-center py-1 border-b last:border-b-0">
+                              <div>{ing.name} ({ing.quantityPerPerson} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}</div>
+                              <Button variant="ghost" size="icon" onClick={() => handleRemoveIngredientFromCurrentDish(ing.id)} className="h-6 w-6 text-destructive hover:bg-destructive/10" disabled={isSaving || isDeleting}><Trash2 className="w-3 h-3" /></Button>
+                            </li>
+                          ))}
+                        </ul>
+                      </ScrollArea>
+                      <p className="text-sm text-right font-medium">Costo Total Ingredientes (p/persona): ${currentDishTotalCostPerPerson.toFixed(2)}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="text-center pt-4">
+                  <Button onClick={handleAddDishToMenu} type="button" size="lg" disabled={isSaving || isDeleting}><PlusCircle className="w-5 h-5 mr-2" />Añadir este Plato al Menú</Button>
+                </div>
               </div>
-            )}
-          </div>
-          <Separator />
-          <Button onClick={handleAddDishToMenu} type="button" size="lg" className="w-full sm:w-auto" disabled={isSaving || isDeleting}><PlusCircle className="w-5 h-5 mr-2" />Confirmar y Añadir Plato al Menú</Button>
-        </CardContent>
-      </Card>
-      
-      <Card className="shadow-lg">
-        <CardHeader><CardTitle className="font-headline text-xl">Platos en "{menuName || 'Menú Actual'}"</CardTitle><CardDescription>Costo total del menú por persona: ${totalMenuCostPerPerson.toFixed(2)}</CardDescription></CardHeader>
-        <CardContent>
-            {menuItems.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-md">
-                <p>Este menú aún no tiene platos.</p>
-                <Image src="https://placehold.co/400x200.png" alt="Formulario vacío" width={300} height={150} className="mt-4 rounded-md shadow-sm mx-auto opacity-70" data-ai-hint="empty menu food"/>
-              </div>
-            ) : (
-              <ScrollArea className="h-auto max-h-[500px] pr-3">
-                <ul className="space-y-4">
-                  {menuItems.map((item) => (
-                    <li key={item.id} className="border rounded-md p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-semibold text-lg text-primary">{item.name} <span className="text-xs text-muted-foreground">({item.type})</span></h4>
-                          <p className="text-sm text-muted-foreground">Costo por Persona: ${item.totalDishCost.toFixed(2)}</p>
-                          {item.allergens && <p className="text-xs text-destructive/80">Alérgenos: {item.allergens}</p>}
-                        </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleRemoveDishFromMenu(item.id)} className="text-destructive hover:bg-destructive/10" aria-label={`Eliminar ${item.name}`} disabled={isSaving || isDeleting}><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                      {item.ingredients.length > 0 && (
-                        <div>
-                          <h5 className="text-xs font-medium text-muted-foreground mb-1">INGREDIENTES (por persona):</h5>
-                          <ul className="text-xs list-disc list-inside pl-2 space-y-0.5 bg-muted/20 p-2 rounded-sm">
-                            {item.ingredients.map(ing => (
-                              <li key={ing.id}>
-                                {ing.name} ({ing.quantityPerPerson} {ing.unit}) - Costo: ${ing.cost.toFixed(2)}
-                                {(ing.proveedor || ing.marca || ing.fecha_actualizacion) && (
-                                  <span className="block text-[10px] text-muted-foreground/80">
-                                    {ing.proveedor && `Prov: ${ing.proveedor} `}
-                                    {ing.marca && `Marca: ${ing.marca} `}
-                                    {ing.fecha_actualizacion && `Act: ${new Date(ing.fecha_actualizacion).toLocaleDateString()}`}
-                                  </span>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </ScrollArea>
-            )}
-        </CardContent>
-        <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSaving || isDeleting || !menuData}> {/* Changed onClick to type="submit" */}
+            </section>
+          </CardContent>
+          <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSaving || isDeleting || !menuData}>
               <Save className="w-5 h-5 mr-2" />{isSaving ? 'Guardando...' : 'Guardar Cambios en Menú'}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" type="button" size="lg" className="w-full sm:w-auto" disabled={isSaving || isDeleting || !menuData}> {/* Added type="button" */}
+                <Button variant="destructive" type="button" size="lg" className="w-full sm:w-auto" disabled={isSaving || isDeleting || !menuData}>
                   <Trash2 className="w-5 h-5 mr-2" />{isDeleting ? 'Eliminando...' : 'Eliminar Menú'}
                 </Button>
               </AlertDialogTrigger>
@@ -390,10 +370,9 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-        </CardFooter>
-      </Card>
-     </form> {/* Close the form */}
+          </CardFooter>
+        </Card>
+      </form>
     </div>
   );
 }
-
