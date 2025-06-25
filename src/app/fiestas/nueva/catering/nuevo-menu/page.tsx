@@ -189,6 +189,7 @@ export default function NuevoMenuPersonalizadoPage() {
                 <SelectItem value="Menú de Platos Principales">Menú de Platos Principales</SelectItem>
                 <SelectItem value="Menú para Adolescente">Menú para Adolescente</SelectItem>
                 <SelectItem value="Menú para Niños">Menú para Niños</SelectItem>
+                <SelectItem value="Menu del personal">Menu del personal</SelectItem>
               </SelectContent>
             </Select>
           </div>

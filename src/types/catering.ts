@@ -29,7 +29,7 @@ export interface FullMenu { // Representa un Menú completo guardado
   name: string; // ej: 'Menú Clásico Casamiento'
   description: string; // Descripción general del menú
   items: MenuItem[]; // Lista de platos
-  templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú para Niños'; // Tipo de plantilla/menu
+  templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú para Niños' | 'Menu del personal'; // Tipo de plantilla/menu
   createdAt?: string; // ISO date string
   updatedAt?: string; // ISO date string
 }
