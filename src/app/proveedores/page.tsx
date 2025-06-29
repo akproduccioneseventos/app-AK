@@ -76,7 +76,7 @@ export default function ProveedoresPage() {
         <Link href="/proveedores/new" passHref>
           <Button>
             <UserPlus className="w-5 h-5 mr-2" />
-            Añadir Nuevo Proveedor
+            Añadir Proveedor / Servicio
           </Button>
         </Link>
       </div>
