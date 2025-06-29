@@ -136,4 +136,3 @@ export async function deleteRol(id: string): Promise<{ success: boolean; error?:
   await writeRolesFile(localRoles);
   return { success: true };
 }
-

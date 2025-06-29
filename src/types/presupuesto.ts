@@ -41,7 +41,12 @@ export interface Presupuesto {
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
   invoiceId?: string; // ID de la factura si este presupuesto fue facturado
+  
+  // Legacy fields for migration, should not be used in new code
+  platosSeleccionados?: any[];
+  serviciosAdicionales?: any[];
 }
+
 
 // FormData para el proceso de creación de varios pasos.
 export interface PresupuestoFormData {

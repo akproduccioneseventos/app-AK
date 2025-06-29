@@ -157,6 +157,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
 
       <Separator className="my-4" />
 
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento*</Label>

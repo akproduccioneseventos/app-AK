@@ -1,7 +1,6 @@
 
 'use server';
 
-// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 
 import fs from 'fs/promises';
@@ -59,12 +58,10 @@ initializeLocalEmpleadosFile();
 
 
 export async function getEmpleados(): Promise<Empleado[]> {
-  // console.log("Firebase is disabled. Reading empleados from JSON.");
   return readEmpleadosFile();
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
-  // console.log(`Firebase is disabled. Reading empleado ${id} from JSON.`);
   const empleados = await readEmpleadosFile();
   return empleados.find(e => e.id === id) || null;
 }
@@ -72,7 +69,6 @@ export async function getEmpleadoById(id: string): Promise<Empleado | null> {
 export async function saveEmpleado(
   empleadoData: NuevoEmpleadoFormData | Empleado
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
-  // console.log("Firebase is disabled. Saving empleado to JSON.");
   let empleados = await readEmpleadosFile();
   let finalEmpleadoData: Empleado;
   let empleadoId: string;
@@ -84,7 +80,14 @@ export async function saveEmpleado(
     if (index === -1) {
       return { success: false, error: `Empleado con ID ${empleadoId} no encontrado.` };
     }
-    empleados[index] = { ...empleados[index], ...empleadoData } as Empleado;
+    // Ensure rolId is handled correctly (can be undefined)
+    const dataToUpdate: Partial<Empleado> = {
+        nombre: empleadoData.nombre,
+        cedula: empleadoData.cedula,
+        fechaNacimiento: empleadoData.fechaNacimiento,
+        rolId: (empleadoData as Empleado).rolId || undefined,
+    };
+    empleados[index] = { ...empleados[index], ...dataToUpdate };
     finalEmpleadoData = empleados[index];
   } else {
     // Create
@@ -92,9 +95,9 @@ export async function saveEmpleado(
     finalEmpleadoData = {
       id: empleadoId,
       nombre: empleadoData.nombre,
-      cedula: (empleadoData as NuevoEmpleadoFormData).cedula,
-      fechaNacimiento: (empleadoData as NuevoEmpleadoFormData).fechaNacimiento,
-      rolId: (empleadoData as Empleado).rolId, // Will be undefined for NuevoEmpleadoFormData
+      cedula: empleadoData.cedula,
+      fechaNacimiento: empleadoData.fechaNacimiento,
+      // rolId is not part of NuevoEmpleadoFormData, so it will be undefined initially
     };
     empleados.push(finalEmpleadoData);
   }
@@ -102,8 +105,8 @@ export async function saveEmpleado(
   return { success: true, id: empleadoId, empleado: finalEmpleadoData };
 }
 
+
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
-  // console.log(`Firebase is disabled. Deleting empleado ${id} from JSON.`);
   let empleados = await readEmpleadosFile();
   const initialLength = empleados.length;
   empleados = empleados.filter(e => e.id !== id);

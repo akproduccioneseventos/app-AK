@@ -2,17 +2,16 @@
 'use client';
 
 import type { PresupuestoFormData } from '@/types/presupuesto';
-import type { ServicioEmpresa, CategoriaServicio, UnidadServicio } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Tag, Search, PackageSearch, ChevronDown, ChevronRight } from 'lucide-react';
+import { Sparkles, Tag, Search, PackageSearch } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import {
   Accordion,
   AccordionContent,

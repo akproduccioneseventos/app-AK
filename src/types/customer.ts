@@ -5,7 +5,7 @@ export const ALL_CUSTOMER_STATES: CustomerStatus[] = ['Actual', 'Antiguo'];
 export interface Customer {
   id: string;
   name: string;
-  email?: string;
+  // email is removed as per prompt
   phone?: string;
   address?: {
     street?: string;
@@ -29,4 +29,3 @@ export interface Customer {
   contractFileName?: string; 
   budgetFileName?: string; 
 }
-

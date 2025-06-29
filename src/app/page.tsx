@@ -38,7 +38,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon:
         <p className="text-sm text-muted-foreground">{description}</p>
       </CardContent>
       <CardFooter className="pt-2">
-        <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium text-primary underline-offset-4 group-hover:underline">
+        <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium text-primary group-hover:underline">
             Acceder al Módulo <ArrowRight className="w-4 h-4 ml-1" />
         </div>
       </CardFooter>

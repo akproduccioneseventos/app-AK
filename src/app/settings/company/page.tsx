@@ -23,10 +23,10 @@ async function saveCompanyInfo(info: any) {
 export default function CompanySettingsPage() {
   const { toast } = useToast();
   const [companyName, setCompanyName] = useState("AK Producciones"); // Default or fetched
-  const [companyAddress, setCompanyAddress] = useState("Montevideo, Uruguay"); // Default or fetched
+  const [companyAddress, setCompanyAddress] = useState("Salto, Uruguay"); // Default or fetched
   const [companyTaxId, setCompanyTaxId] = useState("RUT Ejemplo 123456789012"); // Default or fetched
-  const [companyContact, setCompanyContact] = useState("contacto@akproducciones.com.uy"); // Default or fetched
-  const [defaultDocumentNotes, setDefaultDocumentNotes] = useState("Gracias por su preferencia.\nEste presupuesto es válido por 30 días.");
+  const [companyContact, setCompanyContact] = useState("akproduccionessalto@gmail.com"); // Default or fetched
+  const [defaultDocumentNotes, setDefaultDocumentNotes] = useState("El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.");
   const [invoiceCustomFooter, setInvoiceCustomFooter] = useState("Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.");
   const [isSaving, setIsSaving] = useState(false);
 

@@ -1,33 +1,40 @@
 
-
 export type CategoriaServicio =
-  | 'Decoración'
-  | 'Catering'
-  | 'Discoteca'
-  | 'Repostería'
-  | 'Barra de Tragos'
-  | 'Mobiliario'
-  | 'Fotografía y Video'
+  | 'Servicio de catering'
+  | 'Servicio de filmación'
+  | 'Servicio de fotografía'
+  | 'Servicio de decoración'
+  | 'Servicio de entretenimiento'
+  | 'Servicio de bebidas'
+  | 'Servicio de discoteca'
+  | 'Servicio de repostería y regalos'
+  | 'Regalo exclusivo'
   | 'Personal'
-  | 'Otros';
+  | 'Otros servicios'
+  | 'Insumo/Ingrediente' // From previous inventory module
+  | 'Activo Fijo'; // From previous inventory module
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
-  'Decoración',
-  'Catering',
-  'Discoteca',
-  'Repostería',
-  'Barra de Tragos',
-  'Mobiliario',
-  'Fotografía y Video',
+  'Servicio de catering',
+  'Servicio de filmación',
+  'Servicio de fotografía',
+  'Servicio de decoración',
+  'Servicio de entretenimiento',
+  'Servicio de bebidas',
+  'Servicio de discoteca',
+  'Servicio de repostería y regalos',
+  'Regalo exclusivo',
   'Personal',
-  'Otros'
+  'Otros servicios',
+  'Insumo/Ingrediente',
+  'Activo Fijo',
 ];
 
 export type UnidadServicio = 'Unidad' | 'Set' | 'Metro' | 'Kg' | 'Litro' | 'Caja' | 'Rollo' | 'Docena' | 'Por persona' | 'Por evento' | 'Gramos' | 'Cc' | 'Pack';
 export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'];
 
-export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Activo Fijo';
-export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Activo Fijo'];
+export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Activo Fijo' | 'Servicio';
+export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Activo Fijo', 'Servicio'];
 
 
 export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de Inventario o un Servicio
@@ -35,7 +42,7 @@ export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de
   nombre: string;
   tipoItem?: TipoItemEmpresa; 
   categoria: CategoriaServicio;
-  subcategoria?: string; 
+  subcategoria?: 'Entrada' | 'Mobiliario' | 'Vajilla' | 'Mantelería' | 'Plato Principal' | 'Portero' | 'Seguridad' | string; 
   
   // Campos de inventario/costo (más relevantes para insumos y activos)
   cantidadDisponible?: number; 
