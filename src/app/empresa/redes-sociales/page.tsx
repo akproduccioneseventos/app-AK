@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +20,8 @@ function SocialMediaPageContent() {
     const [error, setError] = useState<string | null>(null);
     const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
 
+    const { toast } = useToast();
+
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
@@ -32,7 +34,7 @@ function SocialMediaPageContent() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [toast]);
 
     useEffect(() => {
         fetchData();
