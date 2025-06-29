@@ -1,7 +1,7 @@
-
 'use client';
 
 import { useState, useEffect, type FormEvent, useCallback } from 'react';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -224,7 +224,8 @@ export function NewPostDialog({
                     )}
                     <div className="space-y-1"><Label htmlFor="text">Texto de la Publicación</Label><Textarea id="text" value={text} onChange={e => setText(e.target.value)} rows={6} placeholder="Escribe tu post aquí..." required /></div>
                     
-                    <Card className="bg-muted/50 border-dashed">
+                    {/* AI Assistant */}
+                     <Card className="bg-muted/50 border-dashed">
                         <CardHeader className="p-3">
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-md font-medium flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/>Asistente de Redacción IA</CardTitle>
