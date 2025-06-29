@@ -65,8 +65,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
   if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
-  if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') return `Editando Menú: ${pathSegments[4]}`;
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
+  if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') return `Editando Menú: ${pathSegments[4]}`;
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';

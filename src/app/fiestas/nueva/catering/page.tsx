@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Edit, List, Loader2, NotebookText, CheckCircle, XCircle, LinkIcon, FileText, HardHat } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, List, Loader2, NotebookText, CheckCircle, XCircle, LinkIcon, FileText, HardHat, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -157,47 +157,71 @@ export default function CateringEventoHubPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="shadow-lg">
-          <CardHeader>
-              <div className="flex items-center gap-3">
-                  <HardHat className="w-8 h-8 text-primary" />
-                  <div>
-                      <CardTitle className="font-headline text-xl">Catálogo de Insumos y Costos</CardTitle>
-                      <CardDescription>Gestiona tu lista maestra de ingredientes y materiales.</CardDescription>
-                  </div>
-              </div>
-          </CardHeader>
-          <CardContent>
-              <p className="text-muted-foreground mb-4 text-sm">
-                  Mantén un registro centralizado de todos tus insumos. Estos aparecerán como opciones al momento de crear tus menús.
-              </p>
-              <Link href="/empresa/todos-los-servicios" passHref>
-                  <Button className="w-full" variant="secondary">
-                      <HardHat className="w-5 h-5 mr-2" />
-                      Gestionar Catálogo de Insumos
-                  </Button>
-              </Link>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="shadow-lg">
           <CardHeader>
               <div className="flex items-center gap-3">
                   <PlusCircle className="w-8 h-8 text-primary" />
                   <div>
-                      <CardTitle className="font-headline text-xl">Crear Nuevo Menú Personalizado</CardTitle>
+                      <CardTitle className="font-headline text-xl">Crear Nuevo Menú</CardTitle>
                       <CardDescription>Define tus propios menús, platos e ingredientes.</CardDescription>
                   </div>
               </div>
           </CardHeader>
           <CardContent>
               <p className="text-muted-foreground mb-4 text-sm">
-                  Crea menús desde cero, especificando cada detalle y calculando costos precisos basados en tus recetas.
+                  Crea menús desde cero y calcula costos precisos.
               </p>
               <Link href="/fiestas/nueva/catering/nuevo-menu" passHref>
                   <Button className="w-full">
                       <PlusCircle className="w-5 h-5 mr-2" />
-                      Empezar a Crear Menú
+                      Empezar a Crear
+                  </Button>
+              </Link>
+          </CardContent>
+        </Card>
+        
+         <Card className="shadow-lg">
+          <CardHeader>
+              <div className="flex items-center gap-3">
+                  <ShoppingCart className="w-8 h-8 text-primary" />
+                  <div>
+                      <CardTitle className="font-headline text-xl">Lista de Compras</CardTitle>
+                      <CardDescription>Genera una lista de compras automática.</CardDescription>
+                  </div>
+              </div>
+          </CardHeader>
+          <CardContent>
+              <p className="text-muted-foreground mb-4 text-sm">
+                  Basado en tu menú y cantidad de invitados.
+              </p>
+              <Link href="/fiestas/nueva/catering/lista-compras" passHref>
+                  <Button className="w-full">
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      Ver Lista de Compras
+                  </Button>
+              </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+              <div className="flex items-center gap-3">
+                  <HardHat className="w-8 h-8 text-primary" />
+                  <div>
+                      <CardTitle className="font-headline text-xl">Catálogo de Insumos</CardTitle>
+                      <CardDescription>Gestiona tu lista maestra de ingredientes.</CardDescription>
+                  </div>
+              </div>
+          </CardHeader>
+          <CardContent>
+              <p className="text-muted-foreground mb-4 text-sm">
+                  Mantén un registro de tus insumos para usarlos en tus menús.
+              </p>
+              <Link href="/empresa/todos-los-servicios" passHref>
+                  <Button className="w-full" variant="secondary">
+                      <HardHat className="w-5 h-5 mr-2" />
+                      Gestionar Catálogo
                   </Button>
               </Link>
           </CardContent>
