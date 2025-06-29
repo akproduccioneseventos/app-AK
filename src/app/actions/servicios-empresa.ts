@@ -23,19 +23,19 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
     await fs.access(serviciosFilePath);
     const fileContent = await fs.readFile(serviciosFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
-    return (JSON.parse(fileContent) as ServicioEmpresa[]).map(item => ({
-      ...item,
-      tipoItem: item.tipoItem || (item.categoria.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente'),
+    
+    // Clean and map the data to the new, simpler structure
+    return (JSON.parse(fileContent) as any[]).map(item => ({
+      id: item.id,
+      nombre: item.nombre,
+      tipoItem: item.tipoItem,
+      categoria: item.categoria,
       subcategoria: item.subcategoria || undefined,
       cantidadDisponible: item.cantidadDisponible === undefined ? undefined : Number(item.cantidadDisponible),
       valorUnitarioEstimado: item.valorUnitarioEstimado === undefined ? undefined : Number(item.valorUnitarioEstimado),
-      unidad: item.unidad || 'Unidad',
-      contactoPrincipal: item.contactoPrincipal || undefined,
-      telefonoContacto: item.telefonoContacto || undefined,
-      emailContacto: item.emailContacto || undefined,
-      descripcionServicio: item.descripcionServicio || undefined,
-      productosOfrecidos: item.productosOfrecidos || undefined,
-      notas: (item as any).notas || undefined, // Add notes, with 'any' to handle old format without this field
+      unidad: item.unidad,
+      notas: item.notas || undefined,
+      precioVenta: item.precioVenta === undefined ? undefined : Number(item.precioVenta),
     }));
   } catch (error) {
     return [];
@@ -48,13 +48,11 @@ async function writeServiciosFile(data: ServicioEmpresa[]): Promise<void> {
     const sortedData = data.sort((a, b) => {
       const catComp = (a.categoria || '').localeCompare(b.categoria || '');
       if (catComp !== 0) return catComp;
-      const subCatComp = (a.subcategoria || '').localeCompare(b.subcategoria || '');
-      if (subCatComp !== 0) return subCatComp;
       return (a.nombre || '').localeCompare(b.nombre || '');
     });
     await fs.writeFile(serviciosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
   } catch (error) {
-    console.error('Error writing servicios/inventory JSON file:', error);
+    console.error('Error writing inventory JSON file:', error);
   }
 }
 
@@ -97,11 +95,12 @@ export async function saveServicioEmpresa(
     valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined ? Number(itemData.valorUnitarioEstimado) : undefined,
     cantidadDisponible: itemData.cantidadDisponible !== undefined ? Number(itemData.cantidadDisponible) : undefined,
     precioVenta: itemData.precioVenta !== undefined ? Number(itemData.precioVenta) : undefined,
-    tipoItem: itemData.tipoItem || (itemData.categoria.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente'),
+    tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
     subcategoria: itemData.subcategoria?.trim() || undefined,
     notas: (itemData as any).notas?.trim() || undefined,
   };
 
+  // Clean out undefined or NaN values for number fields
   if (dataWithParsedNumbers.valorUnitarioEstimado === undefined || isNaN(dataWithParsedNumbers.valorUnitarioEstimado)) {
       delete dataWithParsedNumbers.valorUnitarioEstimado;
   }
@@ -112,8 +111,9 @@ export async function saveServicioEmpresa(
       delete dataWithParsedNumbers.precioVenta;
   }
 
+  // Basic validation
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") {
-    return { success: false, error: "El nombre del ítem/servicio es obligatorio." };
+    return { success: false, error: "El nombre del ítem es obligatorio." };
   }
   if (!dataWithParsedNumbers.categoria) {
     return { success: false, error: "La categoría es obligatoria." };
@@ -132,9 +132,11 @@ export async function saveServicioEmpresa(
     if (index === -1) {
       return { success: false, error: `Ítem con ID ${itemId} no encontrado.` };
     }
+    // Only update with defined fields from formData
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
+    // Creating a new item
     const existingItem = inventario.find(
       s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() &&
            s.categoria === dataWithParsedNumbers.categoria

@@ -37,7 +37,7 @@ export default function NuevoItemInventarioPage() {
     }
 
     setIsSaving(true);
-    const itemData: Omit<ServicioEmpresa, 'id'> = {
+    const itemData: Omit<ServicioEmpresa, 'id' | 'precioVenta'> = {
       nombre: nombre.trim(),
       tipoItem: tipoItem as TipoItemEmpresa,
       categoria: categoria as CategoriaServicio,
@@ -45,8 +45,6 @@ export default function NuevoItemInventarioPage() {
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
       unidad: unidad as UnidadServicio,
       notas: notas.trim() || undefined,
-      // Los campos de servicio se omiten, ya que este formulario es para inventario
-      precioVenta: undefined, 
     };
 
     try {
@@ -76,7 +74,7 @@ export default function NuevoItemInventarioPage() {
         <Link href="/empresa/todos-los-servicios" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Catálogo
+            Volver al Inventario
           </Button>
         </Link>
       </div>
@@ -101,7 +99,7 @@ export default function NuevoItemInventarioPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="item-categoria" className="text-base">Servicio/Categoría *</Label>
+                <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
                 <Select value={categoria} onValueChange={(value) => setCategoria(value as CategoriaServicio | '')} required disabled={isSaving}>
                   <SelectTrigger id="item-categoria" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar categoría..." /></SelectTrigger>
                   <SelectContent className="max-h-60">{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat} className="text-base">{cat}</SelectItem>))}</SelectContent>

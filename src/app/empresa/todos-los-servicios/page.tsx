@@ -4,14 +4,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, ListFilter, DollarSign, Tag, BarChart3, StickyNote } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,10 +23,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -42,7 +37,6 @@ export default function InventarioGeneralPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [categoriaFilter, setCategoriaFilter] = useState<Set<CategoriaServicio>>(new Set());
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
@@ -52,7 +46,7 @@ export default function InventarioGeneralPage() {
       setAllItems(data);
       setFilteredItems(data);
     } catch (err: any) {
-      setError("No se pudo cargar el catálogo maestro.");
+      setError("No se pudo cargar el inventario.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -67,11 +61,10 @@ export default function InventarioGeneralPage() {
     const lowercasedFilter = searchTerm.toLowerCase();
     const filteredData = allItems.filter(item =>
       (item.nombre.toLowerCase().includes(lowercasedFilter) ||
-      (item.categoria && item.categoria.toLowerCase().includes(lowercasedFilter))) &&
-      (categoriaFilter.size === 0 || (item.categoria && categoriaFilter.has(item.categoria)))
+      (item.categoria && item.categoria.toLowerCase().includes(lowercasedFilter)))
     );
     setFilteredItems(filteredData);
-  }, [searchTerm, allItems, categoriaFilter]);
+  }, [searchTerm, allItems]);
   
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
@@ -90,31 +83,26 @@ export default function InventarioGeneralPage() {
     }
   };
 
-  const handleCategoriaFilterToggle = (categoria: CategoriaServicio) => {
-    setCategoriaFilter(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(categoria)) newSet.delete(categoria);
-      else newSet.add(categoria);
-      return newSet;
-    });
-  };
-
-  const itemsAgrupadosPorCategoria = filteredItems.reduce((acc, item) => {
-    const categoria = item.categoria || 'Otros';
-    if (!acc[categoria]) acc[categoria] = [];
-    acc[categoria].push(item);
-    return acc;
-  }, {} as Record<string, ServicioEmpresa[]>);
+  const itemsAgrupadosPorCategoria = useMemo(() => {
+    return filteredItems.reduce((acc, item) => {
+      const categoria = item.categoria || 'Otros';
+      if (!acc[categoria]) acc[categoria] = [];
+      acc[categoria].push(item);
+      return acc;
+    }, {} as Record<string, ServicioEmpresa[]>);
+  }, [filteredItems]);
 
   const categoriasOrdenadas = Object.keys(itemsAgrupadosPorCategoria).sort();
 
-  const capitalPorCategoria = useMemo(() => categoriasOrdenadas.map(categoria => {
-    const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
-      const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
-      return sum + valorItem;
-    }, 0);
-    return { nombre: categoria, total: totalCategoria };
-  }), [categoriasOrdenadas, itemsAgrupadosPorCategoria]);
+  const capitalPorCategoria = useMemo(() => {
+    return categoriasOrdenadas.map(categoria => {
+      const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
+        const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+        return sum + valorItem;
+      }, 0);
+      return { nombre: categoria, total: totalCategoria };
+    });
+  }, [categoriasOrdenadas, itemsAgrupadosPorCategoria]);
 
   const capitalTotalGeneral = useMemo(() => capitalPorCategoria.reduce((sum, cat) => sum + cat.total, 0), [capitalPorCategoria]);
 
@@ -165,35 +153,15 @@ export default function InventarioGeneralPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input type="text" placeholder="Buscar por nombre o categoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base"/>
           </div>
-          <Accordion type="single" collapsible className="w-full md:w-auto md:min-w-[250px] border rounded-md">
-            <AccordionItem value="filter-tipo" className="border-b-0">
-              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline h-auto [&[data-state=open]>svg]:text-primary">
-                <ListFilter className="w-4 h-4 mr-2"/>
-                {categoriaFilter.size === 0 ? "Filtrar por Servicio" : `${categoriaFilter.size} Servicio(s) Seleccionado(s)`}
-              </AccordionTrigger>
-              <AccordionContent className="p-0">
-                <ScrollArea className="h-auto max-h-48">
-                  <div className="p-2 border-t">
-                    {ALL_CATEGORIAS_SERVICIO.map(cat => (
-                      <div key={cat} className="flex items-center space-x-2 py-1.5 px-1 hover:bg-muted/50 rounded-sm">
-                        <Checkbox id={`cat-${cat}`} checked={categoriaFilter.has(cat)} onCheckedChange={() => handleCategoriaFilterToggle(cat)} />
-                        <Label htmlFor={`cat-${cat}`} className="text-sm font-normal cursor-pointer flex-grow">{cat}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
         </CardContent>
       </Card>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-10"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">Cargando catálogo...</p></div>
+        <div className="flex items-center justify-center py-10"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">Cargando inventario...</p></div>
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm || categoriaFilter.size > 0 ? "No se encontraron ítems que coincidan con los filtros." : "El catálogo está vacío."}</CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron ítems que coincidan." : "El inventario está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (
@@ -218,15 +186,13 @@ export default function InventarioGeneralPage() {
                                 </AlertDialog>
                             </div>
                           </div>
-                          <Badge variant="secondary" className="text-xs mt-1">{item.tipoItem || 'No especificado'}</Badge>
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1">
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs">
                             <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
-                            <p><span className="text-muted-foreground">Cant. Disp: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
+                            <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
-                            <p><span className="text-muted-foreground">P.Venta: </span><span className="font-medium text-green-600">{formatCurrency(item.precioVenta)}</span></p>
-                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total: </span>{formatCurrency(itemTotalValue)}</p>
+                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
                           </div>
                           {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>

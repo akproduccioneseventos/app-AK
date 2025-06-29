@@ -60,7 +60,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     }
   }, [itemIdFromParams, loadItem]);
 
-  const handleFormChange = (field: keyof ServicioEmpresa, value: string | number) => {
+  const handleFormChange = (field: keyof ServicioEmpresa, value: string | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -75,7 +75,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
 
     setIsSaving(true);
     const itemDataToSave: ServicioEmpresa = {
-        ...item,
+        ...(item as ServicioEmpresa), // Start with original item to keep ID etc.
         ...formData,
         nombre: formData.nombre.trim(),
         tipoItem: formData.tipoItem,
@@ -85,6 +85,14 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         valorUnitarioEstimado: formData.valorUnitarioEstimado !== undefined ? Number(formData.valorUnitarioEstimado) : undefined,
         notas: formData.notas?.trim() || undefined,
     };
+    // Clean out service-related fields that no longer exist
+    delete (itemDataToSave as any).precioVenta;
+    delete (itemDataToSave as any).contactoPrincipal;
+    delete (itemDataToSave as any).telefonoContacto;
+    delete (itemDataToSave as any).emailContacto;
+    delete (itemDataToSave as any).descripcionServicio;
+    delete (itemDataToSave as any).productosOfrecidos;
+
 
     try {
       const result = await saveServicioEmpresa(itemDataToSave);
@@ -102,7 +110,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   };
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
-  if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al catálogo</Link>.</div>;
+  if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
 
 
   return (
@@ -138,7 +146,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="item-categoria" className="text-base">Servicio/Categoría *</Label>
+                <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
                 <Select value={formData.categoria || ''} onValueChange={(value) => handleFormChange('categoria', value as CategoriaServicio)} required disabled={isSaving}>
                   <SelectTrigger id="item-categoria"><SelectValue/></SelectTrigger>
                   <SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
@@ -178,4 +186,3 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     </div>
   );
 }
-
