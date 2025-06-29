@@ -1,71 +1,94 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost } from '@/app/actions/social-gallery';
+import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
+import { getFiestaActual } from '@/app/actions/fiesta-actual'; // To get event name
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+// UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, AlertTriangle, Heart, MessageSquare, Send, Upload, RefreshCw, X } from 'lucide-react';
 import NextImage from 'next/image';
-import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost } from '@/app/actions/social-gallery';
-import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper } from 'lucide-react';
 
-const PostCard: React.FC<{ post: SocialGalleryPost; onLike: (postId: string) => void; onComment: (postId: string, text: string) => void; }> = ({ post, onLike, onComment }) => {
+const PostCard: React.FC<{ 
+  post: SocialGalleryPost; 
+  onLike: (postId: string) => void; 
+  onComment: (postId: string, text: string) => Promise<void>; 
+  currentAuthor: string;
+}> = ({ post, onLike, onComment, currentAuthor }) => {
   const [commentText, setCommentText] = useState('');
   const [showComments, setShowComments] = useState(false);
 
-  const handleCommentSubmit = (e: FormEvent) => {
+  const handleCommentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
-    onComment(post.id, commentText);
+    await onComment(post.id, commentText);
     setCommentText('');
   };
 
+  const formattedTimestamp = formatDistanceToNow(new Date(post.timestamp), {
+    addSuffix: true,
+    locale: es,
+  });
+
   return (
-    <Card className="shadow-md overflow-hidden">
-      <CardContent className="p-0">
+    <Card className="shadow-lg overflow-hidden flex flex-col bg-card">
+      <CardHeader className="flex flex-row items-center gap-3 p-3">
+        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-primary font-bold">
+            {post.authorName.charAt(0).toUpperCase()}
+        </div>
+        <div>
+            <p className="font-semibold text-sm">{post.authorName}</p>
+            <p className="text-xs text-muted-foreground">{formattedTimestamp}</p>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0 flex-grow">
         <div className="aspect-square relative bg-muted">
           <NextImage src={post.imageUrl} alt={`Foto de ${post.authorName}`} layout="fill" objectFit="cover" />
         </div>
       </CardContent>
       <CardFooter className="p-3 flex flex-col items-start gap-2">
         <div className="w-full flex justify-between items-center">
-            <div className="flex items-center gap-3">
-                 <Button variant="ghost" size="sm" onClick={() => onLike(post.id)} className="flex items-center gap-1.5 px-2 h-8">
-                    <Heart className={`w-4 h-4 ${post.likes > 0 ? 'text-red-500 fill-current' : ''}`} />
-                    <span className="text-xs">{post.likes}</span>
+            <div className="flex items-center gap-1">
+                 <Button variant="ghost" size="sm" onClick={() => onLike(post.id)} className="flex items-center gap-1.5 px-2 h-8 text-muted-foreground hover:text-red-500">
+                    <Heart className={`w-5 h-5 ${post.likes > 0 ? 'text-red-500 fill-current' : ''}`} />
+                    <span className="text-sm font-medium">{post.likes}</span>
                 </Button>
-                 <Button variant="ghost" size="sm" onClick={() => setShowComments(!showComments)} className="flex items-center gap-1.5 px-2 h-8">
-                    <MessageSquare className="w-4 h-4" />
-                    <span className="text-xs">{post.comments.length}</span>
+                 <Button variant="ghost" size="sm" onClick={() => setShowComments(!showComments)} className="flex items-center gap-1.5 px-2 h-8 text-muted-foreground hover:text-primary">
+                    <MessageCircle className="w-5 h-5" />
+                    <span className="text-sm font-medium">{post.comments.length}</span>
                 </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Por: <span className="font-medium">{post.authorName}</span></p>
         </div>
         {showComments && (
-            <div className="w-full pt-2 border-t space-y-2">
-                <div className="max-h-32 overflow-y-auto space-y-1 pr-2">
-                    {post.comments.map(c => (
-                        <div key={c.id} className="text-xs bg-muted p-1.5 rounded-md">
+            <div className="w-full pt-3 border-t space-y-2">
+                <div className="max-h-32 overflow-y-auto space-y-2 pr-2 text-sm">
+                    {post.comments.length > 0 ? post.comments.map(c => (
+                        <div key={c.id} className="bg-muted p-2 rounded-md">
                             <span className="font-semibold">{c.authorName}:</span> {c.text}
                         </div>
-                    ))}
-                    {post.comments.length === 0 && <p className="text-xs text-muted-foreground text-center">Sin comentarios.</p>}
+                    )) : <p className="text-xs text-muted-foreground text-center py-2">Sin comentarios. ¡Sé el primero!</p>}
                 </div>
                  <form onSubmit={handleCommentSubmit} className="flex gap-2 items-center">
-                    <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Añadir comentario..." className="h-8 text-xs"/>
-                    <Button type="submit" size="icon" className="h-8 w-8 flex-shrink-0"><Send className="w-4 h-4"/></Button>
+                    <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder={`Añadir comentario como ${currentAuthor}...`} className="h-9 text-sm"/>
+                    <Button type="submit" size="icon" className="h-9 w-9 flex-shrink-0" disabled={!commentText.trim()}><Send className="w-4 h-4"/></Button>
                  </form>
             </div>
         )}
@@ -78,27 +101,42 @@ const PostCard: React.FC<{ post: SocialGalleryPost; onLike: (postId: string) => 
 export default function SocialGalleryPage({ params: paramsProp }: { params: Promise<{ fiestaId: string }> }) {
   const params = React.use(paramsProp);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  
+  const [eventName, setEventName] = useState('');
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [authorName, setAuthorName] = useState('');
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
+  // Dialog state
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+
+  const fetchData = useCallback(async (showLoadingIndicator = true) => {
+    if(showLoadingIndicator) setIsLoading(true);
     try {
-      const fetchedPosts = await getSocialPosts(params.fiestaId);
+      const [fetchedPosts, fiestaData] = await Promise.all([
+          getSocialPosts(params.fiestaId),
+          getFiestaActual()
+      ]);
       setPosts(fetchedPosts);
+      setEventName(fiestaData.configuracion.nombreEvento);
     } catch (e) {
       toast({ title: "Error al cargar galería", variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      if(showLoadingIndicator) setIsLoading(false);
     }
   }, [params.fiestaId, toast]);
 
+  // Initial load and periodic refresh for real-time feel
   useEffect(() => {
-    fetchData();
+    fetchData(); // Initial load
+    const interval = setInterval(() => {
+        fetchData(false); // Subsequent refreshes without full loading indicator
+    }, 10000); // Refresh every 10 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, [fetchData]);
   
   useEffect(() => {
@@ -106,25 +144,38 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
     if (savedName) setAuthorName(savedName);
   }, []);
 
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+         toast({ title: "Archivo demasiado grande", description: "El tamaño máximo es 10MB.", variant: "destructive" });
+         return;
+      }
+      setFileToUpload(file);
+      setUploadPreview(URL.createObjectURL(file));
+    }
+  };
 
-    if (!authorName) {
-        toast({ title: "Por favor, ingresa tu nombre antes de subir una foto.", variant: "default" });
+  const handleUploadSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!fileToUpload || !authorName) {
+        toast({ title: "Faltan datos", description: "Por favor, ingresa tu nombre y selecciona un archivo.", variant: "destructive" });
         return;
     }
     
     setIsUploading(true);
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
-    formData.append('file', file);
+    formData.append('file', fileToUpload);
     formData.append('authorName', authorName);
 
     const result = await uploadSocialPost(formData);
     if (result.success) {
       toast({ title: "¡Foto subida!", description: "Tu foto ahora es parte de la galería." });
-      await fetchData();
+      await fetchData(false); // Refresh data without full load
+      setIsUploadDialogOpen(false); // Close dialog
+      setFileToUpload(null);
+      setUploadPreview(null);
     } else {
       toast({ title: "Error al subir", description: result.error, variant: "destructive" });
     }
@@ -132,15 +183,19 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
   };
   
   const handleLike = async (postId: string) => {
+    // Optimistic update
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: p.likes + 1} : p));
     await addLikeToPost(postId);
+    // No need to full refetch, optimistic is fine for likes
   };
   
   const handleComment = async (postId: string, text: string) => {
-    const tempCommentId = `temp_${Date.now()}`;
-    setPosts(prev => prev.map(p => p.id === postId ? {...p, comments: [...p.comments, {id: tempCommentId, authorName, text, timestamp: new Date().toISOString()}]} : p));
+    if (!authorName) {
+        toast({description: "Por favor ingresa tu nombre para comentar."});
+        return;
+    }
     await addCommentToPost(postId, text, authorName);
-    await fetchData(); // Re-fetch to get real comment ID and ensure consistency
+    await fetchData(false); // Re-fetch to get new comment and ensure consistency
   };
   
   const handleAuthorNameChange = (name: string) => {
@@ -150,36 +205,72 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/30">
+        <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Sube tu Momento</DialogTitle>
+                    <DialogDescription>Comparte una foto con todos los invitados.</DialogDescription>
+                </DialogHeader>
+                 <form onSubmit={handleUploadSubmit} className="space-y-4">
+                    {uploadPreview ? (
+                        <div className="relative aspect-video">
+                            <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md"/>
+                        </div>
+                    ) : (
+                         <div className="h-48 border-2 border-dashed rounded-md flex flex-col items-center justify-center bg-background">
+                            <Label htmlFor="file-upload-dialog" className="cursor-pointer text-center text-muted-foreground p-4">
+                                <Upload className="w-8 h-8 mx-auto mb-2"/>
+                                Selecciona o arrastra una foto aquí
+                            </Label>
+                            <Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/jpeg,image/png,image/gif" />
+                         </div>
+                    )}
+                    <DialogFooter>
+                        <Button type="submit" disabled={isUploading || !fileToUpload}>
+                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Upload className="w-4 h-4 mr-2"/>}
+                            {isUploading ? "Subiendo..." : "Publicar Foto"}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-sm shadow-sm">
-        <div className="max-w-4xl mx-auto p-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="max-w-5xl mx-auto p-3 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl font-bold font-headline text-primary">Galería Social</h1>
+            <h1 className="text-2xl font-bold font-headline text-primary flex items-center gap-2">
+                <PartyPopper/> {eventName || 'Galería Social'}
+            </h1>
             <p className="text-sm text-muted-foreground">¡Comparte tus momentos del evento!</p>
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-             <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-9 text-sm flex-grow"/>
-             <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading || !authorName} className="flex-shrink-0">
-                {isUploading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Upload className="w-4 h-4"/>}
-                <span className="ml-2 hidden sm:inline">Subir Foto</span>
-             </Button>
-             <Input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-             <Button variant="ghost" size="icon" onClick={fetchData} disabled={isLoading}><RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}/></Button>
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+             <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base flex-grow"/>
+             <DialogTrigger asChild>
+                <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10">
+                    <Upload className="w-5 h-5"/>
+                    <span className="ml-2 hidden sm:inline">Subir Foto</span>
+                </Button>
+             </DialogTrigger>
+             <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10">
+                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}/>
+            </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-4">
+      <main className="max-w-5xl mx-auto p-4">
         {isLoading && posts.length === 0 ? (
-          <div className="text-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary"/></div>
+          <div className="text-center py-20 flex flex-col items-center gap-3"><Loader2 className="w-10 h-10 animate-spin text-primary"/><p className="text-muted-foreground">Cargando galería...</p></div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            <p>Aún no hay fotos. ¡Sé el primero en subir una!</p>
+          <div className="text-center py-20 text-muted-foreground bg-card p-8 rounded-lg shadow-inner">
+            <h2 className="text-2xl font-semibold text-foreground mb-2">¡Sé el primero en compartir!</h2>
+            <p>La galería está vacía. Sube la primera foto para empezar a crear recuerdos.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map(post => (
-              <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment}/>
+              <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentAuthor={authorName}/>
             ))}
           </div>
         )}
