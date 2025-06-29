@@ -110,9 +110,6 @@ export async function saveCustomer(
     customerToSave.companyName = customerData.get('companyName') as string | undefined;
     customerToSave.phone = customerData.get('phone') as string | undefined;
     customerToSave.taxId = customerData.get('taxId') as string | undefined;
-    customerToSave.email = customerData.get('email') as string | undefined;
-    // El campo 'street' ya no se toma del FormData para la dirección del salón
-    // Si se quiere una dirección general del cliente, se debería agregar un campo separado
     
     customerToSave.partyDate = customerData.get('partyDate') as string | undefined;
     customerToSave.partyTime = customerData.get('partyTime') as string | undefined;
@@ -140,10 +137,6 @@ export async function saveCustomer(
     return { success: false, error: 'El nombre del cliente o de la empresa es obligatorio.' };
   }
   
-  // Los campos de fiesta ya no son obligatorios para la creación/edición del cliente en sí.
-  // La acción de crear una fiesta desde un cliente o vincularlos manejará esa lógica.
-
-
   if (customerToSave.id) { // Update
     customerId = customerToSave.id;
     const index = customers.findIndex(c => c.id === customerId);
@@ -158,19 +151,14 @@ export async function saveCustomer(
       estadoCliente: customerToSave.estadoCliente || existingCustomer.estadoCliente || 'Actual',
       contractFileName: contractFile ? undefined : (customerToSave.contractFileName || existingCustomer.contractFileName),
       budgetFileName: budgetFile ? undefined : (customerToSave.budgetFileName || existingCustomer.budgetFileName),
-      // address se mantiene tal cual si no se modifica. La UI ya no permite editar 'street'.
-      address: customerToSave.address || existingCustomer.address
     };
     customerToSave = customers[index]; 
   } else { // Create
     customerId = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    // Ensure address is an object if street was part of the input, otherwise undefined
     const newCustomerBase: Omit<Customer, 'id'> = {
         ...(customerToSave as Omit<Customer, 'id'>), // Cast excluding id
         name: customerToSave.name || customerToSave.companyName || 'Sin Nombre Asignado',
         estadoCliente: customerToSave.estadoCliente || 'Actual',
-        // `address` solo se crea si 'street' viene, lo cual ya no sucede
-        address: undefined, // For new customers, address is not being set from form
     };
     customers.push({
       ...newCustomerBase,

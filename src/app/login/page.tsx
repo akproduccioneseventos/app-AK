@@ -51,11 +51,6 @@ export default function LoginPage() {
               Crear una cuenta
             </Link>
           </p>
-           <Link href="/" passHref>
-            <Button variant="link" className="w-full text-sm text-muted-foreground hover:text-primary">
-                <ArrowLeft className="w-4 h-4 mr-1.5"/> Volver al Dashboard (Simulado)
-            </Button>
-          </Link>
         </CardFooter>
       </Card>
     </div>

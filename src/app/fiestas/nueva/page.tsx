@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Invoice } from '@/types/invoice';
 import { getInvoiceById } from '@/app/actions/invoices';
+import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 
 
 interface PlanningModule {
@@ -285,7 +286,7 @@ export default function PlanificarFiestaHubPage() {
   }, 0);
   const saldoPorPagar = (typeof presupuestoEstimado === 'number' ? presupuestoEstimado : parseFloat(presupuestoEstimado.toString())) - totalPagado;
 
-  const isFiestaConfigured = fiestaActual && fiestaActual.configuracion.nombreEvento && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble";
+  const isFiestaConfigured = fiestaActual && fiestaActual.configuracion.nombreEvento !== initialFiestaActualData.configuracion.nombreEvento;
 
 
   return (
@@ -459,44 +460,7 @@ export default function PlanificarFiestaHubPage() {
             <CardContent className="print:p-0">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-1 print:gap-4">
                     {planningModules.map((module) => (
-                    <Card key={module.title} className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 bg-card print:shadow-none print:border print:rounded-md print:break-inside-avoid">
-                        <CardHeader className="flex-row items-start gap-3 space-y-0 pb-3 print:pb-2 print:items-center">
-                        <div className="p-2.5 bg-primary/10 rounded-md print:hidden">
-                            <module.icon className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                            <CardTitle className="font-semibold text-md mb-0.5 print:text-sm print:font-bold">{module.title}</CardTitle>
-                        </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow pb-3 print:pb-2 print:pt-0">
-                            <p className="text-xs text-muted-foreground line-clamp-2 print:line-clamp-none">{module.description}</p>
-                        </CardContent>
-                        <CardFooter className="pt-0 print:hidden">
-                        {module.href ? (
-                            <Button asChild
-                                className="w-full text-sm"
-                                variant={module.status === "Disponible" ? "default" : "secondary"}
-                                size="sm"
-                                disabled={module.status !== "Disponible"}
-                            >
-                            <Link href={module.href}>
-                                {module.actionLabel}
-                                {module.status !== "Disponible" && <span className="ml-1.5 text-xs opacity-70">({module.status})</span>}
-                            </Link>
-                            </Button>
-                        ) : (
-                            <Button
-                            className="w-full mt-auto text-sm"
-                            variant="secondary"
-                            size="sm"
-                            disabled
-                            >
-                            {module.actionLabel}
-                            <span className="ml-1.5 text-xs opacity-70">({module.status})</span>
-                            </Button>
-                        )}
-                        </CardFooter>
-                    </Card>
+                    <ModuleCard key={module.title} {...module} />
                     ))}
                 </div>
             </CardContent>

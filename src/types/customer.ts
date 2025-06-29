@@ -5,15 +5,7 @@ export const ALL_CUSTOMER_STATES: CustomerStatus[] = ['Actual', 'Antiguo'];
 export interface Customer {
   id: string;
   name: string;
-  // email is removed as per prompt
   phone?: string;
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zipCode?: string;
-    country?: string;
-  };
   companyName?: string;
   taxId?: string; 
   estadoCliente?: CustomerStatus; // 'Actual' o 'Antiguo'

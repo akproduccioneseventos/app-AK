@@ -186,10 +186,8 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: Pr
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div><span className="font-medium text-muted-foreground">Nombre:</span> {customer.name}</div>
           {customer.companyName && <div><span className="font-medium text-muted-foreground">Empresa:</span> {customer.companyName}</div>}
-          <div><span className="font-medium text-muted-foreground">Email:</span> {customer.email || '-'}</div>
           <div><span className="font-medium text-muted-foreground">Teléfono:</span> {customer.phone || '-'}</div>
           <div><span className="font-medium text-muted-foreground">RUT/Cédula:</span> {customer.taxId || '-'}</div>
-          <div><span className="font-medium text-muted-foreground">Dirección:</span> {customer.address?.street || '-'}</div>
         </CardContent>
       </Card>
 
