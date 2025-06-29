@@ -13,7 +13,7 @@ import { ArrowLeft, Plus, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bel
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format as formatDateFn, differenceInCalendarDays, differenceInHours, differenceInMinutes, formatDistanceToNowStrict } from 'date-fns';
-import { es } from 'date-fns/esm/locale/es';
+import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Tarea } from '@/types/fiesta';
 import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';

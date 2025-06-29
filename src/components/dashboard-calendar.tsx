@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { es } from 'date-fns/esm/locale/es'; // Import Spanish locale
+import { es } from 'date-fns/locale'; // Import Spanish locale
 
 interface DashboardCalendarProps {
   eventDate?: string; // Changed to string to match common data source type
@@ -13,7 +13,7 @@ export function DashboardCalendar({ eventDate }: DashboardCalendarProps) {
   const [clientSideMonth, setClientSideMonth] = useState<Date | undefined>(undefined);
   const [parsedEventDate, setParsedEventDate] = useState<Date | undefined>(undefined);
 
-  useEffect(() => {
+  const calculateAndSetDates = useCallback(() => {
     let validDate: Date | undefined = undefined;
     if (eventDate) {
       const d = new Date(eventDate);
@@ -25,6 +25,11 @@ export function DashboardCalendar({ eventDate }: DashboardCalendarProps) {
     // Initialize clientSideMonth after hydration, using eventDate if valid, else current date
     setClientSideMonth(validDate || new Date());
   }, [eventDate]);
+
+  useEffect(() => {
+    // This now only runs on the client, avoiding server/client mismatch for new Date()
+    calculateAndSetDates();
+  }, [calculateAndSetDates]);
 
   const modifiers = parsedEventDate ? { booked: [parsedEventDate] } : {};
   const modifiersStyles = parsedEventDate ? {
