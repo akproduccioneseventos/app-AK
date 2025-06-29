@@ -21,8 +21,8 @@ const modules: ModuleCardProps[] = [
 ];
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon: Icon }) => (
-  <Link href={href} passHref>
-    <Card className="group flex flex-col h-full shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer">
+  <Link href={href} className="group flex flex-col h-full no-underline">
+    <Card className="flex flex-col h-full shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2.5 bg-primary/10 rounded-lg">
@@ -37,15 +37,14 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon:
         <p className="text-sm text-muted-foreground">{description}</p>
       </CardContent>
       <CardFooter className="pt-2">
-        <Button asChild variant="link" className="p-0 h-auto text-sm text-primary group-hover:underline">
-          <Link href={href}>
+        <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium text-primary underline-offset-4 group-hover:underline">
             Acceder al Módulo <ArrowRight className="w-4 h-4 ml-1" />
-          </Link>
-        </Button>
+        </div>
       </CardFooter>
     </Card>
   </Link>
 );
+
 
 export default function DashboardPage() {
   return (
