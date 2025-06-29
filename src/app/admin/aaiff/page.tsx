@@ -1,12 +1,101 @@
 
 'use client';
 
+import { useState, useCallback, type FormEvent } from 'react';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { ArrowLeft, BrainCircuit, FileText, Code2, Bug, Wand2, Puzzle, DatabaseZap, ClipboardList, TerminalSquare, Settings2, RefreshCcw, AlertTriangle, CheckCircle } from "lucide-react";
-import Link from "next/link";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, BrainCircuit, FileText, Code2, Bug, Wand2, Puzzle, DatabaseZap, ClipboardList, TerminalSquare, Settings2, RefreshCcw, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
+import { analyzeCodebase, type AnalyzeCodebaseOutput } from '@/ai/flows/analyze-codebase-flow';
+import { Separator } from '@/components/ui/separator';
+
+const defaultSpecification = `# Especificación Funcional de la Aplicación de Gestión de Eventos
+
+## 1. Objetivo Principal
+La aplicación es un sistema integral (ERP) para una empresa de planificación de eventos, llamada AK Producciones. Debe permitir gestionar todo el ciclo de vida de un evento, desde la captación del cliente hasta la finalización.
+
+## 2. Módulos Requeridos
+
+### 2.1. Gestión Comercial (CRM & Ventas)
+- **CRM de Prospectos:** Un tablero Kanban para seguir a los clientes potenciales desde la consulta inicial hasta la firma del contrato.
+- **Presupuestos:** Herramienta para crear presupuestos detallados y dinámicos. Debe permitir seleccionar servicios de un catálogo, aplicar descuentos y generar un PDF para el cliente.
+- **Facturación:** Generación de facturas a partir de presupuestos aceptados. Seguimiento de pagos parciales y totales.
+
+### 2.2. Gestión de Clientes
+- Un listado de todos los clientes que han firmado contrato.
+- Ficha de cliente con sus datos de contacto, fiscales y un historial de los eventos contratados.
+
+### 2.3. Planificador de Fiestas
+Este es el módulo central para un evento activo.
+- **Configuración General:** Detalles básicos del evento (fecha, lugar, invitados).
+- **Lista de Tareas:** Checklist para seguir el progreso.
+- **Gestión de Invitados:** Lista de invitados con estado de confirmación (RSVP).
+- **Decoración:** Planificación de la temática, paleta de colores y elementos decorativos.
+- **Catering:** Creación de menús, cálculo de costos de ingredientes.
+- **Gestión de Personal:** Asignación de empleados a un evento.
+
+### 2.4. Gestión Interna de la Empresa
+- **Empleados y Roles:** Gestión del personal de la empresa y sus roles/sueldos.
+- **Proveedores:** Base de datos de proveedores de insumos y servicios subcontratados.
+- **Inventario General:** Un catálogo maestro de todos los activos, insumos y servicios que ofrece la empresa, con su costo y precio de venta.
+
+### 2.5. Módulos Adicionales
+- **Página Pública del Evento:** Una página web para invitados con información, galería y RSVP.
+- **Portal del Cliente:** Un área privada para que el cliente vea el progreso, documentos, etc.
+`;
 
 export default function AAOIFFPage() {
+    const { toast } = useToast();
+    const [specification, setSpecification] = useState(defaultSpecification);
+    const [analysisResult, setAnalysisResult] = useState<AnalyzeCodebaseOutput | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleAnalyze = async (e: FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+        setAnalysisResult(null);
+
+        if (!specification.trim()) {
+            toast({ title: "Especificación requerida", description: "Por favor, introduce la especificación funcional de la aplicación.", variant: "destructive" });
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const result = await analyzeCodebase({ specification });
+            setAnalysisResult(result);
+            toast({ title: "Análisis Completado", description: "La IA ha finalizado el análisis de tu código." });
+        } catch (err: any) {
+            console.error("Error analyzing codebase:", err);
+            setError(err.message || "Ocurrió un error inesperado durante el análisis.");
+            toast({ title: "Error en el Análisis", description: err.message, variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const renderAnalysisItems = (items: AnalyzeCodebaseOutput['completedModules'], category: string) => {
+      if (!items || items.length === 0) {
+        return <p className="text-sm text-muted-foreground">No se encontraron elementos en esta categoría.</p>;
+      }
+      return (
+        <ul className="space-y-3">
+          {items.map((item, index) => (
+            <li key={`${category}-${index}`} className="p-3 border rounded-md bg-muted/30">
+              <p className="font-semibold text-foreground">{item.module}</p>
+              <p className="text-sm text-primary">{item.status}</p>
+              <p className="text-xs text-muted-foreground mt-1">{item.details}</p>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
@@ -25,76 +114,72 @@ export default function AAOIFFPage() {
       </div>
 
       <Card className="shadow-lg">
+        <form onSubmit={handleAnalyze}>
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Objetivo del Módulo</CardTitle>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><FileText className="w-5 h-5 text-primary/80"/>Especificación Funcional del Sistema</CardTitle>
           <CardDescription>
-            Permitir que la IA lea la estructura del sistema, analice su código, lo compare contra la especificación funcional (PROMPT MAESTRO), detecte errores, implemente mejoras y agregue funcionalidades faltantes.
+            Pega aquí el "Prompt Maestro" o la descripción detallada de lo que tu aplicación debe hacer. La IA comparará esto con el código existente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 p-3 border rounded-md bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300">
-                <AlertTriangle className="w-5 h-5" />
-                <p className="text-sm">
-                    <strong>Nota:</strong> Este módulo es una interfaz para una funcionalidad avanzada de IA. La lógica de análisis y modificación de código está actualmente <span className="font-semibold">en desarrollo y no está activa</span>.
-                </p>
+            <Textarea 
+                value={specification}
+                onChange={(e) => setSpecification(e.target.value)}
+                placeholder="Describe los módulos y funcionalidades que esperas en tu aplicación..."
+                className="min-h-[250px] font-mono text-sm"
+                disabled={isLoading}
+            />
+        </CardContent>
+        <CardFooter>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
+              {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <BrainCircuit className="w-5 h-5 mr-2"/>}
+              {isLoading ? "Analizando..." : "Iniciar Análisis Completo"}
+            </Button>
+        </CardFooter>
+        </form>
+      </Card>
+
+      {isLoading && (
+        <div className="text-center py-10">
+            <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary"/>
+            <p className="mt-4 text-muted-foreground">La IA está leyendo y analizando el código... Esto puede tardar un momento.</p>
+        </div>
+      )}
+
+      {error && (
+        <Card className="border-destructive">
+            <CardHeader><CardTitle className="text-destructive flex items-center gap-2"><AlertTriangle/>Error en el Análisis</CardTitle></CardHeader>
+            <CardContent><p>{error}</p></CardContent>
+        </Card>
+      )}
+
+      {analysisResult && (
+        <div className="space-y-6">
+            <Card className="bg-primary/5 border-primary/20">
+                <CardHeader><CardTitle className="font-headline text-xl">Resumen General del Análisis</CardTitle></CardHeader>
+                <CardContent><p className="text-muted-foreground">{analysisResult.overallSummary}</p></CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader><CardTitle className="flex items-center gap-2 text-green-600"><CheckCircle className="w-5 h-5"/>Módulos Completados</CardTitle></CardHeader>
+                    <CardContent>{renderAnalysisItems(analysisResult.completedModules, 'completed')}</CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader><CardTitle className="flex items-center gap-2 text-orange-600"><Puzzle className="w-5 h-5"/>Módulos Faltantes o Incompletos</CardTitle></CardHeader>
+                    <CardContent>{renderAnalysisItems(analysisResult.missingModules, 'missing')}</CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader><CardTitle className="flex items-center gap-2 text-red-600"><Bug className="w-5 h-5"/>Errores y Bugs Potenciales</CardTitle></CardHeader>
+                    <CardContent>{renderAnalysisItems(analysisResult.errorsAndBugs, 'bugs')}</CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader><CardTitle className="flex items-center gap-2 text-blue-600"><Wand2 className="w-5 h-5"/>Sugerencias de Mejora</CardTitle></CardHeader>
+                    <CardContent>{renderAnalysisItems(analysisResult.suggestions, 'suggestions')}</CardContent>
+                </Card>
             </div>
-          <div>
-            <h3 className="text-md font-semibold mb-1 flex items-center gap-2"><FileText className="w-5 h-5 text-primary/80"/>Especificación del Sistema</h3>
-            <p className="text-sm text-muted-foreground">
-              Se espera un archivo <code className="bg-muted px-1 py-0.5 rounded text-xs">especificacion-del-sistema.md</code> en la raíz del proyecto para el análisis.
-            </p>
-            <Button variant="outline" size="sm" className="mt-2" disabled>Cargar/Ver Especificación (En Desarrollo)</Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium flex items-center gap-2"><RefreshCcw className="w-5 h-5 text-primary/80"/>Proceso de Análisis y Optimización</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-start gap-2"><Code2 className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Comparación con código fuente actual.</p></div>
-            <div className="flex items-start gap-2"><Bug className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Detección de errores técnicos y de flujo.</p></div>
-            <div className="flex items-start gap-2"><Wand2 className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Sugerencias/Implementación de mejoras.</p></div>
-            <div className="flex items-start gap-2"><Puzzle className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Identificación y esqueleto de módulos faltantes.</p></div>
-            <div className="flex items-start gap-2"><DatabaseZap className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Sincronización con base de datos (lectura de estructura).</p></div>
-          </CardContent>
-           <CardFooter>
-            <Button className="w-full" disabled>
-              <BrainCircuit className="w-4 h-4 mr-2"/>Iniciar Análisis Completo (En Desarrollo)
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium flex items-center gap-2"><ClipboardList className="w-5 h-5 text-primary/80"/>Informes y Configuración</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-start gap-2"><TerminalSquare className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Integración con entorno de despliegue/CLI.</p></div>
-            <div className="flex items-start gap-2"><Settings2 className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Configuración de permisos y activación automática.</p></div>
-             <p className="text-xs text-muted-foreground pt-2">El resultado será un informe detallado con hallazgos y acciones tomadas/sugeridas.</p>
-          </CardContent>
-           <CardFooter>
-            <Button variant="outline" className="w-full" disabled>
-              Ver Último Informe (En Desarrollo)
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-      
-      <Card className="bg-muted/30">
-        <CardHeader>
-            <CardTitle className="text-lg font-medium">Estado Actual (Simulado)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-            <p className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500"/> Módulos Completados: <strong>XX/YY</strong></p>
-            <p className="flex items-center gap-2"><Puzzle className="w-4 h-4 text-orange-500"/> Módulos Faltantes/Incompletos: <strong>Z</strong></p>
-            <p className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500"/> Errores Críticos Detectados: <strong>N</strong></p>
-            <p className="flex items-center gap-2"><Wand2 className="w-4 h-4 text-blue-500"/> Mejoras Sugeridas: <strong>M</strong></p>
-        </CardContent>
-      </Card>
+        </div>
+      )}
 
     </div>
   );
