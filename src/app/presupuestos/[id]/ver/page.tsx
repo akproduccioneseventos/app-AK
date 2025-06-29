@@ -114,6 +114,14 @@ export default function VerPresupuestoPage() {
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS);
 
+  const eventYear = new Date(presupuesto.eventoFecha).getFullYear();
+  const currentYear = new Date().getFullYear();
+  const showAnnualAdjustmentLegend = 
+    displaySettings?.annualAdjustmentPercentage && 
+    displaySettings.annualAdjustmentPercentage > 0 && 
+    eventYear > currentYear && 
+    presupuesto?.estado !== 'Facturado';
+
   return (
     <div className="max-w-4xl mx-auto bg-white print:bg-white font-sans text-gray-800 print:text-black">
       <div className="p-4 md:p-8 print:p-2">
@@ -215,6 +223,22 @@ export default function VerPresupuestoPage() {
             </section>
         )}
         
+        {showAnnualAdjustmentLegend && (
+          <div className="my-4 p-3 border-l-4 border-orange-400 bg-orange-50 text-orange-700 text-xs print:hidden">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+              </div>
+              <div className="ml-3">
+                <p className="font-bold">Notificación de Ajuste Anual</p>
+                <p className="mt-1">
+                  Este presupuesto podría estar sujeto a un ajuste del <strong>{displaySettings.annualAdjustmentPercentage}%</strong> por realizarse en un año futuro. Este ajuste se aplicará al momento de la facturación final.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-[220px] print:max-w-[180px] space-y-0.5">
             {presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
@@ -239,14 +263,8 @@ export default function VerPresupuestoPage() {
         <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p>{BUDGET_DEPOSIT_NOTE}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-2 whitespace-pre-line">{presupuesto.notas}</p>}
-          {displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && presupuesto.estado !== 'Facturado' && (
-            <p className="mt-2 text-orange-600">
-                Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
-            </p>
-          )}
         </footer>
       </div>
     </div>
   );
 }
-
