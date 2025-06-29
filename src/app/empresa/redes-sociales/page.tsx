@@ -5,20 +5,38 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { SocialPost } from '@/types/social-media';
+import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { getSocialPosts, deleteSocialPost } from '@/app/actions/social-media';
 import { NewPostDialog } from '@/components/social-media/NewPostDialog';
 import { SocialPostCard } from '@/components/social-media/SocialPostCard';
+import { SocialMediaCalendar } from '@/components/social-media/SocialMediaCalendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 function SocialMediaPageContent() {
     const [posts, setPosts] = useState<SocialPost[]>([]);
+    const [allEvents, setAllEvents] = useState<FiestaEnPlanificacion[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+    const [postToDuplicate, setPostToDuplicate] = useState<SocialPost | null>(null);
+    const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
+
+    // Filtering State
+    const [filteredPosts, setFilteredPosts] = useState<SocialPost[]>([]);
+    const [eventFilter, setEventFilter] = useState<string>('all'); // 'all', 'general', or eventId
+    const [platformFilter, setPlatformFilter] = useState<SocialPlatform | 'all'>('all');
 
     const { toast } = useToast();
 
@@ -26,10 +44,16 @@ function SocialMediaPageContent() {
         setIsLoading(true);
         setError(null);
         try {
-            const fetchedPosts = await getSocialPosts();
+            const [fetchedPosts, actual, historial] = await Promise.all([
+                getSocialPosts(),
+                getFiestaActual(),
+                getHistorialFiestas(),
+            ]);
             setPosts(fetchedPosts);
+            const all = [actual, ...historial].filter(Boolean) as FiestaEnPlanificacion[];
+            setAllEvents(all);
         } catch (err: any) {
-            setError("No se pudieron cargar las publicaciones.");
+            setError("No se pudieron cargar los datos.");
             toast({ title: "Error", description: err.message, variant: "destructive" });
         } finally {
             setIsLoading(false);
@@ -39,6 +63,26 @@ function SocialMediaPageContent() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    useEffect(() => {
+        let tempPosts = posts;
+        if (eventFilter !== 'all') {
+            if (eventFilter === 'general') {
+                tempPosts = tempPosts.filter(p => p.isGeneralCampaign);
+            } else {
+                tempPosts = tempPosts.filter(p => p.eventId === eventFilter);
+            }
+        }
+        if (platformFilter !== 'all') {
+            tempPosts = tempPosts.filter(p => p.platform === platformFilter);
+        }
+        setFilteredPosts(tempPosts);
+    }, [posts, eventFilter, platformFilter]);
+
+    const handleDuplicatePost = (post: SocialPost) => {
+        setPostToDuplicate(post);
+        setIsDuplicateDialogOpen(true);
+    };
 
     const handleDelete = async (postId: string) => {
         setDeletingPostId(postId);
@@ -57,9 +101,6 @@ function SocialMediaPageContent() {
         }
     };
     
-    const scheduledPosts = posts.filter(p => p.status === 'Programado');
-    const publishedPosts = posts.filter(p => p.status === 'Publicado');
-
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -74,50 +115,76 @@ function SocialMediaPageContent() {
                     </Link>
                 </div>
             </div>
+            {postToDuplicate && (
+                <NewPostDialog 
+                    isOpen={isDuplicateDialogOpen}
+                    onOpenChange={setIsDuplicateDialogOpen}
+                    onPostCreated={fetchData} 
+                    postToDuplicate={postToDuplicate}
+                />
+            )}
             <CardDescription>Planifica, redacta con IA y sigue el rendimiento de tus campañas en redes sociales.</CardDescription>
             
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-xl">Gestor de Contenido</CardTitle>
+                    <div className="flex flex-col md:flex-row gap-4 pt-2">
+                        {/* Event Filter */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar por Evento</Button></DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onSelect={() => setEventFilter('all')}>Todos los Eventos</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setEventFilter('general')}>Campañas Generales</DropdownMenuItem>
+                                <DropdownMenuSeparator/>
+                                {allEvents.map(e => <DropdownMenuItem key={e.id} onSelect={() => setEventFilter(e.id)}>{e.configuracion.nombreEvento}</DropdownMenuItem>)}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        {/* Platform Filter */}
+                         <DropdownMenu>
+                            <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar por Plataforma</Button></DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('all')}>Todas las Plataformas</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('Facebook')}>Facebook</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('Instagram')}>Instagram</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('TikTok')}>TikTok</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        {(eventFilter !== 'all' || platformFilter !== 'all') && <Button variant="ghost" onClick={() => {setEventFilter('all'); setPlatformFilter('all');}}><X className="w-4 h-4 mr-2"/>Limpiar Filtros</Button>}
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    <Tabs defaultValue="programadas">
+                    <Tabs defaultValue="list">
                         <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex">
-                            <TabsTrigger value="programadas"><Calendar className="w-4 h-4 mr-2"/>Programadas ({scheduledPosts.length})</TabsTrigger>
-                            <TabsTrigger value="publicadas"><List className="w-4 h-4 mr-2"/>Publicadas ({publishedPosts.length})</TabsTrigger>
+                            <TabsTrigger value="list"><List className="w-4 h-4 mr-2"/>Vista de Lista</TabsTrigger>
+                            <TabsTrigger value="calendar"><Calendar className="w-4 h-4 mr-2"/>Vista de Calendario</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="programadas" className="mt-4">
+                        <TabsContent value="list" className="mt-4">
                             {isLoading ? (
                                 <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
-                            ) : scheduledPosts.length > 0 ? (
+                            ) : filteredPosts.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {scheduledPosts.map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} />)}
+                                {filteredPosts.map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={() => handleDuplicatePost(post)} />)}
                                 </div>
                             ) : (
-                                <p className="text-muted-foreground text-center py-10">No hay publicaciones programadas.</p>
+                                <p className="text-muted-foreground text-center py-10">No hay publicaciones que coincidan con los filtros seleccionados.</p>
                             )}
                         </TabsContent>
-                         <TabsContent value="publicadas" className="mt-4">
+                         <TabsContent value="calendar" className="mt-4">
                            {isLoading ? (
                                 <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
-                            ) : publishedPosts.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {publishedPosts.map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} />)}
-                                </div>
                             ) : (
-                                <p className="text-muted-foreground text-center py-10">No hay publicaciones pasadas.</p>
+                               <SocialMediaCalendar posts={filteredPosts} />
                             )}
                         </TabsContent>
                     </Tabs>
                 </CardContent>
                  <CardFooter>
-                     <p className="text-xs text-muted-foreground">Las vistas de calendario y estadísticas se añadirán en futuras actualizaciones.</p>
+                     <p className="text-xs text-muted-foreground">La función de arrastrar y soltar en el calendario y las estadísticas avanzadas se añadirán en futuras actualizaciones.</p>
                  </CardFooter>
             </Card>
         </div>
     )
 }
-
 
 export default function SocialMediaPage() {
     return (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, type FormEvent, useCallback } from 'react';
@@ -15,7 +16,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, Loader2, Sparkles, Facebook, Instagram, Music, AlertTriangle, Calendar, FileText, Wand2 } from 'lucide-react';
+import { PlusCircle, Loader2, Sparkles, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveSocialPost } from '@/app/actions/social-media';
 import type { SocialPost, SocialPlatform, PostStatus } from '@/types/social-media';
@@ -33,11 +34,24 @@ import { generateSocialPost, type GenerateSocialPostInput } from '@/ai/flows/gen
 interface NewPostDialogProps {
     onPostCreated: () => void;
     postToEdit?: SocialPost | null;
+    postToDuplicate?: SocialPost | null;
+    isOpen?: boolean;
+    onOpenChange?: (open: boolean) => void;
     children?: React.ReactNode;
 }
 
-export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDialogProps) {
-    const [isOpen, setIsOpen] = useState(false);
+export function NewPostDialog({ 
+    onPostCreated, 
+    postToEdit,
+    postToDuplicate,
+    isOpen: controlledIsOpen,
+    onOpenChange: setControlledIsOpen,
+    children 
+}: NewPostDialogProps) {
+    const [internalIsOpen, setInternalIsOpen] = useState(false);
+    const isOpen = controlledIsOpen ?? internalIsOpen;
+    const setIsOpen = setControlledIsOpen ?? setInternalIsOpen;
+
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
     
@@ -58,44 +72,46 @@ export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDi
     const [isAiPanelOpen, setIsAiPanelOpen] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [aiSelectedEventId, setAiSelectedEventId] = useState<string>('');
-    const [aiStyle, setAiStyle] = useState<'divertida' | 'elegante' | 'promocional'>('promocional');
+    const [aiStyle, setAiStyle] = useState<'promocional' | 'elegante' | 'divertida'>('promocional');
 
     // Data for selectors
     const [allEvents, setAllEvents] = useState<FiestaEnPlanificacion[]>([]);
 
+    const activePost = postToEdit || postToDuplicate;
+
     const resetForm = useCallback(() => {
-        setPlatform(postToEdit?.platform || 'Instagram');
-        setIsGeneralCampaign(postToEdit?.isGeneralCampaign ?? true);
-        setEventId(postToEdit?.eventId || '');
-        setPublishDate(postToEdit?.publishDate ? new Date(postToEdit.publishDate).toISOString().substring(0, 16) : new Date().toISOString().substring(0, 16));
-        setText(postToEdit?.text || '');
-        setLink(postToEdit?.link || '');
+        const isDuplicating = !!postToDuplicate;
+        setPlatform(activePost?.platform || 'Instagram');
+        setIsGeneralCampaign(activePost?.isGeneralCampaign ?? true);
+        setEventId(activePost?.eventId || '');
+        setPublishDate(isDuplicating ? new Date().toISOString().substring(0, 16) : (activePost?.publishDate ? new Date(activePost.publishDate).toISOString().substring(0, 16) : new Date().toISOString().substring(0, 16)));
+        setText(activePost?.text || '');
+        setLink(activePost?.link || '');
         setMediaFile(null);
-        setMediaPreview(postToEdit?.mediaUrl || null);
-        setStatus(postToEdit?.status || 'Programado');
-        setPromotionCost(postToEdit?.promotionCost?.toString() || '');
-        setPerformanceLikes(postToEdit?.performance?.likes?.toString() || '');
+        setMediaPreview(activePost?.mediaUrl || null);
+        setStatus(isDuplicating ? 'Programado' : (activePost?.status || 'Programado'));
+        setPromotionCost(isDuplicating ? '' : (activePost?.promotionCost?.toString() || ''));
+        setPerformanceLikes(isDuplicating ? '' : (activePost?.performance?.likes?.toString() || ''));
         setIsAiPanelOpen(false);
         setAiSelectedEventId('');
-    }, [postToEdit]);
+    }, [activePost, postToDuplicate]);
 
     useEffect(() => {
         if (isOpen) {
             resetForm();
-            // Fetch events for the dropdown
             const fetchEvents = async () => {
                 const [actual, historial] = await Promise.all([getFiestaActual(), getHistorialFiestas()]);
                 const all = [actual, ...historial].filter(Boolean) as FiestaEnPlanificacion[];
                 setAllEvents(all);
-                 if (postToEdit?.eventId) {
-                    setAiSelectedEventId(postToEdit.eventId);
+                 if (activePost?.eventId) {
+                    setAiSelectedEventId(activePost.eventId);
                 } else if (actual) {
                     setAiSelectedEventId(actual.id);
                 }
             };
             fetchEvents();
         }
-    }, [isOpen, resetForm, postToEdit]);
+    }, [isOpen, resetForm, activePost]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -137,6 +153,7 @@ export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDi
         e.preventDefault();
         setIsSaving(true);
         const formData = new FormData();
+        // Don't append ID if duplicating
         if (postToEdit) formData.append('id', postToEdit.id);
         
         formData.append('platform', platform);
@@ -149,8 +166,8 @@ export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDi
         formData.append('text', text);
         if (link) formData.append('link', link);
         if (mediaFile) formData.append('mediaFile', mediaFile);
-        if (postToEdit?.mediaUrl && !mediaFile) formData.append('existingMediaUrl', postToEdit.mediaUrl);
-        if (postToEdit?.mediaType && !mediaFile) formData.append('existingMediaType', postToEdit.mediaType);
+        if (activePost?.mediaUrl && !mediaFile) formData.append('existingMediaUrl', activePost.mediaUrl);
+        if (activePost?.mediaType && !mediaFile) formData.append('existingMediaType', activePost.mediaType);
         formData.append('status', status);
         if (promotionCost) formData.append('promotionCost', promotionCost);
         if (performanceLikes) formData.append('performance.likes', performanceLikes);
@@ -158,7 +175,7 @@ export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDi
         try {
             const result = await saveSocialPost(formData);
             if (result.success) {
-                toast({ title: postToEdit ? "Publicación Actualizada" : "Publicación Creada" });
+                toast({ title: postToEdit ? "Publicación Actualizada" : (postToDuplicate ? "Publicación Duplicada" : "Publicación Creada") });
                 setIsOpen(false);
                 onPostCreated();
             } else {
@@ -171,16 +188,17 @@ export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDi
         }
     };
 
+    const dialogTitle = postToEdit ? 'Editar Publicación' : postToDuplicate ? 'Duplicar Publicación' : 'Nueva Publicación';
     const trigger = children ? <div onClick={() => setIsOpen(true)}>{children}</div> : (
         <Button variant="default"><PlusCircle className="w-5 h-5 mr-2" />Crear Publicación</Button>
     );
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>{trigger}</DialogTrigger>
+            {!children && <DialogTrigger asChild>{trigger}</DialogTrigger>}
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle className="font-headline text-xl">{postToEdit ? 'Editar' : 'Nueva'} Publicación</DialogTitle>
+                    <DialogTitle className="font-headline text-xl">{dialogTitle}</DialogTitle>
                     <DialogDescription>Completa los detalles de tu post para redes sociales.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-4">
@@ -197,8 +215,7 @@ export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDi
                     )}
                     <div className="space-y-1"><Label htmlFor="text">Texto de la Publicación</Label><Textarea id="text" value={text} onChange={e => setText(e.target.value)} rows={6} placeholder="Escribe tu post aquí..." required /></div>
                     
-                    {/* AI Assistant */}
-                     <Card className="bg-muted/50 border-dashed">
+                    <Card className="bg-muted/50 border-dashed">
                         <CardHeader className="p-3">
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-md font-medium flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/>Asistente de Redacción IA</CardTitle>
@@ -235,8 +252,8 @@ export function NewPostDialog({ onPostCreated, postToEdit, children }: NewPostDi
                         <div className="space-y-1"><Label htmlFor="likes">Likes / Reacciones</Label><Input id="likes" type="number" value={performanceLikes} onChange={e => setPerformanceLikes(e.target.value)} placeholder="0" /></div>
                     </div>
                     <DialogFooter className="pt-3">
-                        <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
-                        <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}{postToEdit ? 'Guardar Cambios' : 'Crear Publicación'}</Button>
+                        <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSaving}>Cancelar</Button>
+                        <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}{dialogTitle}</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

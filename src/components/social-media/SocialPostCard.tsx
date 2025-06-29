@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewPostDialog } from './NewPostDialog';
-import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music } from 'lucide-react';
+import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music, Copy } from 'lucide-react';
 import NextImage from 'next/image';
 import {
   AlertDialog,
@@ -26,6 +26,7 @@ interface SocialPostCardProps {
   onDelete: (postId: string) => Promise<void>;
   isDeleting: boolean;
   onUpdate: () => void;
+  onDuplicate: () => void;
 }
 
 const formatDateTime = (dateString: string) => {
@@ -44,7 +45,7 @@ const platformIcons = {
     TikTok: <Music className="w-5 h-5 text-black dark:text-white" />,
 };
 
-export function SocialPostCard({ post, onDelete, isDeleting, onUpdate }: SocialPostCardProps) {
+export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplicate }: SocialPostCardProps) {
 
   const handleDelete = () => {
     onDelete(post.id);
@@ -74,13 +75,16 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate }: SocialP
         <p className="text-sm text-foreground line-clamp-4">{post.text}</p>
         {post.link && <a href={post.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all flex items-center gap-1"><LinkIcon className="w-3 h-3"/>{post.link}</a>}
       </CardContent>
-      <CardFooter className="flex justify-end gap-2 border-t pt-3">
+      <CardFooter className="flex justify-end gap-1 border-t pt-3">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onDuplicate} title="Duplicar">
+            <Copy className="w-4 h-4"/>
+        </Button>
         <NewPostDialog onPostCreated={onUpdate} postToEdit={post}>
-             <Button variant="ghost" size="icon" className="h-8 w-8"><Edit className="w-4 h-4"/></Button>
+             <Button variant="ghost" size="icon" className="h-8 w-8" title="Editar"><Edit className="w-4 h-4"/></Button>
         </NewPostDialog>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" disabled={isDeleting}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" disabled={isDeleting} title="Eliminar">
               {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}
             </Button>
           </AlertDialogTrigger>
