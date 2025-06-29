@@ -1,10 +1,12 @@
 
 'use client';
 
-import type { CrmLead, CrmStage } from '@/types/crm';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import type { CrmLead } from '@/types/crm';
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Loader2, Trash2, UserCircle2, FileSignature } from 'lucide-react';
+import { Loader2, Trash2, UserCircle2, GripVertical } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,43 +19,46 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
 interface CrmLeadCardProps {
   lead: CrmLead;
-  stages: CrmStage[];
-  onMoveLead: (leadId: string, newStageId: string) => Promise<void>;
   onDeleteLead: (leadId: string) => Promise<void>;
-  isMoving: boolean;
   isDeleting: boolean;
 }
 
-export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, isDeleting }: CrmLeadCardProps) {
-  const currentStageIndex = stages.findIndex(s => s.id === lead.currentStageId);
-  const nextStage = currentStageIndex !== -1 && currentStageIndex < stages.length - 1
-    ? stages[currentStageIndex + 1]
-    : null;
+export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: lead.id });
 
-  const handleMoveOrConvert = () => {
-    if (nextStage) {
-      onMoveLead(lead.id, nextStage.id);
-    }
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
   };
   
   const handleDelete = () => {
     onDeleteLead(lead.id);
   };
   
-  const cardIsProcessing = isMoving || isDeleting;
+  const cardIsProcessing = isDeleting;
 
   return (
-    <Card className="mb-3 shadow-md hover:shadow-lg transition-shadow bg-card">
-      <CardHeader className="p-3">
+    <Card ref={setNodeRef} style={style} className="mb-3 shadow-md hover:shadow-lg transition-shadow bg-card touch-none">
+      <CardHeader className="p-3 flex flex-row items-center justify-between">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <UserCircle2 className="w-4 h-4 text-muted-foreground" />
           {lead.name}
         </CardTitle>
+        <div {...attributes} {...listeners} className="cursor-grab p-1" title="Mover prospecto">
+            <GripVertical className="w-4 h-4 text-muted-foreground/70" />
+        </div>
       </CardHeader>
-      <CardFooter className="p-2 border-t flex justify-between items-center">
+      <CardFooter className="p-2 border-t flex justify-end items-center">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={cardIsProcessing} title="Eliminar Prospecto">
@@ -76,24 +81,6 @@ export function CrmLeadCard({ lead, stages, onMoveLead, onDeleteLead, isMoving, 
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        {nextStage ? (
-          <Button
-            size="sm"
-            variant={nextStage.isConversionStage ? "default" : "outline"}
-            onClick={handleMoveOrConvert}
-            disabled={cardIsProcessing}
-            className="text-xs h-7 px-2 py-1"
-            title={nextStage.isConversionStage ? `Convertir a Cliente (${nextStage.name})` : `Mover a ${nextStage.name}`}
-          >
-            {isMoving ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : (nextStage.isConversionStage ? <FileSignature className="w-3.5 h-3.5 mr-1" /> :<ArrowRight className="w-3.5 h-3.5 mr-1" />)}
-            {nextStage.isConversionStage ? "Convertir" : "Mover"}
-          </Button>
-        ) : (
-          <Button size="sm" variant="ghost" disabled className="text-xs h-7 px-2 py-1 text-green-600">
-            <CheckCircle className="w-3.5 h-3.5 mr-1" />
-            Completado
-          </Button>
-        )}
       </CardFooter>
     </Card>
   );

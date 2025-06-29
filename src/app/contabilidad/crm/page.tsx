@@ -3,8 +3,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, PlusCircle, Loader2, AlertTriangle, KanbanSquare } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
@@ -19,12 +20,12 @@ export default function CrmPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const [movingLeadId, setMovingLeadId] = useState<string | null>(null);
   const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
   
   const [leadToConvert, setLeadToConvert] = useState<CrmLead | null>(null);
   const [isConvertToClientModalOpen, setIsConvertToClientModalOpen] = useState(false);
-
+  
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -49,29 +50,46 @@ export default function CrmPage() {
     fetchData();
   }, [fetchData]);
 
-  const handleMoveLead = async (leadId: string, newStageId: string) => {
-    const lead = leads.find(l => l.id === leadId);
-    const targetStage = stages.find(s => s.id === newStageId);
-
-    if (targetStage?.isConversionStage && lead) {
-      setLeadToConvert(lead);
-      setIsConvertToClientModalOpen(true);
-      return;
-    }
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
     
-    setMovingLeadId(leadId);
-    try {
-      const result = await moveCrmLead(leadId, newStageId);
-      if (result.success) {
-        toast({ description: `Prospecto "${result.lead?.name}" movido.` });
-        await fetchData(); 
-      } else {
-        throw new Error(result.error || "No se pudo mover el prospecto.");
+    if (over && active.id !== over.id) {
+      const activeLeadId = active.id as string;
+      const newStageId = over.id as string;
+      
+      const originalLeads = [...leads];
+      const leadToMove = originalLeads.find(l => l.id === activeLeadId);
+      const targetStage = stages.find(s => s.id === newStageId);
+
+      if (!leadToMove || !targetStage) return;
+
+      // Handle conversion stage logic separately
+      if (targetStage.isConversionStage) {
+        setLeadToConvert(leadToMove);
+        setIsConvertToClientModalOpen(true);
+        return; // Stop here, the modal will handle the move action
       }
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setMovingLeadId(null);
+
+      // Optimistic UI update
+      setLeads(currentLeads =>
+        currentLeads.map(lead =>
+          lead.id === activeLeadId ? { ...lead, currentStageId: newStageId, updatedAt: new Date().toISOString() } : lead
+        )
+      );
+
+      // Call server action
+      try {
+        const result = await moveCrmLead(activeLeadId, newStageId);
+        if (!result.success) {
+          throw new Error(result.error || "No se pudo mover el prospecto.");
+        }
+        toast({ description: `Prospecto "${result.lead?.name}" movido.` });
+        // Optional: Can refetch data to ensure sync, but optimistic update handles UI.
+        // await fetchData(); 
+      } catch (error: any) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        setLeads(originalLeads); // Rollback on error
+      }
     }
   };
 
@@ -97,9 +115,8 @@ export default function CrmPage() {
     if (!leadToConvert) return false;
     formData.append('prospectId', leadToConvert.id);
     formData.append('prospectName', leadToConvert.name);
-    // Add other lead fields to formData if needed, e.g., leadToConvert.email
 
-    setIsLoading(true); // Use general loading or a specific one for conversion
+    setIsLoading(true);
     try {
       const result = await convertToClientAndMoveProspect(formData);
       if (result.success) {
@@ -120,8 +137,12 @@ export default function CrmPage() {
     }
   };
 
+  const leadsByStage = stages.reduce((acc, stage) => {
+    acc[stage.id] = leads.filter(lead => lead.currentStageId === stage.id);
+    return acc;
+  }, {} as Record<string, CrmLead[]>);
 
-  if (isLoading && !isConvertToClientModalOpen) { // Don't show page loader if modal is open
+  if (isLoading && !isConvertToClientModalOpen) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
@@ -141,62 +162,58 @@ export default function CrmPage() {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <KanbanSquare className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestión de Prospectos (CRM)
-          </h1>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <div className="h-full flex flex-col">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <KanbanSquare className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+              Gestión de Prospectos (CRM)
+            </h1>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
+            <Link href="/empresa/contabilidad" passHref>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver a Contabilidad
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
-           {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
-          <Link href="/empresa/contabilidad" passHref>
-            <Button variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver a Contabilidad
-            </Button>
-          </Link>
-        </div>
-      </div>
 
-      {stages.length === 0 ? (
-         <div className="flex flex-col items-center justify-center h-full text-center py-10">
-            <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
-            <p className="text-lg text-muted-foreground">No hay etapas definidas en el CRM.</p>
-            <p className="text-sm text-muted-foreground">Verifica la configuración en `src/app/actions/crm.ts`.</p>
-        </div>
-      ) : (
-        <ScrollArea className="w-full whitespace-nowrap pb-4">
-            <div className="flex gap-4">
-            {stages.map(stage => {
-                const leadsInStage = leads.filter(lead => lead.currentStageId === stage.id);
-                return (
-                <CrmStageColumn
-                    key={stage.id}
-                    stage={stage}
-                    leads={leadsInStage}
-                    allStages={stages}
-                    onMoveLead={handleMoveLead}
-                    onDeleteLead={handleDeleteLead}
-                    movingLeadId={movingLeadId}
-                    deletingLeadId={deletingLeadId}
-                />
-                );
-            })}
-            </div>
-            <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      )}
-      {leadToConvert && (
-        <ConvertToClientDialog
-          isOpen={isConvertToClientModalOpen}
-          onOpenChange={setIsConvertToClientModalOpen}
-          lead={leadToConvert}
-          onSubmit={handleConversionSubmit}
-          onClose={() => setLeadToConvert(null)}
-        />
-      )}
-    </div>
+        {stages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center py-10">
+              <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
+              <p className="text-lg text-muted-foreground">No hay etapas definidas en el CRM.</p>
+              <p className="text-sm text-muted-foreground">Verifica la configuración en `src/app/actions/crm.ts`.</p>
+          </div>
+        ) : (
+          <ScrollArea className="w-full whitespace-nowrap pb-4">
+              <div className="flex gap-4">
+              {stages.map(stage => (
+                  <CrmStageColumn
+                      key={stage.id}
+                      stage={stage}
+                      leads={leadsByStage[stage.id] || []}
+                      onDeleteLead={handleDeleteLead}
+                      deletingLeadId={deletingLeadId}
+                  />
+              ))}
+              </div>
+              <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        )}
+        {leadToConvert && (
+          <ConvertToClientDialog
+            isOpen={isConvertToClientModalOpen}
+            onOpenChange={setIsConvertToClientModalOpen}
+            lead={leadToConvert}
+            onSubmit={handleConversionSubmit}
+            onClose={() => setLeadToConvert(null)}
+          />
+        )}
+      </div>
+    </DndContext>
   );
 }
