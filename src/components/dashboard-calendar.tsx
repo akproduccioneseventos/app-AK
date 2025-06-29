@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { es } from 'date-fns/locale'; // Import Spanish locale
+import { es } from 'date-fns/esm/locale/es'; // Import Spanish locale
 
 interface DashboardCalendarProps {
   eventDate?: string; // Changed to string to match common data source type
