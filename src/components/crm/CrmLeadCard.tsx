@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, UserCircle2, GripVertical, History } from 'lucide-react';
+import { Loader2, Trash2, UserCircle2, GripVertical, History, FileText } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import Link from 'next/link';
 
 // Helper to format date
 const formatHistoryDate = (dateString: string) => {
@@ -78,31 +79,44 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
         </div>
       </CardHeader>
       <CardFooter className="p-2 border-t flex justify-between items-center">
-        {lead.history && lead.history.length > 0 ? (
-           <TooltipProvider delayDuration={100}>
+        <div className="flex items-center gap-1">
+          <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger asChild>
-                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary">
-                  <History className="w-3.5 h-3.5" />
-                </Button>
+                <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary">
+                    <FileText className="w-3.5 h-3.5" />
+                  </Button>
+                </Link>
               </TooltipTrigger>
-              <TooltipContent side="bottom" align="start" className="max-w-xs">
-                <p className="font-bold mb-2">Historial de Etapas</p>
-                 <ScrollArea className="h-auto max-h-40">
-                  <ul className="space-y-1.5 text-xs">
-                    {[...lead.history].reverse().map((item, index) => (
-                      <li key={`${item.timestamp}-${index}`}>
-                        <span className="font-semibold">{item.stageName}:</span> {formatHistoryDate(item.timestamp)}
-                      </li>
-                    ))}
-                  </ul>
-                </ScrollArea>
-              </TooltipContent>
+              <TooltipContent side="bottom" align="start"><p>Crear Presupuesto</p></TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        ) : (
-          <div className="w-7 h-7"></div> // Placeholder for alignment
-        )}
+
+          {lead.history && lead.history.length > 0 && (
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary">
+                    <History className="w-3.5 h-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="start" className="max-w-xs">
+                  <p className="font-bold mb-2">Historial de Etapas</p>
+                  <ScrollArea className="h-auto max-h-40">
+                    <ul className="space-y-1.5 text-xs">
+                      {[...lead.history].reverse().map((item, index) => (
+                        <li key={`${item.timestamp}-${index}`}>
+                          <span className="font-semibold">{item.stageName}:</span> {formatHistoryDate(item.timestamp)}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
 
         <AlertDialog>
           <AlertDialogTrigger asChild>

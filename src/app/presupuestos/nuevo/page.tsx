@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Save, Loader2 } from 'lucide-react';
@@ -21,8 +21,9 @@ import type { ServicioEmpresa } from '@/types/empresa';
 
 const TOTAL_PASOS = 3;
 
-export default function NuevoPresupuestoPage() {
+function NuevoPresupuestoContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
@@ -50,6 +51,8 @@ export default function NuevoPresupuestoPage() {
     async function cargarDatosIniciales() {
       setIsLoadingInitialData(true);
       try {
+        const leadNameParam = searchParams.get('leadName');
+
         // Dinámicamente importar la acción del servidor para servicios
         const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
         const [fetchedServiciosCatalogo, fiestaActualData] = await Promise.all([
@@ -60,6 +63,12 @@ export default function NuevoPresupuestoPage() {
 
         setFormData(prev => {
           let newClienteNombre = prev.clienteNombre;
+          
+          // Prioritize leadName from URL param
+          if (leadNameParam) {
+            newClienteNombre = leadNameParam;
+          }
+
           let newEventoTipo = prev.eventoTipo;
           let newEventoFecha = prev.eventoFecha;
           let newInvitadosCantidad = prev.invitadosCantidad;
@@ -70,7 +79,7 @@ export default function NuevoPresupuestoPage() {
 
           if (fiestaActualData?.configuracion) {
             const config = fiestaActualData.configuracion;
-            if (!prev.clienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
+            if (!newClienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
                 newClienteNombre = config.nombreEvento;
             }
             if (config.tipoCelebracion) {
@@ -115,7 +124,7 @@ export default function NuevoPresupuestoPage() {
       }
     }
     cargarDatosIniciales();
-  }, [toast]);
+  }, [toast, searchParams]);
 
   const handleNext = () => {
     if (formData.pasoActual === 1) {
@@ -278,4 +287,12 @@ export default function NuevoPresupuestoPage() {
       </Card>
     </div>
   );
+}
+
+export default function NuevoPresupuestoPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+            <NuevoPresupuestoContent />
+        </Suspense>
+    )
 }
