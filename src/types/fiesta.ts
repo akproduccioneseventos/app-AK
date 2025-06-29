@@ -276,6 +276,12 @@ export interface GestionCostosData {
   notasGeneralesCostos?: string;
 }
 
+export interface VideoVidaData {
+  galleryEnabled: boolean;
+  photosUploaded: boolean;
+  uploadDate?: string; // ISO string
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -293,5 +299,6 @@ export interface FiestaEnPlanificacion {
   reposteria?: ReposteriaData;
   bebidas?: BebidasData;
   listaDeCargaOperativa?: ListaDeCargaOperativa;
-  gestionCostos?: GestionCostosData; // Nuevo módulo
+  gestionCostos?: GestionCostosData;
+  videoVida?: VideoVidaData; // Nuevo módulo
 }

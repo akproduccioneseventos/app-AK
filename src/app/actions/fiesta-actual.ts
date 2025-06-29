@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -20,7 +20,8 @@ import {
   defaultReposteriaCategorias,
   defaultBebidasCategorias,
   defaultListaDeCargaOperativa,
-  initialGestionCostosData
+  initialGestionCostosData,
+  defaultVideoVidaData,
 } from '@/lib/fiesta-defaults';
 
 
@@ -95,6 +96,10 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
       };
     }
 
+    if (!parsedData.videoVida) {
+        parsedData.videoVida = { ...defaultVideoVidaData };
+    }
+
 
     return parsedData;
   } catch (error) {
@@ -148,6 +153,9 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
         ...dataToWrite.gestionCostos,
         costosItems: dataToWrite.gestionCostos.costosItems || [],
       };
+    }
+    if (!dataToWrite.videoVida) {
+        dataToWrite.videoVida = { ...defaultVideoVidaData };
     }
 
 
@@ -288,6 +296,11 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         })),
         ingresosTotalesEstimados: Number(data.gestionCostos?.ingresosTotalesEstimados) || 0,
     };
+    
+    const validatedVideoVida: VideoVidaData = {
+      ...defaultVideoVidaData,
+      ...(data.videoVida || {}),
+    };
 
 
    const validatedData: FiestaEnPlanificacion = {
@@ -335,6 +348,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     bebidas: validatedBebidas,
     listaDeCargaOperativa: validatedListaDeCargaOperativa,
     gestionCostos: validatedGestionCostos,
+    videoVida: validatedVideoVida,
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -857,6 +871,22 @@ export async function updateGestionCostosFiestaActual(
     return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.gestionCostos)) };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar la gestión de costos." };
+  }
+}
+
+export async function updateVideoVidaSettings(
+  data: Partial<VideoVidaData>
+): Promise<{ success: boolean; updatedData?: VideoVidaData; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.videoVida = {
+      ...(fiestaActual.videoVida || defaultVideoVidaData),
+      ...data,
+    };
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.videoVida)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar el módulo de Video de Vida." };
   }
 }
 
