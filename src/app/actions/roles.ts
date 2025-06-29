@@ -78,16 +78,13 @@ export async function getRolById(id: string): Promise<Rol | null> {
 }
 
 export async function saveRol(
-  rolData: Omit<NuevoRolFormData, 'notas'> | Omit<Rol, 'notas'> // Tipos actualizados
+  rolData: Rol | NuevoRolFormData
 ): Promise<{ success: boolean; id?: string; rol?: Rol; error?: string }> {
   let rolToProcess: Partial<Rol> = { 
     ...rolData,
     tipoSalario: 'Por evento', 
   };
-  // Eliminar 'notas' explícitamente si llegara a estar en rolData
-  delete (rolToProcess as any).notas;
-
-
+  
   const montoSalarioNum = Number(rolToProcess.montoSalario);
   const porcentajeAportesNum = Number(rolToProcess.porcentajeAportes);
 
@@ -116,7 +113,7 @@ export async function saveRol(
     localRoles[index] = savedRol;
   } else {
     const newRolId = `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    savedRol = { ...(rolToProcess as Omit<NuevoRolFormData, 'notas'>), id: newRolId } as Rol;
+    savedRol = { ...(rolToProcess as NuevoRolFormData), id: newRolId } as Rol;
     localRoles.push(savedRol);
   }
   

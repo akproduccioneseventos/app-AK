@@ -7,8 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// Textarea ya no es necesario si eliminamos el campo de notas
-// import { Textarea } from '@/components/ui/textarea'; 
 import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, BadgeHelp, UsersRound, DollarSign, Percent } from 'lucide-react';
 import { getRoles, saveRol, deleteRol as deleteRolAction } from '@/app/actions/roles';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
@@ -32,7 +30,7 @@ import {
   AlertDialogFooter as AlertDialogFooterConfirm,
   AlertDialogHeader as AlertDialogHeaderConfirm,
   AlertDialogTitle as AlertDialogTitleConfirm,
-  AlertDialogTrigger, // Asegurarse que AlertDialogTrigger está aquí
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 
@@ -51,7 +49,7 @@ export default function GestionRolesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentRol, setCurrentRol] = useState<Partial<Omit<Rol, 'notas'>>> | null>(null); 
+  const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); 
   const [porcentajeAportesInput, setPorcentajeAportesInput] = useState<string>(String(DEFAULT_APORTES_PERCENTAGE));
   
   const fetchRoles = useCallback(async () => {
@@ -70,7 +68,7 @@ export default function GestionRolesPage() {
     fetchRoles();
   }, [fetchRoles]);
 
-  const openModal = (rol?: Omit<Rol, 'notas'>) => {
+  const openModal = (rol?: Rol) => {
     if (rol) {
       setCurrentRol({ ...rol, tipoSalario: 'Por evento' }); 
       setPorcentajeAportesInput(String(rol.porcentajeAportes ?? DEFAULT_APORTES_PERCENTAGE));
@@ -98,16 +96,22 @@ export default function GestionRolesPage() {
   }, [currentRol?.montoSalario, porcentajeAportesInput]);
 
 
-  const handleModalFieldChange = (field: keyof Omit<Rol, 'notas'>, value: string | number | undefined) => {
+  const handleModalFieldChange = (field: keyof Rol, value: string | number | undefined) => {
     setCurrentRol(prev => {
       if (!prev) return null;
-      let updatedRol = { ...prev, [field]: value, tipoSalario: 'Por evento' as 'Por evento' };
       
-      if (field === 'montoSalario' && (value === '' || value === undefined || isNaN(Number(value)))) {
-         updatedRol.montoSalario = undefined;
-      } else if (field === 'montoSalario') {
-         updatedRol.montoSalario = Number(value);
+      const updatedRol: Partial<Rol> = { ...prev };
+      
+      if (field === 'montoSalario') {
+        const numValue = Number(value);
+        updatedRol[field] = isNaN(numValue) ? undefined : numValue;
+      } else if (field === 'nombre') {
+         updatedRol[field] = String(value || '');
+      } else {
+        // For other potential fields in Rol
+        (updatedRol as any)[field] = value;
       }
+
       return updatedRol;
     });
   };
@@ -133,17 +137,15 @@ export default function GestionRolesPage() {
     }
 
     setIsSaving(true);
-    const rolDataForSave: Partial<Omit<Rol, 'notas'>> = { 
+    const rolDataForSave: Partial<Rol> = { 
       ...currentRol, 
       tipoSalario: 'Por evento',
       porcentajeAportes: porcentajeAportesNum,
     };
     
-    const rolToSave = rolDataForSave as Omit<NuevoRolFormData, 'notas'> | Omit<Rol, 'notas'>;
+    const rolToSave = rolDataForSave as Rol | NuevoRolFormData;
 
     try {
-      // @ts-ignore saveRol espera Rol o NuevoRolFormData, que pueden incluir notas opcionales.
-      // El backend ya no procesará 'notas'.
       const result = await saveRol(rolToSave); 
       if (result.success && result.rol) {
         toast({ title: currentRol.id ? "Rol Actualizado" : "Rol Creado", description: `El rol "${result.rol.nombre}" ha sido guardado.` });
@@ -233,8 +235,6 @@ export default function GestionRolesPage() {
                   <Input value={aportesCalculadosModal !== undefined ? formatCurrency(aportesCalculadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
               </div>
               
-              {/* El campo de Notas / Descripción se ha eliminado */}
-
               <DialogFooter className="pt-3">
                 <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
                 <Button type="submit" disabled={isSaving}>
@@ -273,7 +273,6 @@ export default function GestionRolesPage() {
                           </>
                         )}
                       </p>
-                      {/* La visualización de notas se elimina */}
                     </div>
                     <div className="flex gap-1.5 self-start sm:self-center flex-shrink-0">
                       <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openModal(rol)}><Edit3 className="w-4 h-4" /></Button>
