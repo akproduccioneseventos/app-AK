@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, ClipboardList, Users, PlusCircle, PartyPopper, MapPin, FileText as FileTextIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-// import { DashboardCalendar } from '@/components/dashboard-calendar'; // Original import
 import { CountdownTimer } from '@/components/countdown-timer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';

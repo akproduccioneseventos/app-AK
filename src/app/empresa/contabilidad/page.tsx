@@ -17,13 +17,11 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, Payment } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
-// import { MonthlySalesChart, type MonthlyChartData } from '@/components/charts/MonthlySalesChart'; // Original import
-// import { PaymentStatusPieChart, type PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart'; // Original import
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import dynamic from 'next/dynamic'; // Import dynamic
-import type { MonthlyChartData } from '@/components/charts/MonthlySalesChart'; // Type import
-import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart'; // Type import
+import dynamic from 'next/dynamic';
+import type { MonthlyChartData } from '@/components/charts/MonthlySalesChart';
+import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
 
 const MonthlySalesChart = dynamic(() => 
   import('@/components/charts/MonthlySalesChart').then(mod => mod.MonthlySalesChart), 
@@ -359,4 +357,3 @@ export default function ContabilidadDashboardPage() {
     </div>
   );
 }
-
