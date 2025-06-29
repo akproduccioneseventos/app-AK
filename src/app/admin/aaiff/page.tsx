@@ -3,7 +3,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, BrainCircuit, FileText, Code2, Bug, Wand2, Puzzle, DatabaseZap, ClipboardList, TerminalSquare, Settings2, RefreshCcw, AlertTriangle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -14,10 +13,9 @@ export default function AAOIFFPage() {
         <div className="flex items-center gap-3">
           <BrainCircuit className="w-10 h-10 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Análisis y Optimización del Sistema (AAOIFF)
+            Análisis y Optimización por IA
           </h1>
         </div>
-        {/* Placeholder for a link back to an admin dashboard or settings, if it exists */}
         <Link href="/settings" passHref> 
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -28,22 +26,22 @@ export default function AAOIFFPage() {
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Objetivo del Módulo AAOIFF</CardTitle>
+          <CardTitle className="font-headline text-xl">Objetivo del Módulo</CardTitle>
           <CardDescription>
-            Permitir que la IA lea la estructura del sistema, analice su código, lo compare contra la especificación funcional (PRONS), detecte errores, implemente mejoras y agregue funcionalidades faltantes.
+            Permitir que la IA lea la estructura del sistema, analice su código, lo compare contra la especificación funcional (PROMPT MAESTRO), detecte errores, implemente mejoras y agregue funcionalidades faltantes.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 p-3 border rounded-md bg-blue-50 border-blue-200 text-blue-700">
+            <div className="flex items-center gap-3 p-3 border rounded-md bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300">
                 <AlertTriangle className="w-5 h-5" />
                 <p className="text-sm">
                     <strong>Nota:</strong> Este módulo es una interfaz para una funcionalidad avanzada de IA. La lógica de análisis y modificación de código está actualmente <span className="font-semibold">en desarrollo y no está activa</span>.
                 </p>
             </div>
           <div>
-            <h3 className="text-md font-semibold mb-1 flex items-center gap-2"><FileText className="w-5 h-5 text-primary/80"/>Especificación del Sistema (PRONS)</h3>
+            <h3 className="text-md font-semibold mb-1 flex items-center gap-2"><FileText className="w-5 h-5 text-primary/80"/>Especificación del Sistema</h3>
             <p className="text-sm text-muted-foreground">
-              Se espera un archivo <code className="bg-muted px-1 py-0.5 rounded text-xs">especificacion-del-sistema.md</code> en la raíz del proyecto.
+              Se espera un archivo <code className="bg-muted px-1 py-0.5 rounded text-xs">especificacion-del-sistema.md</code> en la raíz del proyecto para el análisis.
             </p>
             <Button variant="outline" size="sm" className="mt-2" disabled>Cargar/Ver Especificación (En Desarrollo)</Button>
           </div>
@@ -58,7 +56,7 @@ export default function AAOIFFPage() {
           <CardContent className="space-y-3">
             <div className="flex items-start gap-2"><Code2 className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Comparación con código fuente actual.</p></div>
             <div className="flex items-start gap-2"><Bug className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Detección de errores técnicos y de flujo.</p></div>
-            <div className="flex items-start gap-2"><Wand2 className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Sugerencias/Implementación de ajustes menores (10%).</p></div>
+            <div className="flex items-start gap-2"><Wand2 className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Sugerencias/Implementación de mejoras.</p></div>
             <div className="flex items-start gap-2"><Puzzle className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Identificación y esqueleto de módulos faltantes.</p></div>
             <div className="flex items-start gap-2"><DatabaseZap className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0"/><p className="text-sm">Sincronización con base de datos (lectura de estructura).</p></div>
           </CardContent>
@@ -80,7 +78,7 @@ export default function AAOIFFPage() {
           </CardContent>
            <CardFooter>
             <Button variant="outline" className="w-full" disabled>
-              Ver Último Informe de Auditoría (En Desarrollo)
+              Ver Último Informe (En Desarrollo)
             </Button>
           </CardFooter>
         </Card>

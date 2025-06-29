@@ -1,8 +1,8 @@
 
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'; // Added CardFooter
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -32,6 +32,13 @@ const settingsCards = [
     href: "/settings/account", 
     icon: ShieldCheck,
     buttonLabel: "Seguridad Cuenta"
+  },
+  {
+    title: "Análisis y Optimización por IA",
+    description: "Permite que la IA analice la app en busca de mejoras y errores.",
+    href: "/admin/aaiff",
+    icon: BrainCircuit,
+    buttonLabel: "Analizar con IA"
   }
 ];
 
