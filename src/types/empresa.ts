@@ -63,6 +63,7 @@ export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de
   nombre: string;
   tipoItem?: TipoItemEmpresa; // Nuevo campo para diferenciar
   categoria: CategoriaServicio;
+  subcategoria?: string; // Para agrupar dentro de una categoría
   precioVenta?: number; // Precio al que la empresa VENDE este servicio/ítem (si aplica)
   
   // Campos de inventario/costo (más relevantes para insumos)
@@ -77,4 +78,3 @@ export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de
   descripcionServicio?: string; // Descripción del servicio que ofrecen
   productosOfrecidos?: string; // Resumen de productos/servicios, podría ser un string simple.
 }
-

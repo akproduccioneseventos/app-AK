@@ -26,6 +26,7 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
     return (JSON.parse(fileContent) as ServicioEmpresa[]).map(item => ({
       ...item,
       tipoItem: item.tipoItem || (item.categoria.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente'), // Default tipoItem if missing
+      subcategoria: item.subcategoria || undefined, // Add subcategoria
       cantidadDisponible: item.cantidadDisponible === undefined ? undefined : Number(item.cantidadDisponible),
       valorUnitarioEstimado: item.valorUnitarioEstimado === undefined ? undefined : Number(item.valorUnitarioEstimado),
       unidad: item.unidad || 'Unidad',
@@ -46,6 +47,8 @@ async function writeServiciosFile(data: ServicioEmpresa[]): Promise<void> {
     const sortedData = data.sort((a, b) => {
       const catComp = (a.categoria || '').localeCompare(b.categoria || '');
       if (catComp !== 0) return catComp;
+      const subCatComp = (a.subcategoria || '').localeCompare(b.subcategoria || '');
+      if (subCatComp !== 0) return subCatComp;
       return (a.nombre || '').localeCompare(b.nombre || '');
     });
     await fs.writeFile(serviciosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
@@ -79,11 +82,15 @@ async function initializeLocalServiciosFile() {
            migrated.tipoItem = item.categoria?.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente';
            needsMigration = true;
         }
+        if (!item.hasOwnProperty('subcategoria')) { // Add subcategoria if missing
+          migrated.subcategoria = undefined;
+          needsMigration = true;
+        }
         return migrated as ServicioEmpresa;
       });
       if (needsMigration) {
         await writeServiciosFile(migratedItems);
-        console.log("Migrated servicios-empresa.json to include new fields like 'tipoItem'.");
+        console.log("Migrated servicios-empresa.json to include new fields like 'tipoItem' and 'subcategoria'.");
       }
     }
   } catch (error) {
@@ -114,6 +121,7 @@ export async function saveServicioEmpresa(
     cantidadDisponible: itemData.cantidadDisponible !== undefined ? Number(itemData.cantidadDisponible) : undefined,
     precioVenta: itemData.precioVenta !== undefined ? Number(itemData.precioVenta) : undefined,
     tipoItem: itemData.tipoItem || (itemData.categoria.toLowerCase().includes('servicio') ? 'Prestador de Servicio' : 'Insumo/Ingrediente'),
+    subcategoria: itemData.subcategoria?.trim() || undefined,
   };
 
   if (dataWithParsedNumbers.valorUnitarioEstimado === undefined || isNaN(dataWithParsedNumbers.valorUnitarioEstimado)) {
@@ -177,4 +185,3 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
   await writeServiciosFile(inventario);
   return { success: true };
 }
-

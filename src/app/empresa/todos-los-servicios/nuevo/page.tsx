@@ -24,6 +24,7 @@ export default function NuevoItemInventarioPage() {
   const [nombre, setNombre] = useState('');
   const [tipoItem, setTipoItem] = useState<TipoItemEmpresa | ''>('');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
+  const [subcategoria, setSubcategoria] = useState(''); // New state for subcategory
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
@@ -59,6 +60,7 @@ export default function NuevoItemInventarioPage() {
       nombre: nombre.trim(),
       tipoItem: tipoItem as TipoItemEmpresa,
       categoria: categoria as CategoriaServicio,
+      subcategoria: subcategoria.trim() || undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
       unidad: unidad as UnidadServicio,
@@ -128,6 +130,10 @@ export default function NuevoItemInventarioPage() {
                   <SelectContent className="max-h-60">{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat} className="text-base">{cat}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
+              <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Entradas, Vajilla, Portero" className="text-base p-3" disabled={isSaving}/>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">

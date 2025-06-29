@@ -91,27 +91,32 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   const filteredServicios = useMemo(() => {
     return serviciosCatalogo.filter(s => {
       const matchesSearch = s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            s.categoria.toLowerCase().includes(searchTerm.toLowerCase());
+                            s.categoria.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (s.subcategoria && s.subcategoria.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(s.categoria);
-      // Only include services that have a sale price defined and > 0
       return matchesSearch && matchesCategory && s.precioVenta !== undefined && s.precioVenta > 0;
     });
   }, [serviciosCatalogo, searchTerm, selectedCategories]);
   
-  const serviciosAgrupadosPorCategoria = useMemo(() => {
+  const serviciosAgrupados = useMemo(() => {
     return filteredServicios.reduce((acc, servicio) => {
-      const categoria = servicio.categoria || 'Otros';
-      if (!acc[categoria]) {
-        acc[categoria] = [];
-      }
-      acc[categoria].push(servicio);
-      return acc;
-    }, {} as Record<string, ServicioEmpresa[]>);
+        const categoria = servicio.categoria || 'Otros';
+        const subcategoria = servicio.subcategoria || 'General';
+        
+        if (!acc[categoria]) {
+            acc[categoria] = {};
+        }
+        if (!acc[categoria][subcategoria]) {
+            acc[categoria][subcategoria] = [];
+        }
+        acc[categoria][subcategoria].push(servicio);
+        return acc;
+    }, {} as Record<string, Record<string, ServicioEmpresa[]>>);
   }, [filteredServicios]);
 
   const categoriasOrdenadas = useMemo(() => {
-    return Object.keys(serviciosAgrupadosPorCategoria).sort();
-  }, [serviciosAgrupadosPorCategoria]);
+    return Object.keys(serviciosAgrupados).sort();
+  }, [serviciosAgrupados]);
 
 
   const costoTotalServiciosSeleccionados = useMemo(() => {
@@ -147,7 +152,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             <Label htmlFor="search-servicios" className="text-base">Buscar Servicio</Label>
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="search-servicios" type="text" placeholder="Nombre o categoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base p-3"/>
+                <Input id="search-servicios" type="text" placeholder="Nombre, categoría o subcategoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base p-3"/>
             </div>
         </div>
         <div className="space-y-2 sm:w-1/3">
@@ -182,44 +187,51 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 <AccordionTrigger className="px-4 py-3 text-md font-medium text-primary hover:bg-muted/30 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Tag className="w-5 h-5 text-primary/80" />
-                    {categoria} ({serviciosAgrupadosPorCategoria[categoria]?.length || 0})
+                    {categoria}
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-2 pt-0 pb-3">
-                  <ul className="space-y-3 pt-2">
-                    {serviciosAgrupadosPorCategoria[categoria]?.map(servicio => {
-                      const isSelected = formData.serviciosSeleccionados.has(servicio.id);
-                      const selectedInfo = formData.serviciosSeleccionados.get(servicio.id);
-                      return (
-                        <li key={servicio.id} className={`p-3 border rounded-md transition-all ${isSelected ? 'bg-primary/10 ring-1 ring-primary/50' : 'bg-muted/20 hover:bg-muted/40'}`}>
-                          <div className="flex items-start gap-3">
-                            <Checkbox id={`s-${servicio.id}`} checked={isSelected} onCheckedChange={() => handleServicioToggle(servicio)} className="mt-1 w-5 h-5 shrink-0"/>
-                            <div className="flex-grow">
-                              <Label htmlFor={`s-${servicio.id}`} className="font-medium text-sm cursor-pointer">{servicio.nombre}</Label>
-                              <p className="text-xs text-muted-foreground">
-                                Catálogo: {formatCurrency(servicio.precioVenta)} {servicio.unidad ? `/ ${servicio.unidad.toLowerCase()}` : ''}
-                              </p>
-                            </div>
-                          </div>
-                          {isSelected && selectedInfo && (
-                            <div className="mt-2 pt-2 border-t border-dashed space-y-2 pl-8">
-                              <div className="grid grid-cols-2 gap-3 items-center">
-                                <div className="space-y-0.5">
-                                  <Label htmlFor={`qty-${servicio.id}`} className="text-xs">Cant.</Label>
-                                  <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm"/>
+                  <div className="space-y-2 pt-2">
+                    {Object.keys(serviciosAgrupados[categoria]).sort().map(subcategoria => (
+                      <div key={subcategoria} className="ml-2 pl-3 border-l-2">
+                        <h4 className="text-sm font-semibold text-muted-foreground mb-2">{subcategoria}</h4>
+                        <ul className="space-y-3">
+                          {serviciosAgrupados[categoria][subcategoria].map(servicio => {
+                            const isSelected = formData.serviciosSeleccionados.has(servicio.id);
+                            const selectedInfo = formData.serviciosSeleccionados.get(servicio.id);
+                            return (
+                              <li key={servicio.id} className={`p-3 border rounded-md transition-all ${isSelected ? 'bg-primary/10 ring-1 ring-primary/50' : 'bg-muted/20 hover:bg-muted/40'}`}>
+                                <div className="flex items-start gap-3">
+                                  <Checkbox id={`s-${servicio.id}`} checked={isSelected} onCheckedChange={() => handleServicioToggle(servicio)} className="mt-1 w-5 h-5 shrink-0"/>
+                                  <div className="flex-grow">
+                                    <Label htmlFor={`s-${servicio.id}`} className="font-medium text-sm cursor-pointer">{servicio.nombre}</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                      Catálogo: {formatCurrency(servicio.precioVenta)} {servicio.unidad ? `/ ${servicio.unidad.toLowerCase()}` : ''}
+                                    </p>
+                                  </div>
                                 </div>
-                                <div className="space-y-0.5">
-                                  <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
-                                  <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm"/>
-                                </div>
-                              </div>
-                              <p className="text-xs font-medium text-right pt-1">Subtotal Servicio: {formatCurrency(selectedInfo.cantidad * selectedInfo.precioUnitarioPresupuesto)}</p>
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                                {isSelected && selectedInfo && (
+                                  <div className="mt-2 pt-2 border-t border-dashed space-y-2 pl-8">
+                                    <div className="grid grid-cols-2 gap-3 items-center">
+                                      <div className="space-y-0.5">
+                                        <Label htmlFor={`qty-${servicio.id}`} className="text-xs">Cant.</Label>
+                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm"/>
+                                      </div>
+                                      <div className="space-y-0.5">
+                                        <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
+                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm"/>
+                                      </div>
+                                    </div>
+                                    <p className="text-xs font-medium text-right pt-1">Subtotal Servicio: {formatCurrency(selectedInfo.cantidad * selectedInfo.precioUnitarioPresupuesto)}</p>
+                                  </div>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
@@ -234,4 +246,3 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
-
