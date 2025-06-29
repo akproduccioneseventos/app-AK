@@ -34,7 +34,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"; // AlertDialogTrigger was removed as it was unused
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -314,5 +315,3 @@ export default function GestionReunionesPage() {
     </div>
   );
 }
-
-    

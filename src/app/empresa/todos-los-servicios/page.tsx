@@ -21,7 +21,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"; // Removed AlertDialogTrigger as it's used via asChild
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
