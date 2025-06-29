@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,7 +75,8 @@ const PostCard: React.FC<{ post: SocialGalleryPost; onLike: (postId: string) => 
 };
 
 
-export default function SocialGalleryPage({ params }: { params: { fiestaId: string } }) {
+export default function SocialGalleryPage({ params: paramsProp }: { params: Promise<{ fiestaId: string }> }) {
+  const params = React.use(paramsProp);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -187,4 +187,3 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     </div>
   );
 }
-

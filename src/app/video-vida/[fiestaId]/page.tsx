@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect, type FormEvent, useCallback } from 'react';
+import React, { useState, useEffect, type FormEvent, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -82,7 +81,8 @@ function PhotoSlot({ index, file, onFileChange, onRemove, isSubmitting }: PhotoS
 }
 
 
-export default function PhotoUploadPage({ params }: { params: { fiestaId: string } }) {
+export default function PhotoUploadPage({ params: paramsProp }: { params: Promise<{ fiestaId: string }> }) {
+  const params = React.use(paramsProp);
   const { toast } = useToast();
   const [photos, setPhotos] = useState<(File | null)[]>(Array(MAX_PHOTOS).fill(null));
   const [songSuggestion, setSongSuggestion] = useState('');
