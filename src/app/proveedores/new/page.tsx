@@ -1,57 +1,61 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, UserPlus2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveCustomer } from '@/app/actions/customers'; // Sigue usando la acción de cliente por ahora
-import type { Customer } from '@/types/customer'; // Sigue usando el tipo de cliente por ahora
+import { saveProveedor } from '@/app/actions/proveedores';
+import type { NuevoProveedorFormData } from '@/types/proveedor';
 
 export default function NewProveedorPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
-  // Form state
-  const [name, setName] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  // const [cedula, setCedula] = useState(''); // Campo eliminado
-  const [servicio, setServicio] = useState(''); // Nuevo campo
+  // Form state aligned with Proveedor type
+  const [nombre, setNombre] = useState('');
+  const [nombreEmpresa, setNombreEmpresa] = useState('');
+  const [servicioPrincipal, setServicioPrincipal] = useState('');
+  const [personaContacto, setPersonaContacto] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
+  const [notas, setNotas] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim() && !companyName.trim()) {
+    if (!nombre.trim() && !nombreEmpresa.trim()) {
       toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del proveedor o de la empresa.", variant: "destructive" });
       return;
     }
-    if (!servicio.trim()) {
-      toast({ title: "Servicio Requerido", description: "Por favor, ingresa el servicio que ofrece el proveedor.", variant: "destructive" });
+    if (!servicioPrincipal.trim()) {
+      toast({ title: "Servicio Requerido", description: "Por favor, ingresa el servicio principal que ofrece el proveedor.", variant: "destructive" });
       return;
     }
 
     setIsSaving(true);
-    // Adaptar los datos al tipo Customer por ahora
-    // El campo 'servicio' no se guarda porque el tipo Customer no lo tiene.
-    const proveedorData: Omit<Customer, 'id' | 'email' | 'salesFunnelStage' | 'estadoCliente' | 'phone' | 'address' | 'taxId'> & { address?: { street?: string } } = { 
-      name: name.trim() || companyName.trim(), 
-      companyName: companyName.trim() || undefined,
-      // taxId: cedula.trim() || undefined, // Cédula se guarda en taxId - ELIMINADO
-      // No se incluye 'phone' ni 'address.street'
-      // El campo 'servicio' no se incluye aquí ya que no existe en el tipo Customer
+    
+    const proveedorData: NuevoProveedorFormData = { 
+      nombre: nombre.trim() || nombreEmpresa.trim(), 
+      nombreEmpresa: nombreEmpresa.trim() || undefined,
+      servicioPrincipal: servicioPrincipal.trim(),
+      personaContacto: personaContacto.trim() || undefined,
+      telefono: telefono.trim() || undefined,
+      email: email.trim() || undefined,
+      notas: notas.trim() || undefined,
     };
 
     try {
-      // Sigue llamando a saveCustomer, ya que no hay saveProveedor específico aún
-      const result = await saveCustomer(proveedorData as Omit<Customer, 'id'>); 
+      const result = await saveProveedor(proveedorData); 
       if (result.success && result.id) {
-        toast({ title: "¡Proveedor Guardado!", description: `El proveedor "${proveedorData.name}" ha sido guardado.` });
-        router.push('/proveedores'); // Redirigir a la lista de proveedores
+        toast({ title: "¡Proveedor Guardado!", description: `El proveedor "${proveedorData.nombre}" ha sido guardado.` });
+        router.push('/proveedores');
       } else {
         throw new Error(result.error || "Error desconocido al guardar el proveedor.");
       }
@@ -86,23 +90,36 @@ export default function NewProveedorPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="proveedor-name">Nombre Completo</Label>
-                <Input id="proveedor-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Juan Rodríguez" />
+                <Label htmlFor="proveedor-name">Nombre Contacto</Label>
+                <Input id="proveedor-name" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Juan Rodríguez" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company-name">Nombre de la Empresa (Opcional)</Label>
-                <Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ej: Insumos Fiesta S.A." />
+                <Label htmlFor="company-name">Nombre de la Empresa</Label>
+                <Input id="company-name" value={nombreEmpresa} onChange={(e) => setNombreEmpresa(e.target.value)} placeholder="Ej: Insumos Fiesta S.A." />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-1"> {/* Cambiado a 1 columna ya que se eliminó Cédula/RUT */}
-              {/* Campo Cédula / RUT eliminado */}
-              <div className="space-y-2">
-                <Label htmlFor="proveedor-servicio">Servicio que Ofrece</Label>
-                <Input id="proveedor-servicio" value={servicio} onChange={(e) => setServicio(e.target.value)} placeholder="Ej: Catering, Fotografía, DJ" />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="proveedor-servicio">Servicio Principal*</Label>
+              <Input id="proveedor-servicio" value={servicioPrincipal} onChange={(e) => setServicioPrincipal(e.target.value)} placeholder="Ej: Catering, Fotografía, DJ" required />
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                    <Label htmlFor="proveedor-telefono">Teléfono</Label>
+                    <Input id="proveedor-telefono" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="proveedor-email">Email</Label>
+                    <Input id="proveedor-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="proveedor-notas">Notas Adicionales</Label>
+              <Textarea id="proveedor-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Detalles de contacto, calidad del servicio, etc." rows={3} />
             </div>
             
           </CardContent>
