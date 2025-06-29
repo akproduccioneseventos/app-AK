@@ -1,4 +1,5 @@
 
+
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 
 export interface Invitado {

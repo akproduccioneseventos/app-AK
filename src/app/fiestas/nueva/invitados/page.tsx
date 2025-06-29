@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -271,7 +272,7 @@ export default function InvitadosEventoPage() {
                             <Select value={invitado.rsvp} onValueChange={(value: RsvpStatus) => handleFieldChange(invitado.id, 'rsvp', value)}>
                                 <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                {(['Pendiente', 'Confirmado', 'Rechazado'] as RsvpStatus[]).map(status => (
+                                {(['Pendiente', 'Confirmado', 'Rechazado', 'Tal vez'] as RsvpStatus[]).map(status => (
                                     <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
                                 ))}
                                 </SelectContent>
@@ -351,7 +352,7 @@ export default function InvitadosEventoPage() {
                  <Select value={editingInvitado.rsvp} onValueChange={(value: RsvpStatus) => setEditingInvitado(p => p ? {...p, rsvp: value} : null)}>
                     <SelectTrigger id="edit-rsvp"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                    {(['Pendiente', 'Confirmado', 'Rechazado'] as RsvpStatus[]).map(status => (
+                    {(['Pendiente', 'Confirmado', 'Rechazado', 'Tal vez'] as RsvpStatus[]).map(status => (
                         <SelectItem key={status} value={status}>{status}</SelectItem>
                     ))}
                     </SelectContent>
