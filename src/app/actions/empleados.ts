@@ -92,11 +92,12 @@ export async function saveEmpleado(
   } else {
     // Create
     empleadoId = `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newEmpleadoData = empleadoData as NuevoEmpleadoFormData;
     finalEmpleadoData = {
       id: empleadoId,
-      nombre: empleadoData.nombre,
-      cedula: empleadoData.cedula,
-      fechaNacimiento: empleadoData.fechaNacimiento,
+      nombre: newEmpleadoData.nombre,
+      cedula: newEmpleadoData.cedula || '',
+      fechaNacimiento: newEmpleadoData.fechaNacimiento || '',
       // rolId is not part of NuevoEmpleadoFormData, so it will be undefined initially
     };
     empleados.push(finalEmpleadoData);

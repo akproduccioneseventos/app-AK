@@ -24,21 +24,19 @@ export default function NuevoEmpleadoPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!nombre.trim() || !cedula.trim() || !fechaNacimiento) {
-      toast({ title: "Campos incompletos", description: "Por favor, completa Nombre, Cédula y Fecha de Nacimiento.", variant: "destructive" });
+    if (!nombre.trim()) {
+      toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del empleado.", variant: "destructive" });
       return;
     }
 
     setIsSaving(true);
     const empleadoData: NuevoEmpleadoFormData = {
       nombre: nombre.trim(),
-      cedula: cedula.trim(),
-      fechaNacimiento: fechaNacimiento.toISOString(),
+      cedula: cedula.trim() || undefined,
+      fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString() : undefined,
     };
 
     try {
-      // La acción saveEmpleado ahora espera solo estos campos para la creación inicial.
-      // El rol se asignará después.
       const result = await saveEmpleado(empleadoData);
       if (result.success && result.id) {
         toast({ title: "¡Empleado Guardado!", description: `El empleado "${empleadoData.nombre}" ha sido guardado. Ahora puedes asignarle un rol desde la lista de empleados.` });
@@ -90,7 +88,7 @@ export default function NuevoEmpleadoPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="empleado-cedula" className="text-base">Cédula de Identidad *</Label>
+              <Label htmlFor="empleado-cedula" className="text-base">Cédula de Identidad</Label>
               <Input 
                 id="empleado-cedula" 
                 value={cedula}
@@ -98,11 +96,10 @@ export default function NuevoEmpleadoPage() {
                 placeholder="Ej: 1.234.567-8 (sin puntos ni guion)" 
                 className="text-base p-3"
                 disabled={isSaving}
-                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="empleado-fecha-nacimiento" className="text-base">Fecha de Nacimiento *</Label>
+              <Label htmlFor="empleado-fecha-nacimiento" className="text-base">Fecha de Nacimiento</Label>
               <DatePickerDemo 
                 selectedDate={fechaNacimiento}
                 onDateChange={setFechaNacimiento}
