@@ -82,7 +82,11 @@ export async function addCrmLead(
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
   const leads = await getCrmLeads();
+  const stages = await getCrmStages(); // Fetch stages to get name
   const now = new Date().toISOString();
+
+  const stageName = stages.find(s => s.id === leadData.currentStageId)?.name || 'Etapa desconocida';
+
   const newLead: CrmLead = {
     id: `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     name: leadData.name.trim(),
@@ -92,6 +96,7 @@ export async function addCrmLead(
     currentStageId: leadData.currentStageId,
     createdAt: now,
     updatedAt: now,
+    history: [{ stageId: leadData.currentStageId, stageName, timestamp: now }],
   };
   leads.push(newLead);
   await writeJsonFile(LEADS_FILE_PATH, leads);
@@ -103,17 +108,27 @@ export async function moveCrmLead(
   newStageId: string
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
   let leads = await getCrmLeads();
+  const stages = await getCrmStages(); // Fetch stages to get name
   const leadIndex = leads.findIndex(l => l.id === leadId);
 
   if (leadIndex === -1) {
     return { success: false, error: `Prospecto con ID ${leadId} no encontrado.` };
   }
+  
+  const newStageName = stages.find(s => s.id === newStageId)?.name || 'Etapa desconocida';
+  const now = new Date().toISOString();
 
-  leads[leadIndex] = {
+  const updatedLead = {
     ...leads[leadIndex],
     currentStageId: newStageId,
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
+    history: [
+      ...(leads[leadIndex].history || []),
+      { stageId: newStageId, stageName: newStageName, timestamp: now }
+    ],
   };
+
+  leads[leadIndex] = updatedLead;
 
   await writeJsonFile(LEADS_FILE_PATH, leads);
   return { success: true, lead: leads[leadIndex] };

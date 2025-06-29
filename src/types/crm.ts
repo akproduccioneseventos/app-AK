@@ -1,4 +1,10 @@
 
+export interface CrmLeadHistoryItem {
+  stageId: string;
+  stageName: string;
+  timestamp: string;
+}
+
 export interface CrmStage {
   id: string;
   name: string; 
@@ -21,6 +27,7 @@ export interface CrmLead {
   email?: string; // Added for potential future use or capture during conversion
   phone?: string; // Added
   notes?: string; // Added
+  history?: CrmLeadHistoryItem[]; // Added history
 }
 
-export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'email' | 'phone' | 'notes'> & Partial<Pick<CrmLead, 'email' | 'phone' | 'notes'>>;
+export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'email' | 'phone' | 'notes' | 'history'> & Partial<Pick<CrmLead, 'email' | 'phone' | 'notes'>>;
