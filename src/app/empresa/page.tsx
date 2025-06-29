@@ -1,9 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package } from 'lucide-react'; // Cambiado Sparkles por Package
+import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -41,6 +42,13 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/todos-los-servicios',
     icon: Package,
     actionLabel: 'Ir a Inventario',
+  },
+   {
+    title: 'Redes Sociales y Publicaciones',
+    description: 'Planifica, redacta con IA y sigue el rendimiento de tus campañas en redes.',
+    href: '/empresa/redes-sociales',
+    icon: Sparkles,
+    actionLabel: 'Gestionar Publicaciones',
   },
 ];
 
