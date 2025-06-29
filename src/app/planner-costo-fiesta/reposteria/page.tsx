@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -9,13 +10,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Image as ImageIconLucide, Wand2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Wand2, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import NextImage from 'next/image';
-import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria, ReposteriaItem } from '@/types/fiesta';
 import { getFiestaActual, updateReposteriaFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultReposteriaCategorias } from '@/lib/fiesta-defaults';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Separator } from '@/components/ui/separator';
+
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
 
 export default function GestionReposteriaPage() {
   const { toast } = useToast();
@@ -23,25 +30,28 @@ export default function GestionReposteriaPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({}); // Record<categoryId, boolean>
+
+  // Modal State
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<Partial<ReposteriaItem> | null>(null);
+  const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    setFailedImageUrls({});
     try {
       const fiestaData = await getFiestaActual();
-      // Ensure all default categories are present by merging
       const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
         const savedCat = fiestaData.reposteria?.categorias?.find(sc => sc.id === defaultCat.id);
-        return savedCat ? { ...defaultCat, ...savedCat, items: savedCat.items || [] } : { ...defaultCat, items: [] };
+        const mergedCat = savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
+        mergedCat.items = mergedCat.items || [];
+        return mergedCat;
       });
       setReposteriaData({
         categorias: mergedCategorias,
         notasGenerales: fiestaData.reposteria?.notasGenerales || '',
       });
     } catch (err: any) {
-      console.error("Error loading reposteria data:", err);
       setError("No se pudieron cargar los datos de repostería.");
       toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
     } finally {
@@ -56,7 +66,7 @@ export default function GestionReposteriaPage() {
   const handleCategoryChange = (
     categoryId: ReposteriaCategoria['id'],
     field: keyof Omit<ReposteriaCategoria, 'id' | 'items' | 'nombreDisplay'>,
-    value: string | number | boolean
+    value: string | boolean
   ) => {
     setReposteriaData(prev => {
       if (!prev) return null;
@@ -67,13 +77,65 @@ export default function GestionReposteriaPage() {
         ),
       };
     });
-    if (field === 'imagenReferenciaUrl') {
-        setFailedImageUrls(prevFailed => ({...prevFailed, [categoryId]: false}));
-    }
   };
   
   const handleNotasGeneralesChange = (value: string) => {
     setReposteriaData(prev => prev ? ({ ...prev, notasGenerales: value }) : null);
+  };
+
+  const openItemModal = (categoryId: string, item?: ReposteriaItem) => {
+    setCurrentCategoryId(categoryId);
+    setCurrentItem(item ? { ...item } : { id: '', nombre: '', cantidad: 1, unidad: 'unidad', costoEstimado: 0 });
+    setIsItemModalOpen(true);
+  };
+
+  const handleItemModalChange = (field: keyof ReposteriaItem, value: string | number) => {
+    setCurrentItem(prev => (prev ? { ...prev, [field]: value } : null));
+  };
+  
+  const handleItemModalSave = () => {
+    if (!currentItem || !currentItem.nombre?.trim() || !currentCategoryId) {
+      toast({ title: "Nombre Requerido", variant: "destructive" });
+      return;
+    }
+    const finalItem: ReposteriaItem = {
+      id: currentItem.id || `reposteriaItem_${Date.now()}`,
+      nombre: currentItem.nombre,
+      descripcion: currentItem.descripcion,
+      cantidad: Number(currentItem.cantidad) || 1,
+      unidad: currentItem.unidad || 'unidad',
+      costoEstimado: Number(currentItem.costoEstimado) || 0,
+      notas: currentItem.notas,
+    };
+    setReposteriaData(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            categorias: prev.categorias.map(cat => {
+                if (cat.id !== currentCategoryId) return cat;
+                const itemExists = cat.items.some(it => it.id === finalItem.id);
+                const newItems = itemExists 
+                    ? cat.items.map(it => it.id === finalItem.id ? finalItem : it)
+                    : [...cat.items, finalItem];
+                return { ...cat, items: newItems };
+            })
+        }
+    });
+    setIsItemModalOpen(false);
+  };
+
+  const handleDeleteItem = (categoryId: string, itemId: string) => {
+    setReposteriaData(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            categorias: prev.categorias.map(cat => 
+                cat.id === categoryId
+                ? { ...cat, items: cat.items.filter(it => it.id !== itemId) }
+                : cat
+            )
+        }
+    })
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -84,7 +146,6 @@ export default function GestionReposteriaPage() {
       const result = await updateReposteriaFiestaActual(reposteriaData);
       if (result.success && result.updatedData) {
         toast({ title: "¡Repostería Guardada!", description: "Los detalles de repostería se han actualizado." });
-        // Re-merge with defaults to ensure structure consistency after save
         const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
             const savedCat = result.updatedData?.categorias?.find(sc => sc.id === defaultCat.id);
             return savedCat ? { ...defaultCat, ...savedCat, items: savedCat.items || [] } : { ...defaultCat, items: [] };
@@ -125,6 +186,22 @@ export default function GestionReposteriaPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
+        <DialogContent>
+            <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Producto</DialogTitle></DialogHeader>
+            {currentItem && (
+                <div className="space-y-3">
+                    <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={(e) => handleItemModalChange('nombre', e.target.value)} /></div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><Label htmlFor="item-qty">Cantidad</Label><Input id="item-qty" type="number" value={currentItem.cantidad || 1} onChange={(e) => handleItemModalChange('cantidad', Number(e.target.value))}/></div>
+                        <div className="space-y-1"><Label htmlFor="item-costo">Costo Total Est.</Label><Input id="item-costo" type="number" value={currentItem.costoEstimado || 0} onChange={(e) => handleItemModalChange('costoEstimado', Number(e.target.value))}/></div>
+                    </div>
+                    <div className="space-y-1"><Label htmlFor="item-desc">Descripción</Label><Textarea id="item-desc" value={currentItem.descripcion || ''} onChange={(e) => handleItemModalChange('descripcion', e.target.value)} rows={2}/></div>
+                </div>
+            )}
+            <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleItemModalSave}>Guardar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Cake className="w-8 h-8 text-primary" />
@@ -146,43 +223,37 @@ export default function GestionReposteriaPage() {
               {reposteriaData.categorias.map(cat => (
                 <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm bg-card">
                   <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-                    <div className="flex items-center justify-between w-full">
+                     <div className="flex items-center justify-between w-full">
                         <span className="flex items-center gap-2"><Wand2 className="w-5 h-5 text-primary/80"/>{cat.nombreDisplay}</span>
-                        <Checkbox
-                            checked={cat.activada}
-                            onCheckedChange={(checked) => handleCategoryChange(cat.id, 'activada', !!checked)}
-                            onClick={(e) => e.stopPropagation()} // Prevent accordion toggle when clicking checkbox
-                            className="ml-auto mr-2"
-                            aria-label={`Activar ${cat.nombreDisplay}`}
-                        />
+                        <Checkbox checked={cat.activada} onCheckedChange={(checked) => handleCategoryChange(cat.id, 'activada', !!checked)} onClick={(e) => e.stopPropagation()} className="ml-auto mr-2" aria-label={`Activar ${cat.nombreDisplay}`} />
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pt-0 pb-4 space-y-4 border-t">
+                  <AccordionContent className="px-4 pt-2 pb-4 border-t space-y-4">
                     {cat.activada && (
                       <>
-                        <div className="space-y-2 mt-3">
-                          <Label htmlFor={`desc-${cat.id}`}>Descripción de {cat.nombreDisplay}</Label>
-                          <Textarea id={`desc-${cat.id}`} value={cat.descripcion || ''} onChange={(e) => handleCategoryChange(cat.id, 'descripcion', e.target.value)} rows={2} placeholder="Detalles específicos, sabores, estilos..." />
+                        <div className="space-y-2 mt-2"><Label htmlFor={`desc-${cat.id}`}>Descripción</Label><Textarea id={`desc-${cat.id}`} value={cat.descripcion || ''} onChange={(e) => handleCategoryChange(cat.id, 'descripcion', e.target.value)} rows={2} placeholder="Detalles, sabores, etc." /></div>
+                        
+                        <Separator/>
+                        <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-sm">Productos en esta categoría</h4>
+                            <Button type="button" size="sm" variant="outline" onClick={() => openItemModal(cat.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Producto</Button>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor={`personas-${cat.id}`}>Personas a cubrir con esta categoría (aprox.)</Label>
-                          <Input type="number" id={`personas-${cat.id}`} value={cat.cantidadEstimadaPersonas || ''} onChange={(e) => handleCategoryChange(cat.id, 'cantidadEstimadaPersonas', parseInt(e.target.value) || 0)} min="0" placeholder="Ej: 50" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor={`img-${cat.id}`}>Imagen de Referencia (URL)</Label>
-                          <Input type="url" id={`img-${cat.id}`} value={cat.imagenReferenciaUrl || ''} onChange={(e) => handleCategoryChange(cat.id, 'imagenReferenciaUrl', e.target.value)} placeholder="https://ejemplo.com/imagen.jpg" />
-                           {cat.imagenReferenciaUrl && !failedImageUrls[cat.id] ? (
-                                <div className="mt-1 p-1 border rounded inline-block"><NextImage src={cat.imagenReferenciaUrl} alt={cat.nombreDisplay} width={100} height={75} className="rounded object-contain max-h-[75px]" data-ai-hint={cat.dataAiHint || "pastry category"} onError={() => setFailedImageUrls(prev => ({...prev, [cat.id]: true}))}/></div>
-                           ) : (cat.imagenReferenciaUrl && failedImageUrls[cat.id] && <p className="text-xs text-destructive mt-1">Error al cargar imagen.</p>)}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor={`aihint-${cat.id}`}>AI Hint (para imagen en PDF)</Label>
-                            <Input id={`aihint-${cat.id}`} value={cat.dataAiHint || ''} onChange={(e) => handleCategoryChange(cat.id, 'dataAiHint', e.target.value)} placeholder="Ej: wedding cake rustic flowers" />
-                        </div>
-                        <div className="mt-3 p-3 border-dashed border-muted-foreground/50 rounded-md text-center">
-                          <p className="text-sm text-muted-foreground">La gestión detallada de productos dentro de "{cat.nombreDisplay}" se habilitará próximamente.</p>
-                          <Button type="button" variant="outline" size="sm" className="mt-2" disabled><PlusCircle className="w-4 h-4 mr-1.5" /> Añadir Productos</Button>
-                        </div>
+                        {cat.items.length > 0 ? (
+                            <ul className="space-y-2">
+                                {cat.items.map(item => (
+                                    <li key={item.id} className="flex items-center justify-between p-2 border rounded bg-muted/50">
+                                        <div><p className="text-sm font-medium">{item.nombre}</p><p className="text-xs text-muted-foreground">Cant: {item.cantidad} | Costo Est: {formatCurrency(item.costoEstimado)}</p></div>
+                                        <div className="flex gap-1">
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openItemModal(cat.id, item)}><Wand2 className="w-3.5 h-3.5"/></Button>
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-center text-muted-foreground py-2">No hay productos en esta categoría.</p>
+                        )}
+                        <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(cat.items.reduce((sum, item) => sum + (item.costoEstimado || 0) * (item.cantidad || 1), 0))}</p>
                       </>
                     )}
                   </AccordionContent>

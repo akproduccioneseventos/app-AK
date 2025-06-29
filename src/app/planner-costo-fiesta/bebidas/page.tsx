@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -10,12 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Droplets } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Droplets, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, BebidasData, BebidaCategoria, TipoEventoAjusteBebidas } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, BebidasData, BebidaCategoria, TipoEventoAjusteBebidas, BebidaItem } from '@/types/fiesta';
 import { getFiestaActual, updateBebidasFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultBebidasCategorias } from '@/lib/fiesta-defaults';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Separator } from '@/components/ui/separator';
 
 const tiposEventoAjusteDisponibles: { value: TipoEventoAjusteBebidas; label: string }[] = [
     { value: 'formal', label: 'Formal / Adultos' },
@@ -24,6 +27,11 @@ const tiposEventoAjusteDisponibles: { value: TipoEventoAjusteBebidas; label: str
     { value: 'mixto_estandar', label: 'Mixto / Estándar' },
 ];
 
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
+
 export default function GestionBebidasPage() {
   const { toast } = useToast();
   const [bebidasData, setBebidasData] = useState<BebidasData | null>(null);
@@ -31,15 +39,21 @@ export default function GestionBebidasPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Modal State
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<Partial<BebidaItem> | null>(null);
+  const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
-      // Ensure all default categories are present by merging
       const mergedCategorias = defaultBebidasCategorias.map(defaultCat => {
         const savedCat = fiestaData.bebidas?.categorias?.find(sc => sc.id === defaultCat.id);
-        return savedCat ? { ...defaultCat, ...savedCat, items: savedCat.items || [] } : { ...defaultCat, items: [] };
+        const mergedCat = savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
+        mergedCat.items = mergedCat.items || [];
+        return mergedCat;
       });
       setBebidasData({
         categorias: mergedCategorias,
@@ -47,7 +61,6 @@ export default function GestionBebidasPage() {
         notasGenerales: fiestaData.bebidas?.notasGenerales || '',
       });
     } catch (err: any) {
-      console.error("Error loading bebidas data:", err);
       setError("No se pudieron cargar los datos de bebidas.");
       toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
     } finally {
@@ -66,12 +79,7 @@ export default function GestionBebidasPage() {
   ) => {
     setBebidasData(prev => {
       if (!prev) return null;
-      return {
-        ...prev,
-        categorias: prev.categorias.map(cat =>
-          cat.id === categoryId ? { ...cat, [field]: value } : cat
-        ),
-      };
+      return { ...prev, categorias: prev.categorias.map(cat => cat.id === categoryId ? { ...cat, [field]: value } : cat) };
     });
   };
 
@@ -83,6 +91,62 @@ export default function GestionBebidasPage() {
     setBebidasData(prev => prev ? ({ ...prev, notasGenerales: value }) : null);
   };
 
+  const openItemModal = (categoryId: string, item?: BebidaItem) => {
+    setCurrentCategoryId(categoryId);
+    setCurrentItem(item ? { ...item } : { id: '', nombre: '', cantidadNecesaria: 1, costoUnitario: 0 });
+    setIsItemModalOpen(true);
+  };
+
+  const handleItemModalChange = (field: keyof BebidaItem, value: string | number) => {
+    setCurrentItem(prev => (prev ? { ...prev, [field]: value } : null));
+  };
+  
+  const handleItemModalSave = () => {
+    if (!currentItem || !currentItem.nombre?.trim() || !currentCategoryId) {
+      toast({ title: "Nombre Requerido", variant: "destructive" });
+      return;
+    }
+    const cantidad = Number(currentItem.cantidadNecesaria) || 0;
+    const costo = Number(currentItem.costoUnitario) || 0;
+    const finalItem: BebidaItem = {
+      id: currentItem.id || `bebidaItem_${Date.now()}`,
+      nombre: currentItem.nombre,
+      marca: currentItem.marca,
+      presentacion: currentItem.presentacion,
+      cantidadNecesaria: cantidad,
+      unidadCantidad: currentItem.unidadCantidad,
+      costoUnitario: costo,
+      costoTotal: cantidad * costo,
+      proveedorHabitual: currentItem.proveedorHabitual,
+      notas: currentItem.notas,
+    };
+    setBebidasData(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            categorias: prev.categorias.map(cat => {
+                if (cat.id !== currentCategoryId) return cat;
+                const itemExists = cat.items.some(it => it.id === finalItem.id);
+                const newItems = itemExists 
+                    ? cat.items.map(it => it.id === finalItem.id ? finalItem : it)
+                    : [...cat.items, finalItem];
+                return { ...cat, items: newItems };
+            })
+        }
+    });
+    setIsItemModalOpen(false);
+  };
+
+  const handleDeleteItem = (categoryId: string, itemId: string) => {
+    setBebidasData(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            categorias: prev.categorias.map(cat => cat.id === categoryId ? { ...cat, items: cat.items.filter(it => it.id !== itemId) } : cat)
+        }
+    })
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!bebidasData) return;
@@ -91,7 +155,6 @@ export default function GestionBebidasPage() {
       const result = await updateBebidasFiestaActual(bebidasData);
       if (result.success && result.updatedData) {
         toast({ title: "¡Bebidas Guardadas!", description: "La configuración de bebidas se ha actualizado." });
-         // Re-merge with defaults to ensure structure consistency after save
         const mergedCategorias = defaultBebidasCategorias.map(defaultCat => {
             const savedCat = result.updatedData?.categorias?.find(sc => sc.id === defaultCat.id);
             return savedCat ? { ...defaultCat, ...savedCat, items: savedCat.items || [] } : { ...defaultCat, items: [] };
@@ -112,27 +175,33 @@ export default function GestionBebidasPage() {
   };
 
   if (isLoading || !bebidasData) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Cargando datos de bebidas...</p>
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
   }
-
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Error</h2>
-        <p className="text-muted-foreground">{error}</p>
-        <Button onClick={loadData} className="mt-4">Reintentar</Button>
-      </div>
-    );
+    return <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error</h2><p className="text-muted-foreground">{error}</p><Button onClick={loadData} className="mt-4">Reintentar</Button></div>;
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
+        <DialogContent>
+            <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Bebida</DialogTitle></DialogHeader>
+            {currentItem && (
+                <div className="space-y-3">
+                    <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={(e) => handleItemModalChange('nombre', e.target.value)} /></div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><Label htmlFor="item-marca">Marca</Label><Input id="item-marca" value={currentItem.marca || ''} onChange={(e) => handleItemModalChange('marca', e.target.value)} /></div>
+                        <div className="space-y-1"><Label htmlFor="item-presentacion">Presentación</Label><Input id="item-presentacion" value={currentItem.presentacion || ''} onChange={(e) => handleItemModalChange('presentacion', e.target.value)} placeholder="Ej: 2.25L, 750ml"/></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><Label htmlFor="item-qty">Cant. Necesaria</Label><Input id="item-qty" type="number" value={currentItem.cantidadNecesaria || 1} onChange={(e) => handleItemModalChange('cantidadNecesaria', Number(e.target.value))}/></div>
+                        <div className="space-y-1"><Label htmlFor="item-costo">Costo Unitario Est.</Label><Input id="item-costo" type="number" value={currentItem.costoUnitario || 0} onChange={(e) => handleItemModalChange('costoUnitario', Number(e.target.value))}/></div>
+                    </div>
+                </div>
+            )}
+            <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleItemModalSave}>Guardar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <GlassWater className="w-8 h-8 text-primary" />
@@ -153,14 +222,8 @@ export default function GestionBebidasPage() {
             <div className="space-y-2">
                 <Label htmlFor="tipo-evento-ajuste" className="text-base">Tipo de Evento (para cálculo automático)</Label>
                 <Select value={bebidasData.tipoEventoAjuste} onValueChange={(value) => handleTipoEventoAjusteChange(value as TipoEventoAjusteBebidas)}>
-                    <SelectTrigger id="tipo-evento-ajuste" className="text-base p-3 h-auto">
-                        <SelectValue placeholder="Seleccionar tipo de evento..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {tiposEventoAjusteDisponibles.map(tipo => (
-                            <SelectItem key={tipo.value} value={tipo.value} className="text-base">{tipo.label}</SelectItem>
-                        ))}
-                    </SelectContent>
+                    <SelectTrigger id="tipo-evento-ajuste" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo de evento..." /></SelectTrigger>
+                    <SelectContent>{tiposEventoAjusteDisponibles.map(tipo => (<SelectItem key={tipo.value} value={tipo.value} className="text-base">{tipo.label}</SelectItem>))}</SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">Esto ayudará a estimar cantidades (funcionalidad futura).</p>
             </div>
@@ -171,26 +234,35 @@ export default function GestionBebidasPage() {
                   <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
                      <div className="flex items-center justify-between w-full">
                         <span className="flex items-center gap-2"><Droplets className="w-5 h-5 text-primary/80"/>{cat.nombreDisplay}</span>
-                        <Checkbox
-                            checked={cat.activada}
-                            onCheckedChange={(checked) => handleCategoryChange(cat.id, 'activada', !!checked)}
-                            onClick={(e) => e.stopPropagation()}
-                            className="ml-auto mr-2"
-                            aria-label={`Activar ${cat.nombreDisplay}`}
-                        />
+                        <Checkbox checked={cat.activada} onCheckedChange={(checked) => handleCategoryChange(cat.id, 'activada', !!checked)} onClick={(e) => e.stopPropagation()} className="ml-auto mr-2" aria-label={`Activar ${cat.nombreDisplay}`} />
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pt-0 pb-4 space-y-4 border-t">
+                  <AccordionContent className="px-4 pt-2 pb-4 space-y-4 border-t">
                     {cat.activada && (
                       <>
-                        <div className="space-y-2 mt-3">
-                          <Label htmlFor={`desc-bebida-${cat.id}`}>Descripción de {cat.nombreDisplay}</Label>
-                          <Textarea id={`desc-bebida-${cat.id}`} value={cat.descripcion || ''} onChange={(e) => handleCategoryChange(cat.id, 'descripcion', e.target.value)} rows={2} placeholder="Preferencias, marcas específicas, etc." />
+                        <div className="space-y-2 mt-3"><Label htmlFor={`desc-bebida-${cat.id}`}>Descripción</Label><Textarea id={`desc-bebida-${cat.id}`} value={cat.descripcion || ''} onChange={(e) => handleCategoryChange(cat.id, 'descripcion', e.target.value)} rows={2} placeholder="Preferencias, marcas específicas, etc." /></div>
+                        
+                        <Separator/>
+                        <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-sm">Productos en esta categoría</h4>
+                            <Button type="button" size="sm" variant="outline" onClick={() => openItemModal(cat.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Producto</Button>
                         </div>
-                         <div className="mt-3 p-3 border-dashed border-muted-foreground/50 rounded-md text-center">
-                          <p className="text-sm text-muted-foreground">La gestión detallada de productos dentro de "{cat.nombreDisplay}" se habilitará próximamente.</p>
-                          <Button type="button" variant="outline" size="sm" className="mt-2" disabled><PlusCircle className="w-4 h-4 mr-1.5" /> Añadir Productos</Button>
-                        </div>
+                        {cat.items.length > 0 ? (
+                            <ul className="space-y-2">
+                                {cat.items.map(item => (
+                                    <li key={item.id} className="flex items-center justify-between p-2 border rounded bg-muted/50">
+                                        <div><p className="text-sm font-medium">{item.nombre}</p><p className="text-xs text-muted-foreground">Cant: {item.cantidadNecesaria} | Costo Total Est: {formatCurrency(item.costoTotal)}</p></div>
+                                        <div className="flex gap-1">
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openItemModal(cat.id, item)}><Droplets className="w-3.5 h-3.5"/></Button>
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-center text-muted-foreground py-2">No hay productos en esta categoría.</p>
+                        )}
+                        <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(cat.items.reduce((sum, item) => sum + (item.costoTotal || 0), 0))}</p>
                       </>
                     )}
                   </AccordionContent>
@@ -213,4 +285,3 @@ export default function GestionBebidasPage() {
     </div>
   );
 }
-
