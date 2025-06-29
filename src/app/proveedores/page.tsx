@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -71,7 +70,7 @@ export default function ProveedoresPage() {
         <div className="flex items-center gap-3">
           <Briefcase className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestión de Proveedores
+            Gestión de Proveedores y Servicios Subcontratados
           </h1>
         </div>
         <Link href="/proveedores/new" passHref>
