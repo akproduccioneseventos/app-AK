@@ -26,8 +26,8 @@ const formatCurrency = (amount: number) => {
 interface AssignedStaffUIDetail {
   empleado: Empleado;
   rol?: Rol;
-  eventSalary: number;
-  employerContribution: number; // Aportes patronales
+  eventSalary: number; // Pago total para el empleado para este evento específico
+  employerContribution: number; // Aportes patronales calculados sobre eventSalary
 }
 
 export default function AsignarPersonalEventoPage() {
@@ -58,7 +58,7 @@ export default function AsignarPersonalEventoPage() {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
           if (empleadoDetail) {
             const rolDetail = empleadoDetail.rolId ? rolesData.find(r => r.id === empleadoDetail.rolId) : undefined;
-            const aportes = (assigned.eventSalary * (rolDetail?.porcentajeAportes ?? 0)) / 100;
+            const aportes = (assigned.eventSalary * (rolDetail?.porcentajeAportesPatronales ?? 0)) / 100;
             initialAssignedMap.set(assigned.empleadoId, {
               empleado: empleadoDetail,
               rol: rolDetail,
@@ -87,9 +87,9 @@ export default function AsignarPersonalEventoPage() {
       const newMap = new Map(prev);
       if (isAssigned) {
         const rol = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
-        const defaultEventSalary = rol?.montoSalario ?? 0;
-        const aportes = (defaultEventSalary * (rol?.porcentajeAportes ?? 0)) / 100;
-        newMap.set(empleado.id, { empleado, rol, eventSalary: defaultEventSalary, employerContribution: aportes });
+        const eventSalary = rol?.sueldoPorEvento ?? 0;
+        const employerContribution = (eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
+        newMap.set(empleado.id, { empleado, rol, eventSalary, employerContribution });
       } else {
         newMap.delete(empleado.id);
       }
@@ -105,7 +105,7 @@ export default function AsignarPersonalEventoPage() {
       const newMap = new Map(prev);
       const currentAssignment = newMap.get(empleadoId);
       if (currentAssignment) {
-        const aportes = (finalSalary * (currentAssignment.rol?.porcentajeAportes ?? 0)) / 100;
+        const aportes = (finalSalary * (currentAssignment.rol?.porcentajeAportesPatronales ?? 0)) / 100;
         newMap.set(empleadoId, { 
           ...currentAssignment, 
           eventSalary: finalSalary,
@@ -121,8 +121,8 @@ export default function AsignarPersonalEventoPage() {
         const newMap = new Map(prev);
         const currentAssignment = newMap.get(empleadoId);
         if (currentAssignment && (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary))) {
-            const fallbackSalary = currentAssignment.rol?.montoSalario ?? 0;
-            const aportes = (fallbackSalary * (currentAssignment.rol?.porcentajeAportes ?? 0)) / 100;
+            const fallbackSalary = currentAssignment.rol?.sueldoPorEvento ?? 0;
+            const aportes = (fallbackSalary * (currentAssignment.rol?.porcentajeAportesPatronales ?? 0)) / 100;
             newMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary, employerContribution: aportes });
         }
         return newMap;
@@ -199,7 +199,7 @@ export default function AsignarPersonalEventoPage() {
         <CardHeader>
           <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
           <CardDescription>
-            Marca los empleados que participarán en este evento y ajusta su sueldo para el evento si es necesario.
+            Marca los empleados que participarán en este evento y ajusta su pago total para el evento si es necesario.
           </CardDescription>
         </CardHeader>
         <CardContent>

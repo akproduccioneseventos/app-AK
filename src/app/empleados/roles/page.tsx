@@ -32,14 +32,12 @@ import {
   AlertDialogTitle as AlertDialogTitleConfirm,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
+import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
-
-const DEFAULT_APORTES_PERCENTAGE = 30;
 
 export default function GestionRolesPage() {
   const { toast } = useToast();
@@ -50,7 +48,6 @@ export default function GestionRolesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); 
-  const [porcentajeAportesInput, setPorcentajeAportesInput] = useState<string>(String(DEFAULT_APORTES_PERCENTAGE));
   
   const fetchRoles = useCallback(async () => {
     setIsLoading(true);
@@ -70,80 +67,44 @@ export default function GestionRolesPage() {
 
   const openModal = (rol?: Rol) => {
     if (rol) {
-      setCurrentRol({ ...rol, tipoSalario: 'Por evento' }); 
-      setPorcentajeAportesInput(String(rol.porcentajeAportes ?? DEFAULT_APORTES_PERCENTAGE));
+      setCurrentRol({ ...rol });
     } else {
       setCurrentRol({ 
         nombre: '', 
-        tipoSalario: 'Por evento', 
-        montoSalario: undefined, 
-        porcentajeAportes: DEFAULT_APORTES_PERCENTAGE,
-        aportesCalculados: undefined, 
+        sueldoPorEvento: 2100, // Example default
+        porcentajeSalarioVacacional: 8.33,
+        porcentajeAguinaldo: 8.33,
+        porcentajeAportesPatronales: 20,
       });
-      setPorcentajeAportesInput(String(DEFAULT_APORTES_PERCENTAGE));
     }
     setIsModalOpen(true);
   };
   
-  const aportesCalculadosModal = useMemo(() => {
-    if (!currentRol) return undefined;
-    const monto = Number(currentRol.montoSalario || 0);
-    const porcentaje = Number(porcentajeAportesInput || 0);
-    if (monto >= 0 && porcentaje >= 0) {
-      return (monto * porcentaje) / 100;
-    }
-    return undefined;
-  }, [currentRol?.montoSalario, porcentajeAportesInput]);
-
-
-  const handleModalFieldChange = (field: keyof Rol, value: string | number | undefined) => {
+  const handleModalFieldChange = (field: keyof Omit<Rol, 'id' | 'costoAportesCalculado'>, value: string) => {
     setCurrentRol(prev => {
       if (!prev) return null;
-      
-      const updatedRol: Partial<Rol> = { ...prev };
-      
-      if (field === 'montoSalario') {
-        const numValue = Number(value);
-        updatedRol[field] = isNaN(numValue) ? undefined : numValue;
-      } else if (field === 'nombre') {
-         updatedRol[field] = String(value || '');
-      } else {
-        (updatedRol as any)[field] = value;
-      }
-
-      return updatedRol;
+      // Allow empty string for number inputs but convert to number for state
+      const numValue = value === '' ? '' : parseFloat(value);
+      return { ...prev, [field]: numValue === '' ? '' : (isNaN(numValue as number) ? value : numValue) };
     });
   };
-
 
   const handleSaveRol = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentRol || !currentRol.nombre?.trim()) {
-      toast({ title: "Nombre Requerido", description: "El nombre del rol es obligatorio.", variant: "destructive" });
+      toast({ title: "Nombre Requerido", variant: "destructive" });
       return;
     }
     
-    const montoSalarioNum = Number(currentRol.montoSalario);
-    if (currentRol.montoSalario !== undefined && (isNaN(montoSalarioNum) || montoSalarioNum < 0)) {
-        toast({ title: "Pago Inválido", description: "El pago por evento debe ser un número positivo o estar vacío.", variant: "destructive"});
-        return;
-    }
-
-    const porcentajeAportesNum = Number(porcentajeAportesInput);
-    if (isNaN(porcentajeAportesNum) || porcentajeAportesNum < 0 || porcentajeAportesNum > 100) {
-        toast({ title: "Porcentaje de Aportes Inválido", description: "El porcentaje debe estar entre 0 y 100.", variant: "destructive"});
-        return;
-    }
-
-    setIsSaving(true);
-    const rolDataForSave: Partial<Rol> = { 
-      ...currentRol, 
-      tipoSalario: 'Por evento',
-      porcentajeAportes: porcentajeAportesNum,
-    };
+    const rolToSave = {
+      ...currentRol,
+      sueldoPorEvento: Number(currentRol.sueldoPorEvento) || 0,
+      porcentajeSalarioVacacional: Number(currentRol.porcentajeSalarioVacacional) || 0,
+      porcentajeAguinaldo: Number(currentRol.porcentajeAguinaldo) || 0,
+      porcentajeAportesPatronales: Number(currentRol.porcentajeAportesPatronales) || 0,
+    } as Rol | NuevoRolFormData;
     
-    const rolToSave = rolDataForSave as Rol | NuevoRolFormData;
-
+    setIsSaving(true);
     try {
       const result = await saveRol(rolToSave); 
       if (result.success && result.rol) {
@@ -205,7 +166,7 @@ export default function GestionRolesPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-headline">{currentRol?.id ? 'Editar Rol' : 'Crear Nuevo Rol'}</DialogTitle>
-            <DialogDescription>Define los detalles del rol y su compensación por evento.</DialogDescription>
+            <DialogDescription>Define el nombre, sueldo y porcentajes para el cálculo de costos y recibos de pago.</DialogDescription>
           </DialogHeader>
           {currentRol && (
             <form onSubmit={handleSaveRol} className="space-y-4 py-2">
@@ -213,26 +174,30 @@ export default function GestionRolesPage() {
                 <Label htmlFor="rol-nombre">Nombre del Rol *</Label>
                 <Input id="rol-nombre" value={currentRol.nombre || ''} onChange={(e) => handleModalFieldChange('nombre', e.target.value)} placeholder="Ej: Mozo, DJ, Coordinador" required />
               </div>
-              
+
               <div className="space-y-1">
-                <Label>Tipo de Salario</Label>
-                <Input value="Por evento" readOnly disabled className="bg-muted/50"/>
+                <Label htmlFor="rol-sueldo">Sueldo por Evento (Pago Total al Empleado) *</Label>
+                <Input id="rol-sueldo" type="number" value={currentRol.sueldoPorEvento ?? ''} onChange={(e) => handleModalFieldChange('sueldoPorEvento', e.target.value)} placeholder="Ej: 2100" min="0" step="any" required />
+                <p className="text-xs text-muted-foreground">Este monto incluye sueldo base, vacacional y aguinaldo.</p>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Separator/>
+              <p className="text-sm font-medium text-muted-foreground">Porcentajes de Cálculo:</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <Label htmlFor="rol-monto-salario">Pago Total por Evento (UYU)</Label>
-                    <Input id="rol-monto-salario" type="number" value={currentRol.montoSalario ?? ''} onChange={(e) => handleModalFieldChange('montoSalario', e.target.value === '' ? undefined : parseFloat(e.target.value))} placeholder="Ej: 2100" min="0" step="any" />
-                    <p className="text-xs text-muted-foreground">Incluye sueldo, aguinaldo y vacacional.</p>
+                    <Label htmlFor="rol-vacacional" className="flex items-center gap-1"><Percent className="w-3 h-3"/>Salario Vacacional</Label>
+                    <Input id="rol-vacacional" type="number" value={currentRol.porcentajeSalarioVacacional ?? ''} onChange={(e) => handleModalFieldChange('porcentajeSalarioVacacional', e.target.value)} placeholder="Ej: 8.33" min="0" max="100" step="any" />
                 </div>
                 <div className="space-y-1">
-                    <Label htmlFor="rol-porcentaje-aportes">Aportes Patronales (%)</Label>
-                    <Input id="rol-porcentaje-aportes" type="number" value={porcentajeAportesInput} onChange={(e) => setPorcentajeAportesInput(e.target.value)} placeholder="Ej: 30" min="0" max="100" step="any" />
+                    <Label htmlFor="rol-aguinaldo" className="flex items-center gap-1"><Percent className="w-3 h-3"/>Aguinaldo</Label>
+                    <Input id="rol-aguinaldo" type="number" value={currentRol.porcentajeAguinaldo ?? ''} onChange={(e) => handleModalFieldChange('porcentajeAguinaldo', e.target.value)} placeholder="Ej: 8.33" min="0" max="100" step="any" />
                 </div>
               </div>
               <div className="space-y-1">
-                  <Label>Aportes Calculados (Referencia)</Label>
-                  <Input value={aportesCalculadosModal !== undefined ? formatCurrency(aportesCalculadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
+                  <Label htmlFor="rol-aportes" className="flex items-center gap-1"><Percent className="w-3 h-3"/>Aportes Patronales (BPS, DGI, etc.)</Label>
+                  <Input id="rol-aportes" type="number" value={currentRol.porcentajeAportesPatronales ?? ''} onChange={(e) => handleModalFieldChange('porcentajeAportesPatronales', e.target.value)} placeholder="Ej: 20" min="0" max="100" step="any" />
+                  <p className="text-xs text-muted-foreground">Este % se calcula sobre el sueldo total del empleado.</p>
               </div>
               
               <DialogFooter className="pt-3">
@@ -263,16 +228,12 @@ export default function GestionRolesPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div className="flex-grow">
                       <h4 className="font-semibold text-foreground">{rol.nombre}</h4>
-                      <p className="text-xs text-muted-foreground">
-                        Tipo: {rol.tipoSalario}
-                        {rol.montoSalario !== undefined && (
-                          <>
-                            {' - '}Pago Total: {formatCurrency(rol.montoSalario)}
-                            {rol.porcentajeAportes !== undefined && ` (${rol.porcentajeAportes}% Aportes)`}
-                            {rol.aportesCalculados !== undefined && ` - Aportes: ${formatCurrency(rol.aportesCalculados)}`}
-                          </>
-                        )}
-                      </p>
+                      <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
+                        <span>Sueldo Evento: <strong>{formatCurrency(rol.sueldoPorEvento)}</strong></span>
+                        <span>Vacacional: {rol.porcentajeSalarioVacacional}%</span>
+                        <span>Aguinaldo: {rol.porcentajeAguinaldo}%</span>
+                        <span>Aportes: {rol.porcentajeAportesPatronales}% ({formatCurrency(rol.costoAportesCalculado)})</span>
+                      </div>
                     </div>
                     <div className="flex gap-1.5 self-start sm:self-center flex-shrink-0">
                       <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openModal(rol)}><Edit3 className="w-4 h-4" /></Button>

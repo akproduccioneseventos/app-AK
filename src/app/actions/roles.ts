@@ -5,8 +5,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
 
-const DEFAULT_APORTES_PERCENTAGE = 30;
-
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const rolesFilePath = path.join(dataDirectory, 'roles.json');
 
@@ -24,11 +22,7 @@ async function readRolesFile(): Promise<Rol[]> {
     await fs.access(rolesFilePath);
     const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
-    // Asegurarse de que los roles leídos no tengan 'notas' si se eliminó del tipo
-    return (JSON.parse(fileContent) as any[]).map(r => {
-      const { notas, ...rest } = r; // Eliminar 'notas' si existe
-      return rest as Rol;
-    });
+    return JSON.parse(fileContent) as Rol[];
   } catch (error) {
     return [];
   }
@@ -38,12 +32,7 @@ async function writeRolesFile(data: Rol[]): Promise<void> {
   try {
     await ensureDataDirectoryExists();
     const sortedData = data.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
-    // Asegurarse de que los roles guardados no tengan 'notas'
-    const dataWithoutNotas = sortedData.map(r => {
-      const { notas, ...rest } = r as any; // Castear a any para acceder a notas si aún existe
-      return rest;
-    });
-    await fs.writeFile(rolesFilePath, JSON.stringify(dataWithoutNotas, null, 2), 'utf-8');
+    await fs.writeFile(rolesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing roles JSON file:', error);
   }
@@ -56,10 +45,6 @@ async function initializeLocalRolesFile() {
     const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
     if (fileContent.trim() === '') {
       await writeRolesFile([]);
-    } else {
-      // Aplicar limpieza de 'notas' al inicializar si es necesario
-      const roles = await readRolesFile();
-      await writeRolesFile(roles); 
     }
   } catch (error) { 
     await writeRolesFile([]);
@@ -80,40 +65,41 @@ export async function getRolById(id: string): Promise<Rol | null> {
 export async function saveRol(
   rolData: Rol | NuevoRolFormData
 ): Promise<{ success: boolean; id?: string; rol?: Rol; error?: string }> {
-  let rolToProcess: Partial<Rol> = { 
-    ...rolData,
-    tipoSalario: 'Por evento', 
-  };
-  
-  const montoSalarioNum = Number(rolToProcess.montoSalario);
-  const porcentajeAportesNum = Number(rolToProcess.porcentajeAportes);
-
-  if (rolToProcess.montoSalario !== undefined && !isNaN(montoSalarioNum) && montoSalarioNum >= 0) {
-    if (!isNaN(porcentajeAportesNum) && porcentajeAportesNum >= 0 && porcentajeAportesNum <= 100) {
-      rolToProcess.aportesCalculados = (montoSalarioNum * porcentajeAportesNum) / 100;
-    } else {
-      rolToProcess.porcentajeAportes = DEFAULT_APORTES_PERCENTAGE;
-      rolToProcess.aportesCalculados = (montoSalarioNum * DEFAULT_APORTES_PERCENTAGE) / 100;
-    }
-  } else {
-    rolToProcess.montoSalario = undefined;
-    rolToProcess.porcentajeAportes = undefined;
-    rolToProcess.aportesCalculados = undefined;
+  // Validaciones básicas
+  if (!rolData.nombre?.trim()) {
+    return { success: false, error: "El nombre del rol es obligatorio." };
+  }
+  const sueldoNum = Number(rolData.sueldoPorEvento);
+  if (isNaN(sueldoNum) || sueldoNum < 0) {
+    return { success: false, error: "El sueldo por evento debe ser un número positivo." };
   }
   
   const localRoles = await readRolesFile();
   let savedRol: Rol;
 
+  const costoAportes = (sueldoNum * (Number(rolData.porcentajeAportesPatronales) || 0)) / 100;
+  
+  const rolToProcess: Omit<Rol, 'id'> = {
+    nombre: rolData.nombre.trim(),
+    sueldoPorEvento: sueldoNum,
+    porcentajeSalarioVacacional: Number(rolData.porcentajeSalarioVacacional) || 0,
+    porcentajeAguinaldo: Number(rolData.porcentajeAguinaldo) || 0,
+    porcentajeAportesPatronales: Number(rolData.porcentajeAportesPatronales) || 0,
+    costoAportesCalculado: costoAportes,
+  };
+
   if ('id' in rolData && rolData.id) {
+    // Update
     const index = localRoles.findIndex(r => r.id === rolData.id);
     if (index === -1) {
       return { success: false, error: `Rol con ID ${rolData.id} no encontrado para actualizar.` };
     }
-    savedRol = { ...localRoles[index], ...rolToProcess } as Rol;
+    savedRol = { ...localRoles[index], ...rolToProcess };
     localRoles[index] = savedRol;
   } else {
+    // Create
     const newRolId = `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    savedRol = { ...(rolToProcess as NuevoRolFormData), id: newRolId } as Rol;
+    savedRol = { ...rolToProcess, id: newRolId };
     localRoles.push(savedRol);
   }
   

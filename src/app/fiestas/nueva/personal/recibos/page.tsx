@@ -3,22 +3,22 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, User, Home, Calendar, Briefcase, FileText } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
-import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-const formatCurrency = (amount: number) => {
-  if (isNaN(amount)) return 'N/A';
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
@@ -32,9 +32,32 @@ const formatDate = (dateString?: string) => {
 interface FullStaffDetail {
   empleado: Empleado;
   rol?: Rol;
-  eventSalary: number;
+  eventSalary: number; // Pago total para el empleado para este evento específico
   employerContribution: number;
 }
+
+interface SalaryBreakdown {
+  base: number;
+  vacacional: number;
+  aguinaldo: number;
+}
+
+// Función para calcular el desglose del salario
+const calculateSalaryBreakdown = (totalPayment: number, rol?: Rol): SalaryBreakdown => {
+  const vacacionalPct = (rol?.porcentajeSalarioVacacional ?? 0) / 100;
+  const aguinaldoPct = (rol?.porcentajeAguinaldo ?? 0) / 100;
+
+  // T = S * (1 + V_pct + A_pct) => S = T / (1 + V_pct + A_pct)
+  const sueldoBase = totalPayment / (1 + vacacionalPct + aguinaldoPct);
+  const salarioVacacional = sueldoBase * vacacionalPct;
+  const aguinaldo = sueldoBase * aguinaldoPct;
+  
+  return {
+    base: sueldoBase,
+    vacacional: salarioVacacional,
+    aguinaldo: aguinaldo,
+  };
+};
 
 export default function RecibosDePagoPage() {
   const { toast } = useToast();
@@ -58,7 +81,7 @@ export default function RecibosDePagoPage() {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);
         if (!empleado) return null;
         const rol = empleado.rolId ? rolesData.find(r => r.id === empleado.rolId) : undefined;
-        const contribution = (assigned.eventSalary * (rol?.porcentajeAportes || 0)) / 100;
+        const contribution = (assigned.eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
         return {
           empleado,
           rol,
@@ -103,7 +126,7 @@ export default function RecibosDePagoPage() {
     return (
       <div className="p-8 max-w-4xl mx-auto bg-white text-center">
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
+             <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
         </div>
         <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
         <p className="font-semibold text-lg text-destructive">Error al Cargar</p>
@@ -132,7 +155,9 @@ export default function RecibosDePagoPage() {
           </div>
         ) : (
           <div className="space-y-8 print:space-y-4">
-            {assignedStaffDetails.map(detail => (
+            {assignedStaffDetails.map(detail => {
+              const breakdown = calculateSalaryBreakdown(detail.eventSalary, detail.rol);
+              return (
               <div key={detail.empleado.id} className="p-4 border rounded-lg bg-white print:border-gray-400 print:shadow-none print:break-inside-avoid">
                 <div className="flex justify-between items-start">
                     <div>
@@ -170,10 +195,9 @@ export default function RecibosDePagoPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td className="py-1">Pago Total por Evento (Incluye sueldo, aguinaldo, vacacional)</td>
-                                <td className="py-1 text-right">{formatCurrency(detail.eventSalary)}</td>
-                            </tr>
+                            <tr><td className="py-1">Sueldo Base Evento</td><td className="py-1 text-right">{formatCurrency(breakdown.base)}</td></tr>
+                            <tr><td className="py-1">Salario Vacacional ({detail.rol?.porcentajeSalarioVacacional || 0}%)</td><td className="py-1 text-right">{formatCurrency(breakdown.vacacional)}</td></tr>
+                            <tr><td className="py-1">Aguinaldo ({detail.rol?.porcentajeAguinaldo || 0}%)</td><td className="py-1 text-right">{formatCurrency(breakdown.aguinaldo)}</td></tr>
                         </tbody>
                         <tfoot>
                             <tr className="border-t-2 font-bold">
@@ -186,7 +210,7 @@ export default function RecibosDePagoPage() {
 
                  <div className="mt-4 text-xs text-gray-500 print:text-[8pt] border-t pt-2">
                     <h4 className="font-semibold">Aportes Patronales (Uso Interno)</h4>
-                    <p>Monto: {formatCurrency(detail.employerContribution)} ({detail.rol?.porcentajeAportes || 0}%)</p>
+                    <p>Monto: {formatCurrency(detail.employerContribution)} ({detail.rol?.porcentajeAportesPatronales || 0}%)</p>
                  </div>
                  
                  <div className="mt-8 print:mt-10 flex justify-between items-end">
@@ -194,11 +218,10 @@ export default function RecibosDePagoPage() {
                     <div className="w-2/5 border-t text-center pt-1"><p className="text-xs print:text-[8pt]">Firma del Empleador</p></div>
                  </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>
     </div>
   );
 }
-
