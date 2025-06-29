@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, LayoutElement } from '@/types/fiesta';
@@ -37,23 +37,58 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
-  'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Centros de Mesa', 'Señalética', 'Detalles Especiales', 'Globos', 'Otro'
+  'Detalle Entrada', 'Centro de Mesa', 'Detalle Zona Regalos', 'Detalle Cuadro Firmas', 'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Señalética', 'Globos', 'Otro'
 ];
 
 const predefinedPalettes: { name: string; colors: ColorPalette }[] = [
-  {
-    name: 'Romance Pastel',
-    colors: { primary: '#D9B8FF', secondary: '#FCD3DE', accent: '#F0E6CC' },
-  },
-  {
-    name: 'Elegancia Dorada',
-    colors: { primary: '#2C3E50', secondary: '#BDC3C7', accent: '#F1C40F' },
-  },
-  {
-    name: 'Frescura Natural',
-    colors: { primary: '#2D4B43', secondary: '#F3EAD3', accent: '#E77F67' },
-  },
+  { name: 'Sueño Lavanda', colors: { primary: '#D9B8FF', secondary: '#E6BFB2', accent: '#DCDCDC' } },
+  { name: 'Atardecer Cálido', colors: { primary: '#FCD3DE', secondary: '#F0E6CC', accent: '#F1C40F' } },
+  { name: 'Oasis Sereno', colors: { primary: '#A2D2B0', secondary: '#DCDCDC', accent: '#F0E6CC' } },
 ];
+
+
+interface ItemSectionProps {
+  title: string;
+  category: string;
+  items: DecorationItem[];
+  onAddItem: (prefill: Partial<DecorationItem>) => void;
+  onEditItem: (item: DecorationItem) => void;
+  onDeleteItem: (itemId: string) => void;
+  failedImageUrls: Record<string, boolean>;
+}
+
+const ItemSection: React.FC<ItemSectionProps> = ({ title, category, items, onAddItem, onEditItem, onDeleteItem, failedImageUrls }) => {
+  const filteredItems = items.filter(item => item.category === category);
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <h4 className="font-semibold text-foreground">{title}</h4>
+        <Button type="button" variant="outline" size="sm" onClick={() => onAddItem({ category })}>
+          <PlusCircle className="w-4 h-4 mr-1.5"/> Añadir
+        </Button>
+      </div>
+      {filteredItems.length > 0 ? (
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {filteredItems.map(item => (
+            <div key={item.id} className="p-2.5 border rounded-md bg-muted/40">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">{item.name}</p>
+                   {item.imageUrl && !failedImageUrls[item.id] && <NextImage src={item.imageUrl} alt={item.name} width={80} height={60} className="rounded border object-contain max-h-[60px]" data-ai-hint={item.dataAiHint || "decoration item"} />}
+                  {item.notes && <p className="text-xs italic text-muted-foreground/80 mt-0.5 whitespace-pre-line">{item.notes}</p>}
+                </div>
+                <div className="flex flex-col gap-1 flex-shrink-0">
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEditItem(item)}><Settings2 className="w-3.5 h-3.5"/></Button>
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" onClick={() => onDeleteItem(item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : <p className="text-xs text-muted-foreground text-center py-2">No hay elementos añadidos para esta sección.</p>}
+    </div>
+  );
+};
 
 
 export default function DecoracionYDisenoEventoPage() {
@@ -177,9 +212,9 @@ export default function DecoracionYDisenoEventoPage() {
     }
   };
   
-  const openItemModal = (item?: DecorationItem) => {
-    setCurrentItem(item ? { ...item } : { id: '', name: '', quantity: 1, category: 'Otro' });
-    setItemImagePreview(item?.imageUrl || null);
+  const openItemModal = (prefillData?: Partial<DecorationItem>) => {
+    setCurrentItem(prefillData?.id ? { ...prefillData } : { id: '', name: '', quantity: 1, category: prefillData?.category || 'Otro', ...prefillData });
+    setItemImagePreview(prefillData?.imageUrl || null);
     setIsItemModalOpen(true);
   };
 
@@ -264,8 +299,23 @@ export default function DecoracionYDisenoEventoPage() {
               <div className="space-y-2"><Label htmlFor="tema-evento">Tema del Evento</Label><Input id="tema-evento" value={decoracionData.tema || ''} onChange={e => handleInputChange('tema', e.target.value)} placeholder="Ej: Rústico Chic, Tropical, Años 80" /></div>
               <div className="space-y-2"><Label htmlFor="color-cubremantel">Color Cubremantel</Label><Input id="color-cubremantel" value={decoracionData.colorCubremantel || ''} onChange={e => handleInputChange('colorCubremantel', e.target.value)} placeholder="Ej: Blanco, Azul Marino" /></div>
             </div>
-            <div className="space-y-2"><Label htmlFor="color-globos">Combinación de Colores Globos (si aplica)</Label><Input id="color-globos" value={decoracionData.colorGlobos || ''} onChange={e => handleInputChange('colorGlobos', e.target.value)} placeholder="Ej: Dorado, Blanco y Rosa" /></div>
             
+            <Separator />
+            
+            <div className="space-y-3">
+              <Label className="font-medium">Paleta de Colores Principal (Manual)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 border rounded-md bg-muted/20">
+                {(Object.keys(defaultDecoracion.paletaColores!) as Array<keyof ColorPalette>).map(key => (
+                  <div key={key} className="space-y-1">
+                    <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
+                    <div className="flex items-center gap-2">
+                        <Input type="color" id={`color-${key}`} value={decoracionData.paletaColores?.[key] || defaultDecoracion.paletaColores![key]} onChange={e => handleColorChange(key, e.target.value)} className="w-10 h-10 p-0.5 aspect-square"/>
+                        <Input type="text" value={decoracionData.paletaColores?.[key] || defaultDecoracion.paletaColores![key]} onChange={e => handleColorChange(key, e.target.value)} className="h-9 text-sm" placeholder="#RRGGBB"/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="space-y-3">
               <Label className="font-medium">Paletas de Colores Predefinidas</Label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -287,28 +337,20 @@ export default function DecoracionYDisenoEventoPage() {
                 ))}
               </div>
             </div>
-
-            <Separator />
             
-            <div className="space-y-3">
-              <Label className="font-medium">Paleta de Colores Principal (Manual)</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 border rounded-md bg-muted/20">
-                {(Object.keys(defaultDecoracion.paletaColores!) as Array<keyof ColorPalette>).map(key => (
-                  <div key={key} className="space-y-1">
-                    <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
-                    <div className="flex items-center gap-2">
-                        <Input type="color" id={`color-${key}`} value={decoracionData.paletaColores?.[key] || defaultDecoracion.paletaColores![key]} onChange={e => handleColorChange(key, e.target.value)} className="w-10 h-10 p-0.5 aspect-square"/>
-                        <Input type="text" value={decoracionData.paletaColores?.[key] || defaultDecoracion.paletaColores![key]} onChange={e => handleColorChange(key, e.target.value)} className="h-9 text-sm" placeholder="#RRGGBB"/>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
             <div className="space-y-2"><Label htmlFor="moodboard-url">URL de Moodboard/Imagen de Portada General</Label><Input id="moodboard-url" type="url" value={decoracionData.moodboardImageUrl || ''} onChange={e => handleInputChange('moodboardImageUrl', e.target.value)} placeholder="https://ejemplo.com/moodboard.jpg"/>
              {decoracionData.moodboardImageUrl && !failedImageUrls['moodboardImageUrl'] && <NextImage src={decoracionData.moodboardImageUrl} alt="Moodboard Preview" width={200} height={120} className="mt-1 rounded border object-contain max-h-[120px]" data-ai-hint="event moodboard inspiration" onError={()=>setFailedImageUrls(p=>({...p, moodboardImageUrl:true}))}/>}
             </div>
             <div className="space-y-2"><Label htmlFor="general-notes-decoracion">Notas Generales de Decoración</Label><Textarea id="general-notes-decoracion" value={decoracionData.generalNotesDecoracion || ''} onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)} rows={3} placeholder="Ideas, conceptos, elementos clave..."/></div>
           </CardContent>
+        </Card>
+
+        <Card className="shadow-md">
+            <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Consejos de IA (Próximamente)</CardTitle></CardHeader>
+            <CardContent className="text-center text-muted-foreground space-y-3">
+                <p className="text-sm">Próximamente, podrás obtener sugerencias de combinaciones de colores y estilos basadas en el tema de tu evento.</p>
+                <Button disabled variant="secondary">Generar Sugerencias con IA</Button>
+            </CardContent>
         </Card>
 
         <Card className="shadow-lg mb-6">
@@ -321,39 +363,59 @@ export default function DecoracionYDisenoEventoPage() {
             <div className="space-y-2"><Label htmlFor="torta-aihint">AI Hint (para imagen en PDF)</Label><Input id="torta-aihint" value={decoracionData.decoracionTorta?.dataAiHint || ''} onChange={e => handleTortaChange('dataAiHint', e.target.value)} placeholder="Ej: wedding cake rustic flowers" /></div>
           </CardContent>
         </Card>
-        
-        <Card className="shadow-lg mb-6">
-          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Otros Elementos Decorativos Específicos</CardTitle>
-            <Button type="button" onClick={() => openItemModal()} size="sm" className="mt-2"><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Elemento</Button>
-          </CardHeader>
-          <CardContent>
-            {(decoracionData.items && decoracionData.items.length > 0) ? (
-              <ScrollArea className="h-auto max-h-[400px] pr-2">
-                <div className="space-y-3">
-                  {decoracionData.items.map(item => (
-                    <Card key={item.id} className="p-3 bg-muted/30 hover:shadow-sm">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-semibold">{item.name} <span className="text-xs text-muted-foreground">({item.category || 'Sin categoría'})</span></p>
-                          <p className="text-xs">Cantidad: {item.quantity} {item.supplier && `| Prov: ${item.supplier}`} {item.estimatedCost !== undefined && `| Costo: $${item.estimatedCost}`}</p>
-                          {item.notes && <p className="text-xs italic text-muted-foreground/80 mt-0.5">Nota: {item.notes}</p>}
-                           {item.imageUrl && !failedImageUrls[item.id] && <NextImage src={item.imageUrl} alt={item.name} width={80} height={60} className="mt-1 rounded border object-contain max-h-[60px]" data-ai-hint={item.dataAiHint || "decoration item"} onError={()=>setFailedImageUrls(p=>({...p, [item.id]: true}))}/>}
-                        </div>
-                        <div className="flex gap-1">
-                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openItemModal(item)}><Settings2 className="w-3.5 h-3.5"/></Button>
-                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteItem(item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </ScrollArea>
-            ) : <p className="text-sm text-muted-foreground text-center py-3">No hay elementos decorativos específicos añadidos.</p>}
-          </CardContent>
-        </Card>
 
         <Card className="shadow-lg mb-6">
-          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Zonas Decorativas Específicas</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <ListPlus className="text-primary"/>Elementos Decorativos Clave
+            </CardTitle>
+            <CardDescription>Añade y detalla los elementos específicos para las áreas principales del evento.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ItemSection
+                title="Entradas"
+                category="Detalle Entrada"
+                items={decoracionData.items || []}
+                onAddItem={openItemModal}
+                onEditItem={openItemModal}
+                onDeleteItem={handleDeleteItem}
+                failedImageUrls={failedImageUrls}
+            />
+            <Separator/>
+            <ItemSection
+                title="Centros de Mesa"
+                category="Centro de Mesa"
+                items={decoracionData.items || []}
+                onAddItem={openItemModal}
+                onEditItem={openItemModal}
+                onDeleteItem={handleDeleteItem}
+                failedImageUrls={failedImageUrls}
+            />
+             <Separator/>
+             <ItemSection
+                title="Detalles para Zona de Regalos"
+                category="Detalle Zona Regalos"
+                items={decoracionData.items || []}
+                onAddItem={openItemModal}
+                onEditItem={openItemModal}
+                onDeleteItem={handleDeleteItem}
+                failedImageUrls={failedImageUrls}
+            />
+             <Separator/>
+              <ItemSection
+                title="Detalles para Cuadro de Firmas / Photocall"
+                category="Detalle Cuadro Firmas"
+                items={decoracionData.items || []}
+                onAddItem={openItemModal}
+                onEditItem={openItemModal}
+                onDeleteItem={handleDeleteItem}
+                failedImageUrls={failedImageUrls}
+            />
+          </CardContent>
+        </Card>
+        
+        <Card className="shadow-lg mb-6">
+          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Zonas Decorativas Específicas Contratadas</CardTitle></CardHeader>
           <CardContent>
             <Accordion type="multiple" className="w-full space-y-3" defaultValue={(decoracionData.zonasContratadas || []).filter(z => z.activada).map(z => z.id)}>
               {(decoracionData.zonasContratadas || defaultZonasContratadas).map(zona => (
@@ -362,7 +424,7 @@ export default function DecoracionYDisenoEventoPage() {
                     <AccordionPrimitive.Trigger
                       className={cn(
                         "flex flex-1 items-center gap-2 text-lg font-medium text-primary hover:no-underline",
-                        "[&[data-state=open]>svg:last-child]:rotate-180" // Ensure Chevron rotates
+                        "[&[data-state=open]>svg:last-child]:rotate-180" 
                       )}
                     >
                       {React.createElement(
@@ -378,7 +440,7 @@ export default function DecoracionYDisenoEventoPage() {
                     <Switch
                         checked={zona.activada}
                         onCheckedChange={value => handleZonaChange(zona.id, 'activada', value)}
-                        onClick={e => e.stopPropagation()} // Prevent accordion toggle when clicking switch
+                        onClick={e => e.stopPropagation()} 
                         className="ml-4 flex-shrink-0"
                         aria-label={`Activar ${zona.nombreDisplay}`}
                     />
@@ -429,6 +491,7 @@ export default function DecoracionYDisenoEventoPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Elemento Decorativo</DialogTitle>
+             {currentItem?.category && <DialogDescription>Añadiendo a la categoría: <span className="font-semibold text-primary">{currentItem.category}</span></DialogDescription>}
           </DialogHeader>
           {currentItem && (
             <div className="py-4 space-y-4">
@@ -460,3 +523,5 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
+
+    
