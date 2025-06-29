@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, type FormEvent, useCallback } from 'react';
@@ -24,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
