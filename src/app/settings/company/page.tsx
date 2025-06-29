@@ -7,10 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Building, Save, Loader2 } from 'lucide-react';
-import React, { useState, type FormEvent } from 'react';
+import { ArrowLeft, Building, Save, Loader2, Link as LinkIcon, Unlink, LogIn, MessageSquare } from 'lucide-react';
+import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Facebook, Instagram, Music } from 'lucide-react';
+import type { SocialConnection, SocialPlatformName } from '@/types/settings';
+import { getSocialConnections, connectSocialPlatform, disconnectSocialPlatform, saveWhatsAppNumber } from '@/app/actions/social-connections';
+
 
 // Placeholder function for future save logic
 async function saveCompanyInfo(info: any) {
@@ -20,30 +24,98 @@ async function saveCompanyInfo(info: any) {
   return { success: true, data: info };
 }
 
+
+const platformDetails: Record<SocialPlatformName, { icon: React.ElementType, colorClass: string }> = {
+  'Facebook': { icon: Facebook, colorClass: 'text-blue-600' },
+  'Instagram': { icon: Instagram, colorClass: 'text-pink-500' },
+  'TikTok': { icon: Music, colorClass: 'text-black dark:text-white' },
+  'WhatsApp': { icon: MessageSquare, colorClass: 'text-green-500' },
+};
+
+
 export default function CompanySettingsPage() {
   const { toast } = useToast();
-  const [companyName, setCompanyName] = useState("AK Producciones"); // Default or fetched
-  const [companyAddress, setCompanyAddress] = useState("Salto, Uruguay"); // Default or fetched
-  const [companyTaxId, setCompanyTaxId] = useState("RUT Ejemplo 123456789012"); // Default or fetched
-  const [companyContact, setCompanyContact] = useState("akproduccionessalto@gmail.com"); // Default or fetched
+  // Company Info State
+  const [companyName, setCompanyName] = useState("AK Producciones");
+  const [companyAddress, setCompanyAddress] = useState("Salto, Uruguay");
+  const [companyTaxId, setCompanyTaxId] = useState("RUT Ejemplo 123456789012");
+  const [companyContact, setCompanyContact] = useState("akproduccionessalto@gmail.com");
   const [defaultDocumentNotes, setDefaultDocumentNotes] = useState("El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.");
   const [invoiceCustomFooter, setInvoiceCustomFooter] = useState("Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.");
+  
+  // Social Connections State
+  const [connections, setConnections] = useState<SocialConnection[]>([]);
+  const [isLoadingConnections, setIsLoadingConnections] = useState(true);
+  const [processingPlatform, setProcessingPlatform] = useState<SocialPlatformName | null>(null);
+  const [whatsAppNumber, setWhatsAppNumber] = useState('');
+  
   const [isSaving, setIsSaving] = useState(false);
 
-  // TODO: useEffect to fetch company settings from backend/storage when available
+  const loadConnections = useCallback(async () => {
+    setIsLoadingConnections(true);
+    try {
+      const data = await getSocialConnections();
+      setConnections(data);
+      const waConnection = data.find(c => c.platform === 'WhatsApp');
+      setWhatsAppNumber(waConnection?.phoneNumber || '');
+    } catch (err: any) {
+      toast({ title: "Error", description: "No se pudieron cargar las conexiones sociales.", variant: "destructive" });
+    } finally {
+      setIsLoadingConnections(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    // TODO: Fetch company settings from backend when available
+    loadConnections();
+  }, [loadConnections]);
+  
+  const handleConnect = async (platform: SocialPlatformName) => {
+    setProcessingPlatform(platform);
+    toast({title: `Simulando conexión con ${platform}...`, description: "En una app real, se abriría una ventana de inicio de sesión."});
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const result = await connectSocialPlatform(platform);
+    if(result.success) {
+        toast({title: "¡Conexión Exitosa!", description: `Se ha vinculado la cuenta de ${platform}.`});
+        await loadConnections();
+    } else {
+        toast({title: "Error de Conexión", description: result.error, variant: "destructive"});
+    }
+    setProcessingPlatform(null);
+  };
+  
+  const handleDisconnect = async (platform: SocialPlatformName) => {
+    setProcessingPlatform(platform);
+    const result = await disconnectSocialPlatform(platform);
+    if(result.success) {
+        toast({title: "Cuenta Desconectada", description: `Se ha desvinculado la cuenta de ${platform}.`, variant: "destructive"});
+        await loadConnections();
+    } else {
+        toast({title: "Error", description: result.error, variant: "destructive"});
+    }
+    setProcessingPlatform(null);
+  };
+
+  const handleSaveWhatsApp = async () => {
+    setProcessingPlatform('WhatsApp');
+    const result = await saveWhatsAppNumber(whatsAppNumber);
+    if(result.success) {
+        toast({title: "Número de WhatsApp Guardado"});
+        await loadConnections();
+    } else {
+        toast({title: "Error", description: result.error, variant: "destructive"});
+    }
+    setProcessingPlatform(null);
+  };
+  
+  const getConnectionForPlatform = (platform: SocialPlatformName) => connections.find(c => c.platform === platform);
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    const companyInfo = {
-      companyName,
-      companyAddress,
-      companyTaxId,
-      companyContact,
-      defaultDocumentNotes,
-      invoiceCustomFooter, // Added new field
-    };
-    const result = await saveCompanyInfo(companyInfo); // Placeholder save
+    const companyInfo = { companyName, companyAddress, companyTaxId, companyContact, defaultDocumentNotes, invoiceCustomFooter };
+    const result = await saveCompanyInfo(companyInfo);
     if (result.success) {
       toast({ title: "Información Guardada", description: "Los datos de la empresa han sido actualizados (simulado)." });
     } else {
@@ -58,7 +130,7 @@ export default function CompanySettingsPage() {
         <div className="flex items-center gap-3">
             <Building className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Información de la Empresa
+            Información de la Empresa y Redes
             </h1>
         </div>
         <Link href="/settings" passHref>
@@ -70,46 +142,19 @@ export default function CompanySettingsPage() {
       </div>
       
       <Card className="shadow-lg">
-        <CardHeader>
-            <CardTitle className="font-headline text-xl">Datos Fiscales y de Contacto</CardTitle>
-            <CardDescription>Esta información se usará en tus facturas, presupuestos y otros documentos.</CardDescription>
-        </CardHeader>
         <form onSubmit={handleSubmit}>
+          <CardHeader>
+              <CardTitle className="font-headline text-xl">Datos Fiscales y de Contacto</CardTitle>
+              <CardDescription>Esta información se usará en tus facturas, presupuestos y otros documentos.</CardDescription>
+          </CardHeader>
             <CardContent className="space-y-6">
-                <div className="space-y-2">
-                    <Label htmlFor="company-name">Nombre de la Empresa</Label>
-                    <Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Tu Nombre Comercial" disabled={isSaving}/>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="company-taxid">RUT / NIF / Identificación Fiscal</Label>
-                    <Input id="company-taxid" value={companyTaxId} onChange={(e) => setCompanyTaxId(e.target.value)} placeholder="Número de Identificación Fiscal" disabled={isSaving}/>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="company-address">Dirección Fiscal</Label>
-                    <Textarea id="company-address" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Calle, Número, Ciudad, País" rows={2} disabled={isSaving}/>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="company-contact">Email de Contacto (para documentos)</Label>
-                    <Input id="company-contact" type="email" value={companyContact} onChange={(e) => setCompanyContact(e.target.value)} placeholder="facturacion@tuempresa.com" disabled={isSaving}/>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="default-document-notes">Notas por Defecto (Presupuestos/General)</Label>
-                    <Textarea id="default-document-notes" value={defaultDocumentNotes} onChange={(e) => setDefaultDocumentNotes(e.target.value)} placeholder="Ej: Términos y condiciones, información de pago general." rows={3} disabled={isSaving}/>
-                </div>
+                <div className="space-y-2"><Label htmlFor="company-name">Nombre de la Empresa</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Tu Nombre Comercial" disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="company-taxid">RUT / NIF / Identificación Fiscal</Label><Input id="company-taxid" value={companyTaxId} onChange={(e) => setCompanyTaxId(e.target.value)} placeholder="Número de Identificación Fiscal" disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="company-address">Dirección Fiscal</Label><Textarea id="company-address" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Calle, Número, Ciudad, País" rows={2} disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="company-contact">Email de Contacto (para documentos)</Label><Input id="company-contact" type="email" value={companyContact} onChange={(e) => setCompanyContact(e.target.value)} placeholder="facturacion@tuempresa.com" disabled={isSaving}/></div>
+                 <div className="space-y-2"><Label htmlFor="default-document-notes">Notas por Defecto (Presupuestos/General)</Label><Textarea id="default-document-notes" value={defaultDocumentNotes} onChange={(e) => setDefaultDocumentNotes(e.target.value)} placeholder="Ej: Términos y condiciones, información de pago general." rows={3} disabled={isSaving}/></div>
                 <Separator />
-                <div className="space-y-2">
-                    <Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label>
-                    <Textarea 
-                        id="invoice-custom-footer" 
-                        value={invoiceCustomFooter} 
-                        onChange={(e) => setInvoiceCustomFooter(e.target.value)} 
-                        placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." 
-                        rows={3} 
-                        disabled={isSaving}
-                        className="text-sm"
-                    />
-                     <p className="text-xs text-muted-foreground">Este texto aparecerá al final de tus facturas generadas.</p>
-                </div>
+                <div className="space-y-2"><Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label><Textarea id="invoice-custom-footer" value={invoiceCustomFooter} onChange={(e) => setInvoiceCustomFooter(e.target.value)} placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." rows={3} disabled={isSaving} className="text-sm"/></div>
             </CardContent>
             <CardFooter className="border-t pt-6">
                  <Button type="submit" disabled={isSaving}>
@@ -119,9 +164,56 @@ export default function CompanySettingsPage() {
             </CardFooter>
         </form>
       </Card>
-      <p className="text-xs text-center text-muted-foreground">
-        La persistencia de estos datos es simulada. En una aplicación real, se guardarían en una base de datos.
-      </p>
+      
+      <Separator />
+
+       <Card className="shadow-lg">
+          <CardHeader>
+              <CardTitle className="font-headline text-xl">Cuentas Sociales Vinculadas</CardTitle>
+              <CardDescription>Conecta tus redes para la publicación automática o vincula tu WhatsApp.</CardDescription>
+          </CardHeader>
+           <CardContent>
+             {isLoadingConnections ? (
+                <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* OAuth Platforms */}
+                  {(['Facebook', 'Instagram', 'TikTok'] as SocialPlatformName[]).map(platform => {
+                    const { icon: Icon, colorClass } = platformDetails[platform];
+                    const connection = getConnectionForPlatform(platform);
+                    const isConnected = connection?.isConnected;
+                    return (
+                       <Card key={platform} className="p-4 flex flex-col justify-between">
+                         <div className="flex items-center gap-3">
+                           <Icon className={`w-8 h-8 ${colorClass}`}/>
+                           <div><p className="font-semibold">{platform}</p><p className="text-xs text-muted-foreground">{isConnected ? `Conectado como ${connection.username}` : 'No conectado'}</p></div>
+                         </div>
+                          <Button variant={isConnected ? 'destructive' : 'default'} className="w-full mt-3" onClick={() => isConnected ? handleDisconnect(platform) : handleConnect(platform)} disabled={processingPlatform === platform}>
+                            {processingPlatform === platform ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : isConnected ? <Unlink className="w-4 h-4 mr-2"/> : <LogIn className="w-4 h-4 mr-2"/>}
+                            {isConnected ? 'Desconectar' : 'Conectar'}
+                          </Button>
+                       </Card>
+                    );
+                  })}
+                  {/* WhatsApp Special Card */}
+                  <Card className="p-4 flex flex-col justify-between md:col-span-2">
+                      <div className="flex items-center gap-3 mb-2">
+                        <MessageSquare className="w-8 h-8 text-green-500"/>
+                        <div><p className="font-semibold">WhatsApp</p><p className="text-xs text-muted-foreground">{getConnectionForPlatform('WhatsApp')?.isConnected ? `Número: ${whatsAppNumber}` : 'Vincula tu número para compartir.'}</p></div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="whatsapp-number" className="sr-only">Número de WhatsApp</Label>
+                        <Input id="whatsapp-number" placeholder="Ej: 59899123456" value={whatsAppNumber} onChange={(e) => setWhatsAppNumber(e.target.value)} disabled={processingPlatform === 'WhatsApp'}/>
+                         <Button className="w-full bg-green-600 hover:bg-green-700" onClick={handleSaveWhatsApp} disabled={processingPlatform === 'WhatsApp' || !whatsAppNumber.trim()}>
+                           {processingPlatform === 'WhatsApp' ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <LinkIcon className="w-4 h-4 mr-2"/>}
+                           {getConnectionForPlatform('WhatsApp')?.isConnected ? 'Actualizar Número' : 'Guardar Número'}
+                         </Button>
+                      </div>
+                  </Card>
+                </div>
+            )}
+           </CardContent>
+       </Card>
     </div>
   );
 }

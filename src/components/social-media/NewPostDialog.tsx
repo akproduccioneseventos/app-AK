@@ -60,7 +60,7 @@ export function NewPostDialog({
     const { toast } = useToast();
     
     // Form state
-    const [platform, setPlatform] = useState<SocialPlatform>('Instagram');
+    const [platform, setPlatform] = useState<SocialPlatform | 'WhatsApp'>('Instagram');
     const [isGeneralCampaign, setIsGeneralCampaign] = useState(true);
     const [eventId, setEventId] = useState<string>('');
     const [publishDate, setPublishDate] = useState(new Date().toISOString().substring(0, 16));
@@ -229,7 +229,7 @@ export function NewPostDialog({
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1"><Label htmlFor="platform">Plataforma</Label><Select value={platform} onValueChange={(val) => setPlatform(val as SocialPlatform)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Instagram">Instagram</SelectItem><SelectItem value="Facebook">Facebook</SelectItem><SelectItem value="TikTok">TikTok</SelectItem><SelectItem value="WhatsApp">WhatsApp</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-1"><Label htmlFor="platform">Plataforma</Label><Select value={platform} onValueChange={(val) => setPlatform(val as SocialPlatform | 'WhatsApp')}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Instagram">Instagram</SelectItem><SelectItem value="Facebook">Facebook</SelectItem><SelectItem value="TikTok">TikTok</SelectItem><SelectItem value="WhatsApp">WhatsApp</SelectItem></SelectContent></Select></div>
                         <div className="space-y-1"><Label htmlFor="publishDate">Fecha y Hora de Publicación</Label><Input id="publishDate" type="datetime-local" value={publishDate} onChange={e => setPublishDate(e.target.value)} required /></div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -301,7 +301,7 @@ export function NewPostDialog({
                                 <Switch id="autoPublish" checked={autoPublish} onCheckedChange={setAutoPublish} disabled={!isPlatformConnected}/>
                             </div>
                             {!isPlatformConnected && (
-                                <p className="text-xs text-destructive mt-2 flex items-center gap-1.5"><Lock className="w-3 h-3"/> La cuenta de {platform} no está conectada. <Link href="/settings/social-connections" className="underline">Conectar ahora.</Link></p>
+                               <p className="text-xs text-destructive mt-2 flex items-center gap-1.5"><Lock className="w-3 h-3"/> La cuenta de {platform} no está conectada. <Link href="/settings/company" className="underline">Conectar ahora.</Link></p>
                             )}
                         </div>
                      )}

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -14,17 +14,10 @@ const settingsCards = [
   },
   {
     title: "Información de la Empresa",
-    description: "Actualiza los datos de tu empresa para los documentos.",
+    description: "Actualiza los datos de tu empresa y conecta tus redes sociales.",
     href: "/settings/company", 
     icon: Building,
-    buttonLabel: "Datos Empresa"
-  },
-   {
-    title: "Cuentas Sociales Vinculadas",
-    description: "Conecta tus redes sociales para permitir la publicación automática.",
-    href: "/settings/social-connections",
-    icon: LinkIcon,
-    buttonLabel: "Conectar Cuentas"
+    buttonLabel: "Datos y Redes Sociales"
   },
   {
     title: "Notificaciones",

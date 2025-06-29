@@ -1,214 +1,85 @@
-
-'use client';
-
-import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Loader2, AlertTriangle, Link as LinkIcon, Unlink, LogIn, MessageSquare } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import type { SocialConnection, SocialPlatformName } from '@/types/settings';
-import { getSocialConnections, connectSocialPlatform, disconnectSocialPlatform, saveWhatsAppNumber } from '@/app/actions/social-connections';
-import { Facebook, Instagram, Music } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit } from 'lucide-react';
 
-interface ConnectionCardProps {
-  platform: SocialPlatformName;
-  connection?: SocialConnection;
-  onConnect: (platform: SocialPlatformName) => Promise<void>;
-  onDisconnect: (platform: SocialPlatformName) => Promise<void>;
-  isProcessing: boolean;
-}
+const settingsCards = [
+   {
+    title: "Apariencia de Documentos",
+    description: "Personaliza el logo y colores de tus facturas y presupuestos.",
+    href: "/settings/templates", 
+    icon: FileText,
+    buttonLabel: "Personalizar Plantillas"
+  },
+  {
+    title: "Información de la Empresa",
+    description: "Actualiza los datos de tu empresa y conecta tus redes sociales.",
+    href: "/settings/company", 
+    icon: Building,
+    buttonLabel: "Datos y Redes Sociales"
+  },
+  {
+    title: "Notificaciones",
+    description: "Configura cómo y cuándo recibir alertas y avisos.",
+    href: "/settings/notifications", 
+    icon: Bell,
+    buttonLabel: "Alertas"
+  },
+  {
+    title: "Seguridad y Cuenta",
+    description: "Gestiona tu contraseña y opciones de seguridad.",
+    href: "/settings/account", 
+    icon: ShieldCheck,
+    buttonLabel: "Seguridad Cuenta"
+  },
+  {
+    title: "Análisis y Optimización por IA",
+    description: "Permite que la IA analice la app en busca de mejoras y errores.",
+    href: "/admin/aaiff",
+    icon: BrainCircuit,
+    buttonLabel: "Analizar con IA"
+  }
+];
 
-const platformDetails: Record<SocialPlatformName, { icon: React.ElementType, colorClass: string }> = {
-  'Facebook': { icon: Facebook, colorClass: 'text-blue-600' },
-  'Instagram': { icon: Instagram, colorClass: 'text-pink-500' },
-  'TikTok': { icon: Music, colorClass: 'text-black dark:text-white' },
-  'WhatsApp': { icon: MessageSquare, colorClass: 'text-green-500' },
-};
-
-const ConnectionCard: React.FC<ConnectionCardProps> = ({ platform, connection, onConnect, onDisconnect, isProcessing }) => {
-  const { icon: Icon, colorClass } = platformDetails[platform];
-  const isConnected = connection?.isConnected;
-  
+export default function SettingsPage() {
   return (
-    <Card className="shadow-md">
-      <CardHeader className="flex flex-row items-center gap-4 space-y-0">
-        <Icon className={`w-10 h-10 ${colorClass}`} />
-        <div>
-          <CardTitle className="font-headline text-xl">{platform}</CardTitle>
-          <CardDescription>
-            {isConnected ? `Conectado como ${connection.username}` : 'No conectado'}
-          </CardDescription>
-        </div>
-      </CardHeader>
-      <CardFooter>
-        {isConnected ? (
-          <Button variant="destructive" className="w-full" onClick={() => onDisconnect(platform)} disabled={isProcessing}>
-            {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Unlink className="w-4 h-4 mr-2"/>}
-            Desconectar
-          </Button>
-        ) : (
-          <Button className="w-full" onClick={() => onConnect(platform)} disabled={isProcessing}>
-             {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <LogIn className="w-4 h-4 mr-2"/>}
-            Conectar Cuenta
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
-  )
-}
-
-export default function SocialConnectionsPage() {
-  const { toast } = useToast();
-  const [connections, setConnections] = useState<SocialConnection[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [processingPlatform, setProcessingPlatform] = useState<SocialPlatformName | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [whatsAppNumber, setWhatsAppNumber] = useState('');
-
-  const loadConnections = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getSocialConnections();
-      setConnections(data);
-      const waConnection = data.find(c => c.platform === 'WhatsApp');
-      setWhatsAppNumber(waConnection?.phoneNumber || '');
-    } catch (err: any) {
-      setError("No se pudieron cargar las conexiones.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    loadConnections();
-  }, [loadConnections]);
-  
-  const handleConnect = async (platform: SocialPlatformName) => {
-    setProcessingPlatform(platform);
-    toast({title: `Simulando conexión con ${platform}...`, description: "En una app real, se abriría una ventana de inicio de sesión."});
-    
-    // Simulate API delay for OAuth
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const result = await connectSocialPlatform(platform);
-    if(result.success) {
-        toast({title: "¡Conexión Exitosa!", description: `Se ha vinculado la cuenta de ${platform}.`});
-        await loadConnections();
-    } else {
-        toast({title: "Error de Conexión", description: result.error, variant: "destructive"});
-    }
-    setProcessingPlatform(null);
-  };
-  
-  const handleDisconnect = async (platform: SocialPlatformName) => {
-    setProcessingPlatform(platform);
-    const result = await disconnectSocialPlatform(platform);
-    if(result.success) {
-        toast({title: "Cuenta Desconectada", description: `Se ha desvinculado la cuenta de ${platform}.`, variant: "destructive"});
-        await loadConnections();
-    } else {
-        toast({title: "Error", description: result.error, variant: "destructive"});
-    }
-    setProcessingPlatform(null);
-  };
-
-  const handleSaveWhatsApp = async () => {
-    setProcessingPlatform('WhatsApp');
-    const result = await saveWhatsAppNumber(whatsAppNumber);
-    if(result.success) {
-        toast({title: "Número de WhatsApp Guardado"});
-        await loadConnections();
-    } else {
-        toast({title: "Error", description: result.error, variant: "destructive"});
-    }
-    setProcessingPlatform(null);
-  };
-  
-  const getConnectionForPlatform = (platform: SocialPlatformName) => connections.find(c => c.platform === platform);
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <LinkIcon className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Cuentas Sociales Vinculadas</h1>
-        </div>
-        <Link href="/settings" passHref>
-          <Button variant="outline" disabled={!!processingPlatform}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
-        </Link>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <SettingsIcon className="w-8 h-8 text-primary" />
+        <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Configuración General
+        </h1>
       </div>
+      <p className="text-muted-foreground">
+        Administra las preferencias de la aplicación, apariencia de documentos y detalles de tu cuenta.
+      </p>
 
-      <Card className="bg-muted/30">
-        <CardHeader>
-            <CardTitle>Gestionar Conexiones</CardTitle>
-            <CardDescription>Conecta tus cuentas para la publicación automática o vincula tu WhatsApp para compartir contenido rápidamente.</CardDescription>
-        </CardHeader>
-        <CardContent>
-             {isLoading ? (
-                <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-            ) : error ? (
-                <div className="text-destructive p-4 text-center"><AlertTriangle className="mx-auto w-8 h-8 mb-2"/>{error}</div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {(['Facebook', 'Instagram', 'TikTok'] as SocialPlatformName[]).map(platform => (
-                        <ConnectionCard
-                            key={platform}
-                            platform={platform}
-                            connection={getConnectionForPlatform(platform)}
-                            onConnect={handleConnect}
-                            onDisconnect={handleDisconnect}
-                            isProcessing={processingPlatform === platform}
-                        />
-                    ))}
-                    {/* Special Card for WhatsApp */}
-                    <Card className="shadow-md">
-                        <CardHeader className="flex flex-row items-center gap-4 space-y-0">
-                            <MessageSquare className="w-10 h-10 text-green-500" />
-                            <div>
-                            <CardTitle className="font-headline text-xl">WhatsApp</CardTitle>
-                            <CardDescription>
-                                {getConnectionForPlatform('WhatsApp')?.isConnected ? `Número: ${getConnectionForPlatform('WhatsApp')?.phoneNumber}` : 'Vincula tu número para compartir.'}
-                            </CardDescription>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <Label htmlFor="whatsapp-number">Número de Teléfono</Label>
-                            <Input
-                            id="whatsapp-number"
-                            placeholder="Ej: 59899123456"
-                            value={whatsAppNumber}
-                            onChange={(e) => setWhatsAppNumber(e.target.value)}
-                            disabled={processingPlatform === 'WhatsApp'}
-                            />
-                            <p className="text-xs text-muted-foreground">Se usará para generar enlaces, no para envíos automáticos.</p>
-                        </CardContent>
-                        <CardFooter>
-                            {getConnectionForPlatform('WhatsApp')?.isConnected ? (
-                            <Button variant="destructive" className="w-full" onClick={() => handleDisconnect('WhatsApp')} disabled={processingPlatform === 'WhatsApp'}>
-                                {processingPlatform === 'WhatsApp' ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Unlink className="w-4 h-4 mr-2"/>}
-                                Desconectar
-                            </Button>
-                            ) : (
-                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={handleSaveWhatsApp} disabled={processingPlatform === 'WhatsApp' || !whatsAppNumber.trim()}>
-                                {processingPlatform === 'WhatsApp' ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <LinkIcon className="w-4 h-4 mr-2"/>}
-                                Guardar Número
-                            </Button>
-                            )}
-                        </CardFooter>
-                    </Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {settingsCards.map((item) => (
+          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="flex-row items-center justify-between pb-3 space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-md">
+                    <item.icon className="w-5 h-5 text-primary" />
                 </div>
-            )}
-        </CardContent>
-         <CardFooter>
-            <p className="text-xs text-muted-foreground">La conexión de redes sociales es una simulación. En una aplicación real, se utilizaría un flujo OAuth seguro.</p>
-        </CardFooter>
-      </Card>
+                <CardTitle className="text-lg font-semibold font-headline">{item.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {item.description}
+              </p>
+            </CardContent>
+            <CardFooter className="pt-3">
+                 <Link href={item.href} passHref className="w-full">
+                    <Button variant="outline" className="w-full">
+                        Ir a {item.buttonLabel}
+                    </Button>
+                </Link>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
