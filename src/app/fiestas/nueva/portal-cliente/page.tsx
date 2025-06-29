@@ -224,7 +224,7 @@ export default function PortalClientePage() {
                                 </div>
                             </CardContent>
                         </Card>
-                         <Card className="shadow-lg">
+                         <Card className="shadow-lg scroll-mt-24" id="social-gallery">
                             <CardHeader>
                                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Camera className="w-6 h-6 text-primary"/>Galería Social Interactiva</CardTitle>
                                 <CardDescription>Activa una galería en vivo para que los invitados suban fotos.</CardDescription>

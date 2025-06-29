@@ -60,7 +60,7 @@ const planningModules: PlanningModule[] = [
     title: "Galería Social en Vivo",
     description: "Configura una galería interactiva para que los invitados suban fotos durante el evento.",
     icon: Camera,
-    href: "/fiestas/nueva/portal-cliente",
+    href: "/fiestas/nueva/portal-cliente#social-gallery",
     status: "Disponible",
     actionLabel: "Configurar Galería"
   },
