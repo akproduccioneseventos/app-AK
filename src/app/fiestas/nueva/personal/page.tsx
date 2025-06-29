@@ -84,10 +84,9 @@ export default function AsignarPersonalEventoPage() {
       const newMap = new Map(prev);
       if (isAssigned) {
         const rol = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
-        let defaultEventSalary = 0; // Default si no hay rol o es variable
-        if (rol && rol.tipoSalario === 'fijo' && typeof rol.montoSalario === 'number') {
-          defaultEventSalary = rol.montoSalario;
-        }
+        // El sueldo del rol es el pago total, que incluye sueldo, aguinaldo y vacacional.
+        const defaultEventSalary = rol?.montoSalario ?? 0;
+        
         newMap.set(empleado.id, { empleado, rol, eventSalary: defaultEventSalary });
       } else {
         newMap.delete(empleado.id);
@@ -117,10 +116,7 @@ export default function AsignarPersonalEventoPage() {
         const newMap = new Map(prev);
         const currentAssignment = newMap.get(empleadoId);
         if (currentAssignment && (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary))) {
-            let fallbackSalary = 0; // Default if no role or variable salary
-            if (currentAssignment.rol && currentAssignment.rol.tipoSalario === 'fijo' && typeof currentAssignment.rol.montoSalario === 'number') {
-                fallbackSalary = currentAssignment.rol.montoSalario;
-            }
+            const fallbackSalary = currentAssignment.rol?.montoSalario ?? 0;
             newMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary });
         }
         return newMap;
@@ -226,7 +222,7 @@ export default function AsignarPersonalEventoPage() {
                     const isAssigned = assignedStaff.has(empleado.id);
                     const currentAssignment = assignedStaff.get(empleado.id);
                     const rolDelEmpleado = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
-                    const sueldoBaseRol = (rolDelEmpleado && rolDelEmpleado.tipoSalario === 'fijo') ? rolDelEmpleado.montoSalario : undefined;
+                    const sueldoBaseRol = (rolDelEmpleado && typeof rolDelEmpleado.montoSalario === 'number') ? rolDelEmpleado.montoSalario : undefined;
 
                     return (
                       <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
