@@ -83,6 +83,7 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
+  const [selectedCatalogIngredient, setSelectedCatalogIngredient] = useState<ServicioEmpresa | null>(null);
 
   const loadMenuAndCatalog = useCallback(async (idToLoad: string) => {
     setIsLoading(true);
@@ -133,12 +134,26 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
   }, [menuIdFromParams, loadMenuAndCatalog]);
   
   const handleSelectIngredientFromCatalog = (insumo: ServicioEmpresa) => {
+    setSelectedCatalogIngredient(insumo);
     setIngredientName(insumo.nombre);
     setIngredientUnit(insumo.unidad || '');
     setIngredientProveedor(insumo.contactoPrincipal || '');
+    setIngredientQuantityPerPerson(''); // Clear quantity to force user input
+    setIngredientCost(''); // Clear cost to be recalculated
     setIsCatalogModalOpen(false);
-    toast({ description: `"${insumo.nombre}" seleccionado. Completa cantidad y costo.`});
+    toast({ description: `"${insumo.nombre}" seleccionado. Ingresa la cantidad por persona.`});
   };
+  
+  useEffect(() => {
+    if (selectedCatalogIngredient && ingredientQuantityPerPerson) {
+      const quantity = parseFloat(ingredientQuantityPerPerson);
+      const unitCost = selectedCatalogIngredient.valorUnitarioEstimado || 0;
+      if (!isNaN(quantity) && quantity >= 0) {
+        const totalCost = unitCost * quantity;
+        setIngredientCost(totalCost.toString());
+      }
+    }
+  }, [ingredientQuantityPerPerson, selectedCatalogIngredient]);
 
   const filteredCatalog = useMemo(() => {
     return serviciosCatalogo.filter(s => s.nombre.toLowerCase().includes(catalogSearchTerm.toLowerCase()));
@@ -147,6 +162,17 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
   const currentDishTotalCostPerPerson = useMemo(() => {
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
   }, [currentDishIngredients]);
+
+  const resetIngredientForm = () => {
+    setIngredientName('');
+    setIngredientQuantityPerPerson('');
+    setIngredientUnit('');
+    setIngredientCost('');
+    setIngredientProveedor('');
+    setIngredientMarca('');
+    setIngredientFechaActualizacion(undefined);
+    setSelectedCatalogIngredient(null);
+  };
 
   const handleAddIngredientToCurrentDish = () => {
     if (!ingredientName || !ingredientQuantityPerPerson || !ingredientUnit || !ingredientCost) {
@@ -169,8 +195,7 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
       fecha_actualizacion: ingredientFechaActualizacion ? ingredientFechaActualizacion.toISOString() : undefined,
     };
     setCurrentDishIngredients(prev => [...prev, newIngredient]);
-    setIngredientName(''); setIngredientQuantityPerPerson(''); setIngredientUnit(''); setIngredientCost('');
-    setIngredientProveedor(''); setIngredientMarca(''); setIngredientFechaActualizacion(undefined);
+    resetIngredientForm();
   };
 
   const handleRemoveIngredientFromCurrentDish = (ingredientId: string) => {
@@ -440,10 +465,10 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
                     </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 items-end">
-                    <div className="space-y-1"><Label htmlFor="ing-name-edit" className="text-xs">Nombre Ing. *</Label><Input id="ing-name-edit" value={ingredientName} onChange={e => setIngredientName(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1"><Label htmlFor="ing-name-edit" className="text-xs">Nombre Ing. *</Label><Input id="ing-name-edit" value={ingredientName} onChange={e => { setIngredientName(e.target.value); setSelectedCatalogIngredient(null); }} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
                     <div className="space-y-1"><Label htmlFor="ing-qty-pp-edit" className="text-xs">Cant. p/Persona *</Label><Input id="ing-qty-pp-edit" value={ingredientQuantityPerPerson} onChange={e => setIngredientQuantityPerPerson(e.target.value)} placeholder="Ej: 100, 0.5" className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
                     <div className="space-y-1"><Label htmlFor="ing-unit-edit" className="text-xs">Unidad *</Label><Input id="ing-unit-edit" value={ingredientUnit} onChange={e => setIngredientUnit(e.target.value)} placeholder="Ej: gr, ml, ud" className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
-                    <div className="space-y-1"><Label htmlFor="ing-cost-edit" className="text-xs">Costo (de esa cant. p/p) *</Label><Input id="ing-cost-edit" type="number" value={ingredientCost} onChange={e => setIngredientCost(e.target.value)} className="text-sm p-2 h-9" step="any" disabled={isSaving || isDeleting}/></div>
+                    <div className="space-y-1"><Label htmlFor="ing-cost-edit" className="text-xs">Costo (de esa cant. p/p) *</Label><Input id="ing-cost-edit" type="number" value={ingredientCost} onChange={e => setIngredientCost(e.target.value)} className="text-sm p-2 h-9" step="any" disabled={isSaving || isDeleting || !!selectedCatalogIngredient}/></div>
                     <div className="space-y-1"><Label htmlFor="ing-proveedor-edit" className="text-xs">Proveedor</Label><Input id="ing-proveedor-edit" value={ingredientProveedor} onChange={e => setIngredientProveedor(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
                     <div className="space-y-1"><Label htmlFor="ing-marca-edit" className="text-xs">Marca</Label><Input id="ing-marca-edit" value={ingredientMarca} onChange={e => setIngredientMarca(e.target.value)} className="text-sm p-2 h-9" disabled={isSaving || isDeleting}/></div>
                     <div className="space-y-1 md:col-span-3"><Label htmlFor="ing-fecha-act-edit" className="text-xs">Fecha Actualización Precio</Label><DatePickerDemo selectedDate={ingredientFechaActualizacion} onDateChange={setIngredientFechaActualizacion} /></div>
