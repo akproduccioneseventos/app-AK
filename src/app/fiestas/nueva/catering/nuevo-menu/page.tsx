@@ -29,6 +29,9 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Slider } from '@/components/ui/slider';
+
+const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 
 export default function NuevoMenuPersonalizadoPage() {
   const { toast } = useToast();
@@ -53,6 +56,7 @@ export default function NuevoMenuPersonalizadoPage() {
   const [ingredientFechaActualizacion, setIngredientFechaActualizacion] = useState<Date | undefined>(undefined);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [margenGanancia, setMargenGanancia] = useState(30);
 
   // States for ingredient catalog
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
@@ -88,6 +92,19 @@ export default function NuevoMenuPersonalizadoPage() {
   const currentDishTotalCostPerPerson = useMemo(() => {
     return currentDishIngredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
   }, [currentDishIngredients]);
+
+  const totalMenuCostPerPerson = useMemo(() => {
+    return menuItems.reduce((sum, item) => sum + item.totalDishCost, 0);
+  }, [menuItems]);
+
+  const gananciaEstimadaPorPersona = useMemo(() => {
+    return totalMenuCostPerPerson * (margenGanancia / 100);
+  }, [totalMenuCostPerPerson, margenGanancia]);
+
+  const precioSugeridoPorPersona = useMemo(() => {
+    return totalMenuCostPerPerson + gananciaEstimadaPorPersona;
+  }, [totalMenuCostPerPerson, gananciaEstimadaPorPersona]);
+
 
   const handleAddIngredientToCurrentDish = () => {
     if (!ingredientName || !ingredientQuantityPerPerson || !ingredientUnit || !ingredientCost) {
@@ -186,7 +203,6 @@ export default function NuevoMenuPersonalizadoPage() {
     }
   };
 
-  const totalMenuCostPerPerson = menuItems.reduce((sum, item) => sum + item.totalDishCost, 0);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -226,12 +242,44 @@ export default function NuevoMenuPersonalizadoPage() {
             </section>
             
             <Separator />
+
+             {/* === Calculation Section === */}
+            <section>
+              <Card className="bg-muted/30">
+                <CardHeader>
+                  <CardTitle className="font-headline text-xl text-primary">Cálculo de Precio por Persona</CardTitle>
+                  <CardDescription>Ajusta el margen de ganancia para calcular el precio de venta sugerido.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div><Label className="text-xs text-muted-foreground">Costo Ingredientes</Label><p className="font-bold text-lg">{formatCurrency(totalMenuCostPerPerson)}</p></div>
+                    <div><Label className="text-xs text-muted-foreground">Ganancia Estimada</Label><p className="font-bold text-lg text-blue-600">{formatCurrency(gananciaEstimadaPorPersona)}</p></div>
+                    <div><Label className="text-xs text-muted-foreground">Precio Venta Sugerido</Label><p className="font-bold text-lg text-green-600">{formatCurrency(precioSugeridoPorPersona)}</p></div>
+                  </div>
+                  <div className="pt-2 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label htmlFor="margen-ganancia">Margen de Ganancia</Label>
+                      <span className="px-2 py-1 text-sm font-medium rounded-md bg-primary/10 text-primary">{margenGanancia}%</span>
+                    </div>
+                    <Slider
+                      id="margen-ganancia"
+                      min={0}
+                      max={200}
+                      step={5}
+                      value={[margenGanancia]}
+                      onValueChange={(value) => setMargenGanancia(value[0])}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <Separator />
             
             {/* === Section 2: Dish List === */}
             <section>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium font-headline text-primary">2. Platos del Menú</h3>
-                <span className="text-lg font-semibold">Costo Total por Persona: {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(totalMenuCostPerPerson)}</span>
               </div>
               {menuItems.length === 0 ? (
                 <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-md">
