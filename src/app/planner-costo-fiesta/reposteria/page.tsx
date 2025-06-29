@@ -10,14 +10,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Wand2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Wand2, Trash2, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria, ReposteriaItem } from '@/types/fiesta';
 import { getFiestaActual, updateReposteriaFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultReposteriaCategorias } from '@/lib/fiesta-defaults';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
+import { cn } from "@/lib/utils";
+
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -222,12 +225,25 @@ export default function GestionReposteriaPage() {
             <Accordion type="multiple" defaultValue={reposteriaData.categorias.filter(c=>c.activada).map(c => c.id)} className="w-full space-y-3">
               {reposteriaData.categorias.map(cat => (
                 <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm bg-card">
-                  <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-                     <div className="flex items-center justify-between w-full">
-                        <span className="flex items-center gap-2"><Wand2 className="w-5 h-5 text-primary/80"/>{cat.nombreDisplay}</span>
-                        <Checkbox checked={cat.activada} onCheckedChange={(checked) => handleCategoryChange(cat.id, 'activada', !!checked)} onClick={(e) => e.stopPropagation()} className="ml-auto mr-2" aria-label={`Activar ${cat.nombreDisplay}`} />
-                    </div>
-                  </AccordionTrigger>
+                  <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
+                    <AccordionPrimitive.Trigger
+                      className={cn(
+                        "flex flex-1 items-center gap-2 text-lg font-medium text-primary hover:no-underline",
+                        "[&[data-state=open]>svg:last-child]:rotate-180"
+                      )}
+                    >
+                      <Wand2 className="w-5 h-5 text-primary/80" />
+                      {cat.nombreDisplay}
+                      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
+                    </AccordionPrimitive.Trigger>
+                    <Checkbox
+                      checked={cat.activada}
+                      onCheckedChange={(checked) => handleCategoryChange(cat.id, 'activada', !!checked)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="ml-4 flex-shrink-0"
+                      aria-label={`Activar ${cat.nombreDisplay}`}
+                    />
+                  </AccordionPrimitive.Header>
                   <AccordionContent className="px-4 pt-2 pb-4 border-t space-y-4">
                     {cat.activada && (
                       <>
