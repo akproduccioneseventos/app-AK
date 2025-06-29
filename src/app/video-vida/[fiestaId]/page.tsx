@@ -6,12 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowUpFromLine, Camera, CheckCircle, GripVertical, Image as ImageIcon, Info, Loader2, Trash2, Music2, Type } from 'lucide-react';
+import { ArrowUpFromLine, Camera, CheckCircle, Image as ImageIcon, Info, Loader2, Trash2, Music2, Type, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { saveLifeStoryVideoPhotos } from '@/app/actions/video-vida';
 import NextImage from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,123 +16,131 @@ import { Textarea } from '@/components/ui/textarea';
 const MAX_PHOTOS = 50;
 const MAX_FILE_SIZE_MB = 5;
 
-interface SortablePhotoProps {
-  file: File;
-  id: string;
+interface PhotoSlotProps {
   index: number;
-  onRemove: (id: string) => void;
+  file: File | null;
+  onFileChange: (event: React.ChangeEvent<HTMLInputElement>, index: number) => void;
+  onRemove: (index: number) => void;
+  isSubmitting: boolean;
 }
 
-function SortablePhoto({ file, id, index, onRemove }: SortablePhotoProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 10 : 'auto',
-    opacity: isDragging ? 0.7 : 1,
-  };
-  
+function PhotoSlot({ index, file, onFileChange, onRemove, isSubmitting }: PhotoSlotProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
+    let url: string | null = null;
+    if (file) {
+      url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
+    }
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
   }, [file]);
 
   return (
-    <div ref={setNodeRef} style={style} className="relative aspect-square group touch-none">
-      <div className="absolute top-1 left-1 z-10 bg-black/60 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">
+    <div className="relative aspect-square rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50 group">
+      <div className="absolute top-1 left-1 z-10 bg-black/60 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full pointer-events-none">
         {index + 1}
       </div>
-      <Button
-        variant="destructive"
-        size="icon"
-        className="absolute top-1 right-1 z-10 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-        onClick={() => onRemove(id)}
-        aria-label="Eliminar imagen"
-      >
-        <Trash2 className="h-3 w-3" />
-      </Button>
-      <div className="absolute bottom-1 right-1 z-10 p-1 bg-black/40 rounded-sm cursor-grab" {...listeners} {...attributes}>
-         <GripVertical className="h-4 w-4 text-white" />
-      </div>
-      {previewUrl && (
-        <NextImage
-          src={previewUrl}
-          alt={`Vista previa ${file.name}`}
-          layout="fill"
-          objectFit="cover"
-          className="rounded-md border-2 border-muted"
-        />
+      {previewUrl && file ? (
+        <>
+          <NextImage src={previewUrl} alt={`Preview ${index + 1}`} layout="fill" objectFit="cover" className="rounded-md" />
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <Button
+              variant="destructive"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onRemove(index)}
+              aria-label="Eliminar imagen"
+              disabled={isSubmitting}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </>
+      ) : (
+        <Label htmlFor={`photo-upload-${index}`} className="cursor-pointer text-center text-muted-foreground p-2 flex flex-col items-center justify-center h-full w-full">
+          <PlusCircle className="w-6 h-6 mx-auto mb-1 text-gray-400" />
+          <span className="text-xs">Añadir Foto</span>
+          <Input 
+            id={`photo-upload-${index}`} 
+            type="file" 
+            accept="image/jpeg, image/png" 
+            onChange={(e) => onFileChange(e, index)} 
+            className="hidden" 
+            disabled={isSubmitting}
+          />
+        </Label>
       )}
     </div>
   );
 }
 
+
 export default function PhotoUploadPage({ params }: { params: { fiestaId: string } }) {
   const { toast } = useToast();
-  const [photos, setPhotos] = useState<{ id: string; file: File }[]>([]);
+  const [photos, setPhotos] = useState<(File | null)[]>(Array(MAX_PHOTOS).fill(null));
   const [songSuggestion, setSongSuggestion] = useState('');
   const [customText, setCustomText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    const newPhotos = Array.from(files).filter(file => {
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        toast({ title: "Formato inválido", description: `El archivo ${file.name} no es JPG o PNG.`, variant: "destructive" });
-        return false;
-      }
-      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        toast({ title: "Archivo demasiado grande", description: `El archivo ${file.name} supera los ${MAX_FILE_SIZE_MB}MB.`, variant: "destructive" });
-        return false;
-      }
-      return true;
-    });
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      toast({ title: "Formato inválido", description: `El archivo ${file.name} no es JPG o PNG.`, variant: "destructive" });
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      toast({ title: "Archivo demasiado grande", description: `El archivo ${file.name} supera los ${MAX_FILE_SIZE_MB}MB.`, variant: "destructive" });
+      return;
+    }
 
     setPhotos(prevPhotos => {
-      const combined = [...prevPhotos, ...newPhotos.map(file => ({ id: `${file.name}-${Date.now()}-${Math.random()}`, file }))];
-      if (combined.length > MAX_PHOTOS) {
-        toast({ title: "Límite excedido", description: `Puedes subir un máximo de ${MAX_PHOTOS} fotos.`, variant: "destructive" });
-        return combined.slice(0, MAX_PHOTOS);
-      }
-      return combined;
+      const newPhotos = [...prevPhotos];
+      newPhotos[index] = file;
+      return newPhotos;
     });
+
+    event.target.value = '';
   };
 
-  const removePhoto = (idToRemove: string) => {
-    setPhotos(prev => prev.filter(p => p.id !== idToRemove));
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active.id !== over?.id) {
-      setPhotos(items => {
-        const oldIndex = items.findIndex(item => item.id === active.id);
-        const newIndex = items.findIndex(item => item.id === over?.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
+  const removePhoto = (indexToRemove: number) => {
+    setPhotos(prev => {
+      const newPhotos = [...prev];
+      newPhotos[indexToRemove] = null;
+      return newPhotos;
+    });
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (photos.length === 0) {
+    const filesToUpload = photos.filter(p => p !== null) as File[];
+
+    if (filesToUpload.length === 0) {
       toast({ title: "No hay fotos", description: "Por favor, sube al menos una foto.", variant: "destructive" });
       return;
     }
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
-    photos.forEach(photo => {
-      formData.append('photos', photo.file);
+    
+    // Append files in order of the array, ensuring correct naming on the backend
+    photos.forEach(file => {
+      // The backend will process the array sequentially. We send empty placeholders for nulls
+      // to maintain order, or simply filter and rely on array order. Let's filter.
+      if (file) {
+          formData.append('photos', file);
+      }
     });
+
     formData.append('songSuggestion', songSuggestion);
     formData.append('customText', customText);
 
@@ -162,26 +167,19 @@ export default function PhotoUploadPage({ params }: { params: { fiestaId: string
       )
   }
 
+  const uploadedCount = photos.filter(p => p !== null).length;
+
   return (
     <div className="min-h-screen bg-muted/20 p-4 sm:p-6 md:p-8">
-      <Card className="max-w-4xl mx-auto shadow-xl">
+      <Card className="max-w-6xl mx-auto shadow-xl">
         <CardHeader className="text-center">
             <Camera className="w-12 h-12 mx-auto text-primary mb-3"/>
             <CardTitle className="text-4xl font-bold font-headline">Carga de Fotos para Video</CardTitle>
             <CardDescription className="text-lg text-muted-foreground">Sube y ordena las fotos para tu video de vida.</CardDescription>
+             <p className="text-sm text-muted-foreground pt-2">Sube una foto para cada posición. El orden en la cuadrícula será el orden final en el video.</p>
         </CardHeader>
         <CardContent>
-          <div className="p-4 border-2 border-dashed rounded-lg text-center bg-muted/30">
-            <Label htmlFor="photo-upload" className="cursor-pointer space-y-2">
-                <ArrowUpFromLine className="w-10 h-10 mx-auto text-primary"/>
-                <span className="block font-semibold text-lg">Selecciona tus fotos</span>
-                <span className="block text-sm text-muted-foreground">o arrástralas aquí</span>
-                 <p className="text-xs text-muted-foreground pt-2">Máximo {MAX_PHOTOS} fotos. Formatos JPG/PNG. Hasta {MAX_FILE_SIZE_MB}MB por foto.</p>
-            </Label>
-            <Input id="photo-upload" type="file" multiple accept="image/jpeg, image/png" onChange={handleFileChange} className="hidden" />
-          </div>
-
-          <div className="mt-6 space-y-4 pt-6 border-t">
+           <div className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="song-suggestion" className="flex items-center gap-2 font-semibold"><Music2 className="w-5 h-5 text-primary"/>Canción Sugerida (Opcional)</Label>
               <Input
@@ -205,35 +203,27 @@ export default function PhotoUploadPage({ params }: { params: { fiestaId: string
             </div>
           </div>
 
-
-            <div className="mt-6">
-                {photos.length > 0 ? (
-                <>
-                    <h3 className="font-semibold text-lg mb-3">Galería ({photos.length}/{MAX_PHOTOS}):</h3>
-                     <p className="text-sm text-muted-foreground mb-3">Arrastra las fotos para cambiar su orden.</p>
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={photos.map(p => p.id)} strategy={rectSortingStrategy}>
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                {photos.map((photo, index) => (
-                                    <SortablePhoto key={photo.id} id={photo.id} file={photo.file} index={index} onRemove={removePhoto} />
-                                ))}
-                            </div>
-                        </SortableContext>
-                    </DndContext>
-                </>
-                ) : (
-                    <div className="text-center py-10 text-muted-foreground">
-                        <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/>
-                        <p>Tus fotos aparecerán aquí.</p>
-                    </div>
-                )}
+            <div className="mt-6 pt-6 border-t">
+                <h3 className="font-semibold text-lg mb-3">Galería ({uploadedCount}/{MAX_PHOTOS}):</h3>
+                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+                    {Array.from({ length: MAX_PHOTOS }).map((_, index) => (
+                        <PhotoSlot
+                            key={index}
+                            index={index}
+                            file={photos[index]}
+                            onFileChange={handleFileChange}
+                            onRemove={removePhoto}
+                            isSubmitting={isSubmitting}
+                        />
+                    ))}
+                </div>
             </div>
 
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-4 pt-6 border-t">
-           <Button onClick={handleSubmit} disabled={isSubmitting || photos.length === 0} size="lg" className="w-full max-w-sm text-lg">
+           <Button onClick={handleSubmit} disabled={isSubmitting || uploadedCount === 0} size="lg" className="w-full max-w-sm text-lg">
                 {isSubmitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <CheckCircle className="w-5 h-5 mr-2"/>}
-                {isSubmitting ? "Enviando..." : `Enviar ${photos.length} Fotos`}
+                {isSubmitting ? "Enviando..." : `Enviar ${uploadedCount} Foto(s)`}
             </Button>
             <p className="text-xs text-muted-foreground"><Info className="inline w-3 h-3 mr-1"/>Al enviar, las fotos se guardarán y no podrás modificarlas desde este enlace.</p>
         </CardFooter>

@@ -117,6 +117,7 @@
   },
   "clientPortalSettings": {
     "enabled": true,
+    "accessKey": "",
     "showPresupuesto": true,
     "showPagos": true,
     "showContrato": true,
@@ -199,49 +200,91 @@
         "nombreDisplay": "Refrescos / Gaseosas",
         "activada": false,
         "items": [],
-        "descripcion": "Variedad de bebidas carbonatadas."
+        "descripcion": "Variedad de bebidas carbonatadas.",
+        "consumoEstimadoPorPersona": {
+          "formal": 0.5,
+          "juvenil": 1.5,
+          "corporativo": 0.75,
+          "mixto_estandar": 1
+        }
       },
       {
         "id": "jugos",
         "nombreDisplay": "Jugos Naturales y Envasados",
         "activada": false,
         "items": [],
-        "descripcion": "Opciones frutales y refrescantes."
+        "descripcion": "Opciones frutales y refrescantes.",
+        "consumoEstimadoPorPersona": {
+          "formal": 0.25,
+          "juvenil": 0.5,
+          "corporativo": 0.3,
+          "mixto_estandar": 0.4
+        }
       },
       {
         "id": "aguas_saborizadas",
         "nombreDisplay": "Aguas Saborizadas y Minerales",
         "activada": false,
         "items": [],
-        "descripcion": "Con y sin gas, opciones saborizadas."
+        "descripcion": "Con y sin gas, opciones saborizadas.",
+        "consumoEstimadoPorPersona": {
+          "formal": 0.75,
+          "juvenil": 0.5,
+          "corporativo": 1,
+          "mixto_estandar": 0.6
+        }
       },
       {
         "id": "bebidas_alcoholicas_varias",
         "nombreDisplay": "Bebidas Alcohólicas Varias",
         "activada": false,
         "items": [],
-        "descripcion": "Licores, aperitivos, etc."
+        "descripcion": "Licores, aperitivos, etc.",
+        "consumoEstimadoPorPersona": {
+          "formal": 0.4,
+          "juvenil": 0.2,
+          "corporativo": 0.3,
+          "mixto_estandar": 0.3
+        }
       },
       {
         "id": "vinos_espumantes",
         "nombreDisplay": "Vinos y Espumantes",
         "activada": false,
         "items": [],
-        "descripcion": "Selección de tintos, blancos, rosados y espumosos."
+        "descripcion": "Selección de tintos, blancos, rosados y espumosos.",
+        "consumoEstimadoPorPersona": {
+          "formal": 0.5,
+          "juvenil": 0.1,
+          "corporativo": 0.4,
+          "mixto_estandar": 0.3
+        }
       },
       {
         "id": "barra_tragos",
         "nombreDisplay": "Barra de Tragos",
         "activada": false,
         "items": [],
-        "descripcion": "Cócteles con y sin alcohol preparados al momento."
+        "descripcion": "Cócteles con y sin alcohol preparados al momento.",
+        "consumoEstimadoPorPersona": {
+          "formal": 0.8,
+          "juvenil": 1,
+          "corporativo": 0.6,
+          "mixto_estandar": 0.9
+        }
       },
       {
         "id": "cafeteria",
         "nombreDisplay": "Servicio de Cafetería",
         "activada": false,
         "items": [],
-        "descripcion": "Café, té, infusiones."
+        "descripcion": "Café, té, infusiones.",
+        "consumoEstimadoPorPersona": {
+          "formal": 0.2,
+          "juvenil": 0.1,
+          "corporativo": 0.5,
+          "mixto_estandar": 0.2
+        }
       }
     ],
     "tipoEventoAjuste": "mixto_estandar",
@@ -255,5 +298,11 @@
     "costosItems": [],
     "ingresosTotalesEstimados": 0,
     "notasGeneralesCostos": ""
+  },
+  "videoVida": {
+    "galleryEnabled": true,
+    "photosUploaded": false,
+    "songSuggestion": "",
+    "customText": ""
   }
 }
