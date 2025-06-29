@@ -20,7 +20,7 @@ import NextImage from 'next/image';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
   ClipboardCheck, FileText, Banknote, FileSignature, Users,
-  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink
+  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock
 } from 'lucide-react';
 
 type PortalSettingsForm = {
@@ -184,6 +184,18 @@ export default function PortalClientePage() {
                                 <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
                                     <Label htmlFor="portal-enabled" className="text-base font-medium">Activar Portal</Label>
                                     <Switch id="portal-enabled" checked={settings.portal.enabled} onCheckedChange={(val) => handlePortalSettingChange('enabled', val)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portal-password" className="flex items-center gap-2"><Lock className="w-4 h-4 text-primary/80"/>Contraseña de Acceso</Label>
+                                    <Input 
+                                        id="portal-password"
+                                        type="text"
+                                        value={settings.portal.accessKey || ''}
+                                        onChange={(e) => handlePortalSettingChange('accessKey', e.target.value)}
+                                        placeholder="Deja en blanco para acceso público"
+                                        disabled={!settings.portal.enabled || isSaving}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Si estableces una contraseña, tu cliente deberá ingresarla para ver el portal.</p>
                                 </div>
                                 <Separator />
                                 <div className="space-y-3">

@@ -1,12 +1,15 @@
+
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, FileSignature, Users, Music2, ChefHat, ExternalLink, ClipboardCheck, Globe } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -43,6 +46,11 @@ export default function ClientPortalPage() {
     const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [passwordInput, setPasswordInput] = useState('');
+    const [authError, setAuthError] = useState('');
+    const [portalSessionKey, setPortalSessionKey] = useState<string | null>(null);
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
@@ -50,6 +58,7 @@ export default function ClientPortalPage() {
         try {
             const fiestaData = await getFiestaActual();
             setFiesta(fiestaData);
+            setPortalSessionKey(`portal_auth_${fiestaData.id}`); // Set session key based on fiesta ID
         } catch (err: any) {
             setError("No se pudo cargar la información del portal. Por favor, contacta al organizador.");
         } finally {
@@ -60,6 +69,32 @@ export default function ClientPortalPage() {
     useEffect(() => {
         loadData();
     }, [loadData]);
+    
+    useEffect(() => {
+        if (fiesta && portalSessionKey) {
+            if (!fiesta.clientPortalSettings?.accessKey || fiesta.clientPortalSettings.accessKey === '') {
+                setIsAuthorized(true);
+            } else {
+                const sessionAuth = sessionStorage.getItem(portalSessionKey);
+                if (sessionAuth === 'true') {
+                    setIsAuthorized(true);
+                }
+            }
+        }
+    }, [fiesta, portalSessionKey]);
+
+    const handleAuthSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (passwordInput === fiesta?.clientPortalSettings?.accessKey) {
+            if (portalSessionKey) {
+                sessionStorage.setItem(portalSessionKey, 'true');
+            }
+            setIsAuthorized(true);
+            setAuthError('');
+        } else {
+            setAuthError('Contraseña incorrecta.');
+        }
+    };
     
     if (isLoading) {
         return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-4 text-lg">Cargando Portal...</p></div>;
@@ -80,6 +115,37 @@ export default function ClientPortalPage() {
             <p className="text-muted-foreground mt-2">El portal para este evento no está activado. Por favor, contacta al organizador.</p>
         </div>;
     }
+
+    if (!isAuthorized) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
+                <Card className="w-full max-w-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 font-headline"><Lock className="w-5 h-5 text-primary"/>Acceso al Portal</CardTitle>
+                        <CardDescription>Por favor, ingresa la contraseña para continuar.</CardDescription>
+                    </CardHeader>
+                    <form onSubmit={handleAuthSubmit}>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="portal-password">Contraseña</Label>
+                                <Input 
+                                    id="portal-password" 
+                                    type="password" 
+                                    value={passwordInput} 
+                                    onChange={(e) => setPasswordInput(e.target.value)} 
+                                    required 
+                                />
+                            </div>
+                            {authError && <p className="text-sm text-destructive">{authError}</p>}
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" className="w-full">Ingresar</Button>
+                        </CardFooter>
+                    </form>
+                </Card>
+            </div>
+        );
+    }
     
     const { configuracion, clientPortalSettings } = fiesta;
 
@@ -94,7 +160,7 @@ export default function ClientPortalPage() {
         } : null,
         clientPortalSettings.showContrato ? {
             title: "Contrato", description: "Accede al contrato del evento.", icon: FileSignature,
-            href: `#` // Placeholder link
+            href: `/fiestas/nueva/gestion-documental` // Placeholder link, points to general doc mgmt
         } : null,
         clientPortalSettings.showInvitados ? {
             title: "Lista de Invitados", description: "Consulta la lista de invitados y sus confirmaciones.", icon: Users,

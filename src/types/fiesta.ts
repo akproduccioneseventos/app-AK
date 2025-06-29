@@ -119,14 +119,13 @@ export interface EventWebPageSettings {
 
 export interface ClientPortalSettings {
   enabled: boolean;
-  accessKey?: string; // For future password/link protection
+  accessKey?: string; // Contraseña para proteger el acceso al portal
   showPresupuesto: boolean;
   showPagos: boolean;
   showContrato: boolean;
   showInvitados: boolean;
   showMusica: boolean;
   showMenu: boolean;
-  // Note: showOrganizacion can link to the public page
 }
 
 export interface MusicaFiesta {

@@ -1,4 +1,5 @@
 
+
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
@@ -78,13 +79,14 @@ export const defaultWebPageSettings: EventWebPageSettings = {
 };
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
-  enabled: false,
+  enabled: true,
+  accessKey: '',
   showPresupuesto: true,
   showPagos: true,
   showContrato: true,
-  showInvitados: false,
-  showMusica: false,
-  showMenu: true,
+  showInvitados: true,
+  showMusica: true,
+  showMenu: false,
 };
 
 export const defaultMusicaFiesta: MusicaFiesta = {
