@@ -22,6 +22,8 @@ ensureVideoVidaDirectoryExists();
 export async function saveLifeStoryVideoPhotos(formData: FormData): Promise<{ success: boolean; error?: string }> {
   const fiestaId = formData.get('fiestaId') as string;
   const files = formData.getAll('photos') as File[];
+  const songSuggestion = formData.get('songSuggestion') as string | undefined;
+  const customText = formData.get('customText') as string | undefined;
 
   if (!fiestaId) {
     return { success: false, error: "ID de la fiesta no proporcionado." };
@@ -56,7 +58,9 @@ export async function saveLifeStoryVideoPhotos(formData: FormData): Promise<{ su
     // Update fiesta data
     await updateVideoVidaSettings({
         photosUploaded: true,
-        uploadDate: new Date().toISOString()
+        uploadDate: new Date().toISOString(),
+        songSuggestion: songSuggestion,
+        customText: customText,
     });
 
     return { success: true };

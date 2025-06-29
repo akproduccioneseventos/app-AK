@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowUpFromLine, Camera, CheckCircle, GripVertical, Image as ImageIcon, Info, Loader2, Trash2 } from 'lucide-react';
+import { ArrowUpFromLine, Camera, CheckCircle, GripVertical, Image as ImageIcon, Info, Loader2, Trash2, Music2, Type } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
@@ -14,6 +14,7 @@ import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@d
 import { CSS } from '@dnd-kit/utilities';
 import { saveLifeStoryVideoPhotos } from '@/app/actions/video-vida';
 import NextImage from 'next/image';
+import { Textarea } from '@/components/ui/textarea';
 
 const MAX_PHOTOS = 50;
 const MAX_FILE_SIZE_MB = 5;
@@ -75,6 +76,8 @@ function SortablePhoto({ file, id, index, onRemove }: SortablePhotoProps) {
 export default function PhotoUploadPage({ params }: { params: { fiestaId: string } }) {
   const { toast } = useToast();
   const [photos, setPhotos] = useState<{ id: string; file: File }[]>([]);
+  const [songSuggestion, setSongSuggestion] = useState('');
+  const [customText, setCustomText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
@@ -133,6 +136,8 @@ export default function PhotoUploadPage({ params }: { params: { fiestaId: string
     photos.forEach(photo => {
       formData.append('photos', photo.file);
     });
+    formData.append('songSuggestion', songSuggestion);
+    formData.append('customText', customText);
 
     const result = await saveLifeStoryVideoPhotos(formData);
 
@@ -175,6 +180,31 @@ export default function PhotoUploadPage({ params }: { params: { fiestaId: string
             </Label>
             <Input id="photo-upload" type="file" multiple accept="image/jpeg, image/png" onChange={handleFileChange} className="hidden" />
           </div>
+
+          <div className="mt-6 space-y-4 pt-6 border-t">
+            <div className="space-y-2">
+              <Label htmlFor="song-suggestion" className="flex items-center gap-2 font-semibold"><Music2 className="w-5 h-5 text-primary"/>Canción Sugerida (Opcional)</Label>
+              <Input
+                id="song-suggestion"
+                placeholder="Nombre de la canción y artista, o enlace de YouTube/Spotify"
+                value={songSuggestion}
+                onChange={(e) => setSongSuggestion(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="custom-text" className="flex items-center gap-2 font-semibold"><Type className="w-5 h-5 text-primary"/>Frase o Texto para el Video (Opcional)</Label>
+              <Textarea
+                id="custom-text"
+                placeholder="Escribe aquí un texto corto que te gustaría incluir en el video."
+                value={customText}
+                onChange={(e) => setCustomText(e.target.value)}
+                rows={3}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+
 
             <div className="mt-6">
                 {photos.length > 0 ? (

@@ -280,6 +280,8 @@ export interface VideoVidaData {
   galleryEnabled: boolean;
   photosUploaded: boolean;
   uploadDate?: string; // ISO string
+  songSuggestion?: string;
+  customText?: string;
 }
 
 export interface FiestaEnPlanificacion {

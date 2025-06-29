@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2, AlertTriangle, Link as LinkIcon, ClipboardCopy, Image, Download, Camera } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Link as LinkIcon, ClipboardCopy, Image, Download, Camera, Music2, Type } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual, updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
@@ -147,6 +147,25 @@ export default function VideoVidaAdminPage() {
             </Button>
         </CardFooter>
       </Card>
+      
+      {videoVidaSettings.photosUploaded && (
+          <Card className="shadow-lg">
+              <CardHeader>
+                  <CardTitle>Información Adicional del Cliente</CardTitle>
+                  <CardDescription>Sugerencias del cliente para la edición del video.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                  <div>
+                      <h4 className="font-semibold flex items-center gap-2"><Music2 className="w-4 h-4 text-primary"/>Canción Sugerida:</h4>
+                      <p className="text-muted-foreground pl-6">{videoVidaSettings.songSuggestion || 'No se sugirió una canción.'}</p>
+                  </div>
+                   <div>
+                      <h4 className="font-semibold flex items-center gap-2"><Type className="w-4 h-4 text-primary"/>Texto para el Video:</h4>
+                      <p className="text-muted-foreground whitespace-pre-wrap pl-6">{videoVidaSettings.customText || 'No se añadió texto personalizado.'}</p>
+                  </div>
+              </CardContent>
+          </Card>
+      )}
     </div>
   );
 }

@@ -142,6 +142,8 @@ export const defaultVideoVidaData: VideoVidaData = {
   galleryEnabled: false,
   photosUploaded: false,
   uploadDate: undefined,
+  songSuggestion: '',
+  customText: '',
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {
