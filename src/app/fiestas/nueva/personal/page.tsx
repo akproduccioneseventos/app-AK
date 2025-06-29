@@ -9,11 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
-import { getRoles } from '@/app/actions/roles'; // Para obtener info de roles
+import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
-import type { Rol } from '@/types/rol'; // Tipo Rol
+import type { Rol } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
@@ -25,8 +25,9 @@ const formatCurrency = (amount: number) => {
 
 interface AssignedStaffUIDetail {
   empleado: Empleado;
-  rol?: Rol; // Rol del empleado si tiene uno asignado
-  eventSalary: number; // Sueldo específico para este evento
+  rol?: Rol;
+  eventSalary: number;
+  employerContribution: number; // Aportes patronales
 }
 
 export default function AsignarPersonalEventoPage() {
@@ -57,10 +58,12 @@ export default function AsignarPersonalEventoPage() {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
           if (empleadoDetail) {
             const rolDetail = empleadoDetail.rolId ? rolesData.find(r => r.id === empleadoDetail.rolId) : undefined;
+            const aportes = (assigned.eventSalary * (rolDetail?.porcentajeAportes ?? 0)) / 100;
             initialAssignedMap.set(assigned.empleadoId, {
               empleado: empleadoDetail,
               rol: rolDetail,
-              eventSalary: assigned.eventSalary // Usar el sueldo guardado para el evento
+              eventSalary: assigned.eventSalary,
+              employerContribution: aportes,
             });
           }
         });
@@ -84,10 +87,9 @@ export default function AsignarPersonalEventoPage() {
       const newMap = new Map(prev);
       if (isAssigned) {
         const rol = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
-        // El sueldo del rol es el pago total, que incluye sueldo, aguinaldo y vacacional.
         const defaultEventSalary = rol?.montoSalario ?? 0;
-        
-        newMap.set(empleado.id, { empleado, rol, eventSalary: defaultEventSalary });
+        const aportes = (defaultEventSalary * (rol?.porcentajeAportes ?? 0)) / 100;
+        newMap.set(empleado.id, { empleado, rol, eventSalary: defaultEventSalary, employerContribution: aportes });
       } else {
         newMap.delete(empleado.id);
       }
@@ -97,14 +99,17 @@ export default function AsignarPersonalEventoPage() {
 
   const handleEventSalaryChange = (empleadoId: string, newSalaryStr: string) => {
     const salaryNum = parseFloat(newSalaryStr);
-    
+    const finalSalary = newSalaryStr === '' || isNaN(salaryNum) ? 0 : salaryNum;
+
     setAssignedStaff(prev => {
       const newMap = new Map(prev);
       const currentAssignment = newMap.get(empleadoId);
       if (currentAssignment) {
+        const aportes = (finalSalary * (currentAssignment.rol?.porcentajeAportes ?? 0)) / 100;
         newMap.set(empleadoId, { 
           ...currentAssignment, 
-          eventSalary: newSalaryStr === '' || isNaN(salaryNum) ? 0 : salaryNum // Si está vacío o NaN, poner 0 momentáneamente
+          eventSalary: finalSalary,
+          employerContribution: aportes,
         });
       }
       return newMap;
@@ -117,20 +122,23 @@ export default function AsignarPersonalEventoPage() {
         const currentAssignment = newMap.get(empleadoId);
         if (currentAssignment && (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary))) {
             const fallbackSalary = currentAssignment.rol?.montoSalario ?? 0;
-            newMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary });
+            const aportes = (fallbackSalary * (currentAssignment.rol?.porcentajeAportes ?? 0)) / 100;
+            newMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary, employerContribution: aportes });
         }
         return newMap;
     });
   };
 
   const totalAssignedCount = assignedStaff.size;
-  const totalEventCost = Array.from(assignedStaff.values()).reduce((sum, { eventSalary }) => sum + (eventSalary || 0), 0);
+  const totalSalaryCost = Array.from(assignedStaff.values()).reduce((sum, { eventSalary }) => sum + (eventSalary || 0), 0);
+  const totalContributionCost = Array.from(assignedStaff.values()).reduce((sum, { employerContribution }) => sum + (employerContribution || 0), 0);
+  const totalEventCost = totalSalaryCost + totalContributionCost;
 
   const handleSaveChanges = async () => {
     setIsSaving(true);
     const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(assignedStaff.values()).map(item => ({
       empleadoId: item.empleado.id,
-      eventSalary: item.eventSalary // eventSalary ya es numérico o 0
+      eventSalary: item.eventSalary
     }));
 
     try {
@@ -140,8 +148,6 @@ export default function AsignarPersonalEventoPage() {
           title: "¡Personal Guardado!",
           description: `Se guardaron las asignaciones de ${totalAssignedCount} empleado(s).`,
         });
-        // No es necesario recargar datos aquí si la UI ya refleja los cambios y `result.updatedData` es fiable
-        // pero para consistencia, se podría llamar a fetchInitialData() o actualizar con result.updatedData si se devolviera.
       } else {
         throw new Error(result.error || "Error desconocido al guardar el personal asignado.");
       }
@@ -213,16 +219,14 @@ export default function AsignarPersonalEventoPage() {
                     <TableHead className="w-[50px] text-center">Asignar</TableHead>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Rol (Base)</TableHead>
-                    <TableHead className="text-right">Sueldo Rol (Base)</TableHead>
-                    <TableHead className="text-right w-[200px]">Sueldo Evento (UYU)</TableHead>
+                    <TableHead className="text-right">Pago Evento (UYU)</TableHead>
+                    <TableHead className="text-right">Aportes Patronales</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {allEmpleados.map((empleado) => {
                     const isAssigned = assignedStaff.has(empleado.id);
                     const currentAssignment = assignedStaff.get(empleado.id);
-                    const rolDelEmpleado = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
-                    const sueldoBaseRol = (rolDelEmpleado && typeof rolDelEmpleado.montoSalario === 'number') ? rolDelEmpleado.montoSalario : undefined;
 
                     return (
                       <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
@@ -235,10 +239,7 @@ export default function AsignarPersonalEventoPage() {
                           />
                         </TableCell>
                         <TableCell className="font-medium min-w-[150px]">{empleado.nombre}</TableCell>
-                        <TableCell className="min-w-[120px]">{rolDelEmpleado?.nombre || <span className="italic text-muted-foreground">Sin rol</span>}</TableCell>
-                        <TableCell className="text-right min-w-[120px]">
-                          {sueldoBaseRol !== undefined ? formatCurrency(sueldoBaseRol) : <span className="italic text-muted-foreground">Variable</span>}
-                        </TableCell>
+                        <TableCell className="min-w-[120px]">{currentAssignment?.rol?.nombre || <span className="italic text-muted-foreground">Sin rol</span>}</TableCell>
                         <TableCell className="text-right">
                           {isAssigned ? (
                             <Input
@@ -246,14 +247,17 @@ export default function AsignarPersonalEventoPage() {
                               value={currentAssignment?.eventSalary ?? ''}
                               onChange={(e) => handleEventSalaryChange(empleado.id, e.target.value)}
                               onBlur={() => handleEventSalaryBlur(empleado.id)}
-                              placeholder="Sueldo evento"
-                              className="text-right h-9"
+                              placeholder="Pago evento"
+                              className="text-right h-9 max-w-[120px] ml-auto"
                               min="0"
                               step="any"
                             />
                           ) : (
                             <span className="text-muted-foreground">-</span>
                           )}
+                        </TableCell>
+                         <TableCell className="text-right min-w-[140px] font-mono">
+                           {isAssigned ? formatCurrency(currentAssignment?.employerContribution ?? 0) : '-'}
                         </TableCell>
                       </TableRow>
                     );
@@ -271,28 +275,25 @@ export default function AsignarPersonalEventoPage() {
             <CardTitle className="font-headline">Resumen de Costos de Personal</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Total de Personal Asignado:</span>
-              <span className="font-semibold text-lg">{totalAssignedCount}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Costo Total Estimado de Personal para el Evento:</span>
-              <span className="font-semibold text-lg text-primary">{formatCurrency(totalEventCost)}</span>
-            </div>
+            <div className="flex justify-between items-center"><span className="text-muted-foreground">Total de Personal Asignado:</span><span className="font-semibold text-lg">{totalAssignedCount}</span></div>
+            <div className="flex justify-between items-center"><span className="text-muted-foreground">Costo Total Salarios Evento:</span><span className="font-semibold text-lg">{formatCurrency(totalSalaryCost)}</span></div>
+            <div className="flex justify-between items-center"><span className="text-muted-foreground">Costo Total Aportes Patronales:</span><span className="font-semibold text-lg">{formatCurrency(totalContributionCost)}</span></div>
+            <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL PERSONAL:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
              <div className="pt-3">
-                <img 
-                    src="https://placehold.co/600x200.png" 
-                    alt="Equipo trabajando en evento" 
-                    className="rounded-md shadow-sm mx-auto"
-                    data-ai-hint="team event work"
-                />
+                <img src="https://placehold.co/600x200.png" alt="Equipo trabajando en evento" className="rounded-md shadow-sm mx-auto" data-ai-hint="team event work"/>
             </div>
           </CardContent>
-          <CardFooter className="border-t pt-6">
+          <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Asignaciones de Personal'}
+              {isSaving ? 'Guardando...' : 'Guardar Asignaciones'}
             </Button>
+            <Link href="/fiestas/nueva/personal/recibos" passHref>
+                <Button variant="secondary" className="w-full sm:w-auto">
+                    <Printer className="w-5 h-5 mr-2" />
+                    Generar Recibos de Pago
+                </Button>
+            </Link>
           </CardFooter>
         </Card>
       )}

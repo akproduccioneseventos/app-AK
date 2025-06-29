@@ -68,6 +68,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') return `Editando Menú: ${pathSegments[4]}`;
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
+  if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
   if (pathname === '/fiestas/nueva/gestion-documental') return 'Gestión Documental y Financiera';
@@ -126,6 +127,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
+    if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
     if (pathname === '/fiestas/nueva/decoracion') return Palette;
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
@@ -195,12 +197,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isPublicEventPage = pathname.startsWith('/evento/actual');
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
+  const isRecibosPersonalPage = pathname === '/fiestas/nueva/personal/recibos';
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
-  const isBudgetCreationStep4 = pathname === '/presupuestos/nuevo' && (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('pasoActual') === '4'); // Example check
+  const isBudgetCreationStep4 = pathname === '/presupuestos/nuevo' && (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('pasoActual') === '4');
 
 
-  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isBudgetViewPage || isInvoiceViewPage || isBudgetCreationStep4) {
+  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isRecibosPersonalPage || isBudgetViewPage || isInvoiceViewPage || isBudgetCreationStep4) {
     return <main className="min-h-screen">{children}</main>;
   }
   

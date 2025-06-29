@@ -108,7 +108,6 @@ export default function GestionRolesPage() {
       } else if (field === 'nombre') {
          updatedRol[field] = String(value || '');
       } else {
-        // For other potential fields in Rol
         (updatedRol as any)[field] = value;
       }
 
@@ -126,7 +125,7 @@ export default function GestionRolesPage() {
     
     const montoSalarioNum = Number(currentRol.montoSalario);
     if (currentRol.montoSalario !== undefined && (isNaN(montoSalarioNum) || montoSalarioNum < 0)) {
-        toast({ title: "Sueldo Inválido", description: "El sueldo por evento debe ser un número positivo o estar vacío.", variant: "destructive"});
+        toast({ title: "Pago Inválido", description: "El pago por evento debe ser un número positivo o estar vacío.", variant: "destructive"});
         return;
     }
 
@@ -222,16 +221,17 @@ export default function GestionRolesPage() {
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-1">
-                    <Label htmlFor="rol-monto-salario">Sueldo por Evento (UYU)</Label>
-                    <Input id="rol-monto-salario" type="number" value={currentRol.montoSalario ?? ''} onChange={(e) => handleModalFieldChange('montoSalario', e.target.value === '' ? undefined : parseFloat(e.target.value))} placeholder="Ej: 5000" min="0" step="any" />
+                    <Label htmlFor="rol-monto-salario">Pago Total por Evento (UYU)</Label>
+                    <Input id="rol-monto-salario" type="number" value={currentRol.montoSalario ?? ''} onChange={(e) => handleModalFieldChange('montoSalario', e.target.value === '' ? undefined : parseFloat(e.target.value))} placeholder="Ej: 2100" min="0" step="any" />
+                    <p className="text-xs text-muted-foreground">Incluye sueldo, aguinaldo y vacacional.</p>
                 </div>
                 <div className="space-y-1">
-                    <Label htmlFor="rol-porcentaje-aportes">Porcentaje Aportes (%)</Label>
+                    <Label htmlFor="rol-porcentaje-aportes">Aportes Patronales (%)</Label>
                     <Input id="rol-porcentaje-aportes" type="number" value={porcentajeAportesInput} onChange={(e) => setPorcentajeAportesInput(e.target.value)} placeholder="Ej: 30" min="0" max="100" step="any" />
                 </div>
               </div>
               <div className="space-y-1">
-                  <Label>Monto Aportes Calculado</Label>
+                  <Label>Aportes Calculados (Referencia)</Label>
                   <Input value={aportesCalculadosModal !== undefined ? formatCurrency(aportesCalculadosModal) : 'N/A'} readOnly disabled className="bg-muted/50"/>
               </div>
               
@@ -267,8 +267,8 @@ export default function GestionRolesPage() {
                         Tipo: {rol.tipoSalario}
                         {rol.montoSalario !== undefined && (
                           <>
-                            {' - '}Sueldo: {formatCurrency(rol.montoSalario)}
-                            {rol.porcentajeAportes !== undefined && ` (${rol.porcentajeAportes}%)`}
+                            {' - '}Pago Total: {formatCurrency(rol.montoSalario)}
+                            {rol.porcentajeAportes !== undefined && ` (${rol.porcentajeAportes}% Aportes)`}
                             {rol.aportesCalculados !== undefined && ` - Aportes: ${formatCurrency(rol.aportesCalculados)}`}
                           </>
                         )}
