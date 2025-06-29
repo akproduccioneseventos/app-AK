@@ -73,9 +73,8 @@ const prompt = ai.definePrompt({
   name: 'analyzeCodebasePrompt',
   input: {schema: AnalyzeCodebaseInputSchema},
   output: {schema: AnalyzeCodebaseOutputSchema},
-  prompt: `You are an expert software architect AI for Firebase Studio. Your task is to perform a detailed analysis of the provided codebase structure, comparing it against the user's functional specification.
-
-You must be rigorous and objective. Your goal is to identify discrepancies, suggest concrete improvements, and validate the current implementation.
+  model: 'googleai/gemini-1.5-flash', // Specify a faster and powerful model
+  prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices.
 
 **Current Codebase Structure (Snapshot):**
 ${codebaseSnapshot}
@@ -86,16 +85,25 @@ ${codebaseSnapshot}
 \`\`\`
 
 **Your Task:**
-Based on the codebase snapshot and the user's specification, provide a detailed analysis. Fill out the JSON output object with your findings.
+Based on the codebase snapshot and the user's specification, provide a detailed analysis. Fill out the JSON output object with your findings. Be extremely detailed in your responses.
 
-1.  **Overall Summary:** Give a brief, high-level overview of how well the code matches the spec.
-2.  **Completed Modules:** List features from the spec that you can confirm are present and correctly implemented based on the file structure.
-3.  **Missing Modules:** List features from the spec that seem to be completely missing from the codebase.
-4.  **Errors and Bugs:** Identify potential bugs, logical inconsistencies, or deviations from best practices based on the described structure. For example, if the spec says "users can upload multiple files" but the action only handles one.
-5.  **Suggestions:** Propose improvements, refactoring opportunities, or new features that would enhance the application, even if they are not in the spec.
+1.  **Overall Summary:** Give a brief, high-level overview of how well the code matches the spec. Mention the overall code quality and architectural soundness based on the file structure.
+2.  **Completed Modules:** List features from the spec that you can confirm are present and correctly implemented. For each, briefly explain *why* you believe it's complete, citing relevant files.
+3.  **Missing Modules:** List features from the spec that seem to be completely missing from the codebase. Be specific. If a part of a module is missing, list it here.
+4.  **Errors and Bugs:** This is a critical section. Be exhaustive. Identify potential bugs, logical inconsistencies, or deviations from best practices. Examples to look for:
+    - Data inconsistencies (e.g., a customer is deleted but their invoices are not).
+    - Missing validations (e.g., creating an item with a negative price).
+    - Inefficient data handling (e.g., reading entire large JSON files repeatedly instead of filtering).
+    - Security concerns (e.g., file path traversal vulnerabilities in API routes).
+    - Contradictions between what a file seems to do and what the spec requires.
+    For each finding, explain the potential impact.
+5.  **Suggestions for Improvement:** Propose concrete improvements, refactoring opportunities, or new features. Think about:
+    - Performance optimizations.
+    - Code organization and reusability.
+    - Better user experience flows.
+    - Features that would complement the existing modules, even if not in the spec.
 
-Provide a concise but thorough analysis.
-`,
+Your analysis must be sharp, objective, and provide actionable feedback. Do not be lenient. The goal is to produce a truly robust and production-ready application.`,
 });
 
 const analyzeCodebaseFlow = ai.defineFlow(
