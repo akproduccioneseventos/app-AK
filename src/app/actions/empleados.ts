@@ -98,7 +98,7 @@ export async function saveEmpleado(
       nombre: newEmpleadoData.nombre,
       cedula: newEmpleadoData.cedula || '',
       fechaNacimiento: newEmpleadoData.fechaNacimiento || '',
-      // rolId is not part of NuevoEmpleadoFormData, so it will be undefined initially
+      rolId: newEmpleadoData.rolId,
     };
     empleados.push(finalEmpleadoData);
   }
