@@ -1,10 +1,12 @@
 
+export type TipoRegistroProveedor = 'Proveedor' | 'Servicio Subcontratado';
+
 export interface Proveedor {
   id: string;
-  nombre: string;
-  nombreEmpresa?: string;
-  servicioPrincipal: string; // e.g., 'Catering', 'Fotografía', 'DJ'
-  personaContacto?: string;
+  tipo: TipoRegistroProveedor;
+  nombre: string; // Nombre del Contacto o Responsable
+  nombreEmpresa?: string; // Nombre de la Empresa o del Servicio
+  servicioPrincipal: string; // Categoría/Tipo de servicio
   telefono?: string;
   email?: string;
   notas?: string;

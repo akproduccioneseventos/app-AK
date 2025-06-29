@@ -64,11 +64,11 @@ export async function saveProveedor(
   let finalProveedorData: Proveedor;
   let proveedorId: string;
 
-  if (!proveedorData.nombre.trim() && !proveedorData.nombreEmpresa?.trim()) {
-    return { success: false, error: 'El nombre del proveedor o de la empresa es obligatorio.' };
+  if (!proveedorData.nombreEmpresa?.trim()) {
+    return { success: false, error: 'El nombre de la empresa o del servicio es obligatorio.' };
   }
   if (!proveedorData.servicioPrincipal.trim()) {
-      return { success: false, error: 'El servicio principal es obligatorio.' };
+      return { success: false, error: 'El servicio principal/categoría es obligatorio.' };
   }
 
 
@@ -87,7 +87,8 @@ export async function saveProveedor(
     finalProveedorData = {
       ...proveedorData,
       id: proveedorId,
-      nombre: proveedorData.nombre.trim() || proveedorData.nombreEmpresa!.trim(), // Ensure name is present
+      nombre: proveedorData.nombre.trim(),
+      nombreEmpresa: proveedorData.nombreEmpresa.trim(),
     };
     proveedores.push(finalProveedorData);
   }

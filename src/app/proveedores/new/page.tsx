@@ -8,44 +8,51 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, UserPlus2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, UserPlus2, Briefcase, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveProveedor } from '@/app/actions/proveedores';
-import type { NuevoProveedorFormData } from '@/types/proveedor';
+import type { NuevoProveedorFormData, TipoRegistroProveedor } from '@/types/proveedor';
 
 export default function NewProveedorPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
-  // Form state aligned with Proveedor type
+  // Form state
+  const [tipo, setTipo] = useState<TipoRegistroProveedor>('Proveedor');
   const [nombre, setNombre] = useState('');
   const [nombreEmpresa, setNombreEmpresa] = useState('');
   const [servicioPrincipal, setServicioPrincipal] = useState('');
-  const [personaContacto, setPersonaContacto] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [notas, setNotas] = useState('');
+  
+  const isServicio = tipo === 'Servicio Subcontratado';
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!nombre.trim() && !nombreEmpresa.trim()) {
-      toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del proveedor o de la empresa.", variant: "destructive" });
+    if (!nombreEmpresa.trim()) {
+      toast({ title: "Campo Requerido", description: `Por favor, ingresa el ${isServicio ? 'nombre del servicio' : 'nombre de la empresa'}.`, variant: "destructive" });
       return;
     }
     if (!servicioPrincipal.trim()) {
-      toast({ title: "Servicio Requerido", description: "Por favor, ingresa el servicio principal que ofrece el proveedor.", variant: "destructive" });
+      toast({ title: "Servicio Requerido", description: `Por favor, ingresa el ${isServicio ? 'tipo de servicio' : 'la categoría principal'}.`, variant: "destructive" });
+      return;
+    }
+    if (isServicio && !nombre.trim()) {
+      toast({ title: "Nombre del Responsable Requerido", variant: "destructive" });
       return;
     }
 
     setIsSaving(true);
     
     const proveedorData: NuevoProveedorFormData = { 
-      nombre: nombre.trim() || nombreEmpresa.trim(), 
-      nombreEmpresa: nombreEmpresa.trim() || undefined,
+      tipo,
+      nombre: nombre.trim(), 
+      nombreEmpresa: nombreEmpresa.trim(),
       servicioPrincipal: servicioPrincipal.trim(),
-      personaContacto: personaContacto.trim() || undefined,
       telefono: telefono.trim() || undefined,
       email: email.trim() || undefined,
       notas: notas.trim() || undefined,
@@ -54,10 +61,10 @@ export default function NewProveedorPage() {
     try {
       const result = await saveProveedor(proveedorData); 
       if (result.success && result.id) {
-        toast({ title: "¡Proveedor Guardado!", description: `El proveedor "${proveedorData.nombre}" ha sido guardado.` });
+        toast({ title: "¡Registro Guardado!", description: `El registro "${proveedorData.nombreEmpresa}" ha sido guardado.` });
         router.push('/proveedores');
       } else {
-        throw new Error(result.error || "Error desconocido al guardar el proveedor.");
+        throw new Error(result.error || "Error desconocido al guardar.");
       }
     } catch (error: any) {
       toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
@@ -72,7 +79,7 @@ export default function NewProveedorPage() {
         <div className="flex items-center gap-3">
           <UserPlus2 className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Proveedor
+            Añadir Registro
           </h1>
         </div>
         <Link href="/proveedores" passHref>
@@ -85,25 +92,38 @@ export default function NewProveedorPage() {
       
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Información del Proveedor</CardTitle>
-          <CardDescription>Completa los datos para registrar un nuevo proveedor.</CardDescription>
+          <CardTitle className="font-headline">Información del Registro</CardTitle>
+          <CardDescription>Selecciona el tipo de registro y completa los datos.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
-             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="proveedor-name">Nombre Contacto</Label>
-                <Input id="proveedor-name" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Juan Rodríguez" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="company-name">Nombre de la Empresa</Label>
-                <Input id="company-name" value={nombreEmpresa} onChange={(e) => setNombreEmpresa(e.target.value)} placeholder="Ej: Insumos Fiesta S.A." />
-              </div>
+            <div className="space-y-3 p-3 border rounded-md bg-muted/30">
+                <Label className="text-base">Tipo de Registro*</Label>
+                <RadioGroup defaultValue="Proveedor" onValueChange={(value) => setTipo(value as TipoRegistroProveedor)} className="flex gap-6">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Proveedor" id="r-proveedor" />
+                        <Label htmlFor="r-proveedor" className="flex items-center gap-2"><Building className="w-4 h-4"/>Proveedor de Insumos</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Servicio Subcontratado" id="r-servicio" />
+                        <Label htmlFor="r-servicio" className="flex items-center gap-2"><Briefcase className="w-4 h-4"/>Servicio Subcontratado</Label>
+                    </div>
+                </RadioGroup>
+            </div>
+            
+             <div className="space-y-2">
+                <Label htmlFor="company-name">{isServicio ? 'Nombre del Servicio*' : 'Nombre de la Empresa*'}</Label>
+                <Input id="company-name" value={nombreEmpresa} onChange={(e) => setNombreEmpresa(e.target.value)} placeholder={isServicio ? 'Ej: DJ Master, Fotografía Premium' : 'Ej: Insumos Fiesta S.A.'} required />
             </div>
 
+             <div className="space-y-2">
+                <Label htmlFor="proveedor-name">{isServicio ? 'Nombre del Responsable*' : 'Nombre del Contacto (Opcional)'}</Label>
+                <Input id="proveedor-name" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Juan Rodríguez" required={isServicio}/>
+              </div>
+
             <div className="space-y-2">
-              <Label htmlFor="proveedor-servicio">Servicio Principal*</Label>
-              <Input id="proveedor-servicio" value={servicioPrincipal} onChange={(e) => setServicioPrincipal(e.target.value)} placeholder="Ej: Catering, Fotografía, DJ" required />
+              <Label htmlFor="proveedor-servicio">{isServicio ? 'Tipo de Servicio*' : 'Categoría Principal*'}</Label>
+              <Input id="proveedor-servicio" value={servicioPrincipal} onChange={(e) => setServicioPrincipal(e.target.value)} placeholder={isServicio ? 'Ej: Fotografía, DJ, Animación' : 'Ej: Catering, Mantelería, Descartables'} required />
             </div>
             
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -126,7 +146,7 @@ export default function NewProveedorPage() {
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Proveedor'}
+              {isSaving ? 'Guardando...' : 'Guardar Registro'}
             </Button>
           </CardFooter>
         </form>
