@@ -43,6 +43,8 @@ export async function saveSocialPost(
   let posts = await readPostsFile();
   const postId = (formData.get('id') as string) || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const mediaFile = formData.get('mediaFile') as File | null;
+  const autoPublish = formData.get('autoPublish') === 'true';
+
   let mediaUrl: string | undefined = formData.get('existingMediaUrl') as string || undefined;
   let mediaType: 'image' | 'video' | undefined = formData.get('existingMediaType') as 'image' | 'video' || undefined;
 
@@ -71,7 +73,7 @@ export async function saveSocialPost(
     publishDate: formData.get('publishDate') as string,
     text: formData.get('text') as string,
     link: formData.get('link') as string || undefined,
-    status: formData.get('status') as PostStatus,
+    status: autoPublish ? 'Publicado' : (formData.get('status') as PostStatus),
     promotionCost: Number(formData.get('promotionCost')) || undefined,
     performance: {
         likes: Number(formData.get('performance.likes')) || undefined,
@@ -93,6 +95,16 @@ export async function saveSocialPost(
     // Create
     finalPost = { ...postData, id: postId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     posts.push(finalPost);
+  }
+  
+  if (autoPublish) {
+    console.log(`[SIMULATION] Attempting to auto-publish post ${postId} to ${finalPost.platform}.`);
+    // Simulate API call delay and potential failure
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    const isSuccess = Math.random() > 0.1; // 90% success rate
+    if (!isSuccess) {
+      return { success: false, error: `Error simulado al publicar en ${finalPost.platform}.` };
+    }
   }
 
   await writePostsFile(posts);

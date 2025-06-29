@@ -16,7 +16,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, Loader2, Sparkles, Wand2 } from 'lucide-react';
+import { PlusCircle, Loader2, Sparkles, Wand2, Send, Link as LinkIcon, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveSocialPost } from '@/app/actions/social-media';
 import type { SocialPost, SocialPlatform, PostStatus } from '@/types/social-media';
@@ -25,10 +25,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { generateSocialPost, type GenerateSocialPostInput } from '@/ai/flows/generate-social-post-flow';
+import { getSocialConnections } from '@/app/actions/social-connections';
+import type { SocialConnection } from '@/types/settings';
 
 
 interface NewPostDialogProps {
@@ -67,6 +70,7 @@ export function NewPostDialog({
     const [status, setStatus] = useState<PostStatus>('Programado');
     const [promotionCost, setPromotionCost] = useState('');
     const [performanceLikes, setPerformanceLikes] = useState('');
+    const [autoPublish, setAutoPublish] = useState(false);
 
     // AI State
     const [isAiPanelOpen, setIsAiPanelOpen] = useState(false);
@@ -76,7 +80,9 @@ export function NewPostDialog({
 
     // Data for selectors
     const [allEvents, setAllEvents] = useState<FiestaEnPlanificacion[]>([]);
-
+    const [connections, setConnections] = useState<SocialConnection[]>([]);
+    
+    const isPlatformConnected = connections.some(c => c.platform === platform && c.isConnected);
     const activePost = postToEdit || postToDuplicate;
 
     const resetForm = useCallback(() => {
@@ -92,6 +98,7 @@ export function NewPostDialog({
         setStatus(isDuplicating ? 'Programado' : (activePost?.status || 'Programado'));
         setPromotionCost(isDuplicating ? '' : (activePost?.promotionCost?.toString() || ''));
         setPerformanceLikes(isDuplicating ? '' : (activePost?.performance?.likes?.toString() || ''));
+        setAutoPublish(false);
         setIsAiPanelOpen(false);
         setAiSelectedEventId('');
     }, [activePost, postToDuplicate]);
@@ -99,17 +106,18 @@ export function NewPostDialog({
     useEffect(() => {
         if (isOpen) {
             resetForm();
-            const fetchEvents = async () => {
-                const [actual, historial] = await Promise.all([getFiestaActual(), getHistorialFiestas()]);
+            const fetchInitialData = async () => {
+                const [actual, historial, socialConnections] = await Promise.all([getFiestaActual(), getHistorialFiestas(), getSocialConnections()]);
                 const all = [actual, ...historial].filter(Boolean) as FiestaEnPlanificacion[];
                 setAllEvents(all);
+                setConnections(socialConnections);
                  if (activePost?.eventId) {
                     setAiSelectedEventId(activePost.eventId);
                 } else if (actual) {
                     setAiSelectedEventId(actual.id);
                 }
             };
-            fetchEvents();
+            fetchInitialData();
         }
     }, [isOpen, resetForm, activePost]);
 
@@ -153,7 +161,6 @@ export function NewPostDialog({
         e.preventDefault();
         setIsSaving(true);
         const formData = new FormData();
-        // Don't append ID if duplicating
         if (postToEdit) formData.append('id', postToEdit.id);
         
         formData.append('platform', platform);
@@ -171,11 +178,13 @@ export function NewPostDialog({
         formData.append('status', status);
         if (promotionCost) formData.append('promotionCost', promotionCost);
         if (performanceLikes) formData.append('performance.likes', performanceLikes);
+        formData.append('autoPublish', String(autoPublish));
         
         try {
             const result = await saveSocialPost(formData);
             if (result.success) {
                 toast({ title: postToEdit ? "Publicación Actualizada" : (postToDuplicate ? "Publicación Duplicada" : "Publicación Creada") });
+                if(autoPublish) toast({title: "Publicación Enviada", description: `Se ha enviado el post a ${platform} para su publicación.`});
                 setIsOpen(false);
                 onPostCreated();
             } else {
@@ -245,6 +254,24 @@ export function NewPostDialog({
                      <div className="space-y-1"><Label htmlFor="mediaFile">Imagen o Video</Label><Input id="mediaFile" type="file" accept="image/*,video/*" onChange={handleFileChange} />
                      {mediaPreview && <div className="mt-2"><NextImage src={mediaPreview} alt="Vista previa" width={150} height={150} className="rounded-md object-cover"/></div>}
                      </div>
+                     <Separator/>
+                     <div className="p-3 border rounded-lg bg-card">
+                         <div className="flex items-center justify-between">
+                            <Label htmlFor="autoPublish" className="flex flex-col space-y-1">
+                                <span className="font-medium flex items-center gap-2">
+                                     <Send className="w-4 h-4 text-primary"/> Publicar Automáticamente
+                                </span>
+                                <span className="text-xs font-normal leading-snug text-muted-foreground">
+                                    Enviar esta publicación a {platform} usando la cuenta vinculada.
+                                </span>
+                            </Label>
+                            <Switch id="autoPublish" checked={autoPublish} onCheckedChange={setAutoPublish} disabled={!isPlatformConnected}/>
+                         </div>
+                         {!isPlatformConnected && (
+                            <p className="text-xs text-destructive mt-2 flex items-center gap-1.5"><Lock className="w-3 h-3"/> La cuenta de {platform} no está conectada. <Link href="/settings/social-connections" className="underline">Conectar ahora.</Link></p>
+                         )}
+                     </div>
+
                      <Separator/>
                      <h4 className="font-medium text-sm text-muted-foreground">Rendimiento (Opcional)</h4>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

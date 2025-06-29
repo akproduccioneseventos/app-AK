@@ -39,3 +39,17 @@ export const defaultInvoiceTemplateSettings: InvoiceTemplateSettings = {
   logoPosition: 'left',
 };
 
+// Types for Social Media Connections
+export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok';
+
+export interface SocialConnection {
+  platform: SocialPlatformName;
+  isConnected: boolean;
+  username?: string;
+  profilePictureUrl?: string; // URL to the user's profile picture
+  connectedAt?: string; // ISO Date String of when the connection was established
+  // In a real app, you would store encrypted access and refresh tokens here
+  // accessToken?: string; 
+  // refreshToken?: string;
+  // expiresIn?: number;
+}
