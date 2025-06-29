@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
@@ -5,6 +6,9 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, EventWebPageSettings, SocialGallerySettings } from '@/types/fiesta';
 import { getFiestaActual, updateClientPortalSettings, updateWebPageSettingsFiestaActual, updateSocialGallerySettings } from '@/app/actions/fiesta-actual';
+import { deleteSocialPost, clearGallery, getSocialPosts } from '@/app/actions/social-gallery';
+import type { SocialGalleryPost } from '@/types/social-gallery';
+
 import { defaultClientPortalSettings, defaultWebPageSettings, defaultSocialGallerySettings } from '@/lib/fiesta-defaults';
 import QRCodeStylized from 'qrcode.react';
 
@@ -22,6 +26,18 @@ import {
   ClipboardCheck, FileText, Banknote, FileSignature, Users,
   Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 type PortalSettingsForm = {
     portal: ClientPortalSettings;
@@ -40,17 +56,22 @@ export default function PortalClientePage() {
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [fiestaId, setFiestaId] = useState<string>('');
+    const [socialPosts, setSocialPosts] = useState<SocialGalleryPost[]>([]);
+    const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+    const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+    const [isClearingGallery, setIsClearingGallery] = useState(false);
 
     const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
     const [storyImagePreview, setStoryImagePreview] = useState<string | null>(null);
     const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
-    const loadSettings = useCallback(async () => {
+    const loadSettings = useCallback(async (fiestaIdToLoad?: string) => {
         setIsLoading(true);
         setError(null);
         try {
             const fiestaData = await getFiestaActual();
-            setFiestaId(fiestaData.id);
+            const currentFiestaId = fiestaIdToLoad || fiestaData.id;
+            setFiestaId(currentFiestaId);
             setSettings({
                 portal: fiestaData.clientPortalSettings || defaultClientPortalSettings,
                 web: fiestaData.webPageSettings || defaultWebPageSettings,
@@ -59,6 +80,10 @@ export default function PortalClientePage() {
             setCoverImagePreview(fiestaData.webPageSettings?.coverImageUrl || null);
             setStoryImagePreview(fiestaData.webPageSettings?.ourStoryImageUrl || null);
             setGalleryPreviews(fiestaData.webPageSettings?.galleryImageUrls || []);
+
+            if (fiestaData.socialGallerySettings?.enabled) {
+                await loadSocialPosts(currentFiestaId);
+            }
         } catch (err: any) {
             setError("No se pudo cargar la configuración del portal.");
             toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
@@ -67,23 +92,34 @@ export default function PortalClientePage() {
         }
     }, [toast]);
 
+    const loadSocialPosts = async (id: string) => {
+        setIsLoadingPosts(true);
+        try {
+            const posts = await getSocialPosts(id);
+            setSocialPosts(posts);
+        } catch (e) {
+            toast({ title: "Error", description: "No se pudieron cargar las fotos de la galería social.", variant: "destructive" });
+        } finally {
+            setIsLoadingPosts(false);
+        }
+    };
+
     useEffect(() => {
         loadSettings();
     }, [loadSettings]);
     
     useEffect(() => {
-      if (isLoading) return; // Wait until content is loaded
+      if (isLoading) return; 
     
       if (typeof window !== 'undefined' && window.location.hash === '#social-gallery') {
         const element = document.getElementById('social-gallery');
         if (element) {
-          // Use a timeout to ensure the browser has time to paint the element
           setTimeout(() => {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }, 100);
         }
       }
-    }, [isLoading]); // Rerun when loading completes
+    }, [isLoading]);
 
     const handlePortalSettingChange = (key: keyof ClientPortalSettings, value: boolean | string) => {
         setSettings(prev => ({ ...prev, portal: { ...prev.portal, [key]: value } }));
@@ -140,14 +176,7 @@ export default function PortalClientePage() {
 
             if (portalResult.success && webResult.success && socialResult.success) {
                 toast({ title: "¡Configuración Guardada!", description: "Se han guardado todas las configuraciones." });
-                if (portalResult.updatedData) setSettings(prev => ({ ...prev, portal: portalResult.updatedData! }));
-                if (webResult.updatedData) {
-                  setSettings(prev => ({ ...prev, web: webResult.updatedData! }));
-                  setCoverImagePreview(webResult.updatedData.coverImageUrl || null);
-                  setStoryImagePreview(webResult.updatedData.ourStoryImageUrl || null);
-                  setGalleryPreviews(webResult.updatedData.galleryImageUrls || []);
-                }
-                 if (socialResult.updatedData) setSettings(prev => ({ ...prev, social: socialResult.updatedData! }));
+                await loadSettings(fiestaId);
             } else {
                 throw new Error(portalResult.error || webResult.error || socialResult.error || "Error desconocido al guardar.");
             }
@@ -156,6 +185,30 @@ export default function PortalClientePage() {
         } finally {
             setIsSaving(false);
         }
+    };
+    
+    const handleDeletePost = async (postId: string) => {
+        setDeletingPostId(postId);
+        const result = await deleteSocialPost(postId);
+        if(result.success) {
+            toast({title: "Publicación eliminada"});
+            await loadSocialPosts(fiestaId);
+        } else {
+            toast({title: "Error", description: result.error, variant: "destructive"});
+        }
+        setDeletingPostId(null);
+    };
+
+    const handleClearGallery = async () => {
+        setIsClearingGallery(true);
+        const result = await clearGallery(fiestaId);
+        if(result.success) {
+            toast({title: "Galería Vaciada", description: "Todas las fotos y comentarios han sido eliminados."});
+            await loadSocialPosts(fiestaId);
+        } else {
+            toast({title: "Error", description: result.error, variant: "destructive"});
+        }
+        setIsClearingGallery(false);
     };
 
     if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -192,7 +245,7 @@ export default function PortalClientePage() {
 
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Columna Izquierda: Portal del Cliente */}
+                    {/* Columna Izquierda: Portales */}
                     <div className="lg:col-span-1 space-y-6">
                         <Card className="shadow-lg sticky top-20">
                             <CardHeader>
@@ -237,49 +290,8 @@ export default function PortalClientePage() {
                                 </div>
                             </CardContent>
                         </Card>
-                         <Card className="shadow-lg scroll-mt-24" id="social-gallery">
-                            <CardHeader>
-                                <CardTitle className="font-headline text-xl flex items-center gap-2"><Camera className="w-6 h-6 text-primary"/>Galería Social Interactiva</CardTitle>
-                                <CardDescription>Activa una galería en vivo para que los invitados suban fotos.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
-                                    <Label htmlFor="social-gallery-enabled" className="text-base font-medium">Activar Galería Social</Label>
-                                    <Switch id="social-gallery-enabled" checked={settings.social.enabled} onCheckedChange={(val) => handleSocialSettingChange('enabled', val)} />
-                                </div>
-                                {settings.social.enabled && (
-                                <div className="space-y-4 pt-4 border-t">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <Label htmlFor="social-likes-enabled" className="font-normal">Permitir "Me Gusta"</Label>
-                                        <Switch id="social-likes-enabled" checked={settings.social.allowLikes} onCheckedChange={(val) => handleSocialSettingChange('allowLikes', val)} />
-                                    </div>
-                                    <div className="flex items-center justify-between text-sm">
-                                        <Label htmlFor="social-comments-enabled" className="font-normal">Permitir Comentarios</Label>
-                                        <Switch id="social-comments-enabled" checked={settings.social.allowComments} onCheckedChange={(val) => handleSocialSettingChange('allowComments', val)} />
-                                    </div>
-                                    <div className="flex items-center justify-between text-sm">
-                                        <Label htmlFor="social-uploads-enabled" className="font-normal">Permitir Subir Fotos</Label>
-                                        <Switch id="social-uploads-enabled" checked={settings.social.uploadsActive} onCheckedChange={(val) => handleSocialSettingChange('uploadsActive', val)} />
-                                    </div>
-                                    <Separator />
-                                    <div className="space-y-2">
-                                        <Label>Enlace y QR para Invitados</Label>
-                                        <div className="flex gap-2">
-                                            <Input value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} readOnly />
-                                            <Button type="button" size="sm" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/evento/social/${fiestaId}`); toast({title: "Enlace Copiado"}); }}>Copiar</Button>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-2">
-                                        <QRCodeStylized value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} size={128} />
-                                        <p className="text-xs text-muted-foreground">Muestra este QR en el evento.</p>
-                                    </div>
-                                </div>
-                                )}
-                            </CardContent>
-                        </Card>
                     </div>
-
-                    {/* Columna Derecha: Página Pública */}
+                    {/* Columna Derecha: Página Pública y Galería Social */}
                     <div className="lg:col-span-2 space-y-6">
                         <Card className="shadow-lg">
                             <CardHeader>
@@ -311,6 +323,57 @@ export default function PortalClientePage() {
                                 </div>
                             </CardContent>
                         </Card>
+                        <Card className="shadow-lg scroll-mt-24" id="social-gallery">
+                            <CardHeader>
+                                <CardTitle className="font-headline text-xl flex items-center gap-2"><Camera className="w-6 h-6 text-primary"/>Galería Social Interactiva</CardTitle>
+                                <CardDescription>Activa una galería en vivo para que los invitados suban fotos.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+                                    <Label htmlFor="social-gallery-enabled" className="text-base font-medium">Activar Galería Social</Label>
+                                    <Switch id="social-gallery-enabled" checked={settings.social.enabled} onCheckedChange={(val) => handleSocialSettingChange('enabled', val)} />
+                                </div>
+                                {settings.social.enabled && (
+                                <div className="space-y-4 pt-4 border-t">
+                                    <div className="flex items-center justify-between text-sm"><Label htmlFor="social-likes-enabled" className="font-normal">Permitir "Me Gusta"</Label><Switch id="social-likes-enabled" checked={settings.social.allowLikes} onCheckedChange={(val) => handleSocialSettingChange('allowLikes', val)} /></div>
+                                    <div className="flex items-center justify-between text-sm"><Label htmlFor="social-comments-enabled" className="font-normal">Permitir Comentarios</Label><Switch id="social-comments-enabled" checked={settings.social.allowComments} onCheckedChange={(val) => handleSocialSettingChange('allowComments', val)} /></div>
+                                    <div className="flex items-center justify-between text-sm"><Label htmlFor="social-uploads-enabled" className="font-normal">Permitir Subir Fotos</Label><Switch id="social-uploads-enabled" checked={settings.social.uploadsActive} onCheckedChange={(val) => handleSocialSettingChange('uploadsActive', val)} /></div>
+                                    <Separator />
+                                    <div className="space-y-2">
+                                        <Label>Enlace y QR para Invitados</Label>
+                                        <div className="flex gap-2"><Input value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} readOnly /><Button type="button" size="sm" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/evento/social/${fiestaId}`); toast({title: "Enlace Copiado"}); }}>Copiar</Button></div>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <QRCodeStylized value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} size={128} />
+                                        <p className="text-xs text-muted-foreground">Muestra este QR en el evento.</p>
+                                    </div>
+                                    <Separator />
+                                    <h4 className="font-medium text-sm">Moderación</h4>
+                                    {isLoadingPosts ? <Loader2 className="animate-spin"/> : socialPosts.length > 0 ? (
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {socialPosts.map(post => (
+                                                <div key={post.id} className="relative group aspect-square">
+                                                    <NextImage src={post.imageUrl} layout="fill" objectFit="cover" alt={`Foto de ${post.authorName}`} className="rounded-md"/>
+                                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Button variant="destructive" size="icon" className="h-8 w-8" onClick={()=>handleDeletePost(post.id)} disabled={deletingPostId===post.id}>
+                                                          {deletingPostId===post.id ? <Loader2 className="animate-spin w-4 h-4"/> : <Trash2 className="w-4 h-4"/>}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : <p className="text-xs text-muted-foreground text-center">Aún no hay fotos en la galería.</p>}
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="destructive" className="w-full mt-2" disabled={isClearingGallery || socialPosts.length === 0}><Trash2 className="w-4 h-4 mr-2"/>Vaciar Galería</Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader><AlertDialogTitle>¿Vaciar Galería?</AlertDialogTitle><AlertDialogDescription>Se eliminarán TODAS las fotos y comentarios. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
+                                            <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleClearGallery} className="bg-destructive hover:bg-destructive/90">Sí, vaciar</AlertDialogAction></AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
@@ -324,3 +387,4 @@ export default function PortalClientePage() {
         </div>
     );
 }
+
