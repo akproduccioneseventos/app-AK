@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Tag, DollarSign, Landmark, BarChart3, ListFilter } from 'lucide-react'; // Added ListFilter
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, ListFilter, DollarSign, Tag, BarChart3, StickyNote } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import type { ServicioEmpresa, CategoriaServicio, TipoItemEmpresa } from '@/types/empresa'; // Added TipoItemEmpresa
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from '@/components/ui/input';
@@ -26,8 +26,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa'; // Import ALL_TIPOS_ITEM_EMPRESA
-
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -42,7 +42,7 @@ export default function InventarioGeneralPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [tipoItemFilter, setTipoItemFilter] = useState<Set<TipoItemEmpresa>>(new Set());
+  const [categoriaFilter, setCategoriaFilter] = useState<Set<CategoriaServicio>>(new Set());
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
@@ -50,7 +50,7 @@ export default function InventarioGeneralPage() {
     try {
       const data = await getServiciosEmpresa();
       setAllItems(data);
-      setFilteredItems(data); // Initial filter state
+      setFilteredItems(data);
     } catch (err: any) {
       setError("No se pudo cargar el catálogo maestro.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -68,10 +68,10 @@ export default function InventarioGeneralPage() {
     const filteredData = allItems.filter(item =>
       (item.nombre.toLowerCase().includes(lowercasedFilter) ||
       (item.categoria && item.categoria.toLowerCase().includes(lowercasedFilter))) &&
-      (tipoItemFilter.size === 0 || (item.tipoItem && tipoItemFilter.has(item.tipoItem)))
+      (categoriaFilter.size === 0 || (item.categoria && categoriaFilter.has(item.categoria)))
     );
     setFilteredItems(filteredData);
-  }, [searchTerm, allItems, tipoItemFilter]);
+  }, [searchTerm, allItems, categoriaFilter]);
   
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
@@ -90,11 +90,11 @@ export default function InventarioGeneralPage() {
     }
   };
 
-  const handleTipoItemFilterToggle = (tipo: TipoItemEmpresa) => {
-    setTipoItemFilter(prev => {
+  const handleCategoriaFilterToggle = (categoria: CategoriaServicio) => {
+    setCategoriaFilter(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(tipo)) newSet.delete(tipo);
-      else newSet.add(tipo);
+      if (newSet.has(categoria)) newSet.delete(categoria);
+      else newSet.add(categoria);
       return newSet;
     });
   };
@@ -108,14 +108,15 @@ export default function InventarioGeneralPage() {
 
   const categoriasOrdenadas = Object.keys(itemsAgrupadosPorCategoria).sort();
 
-  const capitalPorCategoria = categoriasOrdenadas.map(categoria => {
+  const capitalPorCategoria = useMemo(() => categoriasOrdenadas.map(categoria => {
     const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
-      const subtotal = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
-      return sum + subtotal;
+      const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+      return sum + valorItem;
     }, 0);
     return { nombre: categoria, total: totalCategoria };
-  });
-  const capitalTotalGeneral = capitalPorCategoria.reduce((sum, cat) => sum + cat.total, 0);
+  }), [categoriasOrdenadas, itemsAgrupadosPorCategoria]);
+
+  const capitalTotalGeneral = useMemo(() => capitalPorCategoria.reduce((sum, cat) => sum + cat.total, 0), [capitalPorCategoria]);
 
   return (
     <div className="space-y-6">
@@ -123,25 +124,25 @@ export default function InventarioGeneralPage() {
         <div className="flex items-center gap-3">
           <Package className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Catálogo Maestro de Ítems y Servicios
+            Inventario General y Valor de Activos
           </h1>
         </div>
          <Link href="/empresa/todos-los-servicios/nuevo" passHref>
           <Button variant="default">
             <PackagePlus className="w-4 h-4 mr-2" />
-            Añadir Ítem/Servicio
+            Añadir Ítem
           </Button>
         </Link>
       </div>
 
       <Card className="shadow-lg">
         <CardHeader className="border-b">
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><Landmark className="w-6 h-6 text-primary"/>Valor de Activos (Insumos)</CardTitle>
-          <CardDescription>Resumen del capital total de insumos y activos físicos, por categoría.</CardDescription>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos de la Empresa</CardTitle>
+          <CardDescription>Resumen del capital total de insumos y activos físicos, por servicio/categoría.</CardDescription>
         </CardHeader>
-        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {capitalPorCategoria.filter(cat => itemsAgrupadosPorCategoria[cat.nombre]?.some(item => item.tipoItem === 'Insumo/Ingrediente' || item.tipoItem === 'Activo Fijo')).map(cat => (
-            <Card key={cat.nombre} className="bg-muted/50">
+        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {capitalPorCategoria.map(cat => (
+            cat.total > 0 && <Card key={cat.nombre} className="bg-muted/50">
               <CardHeader className="pb-2 pt-3 px-4"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center"><Tag className="w-3.5 h-3.5 mr-1.5"/> {cat.nombre}</CardTitle></CardHeader>
               <CardContent className="px-4 pb-3"><p className="text-2xl font-bold text-primary">{formatCurrency(cat.total)}</p></CardContent>
             </Card>
@@ -150,7 +151,7 @@ export default function InventarioGeneralPage() {
         <CardFooter className="border-t p-4 bg-muted/30">
           <div className="flex justify-end items-center w-full gap-2">
             <BarChart3 className="w-5 h-5 text-primary"/>
-            <span className="text-lg font-semibold">Capital Total Activos Físicos:</span>
+            <span className="text-lg font-semibold">Capital Total General:</span>
             <span className="text-2xl font-bold text-primary">{formatCurrency(capitalTotalGeneral)}</span>
           </div>
         </CardFooter>
@@ -168,17 +169,19 @@ export default function InventarioGeneralPage() {
             <AccordionItem value="filter-tipo" className="border-b-0">
               <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline h-auto [&[data-state=open]>svg]:text-primary">
                 <ListFilter className="w-4 h-4 mr-2"/>
-                {tipoItemFilter.size === 0 ? "Filtrar por Tipo" : `${tipoItemFilter.size} Tipo(s) Seleccionado(s)`}
+                {categoriaFilter.size === 0 ? "Filtrar por Servicio" : `${categoriaFilter.size} Servicio(s) Seleccionado(s)`}
               </AccordionTrigger>
               <AccordionContent className="p-0">
-                <div className="p-2 border-t">
-                  {ALL_TIPOS_ITEM_EMPRESA.map(tipo => (
-                    <div key={tipo} className="flex items-center space-x-2 py-1.5 px-1 hover:bg-muted/50 rounded-sm">
-                      <Checkbox id={`tipo-${tipo}`} checked={tipoItemFilter.has(tipo)} onCheckedChange={() => handleTipoItemFilterToggle(tipo)} />
-                      <Label htmlFor={`tipo-${tipo}`} className="text-sm font-normal cursor-pointer flex-grow">{tipo}</Label>
-                    </div>
-                  ))}
-                </div>
+                <ScrollArea className="h-auto max-h-48">
+                  <div className="p-2 border-t">
+                    {ALL_CATEGORIAS_SERVICIO.map(cat => (
+                      <div key={cat} className="flex items-center space-x-2 py-1.5 px-1 hover:bg-muted/50 rounded-sm">
+                        <Checkbox id={`cat-${cat}`} checked={categoriaFilter.has(cat)} onCheckedChange={() => handleCategoriaFilterToggle(cat)} />
+                        <Label htmlFor={`cat-${cat}`} className="text-sm font-normal cursor-pointer flex-grow">{cat}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -189,10 +192,8 @@ export default function InventarioGeneralPage() {
         <div className="flex items-center justify-center py-10"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">Cargando catálogo...</p></div>
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
-      ) : categoriasOrdenadas.length === 0 && (searchTerm || tipoItemFilter.size > 0) ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />No se encontraron ítems que coincidan con los filtros.</CardContent></Card>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Package className="w-16 h-16 mx-auto mb-4 opacity-30" />El catálogo maestro está vacío.<Link href="/empresa/todos-los-servicios/nuevo" passHref><Button variant="link" className="block mx-auto mt-2">Añadir primer ítem</Button></Link></CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm || categoriaFilter.size > 0 ? "No se encontraron ítems que coincidan con los filtros." : "El catálogo está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (
@@ -202,42 +203,42 @@ export default function InventarioGeneralPage() {
               </AccordionTrigger>
               <AccordionContent className="px-4 pt-0 pb-3">
                 <div className="space-y-3 mt-2">
-                  {itemsAgrupadosPorCategoria[categoria]?.map((item) => (
-                    <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
-                      <CardHeader className="pb-2 pt-3 px-3">
-                        <div className="flex justify-between items-start">
-                          <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
-                           <div className="flex gap-1">
-                                {/* El botón de editar se elimina hasta que se implemente /editar/[id]/page.tsx */}
-                                {/* <Link href={`/empresa/todos-los-servicios/editar/${item.id}`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link> */}
+                  {itemsAgrupadosPorCategoria[categoria]?.map((item) => {
+                    const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+                    return (
+                      <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
+                        <CardHeader className="pb-2 pt-3 px-3">
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
+                            <div className="flex gap-1">
+                                <Link href={`/empresa/todos-los-servicios/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                   <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={deletingId === item.id}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                 </AlertDialog>
                             </div>
-                        </div>
-                        <Badge variant="secondary" className="text-xs mt-1">{item.tipoItem || 'No especificado'}</Badge>
-                      </CardHeader>
-                      <CardContent className="px-3 pb-3 text-sm space-y-1">
-                        <p className="text-xs"><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
-                        {item.tipoItem !== 'Prestador de Servicio' && <p className="text-xs"><span className="text-muted-foreground">Cant. Disponible: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>}
-                        {item.tipoItem !== 'Prestador de Servicio' && <p className="text-xs"><span className="text-muted-foreground">Valor Unit. (Costo): </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>}
-                        {item.precioVenta !== undefined && <p className="text-xs"><span className="text-muted-foreground">P.Venta (Servicio): </span><span className="font-medium text-green-600">{formatCurrency(item.precioVenta)}</span></p>}
-                        {item.tipoItem === 'Prestador de Servicio' && item.contactoPrincipal && <p className="text-xs"><span className="text-muted-foreground">Contacto: </span>{item.contactoPrincipal} {item.telefonoContacto && `(${item.telefonoContacto})`}</p>}
-                        {item.tipoItem === 'Prestador de Servicio' && item.descripcionServicio && <p className="text-xs mt-1"><span className="text-muted-foreground">Descripción: </span>{item.descripcionServicio}</p>}
-                        {item.productosOfrecidos && <p className="text-xs mt-1"><span className="text-muted-foreground">Ofrece: </span>{item.productosOfrecidos}</p>}
-                      </CardContent>
-                    </Card>
-                  ))}
+                          </div>
+                          <Badge variant="secondary" className="text-xs mt-1">{item.tipoItem || 'No especificado'}</Badge>
+                        </CardHeader>
+                        <CardContent className="px-3 pb-3 text-sm space-y-1">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs">
+                            <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
+                            <p><span className="text-muted-foreground">Cant. Disp: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
+                            <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
+                            <p><span className="text-muted-foreground">P.Venta: </span><span className="font-medium text-green-600">{formatCurrency(item.precioVenta)}</span></p>
+                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total: </span>{formatCurrency(itemTotalValue)}</p>
+                          </div>
+                          {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </div>
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
       )}
-      <CardFooter className="mt-6 text-xs text-muted-foreground">
-        Este catálogo maestro sirve como base para la "Lista de Carga Operativa" de cada fiesta (funcionalidad en desarrollo).
-      </CardFooter>
     </div>
   );
 }
