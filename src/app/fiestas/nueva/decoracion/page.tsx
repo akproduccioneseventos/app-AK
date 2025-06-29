@@ -35,6 +35,8 @@ import {
 } from "@/components/ui/accordion";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
+import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flows/suggest-palette-flow';
+
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
   'Detalle Entrada', 'Centro de Mesa', 'Detalle Zona Regalos', 'Detalle Cuadro Firmas', 'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Señalética', 'Globos', 'Otro'
@@ -103,6 +105,13 @@ export default function DecoracionYDisenoEventoPage() {
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
   
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
+
+  // New states for AI Palette Generator
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiThemeInput, setAiThemeInput] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [suggestedPalette, setSuggestedPalette] = useState<SuggestedPalette | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const loadDecoracionData = useCallback(async () => {
     setIsLoading(true);
@@ -272,6 +281,38 @@ export default function DecoracionYDisenoEventoPage() {
     }
   };
 
+  const handleGeneratePalette = async () => {
+    if (!aiThemeInput.trim()) {
+      setAiError("Por favor, ingresa un tema o descripción.");
+      return;
+    }
+    setIsGenerating(true);
+    setAiError(null);
+    setSuggestedPalette(null);
+    try {
+      const result = await suggestPalette({ themeDescription: aiThemeInput });
+      if (result) {
+        setSuggestedPalette(result);
+      } else {
+        throw new Error("La IA no pudo generar una paleta. Intenta con otra descripción.");
+      }
+    } catch (err: any) {
+      console.error("Error generating palette:", err);
+      setAiError(err.message || "Ocurrió un error inesperado.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleApplySuggestedPalette = () => {
+    if (suggestedPalette) {
+      handleSelectPalette(suggestedPalette);
+      setIsAiModalOpen(false);
+      setSuggestedPalette(null);
+      setAiThemeInput('');
+    }
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
   }
@@ -346,11 +387,55 @@ export default function DecoracionYDisenoEventoPage() {
         </Card>
 
         <Card className="shadow-md">
-            <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Consejos de IA (Próximamente)</CardTitle></CardHeader>
-            <CardContent className="text-center text-muted-foreground space-y-3">
-                <p className="text-sm">Próximamente, podrás obtener sugerencias de combinaciones de colores y estilos basadas en el tema de tu evento.</p>
-                <Button disabled variant="secondary">Generar Sugerencias con IA</Button>
-            </CardContent>
+          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Consejos de IA</CardTitle></CardHeader>
+          <CardContent className="text-center text-muted-foreground space-y-3">
+              <p className="text-sm">Obtén sugerencias de combinaciones de colores y estilos basadas en el tema de tu evento.</p>
+              <Dialog open={isAiModalOpen} onOpenChange={(open) => {
+                  setIsAiModalOpen(open);
+                  if (!open) {
+                      setAiError(null);
+                      setSuggestedPalette(null);
+                  }
+              }}>
+                <DialogTrigger asChild>
+                  <Button variant="secondary"><Wand2 className="w-4 h-4 mr-2"/>Generar Paleta de Colores con IA</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Generador de Paleta de Colores</DialogTitle>
+                    <DialogDescription>Describe el tema o la atmósfera de tu evento y la IA sugerirá una paleta de colores armoniosa.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="ai-theme-input">Tema o Descripción del Evento</Label>
+                      <Input id="ai-theme-input" value={aiThemeInput} onChange={(e) => setAiThemeInput(e.target.value)} placeholder="Ej: Boda rústica en el bosque, fiesta de los 80 neón"/>
+                    </div>
+                    {isGenerating && (
+                      <div className="flex items-center justify-center p-4"><Loader2 className="w-6 h-6 animate-spin text-primary mr-2" /> <p>Generando...</p></div>
+                    )}
+                    {aiError && (
+                      <p className="text-sm text-destructive">{aiError}</p>
+                    )}
+                    {suggestedPalette && (
+                      <div className="space-y-3 pt-2">
+                        <h4 className="text-sm font-medium">Sugerencia de la IA:</h4>
+                        <div className="flex justify-around items-center p-3 border rounded-md">
+                          <div className="text-center"><div className="w-12 h-12 rounded-full mx-auto border" style={{backgroundColor: suggestedPalette.primary}}></div><p className="text-xs mt-1">Principal</p><p className="text-xs font-mono">{suggestedPalette.primary}</p></div>
+                          <div className="text-center"><div className="w-12 h-12 rounded-full mx-auto border" style={{backgroundColor: suggestedPalette.secondary}}></div><p className="text-xs mt-1">Secundario</p><p className="text-xs font-mono">{suggestedPalette.secondary}</p></div>
+                          <div className="text-center"><div className="w-12 h-12 rounded-full mx-auto border" style={{backgroundColor: suggestedPalette.accent}}></div><p className="text-xs mt-1">Acento</p><p className="text-xs font-mono">{suggestedPalette.accent}</p></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter className="gap-2 sm:gap-0">
+                    <Button type="button" variant="outline" onClick={handleGeneratePalette} disabled={isGenerating || !aiThemeInput.trim()}>
+                      {isGenerating ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Generar'}
+                    </Button>
+                    <Button type="button" onClick={handleApplySuggestedPalette} disabled={isGenerating || !suggestedPalette}>Aplicar Paleta</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+          </CardContent>
         </Card>
 
         <Card className="shadow-lg mb-6">
@@ -365,8 +450,7 @@ export default function DecoracionYDisenoEventoPage() {
         </Card>
 
         <Card className="shadow-lg mb-6">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2">
+          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2">
               <ListPlus className="text-primary"/>Elementos Decorativos Clave
             </CardTitle>
             <CardDescription>Añade y detalla los elementos específicos para las áreas principales del evento.</CardDescription>
@@ -523,5 +607,3 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
-
-    
