@@ -33,6 +33,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ALL_CATEGORIAS_SERVICIO, type CategoriaServicio } from '@/types/empresa';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -71,6 +73,7 @@ export default function GestionRolesPage() {
     } else {
       setCurrentRol({ 
         nombre: '', 
+        categoriaServicio: undefined,
         sueldoPorEvento: 2100, // Example default
         porcentajeSalarioVacacional: 8.33,
         porcentajeAguinaldo: 8.33,
@@ -93,6 +96,10 @@ export default function GestionRolesPage() {
     e.preventDefault();
     if (!currentRol || !currentRol.nombre?.trim()) {
       toast({ title: "Nombre Requerido", variant: "destructive" });
+      return;
+    }
+    if (!currentRol.categoriaServicio?.trim()) {
+      toast({ title: "Categoría de Servicio Requerida", variant: "destructive" });
       return;
     }
     
@@ -176,6 +183,26 @@ export default function GestionRolesPage() {
               </div>
 
               <div className="space-y-1">
+                <Label htmlFor="rol-categoria">Categoría de Servicio *</Label>
+                <Select
+                  value={currentRol.categoriaServicio || ''}
+                  onValueChange={(value) => handleModalFieldChange('categoriaServicio', value as CategoriaServicio)}
+                  required
+                >
+                  <SelectTrigger id="rol-categoria">
+                    <SelectValue placeholder="Seleccionar categoría..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALL_CATEGORIAS_SERVICIO.filter(cat => cat.startsWith('Servicio')).map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                    <SelectItem value="Personal">Personal</SelectItem>
+                    <SelectItem value="Otros servicios">Otros servicios</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
                 <Label htmlFor="rol-sueldo">Sueldo por Evento (Pago Total al Empleado) *</Label>
                 <Input id="rol-sueldo" type="number" value={currentRol.sueldoPorEvento ?? ''} onChange={(e) => handleModalFieldChange('sueldoPorEvento', e.target.value)} placeholder="Ej: 2100" min="0" step="any" required />
                 <p className="text-xs text-muted-foreground">Este monto incluye sueldo base, vacacional y aguinaldo.</p>
@@ -228,7 +255,8 @@ export default function GestionRolesPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div className="flex-grow">
                       <h4 className="font-semibold text-foreground">{rol.nombre}</h4>
-                      <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
+                      <p className="text-xs font-medium text-primary">{rol.categoriaServicio || 'Sin categoría asignada'}</p>
+                      <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-1">
                         <span>Sueldo Evento: <strong>{formatCurrency(rol.sueldoPorEvento)}</strong></span>
                         <span>Vacacional: {rol.porcentajeSalarioVacacional}%</span>
                         <span>Aguinaldo: {rol.porcentajeAguinaldo}%</span>

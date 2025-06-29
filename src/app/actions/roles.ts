@@ -4,6 +4,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
+import type { CategoriaServicio } from '@/types/empresa';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const rolesFilePath = path.join(dataDirectory, 'roles.json');
@@ -69,6 +70,9 @@ export async function saveRol(
   if (!rolData.nombre?.trim()) {
     return { success: false, error: "El nombre del rol es obligatorio." };
   }
+  if (!rolData.categoriaServicio?.trim()) {
+    return { success: false, error: "La categoría del servicio es obligatoria." };
+  }
   const sueldoNum = Number(rolData.sueldoPorEvento);
   if (isNaN(sueldoNum) || sueldoNum < 0) {
     return { success: false, error: "El sueldo por evento debe ser un número positivo." };
@@ -81,6 +85,7 @@ export async function saveRol(
   
   const rolToProcess: Omit<Rol, 'id'> = {
     nombre: rolData.nombre.trim(),
+    categoriaServicio: rolData.categoriaServicio,
     sueldoPorEvento: sueldoNum,
     porcentajeSalarioVacacional: Number(rolData.porcentajeSalarioVacacional) || 0,
     porcentajeAguinaldo: Number(rolData.porcentajeAguinaldo) || 0,

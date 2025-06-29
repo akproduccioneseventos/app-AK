@@ -1,7 +1,10 @@
 
+import type { CategoriaServicio } from './empresa';
+
 export interface Rol {
   id: string;
   nombre: string;
+  categoriaServicio?: CategoriaServicio;
   
   // El sueldo total que se paga al empleado por el evento.
   // Incluye sueldo base, vacacional y aguinaldo.
