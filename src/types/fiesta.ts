@@ -1,5 +1,4 @@
 
-
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; // Importar Invitado
 import type { UnidadServicio } from './empresa';
@@ -185,6 +184,7 @@ export interface BebidaItem {
   costoTotal?: number;
   proveedorHabitual?: string;
   notas?: string;
+  mlPorUnidad?: number; // Nuevo: ej, una botella de 2.25L es 2250ml
 }
 
 export type BebidaCategoriaId =
@@ -195,6 +195,8 @@ export type BebidaCategoriaId =
   | 'vinos_espumantes'
   | 'barra_tragos'
   | 'cafeteria';
+  
+export type TipoEventoAjusteBebidas = 'formal' | 'juvenil' | 'corporativo' | 'mixto_estandar';
 
 export interface BebidaCategoria {
   id: BebidaCategoriaId;
@@ -202,9 +204,10 @@ export interface BebidaCategoria {
   activada: boolean;
   descripcion?: string;
   items: BebidaItem[];
+  consumoEstimadoPorPersona: { // Nuevo: consumo en LITROS por persona
+    [key in TipoEventoAjusteBebidas]: number;
+  };
 }
-
-export type TipoEventoAjusteBebidas = 'formal' | 'juvenil' | 'corporativo' | 'mixto_estandar';
 
 export interface BebidasData {
   categorias: BebidaCategoria[];

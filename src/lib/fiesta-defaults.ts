@@ -1,5 +1,4 @@
 
-
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
@@ -113,13 +112,13 @@ export const defaultReposteriaData: ReposteriaData = {
 };
 
 export const defaultBebidasCategorias: BebidaCategoria[] = [
-  { id: 'refrescos_gaseosas', nombreDisplay: 'Refrescos / Gaseosas', activada: false, items: [], descripcion: 'Variedad de bebidas carbonatadas.' },
-  { id: 'jugos', nombreDisplay: 'Jugos Naturales y Envasados', activada: false, items: [], descripcion: 'Opciones frutales y refrescantes.' },
-  { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
-  { id: 'bebidas_alcoholicas_varias', nombreDisplay: 'Bebidas Alcohólicas Varias', activada: false, items: [], descripcion: 'Licores, aperitivos, etc.' },
-  { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
-  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], descripcion: 'Cócteles con y sin alcohol preparados al momento.' },
-  { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' },
+  { id: 'refrescos_gaseosas', nombreDisplay: 'Refrescos / Gaseosas', activada: false, items: [], descripcion: 'Variedad de bebidas carbonatadas.', consumoEstimadoPorPersona: { formal: 0.5, juvenil: 1.5, corporativo: 0.75, mixto_estandar: 1.0 } },
+  { id: 'jugos', nombreDisplay: 'Jugos Naturales y Envasados', activada: false, items: [], descripcion: 'Opciones frutales y refrescantes.', consumoEstimadoPorPersona: { formal: 0.25, juvenil: 0.5, corporativo: 0.3, mixto_estandar: 0.4 } },
+  { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.', consumoEstimadoPorPersona: { formal: 0.75, juvenil: 0.5, corporativo: 1.0, mixto_estandar: 0.6 } },
+  { id: 'bebidas_alcoholicas_varias', nombreDisplay: 'Bebidas Alcohólicas Varias', activada: false, items: [], descripcion: 'Licores, aperitivos, etc.', consumoEstimadoPorPersona: { formal: 0.4, juvenil: 0.2, corporativo: 0.3, mixto_estandar: 0.3 } },
+  { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.', consumoEstimadoPorPersona: { formal: 0.5, juvenil: 0.1, corporativo: 0.4, mixto_estandar: 0.3 } },
+  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], descripcion: 'Cócteles con y sin alcohol preparados al momento.', consumoEstimadoPorPersona: { formal: 0.8, juvenil: 1.0, corporativo: 0.6, mixto_estandar: 0.9 } },
+  { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.', consumoEstimadoPorPersona: { formal: 0.2, juvenil: 0.1, corporativo: 0.5, mixto_estandar: 0.2 } },
 ];
 
 export const defaultBebidasData: BebidasData = {

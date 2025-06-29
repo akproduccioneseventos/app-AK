@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Droplets, Trash2, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Droplets, Trash2, ChevronDown, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, BebidasData, BebidaCategoria, TipoEventoAjusteBebidas, BebidaItem } from '@/types/fiesta';
 import { getFiestaActual, updateBebidasFiestaActual } from '@/app/actions/fiesta-actual';
@@ -36,6 +36,7 @@ const formatCurrency = (amount?: number) => {
 
 export default function GestionBebidasPage() {
   const { toast } = useToast();
+  const [fiestaData, setFiestaData] = useState<FiestaEnPlanificacion | null>(null);
   const [bebidasData, setBebidasData] = useState<BebidasData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -50,17 +51,19 @@ export default function GestionBebidasPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const fetchedFiestaData = await getFiestaActual();
+      setFiestaData(fetchedFiestaData);
+      
       const mergedCategorias = defaultBebidasCategorias.map(defaultCat => {
-        const savedCat = fiestaData.bebidas?.categorias?.find(sc => sc.id === defaultCat.id);
+        const savedCat = fetchedFiestaData.bebidas?.categorias?.find(sc => sc.id === defaultCat.id);
         const mergedCat = savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
         mergedCat.items = mergedCat.items || [];
         return mergedCat;
       });
       setBebidasData({
         categorias: mergedCategorias,
-        tipoEventoAjuste: fiestaData.bebidas?.tipoEventoAjuste || 'mixto_estandar',
-        notasGenerales: fiestaData.bebidas?.notasGenerales || '',
+        tipoEventoAjuste: fetchedFiestaData.bebidas?.tipoEventoAjuste || 'mixto_estandar',
+        notasGenerales: fetchedFiestaData.bebidas?.notasGenerales || '',
       });
     } catch (err: any) {
       setError("No se pudieron cargar los datos de bebidas.");
@@ -76,7 +79,7 @@ export default function GestionBebidasPage() {
 
   const handleCategoryChange = (
     categoryId: BebidaCategoria['id'],
-    field: keyof Omit<BebidaCategoria, 'id' | 'items' | 'nombreDisplay'>,
+    field: keyof Omit<BebidaCategoria, 'id' | 'items' | 'nombreDisplay' | 'consumoEstimadoPorPersona'>,
     value: string | boolean
   ) => {
     setBebidasData(prev => {
@@ -95,7 +98,7 @@ export default function GestionBebidasPage() {
 
   const openItemModal = (categoryId: string, item?: BebidaItem) => {
     setCurrentCategoryId(categoryId);
-    setCurrentItem(item ? { ...item } : { id: '', nombre: '', cantidadNecesaria: 1, costoUnitario: 0 });
+    setCurrentItem(item ? { ...item } : { id: '', nombre: '', cantidadNecesaria: 1, costoUnitario: 0, mlPorUnidad: 1000 });
     setIsItemModalOpen(true);
   };
 
@@ -121,6 +124,7 @@ export default function GestionBebidasPage() {
       costoTotal: cantidad * costo,
       proveedorHabitual: currentItem.proveedorHabitual,
       notas: currentItem.notas,
+      mlPorUnidad: Number(currentItem.mlPorUnidad) || undefined,
     };
     setBebidasData(prev => {
         if (!prev) return null;
@@ -176,18 +180,20 @@ export default function GestionBebidasPage() {
     }
   };
 
-  if (isLoading || !bebidasData) {
+  if (isLoading || !bebidasData || !fiestaData) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
   }
   if (error) {
     return <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error</h2><p className="text-muted-foreground">{error}</p><Button onClick={loadData} className="mt-4">Reintentar</Button></div>;
   }
 
+  const numeroInvitados = Number(fiestaData.configuracion.invitadosEstimados) || 0;
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
        <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
         <DialogContent>
-            <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Bebida</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Producto</DialogTitle></DialogHeader>
             {currentItem && (
                 <div className="space-y-3">
                     <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={(e) => handleItemModalChange('nombre', e.target.value)} /></div>
@@ -218,7 +224,7 @@ export default function GestionBebidasPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl">Configuración de Bebidas</CardTitle>
-            <CardDescription>Activa y personaliza las categorías de bebidas para tu evento.</CardDescription>
+            <CardDescription>Activa y personaliza las categorías de bebidas para tu evento. Las cantidades estimadas se calculan para <span className="font-bold text-primary">{numeroInvitados}</span> invitados.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -227,11 +233,13 @@ export default function GestionBebidasPage() {
                     <SelectTrigger id="tipo-evento-ajuste" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo de evento..." /></SelectTrigger>
                     <SelectContent>{tiposEventoAjusteDisponibles.map(tipo => (<SelectItem key={tipo.value} value={tipo.value} className="text-base">{tipo.label}</SelectItem>))}</SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">Esto ayudará a estimar cantidades (funcionalidad futura).</p>
             </div>
 
             <Accordion type="multiple" defaultValue={bebidasData.categorias.filter(c=>c.activada).map(c => c.id)} className="w-full space-y-3">
-              {bebidasData.categorias.map(cat => (
+              {bebidasData.categorias.map(cat => {
+                const totalLitrosNecesarios = cat.consumoEstimadoPorPersona[bebidasData.tipoEventoAjuste || 'mixto_estandar'] * numeroInvitados;
+                
+                return (
                 <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm bg-card">
                   <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
                     <AccordionPrimitive.Trigger
@@ -255,6 +263,10 @@ export default function GestionBebidasPage() {
                   <AccordionContent className="px-4 pt-2 pb-4 space-y-4 border-t">
                     {cat.activada && (
                       <>
+                        <div className="p-2 bg-blue-50 border-l-4 border-blue-400 rounded-r-md text-blue-800">
+                           <p className="text-sm font-semibold">Estimación para este evento: <span className="text-lg">{totalLitrosNecesarios.toFixed(1)}</span> litros en total.</p>
+                           <p className="text-xs">Usa este valor como guía para añadir los productos abajo.</p>
+                        </div>
                         <div className="space-y-2 mt-3"><Label htmlFor={`desc-bebida-${cat.id}`}>Descripción</Label><Textarea id={`desc-bebida-${cat.id}`} value={cat.descripcion || ''} onChange={(e) => handleCategoryChange(cat.id, 'descripcion', e.target.value)} rows={2} placeholder="Preferencias, marcas específicas, etc." /></div>
                         
                         <Separator/>
@@ -268,7 +280,7 @@ export default function GestionBebidasPage() {
                                     <li key={item.id} className="flex items-center justify-between p-2 border rounded bg-muted/50">
                                         <div><p className="text-sm font-medium">{item.nombre}</p><p className="text-xs text-muted-foreground">Cant: {item.cantidadNecesaria} | Costo Total Est: {formatCurrency(item.costoTotal)}</p></div>
                                         <div className="flex gap-1">
-                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openItemModal(cat.id, item)}><Droplets className="w-3.5 h-3.5"/></Button>
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openItemModal(cat.id, item)}><Wand2 className="w-3.5 h-3.5"/></Button>
                                             <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                                         </div>
                                     </li>
@@ -282,9 +294,10 @@ export default function GestionBebidasPage() {
                     )}
                   </AccordionContent>
                 </AccordionItem>
-              ))}
+                )
+              })}
             </Accordion>
-            <div className="space-y-2 pt-6 border-t mt-6">
+             <div className="space-y-2 pt-6 border-t mt-6">
                 <Label htmlFor="notas-generales-bebidas">Notas Generales de Bebidas</Label>
                 <Textarea id="notas-generales-bebidas" value={bebidasData.notasGenerales || ''} onChange={(e) => handleNotasGeneralesChange(e.target.value)} placeholder="Observaciones sobre el servicio de bebidas, horarios de barra, etc." rows={3} />
             </div>
