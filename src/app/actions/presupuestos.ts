@@ -1,12 +1,14 @@
 
 'use server';
 
-import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; // Updated import
-// getMenus is no longer needed here if getPlatos is removed
-// import { getMenus } from './menus-catering'; 
-
+import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
 import fs from 'fs/promises';
 import path from 'path';
+
+// Import invoice actions and types
+import { getInvoiceById, saveInvoice } from './invoices';
+import type { Invoice, InvoiceItem } from '@/types/invoice';
+
 
 const PRESUPUESTOS_COLLECTION_JSON = 'presupuestos.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
@@ -176,9 +178,48 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     timestamp: new Date().toISOString(), // Always update timestamp
   };
   
-  presupuestos[index] = { id, ...finalDataToUpdate };
+  const updatedPresupuesto = { id, ...finalDataToUpdate };
+  presupuestos[index] = updatedPresupuesto;
   await writePresupuestosFile(presupuestos);
-  return { success: true, presupuesto: presupuestos[index] };
+
+  // Fase 3: Sincronizar factura si el presupuesto está facturado
+  if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
+    try {
+      const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
+      if (linkedInvoice) {
+        
+        const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
+        
+        // Se actualiza la factura con un único ítem que resume el nuevo total del presupuesto.
+        // Esto es más seguro que intentar replicar cada ítem y descuento.
+        const summaryItem: Omit<InvoiceItem, 'id'> = {
+            description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
+            quantity: 1,
+            unitPrice: budgetTotal,
+            total: budgetTotal,
+        };
+        
+        const invoiceDataToUpdate: Invoice = {
+            ...linkedInvoice,
+            items: [{
+                ...summaryItem,
+                id: `item_${linkedInvoice.id}_summary_update` 
+            }],
+            notes: updatedPresupuesto.notas || linkedInvoice.notes,
+        };
+
+        const updateInvoiceResult = await saveInvoice(invoiceDataToUpdate);
+        
+        if (!updateInvoiceResult.success) {
+          console.warn(`Presupuesto ${updatedPresupuesto.id} actualizado, pero falló la sincronización con la factura ${updatedPresupuesto.invoiceId}: ${updateInvoiceResult.error}`);
+        }
+      }
+    } catch (invoiceError) {
+      console.error(`Error al sincronizar la factura del presupuesto actualizado ${updatedPresupuesto.id}:`, invoiceError);
+    }
+  }
+
+  return { success: true, presupuesto: updatedPresupuesto };
 }
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {

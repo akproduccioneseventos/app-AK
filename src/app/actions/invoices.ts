@@ -85,16 +85,13 @@ export async function saveInvoice(
     }
     const { id, ...dataToUpdate } = invoiceDataInput;
     
-    // Ensure items have IDs, if they are being updated.
-    // For simplicity in this refactor, if items are passed in an update, we assume they are the new full set.
-    // More complex merging of items could be done if needed.
     const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => ({
       ...item,
       id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`
     }));
 
     const subtotal = updatedItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-    const taxRate = dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0; // Keep existing tax rate if not provided
+    const taxRate = dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0;
     const taxAmount = (subtotal * taxRate) / 100;
     const totalAmount = subtotal + taxAmount;
     
@@ -102,7 +99,7 @@ export async function saveInvoice(
       ...invoices[index], 
       ...dataToUpdate, 
       items: updatedItems as InvoiceItem[],
-      payments: dataToUpdate.payments || invoices[index].payments || [], // Preserve existing payments if not provided
+      payments: dataToUpdate.payments || invoices[index].payments || [],
       subtotal,
       taxRate,
       taxAmount,
