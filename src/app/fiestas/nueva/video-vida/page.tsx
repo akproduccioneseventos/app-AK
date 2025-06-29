@@ -22,6 +22,7 @@ export default function VideoVidaAdminPage() {
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   
   const uniqueLink = typeof window !== 'undefined' && fiesta ? `${window.location.origin}/video-vida/${fiesta.id}` : '';
 
@@ -66,6 +67,36 @@ export default function VideoVidaAdminPage() {
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(uniqueLink);
     toast({ title: "Enlace Copiado", description: "El enlace único se ha copiado al portapapeles." });
+  };
+  
+  const handleDownloadAll = async () => {
+    if (!fiesta || uploadedPhotos.length === 0) return;
+    setIsDownloading(true);
+    toast({ title: "Iniciando descarga...", description: `Se descargarán ${uploadedPhotos.length} fotos. Por favor, permite las descargas múltiples si tu navegador lo solicita.`});
+    try {
+      for (const photoName of uploadedPhotos) {
+        const response = await fetch(`/api/video-vida-photos/${fiesta.id}/${photoName}`);
+        if (!response.ok) {
+          throw new Error(`No se pudo descargar ${photoName}`);
+        }
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = photoName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        // Pequeña pausa para no sobrecargar el navegador
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+      toast({ title: "¡Descarga Completa!", description: "Todas las fotos han sido descargadas."});
+    } catch (error: any) {
+        toast({ title: "Error en la Descarga", description: error.message || "Ocurrió un error al descargar las fotos.", variant: "destructive" });
+    } finally {
+        setIsDownloading(false);
+    }
   };
   
   if (isLoading) {
@@ -138,12 +169,13 @@ export default function VideoVidaAdminPage() {
               ))}
             </div>
           ) : (
-             <div className="text-center py-8 text-muted-foreground"><Image className="w-12 h-12 mx-auto mb-2 opacity-50"/>Esperando fotos del cliente...</div>
+             <div className="text-center py-8 text-muted-foreground"><ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/>Esperando fotos del cliente...</div>
           )}
         </CardContent>
         <CardFooter className="border-t pt-4">
-            <Button disabled>
-                <Download className="w-4 h-4 mr-2"/> Descargar todo como .ZIP (Próximamente)
+            <Button onClick={handleDownloadAll} disabled={isDownloading || uploadedPhotos.length === 0}>
+                {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Download className="w-4 h-4 mr-2"/>}
+                {isDownloading ? "Descargando..." : "Descargar Todas las Fotos"}
             </Button>
         </CardFooter>
       </Card>
