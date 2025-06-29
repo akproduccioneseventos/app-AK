@@ -91,6 +91,19 @@ export default function GestionRolesPage() {
       return { ...prev, [field]: numValue === '' ? '' : (isNaN(numValue as number) ? value : numValue) };
     });
   };
+  
+  const costoAportesCalculado = useMemo(() => {
+    if (!currentRol || !currentRol.sueldoPorEvento || !currentRol.porcentajeAportesPatronales) {
+      return 0;
+    }
+    const sueldo = Number(currentRol.sueldoPorEvento);
+    const porcentaje = Number(currentRol.porcentajeAportesPatronales);
+    if (isNaN(sueldo) || isNaN(porcentaje)) {
+      return 0;
+    }
+    return (sueldo * porcentaje) / 100;
+  }, [currentRol]);
+
 
   const handleSaveRol = async (e: FormEvent) => {
     e.preventDefault();
@@ -225,6 +238,13 @@ export default function GestionRolesPage() {
                   <Label htmlFor="rol-aportes" className="flex items-center gap-1"><Percent className="w-3 h-3"/>Aportes Patronales (BPS, DGI, etc.)</Label>
                   <Input id="rol-aportes" type="number" value={currentRol.porcentajeAportesPatronales ?? ''} onChange={(e) => handleModalFieldChange('porcentajeAportesPatronales', e.target.value)} placeholder="Ej: 20" min="0" max="100" step="any" />
                   <p className="text-xs text-muted-foreground">Este % se calcula sobre el sueldo total del empleado.</p>
+              </div>
+
+              <div className="p-3 border rounded-md bg-blue-50/50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-medium">Aportes (Calculado):</span>
+                  <span className="font-bold text-lg">{formatCurrency(costoAportesCalculado)}</span>
+                </div>
               </div>
               
               <DialogFooter className="pt-3">
