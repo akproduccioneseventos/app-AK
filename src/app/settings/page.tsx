@@ -2,11 +2,16 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'; // Added CardFooter
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText } from 'lucide-react';
 
 const settingsCards = [
-  // Removed: Apariencia de Facturas
-  // Removed: Configuración de Presupuestos
+   {
+    title: "Apariencia de Documentos",
+    description: "Personaliza el logo y colores de tus facturas y presupuestos.",
+    href: "/settings/templates", 
+    icon: FileText,
+    buttonLabel: "Personalizar Plantillas"
+  },
   {
     title: "Información de la Empresa",
     description: "Actualiza los datos de tu empresa para los documentos.",

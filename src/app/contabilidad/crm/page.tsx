@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
@@ -115,6 +115,8 @@ export default function CrmPage() {
     if (!leadToConvert) return false;
     formData.append('prospectId', leadToConvert.id);
     formData.append('prospectName', leadToConvert.name);
+    // Ensure email is on the FormData if it exists, for customer creation
+    if (leadToConvert.email) formData.append('email', leadToConvert.email);
 
     setIsLoading(true);
     try {

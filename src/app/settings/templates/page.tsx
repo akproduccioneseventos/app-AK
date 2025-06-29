@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UploadCloud, Palette, Save, ArrowLeft, Info, Image as ImageIconLucide, AlertTriangle, Loader2 } from 'lucide-react';
+import { UploadCloud, Palette, Save, ArrowLeft, Info, Image as ImageIconLucide, AlertTriangle, Loader2, FileText, Settings as SettingsIcon } from 'lucide-react';
 import NextImage from 'next/image'; 
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +19,7 @@ import { getInvoiceTemplateSettings, saveInvoiceTemplateSettings } from '@/app/a
 
 type LogoPosition = 'left' | 'center' | 'right';
 
-export default function InvoiceTemplateCustomizationPage() {
+export default function TemplatesSettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<InvoiceTemplateSettings>(defaultInvoiceTemplateSettings);
   const [logoPreview, setLogoPreview] = useState<string | null>(defaultInvoiceTemplateSettings.logoUrl);
@@ -135,10 +135,10 @@ export default function InvoiceTemplateCustomizationPage() {
         <div className="flex items-center gap-3">
           <Palette className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Apariencia de Facturas
+            Apariencia de Documentos
           </h1>
         </div>
-        <Link href="/invoices" passHref>
+        <Link href="/settings" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver
@@ -146,12 +146,47 @@ export default function InvoiceTemplateCustomizationPage() {
         </Link>
       </div>
 
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="shadow-lg">
+            <CardHeader>
+                <div className="flex items-center gap-2">
+                    <FileText className="w-6 h-6 text-primary" />
+                    <CardTitle className="font-headline text-xl">Facturas</CardTitle>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground">Define el logo, colores y disposición para tus facturas. Estos ajustes se aplicarán al generar los documentos PDF.</p>
+            </CardContent>
+            <CardFooter>
+                 <Button onClick={handleSave} disabled={isSaving || isLoading} className="w-full">
+                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2" />}
+                    Guardar Config. Factura
+                </Button>
+            </CardFooter>
+        </Card>
+        <Card className="shadow-lg">
+            <CardHeader>
+                 <div className="flex items-center gap-2">
+                    <SettingsIcon className="w-6 h-6 text-primary" />
+                    <CardTitle className="font-headline text-xl">Presupuestos</CardTitle>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground">Selecciona qué elementos mostrar en tus presupuestos (logo, desglose de precios) y configura ajustes automáticos.</p>
+            </CardContent>
+            <CardFooter>
+                 <Link href="/settings/budget-display" passHref className="w-full">
+                    <Button variant="outline" className="w-full">
+                        Configurar Presupuestos
+                    </Button>
+                </Link>
+            </CardFooter>
+        </Card>
+      </div>
+
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Personalización Visual</CardTitle>
-          <CardDescription>
-            Define el logo, colores y disposición para tus facturas. Estos ajustes se aplicarán al generar los documentos PDF.
-          </CardDescription>
+          <CardTitle className="font-headline text-xl">Personalización Visual de Facturas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
           {/* Logo Section */}
@@ -247,60 +282,8 @@ export default function InvoiceTemplateCustomizationPage() {
               </p>
             </div>
           </div>
-
-          <Separator />
-          
-          <div className="space-y-2">
-            <h3 className="text-lg font-medium font-headline text-primary border-b pb-1">Próximas Opciones</h3>
-            <div className="p-3 border border-dashed rounded-md text-sm text-muted-foreground space-y-1">
-                <p>☑️ Selección de Fuente Tipográfica.</p>
-                <p>☑️ Ajuste del Tamaño General del Texto.</p>
-                <p>☑️ Configuración de Márgenes y Espaciado.</p>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium font-headline text-primary border-b pb-1">Previsualización Estimada de Factura</h3>
-            <div className="p-4 border rounded-md aspect-[210/297] bg-white flex items-center justify-center shadow-inner">
-               <div className="w-full h-full border border-dashed border-gray-300 p-4 flex flex-col">
-                  <div className={`flex items-start mb-4 ${settings.logoPosition === 'center' ? 'justify-center' : settings.logoPosition === 'right' ? 'justify-end' : 'justify-start'}`}>
-                    {logoPreview ? <NextImage src={logoPreview} alt="Logo Previsualización" width={100} height={40} className={`object-contain ${getLogoAlignmentClass()}`} data-ai-hint="company invoice logo" /> : <div className={`h-10 w-24 bg-gray-200 rounded text-xs flex items-center justify-center text-gray-500 ${getLogoAlignmentClass()}`}>Logo Aquí</div>}
-                  </div>
-                  <div className={`flex ${settings.logoPosition === 'center' ? 'justify-center' : 'justify-between'} items-center mb-4`}>
-                    {settings.logoPosition !== 'center' && <div className="w-1/3"></div>} 
-                    <h2 className="text-xl font-bold text-center flex-grow" style={{color: settings.primaryColor}}>FACTURA</h2>
-                    {settings.logoPosition !== 'center' && <div className="w-1/3 text-right"><p className="text-xs text-gray-500">Nº: 2024-001</p></div>}
-                  </div>
-                  {settings.logoPosition === 'center' && <p className="text-xs text-gray-500 text-center mb-2">Nº: 2024-001</p>}
-
-                  <div className="h-0.5 w-full rounded-full mb-4" style={{backgroundColor: settings.accentColor}}></div>
-                  <div className="flex-grow text-xs text-gray-700 space-y-1">
-                    <p><span className="font-medium">Cliente:</span> Nombre Cliente Ejemplo</p>
-                    <p><span className="font-medium">Fecha:</span> DD/MM/AAAA</p>
-                    <div className="mt-3 border-t border-b border-dashed py-2">
-                        <p>Servicio Ejemplo 1 .......................... <span style={{color: settings.primaryColor}}>$XX.XX</span></p>
-                        <p>Producto Ejemplo 2 .......................... <span style={{color: settings.primaryColor}}>$YY.YY</span></p>
-                    </div>
-                    <p className="text-right font-bold mt-2">Total: <span style={{color: settings.primaryColor}}>$ZZ.ZZ</span></p>
-                  </div>
-                  <div className="mt-auto text-center text-[8px] text-gray-500 pt-2 border-t">
-                    Pie de página simulado. El contenido real se define en "Información de la Empresa".
-                  </div>
-               </div>
-            </div>
-             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-2"><Info className="w-3 h-3"/>La previsualización es una simulación. La aplicación real de estos estilos a la generación de PDF es una funcionalidad futura.</p>
-          </div>
         </CardContent>
-         <CardFooter className="border-t pt-6">
-            <Button size="lg" onClick={handleSave} disabled={isSaving || isLoading}>
-                {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2" />}
-                {isSaving ? "Guardando..." : "Guardar Personalización"}
-            </Button>
-        </CardFooter>
       </Card>
     </div>
   );
 }
-

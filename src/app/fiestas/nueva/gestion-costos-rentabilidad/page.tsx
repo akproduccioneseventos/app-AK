@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat } from 'lucide-react'; // Added ChefHat, HardHat, ShoppingCart
+import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
 import { getFiestaActual, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
@@ -58,16 +58,14 @@ export default function GestionCostosRentabilidadPage() {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
       setGestionCostos(fiesta.gestionCostos || initialGestionCostosData);
+      const invitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
 
       // Calculate Gastronomic Costs
       if (fiesta.menuAsignadoId) {
         const menuData = await getMenuById(fiesta.menuAsignadoId);
-        if (menuData && typeof fiesta.configuracion.invitadosEstimados === 'number') {
-          const costoPorPersona = menuData.items.reduce((sum, item) => {
-             const costPerPortion = item.costPerPortion ?? (item.totalDishCost / (item.basePortions || 1));
-             return sum + (costPerPortion || 0);
-          }, 0);
-          setCostoTotalMenu(costoPorPersona * fiesta.configuracion.invitadosEstimados);
+        if (menuData) {
+          const costoPorPersona = menuData.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
+          setCostoTotalMenu(costoPorPersona * invitados);
         } else {
           setCostoTotalMenu(0);
         }
