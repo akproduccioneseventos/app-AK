@@ -7,6 +7,7 @@ import type { Customer, CustomerStatus } from '@/types/customer';
 
 import fs from 'fs/promises';
 import path from 'path';
+import type { ConfigEventoDataStorage } from '@/types/fiesta';
 
 const CLIENTES_COLLECTION_JSON = 'customers.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
@@ -263,4 +264,55 @@ export async function getBudgetFilePath(filename: string): Promise<string | null
   }
 }
 
+export async function syncCustomerFromFiestaConfig(
+  customerId: string,
+  config: Partial<ConfigEventoDataStorage>
+): Promise<{ success: boolean; error?: string }> {
+  const customerToUpdate = await getCustomerById(customerId);
+  if (!customerToUpdate) {
+    return { success: false, error: `Customer with ID ${customerId} not found for sync.` };
+  }
+
+  let updated = false;
+
+  const newPartyDateISO = config.fechaEvento ? new Date(config.fechaEvento).toISOString() : undefined;
+  if (newPartyDateISO && customerToUpdate.partyDate !== newPartyDateISO) {
+      customerToUpdate.partyDate = newPartyDateISO;
+      updated = true;
+  }
+  
+  let partyTimeStr = '';
+  if (config.horaInicio) partyTimeStr += config.horaInicio;
+  if (config.horaFin) partyTimeStr += ` - ${config.horaFin}`;
+  if (partyTimeStr && customerToUpdate.partyTime !== partyTimeStr) {
+      customerToUpdate.partyTime = partyTimeStr;
+      updated = true;
+  }
+
+  if(config.tipoCelebracion && customerToUpdate.partyType !== config.tipoCelebracion) {
+    customerToUpdate.partyType = config.tipoCelebracion;
+    updated = true;
+  }
+  
+  const newGuestCount = config.invitadosEstimados !== undefined ? Number(config.invitadosEstimados) : undefined;
+  if(newGuestCount !== undefined && customerToUpdate.guestCount !== newGuestCount) {
+    customerToUpdate.guestCount = newGuestCount;
+    updated = true;
+  }
+
+  if(config.nombreLugar && customerToUpdate.venueName !== config.nombreLugar) {
+    customerToUpdate.venueName = config.nombreLugar;
+    updated = true;
+  }
+
+  // Only save if there were actual changes to avoid unnecessary writes.
+  if (updated) {
+    const saveResult = await saveCustomer(customerToUpdate);
+    if (!saveResult.success) {
+      return { success: false, error: saveResult.error || "Failed to save synced customer data." };
+    }
+  }
+  
+  return { success: true };
+}
     

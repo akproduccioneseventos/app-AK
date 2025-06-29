@@ -17,7 +17,7 @@ import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults'; 
-import { getCustomers, getCustomerById } from '@/app/actions/customers';
+import { getCustomers, getCustomerById, syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import { Separator } from '@/components/ui/separator';
 
 
@@ -177,7 +177,6 @@ export default function ConfiguracionEventoPage() {
       toast({ title: "Error", description: "No hay datos de configuración para guardar.", variant: "destructive" });
       return;
     }
-    // Validaciones client-side eliminadas para flexibilidad
 
     setIsSaving(true);
     const configToSave: ConfigEventoDataStorage = {
@@ -187,17 +186,37 @@ export default function ConfiguracionEventoPage() {
       invitadosEstimados: Number(config.invitadosEstimados) || 0,
       presupuestoEstimado: Number(config.presupuestoEstimado) || 0,
     };
-    delete (configToSave as any).direccionLugar; // Asegurarse de no enviar
+    delete (configToSave as any).direccionLugar;
     
     if (!configToSave.clienteId) delete configToSave.clienteId;
 
     try {
       const result = await updateConfiguracionFiestaActual(configToSave);
+      
       if (result.success && result.updatedData) {
         toast({
           title: "¡Configuración Guardada!",
           description: "Los detalles generales del evento se han actualizado.",
         });
+
+        // Step 2: Bidirectional Sync
+        if (config.clienteId) {
+          const syncResult = await syncCustomerFromFiestaConfig(config.clienteId, configToSave);
+          if (syncResult.success) {
+            toast({
+              title: "Cliente Sincronizado",
+              description: "La ficha del cliente ha sido actualizada con los datos del evento."
+            });
+          } else {
+            console.warn("Sync failed:", syncResult.error);
+            toast({
+              title: "Error de Sincronización",
+              description: "No se pudo actualizar la ficha del cliente. " + (syncResult.error || ""),
+              variant: "destructive"
+            });
+          }
+        }
+        
         const updatedConfigFromServer = {
             ...result.updatedData,
             fechaEvento: result.updatedData.fechaEvento ? new Date(result.updatedData.fechaEvento) : undefined,
@@ -473,4 +492,3 @@ export default function ConfiguracionEventoPage() {
   );
 }
 
-    
