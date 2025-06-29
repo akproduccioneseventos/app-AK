@@ -7,7 +7,7 @@ import { es } from 'date-fns/locale';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Facebook, Instagram, Music } from 'lucide-react';
+import { Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
 
 interface SocialMediaCalendarProps {
     posts: SocialPost[];
@@ -17,12 +17,14 @@ const platformStyles: Record<SocialPlatform, string> = {
     Facebook: 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200',
     Instagram: 'bg-pink-100 text-pink-800 border-pink-300 hover:bg-pink-200',
     TikTok: 'bg-gray-200 text-gray-900 border-gray-400 hover:bg-gray-300',
+    WhatsApp: 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200',
 };
 
 const platformIcons: Record<SocialPlatform, React.ElementType> = {
     Facebook: Facebook,
     Instagram: Instagram,
     TikTok: Music,
+    WhatsApp: MessageSquare,
 };
 
 export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
@@ -56,7 +58,9 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
                         <div className="absolute bottom-0.5 flex justify-center items-center gap-0.5">
                             {postsForDay.slice(0, 3).map(post => {
                                 const Icon = platformIcons[post.platform];
-                                return <Icon key={post.id} className="w-2 h-2" style={{color: platformStyles[post.platform].match(/text-([a-z]+)-/)?.[1] || 'black'}}/>;
+                                const colorMatch = platformStyles[post.platform].match(/text-([a-z]+)-(\d+)/);
+                                const color = colorMatch ? `${colorMatch[1]}-${colorMatch[2]}` : 'black';
+                                return <Icon key={post.id} className="w-2 h-2" style={{color: `var(--tw-color-${color})`}}/>;
                             })}
                         </div>
                     </div>
@@ -66,9 +70,11 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
                     <ul className="space-y-1.5">
                         {postsForDay.map(post => {
                              const Icon = platformIcons[post.platform];
+                             const colorMatch = platformStyles[post.platform].match(/text-([a-z]+)-(\d+)/);
+                             const color = colorMatch ? `${colorMatch[1]}-${colorMatch[2]}` : 'black';
                              return (
                                 <li key={post.id} className="text-xs flex items-start gap-1.5">
-                                    <Icon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{color: platformStyles[post.platform].match(/text-([a-z]+)-/)?.[1] || 'black'}}/>
+                                    <Icon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{color: `var(--tw-color-${color})`}}/>
                                     <span>{post.text.substring(0, 50)}{post.text.length > 50 ? '...' : ''}</span>
                                 </li>
                              )

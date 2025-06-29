@@ -40,7 +40,7 @@ export const defaultInvoiceTemplateSettings: InvoiceTemplateSettings = {
 };
 
 // Types for Social Media Connections
-export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok';
+export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
 
 export interface SocialConnection {
   platform: SocialPlatformName;
@@ -48,6 +48,7 @@ export interface SocialConnection {
   username?: string;
   profilePictureUrl?: string; // URL to the user's profile picture
   connectedAt?: string; // ISO Date String of when the connection was established
+  phoneNumber?: string; // Specifically for WhatsApp
   // In a real app, you would store encrypted access and refresh tokens here
   // accessToken?: string; 
   // refreshToken?: string;

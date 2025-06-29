@@ -36,7 +36,39 @@ export async function getSocialConnections(): Promise<SocialConnection[]> {
   return readConnectionsFile();
 }
 
+export async function saveWhatsAppNumber(phoneNumber: string): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
+  if (!phoneNumber || !/^\d+$/.test(phoneNumber.replace(/\s/g, ''))) {
+    return { success: false, error: "Por favor, ingresa un número de teléfono válido (solo dígitos)." };
+  }
+  
+  const connections = await readConnectionsFile();
+  const existingConnection = connections.find(c => c.platform === 'WhatsApp');
+
+  const newConnection: SocialConnection = {
+    platform: 'WhatsApp',
+    isConnected: true,
+    username: `WhatsApp (${phoneNumber})`,
+    phoneNumber: phoneNumber,
+    connectedAt: new Date().toISOString(),
+  };
+
+  if (existingConnection) {
+    const updatedConnections = connections.map(c => c.platform === 'WhatsApp' ? newConnection : c);
+    await writeConnectionsFile(updatedConnections);
+  } else {
+    connections.push(newConnection);
+    await writeConnectionsFile(connections);
+  }
+
+  return { success: true, connection: newConnection };
+}
+
+
 export async function connectSocialPlatform(platform: SocialPlatformName): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
+  if (platform === 'WhatsApp') {
+    return { success: false, error: 'La conexión de WhatsApp se gestiona con un número de teléfono.' };
+  }
+
   const connections = await readConnectionsFile();
   const existingConnection = connections.find(c => c.platform === platform);
 
@@ -71,11 +103,6 @@ export async function disconnectSocialPlatform(platform: SocialPlatformName): Pr
   const initialLength = connections.length;
   connections = connections.filter(c => c.platform !== platform);
   
-  // If we just want to mark as disconnected instead of removing
-  // const updatedConnections = connections.map(c => 
-  //   c.platform === platform ? { ...c, isConnected: false, username: undefined, profilePictureUrl: undefined } : c
-  // );
-
   if (connections.length === initialLength) {
     return { success: false, error: `No se encontró una conexión para ${platform}.`};
   }

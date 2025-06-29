@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewPostDialog } from './NewPostDialog';
-import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music, Copy } from 'lucide-react';
+import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music, Copy, MessageSquare } from 'lucide-react';
 import NextImage from 'next/image';
 import {
   AlertDialog,
@@ -43,6 +43,7 @@ const platformIcons = {
     Facebook: <Facebook className="w-5 h-5 text-blue-600" />,
     Instagram: <Instagram className="w-5 h-5 text-pink-500" />,
     TikTok: <Music className="w-5 h-5 text-black dark:text-white" />,
+    WhatsApp: <MessageSquare className="w-5 h-5 text-green-500" />,
 };
 
 export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplicate }: SocialPostCardProps) {
