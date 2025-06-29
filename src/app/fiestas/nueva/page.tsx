@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -191,9 +190,10 @@ interface ModuleCardProps {
   description: string;
   href: string;
   icon: React.ElementType;
+  actionLabel: string;
 }
 
-const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon: Icon }) => (
+const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon: Icon, actionLabel }) => (
     <Card className="group flex flex-col h-full shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3 mb-2">
@@ -212,7 +212,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon:
         <Link href={href} passHref className="w-full">
             <Button asChild variant="link" className="p-0 h-auto text-sm text-primary group-hover:underline">
             <div className="inline-flex items-center justify-start gap-2 whitespace-nowrap">
-                Acceder al Módulo <ArrowRight className="w-4 h-4" />
+                {actionLabel} <ArrowRight className="w-4 h-4 ml-1" />
             </div>
             </Button>
         </Link>
