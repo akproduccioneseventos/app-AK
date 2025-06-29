@@ -127,6 +127,13 @@ export interface ClientPortalSettings {
   showMenu: boolean;
 }
 
+export interface SocialGallerySettings {
+  enabled: boolean;
+  allowLikes: boolean;
+  allowComments: boolean;
+  uploadsActive: boolean;
+}
+
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
@@ -297,6 +304,7 @@ export interface FiestaEnPlanificacion {
   invitados?: Invitado[];
   webPageSettings?: EventWebPageSettings;
   clientPortalSettings?: ClientPortalSettings;
+  socialGallerySettings?: SocialGallerySettings;
   musica?: MusicaFiesta;
   reposteria?: ReposteriaData;
   bebidas?: BebidasData;

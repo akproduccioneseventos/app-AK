@@ -57,6 +57,14 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Gestionar Portal"
   },
   {
+    title: "Galería Social en Vivo",
+    description: "Configura una galería interactiva para que los invitados suban fotos durante el evento.",
+    icon: Camera,
+    href: "/fiestas/nueva/portal-cliente",
+    status: "Disponible",
+    actionLabel: "Configurar Galería"
+  },
+  {
     title: "Lista de Tareas del Evento",
     description: "Organiza y sigue el progreso de todas las tareas pendientes para tu fiesta.",
     icon: ListChecks,
@@ -201,11 +209,13 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon:
         <p className="text-sm text-muted-foreground">{description}</p>
       </CardContent>
       <CardFooter className="pt-2">
-        <Button asChild variant="link" className="p-0 h-auto text-sm text-primary group-hover:underline">
-          <Link href={href}>
-            Acceder al Módulo <ArrowRight className="w-4 h-4 ml-1" />
-          </Link>
-        </Button>
+        <Link href={href} passHref className="w-full">
+            <Button asChild variant="link" className="p-0 h-auto text-sm text-primary group-hover:underline">
+            <div className="inline-flex items-center justify-start gap-2 whitespace-nowrap">
+                Acceder al Módulo <ArrowRight className="w-4 h-4" />
+            </div>
+            </Button>
+        </Link>
       </CardFooter>
     </Card>
 );

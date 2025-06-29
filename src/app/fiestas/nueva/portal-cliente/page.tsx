@@ -4,9 +4,10 @@
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ClientPortalSettings, EventWebPageSettings } from '@/types/fiesta';
-import { getFiestaActual, updateClientPortalSettings, updateWebPageSettingsFiestaActual } from '@/app/actions/fiesta-actual';
-import { defaultClientPortalSettings, defaultWebPageSettings } from '@/lib/fiesta-defaults';
+import type { FiestaEnPlanificacion, ClientPortalSettings, EventWebPageSettings, SocialGallerySettings } from '@/types/fiesta';
+import { getFiestaActual, updateClientPortalSettings, updateWebPageSettingsFiestaActual, updateSocialGallerySettings } from '@/app/actions/fiesta-actual';
+import { defaultClientPortalSettings, defaultWebPageSettings, defaultSocialGallerySettings } from '@/lib/fiesta-defaults';
+import QRCodeStylized from 'qrcode.react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,23 +21,26 @@ import NextImage from 'next/image';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
   ClipboardCheck, FileText, Banknote, FileSignature, Users,
-  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock
+  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode
 } from 'lucide-react';
 
 type PortalSettingsForm = {
     portal: ClientPortalSettings;
     web: EventWebPageSettings;
+    social: SocialGallerySettings;
 };
 
 export default function PortalClientePage() {
     const { toast } = useToast();
     const [settings, setSettings] = useState<PortalSettingsForm>({
         portal: defaultClientPortalSettings,
-        web: defaultWebPageSettings
+        web: defaultWebPageSettings,
+        social: defaultSocialGallerySettings,
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [fiestaId, setFiestaId] = useState<string>('');
 
     const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
     const [storyImagePreview, setStoryImagePreview] = useState<string | null>(null);
@@ -47,9 +51,11 @@ export default function PortalClientePage() {
         setError(null);
         try {
             const fiestaData = await getFiestaActual();
+            setFiestaId(fiestaData.id);
             setSettings({
                 portal: fiestaData.clientPortalSettings || defaultClientPortalSettings,
                 web: fiestaData.webPageSettings || defaultWebPageSettings,
+                social: fiestaData.socialGallerySettings || defaultSocialGallerySettings,
             });
             setCoverImagePreview(fiestaData.webPageSettings?.coverImageUrl || null);
             setStoryImagePreview(fiestaData.webPageSettings?.ourStoryImageUrl || null);
@@ -67,17 +73,15 @@ export default function PortalClientePage() {
     }, [loadSettings]);
     
     const handlePortalSettingChange = (key: keyof ClientPortalSettings, value: boolean | string) => {
-        setSettings(prev => ({
-            ...prev,
-            portal: { ...prev.portal, [key]: value }
-        }));
+        setSettings(prev => ({ ...prev, portal: { ...prev.portal, [key]: value } }));
     };
     
     const handleWebSettingChange = (key: keyof EventWebPageSettings, value: string | boolean) => {
-        setSettings(prev => ({
-            ...prev,
-            web: { ...prev.web, [key]: value }
-        }));
+        setSettings(prev => ({ ...prev, web: { ...prev.web, [key]: value } }));
+    };
+
+    const handleSocialSettingChange = (key: keyof SocialGallerySettings, value: boolean) => {
+        setSettings(prev => ({ ...prev, social: { ...prev.social, [key]: value } }));
     };
 
     const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>, setPreview: React.Dispatch<React.SetStateAction<string | null>>) => {
@@ -115,13 +119,14 @@ export default function PortalClientePage() {
         };
 
         try {
-            const [portalResult, webResult] = await Promise.all([
+            const [portalResult, webResult, socialResult] = await Promise.all([
                 updateClientPortalSettings(settings.portal),
-                updateWebPageSettingsFiestaActual(finalWebSettings)
+                updateWebPageSettingsFiestaActual(finalWebSettings),
+                updateSocialGallerySettings(settings.social)
             ]);
 
-            if (portalResult.success && webResult.success) {
-                toast({ title: "¡Configuración Guardada!", description: "Se han guardado las configuraciones del portal y la página web." });
+            if (portalResult.success && webResult.success && socialResult.success) {
+                toast({ title: "¡Configuración Guardada!", description: "Se han guardado todas las configuraciones." });
                 if (portalResult.updatedData) setSettings(prev => ({ ...prev, portal: portalResult.updatedData! }));
                 if (webResult.updatedData) {
                   setSettings(prev => ({ ...prev, web: webResult.updatedData! }));
@@ -129,8 +134,9 @@ export default function PortalClientePage() {
                   setStoryImagePreview(webResult.updatedData.ourStoryImageUrl || null);
                   setGalleryPreviews(webResult.updatedData.galleryImageUrls || []);
                 }
+                 if (socialResult.updatedData) setSettings(prev => ({ ...prev, social: socialResult.updatedData! }));
             } else {
-                throw new Error(portalResult.error || webResult.error || "Error desconocido al guardar.");
+                throw new Error(portalResult.error || webResult.error || socialResult.error || "Error desconocido al guardar.");
             }
         } catch (err: any) {
             toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
@@ -218,6 +224,46 @@ export default function PortalClientePage() {
                                 </div>
                             </CardContent>
                         </Card>
+                         <Card className="shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="font-headline text-xl flex items-center gap-2"><Camera className="w-6 h-6 text-primary"/>Galería Social Interactiva</CardTitle>
+                                <CardDescription>Activa una galería en vivo para que los invitados suban fotos.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+                                    <Label htmlFor="social-gallery-enabled" className="text-base font-medium">Activar Galería Social</Label>
+                                    <Switch id="social-gallery-enabled" checked={settings.social.enabled} onCheckedChange={(val) => handleSocialSettingChange('enabled', val)} />
+                                </div>
+                                {settings.social.enabled && (
+                                <div className="space-y-4 pt-4 border-t">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <Label htmlFor="social-likes-enabled" className="font-normal">Permitir "Me Gusta"</Label>
+                                        <Switch id="social-likes-enabled" checked={settings.social.allowLikes} onCheckedChange={(val) => handleSocialSettingChange('allowLikes', val)} />
+                                    </div>
+                                    <div className="flex items-center justify-between text-sm">
+                                        <Label htmlFor="social-comments-enabled" className="font-normal">Permitir Comentarios</Label>
+                                        <Switch id="social-comments-enabled" checked={settings.social.allowComments} onCheckedChange={(val) => handleSocialSettingChange('allowComments', val)} />
+                                    </div>
+                                    <div className="flex items-center justify-between text-sm">
+                                        <Label htmlFor="social-uploads-enabled" className="font-normal">Permitir Subir Fotos</Label>
+                                        <Switch id="social-uploads-enabled" checked={settings.social.uploadsActive} onCheckedChange={(val) => handleSocialSettingChange('uploadsActive', val)} />
+                                    </div>
+                                    <Separator />
+                                    <div className="space-y-2">
+                                        <Label>Enlace y QR para Invitados</Label>
+                                        <div className="flex gap-2">
+                                            <Input value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} readOnly />
+                                            <Button type="button" size="sm" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/evento/social/${fiestaId}`); toast({title: "Enlace Copiado"}); }}>Copiar</Button>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <QRCodeStylized value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} size={128} />
+                                        <p className="text-xs text-muted-foreground">Muestra este QR en el evento.</p>
+                                    </div>
+                                </div>
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
 
                     {/* Columna Derecha: Página Pública */}
@@ -233,13 +279,12 @@ export default function PortalClientePage() {
                                 </a>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                {/* Contenido movido de pagina-web/page.tsx aquí */}
                                 <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Información General</h3>
                                 <div className="space-y-2"><Label htmlFor="page-title">Título</Label><Input id="page-title" value={settings.web.pageTitle || ''} onChange={(e) => handleWebSettingChange('pageTitle', e.target.value)} /></div>
                                 <div className="space-y-2"><Label htmlFor="hero-subtitle">Subtítulo</Label><Input id="hero-subtitle" value={settings.web.heroSubtitle || ''} onChange={(e) => handleWebSettingChange('heroSubtitle', e.target.value)} /></div>
                                 <div className="space-y-2"><Label htmlFor="welcome-message">Mensaje de Bienvenida</Label><Textarea id="welcome-message" value={settings.web.welcomeMessage || ''} onChange={(e) => handleWebSettingChange('welcomeMessage', e.target.value)} rows={3} /></div>
                                 <div className="space-y-2"><Label htmlFor="cover-image-upload">Imagen de Portada</Label><Input id="cover-image-upload" type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setCoverImagePreview)} />
-                                {coverImagePreview && <NextImage src={coverImagePreview} alt="Vista previa Portada" width={200} height={120} className="rounded object-cover mt-2" />}</div>
+                                {coverImagePreview && <NextImage src={coverImagePreview} alt="Vista previa Portada" width={200} height={120} className="rounded object-cover mt-2" data-ai-hint="event cover photo"/>}</div>
 
                                 <Separator />
                                 <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Secciones Visibles para Invitados</h3>

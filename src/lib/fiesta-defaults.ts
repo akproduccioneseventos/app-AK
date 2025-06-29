@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData, VideoVidaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData, VideoVidaData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -88,6 +88,13 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
   showMenu: false,
 };
 
+export const defaultSocialGallerySettings: SocialGallerySettings = {
+  enabled: false,
+  allowLikes: true,
+  allowComments: true,
+  uploadsActive: true,
+};
+
 export const defaultMusicaFiesta: MusicaFiesta = {
   cancionEntrada: '',
   cancionVals: '',
@@ -171,6 +178,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   invitados: [],
   webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [] },
   clientPortalSettings: { ...defaultClientPortalSettings },
+  socialGallerySettings: { ...defaultSocialGallerySettings },
   musica: { ...defaultMusicaFiesta, cancionesTortaBrindis: [] },
   reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
   bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
