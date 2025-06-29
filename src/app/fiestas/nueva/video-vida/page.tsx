@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -162,14 +161,14 @@ export default function VideoVidaAdminPage() {
                     objectFit="cover"
                     className="group-hover:opacity-75 transition-opacity"
                   />
-                  <div className="absolute top-1 left-1 bg-black/50 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  <div className="absolute top-1 left-1 bg-black/60 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                     {index + 1}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-             <div className="text-center py-8 text-muted-foreground"><ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/>Esperando fotos del cliente...</div>
+             <div className="text-center py-8 text-muted-foreground"><Image className="w-12 h-12 mx-auto mb-2 opacity-50"/>Esperando fotos del cliente...</div>
           )}
         </CardContent>
         <CardFooter className="border-t pt-4">
