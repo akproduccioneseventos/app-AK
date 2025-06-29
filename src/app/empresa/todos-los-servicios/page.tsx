@@ -118,7 +118,7 @@ export default function InventarioGeneralPage() {
          <Link href="/empresa/todos-los-servicios/nuevo" passHref>
           <Button variant="default">
             <PackagePlus className="w-4 h-4 mr-2" />
-            Añadir Ítem
+            Añadir Activo
           </Button>
         </Link>
       </div>
