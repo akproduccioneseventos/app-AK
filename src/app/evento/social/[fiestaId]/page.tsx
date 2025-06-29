@@ -139,7 +139,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
     fetchData();
     const interval = setInterval(() => {
         fetchData(false);
-    }, 10000); 
+    }, 5000); // Check for new content every 5 seconds
     return () => clearInterval(interval);
   }, [fetchData]);
   
