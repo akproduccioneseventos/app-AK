@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-// Checkbox import removed as it's not used in this version for Zonas, Switch is.
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown } from 'lucide-react';
@@ -30,15 +29,30 @@ import {
   DialogClose
 } from "@/components/ui/dialog";
 import {
-  Accordion, // Main Accordion from shadcn/ui
-  AccordionContent, // From shadcn/ui
-  AccordionItem, // From shadcn/ui
+  Accordion,
+  AccordionContent,
+  AccordionItem,
 } from "@/components/ui/accordion";
-import * as AccordionPrimitive from "@radix-ui/react-accordion"; // For finer control
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
   'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Centros de Mesa', 'Señalética', 'Detalles Especiales', 'Globos', 'Otro'
+];
+
+const predefinedPalettes: { name: string; colors: ColorPalette }[] = [
+  {
+    name: 'Romance Pastel',
+    colors: { primary: '#D9B8FF', secondary: '#FCD3DE', accent: '#F0E6CC' },
+  },
+  {
+    name: 'Elegancia Dorada',
+    colors: { primary: '#2C3E50', secondary: '#BDC3C7', accent: '#F1C40F' },
+  },
+  {
+    name: 'Frescura Natural',
+    colors: { primary: '#2D4B43', secondary: '#F3EAD3', accent: '#E77F67' },
+  },
 ];
 
 
@@ -112,6 +126,14 @@ export default function DecoracionYDisenoEventoPage() {
         [colorType]: value,
       },
     }));
+  };
+  
+  const handleSelectPalette = (palette: ColorPalette) => {
+    setDecoracionData(prev => ({
+      ...prev,
+      paletaColores: palette,
+    }));
+    toast({ title: 'Paleta Aplicada', description: 'Los colores del evento han sido actualizados.' });
   };
 
   const handleTortaChange = (field: keyof NonNullable<DecoracionData['decoracionTorta']>, value: string) => {
@@ -245,7 +267,31 @@ export default function DecoracionYDisenoEventoPage() {
             <div className="space-y-2"><Label htmlFor="color-globos">Combinación de Colores Globos (si aplica)</Label><Input id="color-globos" value={decoracionData.colorGlobos || ''} onChange={e => handleInputChange('colorGlobos', e.target.value)} placeholder="Ej: Dorado, Blanco y Rosa" /></div>
             
             <div className="space-y-3">
-              <Label className="font-medium">Paleta de Colores Principal</Label>
+              <Label className="font-medium">Paletas de Colores Predefinidas</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {predefinedPalettes.map((palette) => (
+                  <Button
+                    key={palette.name}
+                    type="button"
+                    variant="outline"
+                    className="h-auto p-3 text-left flex flex-col items-start gap-2"
+                    onClick={() => handleSelectPalette(palette.colors)}
+                  >
+                    <div className="flex gap-1.5">
+                      <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: palette.colors.primary }} />
+                      <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: palette.colors.secondary }} />
+                      <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: palette.colors.accent }} />
+                    </div>
+                    <span className="text-sm">{palette.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+            
+            <div className="space-y-3">
+              <Label className="font-medium">Paleta de Colores Principal (Manual)</Label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 border rounded-md bg-muted/20">
                 {(Object.keys(defaultDecoracion.paletaColores!) as Array<keyof ColorPalette>).map(key => (
                   <div key={key} className="space-y-1">
@@ -277,8 +323,7 @@ export default function DecoracionYDisenoEventoPage() {
         </Card>
         
         <Card className="shadow-lg mb-6">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Otros Elementos Decorativos Específicos</CardTitle>
+          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Otros Elementos Decorativos Específicos</CardTitle>
             <Button type="button" onClick={() => openItemModal()} size="sm" className="mt-2"><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Elemento</Button>
           </CardHeader>
           <CardContent>
@@ -415,5 +460,3 @@ export default function DecoracionYDisenoEventoPage() {
     </div>
   );
 }
-
-    
