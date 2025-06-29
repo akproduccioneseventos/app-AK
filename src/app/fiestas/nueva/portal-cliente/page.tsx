@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
@@ -72,6 +71,20 @@ export default function PortalClientePage() {
         loadSettings();
     }, [loadSettings]);
     
+    useEffect(() => {
+      if (isLoading) return; // Wait until content is loaded
+    
+      if (typeof window !== 'undefined' && window.location.hash === '#social-gallery') {
+        const element = document.getElementById('social-gallery');
+        if (element) {
+          // Use a timeout to ensure the browser has time to paint the element
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }
+    }, [isLoading]); // Rerun when loading completes
+
     const handlePortalSettingChange = (key: keyof ClientPortalSettings, value: boolean | string) => {
         setSettings(prev => ({ ...prev, portal: { ...prev.portal, [key]: value } }));
     };
