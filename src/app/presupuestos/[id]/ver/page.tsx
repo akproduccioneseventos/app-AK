@@ -263,6 +263,11 @@ export default function VerPresupuestoPage() {
         <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p>{BUDGET_DEPOSIT_NOTE}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-2 whitespace-pre-line">{presupuesto.notas}</p>}
+          {showAnnualAdjustmentLegend && (
+            <p className="mt-1 print:mt-0.5 text-orange-600">
+                Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
+            </p>
+           )}
         </footer>
       </div>
     </div>

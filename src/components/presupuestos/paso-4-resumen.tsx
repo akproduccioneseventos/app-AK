@@ -117,6 +117,13 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
+  
+  const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
+  const currentYear = new Date().getFullYear();
+  const showAnnualAdjustmentLegend = 
+    displaySettings?.annualAdjustmentPercentage && 
+    displaySettings.annualAdjustmentPercentage > 0 && 
+    eventYear > currentYear;
 
 
   const generarTextoWhatsApp = () => {
@@ -308,6 +315,23 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           </Card>
 
           <Separator className="my-4 print:hidden"/>
+          
+          {showAnnualAdjustmentLegend && (
+            <div className="my-4 p-3 border-l-4 border-orange-400 bg-orange-50 text-orange-700 text-xs print:hidden">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-orange-500" />
+                </div>
+                <div className="ml-3">
+                  <p className="font-bold">Notificación de Ajuste Anual</p>
+                  <p className="mt-1">
+                    Este presupuesto podría estar sujeto a un ajuste del <strong>{displaySettings.annualAdjustmentPercentage}%</strong> por realizarse en un año futuro. Esto se reflejará en la facturación final.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-2 print:hidden">
             <Label htmlFor="notas-presupuesto" className="text-base font-semibold text-primary/90">Notas Adicionales para el Resumen (Internas/Cliente)</Label>
             <Textarea id="notas-presupuesto" placeholder="Condiciones, validez, formas de pago..." value={formData.notas} onChange={(e) => setFormData(prev => ({...prev, notas: e.target.value}))} rows={4} className="text-base p-3"/>
@@ -316,7 +340,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
             <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
             {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-            {displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && presupuesto.estado !== 'Facturado' && (
+            {showAnnualAdjustmentLegend && (
               <p className="mt-1 print:mt-0.5 text-orange-600">
                   Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
               </p>
