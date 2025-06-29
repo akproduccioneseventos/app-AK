@@ -1,5 +1,5 @@
 
-export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado';
+export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 
 export interface Invitado {
   id: string;

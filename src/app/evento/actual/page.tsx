@@ -43,7 +43,7 @@ const formatDate = (dateString?: string, includeTime: boolean = true, timeString
 
 function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
   const [nombreCompleto, setNombreCompleto] = useState('');
-  const [confirmacion, setConfirmacion] = useState<'si' | 'no' | null>(null);
+  const [confirmacion, setConfirmacion] = useState<'si' | 'no' | 'tal-vez' | null>(null);
   const [numeroAsistentes, setNumeroAsistentes] = useState(1);
   const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [mensaje, setMensaje] = useState('');
@@ -73,7 +73,7 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
     });
   };
   
-  const handleConfirmacionChange = (value: 'si' | 'no') => {
+  const handleConfirmacionChange = (value: 'si' | 'no' | 'tal-vez') => {
       setConfirmacion(value);
       if (value === 'no') {
           handlePartySizeChange(1); // Reset to 1 person (the main guest)
@@ -148,13 +148,17 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
                   <Label htmlFor="rsvp-si" className="font-normal text-base">Sí, ¡allí estaré!</Label>
                 </div>
                 <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="tal-vez" id="rsvp-tal-vez" />
+                  <Label htmlFor="rsvp-tal-vez" className="font-normal text-base">Tal vez asista</Label>
+                </div>
+                <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no" id="rsvp-no" />
-                  <Label htmlFor="rsvp-no" className="font-normal text-base">No, lamentablemente no podré asistir.</Label>
+                  <Label htmlFor="rsvp-no" className="font-normal text-base">No podré asistir</Label>
                 </div>
               </RadioGroup>
             </div>
             
-            {confirmacion === 'si' && (
+            {(confirmacion === 'si' || confirmacion === 'tal-vez') && (
               <div className="p-4 border-l-4 rounded-r-md space-y-4 bg-muted/50" style={{borderColor: primaryColor}}>
                  <div className="space-y-2">
                     <Label htmlFor="numero-asistentes">¿Cuántas personas asistirán en total (incluyéndote)?</Label>

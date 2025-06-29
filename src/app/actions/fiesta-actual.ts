@@ -650,7 +650,7 @@ export async function deleteInvitadoFiestaActual(
 interface RsvpSubmissionData {
   nombreCompleto: string;
   email?: string;
-  confirmacion: 'si' | 'no';
+  confirmacion: 'si' | 'no' | 'tal-vez';
   numeroAsistentes: number; // This is the TOTAL party size
   mensaje?: string;
   companionNames?: string[];
@@ -675,20 +675,27 @@ export async function handleRsvpSubmission(
     }
 
     const invitadoActual = fiestaActual.invitados[guestIndex];
-    let newRsvpStatus: RsvpStatus = 'Pendiente';
+    let newRsvpStatus: RsvpStatus;
     const isAttending = submissionData.confirmacion === 'si';
-    if (isAttending) newRsvpStatus = 'Confirmado';
-    else newRsvpStatus = 'Rechazado';
+    const isMaybe = submissionData.confirmacion === 'tal-vez';
+    
+    if (isAttending) {
+      newRsvpStatus = 'Confirmado';
+    } else if (isMaybe) {
+      newRsvpStatus = 'Tal vez';
+    } else {
+      newRsvpStatus = 'Rechazado';
+    }
 
     const updatedInvitado: Invitado = {
       ...invitadoActual,
       rsvp: newRsvpStatus,
-      partySize: isAttending ? (Number(submissionData.numeroAsistentes) || 1) : 1,
+      partySize: isAttending || isMaybe ? (Number(submissionData.numeroAsistentes) || 1) : 1,
       contacto: submissionData.email?.trim() || invitadoActual.contacto,
       notes: submissionData.mensaje?.trim()
         ? `${submissionData.mensaje.trim()}${invitadoActual.notes ? ` (Nota anterior: ${invitadoActual.notes})` : ''}`
         : invitadoActual.notes,
-      companionNames: isAttending ? (submissionData.companionNames?.filter(name => name.trim() !== '') || []) : [],
+      companionNames: isAttending || isMaybe ? (submissionData.companionNames?.filter(name => name.trim() !== '') || []) : [],
     };
 
     fiestaActual.invitados[guestIndex] = updatedInvitado;
