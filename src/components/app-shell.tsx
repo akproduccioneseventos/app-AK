@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlusIcon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -46,6 +46,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/todos-los-servicios') return 'Inventario General y Valor de Activos';
   if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Ítem al Inventario';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Ítem #${pathSegments[3]}`;
+  if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
+
 
   if (pathname === '/compras') return 'Compras y Checklist';
 
@@ -76,6 +78,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
+  if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
+  if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -83,8 +87,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
   if (pathname === '/settings/budget-display') return 'Configuración de Presupuestos';
   if (pathname === '/settings/company') return 'Información de la Empresa';
+  if (pathname === '/settings/social-connections') return 'Cuentas Sociales Vinculadas';
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
+  if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
   if (pathname === '/admin/aaiff') return 'Análisis y Optimización por IA';
   
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
@@ -93,6 +99,11 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
+  if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
+  if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
+  if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
+  if (pathname.startsWith('/feedback')) return 'Encuesta de Satisfacción';
+
 
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
@@ -143,6 +154,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
     if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
+    if (pathname === '/fiestas/nueva/video-vida') return Camera;
+    if (pathname === '/fiestas/nueva/regalos') return Gift;
     return PartyPopper;
   }
 
@@ -151,6 +164,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/empresa/todos-los-servicios') return Package; 
   if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
   if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;
+  if (pathname.startsWith('/empresa/redes-sociales')) return Sparkles;
+
 
   if (pathname === '/proveedores') return Briefcase;
   if (pathname === '/proveedores/new') return UserPlusIcon;
@@ -174,8 +189,10 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/templates') return Palette;
   if (pathname === '/settings/budget-display') return SettingsIcon;
   if (pathname === '/settings/company') return Building2;
+  if (pathname === '/settings/social-connections') return LinkIcon;
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
+  if (pathname === '/settings/feedback') return Star;
   if (pathname === '/admin/aaiff') return BrainCircuit;
   
   if (pathname === '/planner-costo-fiesta') return Calculator;
@@ -184,6 +201,11 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
+  if (pathname === '/evento/actual/checkin') return UserCheck;
+  if (pathname.startsWith('/evento/social')) return Camera;
+  if (pathname.startsWith('/video-vida')) return Camera;
+  if (pathname.startsWith('/feedback')) return Star;
+
 
   return null;
 }
@@ -194,7 +216,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const PageIcon = getPageIcon(pathname);
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
-  const isPublicEventPage = pathname.startsWith('/evento/actual');
+  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback');
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
   const isRecibosPersonalPage = pathname === '/fiestas/nueva/personal/recibos';

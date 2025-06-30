@@ -7,13 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Building, Save, Loader2, Link as LinkIcon, Unlink, LogIn, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Building, Save, Loader2, Link as LinkIcon, Unlink, LogIn, MessageSquare, BadgeHelp, ClipboardCopy } from 'lucide-react';
 import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Facebook, Instagram, Music } from 'lucide-react';
 import type { SocialConnection, SocialPlatformName } from '@/types/settings';
 import { getSocialConnections, connectSocialPlatform, disconnectSocialPlatform, saveWhatsAppNumber } from '@/app/actions/social-connections';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 
 
 // Placeholder function for future save logic
@@ -50,16 +51,25 @@ export default function CompanySettingsPage() {
   const [whatsAppNumber, setWhatsAppNumber] = useState('');
   
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Feedback Link state
+  const [feedbackLink, setFeedbackLink] = useState('');
 
-  const loadConnections = useCallback(async () => {
+  const loadInitialData = useCallback(async () => {
     setIsLoadingConnections(true);
     try {
-      const data = await getSocialConnections();
-      setConnections(data);
-      const waConnection = data.find(c => c.platform === 'WhatsApp');
+      const [socialConnections, fiestaActual] = await Promise.all([
+        getSocialConnections(),
+        getFiestaActual()
+      ]);
+      setConnections(socialConnections);
+      const waConnection = socialConnections.find(c => c.platform === 'WhatsApp');
       setWhatsAppNumber(waConnection?.phoneNumber || '');
+      if (typeof window !== 'undefined' && fiestaActual) {
+        setFeedbackLink(`${window.location.origin}/feedback/${fiestaActual.id}`);
+      }
     } catch (err: any) {
-      toast({ title: "Error", description: "No se pudieron cargar las conexiones sociales.", variant: "destructive" });
+      toast({ title: "Error", description: "No se pudieron cargar los datos iniciales.", variant: "destructive" });
     } finally {
       setIsLoadingConnections(false);
     }
@@ -67,8 +77,8 @@ export default function CompanySettingsPage() {
 
   useEffect(() => {
     // TODO: Fetch company settings from backend when available
-    loadConnections();
-  }, [loadConnections]);
+    loadInitialData();
+  }, [loadInitialData]);
   
   const handleConnect = async (platform: SocialPlatformName) => {
     setProcessingPlatform(platform);
@@ -77,7 +87,7 @@ export default function CompanySettingsPage() {
     const result = await connectSocialPlatform(platform);
     if(result.success) {
         toast({title: "¡Conexión Exitosa!", description: `Se ha vinculado la cuenta de ${platform}.`});
-        await loadConnections();
+        await loadInitialData();
     } else {
         toast({title: "Error de Conexión", description: result.error, variant: "destructive"});
     }
@@ -89,7 +99,7 @@ export default function CompanySettingsPage() {
     const result = await disconnectSocialPlatform(platform);
     if(result.success) {
         toast({title: "Cuenta Desconectada", description: `Se ha desvinculado la cuenta de ${platform}.`, variant: "destructive"});
-        await loadConnections();
+        await loadInitialData();
     } else {
         toast({title: "Error", description: result.error, variant: "destructive"});
     }
@@ -101,7 +111,7 @@ export default function CompanySettingsPage() {
     const result = await saveWhatsAppNumber(whatsAppNumber);
     if(result.success) {
         toast({title: "Número de WhatsApp Guardado"});
-        await loadConnections();
+        await loadInitialData();
     } else {
         toast({title: "Error", description: result.error, variant: "destructive"});
     }
@@ -167,17 +177,22 @@ export default function CompanySettingsPage() {
       
       <Separator />
 
-       <Card className="shadow-lg">
+      <Card className="shadow-lg">
           <CardHeader>
-              <CardTitle className="font-headline text-xl">Cuentas Sociales Vinculadas</CardTitle>
-              <CardDescription>Conecta tus redes para la publicación automática o vincula tu WhatsApp.</CardDescription>
+              <CardTitle className="font-headline text-xl">Vínculos de Comunicación</CardTitle>
+              <CardDescription>Conecta tus redes sociales y obtén el enlace para la encuesta de satisfacción del cliente.</CardDescription>
           </CardHeader>
-           <CardContent>
-             {isLoadingConnections ? (
-                <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* OAuth Platforms */}
+           <CardContent className="space-y-6">
+             <div className="p-3 border rounded-md bg-muted/30">
+                <Label htmlFor="feedback-link" className="text-base font-medium flex items-center gap-2 mb-2"><BadgeHelp className="w-5 h-5 text-primary"/>Enlace de Encuesta Post-Evento</Label>
+                <p className="text-xs text-muted-foreground mb-2">Envía este enlace a tu cliente después del evento para recolectar su feedback. El enlace corresponde a la fiesta actualmente en planificación.</p>
+                <div className="flex gap-2">
+                    <Input id="feedback-link" value={feedbackLink} readOnly/>
+                    <Button variant="secondary" size="icon" onClick={() => {navigator.clipboard.writeText(feedbackLink); toast({title:"Enlace copiado!"});}} disabled={!feedbackLink}><ClipboardCopy className="w-4 h-4"/></Button>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(['Facebook', 'Instagram', 'TikTok'] as SocialPlatformName[]).map(platform => {
                     const { icon: Icon, colorClass } = platformDetails[platform];
                     const connection = getConnectionForPlatform(platform);
@@ -195,7 +210,6 @@ export default function CompanySettingsPage() {
                        </Card>
                     );
                   })}
-                  {/* WhatsApp Special Card */}
                   <Card className="p-4 flex flex-col justify-between md:col-span-2">
                       <div className="flex items-center gap-3 mb-2">
                         <MessageSquare className="w-8 h-8 text-green-500"/>
@@ -211,7 +225,6 @@ export default function CompanySettingsPage() {
                       </div>
                   </Card>
                 </div>
-            )}
            </CardContent>
        </Card>
     </div>

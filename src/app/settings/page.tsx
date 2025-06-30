@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -25,6 +25,13 @@ const settingsCards = [
     href: "/settings/social-connections",
     icon: LinkIcon,
     buttonLabel: "Conectar Cuentas"
+  },
+  {
+    title: "Feedback y Testimonios",
+    description: "Gestiona las encuestas de clientes y genera testimonios con IA.",
+    href: "/settings/feedback",
+    icon: Star,
+    buttonLabel: "Gestionar Feedback"
   },
   {
     title: "Notificaciones",
