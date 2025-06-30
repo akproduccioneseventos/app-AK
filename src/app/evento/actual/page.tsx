@@ -5,7 +5,7 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem } from '@/types/fiesta';
 import { getFiestaActual, handleRsvpSubmission, claimGift } from '@/app/actions/fiesta-actual';
@@ -18,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import QRCodeStylized from 'qrcode.react';
 
 const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
   if (!dateString) return "Fecha por confirmar";
@@ -237,6 +238,7 @@ export default function EventoPublicoPage() {
           showEventDetails: true,
           showGallery: true,
           showRsvp: true,
+          programaEventoText: '',
       });
       setPaletaColores(data.decoracion?.paletaColores || null);
     } catch (err: any) {
@@ -295,6 +297,10 @@ export default function EventoPublicoPage() {
   const secondaryColor = paletaColores?.secondary || 'hsl(var(--secondary))';
   const accentColor = paletaColores?.accent || 'hsl(var(--accent))';
   const heroTextStyle = webSettings.coverImageUrl ? 'text-white' : 'text-primary-foreground';
+  const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
+  const mapUrl = mapQuery ? `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${mapQuery}` : '';
+  const qrCodeUrl = typeof window !== 'undefined' ? `${window.location.origin}/evento/actual` : '';
+
 
   return (
     <div className="min-h-screen bg-background text-foreground font-body">
@@ -369,6 +375,11 @@ export default function EventoPublicoPage() {
                                 <div>
                                     <h3 className="font-semibold">Lugar</h3>
                                     <p className="text-muted-foreground">{fiesta.configuracion.nombreLugar}</p>
+                                    {mapUrl && (
+                                        <div className="mt-2 aspect-video w-full rounded-md overflow-hidden border">
+                                            <iframe width="100%" height="100%" frameBorder="0" style={{border:0}} src={mapUrl} allowFullScreen></iframe>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -381,6 +392,18 @@ export default function EventoPublicoPage() {
                  </Card>
             </section>
         )}
+
+        {webSettings.programaEventoText && (
+            <section id="schedule" className="py-8">
+                 <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Cronograma del Evento</h2>
+                 <Card className="shadow-lg">
+                    <CardContent className="p-6 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground">
+                        {webSettings.programaEventoText}
+                    </CardContent>
+                 </Card>
+            </section>
+        )}
+
          {webSettings.musicaEspecialText && (
              <section id="musica-especial" className="text-center py-8" style={{ backgroundColor: `${secondaryColor}1A` }}>
                  <h2 className="text-2xl md:text-3xl font-semibold font-headline mb-4" style={{color: primaryColor}}>Música Especial</h2>
@@ -463,6 +486,14 @@ export default function EventoPublicoPage() {
         
         {webSettings.showRsvp && <RsvpForm fiesta={fiesta} />}
         
+        <section id="qr-code" className="text-center py-8">
+            <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Acceso Rápido al Evento</h2>
+             <div className="flex flex-col items-center p-6 bg-muted/50 rounded-lg">
+                <QRCodeStylized value={qrCodeUrl} size={160} fgColor="hsl(var(--foreground))" bgColor="transparent" />
+                <p className="mt-4 text-muted-foreground">Escanea este código para acceder fácilmente a esta página en cualquier momento.</p>
+             </div>
+        </section>
+
       </main>
       <footer className="text-center py-10 mt-12 border-t" style={{ borderColor: `${secondaryColor}33` }}>
         <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} {fiesta.configuracion.nombreEvento}. Creado con cariño.</p>

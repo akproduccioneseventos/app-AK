@@ -24,7 +24,7 @@ import NextImage from 'next/image';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
   ClipboardCheck, FileText, Banknote, FileSignature, Users,
-  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode
+  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -238,7 +238,7 @@ export default function PortalClientePage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <ClipboardCheck className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del Cliente y Página Pública</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Página Pública y Portal</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
@@ -304,7 +304,7 @@ export default function PortalClientePage() {
                                 </a>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Información General</h3>
+                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Contenido Principal</h3>
                                 <div className="space-y-2"><Label htmlFor="page-title">Título</Label><Input id="page-title" value={settings.web.pageTitle || ''} onChange={(e) => handleWebSettingChange('pageTitle', e.target.value)} /></div>
                                 <div className="space-y-2"><Label htmlFor="hero-subtitle">Subtítulo</Label><Input id="hero-subtitle" value={settings.web.heroSubtitle || ''} onChange={(e) => handleWebSettingChange('heroSubtitle', e.target.value)} /></div>
                                 <div className="space-y-2"><Label htmlFor="welcome-message">Mensaje de Bienvenida</Label><Textarea id="welcome-message" value={settings.web.welcomeMessage || ''} onChange={(e) => handleWebSettingChange('welcomeMessage', e.target.value)} rows={3} /></div>
@@ -312,7 +312,14 @@ export default function PortalClientePage() {
                                 {coverImagePreview && <NextImage src={coverImagePreview} alt="Vista previa Portada" width={200} height={120} className="rounded object-cover mt-2" data-ai-hint="event cover photo"/>}</div>
 
                                 <Separator />
-                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Secciones Visibles para Invitados</h3>
+                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Secciones y Contenido Adicional</h3>
+                                <div className="space-y-2">
+                                    <Label htmlFor="event-schedule-text" className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary/80"/>Cronograma del Evento</Label>
+                                    <Textarea id="event-schedule-text" value={settings.web.programaEventoText || ''} onChange={(e) => handleWebSettingChange('programaEventoText', e.target.value)} rows={5} placeholder="Ej: 20:00 - Recepción, 21:00 - Entrada, 22:00 - Cena..."/>
+                                    <Button type="button" variant="ghost" size="sm" className="text-primary hover:text-primary/80" disabled><Wand2 className="w-4 h-4 mr-1"/>Sugerir cronograma con IA (Próximamente)</Button>
+                                </div>
+                                <Separator />
+                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Activar/Desactivar Secciones</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {webSections.map(section => (
                                     <div key={section.id} className="flex items-center space-x-2">
@@ -387,4 +394,3 @@ export default function PortalClientePage() {
         </div>
     );
 }
-
