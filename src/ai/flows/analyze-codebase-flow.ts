@@ -38,7 +38,7 @@ export async function analyzeCodebase(input: AnalyzeCodebaseInput): Promise<Anal
 // I will manually create a summary of the codebase here. This is a simulation of reading the file system.
 // This part will be updated as the app grows.
 const codebaseSnapshot = `
-- /src/app/actions/crm.ts: Manages CRM leads and stages. Includes functions: getCrmStages, getCrmLeads, addCrmLead, moveCrmLead, deleteCrmLead, updateCrmStageName, convertToClientAndMoveProspect. Logic includes basic validation for lead names and file system operations for data persistence in JSON files. Handles conversion of a lead to a full customer, linking with the Customers module.
+- /src/app/actions/crm.ts: Manages CRM leads and stages in a fully functional Kanban board system. Includes functions: getCrmStages, getCrmLeads, addCrmLead, moveCrmLead, deleteCrmLead, updateCrmStageName, and convertToClientAndMoveProspect. The logic includes validation for lead names and file system operations for data persistence in JSON files. Handles conversion of a lead to a full customer, linking with the Customers module.
 - /src/app/actions/customers.ts: Manages customer data. Includes functions: getCustomers, getCustomerById, saveCustomer, deleteCustomer. The 'saveCustomer' function handles both creation and updates, processes FormData including file uploads for contracts and budgets. Includes validation to ensure name or company name is present.
 - /src/app/actions/empleados.ts: Manages employee data. Functions: getEmpleados, getEmpleadoById, saveEmpleado, deleteEmpleado. Handles creation and updates.
 - /src/app/actions/proveedores.ts: Manages supplier data. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor. Basic validation on company name and service.
