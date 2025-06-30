@@ -63,7 +63,7 @@ const codebaseSnapshot = `
   - Empleados (Staff) & Roles: Full CRUD for employees and roles.
   - Proveedores (Suppliers): Full CRUD.
   - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services.
-  - Planificador de Fiesta: The central hub for a single event, with numerous sub-modules (Tareas, Invitados, Decoración, Catering, Personal, etc.). It is a large, complex module that orchestrates many other parts of the application.
+  - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. Key sub-modules are fully implemented, including Tareas, Invitados (with RSVP), a comprehensive **Decoración** module (color palette, item lists, zone setup, salon layout), Catering (menu assignment), and Personal assignment.
   - Redes Sociales: Módulo para planificar y generar contenido para redes sociales.
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
 `;
