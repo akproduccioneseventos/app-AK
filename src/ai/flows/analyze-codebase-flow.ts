@@ -38,33 +38,26 @@ export async function analyzeCodebase(input: AnalyzeCodebaseInput): Promise<Anal
 // I will manually create a summary of the codebase here. This is a simulation of reading the file system.
 // This part will be updated as the app grows.
 const codebaseSnapshot = `
-- /src/app/page.tsx: Main dashboard, entry point.
-- /src/app/actions/*.ts: Server actions for data manipulation (customers, invoices, presupuestos, etc.). Handles all backend logic.
-- /src/data/*.json: JSON files acting as a database for all modules.
-- /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, Fiesta, etc.).
-- /src/components/ui/*.tsx: Reusable UI components from ShadCN.
-- /src/components/*: Custom components for specific features (CRM, Invoices, etc.).
-- /src/app/**/page.tsx: Individual pages for each module (e.g., /customers, /invoices, /presupuestos/nuevo).
-- /src/ai/flows/*.ts: Genkit AI flows for specific tasks like generating social posts.
+- /src/app/actions/crm.ts: Manages CRM leads and stages. Includes functions: getCrmStages, getCrmLeads, addCrmLead, moveCrmLead, deleteCrmLead, updateCrmStageName, convertToClientAndMoveProspect. Logic includes basic validation for lead names and file system operations for data persistence in JSON files. Handles conversion of a lead to a full customer, linking with the Customers module.
+- /src/app/actions/customers.ts: Manages customer data. Includes functions: getCustomers, getCustomerById, saveCustomer, deleteCustomer. The 'saveCustomer' function handles both creation and updates, processes FormData including file uploads for contracts and budgets. Includes validation to ensure name or company name is present.
+- /src/app/actions/empleados.ts: Manages employee data. Functions: getEmpleados, getEmpleadoById, saveEmpleado, deleteEmpleado. Handles creation and updates.
+- /src/app/actions/proveedores.ts: Manages supplier data. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor. Basic validation on company name and service.
+- /src/app/actions/invoices.ts: Manages invoices. Functions: getInvoices, getInvoiceById, saveInvoice, deleteInvoice, addPaymentToInvoice. \`saveInvoice\` handles creation and updates, recalculates totals. \`addPaymentToInvoice\` updates the invoice status based on total paid amount. Linked to \`presupuestos\` when an invoice is generated from a quote.
+- /src/app/actions/presupuestos.ts: Manages quotes/budgets. Functions: savePresupuesto, getPresupuestos, getPresupuestoById, updatePresupuesto, deletePresupuesto, markPresupuestoAsFacturado. \`updatePresupuesto\` includes logic to synchronize changes with a linked invoice if it exists.
+- /src/data/*.json: JSON files acting as a database for all modules. Data is read from and written to these files by the server actions.
+- /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, CrmLead, Empleado, Proveedor, Fiesta, etc.), ensuring type safety across the application.
+- /src/components/ui/*.tsx: Reusable UI components from ShadCN (Button, Card, Input, etc.).
+- /src/components/*: Custom components for specific features (CRM columns, Invoice templates, etc.).
+- /src/app/**/page.tsx: Individual pages for each module (e.g., /customers, /invoices/new, /contabilidad/crm). Structure is primarily based on Next.js App Router.
+- /src/ai/flows/*.ts: Genkit AI flows for specific tasks like analyzing the codebase, generating social posts, suggesting color palettes, and extracting receipt data.
 - Key Modules Implemented:
-  - CRM (Leads, Stages)
-  - Customers
-  - Invoices
-  - Presupuestos (Quotes) with a multi-step creation process.
-  - Empleados (Staff) & Roles
-  - Proveedores (Suppliers)
-  - Fiesta (Event) Planner: The central hub for a single event, with sub-modules for:
-    - Configuration
-    - Tareas (Tasks)
-    - Invitados (Guests)
-    - Decoración
-    - Catering (Menus)
-    - Personal (Staff Assignment)
-    - Document Management
-    - Costos/Rentabilidad (Costs/Profitability)
-    - Página Pública del Evento & Portal del Cliente
-    - Galería Social en Vivo
-    - Gestión de Redes Sociales
+  - CRM (Leads, Stages): Fully functional with Kanban view.
+  - Customers: CRUD operations implemented, including file uploads for contracts/budgets.
+  - Invoices: CRUD operations implemented, including payment tracking.
+  - Presupuestos (Quotes): Multi-step creation process, CRUD, and conversion to invoice.
+  - Empleados (Staff) & Roles: Full CRUD for employees and roles.
+  - Proveedores (Suppliers): Full CRUD.
+  - Fiesta (Event) Planner: The central hub for a single event, with numerous sub-modules. It is a large, complex module that orchestrates many other parts of the application.
 - /src/app/settings/*: Pages for general app configuration.
 `;
 
