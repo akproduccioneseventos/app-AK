@@ -75,8 +75,10 @@ const prompt = ai.definePrompt({
   name: 'analyzeCodebasePrompt',
   input: {schema: AnalyzeCodebaseInputSchema},
   output: {schema: AnalyzeCodebaseOutputSchema},
-  model: 'googleai/gemini-1.5-flash', // Specify a faster and powerful model
+  model: 'googleai/gemini-1.5-flash',
   prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices.
+
+**Important Architectural Note:** The application uses a local file-system based database (JSON files) and has auth stubs in place. Your suggestions should focus on improvements *within this existing architecture*. Do not suggest migrating to Firebase Firestore or implementing Firebase Authentication unless it's the only way to fulfill a specific requirement from the user's specification. Focus on code quality, feature completeness, and potential logic errors within the current setup.
 
 **Current Codebase Structure (Snapshot):**
 ${codebaseSnapshot}
