@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview An AI agent for analyzing a codebase against a specification.
@@ -44,7 +43,7 @@ const codebaseSnapshot = `
 - /src/app/actions/proveedores.ts: Manages supplier data with **full CRUD functionality** and validation on company name and service. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor.
 - /src/app/actions/invoices.ts: Manages invoices. **Full CRUD operations are implemented**, including payment tracking and status updates. The \`saveInvoice\` function handles both creation and updates, automatically recalculating totals. The \`addPaymentToInvoice\` function updates the invoice status based on the total paid amount. It's fully integrated with \`presupuestos\` when an invoice is generated from a quote.
 - /src/app/actions/presupuestos.ts: A **multi-step creation process for quotes/budgets is fully implemented**, with complete CRUD operations. Includes logic to synchronize with linked invoices and marks budgets as 'Facturado' upon conversion. **The PDF generation feature is complete and intentionally handled via the browser's print-to-PDF functionality on the /ver page; this should not be flagged as a deficiency.**
-- /src/app/actions/fiesta-actual.ts: A large and complex module that serves as the **central hub for event planning**, orchestrating data from nearly all other modules (tasks, guests, decoration, catering, staff, etc.).
+- /src/app/actions/fiesta-actual.ts: A large and complex module that serves as the **central hub for event planning**. It orchestrates data from nearly all other modules and includes **full CRUD operations for its associated Task List (Tareas)**, guest management (RSVP), a comprehensive decoration system, catering management, and staff assignment.
 - /src/app/actions/menus-catering.ts: A **fully implemented module for creating and managing catering menus**. It handles CRUD operations for menus, individual dishes (items), and ingredients. Crucially, it includes **per-person ingredient cost calculation**, which is used for generating accurate quotes and the shopping list feature.
 - /src/app/actions/servicios-empresa.ts: Manages the **general inventory of services and assets** for the company.
 - /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content.
@@ -64,7 +63,12 @@ const codebaseSnapshot = `
   - Empleados (Staff) & Roles: Full CRUD for employees and roles.
   - Proveedores (Suppliers): Full CRUD.
   - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services.
-  - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. Key sub-modules are fully implemented, including Tareas, Invitados (with RSVP), a comprehensive **Decoración** module (color palette, item lists, zone setup, salon layout), a complete **Catering** module (menu creation, per-person ingredient cost calculation, and shopping list generation), and a full **Gestión de Personal** module for assigning staff to the event.
+  - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. Key sub-modules are fully implemented:
+    - **Tareas:** A full-featured task management system with CRUD operations, completion tracking, due dates, and assignments, managed in \`/src/app/actions/fiesta-actual.ts\` and visible in \`/src/app/fiestas/nueva/tareas/page.tsx\`.
+    - **Invitados (with RSVP):** Complete guest management functionality.
+    - **Decoración:** A comprehensive module for color palettes, item lists, zone setup, and salon layout.
+    - **Catering:** A complete module for menu creation, per-person ingredient cost calculation, and shopping list generation.
+    - **Gestión de Personal:** A full module for assigning staff to the event.
   - Redes Sociales: Módulo para planificar y generar contenido para redes sociales.
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
 `;
