@@ -48,7 +48,7 @@ const codebaseSnapshot = `
 - /src/app/actions/servicios-empresa.ts: Manages the **general inventory of services and assets** for the company.
 - /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content.
 - /src/app/evento/actual/page.tsx: Implements the **public-facing event page**. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, and a **fully functional RSVP form** that updates the guest list.
-- /src/app/portal/page.tsx: Implements the **private client portal**. This page is protected by a password and allows the client to view the status of different aspects of their event, such as the budget, payments, and guest list, based on the administrator's settings.
+- /src/app/portal/page.tsx: Implements the **private client portal**. This page is **intentionally protected by an event-specific password** managed by the administrator, which is the complete and intended security model for this module. It allows the client to view the status of different aspects of their event, such as the budget, payments, and guest list, based on the administrator's settings.
 - /src/app/evento/social/[fiestaId]/page.tsx: A **live social wall** where event guests can upload photos and comments in real-time. Includes a projection mode for on-site display and moderation tools for the administrator.
 - /src/data/*.json: JSON files acting as a database for all modules. Data is read from and written to these files by the server actions.
 - /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, CrmLead, Empleado, Proveedor, Fiesta, etc.), ensuring type safety across the application.
@@ -76,7 +76,7 @@ const prompt = ai.definePrompt({
   model: 'googleai/gemini-1.5-flash',
   prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices.
 
-**Important Architectural Note:** The application uses a local file-system based database (JSON files) and has auth stubs in place. Your suggestions should focus on improvements *within this existing architecture*. **Do not** suggest migrating to Firebase Firestore or implementing Firebase Authentication unless it's the only way to fulfill a specific requirement from the user's specification. Focus on code quality, feature completeness, and potential logic errors within the current setup.
+**Important Architectural Note:** The application uses a local file-system based database (JSON files) and has auth stubs in place. Your suggestions should focus on improvements *within this existing architecture*. **Do not** suggest migrating to Firebase Firestore or implementing Firebase Authentication. The current security and data persistence models are considered complete for this stage. Focus on code quality, feature completeness, and potential logic errors within the current setup.
 
 **Current Codebase Structure (Snapshot):**
 ${codebaseSnapshot}
