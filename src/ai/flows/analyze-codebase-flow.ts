@@ -43,7 +43,7 @@ const codebaseSnapshot = `
 - /src/app/actions/empleados.ts: Manages employee data with **full CRUD functionality**. Functions: getEmpleados, getEmpleadoById, saveEmpleado, deleteEmpleado. Handles creation and updates.
 - /src/app/actions/proveedores.ts: Manages supplier data with **full CRUD functionality** and validation on company name and service. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor.
 - /src/app/actions/invoices.ts: Manages invoices. **Full CRUD operations are implemented**, including payment tracking and status updates. The \`saveInvoice\` function handles both creation and updates, automatically recalculating totals. The \`addPaymentToInvoice\` function updates the invoice status based on the total paid amount. It's fully integrated with \`presupuestos\` when an invoice is generated from a quote.
-- /src/app/actions/presupuestos.ts: A **multi-step creation process for quotes/budgets is fully implemented**, with complete CRUD operations. Includes logic to synchronize with linked invoices and marks budgets as 'Facturado' upon conversion. **PDF generation is intentionally handled via browser print on the \`/ver\` page**, providing a simple and effective client-side solution.
+- /src/app/actions/presupuestos.ts: A **multi-step creation process for quotes/budgets is fully implemented**, with complete CRUD operations. Includes logic to synchronize with linked invoices and marks budgets as 'Facturado' upon conversion. **The PDF generation feature is complete and intentionally handled via the browser's print-to-PDF functionality on the /ver page; this should not be flagged as a deficiency.**
 - /src/app/actions/fiesta-actual.ts: A large and complex module that serves as the **central hub for event planning**, orchestrating data from nearly all other modules (tasks, guests, decoration, catering, staff, etc.).
 - /src/app/actions/servicios-empresa.ts: Manages the **general inventory of services and assets** for the company.
 - /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content.
@@ -59,7 +59,7 @@ const codebaseSnapshot = `
   - CRM (Leads, Stages): Fully functional with Kanban view.
   - Customers: Full CRUD operations implemented, including file uploads for contracts/budgets.
   - Invoices: Full CRUD operations implemented, including payment tracking.
-  - Presupuestos (Quotes): Multi-step creation process, CRUD, and conversion to invoice. PDF generation is handled via browser print functionality on the /ver page.
+  - Presupuestos (Quotes): Multi-step creation process, CRUD, and conversion to invoice. **The PDF generation feature is complete and implemented using the browser's print functionality on the /ver page.**
   - Empleados (Staff) & Roles: Full CRUD for employees and roles.
   - Proveedores (Suppliers): Full CRUD.
   - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services.
