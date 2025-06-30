@@ -79,6 +79,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
+  if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -99,6 +100,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
   if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
   if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
+  if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
 
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
@@ -149,6 +151,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
     if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
+    if (pathname === '/fiestas/nueva/video-vida') return Camera;
     return PartyPopper;
   }
 
@@ -195,6 +198,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/evento/actual/mesa') return Ticket;
   if (pathname === '/evento/actual/checkin') return UserCheck;
   if (pathname.startsWith('/evento/social')) return Camera;
+  if (pathname.startsWith('/video-vida')) return Camera;
+
 
   return null;
 }
@@ -205,7 +210,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const PageIcon = getPageIcon(pathname);
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
-  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social');
+  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida');
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
   const isRecibosPersonalPage = pathname === '/fiestas/nueva/personal/recibos';

@@ -73,7 +73,7 @@ export async function saveSocialPost(
     publishDate: formData.get('publishDate') as string,
     text: formData.get('text') as string,
     link: formData.get('link') as string || undefined,
-    status: autoPublish ? 'Publicado' : (formData.get('status') as PostStatus),
+    status: autoPublish ? 'Publicado' : (formData.get('status') as SocialPost['status']),
     promotionCost: Number(formData.get('promotionCost')) || undefined,
     performance: {
         likes: Number(formData.get('performance.likes')) || undefined,

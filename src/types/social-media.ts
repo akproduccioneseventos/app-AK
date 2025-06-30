@@ -1,5 +1,5 @@
 
-export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok';
+export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
 export type PostStatus = 'Programado' | 'Publicado';
 
 export interface PostPerformance {

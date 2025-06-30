@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -14,24 +14,31 @@ const settingsCards = [
   },
   {
     title: "Información de la Empresa",
-    description: "Actualiza los datos de tu empresa y conecta tus redes sociales.",
+    description: "Actualiza los datos fiscales y de contacto de tu empresa.",
     href: "/settings/company", 
     icon: Building,
-    buttonLabel: "Datos y Redes Sociales"
+    buttonLabel: "Gestionar Datos"
+  },
+   {
+    title: "Cuentas Sociales Vinculadas",
+    description: "Conecta tus redes sociales para la publicación automática de contenido.",
+    href: "/settings/social-connections",
+    icon: LinkIcon,
+    buttonLabel: "Conectar Cuentas"
   },
   {
     title: "Notificaciones",
     description: "Configura cómo y cuándo recibir alertas y avisos.",
     href: "/settings/notifications", 
     icon: Bell,
-    buttonLabel: "Alertas"
+    buttonLabel: "Ajustar Alertas"
   },
   {
     title: "Seguridad y Cuenta",
     description: "Gestiona tu contraseña y opciones de seguridad.",
     href: "/settings/account", 
     icon: ShieldCheck,
-    buttonLabel: "Seguridad Cuenta"
+    buttonLabel: "Gestionar Cuenta"
   },
   {
     title: "Análisis y Optimización por IA",

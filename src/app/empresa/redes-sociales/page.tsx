@@ -147,6 +147,7 @@ function SocialMediaPageContent() {
                                 <DropdownMenuItem onSelect={() => setPlatformFilter('Facebook')}>Facebook</DropdownMenuItem>
                                 <DropdownMenuItem onSelect={() => setPlatformFilter('Instagram')}>Instagram</DropdownMenuItem>
                                 <DropdownMenuItem onSelect={() => setPlatformFilter('TikTok')}>TikTok</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('WhatsApp')}>WhatsApp</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                         {(eventFilter !== 'all' || platformFilter !== 'all') && <Button variant="ghost" onClick={() => {setEventFilter('all'); setPlatformFilter('all');}}><X className="w-4 h-4 mr-2"/>Limpiar Filtros</Button>}
