@@ -369,7 +369,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
   }
-  return JSON.parse(JSON.stringify(validatedData));
+  return validatedData;
 }
 
 export async function updateConfiguracionFiestaActual(

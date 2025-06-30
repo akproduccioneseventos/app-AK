@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, type FormEvent } from 'react'; // Ensure React is imported for React.use
+import React, { useState, useEffect, type FormEvent, useCallback } from 'react'; 
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,42 +61,43 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
   // Use the unwrapped params.id
   const customerIdFromParams = params.id;
 
-  useEffect(() => {
-    async function loadCustomer() {
-      setIsLoading(true);
-      setNotFound(false);
-      try {
-        const loadedCustomer = await getCustomerById(customerIdFromParams); // Use unwrapped ID
-        if (loadedCustomer) {
-          setCustomer(loadedCustomer);
-          setName(loadedCustomer.name || '');
-          setCompanyName(loadedCustomer.companyName || '');
-          setPhone(loadedCustomer.phone || '');
-          setTaxId(loadedCustomer.taxId || ''); 
-          setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
+  const loadCustomer = useCallback(async () => {
+    setIsLoading(true);
+    setNotFound(false);
+    try {
+      const loadedCustomer = await getCustomerById(customerIdFromParams); // Use unwrapped ID
+      if (loadedCustomer) {
+        setCustomer(loadedCustomer);
+        setName(loadedCustomer.name || '');
+        setCompanyName(loadedCustomer.companyName || '');
+        setPhone(loadedCustomer.phone || '');
+        setTaxId(loadedCustomer.taxId || ''); 
+        setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
 
-          setPartyDate(loadedCustomer.partyDate ? new Date(loadedCustomer.partyDate) : undefined);
-          setPartyTime(loadedCustomer.partyTime || '');
-          setPartyType(loadedCustomer.partyType || '');
-          setGuestCount(loadedCustomer.guestCount?.toString() || '');
-          setPartyForWhom(loadedCustomer.partyForWhom || '');
-          setVenueName(loadedCustomer.venueName || '');
-          setCurrentContractFile(loadedCustomer.contractFileName || null);
-          setCurrentBudgetFile(loadedCustomer.budgetFileName || null);
+        setPartyDate(loadedCustomer.partyDate ? new Date(loadedCustomer.partyDate) : undefined);
+        setPartyTime(loadedCustomer.partyTime || '');
+        setPartyType(loadedCustomer.partyType || '');
+        setGuestCount(loadedCustomer.guestCount?.toString() || '');
+        setPartyForWhom(loadedCustomer.partyForWhom || '');
+        setVenueName(loadedCustomer.venueName || '');
+        setCurrentContractFile(loadedCustomer.contractFileName || null);
+        setCurrentBudgetFile(loadedCustomer.budgetFileName || null);
 
-        } else {
-          setNotFound(true);
-        }
-      } catch (error) {
+      } else {
         setNotFound(true);
-      } finally {
-        setIsLoading(false);
       }
+    } catch (error) {
+      setNotFound(true);
+    } finally {
+      setIsLoading(false);
     }
+  }, [customerIdFromParams]);
+
+  useEffect(() => {
     if (customerIdFromParams) { // Use unwrapped ID
       loadCustomer();
     }
-  }, [customerIdFromParams]); // Use unwrapped ID in dependency array
+  }, [customerIdFromParams, loadCustomer]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
