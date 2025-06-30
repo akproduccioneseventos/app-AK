@@ -172,7 +172,7 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
   }
 }
 
-async function readHistorialFile(): Promise<FiestaEnPlanificacion[]> {
+export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   try {
     await ensureDataDirectoryExists();
     await fs.access(historialFiestasFilePath);
@@ -198,7 +198,7 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
 
 async function initializeLocalFiestaFiles() {
   await readFiestaActualFile();
-  await readHistorialFile();
+  await getHistorialFiestas();
 }
 initializeLocalFiestaFiles();
 
@@ -990,7 +990,7 @@ export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta
 export async function archivarFiestaActual(): Promise<{ success: boolean; error?: string; archivada?: FiestaEnPlanificacion, nuevaFiesta?: FiestaEnPlanificacion }> {
   try {
     const fiestaParaArchivar = await getFiestaActual();
-    let historial = await readHistorialFile();
+    let historial = await getHistorialFiestas();
 
     const archivada = { ...fiestaParaArchivar, id: fiestaParaArchivar.id || `hist_${Date.now()}` };
     historial.push(archivada);
@@ -998,7 +998,7 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
 
     const resetResult = await resetFiestaActual();
     if (!resetResult.success || !resetResult.newFiesta) {
-      const newHistorial = await readHistorialFile();
+      const newHistorial = await getHistorialFiestas();
       await writeHistorialFile(newHistorial.filter(f => f.id !== archivada.id));
       throw new Error(resetResult.error || "No se pudo reiniciar la fiesta actual después de archivar.");
     }
