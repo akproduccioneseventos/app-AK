@@ -36,7 +36,7 @@ export default function RedirectToNewWebSettingsPage() {
             </p>
         </CardContent>
         <CardFooter>
-            <Link href="/fiestas/nueva/portal-cliente" asChild>
+            <Link href="/fiestas/nueva/portal-cliente" passHref>
                 <Button>
                     Ir a la Nueva Página de Gestión <ArrowRight className="w-4 h-4 ml-2"/>
                 </Button>

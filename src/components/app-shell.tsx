@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -63,7 +64,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
-  if (pathname === '/fiestas/nueva/portal-cliente') return 'Portal del Cliente';
+  if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
   if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
@@ -77,7 +78,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
-  if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
+  if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública y Portal';
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
 
@@ -144,7 +145,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
-    if (pathname === '/fiestas/nueva/pagina-web' || pathname === '/fiestas/nueva/portal-cliente') return ClipboardCheck;
+    if (pathname === '/fiestas/nueva/pagina-web' || pathname === '/fiestas/nueva/portal-cliente') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
