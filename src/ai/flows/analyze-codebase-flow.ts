@@ -82,7 +82,7 @@ const prompt = ai.definePrompt({
   model: 'googleai/gemini-1.5-flash',
   prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices.
 
-**Important Architectural Note:** The application uses a local file-system based database (JSON files) and has auth stubs in place. Your suggestions should focus on improvements *within this existing architecture*. **Do not** suggest migrating to Firebase Firestore or implementing Firebase Authentication. **The PDF generation feature, which uses the browser's print-to-PDF functionality on the \`/ver\` pages, is a deliberate and complete implementation; do not flag it as a deficiency or suggest server-side PDF generation libraries.** The current security and data persistence models are considered complete for this stage. Focus on code quality, feature completeness, and potential logic errors within the current setup.
+**Important Architectural Note:** The application's architecture is established and not subject to change. This includes the use of a local file-system based database (JSON files), a browser-based PDF generation strategy, and the current approach to security and testing. **Your analysis must operate within these constraints.** Do not suggest migrating to a different database (like Firestore), implementing server-side PDF libraries, adding Firebase Authentication, or writing unit/integration tests. Your focus must be exclusively on: 1) Verifying if the features in the specification are implemented correctly in the code. 2) Identifying bugs or logical errors within the existing code. 3) Suggesting improvements *within the current architectural paradigm*.
 
 **Current Codebase Structure (Snapshot):**
 ${codebaseSnapshot}
@@ -128,3 +128,4 @@ const analyzeCodebaseFlow = ai.defineFlow(
     return output;
   }
 );
+
