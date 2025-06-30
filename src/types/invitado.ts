@@ -11,6 +11,8 @@ export interface Invitado {
   tableNumber?: string; // Número de mesa asignado
   notes?: string; // Notas adicionales (alergias, comentarios)
   companionNames?: string[]; // Nombres de los acompañantes
+  checkedIn?: boolean; // Has this guest been checked in?
+  checkInTimestamp?: string; // ISO date string of when they were checked in
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID

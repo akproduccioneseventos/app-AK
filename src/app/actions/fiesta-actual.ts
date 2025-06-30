@@ -349,6 +349,8 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       tableNumber: inv.tableNumber || undefined,
       notes: inv.notes || undefined,
       companionNames: inv.companionNames || [],
+      checkedIn: inv.checkedIn || false,
+      checkInTimestamp: inv.checkInTimestamp || undefined,
     })),
     webPageSettings: validatedWebPageSettings,
     clientPortalSettings: validatedClientPortalSettings,
@@ -617,6 +619,8 @@ export async function addInvitadoFiestaActual(
       tableNumber: invitadoData.tableNumber || undefined,
       notes: invitadoData.notes || undefined,
       companionNames: invitadoData.companionNames || [],
+      checkedIn: false,
+      checkInTimestamp: undefined,
     };
     fiestaActual.invitados = [...(fiestaActual.invitados || []), nuevoInvitado];
     await writeFiestaActualFile(fiestaActual);
@@ -733,6 +737,55 @@ export async function handleRsvpSubmission(
   } catch (e: any) {
     console.error('Error procesando RSVP:', e);
     return { success: false, error: e.message || "Error al procesar la confirmación." };
+  }
+}
+
+export async function checkInGuest(
+  guestId: string
+): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    if (!fiestaActual.invitados) {
+      return { success: false, error: "No hay lista de invitados para esta fiesta." };
+    }
+    
+    let guestFound = false;
+    let alreadyCheckedIn = false;
+    let updatedGuest: Invitado | undefined = undefined;
+
+    fiestaActual.invitados = fiestaActual.invitados.map(inv => {
+      if (inv.id === guestId) {
+        guestFound = true;
+        // Check if already checked in (and not within the last second, to avoid race conditions on multiple scans)
+        if (inv.checkedIn && inv.checkInTimestamp && new Date(inv.checkInTimestamp).getTime() < (Date.now() - 1000)) {
+          alreadyCheckedIn = true;
+          updatedGuest = inv;
+          return inv;
+        }
+        updatedGuest = {
+          ...inv,
+          checkedIn: true,
+          checkInTimestamp: new Date().toISOString(),
+        };
+        return updatedGuest;
+      }
+      return inv;
+    });
+
+    if (!guestFound) {
+      return { success: false, error: `Invitado con ID ${guestId} no encontrado.` };
+    }
+
+    if (alreadyCheckedIn) {
+      return { success: true, invitado: updatedGuest }; // Still a success, just no change
+    }
+
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, invitado: updatedGuest };
+
+  } catch (e: any) {
+    console.error("Error checking in guest:", e);
+    return { success: false, error: e.message || "Error al procesar el check-in." };
   }
 }
 

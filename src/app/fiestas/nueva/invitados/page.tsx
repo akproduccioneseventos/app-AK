@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2, QrCode, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -26,13 +26,14 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
+import QRCodeStylized from 'qrcode.react';
 
 
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false); // Para guardado general o acciones individuales que tarden
+  const [isSaving, setIsSaving] = useState(false); 
   const [error, setError] = useState<string |null>(null);
 
   const [nuevoNombre, setNuevoNombre] = useState('');
@@ -41,6 +42,8 @@ export default function InvitadosEventoPage() {
 
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  const [qrCodeData, setQrCodeData] = useState<{ id: string, name: string } | null>(null);
 
   const fetchInvitados = useCallback(async () => {
     setIsLoading(true);
@@ -115,12 +118,10 @@ export default function InvitadosEventoPage() {
     const invitadoOriginal = invitados.find(inv => inv.id === invitadoId);
     if(!invitadoOriginal) return;
 
-    // Optimistic update
     setInvitados(prev =>
       prev.map(inv => (inv.id === invitadoId ? { ...inv, [field]: value } : inv))
     );
     
-    // Persist change
     const invitadoActualizado = { ...invitadoOriginal, [field]: value };
      if (field === 'partySize' || field === 'tableNumber') {
         invitadoActualizado[field] = value === '' ? undefined : Number(value) || (field === 'partySize' ? 1 : undefined);
@@ -129,7 +130,7 @@ export default function InvitadosEventoPage() {
     const result = await updateInvitadoFiestaActual(invitadoActualizado);
     if (!result.success) {
       toast({ title: "Error al Actualizar", description: result.error || `No se pudo actualizar ${field}.`, variant: "destructive" });
-      setInvitados(prev => prev.map(inv => (inv.id === invitadoId ? invitadoOriginal : inv))); // Revert optimistic update
+      setInvitados(prev => prev.map(inv => (inv.id === invitadoId ? invitadoOriginal : inv))); 
     }
   };
 
@@ -184,14 +185,29 @@ export default function InvitadosEventoPage() {
     acc[inv.rsvp] = (acc[inv.rsvp] || 0) + (inv.partySize || 1);
     acc.TotalPersonas = (acc.TotalPersonas || 0) + (inv.partySize || 1);
     acc.TotalInvitaciones = (acc.TotalInvitaciones || 0) + 1;
+    acc.checkedIn = (acc.checkedIn || 0) + (inv.checkedIn ? (inv.partySize || 1) : 0);
     return acc;
-  }, {} as Record<RsvpStatus | 'TotalPersonas' | 'TotalInvitaciones', number>);
+  }, {} as Record<RsvpStatus | 'TotalPersonas' | 'TotalInvitaciones' | 'checkedIn', number>);
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /> <p className="ml-2">Cargando invitados...</p></div>;
   if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <Dialog open={!!qrCodeData} onOpenChange={(open) => !open && setQrCodeData(null)}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Código QR para {qrCodeData?.name}</DialogTitle>
+                <DialogDescription>Este es el QR personal para el check-in. El invitado puede mostrar esto al ingresar.</DialogDescription>
+            </DialogHeader>
+            {qrCodeData && (
+                <div className="flex flex-col items-center justify-center p-4">
+                    <QRCodeStylized value={`${window.location.origin}/evento/actual/checkin?guestId=${qrCodeData.id}`} size={256} />
+                    <p className="text-sm mt-4 text-muted-foreground">ID: {qrCodeData.id}</p>
+                </div>
+            )}
+        </DialogContent>
+      </Dialog>
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Gestión de Invitados
@@ -240,7 +256,7 @@ export default function InvitadosEventoPage() {
             <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.TotalInvitaciones || 0} invitaciones / {rsvpCounts.TotalPersonas || 0} personas)
           </CardTitle>
           <CardDescription>
-            Confirmados: {rsvpCounts.Confirmado || 0} personas. Pendientes: {rsvpCounts.Pendiente || 0} personas.
+            Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Pendientes: {rsvpCounts.Pendiente || 0}.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -251,7 +267,10 @@ export default function InvitadosEventoPage() {
                   <Card key={invitado.id} className="p-3 hover:shadow-md transition-shadow bg-muted/30">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                       <div className="flex-grow space-y-1">
-                        <p className="font-semibold text-foreground">{invitado.nombre}</p>
+                        <p className="font-semibold text-foreground flex items-center gap-2">
+                           {invitado.nombre}
+                           {invitado.checkedIn && <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100 text-xs"><UserCheck className="w-3 h-3 mr-1"/>Presente</Badge>}
+                        </p>
                         {invitado.companionNames && invitado.companionNames.length > 0 && (
                             <p className="text-xs text-muted-foreground pl-2">
                                 <span className="font-medium">Acompañantes:</span> {invitado.companionNames.join(', ')}
@@ -290,6 +309,7 @@ export default function InvitadosEventoPage() {
                             />
                         </div>
                         <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => setQrCodeData({ id: invitado.id, name: invitado.nombre })} className="h-8 w-8 text-primary" title="Mostrar QR"><QrCode className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteInvitado(invitado.id)} className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
                         </div>

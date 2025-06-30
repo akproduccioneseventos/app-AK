@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
@@ -20,6 +21,7 @@ function MesaLookupContent() {
   const [invitado, setInvitado] = useState<Invitado | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -28,7 +30,7 @@ function MesaLookupContent() {
         setIsLoading(false);
         return;
       }
-
+      setQrCodeUrl(`${window.location.origin}/evento/actual/checkin?guestId=${guestId}`);
       setIsLoading(true);
       setError(null);
       try {
@@ -122,9 +124,9 @@ function MesaLookupContent() {
           </>
         )}
         <div className="mt-6 pt-6 border-t border-dashed">
-            <p className="text-xs text-muted-foreground">Este es tu código QR personal. Puedes volver a escanearlo si lo necesitas.</p>
-            <div className="flex justify-center p-3 mt-2">
-                 <QRCodeStylized value={`${window.location.origin}/evento/actual/mesa?guestId=${invitado.id}`} size={100} level="M" fgColor="hsl(var(--foreground))" bgColor="transparent" />
+            <p className="text-xs text-muted-foreground">Este es tu código QR personal para el check-in.</p>
+            <div className="flex justify-center p-3 mt-2 bg-white rounded-lg">
+                 {qrCodeUrl ? <QRCodeStylized value={qrCodeUrl} size={128} fgColor="hsl(var(--foreground))" bgColor="transparent" /> : <Loader2 className="w-8 h-8 animate-spin"/>}
             </div>
         </div>
       </CardContent>

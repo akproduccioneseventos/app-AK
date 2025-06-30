@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -96,6 +97,7 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
+  if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
   if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
 
   if (pathname === '/eventos') return 'Todas las Fiestas';
@@ -191,6 +193,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
+  if (pathname === '/evento/actual/checkin') return UserCheck;
   if (pathname.startsWith('/evento/social')) return Camera;
 
   return null;
