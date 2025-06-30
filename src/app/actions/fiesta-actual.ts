@@ -987,10 +987,6 @@ export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta
   }
 }
 
-export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  return readHistorialFile();
-}
-
 export async function archivarFiestaActual(): Promise<{ success: boolean; error?: string; archivada?: FiestaEnPlanificacion, nuevaFiesta?: FiestaEnPlanificacion }> {
   try {
     const fiestaParaArchivar = await getFiestaActual();

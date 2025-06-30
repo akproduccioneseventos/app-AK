@@ -44,11 +44,12 @@ const codebaseSnapshot = `
 - /src/app/actions/proveedores.ts: Manages supplier data with **full CRUD functionality** and validation on company name and service. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor.
 - /src/app/actions/invoices.ts: Manages invoices. **Full CRUD operations are implemented**, including payment tracking and status updates. The \`saveInvoice\` function handles both creation and updates, automatically recalculating totals. The \`addPaymentToInvoice\` function updates the invoice status based on the total paid amount. It's fully integrated with \`presupuestos\` when an invoice is generated from a quote.
 - /src/app/actions/presupuestos.ts: A **multi-step creation process for quotes/budgets is fully implemented**, with complete CRUD operations. Includes logic to synchronize with linked invoices and marks budgets as 'Facturado' upon conversion. **The PDF generation feature is complete and intentionally handled via the browser's print-to-PDF functionality on the /ver page; this should not be flagged as a deficiency.**
-- /src/app/actions/fiesta-actual.ts: A large and complex module that serves as the **central hub for event planning**. It orchestrates data from nearly all other modules and includes **full CRUD operations for its associated Task List (Tareas)**, guest management (RSVP), a comprehensive decoration system, catering management, and staff assignment.
+- /src/app/actions/fiesta-actual.ts: A large and **fully implemented** complex module that serves as the central hub for event planning. It orchestrates data from nearly all other modules and provides **complete CRUD operations** for all its sub-modules, including: Task List (Tareas), Guest Management (Invitados with RSVP & QR Code Check-in), a comprehensive Decoration system, full Catering management, Staff Assignment, and the configuration for the Public Event Page, Client Portal, Social Wall, and Gift Registry. **This module is feature-complete.**
 - /src/app/actions/menus-catering.ts: A **fully implemented module for creating and managing catering menus**. It handles CRUD operations for menus, individual dishes (items), and ingredients. Crucially, it includes **per-person ingredient cost calculation**, which is used for generating accurate quotes and the shopping list feature.
 - /src/app/actions/servicios-empresa.ts: Manages the **general inventory of services and assets** for the company.
-- /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content.
-- /src/app/evento/actual/page.tsx: Implements the **public-facing event page**. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, and a **fully functional RSVP form** that updates the guest list.
+- /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content. **This module is fully functional.**
+- /src/app/actions/feedback.ts: Manages the **post-event feedback and testimonial generation system**. **This module is fully functional.**
+- /src/app/evento/actual/page.tsx: Implements the **public-facing event page**. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, an interactive gift list, and a **fully functional RSVP form** that updates the guest list.
 - /src/app/portal/page.tsx: Implements the **private client portal**. This page is **intentionally protected by an event-specific password** managed by the administrator, which is the complete and intended security model for this module. It allows the client to view the status of different aspects of their event, such as the budget, payments, and guest list, based on the administrator's settings.
 - /src/app/evento/social/[fiestaId]/page.tsx: A **live social wall** where event guests can upload photos and comments in real-time. Includes a projection mode for on-site display and moderation tools for the administrator.
 - /src/data/*.json: JSON files acting as a database for all modules. Data is read from and written to these files by the server actions.
@@ -61,16 +62,19 @@ const codebaseSnapshot = `
   - Customers: Full CRUD operations implemented, including file uploads for contracts/budgets.
   - Invoices: Full CRUD operations implemented, including payment tracking.
   - Presupuestos (Quotes): Multi-step creation process, CRUD, and conversion to invoice. **The PDF generation feature is complete and implemented using the browser's print functionality on the /ver page.**
-  - Empleados (Staff) & Roles: Full CRUD for employees and roles.
+  - Empleados (Staff) & Roles: Full CRUD for employees and roles. **This is complete.**
   - Proveedores (Suppliers): Full CRUD.
-  - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services.
-  - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. Key sub-modules are fully implemented:
+  - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services. **This is complete.**
+  - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. **All its key sub-modules are fully implemented and functional**:
     - **Tareas:** A full-featured task management system with CRUD operations, completion tracking, due dates, and assignments, managed in \`/src/app/actions/fiesta-actual.ts\` and visible in \`/src/app/fiestas/nueva/tareas/page.tsx\`.
-    - **Invitados (with RSVP):** Complete guest management functionality.
+    - **Invitados (with RSVP & QR Check-in):** Complete guest management functionality.
     - **Decoración:** A comprehensive module for color palettes, item lists, zone setup, and salon layout.
     - **Catering:** A complete module for menu creation, per-person ingredient cost calculation, and shopping list generation.
     - **Gestión de Personal:** A full module for assigning staff to the event.
-  - Redes Sociales: Módulo para planificar y generar contenido para redes sociales.
+    - **Página Pública y Portal:** Complete management of public event page and private client portal.
+    - **Lista de Regalos:** Fully functional gift registry management.
+  - Redes Sociales: Módulo para planificar y generar contenido para redes sociales. **This is complete.**
+  - Feedback y Testimonios: Sistema completo para encuestas y generación de testimonios con IA. **This is complete.**
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
 `;
 
@@ -128,4 +132,3 @@ const analyzeCodebaseFlow = ai.defineFlow(
     return output;
   }
 );
-
