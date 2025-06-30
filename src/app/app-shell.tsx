@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -78,6 +79,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Web del Evento';
+  if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
+  if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -96,6 +99,9 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
+  if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
+  if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
+  if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
 
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
@@ -146,6 +152,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
     if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
+    if (pathname === '/fiestas/nueva/video-vida') return Camera;
+    if (pathname === '/fiestas/nueva/regalos') return Gift;
     return PartyPopper;
   }
 
@@ -190,6 +198,10 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
+  if (pathname === '/evento/actual/checkin') return UserCheck;
+  if (pathname.startsWith('/evento/social')) return Camera;
+  if (pathname.startsWith('/video-vida')) return Camera;
+
 
   return null;
 }
@@ -200,7 +212,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const PageIcon = getPageIcon(pathname);
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
-  const isPublicEventPage = pathname.startsWith('/evento/actual');
+  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida');
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
   const isRecibosPersonalPage = pathname === '/fiestas/nueva/personal/recibos';

@@ -91,6 +91,16 @@ export interface DecoracionData {
   generalNotesSalonLayout?: string;
 }
 
+export interface GiftItem {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  dataAiHint?: string;
+  isClaimed: boolean;
+  claimedBy?: string; // Name of the guest who claimed it
+}
+
 export interface EventWebPageSettings {
   pageTitle?: string;
   heroSubtitle?: string;
@@ -110,7 +120,7 @@ export interface EventWebPageSettings {
   giftRegistryTitle?: string;
   giftRegistryText?: string;
   showGiftRegistry?: boolean;
-  showGallery?: boolean;
+  giftRegistry?: GiftItem[];
   showRsvp?: boolean;
   programaEventoText?: string;
   musicaEspecialText?: string;

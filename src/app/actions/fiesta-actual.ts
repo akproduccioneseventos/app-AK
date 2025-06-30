@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -277,6 +277,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       ...defaultWebPageSettings,
       ...(data.webPageSettings || {}),
       galleryImageUrls: data.webPageSettings?.galleryImageUrls || [],
+      giftRegistry: data.webPageSettings?.giftRegistry || [],
     };
     
     const validatedClientPortalSettings: ClientPortalSettings = {
@@ -802,6 +803,7 @@ export async function updateWebPageSettingsFiestaActual(
         ...currentWebSettings,
         ...settings,
         galleryImageUrls: settings.galleryImageUrls || currentWebSettings.galleryImageUrls || [],
+        giftRegistry: settings.giftRegistry || currentWebSettings.giftRegistry || [],
     };
     newWebSettings.showCountdown = settings.showCountdown !== undefined ? settings.showCountdown : newWebSettings.showCountdown;
     newWebSettings.showOurStory = settings.showOurStory !== undefined ? settings.showOurStory : newWebSettings.showOurStory;
@@ -1009,5 +1011,69 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
   } catch (e: any) {
     console.error("Error archivando la fiesta actual:", e);
     return { success: false, error: e.message || "Error al archivar la fiesta." };
+  }
+}
+
+export async function updateGiftRegistry(
+  items: GiftItem[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    if (!fiestaActual.webPageSettings) {
+      fiestaActual.webPageSettings = { ...defaultWebPageSettings, giftRegistry: items };
+    } else {
+      fiestaActual.webPageSettings.giftRegistry = items;
+    }
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la lista de regalos." };
+  }
+}
+
+export async function claimGift(
+  giftId: string,
+  guestName: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!guestName.trim()) {
+      return { success: false, error: "Se requiere un nombre para elegir el regalo." };
+    }
+    let fiestaActual = await getFiestaActual();
+    if (!fiestaActual.webPageSettings?.giftRegistry) {
+      return { success: false, error: "La lista de regalos no está configurada." };
+    }
+
+    let giftFound = false;
+    let alreadyClaimed = false;
+
+    fiestaActual.webPageSettings.giftRegistry = fiestaActual.webPageSettings.giftRegistry.map(gift => {
+      if (gift.id === giftId) {
+        giftFound = true;
+        if (gift.isClaimed) {
+          alreadyClaimed = true;
+          return gift; // Don't change if already claimed
+        }
+        return {
+          ...gift,
+          isClaimed: true,
+          claimedBy: guestName.trim(),
+        };
+      }
+      return gift;
+    });
+
+    if (!giftFound) {
+      return { success: false, error: "No se encontró el regalo seleccionado." };
+    }
+    if (alreadyClaimed) {
+      return { success: false, error: "Este regalo ya ha sido elegido por otra persona." };
+    }
+
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true };
+
+  } catch (e: any) {
+    return { success: false, error: e.message || "Ocurrió un error al procesar la solicitud." };
   }
 }

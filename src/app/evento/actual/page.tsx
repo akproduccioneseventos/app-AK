@@ -5,10 +5,10 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado } from '@/types/fiesta';
-import { getFiestaActual, handleRsvpSubmission } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem } from '@/types/fiesta';
+import { getFiestaActual, handleRsvpSubmission, claimGift } from '@/app/actions/fiesta-actual';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
   if (!dateString) return "Fecha por confirmar";
@@ -216,6 +217,10 @@ export default function EventoPublicoPage() {
   const [paletaColores, setPaletaColores] = useState<ColorPalette | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
+  const [guestName, setGuestName] = useState('');
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const loadEventData = useCallback(async () => {
     setIsLoading(true);
@@ -241,6 +246,26 @@ export default function EventoPublicoPage() {
       setIsLoading(false);
     }
   }, []);
+
+  const handleClaimGift = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!selectedGift || !guestName.trim()) {
+      toast({ title: "Nombre requerido", variant: "destructive" });
+      return;
+    }
+    setIsClaiming(true);
+    const result = await claimGift(selectedGift.id, guestName);
+    if (result.success) {
+      toast({ title: "¡Regalo Elegido!", description: "Gracias por tu generosidad." });
+      setIsClaimModalOpen(false);
+      setSelectedGift(null);
+      setGuestName('');
+      loadEventData(); // Refresh data
+    } else {
+      toast({ title: "Error", description: result.error, variant: "destructive" });
+    }
+    setIsClaiming(false);
+  };
 
   useEffect(() => {
     loadEventData();
@@ -373,15 +398,54 @@ export default function EventoPublicoPage() {
             </section>
         )}
         
-        {webSettings.showGiftRegistry && webSettings.giftRegistryText && (
-            <section id="gift-registry" className="py-8">
-                 <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-6" style={{color: primaryColor}}>{webSettings.giftRegistryTitle || "Regalos"}</h2>
-                 <Card className="shadow-md">
-                    <CardContent className="p-6 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground text-center">
-                        {webSettings.giftRegistryText}
-                    </CardContent>
-                 </Card>
-            </section>
+        {webSettings.showGiftRegistry && (
+          <section id="gift-registry" className="py-8">
+            <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-6" style={{color: primaryColor}}>{webSettings.giftRegistryTitle || "Lista de Regalos"}</h2>
+            {webSettings.giftRegistryText && <p className="text-center text-muted-foreground mb-8 max-w-xl mx-auto">{webSettings.giftRegistryText}</p>}
+            
+            <Dialog open={isClaimModalOpen} onOpenChange={setIsClaimModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirmar Regalo</DialogTitle>
+                        <DialogDescription>Estás a punto de elegir: <span className="font-semibold">{selectedGift?.name}</span>. Por favor, ingresa tu nombre para que los anfitriones sepan quién hizo el regalo.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleClaimGift} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="guest-name">Tu Nombre</Label>
+                            <Input id="guest-name" value={guestName} onChange={(e) => setGuestName(e.target.value)} required />
+                        </div>
+                         <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setIsClaimModalOpen(false)}>Cancelar</Button>
+                            <Button type="submit" disabled={isClaiming}>
+                                {isClaiming && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}
+                                Confirmar
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {fiesta.webPageSettings?.giftRegistry && fiesta.webPageSettings.giftRegistry.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {fiesta.webPageSettings.giftRegistry.map(gift => (
+                  <Card key={gift.id} className={`flex flex-col ${gift.isClaimed ? 'bg-muted/50' : ''}`}>
+                    {gift.imageUrl && <div className="aspect-video relative"><NextImage src={gift.imageUrl} alt={gift.name} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="gift idea"/></div>}
+                    <CardHeader><CardTitle>{gift.name}</CardTitle></CardHeader>
+                    <CardContent className="flex-grow"><p className="text-sm text-muted-foreground">{gift.description}</p></CardContent>
+                    <CardFooter>
+                      {gift.isClaimed ? (
+                        <div className="text-sm font-semibold text-green-600 flex items-center gap-2 w-full"><CheckCircle className="w-5 h-5"/>Elegido por: {gift.claimedBy}</div>
+                      ) : (
+                        <Button className="w-full" onClick={() => { setSelectedGift(gift); setIsClaimModalOpen(true); }}>Elegir este regalo</Button>
+                      )}
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">La lista de regalos aún no ha sido creada.</p>
+            )}
+          </section>
         )}
 
         {webSettings.showGallery && webSettings.galleryImageUrls && webSettings.galleryImageUrls.length > 0 && (
