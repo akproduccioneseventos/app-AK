@@ -44,6 +44,9 @@ const codebaseSnapshot = `
 - /src/app/actions/proveedores.ts: Manages supplier data. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor. Basic validation on company name and service.
 - /src/app/actions/invoices.ts: Manages invoices. Functions: getInvoices, getInvoiceById, saveInvoice, deleteInvoice, addPaymentToInvoice. \`saveInvoice\` handles creation and updates, recalculates totals. \`addPaymentToInvoice\` updates the invoice status based on total paid amount. Linked to \`presupuestos\` when an invoice is generated from a quote.
 - /src/app/actions/presupuestos.ts: Manages quotes/budgets. Functions: savePresupuesto, getPresupuestos, getPresupuestoById, updatePresupuesto, deletePresupuesto, markPresupuestoAsFacturado. \`updatePresupuesto\` includes logic to synchronize changes with a linked invoice if it exists.
+- /src/app/actions/fiesta-actual.ts: Manages the state of the currently planned event, including all its sub-modules like tasks, guests, decoration, catering, etc. A very large and central action file.
+- /src/app/actions/servicios-empresa.ts: Manages the general inventory of services and assets for the company.
+- /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content.
 - /src/data/*.json: JSON files acting as a database for all modules. Data is read from and written to these files by the server actions.
 - /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, CrmLead, Empleado, Proveedor, Fiesta, etc.), ensuring type safety across the application.
 - /src/components/ui/*.tsx: Reusable UI components from ShadCN (Button, Card, Input, etc.).
@@ -52,13 +55,19 @@ const codebaseSnapshot = `
 - /src/ai/flows/*.ts: Genkit AI flows for specific tasks like analyzing the codebase, generating social posts, suggesting color palettes, and extracting receipt data.
 - Key Modules Implemented:
   - CRM (Leads, Stages): Fully functional with Kanban view.
-  - Customers: CRUD operations implemented, including file uploads for contracts/budgets.
-  - Invoices: CRUD operations implemented, including payment tracking.
-  - Presupuestos (Quotes): Multi-step creation process, CRUD, and conversion to invoice.
+  - Customers: Full CRUD operations implemented, including file uploads for contracts/budgets.
+  - Invoices: Full CRUD operations implemented, including payment tracking.
+  - Presupuestos (Quotes): Multi-step creation process, CRUD, and conversion to invoice. PDF generation is handled via browser print functionality on the /ver page.
   - Empleados (Staff) & Roles: Full CRUD for employees and roles.
   - Proveedores (Suppliers): Full CRUD.
-  - Fiesta (Event) Planner: The central hub for a single event, with numerous sub-modules. It is a large, complex module that orchestrates many other parts of the application.
-- /src/app/settings/*: Pages for general app configuration.
+  - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services.
+  - Planificador de Fiesta: The central hub for a single event, with numerous sub-modules (Tareas, Invitados, Decoración, Catering, Personal, etc.). It is a large, complex module that orchestrates many other parts of the application.
+  - Páginas Públicas:
+    - Página del Evento: /evento/actual/page.tsx
+    - Portal del Cliente: /portal/page.tsx
+    - Muro Social en Vivo: /evento/social/[fiestaId]/page.tsx
+  - Redes Sociales: Módulo para planificar y generar contenido para redes sociales.
+- /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
 `;
 
 
