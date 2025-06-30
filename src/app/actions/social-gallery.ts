@@ -31,7 +31,7 @@ async function readMetadataFile(): Promise<SocialGalleryPost[]> {
 async function writeMetadataFile(data: SocialGalleryPost[]): Promise<void> {
   await ensureDataDirectoryExists();
   const sortedData = data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  await fs.writeFile(SOCIAL_GALLERY_METADATA_FILE, JSON.stringify(sortedData, null, 2), 'utf-8');
+  await fs.writeFile(SOCIAL_GALLERY_METADATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 
