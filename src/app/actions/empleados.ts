@@ -69,6 +69,10 @@ export async function getEmpleadoById(id: string): Promise<Empleado | null> {
 export async function saveEmpleado(
   empleadoData: NuevoEmpleadoFormData | Empleado
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
+  if (!empleadoData.nombre?.trim()) {
+    return { success: false, error: 'El nombre del empleado es obligatorio.' };
+  }
+
   let empleados = await readEmpleadosFile();
   let finalEmpleadoData: Empleado;
   let empleadoId: string;
