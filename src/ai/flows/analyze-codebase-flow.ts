@@ -85,7 +85,7 @@ ${codebaseSnapshot}
 \`\`\`
 
 **Your Task:**
-Based on the codebase snapshot and the user's specification, provide a detailed analysis. Fill out the JSON output object with your findings. Be extremely detailed in your responses.
+Based on the codebase snapshot and the user's specification, provide a detailed analysis. **Your entire output, including all summaries, details, and suggestions, MUST be in Spanish.** Fill out the JSON output object with your findings. Be extremely detailed in your responses.
 
 1.  **Overall Summary:** Give a brief, high-level overview of how well the code matches the spec. Mention the overall code quality and architectural soundness based on the file structure.
 2.  **Completed Modules:** List features from the spec that you can confirm are present and correctly implemented. For each, briefly explain *why* you believe it's complete, citing relevant files.

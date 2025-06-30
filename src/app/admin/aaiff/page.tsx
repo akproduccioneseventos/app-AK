@@ -178,6 +178,27 @@ export default function AAOIFFPage() {
                     <CardContent>{renderAnalysisItems(analysisResult.suggestions, 'suggestions')}</CardContent>
                 </Card>
             </div>
+            
+            <Card className="mt-8 bg-amber-50 dark:bg-amber-900/30 border-amber-500/50">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl flex items-center gap-2">
+                        <ClipboardList className="w-6 h-6 text-amber-700 dark:text-amber-300"/>
+                        ¿Y ahora qué? ¡Pasemos a la acción!
+                    </CardTitle>
+                    <CardDescription>
+                        Usa estos resultados como una guía para mejorar tu aplicación.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm text-muted-foreground">
+                    <p>Puedes pedirme directamente en el chat que implemente los cambios sugeridos. Por ejemplo:</p>
+                    <ul className="list-disc pl-5 space-y-1 font-mono text-xs bg-muted p-3 rounded-md">
+                       <li>"Crea el módulo de Portal del Cliente que falta."</li>
+                       <li>"Arregla el bug de precios negativos en las facturas."</li>
+                       <li>"Implementa la sugerencia para optimizar la carga de datos de clientes."</li>
+                    </ul>
+                    <p className="pt-2">Simplemente describe lo que necesitas y yo me encargaré del código.</p>
+                </CardContent>
+            </Card>
         </div>
       )}
 
