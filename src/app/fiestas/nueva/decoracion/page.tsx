@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
+import Draggable, { type DraggableEvent, type DraggableData } from 'react-draggable';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus, Pointer, Move } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, LayoutElement } from '@/types/fiesta';
@@ -40,6 +41,10 @@ import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flow
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
   'Detalle Entrada', 'Centro de Mesa', 'Detalle Zona Regalos', 'Detalle Cuadro Firmas', 'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Señalética', 'Globos', 'Otro'
+];
+
+const ALL_LAYOUT_ELEMENT_CATEGORIES = [
+  'Mesa Redonda', 'Mesa Rectangular', 'Mesa Principal', 'Mobiliario (Sillón)', 'Pista de Baile', 'Cabina de DJ', 'Barra de Tragos', 'Estructura (Toldo/Truss)', 'Planta/Arreglo Floral', 'Elemento Decorativo', 'Otro'
 ];
 
 const predefinedPalettes: { name: string; colors: ColorPalette }[] = [
@@ -104,9 +109,12 @@ export default function DecoracionYDisenoEventoPage() {
   const [currentItem, setCurrentItem] = useState<Partial<DecorationItem> | null>(null);
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
   
+  // State for Salon Layout Designer
+  const [isLayoutElementModalOpen, setIsLayoutElementModalOpen] = useState(false);
+  const [currentLayoutElement, setCurrentLayoutElement] = useState<Partial<LayoutElement> | null>(null);
+
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
 
-  // New states for AI Palette Generator
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiThemeInput, setAiThemeInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -311,6 +319,50 @@ export default function DecoracionYDisenoEventoPage() {
       setSuggestedPalette(null);
       setAiThemeInput('');
     }
+  };
+  
+  // Salon Layout Designer Functions
+  const openLayoutElementModal = (element?: LayoutElement) => {
+    setCurrentLayoutElement(element || { name: '', width: 50, height: 50, x: 50, y: 50, rotation: 0, quantity: 1, type: 'custom' });
+    setIsLayoutElementModalOpen(true);
+  };
+
+  const handleLayoutElementChange = (field: keyof LayoutElement, value: string | number) => {
+    setCurrentLayoutElement(prev => (prev ? { ...prev, [field]: value } : null));
+  };
+  
+  const handleSaveLayoutElement = () => {
+    if (!currentLayoutElement || !currentLayoutElement.name?.trim()) {
+      toast({ title: "Nombre Requerido", variant: "destructive" });
+      return;
+    }
+    const finalElement = { ...currentLayoutElement, id: currentLayoutElement.id || `layout_${Date.now()}` } as LayoutElement;
+    setDecoracionData(prev => {
+        const salonElements = prev.salonElements || [];
+        const index = salonElements.findIndex(el => el.id === finalElement.id);
+        if (index > -1) {
+            salonElements[index] = finalElement;
+            return { ...prev, salonElements: [...salonElements] };
+        }
+        return { ...prev, salonElements: [...salonElements, finalElement] };
+    });
+    setIsLayoutElementModalOpen(false);
+  };
+
+  const handleDeleteLayoutElement = (elementId: string) => {
+    setDecoracionData(prev => ({
+        ...prev,
+        salonElements: (prev.salonElements || []).filter(el => el.id !== elementId)
+    }));
+  };
+
+  const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
+    setDecoracionData(prev => {
+        const salonElements = (prev.salonElements || []).map(el =>
+            el.id === elementId ? { ...el, x: data.x, y: data.y } : el
+        );
+        return { ...prev, salonElements };
+    });
   };
 
   if (isLoading) {
@@ -544,20 +596,56 @@ export default function DecoracionYDisenoEventoPage() {
           </CardContent>
         </Card>
 
+        {/* --- SALON LAYOUT DESIGNER --- */}
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Diseño del Salón y Disposición de Elementos</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2"><Label htmlFor="salon-plan-bg">URL Imagen de Fondo para Plano del Salón</Label><Input id="salon-plan-bg" type="url" value={decoracionData.salonPlanBackgroundImageUrl || ''} onChange={e => handleInputChange('salonPlanBackgroundImageUrl', e.target.value)} placeholder="https://ejemplo.com/plano_salon.png"/>
-            {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && <NextImage src={decoracionData.salonPlanBackgroundImageUrl} alt="Plano Salón Preview" width={300} height={200} className="mt-1 rounded border object-contain max-h-[200px]" data-ai-hint="event floor plan" onError={()=>setFailedImageUrls(p=>({...p, salonPlanBackgroundImageUrl:true}))}/>}
+            <div className="space-y-2">
+                <Label htmlFor="salon-plan-bg">URL Imagen de Fondo para Plano del Salón</Label>
+                <Input id="salon-plan-bg" type="url" value={decoracionData.salonPlanBackgroundImageUrl || ''} onChange={e => handleInputChange('salonPlanBackgroundImageUrl', e.target.value)} placeholder="https://ejemplo.com/plano_salon.png"/>
             </div>
-            <div className="p-4 border border-dashed rounded-md text-center text-muted-foreground">
-              <p className="text-sm">El diseñador interactivo de planos estará disponible próximamente.</p>
-              <p className="text-xs">Por ahora, puedes subir una imagen de fondo y añadir notas sobre la disposición.</p>
+            
+            <div className="relative w-full h-[500px] border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
+                {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
+                    <NextImage 
+                      src={decoracionData.salonPlanBackgroundImageUrl} 
+                      alt="Plano del Salón" 
+                      layout="fill" 
+                      objectFit="contain" 
+                      onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))}
+                      data-ai-hint="event floor plan"
+                    />
+                )}
+                {(decoracionData.salonElements || []).map(element => (
+                  <Draggable
+                    key={element.id}
+                    bounds="parent"
+                    position={{x: element.x, y: element.y}}
+                    onStop={(e, data) => handleDragStop(e, data, element.id)}
+                  >
+                    <div 
+                      className="absolute p-1 border border-primary bg-primary/20 rounded text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg"
+                      style={{ width: element.width, height: element.height }}
+                      onDoubleClick={() => openLayoutElementModal(element)}
+                    >
+                      <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50"/>
+                      <span className="truncate w-full">{element.name}</span>
+                      <span className="opacity-70">({element.quantity})</span>
+                    </div>
+                  </Draggable>
+                ))}
             </div>
+            <div className="flex justify-between items-center gap-2 pt-2">
+                 <Button type="button" onClick={() => openLayoutElementModal()}>
+                    <PlusCircle className="w-4 h-4 mr-2"/> Añadir Elemento al Plano
+                </Button>
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</div>
+            </div>
+
             <div className="space-y-2"><Label htmlFor="general-notes-salonlayout">Notas Generales de Disposición del Salón</Label><Textarea id="general-notes-salonlayout" value={decoracionData.generalNotesSalonLayout || ''} onChange={e => handleInputChange('generalNotesSalonLayout', e.target.value)} rows={3} placeholder="Ubicación de mesas, pista de baile, áreas especiales..."/></div>
           </CardContent>
         </Card>
-
+        
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><StickyNote className="text-primary"/>Notas Adicionales para el PDF de Decoración</CardTitle></CardHeader>
           <CardContent><Textarea value={decoracionData.pdfNotasAdicionales || ''} onChange={e => handleInputChange('pdfNotasAdicionales', e.target.value)} rows={3} placeholder="Aclaraciones, detalles importantes para el equipo, etc."/></CardContent>
@@ -571,37 +659,42 @@ export default function DecoracionYDisenoEventoPage() {
         </CardFooter>
       </form>
 
+      {/* Item Modal */}
       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
         <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Elemento Decorativo</DialogTitle>
-             {currentItem?.category && <DialogDescription>Añadiendo a la categoría: <span className="font-semibold text-primary">{currentItem.category}</span></DialogDescription>}
-          </DialogHeader>
+          <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Elemento Decorativo</DialogTitle>{currentItem?.category && <DialogDescription>Añadiendo a la categoría: <span className="font-semibold text-primary">{currentItem.category}</span></DialogDescription>}</DialogHeader>
           {currentItem && (
             <div className="py-4 space-y-4">
               <div className="space-y-1"><Label htmlFor="item-name">Nombre *</Label><Input id="item-name" value={currentItem.name || ''} onChange={e => handleItemModalChange('name', e.target.value)} required /></div>
-              <div className="space-y-1"><Label htmlFor="item-category">Categoría</Label>
-                <Select value={currentItem.category || 'Otro'} onValueChange={val => handleItemModalChange('category', val)}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>{ALL_DECORATION_ITEM_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label htmlFor="item-qty">Cantidad</Label><Input id="item-qty" type="number" value={currentItem.quantity ?? 1} onChange={e => handleItemModalChange('quantity', Number(e.target.value) || 1)} min="1"/></div>
-                <div className="space-y-1"><Label htmlFor="item-cost">Costo Est. ($)</Label><Input id="item-cost" type="number" value={currentItem.estimatedCost ?? ''} onChange={e => handleItemModalChange('estimatedCost', e.target.value === '' ? undefined : Number(e.target.value))} placeholder="0.00" min="0" step="any"/></div>
-              </div>
+              <div className="space-y-1"><Label htmlFor="item-category">Categoría</Label><Select value={currentItem.category || 'Otro'} onValueChange={val => handleItemModalChange('category', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{ALL_DECORATION_ITEM_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select></div>
+              <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="item-qty">Cantidad</Label><Input id="item-qty" type="number" value={currentItem.quantity ?? 1} onChange={e => handleItemModalChange('quantity', Number(e.target.value) || 1)} min="1"/></div><div className="space-y-1"><Label htmlFor="item-cost">Costo Est. ($)</Label><Input id="item-cost" type="number" value={currentItem.estimatedCost ?? ''} onChange={e => handleItemModalChange('estimatedCost', e.target.value === '' ? undefined : Number(e.target.value))} placeholder="0.00" min="0" step="any"/></div></div>
               <div className="space-y-1"><Label htmlFor="item-supplier">Proveedor (Opcional)</Label><Input id="item-supplier" value={currentItem.supplier || ''} onChange={e => handleItemModalChange('supplier', e.target.value)} /></div>
               <div className="space-y-1"><Label htmlFor="item-notes">Notas (Opcional)</Label><Textarea id="item-notes" value={currentItem.notes || ''} onChange={e => handleItemModalChange('notes', e.target.value)} rows={2}/></div>
-              <div className="space-y-1"><Label htmlFor="item-img-url">URL Imagen (Opcional)</Label><Input id="item-img-url" type="url" value={currentItem.imageUrl || ''} onChange={e => handleItemModalChange('imageUrl', e.target.value)} />
-              {itemImagePreview && <NextImage src={itemImagePreview} alt="Preview" width={100} height={70} className="mt-1 rounded border object-contain max-h-[70px]" data-ai-hint={currentItem.dataAiHint || "decoration item photo"} onError={()=>setItemImagePreview(null)}/>}
-              </div>
+              <div className="space-y-1"><Label htmlFor="item-img-url">URL Imagen (Opcional)</Label><Input id="item-img-url" type="url" value={currentItem.imageUrl || ''} onChange={e => handleItemModalChange('imageUrl', e.target.value)} />{itemImagePreview && <NextImage src={itemImagePreview} alt="Preview" width={100} height={70} className="mt-1 rounded border object-contain max-h-[70px]" data-ai-hint={currentItem.dataAiHint || "decoration item photo"} onError={()=>setItemImagePreview(null)}/>}</div>
               <div className="space-y-1"><Label htmlFor="item-aihint">AI Hint (para imagen en PDF)</Label><Input id="item-aihint" value={currentItem.dataAiHint || ''} onChange={e => handleItemModalChange('dataAiHint', e.target.value)} placeholder="Ej: vintage table centerpiece" /></div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setIsItemModalOpen(false); setCurrentItem(null); }}>Cancelar</Button>
-            <Button onClick={handleItemModalSave}>Guardar Elemento</Button>
-          </DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => { setIsItemModalOpen(false); setCurrentItem(null); }}>Cancelar</Button><Button onClick={handleItemModalSave}>Guardar Elemento</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Layout Element Modal */}
+       <Dialog open={isLayoutElementModalOpen} onOpenChange={setIsLayoutElementModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle className="font-headline">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento al Plano</DialogTitle></DialogHeader>
+          {currentLayoutElement && (
+            <div className="py-2 space-y-3">
+              <div className="space-y-1"><Label htmlFor="layout-el-name">Nombre *</Label><Input id="layout-el-name" value={currentLayoutElement.name || ''} onChange={(e) => handleLayoutElementChange('name', e.target.value)} required /></div>
+              <div className="space-y-1"><Label htmlFor="layout-el-cat">Categoría</Label><Select value={currentLayoutElement.category || ''} onValueChange={(val) => handleLayoutElementChange('category', val)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select></div>
+              <div className="grid grid-cols-3 gap-2">
+                 <div className="space-y-1"><Label htmlFor="layout-el-qty">Cant.</Label><Input id="layout-el-qty" type="number" value={currentLayoutElement.quantity || 1} onChange={(e) => handleLayoutElementChange('quantity', Number(e.target.value) || 1)} min="1"/></div>
+                 <div className="space-y-1"><Label htmlFor="layout-el-w">Ancho (px)</Label><Input id="layout-el-w" type="number" value={currentLayoutElement.width || 50} onChange={(e) => handleLayoutElementChange('width', Number(e.target.value) || 50)}/></div>
+                 <div className="space-y-1"><Label htmlFor="layout-el-h">Alto (px)</Label><Input id="layout-el-h" type="number" value={currentLayoutElement.height || 50} onChange={(e) => handleLayoutElementChange('height', Number(e.target.value) || 50)}/></div>
+              </div>
+              {currentLayoutElement.id && <Button variant="destructive" size="sm" onClick={() => {handleDeleteLayoutElement(currentLayoutElement!.id!); setIsLayoutElementModalOpen(false);}}><Trash2 className="w-4 h-4 mr-2"/>Eliminar del Plano</Button>}
+            </div>
+          )}
+          <DialogFooter><Button variant="outline" onClick={() => setIsLayoutElementModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveLayoutElement}>Guardar Elemento</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

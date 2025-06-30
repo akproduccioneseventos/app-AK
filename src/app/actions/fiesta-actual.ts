@@ -49,6 +49,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
     if (fileContent.trim() === '') throw new Error('Fiesta actual file is empty');
     let parsedData = JSON.parse(fileContent) as FiestaEnPlanificacion;
     
+    // Migration logic for old salonLayout field
     if ((parsedData as any).salonLayout) {
       const oldSalonLayout = (parsedData as any).salonLayout as DecoracionData;
       parsedData.decoracion = {
@@ -59,6 +60,8 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
       };
       delete (parsedData as any).salonLayout;
     }
+
+    // Ensure decoracion and its nested properties exist with defaults
     if (!parsedData.decoracion) {
         parsedData.decoracion = { ...defaultDecoracion };
     } else {
@@ -68,6 +71,8 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         parsedData.decoracion.generalNotesDecoracion = parsedData.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
         parsedData.decoracion.colorGlobos = parsedData.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
     }
+    
+    // Migration to remove old direccionLugar field
     if (parsedData.configuracion && 'direccionLugar' in parsedData.configuracion) {
       delete (parsedData.configuracion as any).direccionLugar;
     }
@@ -132,7 +137,7 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
       dataToWrite.decoracion.generalNotesDecoracion = dataToWrite.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
       dataToWrite.decoracion.colorGlobos = dataToWrite.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
     }
-    delete (dataToWrite as any).salonLayout;
+    delete (dataToWrite as any).salonLayout; // Ensure old property is always removed
     
     if (!dataToWrite.webPageSettings) {
       dataToWrite.webPageSettings = { ...defaultWebPageSettings };
@@ -172,18 +177,6 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
   }
 }
 
-export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(historialFiestasFilePath);
-    const fileContent = await fs.readFile(historialFiestasFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as FiestaEnPlanificacion[];
-  } catch (error) {
-    return [];
-  }
-}
-
 async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> {
   try {
     await ensureDataDirectoryExists();
@@ -198,7 +191,7 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
 
 async function initializeLocalFiestaFiles() {
   await readFiestaActualFile();
-  await getHistorialFiestas();
+  await getHistorialFiestas(); // This ensures the file exists
 }
 initializeLocalFiestaFiles();
 
@@ -370,6 +363,18 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     delete (validatedData as any).salonLayout;
   }
   return validatedData;
+}
+
+export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(historialFiestasFilePath);
+    const fileContent = await fs.readFile(historialFiestasFilePath, 'utf-8');
+    if (fileContent.trim() === '') return [];
+    return JSON.parse(fileContent) as FiestaEnPlanificacion[];
+  } catch (error) {
+    return [];
+  }
 }
 
 export async function updateConfiguracionFiestaActual(
