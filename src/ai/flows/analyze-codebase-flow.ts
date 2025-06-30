@@ -77,7 +77,7 @@ const prompt = ai.definePrompt({
   model: 'googleai/gemini-1.5-flash',
   prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices.
 
-**Important Architectural Note:** The application uses a local file-system based database (JSON files) and has auth stubs in place. Your suggestions should focus on improvements *within this existing architecture*. **Do not** suggest migrating to Firebase Firestore or implementing Firebase Authentication. The current security and data persistence models are considered complete for this stage. Focus on code quality, feature completeness, and potential logic errors within the current setup.
+**Important Architectural Note:** The application uses a local file-system based database (JSON files) and has auth stubs in place. Your suggestions should focus on improvements *within this existing architecture*. **Do not** suggest migrating to Firebase Firestore or implementing Firebase Authentication. **The PDF generation feature, which uses the browser's print-to-PDF functionality on the \`/ver\` pages, is a deliberate and complete implementation; do not flag it as a deficiency or suggest server-side PDF generation libraries.** The current security and data persistence models are considered complete for this stage. Focus on code quality, feature completeness, and potential logic errors within the current setup.
 
 **Current Codebase Structure (Snapshot):**
 ${codebaseSnapshot}
@@ -123,5 +123,3 @@ const analyzeCodebaseFlow = ai.defineFlow(
     return output;
   }
 );
-
-    
