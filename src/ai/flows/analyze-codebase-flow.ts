@@ -45,6 +45,7 @@ const codebaseSnapshot = `
 - /src/app/actions/invoices.ts: Manages invoices. **Full CRUD operations are implemented**, including payment tracking and status updates. The \`saveInvoice\` function handles both creation and updates, automatically recalculating totals. The \`addPaymentToInvoice\` function updates the invoice status based on the total paid amount. It's fully integrated with \`presupuestos\` when an invoice is generated from a quote.
 - /src/app/actions/presupuestos.ts: A **multi-step creation process for quotes/budgets is fully implemented**, with complete CRUD operations. Includes logic to synchronize with linked invoices and marks budgets as 'Facturado' upon conversion. **The PDF generation feature is complete and intentionally handled via the browser's print-to-PDF functionality on the /ver page; this should not be flagged as a deficiency.**
 - /src/app/actions/fiesta-actual.ts: A large and complex module that serves as the **central hub for event planning**, orchestrating data from nearly all other modules (tasks, guests, decoration, catering, staff, etc.).
+- /src/app/actions/menus-catering.ts: A **fully implemented module for creating and managing catering menus**. It handles CRUD operations for menus, individual dishes (items), and ingredients. Crucially, it includes **per-person ingredient cost calculation**, which is used for generating accurate quotes and the shopping list feature.
 - /src/app/actions/servicios-empresa.ts: Manages the **general inventory of services and assets** for the company.
 - /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content.
 - /src/app/evento/actual/page.tsx: Implements the **public-facing event page**. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, and a **fully functional RSVP form** that updates the guest list.
@@ -63,7 +64,7 @@ const codebaseSnapshot = `
   - Empleados (Staff) & Roles: Full CRUD for employees and roles.
   - Proveedores (Suppliers): Full CRUD.
   - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services.
-  - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. Key sub-modules are fully implemented, including Tareas, Invitados (with RSVP), a comprehensive **Decoración** module (color palette, item lists, zone setup, salon layout), Catering (menu assignment), and Personal assignment.
+  - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. Key sub-modules are fully implemented, including Tareas, Invitados (with RSVP), a comprehensive **Decoración** module (color palette, item lists, zone setup, salon layout), a complete **Catering** module (menu creation, per-person ingredient cost calculation, and shopping list generation), and Personal assignment.
   - Redes Sociales: Módulo para planificar y generar contenido para redes sociales.
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
 `;
