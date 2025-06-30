@@ -43,15 +43,17 @@ const codebaseSnapshot = `
 - /src/app/actions/empleados.ts: Manages employee data. Functions: getEmpleados, getEmpleadoById, saveEmpleado, deleteEmpleado. Handles creation and updates.
 - /src/app/actions/proveedores.ts: Manages supplier data. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor. Basic validation on company name and service.
 - /src/app/actions/invoices.ts: Manages invoices. Functions: getInvoices, getInvoiceById, saveInvoice, deleteInvoice, addPaymentToInvoice. \`saveInvoice\` handles creation and updates, recalculates totals. \`addPaymentToInvoice\` updates the invoice status based on total paid amount. Linked to \`presupuestos\` when an invoice is generated from a quote.
-- /src/app/actions/presupuestos.ts: Manages quotes/budgets. Functions: savePresupuesto, getPresupuestos, getPresupuestoById, updatePresupuesto, deletePresupuesto, markPresupuestoAsFacturado. \`updatePresupuesto\` includes logic to synchronize changes with a linked invoice if it exists.
-- /src/app/actions/fiesta-actual.ts: Manages the state of the currently planned event, including all its sub-modules like tasks, guests, decoration, catering, etc. A very large and central action file.
+- /src/app/actions/presupuestos.ts: Manages quotes/budgets. Functions: savePresupuesto, getPresupuestos, getPresupuestoById, updatePresupuesto, deletePresupuesto, markPresupuestoAsFacturado. \`updatePresupuesto\` includes logic to synchronize changes with a linked invoice if it exists. PDF generation is handled via browser print on the /ver page.
+- /src/app/actions/fiesta-actual.ts: Manages the state of the currently planned event, including all its sub-modules like tasks, guests, decoration, catering, etc. It orchestrates many other parts of the application.
 - /src/app/actions/servicios-empresa.ts: Manages the general inventory of services and assets for the company.
 - /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content.
+- /src/app/evento/actual/page.tsx: Implements the public-facing event page. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, and a fully functional RSVP form that updates the guest list.
+- /src/app/portal/page.tsx: Implements the private client portal. This page is protected by a password and allows the client to view the status of different aspects of their event, such as the budget, payments, and guest list, based on the administrator's settings.
+- /src/app/evento/social/[fiestaId]/page.tsx: A live social wall where event guests can upload photos and comments in real-time. Includes a projection mode for on-site display and moderation tools for the administrator.
 - /src/data/*.json: JSON files acting as a database for all modules. Data is read from and written to these files by the server actions.
 - /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, CrmLead, Empleado, Proveedor, Fiesta, etc.), ensuring type safety across the application.
 - /src/components/ui/*.tsx: Reusable UI components from ShadCN (Button, Card, Input, etc.).
 - /src/components/*: Custom components for specific features (CRM columns, Invoice templates, etc.).
-- /src/app/**/page.tsx: Individual pages for each module (e.g., /customers, /invoices/new, /contabilidad/crm). Structure is primarily based on Next.js App Router.
 - /src/ai/flows/*.ts: Genkit AI flows for specific tasks like analyzing the codebase, generating social posts, suggesting color palettes, and extracting receipt data.
 - Key Modules Implemented:
   - CRM (Leads, Stages): Fully functional with Kanban view.
@@ -62,10 +64,6 @@ const codebaseSnapshot = `
   - Proveedores (Suppliers): Full CRUD.
   - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services.
   - Planificador de Fiesta: The central hub for a single event, with numerous sub-modules (Tareas, Invitados, Decoración, Catering, Personal, etc.). It is a large, complex module that orchestrates many other parts of the application.
-  - Páginas Públicas:
-    - Página del Evento: /evento/actual/page.tsx
-    - Portal del Cliente: /portal/page.tsx
-    - Muro Social en Vivo: /evento/social/[fiestaId]/page.tsx
   - Redes Sociales: Módulo para planificar y generar contenido para redes sociales.
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
 `;
