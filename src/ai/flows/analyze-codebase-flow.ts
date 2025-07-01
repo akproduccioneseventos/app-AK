@@ -44,15 +44,15 @@ const codebaseSnapshot = `
 - /src/app/actions/proveedores.ts: Manages supplier data with **full CRUD functionality** and validation on company name and service. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor.
 - /src/app/actions/invoices.ts: Manages invoices. **Full CRUD operations are implemented**, including payment tracking and status updates. The \`saveInvoice\` function handles both creation and updates, automatically recalculating totals. The \`addPaymentToInvoice\` function updates the invoice status based on the total paid amount. It's fully integrated with \`presupuestos\` when an invoice is generated from a quote.
 - /src/app/actions/presupuestos.ts: A **multi-step creation process for quotes/budgets is fully implemented**, with complete CRUD operations. Includes logic to synchronize with linked invoices and marks budgets as 'Facturado' upon conversion. **The PDF generation feature is complete and intentionally handled via the browser's print-to-PDF functionality on the /ver page; this should not be flagged as a deficiency.**
-- /src/app/actions/fiesta-actual.ts: A large and **fully implemented** complex module that serves as the central hub for event planning. It orchestrates data from nearly all other modules and provides **complete CRUD operations** for all its sub-modules, including: Task List (Tareas), Guest Management (Invitados with RSVP & QR Code Check-in), a comprehensive Decoration system, full Catering management, Staff Assignment, and the configuration for the Public Event Page, Client Portal, Social Wall, and Gift Registry. **This module is feature-complete.**
+- /src/app/actions/fiesta-actual.ts: A large and **fully implemented** complex module that serves as the central hub for event planning. It orchestrates data from nearly all other modules and provides **complete CRUD operations** for all its sub-modules, including: Task List (Tareas y Checklist del Cliente), Guest Management (Invitados con RSVP & QR Code Check-in), a comprehensive Decoration system (con Layout del Salón y asignación de mesas), full Catering management, Staff Assignment, and the configuration for the Public Event Page, Client Portal, Social Wall, Itinerario, and Gift Registry. **This module is feature-complete.**
 - /src/app/actions/menus-catering.ts: A **fully implemented module for creating and managing catering menus**. It handles CRUD operations for menus, individual dishes (items), and ingredients. Crucially, it includes **per-person ingredient cost calculation**, which is used for generating accurate quotes and the shopping list feature.
 - /src/app/actions/servicios-empresa.ts: Manages the **general inventory of services and assets** for the company.
 - /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content. **This module is fully functional.**
 - /src/app/actions/feedback.ts: Manages the **post-event feedback and testimonial generation system**. **This module is fully functional.**
 - /src/app/evento/actual/page.tsx: Implements the **public-facing event page**. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, an interactive gift list, and a **fully functional RSVP form** that updates the guest list.
-- /src/app/portal/page.tsx: Implements the **private client portal**. This page is **intentionally protected by an event-specific password** managed by the administrator, which is the complete and intended security model for this module. It allows the client to view the status of different aspects of their event, such as the budget, payments, and guest list, based on the administrator's settings.
+- /src/app/portal/page.tsx: Implements the **private client portal**. This page is **intentionally protected by an event-specific password** managed by the administrator, which is the complete and intended security model for this module. It allows the client to view the status of different aspects of their event, such as el presupuesto, pagos, y un checklist compartido de tareas.
 - /src/app/evento/social/[fiestaId]/page.tsx: A **live social wall** where event guests can upload photos and comments in real-time. Includes a projection mode for on-site display and moderation tools for the administrator.
-- /src/app/api/backup/download/route.ts: **New API Route** that handles zipping the entire 'src/data' directory and serving it as a downloadable file. This provides a full backup of the application's data.
+- /src/app/api/backup/download/route.ts & /src/app/api/backup/upload/route.ts: **API Routes** that handle zipping the entire 'src/data' directory (download) and replacing it (upload). This provides a full manual backup and restore system.
 - /src/data/*.json: JSON files acting as a database for all modules. Data is read from and written to these files by the server actions.
 - /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, CrmLead, Empleado, Proveedor, Fiesta, etc.), ensuring type safety across the application.
 - /src/components/ui/*.tsx: Reusable UI components from ShadCN (Button, Card, Input, etc.).
@@ -67,9 +67,10 @@ const codebaseSnapshot = `
   - Proveedores (Suppliers): Full CRUD.
   - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services. **This is complete.**
   - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. **All its key sub-modules are fully implemented and functional**:
-    - **Tareas:** A full-featured task management system with CRUD operations, completion tracking, due dates, and assignments, managed in \`/src/app/actions/fiesta-actual.ts\` and visible in \`/src/app/fiestas/nueva/tareas/page.tsx\`.
+    - **Tareas y Checklist Cliente:** A full-featured task management system for both the planner and the client, with CRUD operations, completion tracking, due dates, and assignments.
+    - **Itinerario:** Un módulo completo para crear y ordenar el cronograma del evento.
     - **Invitados (with RSVP & QR Check-in):** Complete guest management functionality.
-    - **Decoración:** A comprehensive module for color palettes, item lists, zone setup, and salon layout.
+    - **Decoración & Diseño Salón:** A comprehensive module for color palettes, item lists, and an interactive salon layout designer with guest assignment.
     - **Catering:** A complete module for menu creation, per-person ingredient cost calculation, and shopping list generation.
     - **Gestión de Personal:** A full module for assigning staff to the event.
     - **Página Pública y Portal:** Complete management of public event page and private client portal.
@@ -77,7 +78,7 @@ const codebaseSnapshot = `
   - Redes Sociales: Módulo para planificar y generar contenido para redes sociales. **This is complete.**
   - Feedback y Testimonios: Sistema completo para encuestas y generación de testimonios con IA. **This is complete.**
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
-- /src/app/settings/backup/page.tsx: **New Page** that provides a user interface for downloading the complete data backup.
+- /src/app/settings/backup/page.tsx: **New Page** that provides a user interface for downloading and uploading the complete data backup.
 `;
 
 
@@ -86,9 +87,28 @@ const prompt = ai.definePrompt({
   input: {schema: AnalyzeCodebaseInputSchema},
   output: {schema: AnalyzeCodebaseOutputSchema},
   model: 'googleai/gemini-1.5-flash',
-  prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices.
+  prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices **within the established architectural constraints**.
 
-**Important Architectural Note:** The application's architecture is established and not subject to change. This includes the use of a local file-system based database (JSON files), a browser-based PDF generation strategy, and the current approach to security and testing. **Your analysis must operate within these constraints.** Do not suggest migrating to a different database (like Firestore), implementing server-side PDF libraries, adding Firebase Authentication, or writing unit/integration tests. Your focus must be exclusively on: 1) Verifying if the features in the specification are implemented correctly in the code. 2) Identifying bugs or logical errors within the existing code. 3) Suggesting improvements *within the current architectural paradigm*.
+**Crucial Architectural Constraints (DO NOT CRITICIZE OR SUGGEST CHANGING THESE):**
+1.  **Database:** The application uses a local file-system database (JSON files in \`src/data\`). This is an intentional design choice. **Do not suggest migrating to a different database like Firestore or any other.** Your analysis must assume this data storage method is fixed.
+2.  **PDF Generation:** PDF documents (like quotes) are generated via the browser's "Print to PDF" functionality on specific pages (e.g., \`/presupuestos/.../ver\`). This is the intended strategy. **Do not suggest server-side PDF generation libraries.**
+3.  **Security Model:** Security for modules like the Client Portal is intentionally handled via a simple password system managed by the administrator. **Do not suggest adding complex authentication systems like Firebase Authentication.**
+4.  **Backups:** A manual backup and restore system via API routes is the intended strategy. **Do not suggest or criticize the lack of automated cloud backups.**
+
+**Your analysis MUST operate within these constraints.** Your focus must be exclusively on comparing the user's specification to the provided codebase snapshot to find:
+1.  **Feature Gaps:** Features described in the specification that are missing from the codebase.
+2.  **Implementation Bugs:** Logical errors, incorrect calculations, or broken functionality within the existing code files.
+3.  **Actionable Suggestions:** Concrete improvements that respect the existing architecture (e.g., "Add a search function to the customers page by filtering the JSON data", NOT "Migrate customers to a database for searching").
+
+**Example of a BAD analysis item (What NOT to do):**
+- **Error:** The app uses JSON files for a database. This is not scalable.
+- **Suggestion:** Migrate to Firestore for better scalability.
+- **Reasoning:** This violates the core architectural constraints.
+
+**Example of a GOOD analysis item (What TO do):**
+- **Missing Module:** The specification calls for "tracking supplier payments". The codebase snapshot has a \`proveedores.ts\` module for managing suppliers, but it lacks fields for payment status or functions to register payments to them.
+- **Bug:** The \`saveInvoice\` function in \`invoices.ts\` recalculates the total, but it doesn't account for negative quantities in items, which could lead to incorrect invoices.
+- **Suggestion:** Add a search bar to the \`/customers\` page that filters the client list in-memory on the frontend, which would improve usability without changing the backend architecture.
 
 **Current Codebase Structure (Snapshot):**
 ${codebaseSnapshot}
@@ -99,25 +119,7 @@ ${codebaseSnapshot}
 \`\`\`
 
 **Your Task:**
-Based on the codebase snapshot and the user's specification, provide a detailed analysis. **Your entire output, including all summaries, details, and suggestions, MUST be in Spanish.** Fill out the JSON output object with your findings. Be extremely detailed in your responses.
-
-1.  **Overall Summary:** Give a brief, high-level overview of how well the code matches the spec. Mention the overall code quality and architectural soundness based on the file structure.
-2.  **Completed Modules:** List features from the spec that you can confirm are present and correctly implemented. For each, briefly explain *why* you believe it's complete, citing relevant files.
-3.  **Missing Modules:** List features from the spec that seem to be completely missing from the codebase. Be specific. If a part of a module is missing, list it here.
-4.  **Errors and Bugs:** This is a critical section. Be exhaustive. Identify potential bugs, logical inconsistencies, or deviations from best practices. Examples to look for:
-    - Data inconsistencies (e.g., a customer is deleted but their invoices are not).
-    - Missing validations (e.g., creating an item with a negative price).
-    - Inefficient data handling (e.g., reading entire large JSON files repeatedly instead of filtering).
-    - Security concerns (e.g., file path traversal vulnerabilities in API routes).
-    - Contradictions between what a file seems to do and the spec requires.
-    For each finding, explain the potential impact.
-5.  **Suggestions for Improvement:** Propose concrete improvements, refactoring opportunities, or new features. Think about:
-    - Performance optimizations.
-    - Code organization and reusability.
-    - Better user experience flows.
-    - Features that would complement the existing modules, even if not in the spec.
-
-Your analysis must be sharp, objective, and provide actionable feedback. Do not be lenient. The goal is to produce a truly robust and production-ready application.`,
+Based on the codebase snapshot and the user's specification, and strictly adhering to the architectural constraints, provide a detailed analysis. **Your entire output, including all summaries, details, and suggestions, MUST be in Spanish.** Fill out the JSON output object with your findings. Be extremely detailed and actionable in your responses.`,
 });
 
 const analyzeCodebaseFlow = ai.defineFlow(
@@ -134,3 +136,5 @@ const analyzeCodebaseFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
