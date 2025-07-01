@@ -23,7 +23,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X } from 'lucide-react';
@@ -232,7 +231,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
           <div className="text-center sm:text-left"><h1 className="text-2xl font-bold font-headline text-primary flex items-center gap-2"><PartyPopper/> {eventName || 'Galería Social'}</h1><p className="text-sm text-muted-foreground">¡Comparte tus momentos del evento!</p></div>
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
              <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base flex-grow"/>
-             <DialogTrigger asChild><Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button></DialogTrigger>
+             <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
              <Button variant="outline" onClick={() => setProjectionMode(true)} className="h-10"><MonitorPlay className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Proyección</span></Button>
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10"><RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}/></Button>
           </div>
