@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import Draggable, { type DraggableEvent, type DraggableData } from 'react-draggable';
@@ -39,6 +39,69 @@ const PALETTE_ITEMS: { category: string; label: string; icon: React.ElementType,
     { category: 'Barra de Tragos', label: 'Barra de Tragos', icon: RectangleHorizontal, default: { width: 180, height: 60 } },
     { category: 'Mobiliario (Sillón)', label: 'Sillón / Living', icon: Sofa, default: { width: 120, height: 60 } },
 ];
+
+
+// This new component handles the Draggable node reference correctly, fixing the React 18 error.
+const DraggableLayoutElement = ({ element, layoutMode, invitados, onDragStop, onDoubleClick }: {
+  element: LayoutElement;
+  layoutMode?: 'libre' | 'asignado';
+  invitados: Invitado[];
+  onDragStop: (e: DraggableEvent, data: DraggableData, elementId: string) => void;
+  onDoubleClick: (element: LayoutElement) => void;
+}) => {
+  const nodeRef = useRef(null);
+
+  const assignedGuests = layoutMode === 'asignado'
+    ? invitados.filter(inv => inv.tableNumber === element.name)
+    : [];
+  const isRound = element.category === 'Mesa Redonda';
+
+  const triggerContent = (
+    <div
+      className={`p-1 border border-primary bg-primary/20 text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg w-full h-full ${isRound ? 'rounded-full' : 'rounded-sm'}`}
+      style={{ transform: `rotate(${element.rotation || 0}deg)` }}
+      onDoubleClick={() => onDoubleClick(element)}
+    >
+      <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50" />
+      <span className="truncate w-full font-semibold">{element.name}</span>
+      {layoutMode === 'asignado' && <span className="text-xs opacity-80 flex items-center gap-1"><Users className="w-3 h-3" />{assignedGuests.length}</span>}
+    </div>
+  );
+
+  return (
+    <Draggable
+      nodeRef={nodeRef}
+      bounds="parent"
+      position={{ x: element.x, y: element.y }}
+      onStop={(e, data) => onDragStop(e, data, element.id)}
+    >
+      <div
+        ref={nodeRef}
+        style={{
+          position: 'absolute',
+          width: element.width,
+          height: element.height,
+        }}
+      >
+        {layoutMode === 'asignado' ? (
+          <Popover>
+            <PopoverTrigger asChild>{triggerContent}</PopoverTrigger>
+            <PopoverContent className="w-64 p-2">
+              <div className="font-bold text-sm mb-2">{element.name}</div>
+              {assignedGuests.length > 0 ? (
+                <ul className="text-xs space-y-1">
+                  {assignedGuests.map(g => <li key={g.id}>{g.nombre} {g.partySize && g.partySize > 1 ? `(+${g.partySize - 1})` : ''}</li>)}
+                </ul>
+              ) : <p className="text-xs text-muted-foreground">No hay invitados asignados.</p>}
+            </PopoverContent>
+          </Popover>
+        ) : (
+          triggerContent
+        )}
+      </div>
+    </Draggable>
+  );
+};
 
 
 export default function SalonLayoutPage() {
@@ -271,47 +334,16 @@ export default function SalonLayoutPage() {
                         data-ai-hint="event floor plan"
                         />
                     )}
-                    {(decoracionData.salonElements || []).map(element => {
-                        const assignedGuests = decoracionData.layoutMode === 'asignado' 
-                            ? invitados.filter(inv => inv.tableNumber === element.name) 
-                            : [];
-                        const isRound = element.category === 'Mesa Redonda';
-                        
-                        const trigger = (
-                            <div 
-                              className={`absolute p-1 border border-primary bg-primary/20 text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg ${isRound ? 'rounded-full' : 'rounded-sm'}`}
-                              style={{ width: element.width, height: element.height, transform: `rotate(${element.rotation || 0}deg)` }}
-                              onDoubleClick={() => openElementSheet(element)}
-                            >
-                              <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50"/>
-                              <span className="truncate w-full font-semibold">{element.name}</span>
-                               {decoracionData.layoutMode === 'asignado' && <span className="text-xs opacity-80 flex items-center gap-1"><Users className="w-3 h-3"/>{assignedGuests.length}</span>}
-                            </div>
-                        );
-
-                        return (
-                          <Draggable
+                    {(decoracionData.salonElements || []).map(element => (
+                        <DraggableLayoutElement
                             key={element.id}
-                            bounds="parent"
-                            position={{x: element.x, y: element.y}}
-                            onStop={(e, data) => handleDragStop(e, data, element.id)}
-                          >
-                             {decoracionData.layoutMode === 'asignado' ? (
-                                <Popover>
-                                    <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-                                    <PopoverContent className="w-64 p-2">
-                                        <div className="font-bold text-sm mb-2">{element.name}</div>
-                                        {assignedGuests.length > 0 ? (
-                                            <ul className="text-xs space-y-1">
-                                                {assignedGuests.map(g => <li key={g.id}>{g.nombre} {g.partySize && g.partySize > 1 ? `(+${g.partySize - 1})` : ''}</li>)}
-                                            </ul>
-                                        ) : <p className="text-xs text-muted-foreground">No hay invitados asignados.</p>}
-                                    </PopoverContent>
-                                </Popover>
-                             ) : trigger}
-                          </Draggable>
-                        )
-                    })}
+                            element={element}
+                            layoutMode={decoracionData.layoutMode}
+                            invitados={invitados}
+                            onDragStop={handleDragStop}
+                            onDoubleClick={openElementSheet}
+                        />
+                    ))}
                 </div>
             </div>
             <div className="flex justify-between items-start pt-2 gap-2 flex-wrap">
@@ -334,4 +366,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
