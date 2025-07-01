@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, type FormEvent, useCallback } from 'react';
+import { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,7 +84,7 @@ export function NewPostDialog({
     const [allEvents, setAllEvents] = useState<FiestaEnPlanificacion[]>([]);
     const [connections, setConnections] = useState<SocialConnection[]>([]);
     
-    const isPlatformConnected = connections.some(c => c.platform === platform && c.isConnected);
+    const isPlatformConnected = useMemo(() => connections.some(c => c.platform === platform && c.isConnected), [connections, platform]);
     const activePost = postToEdit || postToDuplicate;
     const isWhatsAppSelected = platform === 'WhatsApp';
 
@@ -193,7 +193,7 @@ export function NewPostDialog({
             const result = await saveSocialPost(formData);
             if (result.success) {
                 toast({ title: postToEdit ? "Publicación Actualizada" : (postToDuplicate ? "Publicación Duplicada" : "Publicación Creada") });
-                if(!isWhatsAppSelected && autoPublish) toast({title: "Publicación Enviada", description: `Se ha enviado el post a ${platform} para su publicación.`});
+                if(!isWhatsAppSelected && autoPublish && isPlatformConnected) toast({title: "Publicación Enviada", description: `Se ha enviado el post a ${platform} para su publicación.`});
 
                 if (isWhatsAppSelected && sendToWhatsApp) {
                     const whatsAppText = encodeURIComponent(text);
@@ -301,7 +301,7 @@ export function NewPostDialog({
                                 <Switch id="autoPublish" checked={autoPublish} onCheckedChange={setAutoPublish} disabled={!isPlatformConnected}/>
                             </div>
                             {!isPlatformConnected && (
-                               <p className="text-xs text-destructive mt-2 flex items-center gap-1.5"><Lock className="w-3 h-3"/> La cuenta de {platform} no está conectada. <Link href="/settings/company" className="underline">Conectar ahora.</Link></p>
+                               <p className="text-xs text-destructive mt-2 flex items-center gap-1.5"><Lock className="w-3 h-3"/> La cuenta de {platform} no está conectada. <Link href="/settings/social-connections" className="underline">Conectar ahora.</Link></p>
                             )}
                         </div>
                      )}
