@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -43,20 +43,6 @@ export const defaultGiftItems: Omit<GiftItem, 'id' | 'isClaimed'>[] = [
     { name: 'Electrodoméstico para la cocina', description: 'Una ayuda moderna para nuestro día a día en la cocina.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'kitchen appliance' },
     { name: 'Aporte para la Luna de Miel', description: '¡Ayúdanos a hacer nuestro viaje de bodas inolvidable!', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'honeymoon travel' },
     { name: 'Día de Spa', description: 'Un día completo de masajes y relajación para dos.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'spa day' },
-];
-
-export const ALL_LAYOUT_ELEMENT_CATEGORIES = [
-  'Mesa Redonda', 'Mesa Rectangular', 'Mesa Principal', 'Mobiliario (Sillón)', 'Pista de Baile', 'Cabina de DJ', 'Barra de Tragos', 'Estructura (Toldo/Truss)', 'Planta/Arreglo Floral', 'Elemento Decorativo', 'Otro'
-];
-
-export const PALETTE_ITEMS: { category: string; label: string; icon: React.ElementType, default: Partial<LayoutElement> }[] = [
-    { category: 'Mesa Redonda', label: 'Mesa Redonda', icon: Circle, default: { width: 80, height: 80, seats: 8 } },
-    { category: 'Mesa Rectangular', label: 'Mesa Rectangular', icon: RectangleHorizontal, default: { width: 160, height: 80, seats: 10 } },
-    { category: 'Mesa Principal', label: 'Mesa Principal', icon: RectangleHorizontal, default: { width: 200, height: 80, seats: 2 } },
-    { category: 'Pista de Baile', label: 'Pista de Baile', icon: Music, default: { width: 150, height: 150 } },
-    { category: 'Cabina de DJ', label: 'Cabina de DJ', icon: Music, default: { width: 100, height: 50 } },
-    { category: 'Barra de Tragos', label: 'Barra de Tragos', icon: RectangleHorizontal, default: { width: 180, height: 60 } },
-    { category: 'Mobiliario (Sillón)', label: 'Sillón / Living', icon: Sofa, default: { width: 120, height: 60 } },
 ];
 
 export const defaultDecoracion: DecoracionData = {
