@@ -15,6 +15,7 @@ import type { GiftItem } from '@/types/fiesta';
 import { getFiestaActual, updateGiftRegistry } from '@/app/actions/fiesta-actual';
 import NextImage from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { defaultGiftItems } from '@/lib/fiesta-defaults';
 
 export default function ListaRegalosPage() {
   const { toast } = useToast();
@@ -72,6 +73,27 @@ export default function ListaRegalosPage() {
     setGiftList(prev => prev.filter(item => item.id !== itemId));
   };
 
+  const handleAddDefaults = () => {
+    const currentGiftNames = new Set(giftList.map(item => item.name));
+    const newGiftsToAdd = defaultGiftItems
+      .filter(defaultItem => !currentGiftNames.has(defaultItem.name))
+      .map(defaultItem => ({
+        ...defaultItem,
+        id: `gift_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        isClaimed: false,
+        claimedBy: undefined,
+      }));
+
+    if (newGiftsToAdd.length === 0) {
+      toast({ title: "No hay nuevas sugerencias", description: "Ya has añadido todas las sugerencias disponibles." });
+      return;
+    }
+
+    setGiftList(prev => [...prev, ...newGiftsToAdd]);
+    toast({ title: "Sugerencias Añadidas", description: `${newGiftsToAdd.length} regalos sugeridos han sido añadidos a tu lista.` });
+  };
+
+
   const handleSaveList = async () => {
     setIsSaving(true);
     const result = await updateGiftRegistry(giftList);
@@ -112,8 +134,9 @@ export default function ListaRegalosPage() {
           <CardTitle>Gestionar Lista</CardTitle>
           <CardDescription>Añade, edita o elimina los regalos que te gustaría recibir. Los invitados podrán ver esta lista y marcar los que elijan.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-wrap gap-2">
           <Button onClick={() => openItemModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Regalo</Button>
+          <Button onClick={handleAddDefaults} variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Cargar Sugerencias</Button>
         </CardContent>
       </Card>
 
@@ -149,3 +172,5 @@ export default function ListaRegalosPage() {
     </div>
   );
 }
+
+    

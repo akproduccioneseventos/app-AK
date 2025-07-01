@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData, VideoVidaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, LayoutElement, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -34,6 +34,15 @@ export const defaultZonasContratadas: ZonaContratada[] = [
   { id: 'zona_regalos', nombreDisplay: 'Zona de regalos', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'gift table' },
   { id: 'zona_fotografia', nombreDisplay: 'Zona de fotografía / Photocall', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'photo booth' },
   { id: 'centro_salon', nombreDisplay: 'Centro del salón / Ambientación general', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'event hall center' },
+];
+
+export const defaultGiftItems: Omit<GiftItem, 'id' | 'isClaimed'>[] = [
+    { name: 'Noche de hotel', description: 'Una noche de relax en un hotel especial.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'hotel room' },
+    { name: 'Cena para dos', description: 'Una cena romántica en nuestro restaurante favorito.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'romantic dinner' },
+    { name: 'Set de Copas de Vino', description: 'Un elegante set de copas para brindar en ocasiones especiales.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'wine glasses' },
+    { name: 'Electrodoméstico para la cocina', description: 'Una ayuda moderna para nuestro día a día en la cocina.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'kitchen appliance' },
+    { name: 'Aporte para la Luna de Miel', description: '¡Ayúdanos a hacer nuestro viaje de bodas inolvidable!', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'honeymoon travel' },
+    { name: 'Día de Spa', description: 'Un día completo de masajes y relajación para dos.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'spa day' },
 ];
 
 export const defaultDecoracion: DecoracionData = {
@@ -186,3 +195,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   gestionCostos: { ...initialGestionCostosData },
   videoVida: { ...defaultVideoVidaData },
 };
+
+    
