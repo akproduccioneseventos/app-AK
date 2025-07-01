@@ -111,13 +111,19 @@ export const defaultWebPageSettings: EventWebPageSettings = {
 export const defaultClientPortalSettings: ClientPortalSettings = {
   enabled: true,
   accessKey: '',
+  showChecklist: true,
+  showItinerario: true,
+  showMusica: false,
+  showVideoVida: true,
+  showListaRegalos: false,
+  showDocumentos: true,
+  showNotasCliente: false,
+  // Legacy
   showPresupuesto: true,
   showPagos: true,
   showContrato: true,
   showInvitados: true,
-  showMusica: true,
   showMenu: false,
-  showVideoVida: true,
 };
 
 export const defaultSocialGallerySettings: SocialGallerySettings = {

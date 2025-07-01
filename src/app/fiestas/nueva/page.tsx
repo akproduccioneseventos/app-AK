@@ -48,17 +48,9 @@ const planningModules: PlanningModule[] = [
     status: "Disponible",
     actionLabel: "Configurar Evento"
   },
-   {
-    title: "Itinerario del Evento",
-    description: "Crea y organiza el cronograma de la fiesta, momento a momento.",
-    icon: Clock,
-    href: "/fiestas/nueva/itinerario",
-    status: "Disponible",
-    actionLabel: "Definir Itinerario"
-  },
   {
-    title: "Página Pública y Portal Cliente",
-    description: "Configura la página pública, el portal privado y el checklist del cliente.",
+    title: "Portal y Página Pública",
+    description: "Controla qué ven los clientes y los invitados. Gestiona el checklist, portal privado y página pública.",
     icon: Globe,
     href: "/fiestas/nueva/portal-cliente",
     status: "Disponible",
@@ -81,28 +73,12 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Administrar Invitados"
   },
   {
-    title: "Lista de Regalos",
-    description: "Crea y gestiona una lista de regalos para que los invitados elijan.",
-    icon: Gift,
-    href: "/fiestas/nueva/regalos",
-    status: "Disponible",
-    actionLabel: "Gestionar Regalos"
-  },
-  {
     title: "Decoración y Diseño del Evento",
     description: "Planifica la estética, decoración por zonas y el diseño funcional del salón.",
     icon: Palette,
     href: "/fiestas/nueva/decoracion",
     status: "Disponible",
-    actionLabel: "Definir Diseño y Decoración"
-  },
-   {
-    title: "Carga de Fotos para Video de Vida",
-    description: "Gestiona el link para que tu cliente suba las fotos para el video de vida.",
-    icon: Camera,
-    href: "/fiestas/nueva/video-vida",
-    status: "Disponible",
-    actionLabel: "Gestionar Carga de Fotos"
+    actionLabel: "Definir Diseño"
   },
   {
     title: "Catering y Menú",
@@ -111,14 +87,6 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/catering",
     status: "Disponible",
     actionLabel: "Gestionar Menús"
-  },
-  {
-    title: "Música de la Fiesta",
-    description: "Define las canciones clave, la playlist principal y la lista de exclusión.",
-    icon: Music2,
-    href: "/fiestas/nueva/musica",
-    status: "Disponible",
-    actionLabel: "Definir Música"
   },
   {
     title: "Gestión de Personal del Evento",
@@ -142,7 +110,7 @@ const planningModules: PlanningModule[] = [
     icon: ClipboardList,
     href: "/fiestas/nueva/servicios-contratados",
     status: "Disponible",
-    actionLabel: "Ver Servicios Contratados"
+    actionLabel: "Ver Servicios"
   },
   {
     title: "Reuniones con Cliente",
@@ -478,7 +446,7 @@ export default function PlanificarFiestaHubPage() {
             <CardHeader className="print:hidden">
                 <div className="flex items-center gap-3">
                     <ListChecks className="w-7 h-7 text-primary" />
-                    <CardTitle className="font-headline text-xl">Gestionar Detalles del Evento</CardTitle>
+                    <CardTitle className="font-headline text-xl">Módulos Internos del Organizador</CardTitle>
                 </div>
                  <CardDescription>Accede a los diferentes módulos para planificar cada aspecto.</CardDescription>
             </CardHeader>

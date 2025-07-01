@@ -149,14 +149,24 @@ export interface EventWebPageSettings {
 
 export interface ClientPortalSettings {
   enabled: boolean;
-  accessKey?: string; // Contraseña para proteger el acceso al portal
+  accessKey?: string;
+  // Visibilidad de módulos
+  showChecklist: boolean;
+  showItinerario: boolean;
+  showMusica: boolean;
+  showVideoVida: boolean;
+  showListaRegalos: boolean;
+  showDocumentos: boolean;
+  showNotasCliente: boolean;
+  
+  // Legacy fields to be phased out
   showPresupuesto: boolean;
   showPagos: boolean;
   showContrato: boolean;
+  
+  // Not implemented in portal UI yet
   showInvitados: boolean;
-  showMusica: boolean;
   showMenu: boolean;
-  showVideoVida?: boolean;
 }
 
 export interface SocialGallerySettings {
