@@ -51,30 +51,30 @@ const planningModules: PlanningModule[] = [
   {
     title: "Portal del Cliente",
     description: "Configura lo que tu cliente puede ver y gestiona la página pública del evento.",
-    icon: ClipboardCheck,
+    icon: Globe,
     href: "/fiestas/nueva/portal-cliente",
     status: "Disponible",
     actionLabel: "Gestionar Portal"
   },
   {
-    title: "Galería Social en Vivo",
-    description: "Configura una galería interactiva para que los invitados suban fotos durante el evento.",
-    icon: Camera,
-    href: "/fiestas/nueva/portal-cliente#social-gallery",
-    status: "Disponible",
-    actionLabel: "Configurar Galería"
-  },
-  {
-    title: "Lista de Tareas del Evento",
-    description: "Organiza y sigue el progreso de todas las tareas pendientes para tu fiesta.",
+    title: "Lista de Tareas (Interna)",
+    description: "Organiza y sigue el progreso de todas las tareas de tu equipo para la fiesta.",
     icon: ListChecks,
     href: "/fiestas/nueva/tareas",
     status: "Disponible",
     actionLabel: "Gestionar Tareas"
   },
   {
+    title: "Checklist del Cliente",
+    description: "Define y sigue las tareas que debe completar tu cliente.",
+    icon: ClipboardCheck,
+    href: "/fiestas/nueva/checklist-cliente",
+    status: "Disponible",
+    actionLabel: "Gestionar Checklist"
+  },
+  {
     title: "Gestión de Invitados",
-    description: "Administra tu lista de invitados, envía invitaciones y gestiona confirmaciones.",
+    description: "Administra tu lista de invitados, confirma asistencia y diseña la distribución del salón.",
     icon: Users,
     href: "/fiestas/nueva/invitados",
     status: "Disponible",

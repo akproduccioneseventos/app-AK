@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ClientPortalSettings, EventWebPageSettings, SocialGallerySettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientPortalSettings, EventWebPageSettings, SocialGallerySettings, ClientTarea, TareaAsignadaA } from '@/types/fiesta';
 import { getFiestaActual, updateClientPortalSettings, updateWebPageSettingsFiestaActual, updateSocialGallerySettings } from '@/app/actions/fiesta-actual';
 import { deleteSocialPost, clearGallery, getSocialPosts } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost } from '@/types/social-gallery';
@@ -219,6 +219,7 @@ export default function PortalClientePage() {
         { id: "showPagos", label: "Resumen de Pagos", icon: Banknote },
         { id: "showContrato", label: "Contrato del Evento", icon: FileSignature },
         { id: "showInvitados", label: "Lista de Invitados y RSVP", icon: Users },
+        { id: "showClientChecklist", label: "Checklist de Tareas", icon: ClipboardCheck },
         { id: "showMusica", label: "Selección de Música", icon: Music2 },
         { id: "showMenu", label: "Menú Contratado", icon: ChefHat },
     ];
@@ -237,7 +238,7 @@ export default function PortalClientePage() {
         <div className="max-w-4xl mx-auto space-y-8">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <ClipboardCheck className="w-8 h-8 text-primary" />
+                    <Globe className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Página Pública y Portal</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>

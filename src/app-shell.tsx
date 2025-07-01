@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, HardDriveDownload } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -61,6 +61,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
   if (pathname === '/fiestas/nueva/invitados/layout') return 'Diseño de Mesas y Salón';
+  if (pathname === '/fiestas/nueva/checklist-cliente') return 'Checklist del Cliente';
   if (pathname === '/fiestas/nueva/servicios-contratados') return 'Servicios Contratados';
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
@@ -93,7 +94,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/settings/backup') return 'Backup y Restauración';
   if (pathname === '/admin/aaiff') return 'Análisis y Optimización por IA';
   
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
@@ -151,6 +151,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
+    if (pathname === '/fiestas/nueva/checklist-cliente') return ClipboardCheck;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
     if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardListIcon;
@@ -197,7 +198,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/admin/aaiff') return BrainCircuit;
   
   if (pathname === '/planner-costo-fiesta') return Calculator;
@@ -221,7 +221,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const PageIcon = getPageIcon(pathname);
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
-  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback');
+  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
   const isRecibosPersonalPage = pathname === '/fiestas/nueva/personal/recibos';
