@@ -108,6 +108,14 @@ export interface GiftItem {
   claimedBy?: string; // Name of the guest who claimed it
 }
 
+export interface ProgramaEventoItem {
+  id: string;
+  hora: string; // HH:mm format
+  titulo: string;
+  descripcion?: string;
+  icono?: string; // Nombre del icono de lucide-react
+}
+
 export interface EventWebPageSettings {
   pageTitle?: string;
   heroSubtitle?: string;
@@ -129,7 +137,7 @@ export interface EventWebPageSettings {
   showGiftRegistry?: boolean;
   giftRegistry?: GiftItem[];
   showRsvp?: boolean;
-  programaEventoText?: string;
+  showPrograma?: boolean;
   musicaEspecialText?: string;
 }
 
@@ -257,6 +265,16 @@ export interface Tarea {
   esPredeterminada?: boolean; // Indica si es una tarea base que se puede reutilizar
 }
 
+export type TareaAsignadaA = 'Cliente' | 'Organizador';
+
+export interface ClientTarea {
+  id: string;
+  texto: string;
+  completada: boolean;
+  asignadaA: TareaAsignadaA;
+}
+
+
 export interface CargaOperativaItem {
   id: string;
   nombre: string;
@@ -325,6 +343,7 @@ export interface FiestaEnPlanificacion {
   tareas?: Tarea[];
   decoracion?: DecoracionData;
   invitados?: Invitado[];
+  clientChecklist?: ClientTarea[];
   webPageSettings?: EventWebPageSettings;
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;
@@ -333,5 +352,6 @@ export interface FiestaEnPlanificacion {
   bebidas?: BebidasData;
   listaDeCargaOperativa?: ListaDeCargaOperativa;
   gestionCostos?: GestionCostosData;
-  videoVida?: VideoVidaData; // Nuevo módulo
+  videoVida?: VideoVidaData;
+  programa?: ProgramaEventoItem[];
 }

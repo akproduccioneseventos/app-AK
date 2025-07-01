@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Camera, Gift } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, FileText, Link as LinkIcon, ExternalLink, Loader2, AlertTriangle, MessageSquareText, LayoutGrid, ChefHat, Users2, Milestone, Image as ImageIcon, CalendarDays, Info, DollarSign, PiggyBank, CreditCard, TimerIcon, ClipboardCheck, Music2, MapPin, Trash2, RefreshCcw, Printer, PartyPopper as PartyPopperIcon, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Camera, Gift, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
@@ -47,6 +47,14 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/configuracion",
     status: "Disponible",
     actionLabel: "Configurar Evento"
+  },
+   {
+    title: "Itinerario del Evento",
+    description: "Crea y organiza el cronograma de la fiesta, momento a momento.",
+    icon: Clock,
+    href: "/fiestas/nueva/itinerario",
+    status: "Disponible",
+    actionLabel: "Definir Itinerario"
   },
   {
     title: "Portal del Cliente",
@@ -203,7 +211,8 @@ interface ModuleCardProps {
 }
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon: Icon, actionLabel }) => (
-    <Card className="group flex flex-col h-full shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+    <Link href={href} className="group flex flex-col h-full no-underline">
+    <Card className="flex flex-col h-full shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2.5 bg-primary/10 rounded-lg">
@@ -218,15 +227,12 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon:
         <p className="text-sm text-muted-foreground">{description}</p>
       </CardContent>
       <CardFooter className="pt-2">
-        <Link href={href} passHref className="w-full">
-            <Button asChild variant="link" className="p-0 h-auto text-sm text-primary group-hover:underline">
-            <div className="inline-flex items-center justify-start gap-2 whitespace-nowrap">
-                {actionLabel} <ArrowRight className="w-4 h-4 ml-1" />
-            </div>
-            </Button>
-        </Link>
+        <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium text-primary group-hover:underline">
+            {actionLabel} <ArrowRight className="w-4 h-4 ml-1" />
+        </div>
       </CardFooter>
     </Card>
+  </Link>
 );
 
 export default function PlanificarFiestaHubPage() {

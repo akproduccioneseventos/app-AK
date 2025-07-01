@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -21,6 +21,22 @@ export const baseDefaultTareas: Omit<Tarea, 'id'>[] = [
   { texto: 'Elegir decoración y temática', completada: false, descripcion: 'Definir el estilo, colores y elementos decorativos principales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
   { texto: 'Enviar invitaciones', completada: false, descripcion: 'Diseñar, imprimir y enviar las invitaciones físicas o digitales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
 ];
+
+export const defaultClientChecklist: Omit<ClientTarea, 'id'>[] = [
+    { texto: 'Confirmar lista final de invitados', asignadaA: 'Cliente', completada: false },
+    { texto: 'Elegir el diseño de la torta', asignadaA: 'Cliente', completada: false },
+    { texto: 'Proporcionar lista de canciones especiales', asignadaA: 'Cliente', completada: false },
+    { texto: 'Revisar y aprobar el presupuesto final', asignadaA: 'Organizador', completada: false },
+];
+
+export const defaultPrograma: ProgramaEventoItem[] = [
+  { id: 'prog_1', hora: '20:00', titulo: 'Recepción de Invitados', descripcion: 'Música suave y cóctel de bienvenida.', icono: 'GlassWater' },
+  { id: 'prog_2', hora: '21:00', titulo: 'Entrada Principal', descripcion: 'Entrada de los agasajados al salón.', icono: 'Sparkles' },
+  { id: 'prog_3', hora: '21:30', titulo: 'Cena', descripcion: 'Servicio de plato principal.', icono: 'Utensils' },
+  { id: 'prog_4', hora: '23:00', titulo: '¡A Bailar!', descripcion: 'Se abre la pista de baile.', icono: 'Music' },
+  { id: 'prog_5', hora: '00:30', titulo: 'Corte de Torta y Brindis', descripcion: 'Momento especial con la torta y el brindis.', icono: 'CakeSlice' },
+];
+
 
 export const defaultColorPalette: ColorPalette = {
   primary: '#D9B8FF', // Lila pastel
@@ -88,7 +104,7 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   showGiftRegistry: false,
   giftRegistry: [],
   showRsvp: true,
-  programaEventoText: '',
+  showPrograma: true,
   musicaEspecialText: '',
 };
 
@@ -184,6 +200,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     recordatorio: t.recordatorio || undefined,
     esPredeterminada: t.esPredeterminada || false,
    }))],
+  clientChecklist: [...defaultClientChecklist.map(t => ({ ...t, id: `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
   decoracion: {
     ...defaultDecoracion,
     items: [],
@@ -200,4 +217,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
   gestionCostos: { ...initialGestionCostosData },
   videoVida: { ...defaultVideoVidaData },
+  programa: [...defaultPrograma.map(p => ({ ...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
 };

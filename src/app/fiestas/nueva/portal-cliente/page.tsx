@@ -219,7 +219,6 @@ export default function PortalClientePage() {
         { id: "showPagos", label: "Resumen de Pagos", icon: Banknote },
         { id: "showContrato", label: "Contrato del Evento", icon: FileSignature },
         { id: "showInvitados", label: "Lista de Invitados y RSVP", icon: Users },
-        { id: "showClientChecklist", label: "Checklist de Tareas", icon: ClipboardCheck },
         { id: "showMusica", label: "Selección de Música", icon: Music2 },
         { id: "showMenu", label: "Menú Contratado", icon: ChefHat },
     ];
@@ -228,6 +227,7 @@ export default function PortalClientePage() {
         { id: "showCountdown", label: "Contador Regresivo" },
         { id: "showOurStory", label: "Nuestra Historia" },
         { id: "showEventDetails", label: "Detalles del Evento" },
+        { id: "showPrograma", label: "Cronograma del Evento" },
         { id: "showDressCode", label: "Código de Vestimenta" },
         { id: "showGiftRegistry", label: "Lista de Regalos" },
         { id: "showGallery", label: "Galería de Fotos" },
@@ -315,9 +315,8 @@ export default function PortalClientePage() {
                                 <Separator />
                                 <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Secciones y Contenido Adicional</h3>
                                 <div className="space-y-2">
-                                    <Label htmlFor="event-schedule-text" className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary/80"/>Cronograma del Evento</Label>
-                                    <Textarea id="event-schedule-text" value={settings.web.programaEventoText || ''} onChange={(e) => handleWebSettingChange('programaEventoText', e.target.value)} rows={5} placeholder="Ej: 20:00 - Recepción, 21:00 - Entrada, 22:00 - Cena..."/>
-                                    <Button type="button" variant="ghost" size="sm" className="text-primary hover:text-primary/80" disabled><Wand2 className="w-4 h-4 mr-1"/>Sugerir cronograma con IA (Próximamente)</Button>
+                                    <Label htmlFor="event-details-text" className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary/80"/>Detalles y Programa</Label>
+                                    <Textarea id="event-details-text" value={settings.web.eventDetailsText || ''} onChange={(e) => handleWebSettingChange('eventDetailsText', e.target.value)} rows={5} placeholder="Ej: 20:00 - Recepción, 21:00 - Entrada..."/>
                                 </div>
                                 <Separator />
                                 <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Activar/Desactivar Secciones</h3>
