@@ -4,9 +4,9 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaActual, handleRsvpSubmission, claimGift } from '@/app/actions/fiesta-actual';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
@@ -28,6 +28,10 @@ const platformIcons: Record<string, React.ElementType> = {
     WhatsApp: MessageSquare,
 };
 
+const iconMap: Record<string, React.ElementType> = {
+    Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock, Sparkles
+};
+
 const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
   if (!dateString) return "Fecha por confirmar";
   try {
@@ -44,9 +48,9 @@ const formatDate = (dateString?: string, includeTime: boolean = true, timeString
         const ampm = hourNum >= 12 ? 'PM' : 'AM';
         hourNum = hourNum % 12 || 12; 
         formattedDate += ` a las ${hourNum}:${minutes} ${ampm}`;
-      } else if (includeTime && date.getHours() !== 0 || date.getMinutes() !== 0) {
-        formattedDate += ` a las ${date.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
       }
+    } else if (includeTime && (date.getUTCHours() !== 0 || date.getUTCMinutes() !== 0)) {
+        formattedDate += ` a las ${date.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC' })}`;
     }
     return formattedDate;
   } catch (e) { return "Fecha inválida"; }
@@ -250,7 +254,6 @@ export default function EventoPublicoPage() {
           showEventDetails: true,
           showGallery: true,
           showRsvp: true,
-          programaEventoText: '',
       });
       setPaletaColores(data.decoracion?.paletaColores || null);
       setSocialLinks(connections.filter(c => c.isConnected && c.profileUrl));
@@ -406,15 +409,30 @@ export default function EventoPublicoPage() {
             </section>
         )}
 
-        {webSettings.programaEventoText && (
-            <section id="schedule" className="py-8">
-                 <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Cronograma del Evento</h2>
-                 <Card className="shadow-lg">
-                    <CardContent className="p-6 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground">
-                        {webSettings.programaEventoText}
-                    </CardContent>
-                 </Card>
-            </section>
+        {webSettings.showPrograma && fiesta.programa && fiesta.programa.length > 0 && (
+          <section id="schedule" className="py-8">
+            <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Cronograma del Evento</h2>
+            <div className="relative max-w-2xl mx-auto pl-6">
+              <div className="absolute left-6 h-full w-0.5 bg-border -z-10" style={{left: '28px'}}></div>
+              {fiesta.programa.map((item, index) => {
+                  const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
+                  return (
+                      <div key={item.id} className="relative flex items-start gap-6 pb-8">
+                          <div className="relative z-10 flex flex-col items-center">
+                              <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 border-2 border-primary">
+                                  <Icon className="h-6 w-6 text-primary" />
+                              </div>
+                              <span className="mt-2 text-sm font-bold text-primary">{item.hora}</span>
+                          </div>
+                          <div className="pt-3">
+                              <p className="font-semibold text-lg">{item.titulo}</p>
+                              <p className="text-sm text-muted-foreground">{item.descripcion}</p>
+                          </div>
+                      </div>
+                  )
+              })}
+            </div>
+          </section>
         )}
 
          {webSettings.musicaEspecialText && (

@@ -117,6 +117,7 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
   showInvitados: true,
   showMusica: true,
   showMenu: false,
+  showVideoVida: true,
 };
 
 export const defaultSocialGallerySettings: SocialGallerySettings = {

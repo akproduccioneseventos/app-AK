@@ -156,6 +156,7 @@ export interface ClientPortalSettings {
   showInvitados: boolean;
   showMusica: boolean;
   showMenu: boolean;
+  showVideoVida?: boolean;
 }
 
 export interface SocialGallerySettings {

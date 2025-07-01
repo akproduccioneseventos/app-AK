@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, FileSignature, Users, Music2, ChefHat, ExternalLink, ClipboardCheck, Globe } from 'lucide-react';
+import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, FileSignature, Users, Music2, ChefHat, ExternalLink, ClipboardCheck, Globe, Camera } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import Link from 'next/link';
@@ -173,6 +173,10 @@ export default function ClientPortalPage() {
          clientPortalSettings.showMenu && fiesta.menuAsignadoId ? {
             title: "Menú Contratado", description: "Detalles del menú seleccionado para el evento.", icon: ChefHat,
             href: `/fiestas/nueva/catering/menu/${fiesta.menuAsignadoId}/editar` // Links to edit view for now
+        } : null,
+        clientPortalSettings.showVideoVida ? {
+            title: "Video de Vida", description: "Sube y organiza las fotos para tu video de vida.", icon: Camera,
+            href: `/video-vida/${fiesta.id}`
         } : null,
     ];
     

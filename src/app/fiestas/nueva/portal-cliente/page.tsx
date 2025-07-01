@@ -26,7 +26,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
   ClipboardCheck, FileText, Banknote, FileSignature, Users, User, UserCog,
-  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2, Plus, PlusCircle
+  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2, Plus, PlusCircle, Gift
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -262,6 +262,7 @@ export default function PortalUnificadoPage() {
         { id: "showInvitados", label: "Lista de Invitados y RSVP", icon: Users },
         { id: "showMusica", label: "Selección de Música", icon: Music2 },
         { id: "showMenu", label: "Menú Contratado", icon: ChefHat },
+        { id: "showVideoVida", label: "Carga Fotos (Video Vida)", icon: Camera },
     ];
 
     const webSections = [
@@ -355,7 +356,7 @@ export default function PortalUnificadoPage() {
                                             {tareas.map((task) => (
                                                 <li key={task.id} className="flex items-start gap-3">
                                                     <Checkbox id={`task-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
-                                                    <div className="flex-grow"><Label htmlFor={`task-${task.id}`} className={`font-medium ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
+                                                    <div className="flex-grow"><Label htmlFor={`task-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
                                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTask(task.id)} disabled={isSavingChecklist}><Trash2 className="w-4 h-4" /></Button>
                                                 </li>
                                             ))}
@@ -383,12 +384,6 @@ export default function PortalUnificadoPage() {
                                 <div className="space-y-2"><Label htmlFor="cover-image-upload">Imagen de Portada</Label><Input id="cover-image-upload" type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setCoverImagePreview)} />
                                 {coverImagePreview && <NextImage src={coverImagePreview} alt="Vista previa Portada" width={200} height={120} className="rounded object-cover mt-2" data-ai-hint="event cover photo"/>}</div>
 
-                                <Separator />
-                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Secciones y Contenido Adicional</h3>
-                                <div className="space-y-2">
-                                    <Label htmlFor="event-details-text" className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary/80"/>Detalles y Programa</Label>
-                                    <Textarea id="event-details-text" value={settings.web.eventDetailsText || ''} onChange={(e) => handleWebSettingChange('eventDetailsText', e.target.value)} rows={5} placeholder="Ej: 20:00 - Recepción, 21:00 - Entrada..."/>
-                                </div>
                                 <Separator />
                                 <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Activar/Desactivar Secciones</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
