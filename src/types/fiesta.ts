@@ -116,6 +116,12 @@ export interface ProgramaEventoItem {
   icono?: string; // Nombre del icono de lucide-react
 }
 
+export interface ItineraryTemplate {
+  id: string;
+  name: string;
+  items: ProgramaEventoItem[];
+}
+
 export interface EventWebPageSettings {
   pageTitle?: string;
   heroSubtitle?: string;

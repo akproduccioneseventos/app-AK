@@ -9,10 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
 import { getFiestaActual, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
+import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -21,10 +22,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { defaultPrograma } from '@/lib/fiesta-defaults';
 
 const iconMap: Record<string, React.ElementType> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
@@ -69,8 +72,16 @@ export default function ItinerarioEventoPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<ProgramaEventoItem> | null>(null);
+
+  // Template States
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [templates, setTemplates] = useState<ItineraryTemplate[]>([]);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+  const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -91,10 +102,62 @@ export default function ItinerarioEventoPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+  
+  const handleOpenLoadTemplateModal = async () => {
+    setIsLoadingTemplates(true);
+    setIsLoadTemplateModalOpen(true);
+    try {
+        const fetchedTemplates = await getItineraryTemplates();
+        setTemplates(fetchedTemplates);
+    } catch(e) {
+        toast({title: "Error", description: "No se pudieron cargar las plantillas", variant: "destructive"});
+    } finally {
+        setIsLoadingTemplates(false);
+    }
+  }
+
+  const handleOpenSaveTemplateModal = () => {
+    setTemplateName(''); // Reset name
+    setIsSaveTemplateModalOpen(true);
+  };
+  
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast({title: "Nombre requerido", variant: "destructive"});
+      return;
+    }
+    setIsSaving(true);
+    const result = await saveItineraryTemplate(templateName, programa);
+    if (result.success) {
+      toast({title: "Plantilla Guardada"});
+      setIsSaveTemplateModalOpen(false);
+    } else {
+      toast({title: "Error al guardar plantilla", description: result.error, variant: "destructive"});
+    }
+    setIsSaving(false);
+  };
+
+  const handleLoadTemplate = (template: ItineraryTemplate) => {
+    setPrograma(template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`})));
+    toast({title: "Plantilla cargada", description: `Se cargó el itinerario "${template.name}".`});
+    setIsLoadTemplateModalOpen(false);
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    setDeletingTemplateId(id);
+    const result = await deleteItineraryTemplate(id);
+    if(result.success) {
+      toast({title: "Plantilla eliminada"});
+      setTemplates(prev => prev.filter(t => t.id !== id));
+    } else {
+      toast({title: "Error al eliminar", description: result.error, variant: "destructive"});
+    }
+    setDeletingTemplateId(null);
+  };
 
   const openModal = (item?: ProgramaEventoItem) => {
     setCurrentItem(item || { hora: '20:00', titulo: '', descripcion: '', icono: 'Clock' });
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
   const handleSaveItem = (e: FormEvent) => {
@@ -113,7 +176,7 @@ export default function ItinerarioEventoPage() {
       updatedPrograma = [...programa, newItem].sort((a,b) => a.hora.localeCompare(b.hora));
     }
     setPrograma(updatedPrograma);
-    setIsModalOpen(false);
+    setIsEditModalOpen(false);
     setCurrentItem(null);
   };
 
@@ -148,6 +211,11 @@ export default function ItinerarioEventoPage() {
       setIsSaving(false);
     }
   };
+  
+  const handleRestoreDefault = () => {
+    setPrograma([...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]);
+    toast({description: "El itinerario por defecto ha sido cargado."});
+  };
 
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -155,7 +223,7 @@ export default function ItinerarioEventoPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Momento</DialogTitle></DialogHeader>
           <form onSubmit={handleSaveItem} className="space-y-4 py-2">
@@ -177,6 +245,33 @@ export default function ItinerarioEventoPage() {
           </form>
         </DialogContent>
       </Dialog>
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent><DialogHeader><DialogTitle>Guardar Itinerario como Plantilla</DialogTitle></DialogHeader>
+          <div className="py-2 space-y-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Itinerario Boda Clásica"/></div>
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveTemplate} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : "Guardar"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Cargar Itinerario desde Plantilla</DialogTitle></DialogHeader>
+          {isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> :
+            templates.length > 0 ? (
+              <ul className="space-y-2 max-h-64 overflow-y-auto">
+                {templates.map(t => (
+                  <li key={t.id} className="flex items-center justify-between p-2 border rounded-md">
+                    <span>{t.name}</span>
+                    <div className="flex gap-1">
+                      <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
+                      <Button size="icon" variant="destructive" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>{deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Clock className="w-8 h-8 text-primary" />
@@ -190,7 +285,12 @@ export default function ItinerarioEventoPage() {
           <CardDescription>Organiza cada momento de la fiesta. Arrastra y suelta para reordenar.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button onClick={() => openModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Momento</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => openModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Momento</Button>
+            <Button onClick={handleOpenLoadTemplateModal} variant="secondary"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
+            <Button onClick={handleOpenSaveTemplateModal} variant="secondary"><Save className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button>
+            <Button onClick={handleRestoreDefault} variant="outline"><RotateCcw className="w-4 h-4 mr-2"/>Restaurar por Defecto</Button>
+          </div>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={programa.map(p => p.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-3">
