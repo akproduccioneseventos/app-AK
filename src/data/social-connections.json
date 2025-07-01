@@ -1,2 +1,9 @@
-
-[]
+[
+  {
+    "platform": "WhatsApp",
+    "isConnected": true,
+    "username": "WhatsApp (59898355530)",
+    "phoneNumber": "59898355530",
+    "connectedAt": "2025-07-01T19:36:02.243Z"
+  }
+]

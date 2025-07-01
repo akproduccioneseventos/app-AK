@@ -15,6 +15,17 @@ import { Facebook, Instagram, Music } from 'lucide-react';
 import type { SocialConnection, SocialPlatformName } from '@/types/settings';
 import { getSocialConnections, connectSocialPlatform, disconnectSocialPlatform, saveWhatsAppNumber } from '@/app/actions/social-connections';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 
 // Placeholder function for future save logic
@@ -80,10 +91,8 @@ export default function CompanySettingsPage() {
     loadInitialData();
   }, [loadInitialData]);
   
-  const handleConnect = async (platform: SocialPlatformName) => {
+  const handleSimulatedConnect = async (platform: SocialPlatformName) => {
     setProcessingPlatform(platform);
-    toast({title: `Simulando conexión con ${platform}...`, description: "En una app real, se abriría una ventana de inicio de sesión."});
-    await new Promise(resolve => setTimeout(resolve, 2000));
     const result = await connectSocialPlatform(platform);
     if(result.success) {
         toast({title: "¡Conexión Exitosa!", description: `Se ha vinculado la cuenta de ${platform}.`});
@@ -110,7 +119,7 @@ export default function CompanySettingsPage() {
     setProcessingPlatform('WhatsApp');
     const result = await saveWhatsAppNumber(whatsAppNumber);
     if(result.success) {
-        toast({title: "Número de WhatsApp Guardado"});
+        toast({title: "Número de WhatsApp Guardado", description: "Tu número se ha vinculado y ahora estará disponible para compartir documentos."});
         await loadInitialData();
     } else {
         toast({title: "Error", description: result.error, variant: "destructive"});
@@ -203,10 +212,32 @@ export default function CompanySettingsPage() {
                            <Icon className={`w-8 h-8 ${colorClass}`}/>
                            <div><p className="font-semibold">{platform}</p><p className="text-xs text-muted-foreground">{isConnected ? `Conectado como ${connection.username}` : 'No conectado'}</p></div>
                          </div>
-                          <Button variant={isConnected ? 'destructive' : 'default'} className="w-full mt-3" onClick={() => isConnected ? handleDisconnect(platform) : handleConnect(platform)} disabled={processingPlatform === platform}>
-                            {processingPlatform === platform ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : isConnected ? <Unlink className="w-4 h-4 mr-2"/> : <LogIn className="w-4 h-4 mr-2"/>}
-                            {isConnected ? 'Desconectar' : 'Conectar'}
-                          </Button>
+                         {isConnected ? (
+                            <Button variant="destructive" className="w-full mt-3" onClick={() => handleDisconnect(platform)} disabled={processingPlatform === platform}>
+                                {processingPlatform === platform ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Unlink className="w-4 h-4 mr-2"/>}
+                                Desconectar
+                            </Button>
+                         ) : (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button className="w-full mt-3" disabled={processingPlatform === platform}>
+                                        <LogIn className="w-4 h-4 mr-2"/> Conectar
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Simulación de Conexión</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            En una aplicación real, se abriría una ventana para que inicies sesión en {platform}. Como esto es una demostración, simularemos una conexión exitosa.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleSimulatedConnect(platform)}>Continuar</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                         )}
                        </Card>
                     );
                   })}
