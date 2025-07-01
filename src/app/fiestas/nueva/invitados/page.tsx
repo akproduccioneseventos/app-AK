@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2, QrCode, UserCheck } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2, QrCode, UserCheck, Ticket } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -256,7 +256,7 @@ export default function InvitadosEventoPage() {
             <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.TotalInvitaciones || 0} invitaciones / {rsvpCounts.TotalPersonas || 0} personas)
           </CardTitle>
           <CardDescription>
-            Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Pendientes: {rsvpCounts.Pendiente || 0}.
+            Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Asigna una mesa a cada invitado confirmado.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -297,14 +297,15 @@ export default function InvitadosEventoPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                         <div className="flex-1 sm:flex-none sm:w-[100px]">
-                           <Label htmlFor={`table-${invitado.id}`} className="sr-only">Mesa</Label>
+                         <div className="flex-1 sm:flex-none sm:w-[120px]">
+                           <Label htmlFor={`table-${invitado.id}`} className="sr-only">Número de Mesa</Label>
                            <Input
                               id={`table-${invitado.id}`}
-                              placeholder="Mesa"
+                              placeholder="Nº Mesa"
+                              title="Número de Mesa"
                               value={invitado.tableNumber || ''}
                               onChange={(e) => handleFieldChange(invitado.id, 'tableNumber', e.target.value)}
-                              className="h-8 text-xs"
+                              className="h-9 text-sm"
                               disabled={invitado.rsvp !== 'Confirmado'}
                             />
                         </div>
@@ -328,7 +329,7 @@ export default function InvitadosEventoPage() {
         </CardContent>
          {invitados.length > 0 && (
             <CardFooter className="text-xs text-muted-foreground border-t pt-3">
-                Gestiona el estado de confirmación, número de asistentes por invitación, mesa asignada y notas.
+                <Ticket className="w-4 h-4 mr-2 shrink-0"/> Asigna un número de mesa a los invitados confirmados. Este número se mostrará cuando el invitado escanee su código QR.
             </CardFooter>
         )}
       </Card>
