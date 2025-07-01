@@ -88,19 +88,10 @@
     "salonPlanBackgroundImageUrl": "",
     "salonElements": [],
     "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
+    "layoutMode": "libre",
     "generalNotes": "Decoración base, detalles por definir."
   },
-  "invitados": [
-    {
-      "id": "inv_1751389824921_0yrec",
-      "nombre": "pepe",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": 1,
-      "companionNames": [],
-      "checkedIn": false
-    }
-  ],
+  "invitados": [],
   "webPageSettings": {
     "pageTitle": "Mi Evento Especial",
     "heroSubtitle": "¡Una celebración inolvidable!",
