@@ -12,10 +12,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus, Pointer, Move } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus, Pointer, Move, Printer, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, LayoutElement } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, LayoutElement, Invitado } from '@/types/fiesta';
 import { defaultDecoracion, defaultZonasContratadas, ALL_LAYOUT_ELEMENT_CATEGORIES } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -30,6 +30,11 @@ import {
   DialogClose
 } from "@/components/ui/dialog";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -37,6 +42,7 @@ import {
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flows/suggest-palette-flow';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -97,6 +103,7 @@ const ItemSection: React.FC<ItemSectionProps> = ({ title, category, items, onAdd
 export default function DecoracionYDisenoEventoPage() {
   const { toast } = useToast();
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
+  const [fiestaCompleta, setFiestaCompleta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,6 +123,8 @@ export default function DecoracionYDisenoEventoPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [suggestedPalette, setSuggestedPalette] = useState<SuggestedPalette | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
+  
+  const invitados: Invitado[] = fiestaCompleta?.invitados || [];
 
   const loadDecoracionData = useCallback(async () => {
     setIsLoading(true);
@@ -123,6 +132,7 @@ export default function DecoracionYDisenoEventoPage() {
     setFailedImageUrls({});
     try {
       const fiestaData = await getFiestaActual();
+      setFiestaCompleta(fiestaData);
       const loadedDecoracion = fiestaData.decoracion || defaultDecoracion;
       
       const mergedZonas = defaultZonasContratadas.map(defaultZona => {
@@ -136,6 +146,7 @@ export default function DecoracionYDisenoEventoPage() {
         items: loadedDecoracion.items || [],
         zonasContratadas: mergedZonas,
         salonElements: loadedDecoracion.salonElements || [],
+        layoutMode: loadedDecoracion.layoutMode || 'libre',
         paletaColores: {
           ...defaultDecoracion.paletaColores,
           ...(loadedDecoracion.paletaColores || {})
@@ -577,7 +588,7 @@ export default function DecoracionYDisenoEventoPage() {
                         aria-label={`Activar ${zona.nombreDisplay}`}
                     />
                   </AccordionPrimitive.Header>
-                  <AccordionContent className="px-4 pt-0 pb-4 space-y-4 border-t">
+                  <AccordionContent className="px-4 pt-2 pb-4 space-y-4 border-t">
                     {zona.activada && (<>
                         <div className="space-y-2 mt-2"><Label htmlFor={`zona-desc-${zona.id}`}>Descripción</Label><Textarea id={`zona-desc-${zona.id}`} value={zona.descripcion || ''} onChange={e => handleZonaChange(zona.id, 'descripcion', e.target.value)} rows={2} placeholder="Detalles de decoración para esta zona"/></div>
                         <div className="space-y-2"><Label htmlFor={`zona-img-${zona.id}`}>URL Imagen de Referencia</Label><Input id={`zona-img-${zona.id}`} type="url" value={zona.imagenReferenciaUrl || ''} onChange={e => handleZonaChange(zona.id, 'imagenReferenciaUrl', e.target.value)} placeholder="https://ejemplo.com/imagen_zona.jpg"/>
@@ -594,8 +605,33 @@ export default function DecoracionYDisenoEventoPage() {
 
         {/* --- SALON LAYOUT DESIGNER --- */}
         <Card className="shadow-lg mb-6">
-          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Diseño del Salón y Disposición de Elementos</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Diseño del Salón y Disposición</CardTitle>
+            <CardDescription>Organiza el espacio del evento, las mesas y otros elementos clave.</CardDescription>
+          </CardHeader>
           <CardContent className="space-y-4">
+             <div className="p-4 border rounded-lg bg-muted/40">
+                <Label className="text-base font-medium">Modo de Disposición</Label>
+                <RadioGroup 
+                  value={decoracionData.layoutMode || 'libre'} 
+                  onValueChange={(value) => handleInputChange('layoutMode', value as 'libre' | 'asignado')}
+                  className="mt-2 flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="libre" id="mode-libre" />
+                    <Label htmlFor="mode-libre">Mesas Libres</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="asignado" id="mode-asignado" />
+                    <Label htmlFor="mode-asignado">Mesas Asignadas</Label>
+                  </div>
+                </RadioGroup>
+                <p className="text-xs text-muted-foreground mt-2">
+                    {decoracionData.layoutMode === 'asignado' 
+                        ? "En este modo, las mesas se sincronizan con la lista de invitados." 
+                        : "Modo visual para fiestas informales sin asignación de asientos."}
+                </p>
+            </div>
             <div className="space-y-2">
                 <Label htmlFor="salon-plan-bg">URL Imagen de Fondo para Plano del Salón</Label>
                 <Input id="salon-plan-bg" type="url" value={decoracionData.salonPlanBackgroundImageUrl || ''} onChange={e => handleInputChange('salonPlanBackgroundImageUrl', e.target.value)} placeholder="https://ejemplo.com/plano_salon.png"/>
@@ -612,30 +648,64 @@ export default function DecoracionYDisenoEventoPage() {
                       data-ai-hint="event floor plan"
                     />
                 )}
-                {(decoracionData.salonElements || []).map(element => (
-                  <Draggable
-                    key={element.id}
-                    bounds="parent"
-                    position={{x: element.x, y: element.y}}
-                    onStop={(e, data) => handleDragStop(e, data, element.id)}
-                  >
-                    <div 
-                      className="absolute p-1 border border-primary bg-primary/20 rounded text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg"
-                      style={{ width: element.width, height: element.height }}
-                      onDoubleClick={() => openLayoutElementModal(element)}
-                    >
-                      <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50"/>
-                      <span className="truncate w-full">{element.name}</span>
-                      <span className="opacity-70">({element.quantity})</span>
-                    </div>
-                  </Draggable>
-                ))}
+                {(decoracionData.salonElements || []).map(element => {
+                    const assignedGuests = decoracionData.layoutMode === 'asignado' 
+                        ? invitados.filter(inv => inv.tableNumber === element.name) 
+                        : [];
+                    
+                    const trigger = (
+                        <div 
+                          className="absolute p-1 border border-primary bg-primary/20 rounded text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg"
+                          style={{ width: element.width, height: element.height }}
+                          onDoubleClick={() => openLayoutElementModal(element)}
+                        >
+                          <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50"/>
+                          <span className="truncate w-full font-semibold">{element.name}</span>
+                           {decoracionData.layoutMode === 'asignado' && <span className="text-xs opacity-80 flex items-center gap-1"><Users className="w-3 h-3"/>{assignedGuests.length}</span>}
+                        </div>
+                    );
+
+                    return (
+                      <Draggable
+                        key={element.id}
+                        bounds="parent"
+                        position={{x: element.x, y: element.y}}
+                        onStop={(e, data) => handleDragStop(e, data, element.id)}
+                      >
+                         {decoracionData.layoutMode === 'asignado' ? (
+                            <Popover>
+                                <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+                                <PopoverContent className="w-64 p-2">
+                                    <div className="font-bold text-sm mb-2">{element.name}</div>
+                                    {assignedGuests.length > 0 ? (
+                                        <ul className="text-xs space-y-1">
+                                            {assignedGuests.map(g => <li key={g.id}>{g.nombre} {g.partySize && g.partySize > 1 ? `(+${g.partySize - 1})` : ''}</li>)}
+                                        </ul>
+                                    ) : <p className="text-xs text-muted-foreground">No hay invitados asignados.</p>}
+                                </PopoverContent>
+                            </Popover>
+                         ) : trigger}
+                      </Draggable>
+                    )
+                })}
             </div>
-            <div className="flex justify-between items-center gap-2 pt-2">
+            <div className="flex justify-between items-start pt-2 gap-2 flex-wrap">
                  <Button type="button" onClick={() => openLayoutElementModal()}>
                     <PlusCircle className="w-4 h-4 mr-2"/> Añadir Elemento al Plano
                 </Button>
-                <div className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</div>
+                {decoracionData.layoutMode === 'asignado' && (
+                  <div className="flex gap-2">
+                     <Link href="/fiestas/nueva/decoracion/pdf?layout=true" passHref>
+                        <Button type="button" variant="secondary" size="sm">
+                          <Printer className="w-4 h-4 mr-1.5"/>Imprimir Plano con Nombres
+                        </Button>
+                      </Link>
+                      <Button type="button" variant="secondary" size="sm" disabled>
+                        <Printer className="w-4 h-4 mr-1.5"/>Imprimir Tarjetas de Mesa
+                      </Button>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</p>
             </div>
 
             <div className="space-y-2"><Label htmlFor="general-notes-salonlayout">Notas Generales de Disposición del Salón</Label><Textarea id="general-notes-salonlayout" value={decoracionData.generalNotesSalonLayout || ''} onChange={e => handleInputChange('generalNotesSalonLayout', e.target.value)} rows={3} placeholder="Ubicación de mesas, pista de baile, áreas especiales..."/></div>
@@ -680,7 +750,10 @@ export default function DecoracionYDisenoEventoPage() {
           <DialogHeader><DialogTitle className="font-headline">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento al Plano</DialogTitle></DialogHeader>
           {currentLayoutElement && (
             <div className="py-2 space-y-3">
-              <div className="space-y-1"><Label htmlFor="layout-el-name">Nombre (Ej: "Mesa 5", "Pista") *</Label><Input id="layout-el-name" value={currentLayoutElement.name || ''} onChange={(e) => handleLayoutElementChange('name', e.target.value)} required /></div>
+              <div className="space-y-1">
+                <Label htmlFor="layout-el-name">Nombre (Ej: "Mesa 5", "Pista") *</Label>
+                <Input id="layout-el-name" value={currentLayoutElement.name || ''} onChange={(e) => handleLayoutElementChange('name', e.target.value)} required />
+              </div>
               <div className="space-y-1">
                 <Label htmlFor="layout-el-cat">Categoría</Label>
                 <Select value={currentLayoutElement.category || 'Otro'} onValueChange={(val) => handleLayoutElementChange('category', val)}>

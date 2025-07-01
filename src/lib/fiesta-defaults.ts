@@ -63,6 +63,7 @@ export const defaultDecoracion: DecoracionData = {
   salonPlanBackgroundImageUrl: '',
   salonElements: [],
   generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.',
+  layoutMode: 'libre',
 };
 
 export const defaultWebPageSettings: EventWebPageSettings = {

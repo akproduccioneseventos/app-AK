@@ -89,6 +89,7 @@ export interface DecoracionData {
   salonPlanBackgroundImageUrl?: string;
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
+  layoutMode?: 'libre' | 'asignado'; // Nuevo campo para el modo de layout
 }
 
 export interface GiftItem {
