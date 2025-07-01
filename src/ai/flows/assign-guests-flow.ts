@@ -31,13 +31,13 @@ const TableSchema = z.object({
   seats: z.number(),
 });
 
-export const AssignGuestsInputSchema = z.object({
+const AssignGuestsInputSchema = z.object({
   guests: z.array(GuestSchema).describe("List of confirmed guests to be assigned."),
   tables: z.array(TableSchema).describe("List of available tables with their capacities."),
 });
 export type AssignGuestsInput = z.infer<typeof AssignGuestsInputSchema>;
 
-export const AssignGuestsOutputSchema = z.object({
+const AssignGuestsOutputSchema = z.object({
   assignments: z.array(GuestSchema).describe("The full list of guests with their 'tableNumber' field updated. Unassigned guests should have a null or empty tableNumber.")
 });
 export type AssignGuestsOutput = z.infer<typeof AssignGuestsOutputSchema>;
