@@ -89,6 +89,38 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Gestionar Menús"
   },
   {
+    title: "Itinerario del Evento",
+    description: "Define el cronograma y los momentos clave de tu evento.",
+    icon: Clock,
+    href: "/fiestas/nueva/itinerario",
+    status: "Disponible",
+    actionLabel: "Crear Itinerario"
+  },
+  {
+    title: "Música de la Fiesta",
+    description: "Especifica las canciones clave y preferencias musicales para el DJ.",
+    icon: Music2,
+    href: "/fiestas/nueva/musica",
+    status: "Disponible",
+    actionLabel: "Seleccionar Música"
+  },
+  {
+    title: "Lista de Regalos",
+    description: "Crea y gestiona la lista de regalos para los invitados.",
+    icon: Gift,
+    href: "/fiestas/nueva/regalos",
+    status: "Disponible",
+    actionLabel: "Gestionar Regalos"
+  },
+  {
+    title: "Video de Vida",
+    description: "Gestiona la carga de fotos del cliente para el video emotivo.",
+    icon: Camera,
+    href: "/fiestas/nueva/video-vida",
+    status: "Disponible",
+    actionLabel: "Gestionar Video"
+  },
+  {
     title: "Gestión de Personal del Evento",
     description: "Asigna personal de tu equipo al evento y gestiona sus roles y costos.",
     icon: UserCheck,

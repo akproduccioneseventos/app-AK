@@ -91,9 +91,25 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         galleryImageUrls: parsedData.webPageSettings.galleryImageUrls || [],
       };
     }
-    if (!parsedData.clientPortalSettings) {
+    // Migration for ClientPortalSettings - from flat booleans to nested objects
+    if (parsedData.clientPortalSettings && typeof (parsedData.clientPortalSettings as any).showChecklist === 'boolean') {
+        const oldSettings = parsedData.clientPortalSettings as any;
+        parsedData.clientPortalSettings = {
+            ...defaultClientPortalSettings,
+            enabled: oldSettings.enabled,
+            accessKey: oldSettings.accessKey,
+            checklist: { visible: oldSettings.showChecklist, editable: true },
+            itinerario: { visible: oldSettings.showItinerario, editable: false },
+            musica: { visible: oldSettings.showMusica, editable: true },
+            videoVida: { visible: oldSettings.showVideoVida, editable: true },
+            listaRegalos: { visible: oldSettings.showListaRegalos, editable: false },
+            documentos: { visible: oldSettings.showDocumentos || oldSettings.showPresupuesto || oldSettings.showContrato, editable: false },
+            notasCliente: { visible: oldSettings.showNotasCliente, editable: true },
+        };
+    } else if (!parsedData.clientPortalSettings) {
       parsedData.clientPortalSettings = { ...defaultClientPortalSettings };
     }
+
     if (!parsedData.socialGallerySettings) {
         parsedData.socialGallerySettings = { ...defaultSocialGallerySettings };
     }
@@ -283,7 +299,15 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     const validatedClientPortalSettings: ClientPortalSettings = {
       ...defaultClientPortalSettings,
       ...(data.clientPortalSettings || {}),
+      checklist: { ...defaultClientPortalSettings.checklist, ...(data.clientPortalSettings?.checklist || {}) },
+      itinerario: { ...defaultClientPortalSettings.itinerario, ...(data.clientPortalSettings?.itinerario || {}) },
+      musica: { ...defaultClientPortalSettings.musica, ...(data.clientPortalSettings?.musica || {}) },
+      videoVida: { ...defaultClientPortalSettings.videoVida, ...(data.clientPortalSettings?.videoVida || {}) },
+      listaRegalos: { ...defaultClientPortalSettings.listaRegalos, ...(data.clientPortalSettings?.listaRegalos || {}) },
+      documentos: { ...defaultClientPortalSettings.documentos, ...(data.clientPortalSettings?.documentos || {}) },
+      notasCliente: { ...defaultClientPortalSettings.notasCliente, ...(data.clientPortalSettings?.notasCliente || {}) },
     };
+
 
     const validatedClientChecklist: ClientTarea[] = (data.clientChecklist && data.clientChecklist.length > 0 ? data.clientChecklist : [...defaultClientChecklist.map(t => ({...t, id: `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(t => ({
         id: t.id || `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
@@ -1151,5 +1175,3 @@ export async function claimGift(
     return { success: false, error: e.message || "Ocurrió un error al procesar la solicitud." };
   }
 }
-
-  

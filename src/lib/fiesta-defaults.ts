@@ -106,24 +106,19 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   showRsvp: true,
   showPrograma: true,
   musicaEspecialText: '',
+  showGallery: true,
 };
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
   enabled: true,
   accessKey: '',
-  showChecklist: true,
-  showItinerario: true,
-  showMusica: false,
-  showVideoVida: true,
-  showListaRegalos: false,
-  showDocumentos: true,
-  showNotasCliente: false,
-  // Legacy
-  showPresupuesto: true,
-  showPagos: true,
-  showContrato: true,
-  showInvitados: true,
-  showMenu: false,
+  checklist: { visible: true, editable: true },
+  itinerario: { visible: true, editable: false },
+  musica: { visible: true, editable: true },
+  videoVida: { visible: true, editable: true },
+  listaRegalos: { visible: true, editable: false },
+  documentos: { visible: true, editable: false },
+  notasCliente: { visible: true, editable: true },
 };
 
 export const defaultSocialGallerySettings: SocialGallerySettings = {

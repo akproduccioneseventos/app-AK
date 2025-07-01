@@ -145,28 +145,30 @@ export interface EventWebPageSettings {
   showRsvp?: boolean;
   showPrograma?: boolean;
   musicaEspecialText?: string;
+  showGallery?: boolean; // Added this
 }
+
+interface PortalModuleSettings {
+  visible: boolean;
+  editable: boolean;
+}
+
+interface PortalViewOnlyModuleSettings {
+  visible: boolean;
+}
+
 
 export interface ClientPortalSettings {
   enabled: boolean;
   accessKey?: string;
   // Visibilidad de módulos
-  showChecklist: boolean;
-  showItinerario: boolean;
-  showMusica: boolean;
-  showVideoVida: boolean;
-  showListaRegalos: boolean;
-  showDocumentos: boolean;
-  showNotasCliente: boolean;
-  
-  // Legacy fields to be phased out
-  showPresupuesto: boolean;
-  showPagos: boolean;
-  showContrato: boolean;
-  
-  // Not implemented in portal UI yet
-  showInvitados: boolean;
-  showMenu: boolean;
+  checklist: PortalModuleSettings;
+  itinerario: PortalModuleSettings;
+  musica: PortalModuleSettings;
+  videoVida: PortalModuleSettings; // Client uploads, so it's editable
+  listaRegalos: PortalViewOnlyModuleSettings;
+  documentos: PortalViewOnlyModuleSettings;
+  notasCliente: PortalModuleSettings;
 }
 
 export interface SocialGallerySettings {
