@@ -9,12 +9,22 @@ import { markPresupuestoAsFacturado } from './presupuestos';
 const INVOICES_COLLECTION_JSON = 'invoices.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const invoicesFilePath = path.join(dataDirectory, INVOICES_COLLECTION_JSON);
+const PAYMENT_PROOFS_DIR_NAME = 'payment-proofs';
+const paymentProofsDirectoryPath = path.join(dataDirectory, PAYMENT_PROOFS_DIR_NAME);
 
 async function ensureDataDirectoryExists() {
   try {
     await fs.access(dataDirectory);
   } catch {
     await fs.mkdir(dataDirectory, { recursive: true });
+  }
+}
+
+async function ensurePaymentProofsDirectoryExists() {
+  try {
+    await fs.access(paymentProofsDirectoryPath);
+  } catch {
+    await fs.mkdir(paymentProofsDirectoryPath, { recursive: true });
   }
 }
 
@@ -55,6 +65,7 @@ async function initializeLocalInvoicesFile() {
   }
 }
 initializeLocalInvoicesFile();
+ensurePaymentProofsDirectoryExists();
 
 export async function getInvoices(): Promise<Invoice[]> {
   const invoices = await readInvoicesFile();
@@ -149,8 +160,22 @@ export async function deleteInvoice(id: string): Promise<{ success: boolean; err
 
 export async function addPaymentToInvoice(
   invoiceId: string,
-  paymentData: Omit<Payment, 'id'>
+  formData: FormData
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
+  const paymentDate = formData.get('paymentDate') as string;
+  const amountStr = formData.get('amount') as string;
+  const method = formData.get('method') as Payment['method'];
+  const notes = formData.get('notes') as string | undefined;
+  const transactionProofFile = formData.get('transactionProof') as File | null;
+
+  if (!paymentDate || !amountStr || !method) {
+    return { success: false, error: "Faltan datos del pago (fecha, monto o método)." };
+  }
+  const amount = parseFloat(amountStr);
+  if (isNaN(amount) || amount <= 0) {
+    return { success: false, error: "El monto del pago debe ser un número positivo." };
+  }
+
   let invoices = await readInvoicesFile();
   const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
 
@@ -160,21 +185,42 @@ export async function addPaymentToInvoice(
 
   const invoice = invoices[invoiceIndex];
   const payments = invoice.payments || [];
+  const paymentId = `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  let transactionProofUrl: string | undefined = undefined;
+
+  if (transactionProofFile && transactionProofFile.size > 0) {
+    try {
+      await ensurePaymentProofsDirectoryExists();
+      const bytes = await transactionProofFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const uniqueFilename = `proof_${paymentId}_${transactionProofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      await fs.writeFile(path.join(paymentProofsDirectoryPath, uniqueFilename), buffer);
+      transactionProofUrl = `/api/payment-proofs/${uniqueFilename}`;
+    } catch (fileError: any) {
+      console.error("Error saving payment proof file:", fileError);
+      return { success: false, error: `Error al guardar el comprobante: ${fileError.message}` };
+    }
+  }
+
   const newPayment: Payment = {
-    ...paymentData,
-    amount: Number(paymentData.amount), // Ensure amount is a number
-    id: `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    id: paymentId,
+    paymentDate,
+    amount,
+    method,
+    notes: notes?.trim() || undefined,
+    transactionProofUrl,
   };
+
   payments.push(newPayment);
 
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
   let newStatus = invoice.status;
   if (totalPaid >= invoice.totalAmount) {
     newStatus = 'Paid';
-  } else if (totalPaid > 0 && totalPaid < invoice.totalAmount && invoice.status !== 'Overdue') {
-    newStatus = 'Sent'; // Or keep 'Sent' / 'Viewed' if already that, just means partially paid
+  } else if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
+    newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status; // Mark as Sent if it was a Draft
   }
-  
+
   invoices[invoiceIndex] = { ...invoice, payments, status: newStatus };
   await writeInvoicesFile(invoices);
   return { success: true, invoice: invoices[invoiceIndex] };

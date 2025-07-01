@@ -53,7 +53,8 @@ const formatDate = (dateString?: string) => {
   } catch (e) { return "Fecha inválida"; }
 };
 
-type NewPaymentData = Omit<Payment, 'id'>;
+type NewPaymentFormState = Omit<Payment, 'id' | 'transactionProofUrl'>;
+
 
 export default function ViewInvoicePage() {
   const params = useParams();
@@ -64,6 +65,8 @@ export default function ViewInvoicePage() {
   const [invoice, setInvoice] = useState<InvoiceType | null>(null);
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(true);
   const [errorInvoice, setErrorInvoice] = useState<string | null>(null);
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+
 
   // Memoize initial notes calculation based on invoice
   const initialNotes = useMemo(() => {
@@ -72,7 +75,7 @@ export default function ViewInvoicePage() {
     return paymentNumber === 1 ? `Pago ${paymentNumber} - Seña` : `Pago ${paymentNumber} - `;
   }, [invoice]);
 
-  const [newPayment, setNewPayment] = useState<NewPaymentData>({
+  const [newPayment, setNewPayment] = useState<NewPaymentFormState>({
     paymentDate: new Date().toISOString(),
     amount: 0,
     method: 'Transferencia',
@@ -125,12 +128,16 @@ export default function ViewInvoicePage() {
     }
   }, [initialNotes, newPayment.amount, newPayment.notes]); // Add newPayment.notes and newPayment.amount to prevent re-triggering if user typed something
 
-  const handlePaymentInputChange = (field: keyof NewPaymentData, value: any) => {
+  const handlePaymentInputChange = (field: keyof NewPaymentFormState, value: any) => {
     setNewPayment(prev => ({ ...prev, [field]: value }));
   };
 
   const handlePaymentDateChange = (date?: Date) => {
     if (date) handlePaymentInputChange('paymentDate', date.toISOString());
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPaymentProofFile(e.target.files?.[0] || null);
   };
 
   const handleAddPaymentSubmit = async (e: FormEvent) => {
@@ -144,12 +151,16 @@ export default function ViewInvoicePage() {
         return;
     }
     setIsAddingPayment(true);
+    const formData = new FormData();
+    formData.append('paymentDate', newPayment.paymentDate);
+    formData.append('amount', String(newPayment.amount));
+    formData.append('method', newPayment.method || 'Transferencia');
+    if (newPayment.notes) formData.append('notes', newPayment.notes);
+    if (paymentProofFile) formData.append('transactionProof', paymentProofFile);
+
+
     try {
-      const result = await addPaymentToInvoice(invoice.id, {
-        ...newPayment,
-        notes: newPayment.notes.trim(), // Ensure notes are trimmed
-        amount: Number(newPayment.amount),
-      });
+      const result = await addPaymentToInvoice(invoice.id, formData);
       if (result.success && result.invoice) {
         toast({ title: "¡Pago Añadido!", description: "El pago ha sido registrado correctamente." });
         setInvoice(result.invoice); 
@@ -157,6 +168,9 @@ export default function ViewInvoicePage() {
         const nextPaymentNumber = (result.invoice.payments?.length || 0) + 1;
         const nextSuggestedNote = nextPaymentNumber === 1 ? `Pago ${nextPaymentNumber} - Seña` : `Pago ${nextPaymentNumber} - `;
         setNewPayment({ paymentDate: new Date().toISOString(), amount: 0, method: 'Transferencia', notes: nextSuggestedNote });
+        setPaymentProofFile(null);
+        const fileInput = document.getElementById('paymentProof') as HTMLInputElement;
+        if(fileInput) fileInput.value = '';
       } else {
         throw new Error(result.error || "Error desconocido al añadir el pago.");
       }
@@ -318,6 +332,7 @@ export default function ViewInvoicePage() {
                       <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Importe</th>
                       <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Método</th>
                       <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Notas</th>
+                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Comprobante</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -327,6 +342,13 @@ export default function ViewInvoicePage() {
                         <td className="px-2 py-1.5 print:px-1 print:py-1">{formatCurrency(p.amount, invoice.currency)}</td>
                         <td className="px-2 py-1.5 print:px-1 print:py-1">{p.method || 'N/A'}</td>
                         <td className="px-2 py-1.5 print:px-1 print:py-1 max-w-[150px] print:max-w-[100px] truncate" title={p.notes}>{p.notes || '-'}</td>
+                        <td className="px-2 py-1.5 print:px-1 print:py-1">
+                          {p.transactionProofUrl ? (
+                            <a href={p.transactionProofUrl} target="_blank" rel="noopener noreferrer">
+                              <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Ver</Button>
+                            </a>
+                          ) : '-'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -342,19 +364,11 @@ export default function ViewInvoicePage() {
               <form onSubmit={handleAddPaymentSubmit} className="space-y-3 p-3 border rounded-md bg-card">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="space-y-1"><Label htmlFor="paymentDate">Fecha Pago</Label><DatePickerDemo selectedDate={newPayment.paymentDate ? new Date(newPayment.paymentDate) : new Date()} onDateChange={handlePaymentDateChange} /></div>
-                    <div className="space-y-1"><Label htmlFor="paymentAmount">Importe ({invoice.currency})</Label><Input id="paymentAmount" type="number" value={newPayment.amount} onChange={(e) => handlePaymentInputChange('amount', parseFloat(e.target.value) || 0)} placeholder="0.00" min="0.01" step="any" required /></div>
+                    <div className="space-y-1"><Label htmlFor="paymentAmount">Importe ({invoice.currency})</Label><Input id="paymentAmount" type="number" value={newPayment.amount || ''} onChange={(e) => handlePaymentInputChange('amount', parseFloat(e.target.value) || 0)} placeholder="0.00" min="0.01" step="any" required /></div>
                   </div>
                   <div className="space-y-1"><Label htmlFor="paymentMethod">Método</Label><Select value={newPayment.method || 'Transferencia'} onValueChange={(value) => handlePaymentInputChange('method', value as Payment['method'])}><SelectTrigger id="paymentMethod"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Transferencia">Transferencia</SelectItem><SelectItem value="Efectivo">Efectivo</SelectItem><SelectItem value="Tarjeta">Tarjeta</SelectItem><SelectItem value="Otro">Otro</SelectItem></SelectContent></Select></div>
-                  <div className="space-y-1">
-                    <Label htmlFor="paymentNotes">Notas del Pago</Label>
-                    <Textarea 
-                        id="paymentNotes" 
-                        value={newPayment.notes || ''} 
-                        onChange={(e) => handlePaymentInputChange('notes', e.target.value)} 
-                        placeholder="Descripción adicional (Ej: Transferencia Banco X)" 
-                        rows={2} 
-                    />
-                  </div>
+                  <div className="space-y-1"><Label htmlFor="paymentNotes">Notas del Pago</Label><Textarea id="paymentNotes" value={newPayment.notes || ''} onChange={(e) => handlePaymentInputChange('notes', e.target.value)} placeholder="Descripción adicional (Ej: Transferencia Banco X)" rows={2} /></div>
+                  <div className="space-y-1"><Label htmlFor="paymentProof">Comprobante (Opcional)</Label><Input id="paymentProof" type="file" accept="image/*,application/pdf" onChange={handleFileChange} /></div>
                   <Button type="submit" disabled={isAddingPayment} size="sm">{isAddingPayment ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ReceiptText className="w-4 h-4 mr-2" />}{isAddingPayment ? 'Registrando...' : 'Registrar Pago'}</Button>
               </form>
             </div>
@@ -425,4 +439,3 @@ export default function ViewInvoicePage() {
     </div>
   );
 }
-
