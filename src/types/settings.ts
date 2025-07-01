@@ -1,5 +1,4 @@
 
-
 export interface BudgetDisplaySettings {
   showClientData: boolean;
   showEventTypeAndDate: boolean;
@@ -45,12 +44,8 @@ export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp
 export interface SocialConnection {
   platform: SocialPlatformName;
   isConnected: boolean;
-  username?: string;
-  profilePictureUrl?: string; // URL to the user's profile picture
+  username?: string; // e.g. @yourhandle, or phone number
+  profileUrl?: string; // The actual URL to the profile
   connectedAt?: string; // ISO Date String of when the connection was established
   phoneNumber?: string; // Specifically for WhatsApp
-  // In a real app, you would store encrypted access and refresh tokens here
-  // accessToken?: string; 
-  // refreshToken?: string;
-  // expiresIn?: number;
 }

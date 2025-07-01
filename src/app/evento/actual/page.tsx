@@ -1,14 +1,15 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem } from '@/types/fiesta';
 import { getFiestaActual, handleRsvpSubmission, claimGift } from '@/app/actions/fiesta-actual';
+import { getSocialConnections } from '@/app/actions/social-connections';
+import type { SocialConnection } from '@/types/settings';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import QRCodeStylized from 'qrcode.react';
+
+const platformIcons: Record<string, React.ElementType> = {
+    Facebook: Facebook,
+    Instagram: Instagram,
+    TikTok: Music,
+    WhatsApp: MessageSquare,
+};
 
 const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
   if (!dateString) return "Fecha por confirmar";
@@ -222,12 +230,16 @@ export default function EventoPublicoPage() {
   const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
   const [guestName, setGuestName] = useState('');
   const [isClaiming, setIsClaiming] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<SocialConnection[]>([]);
 
   const loadEventData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getFiestaActual();
+      const [data, connections] = await Promise.all([
+        getFiestaActual(),
+        getSocialConnections(),
+      ]);
       setFiesta(data);
       setWebSettings(data.webPageSettings || { 
           pageTitle: data.configuracion.nombreEvento || 'Nuestro Evento', 
@@ -241,6 +253,7 @@ export default function EventoPublicoPage() {
           programaEventoText: '',
       });
       setPaletaColores(data.decoracion?.paletaColores || null);
+      setSocialLinks(connections.filter(c => c.isConnected && c.profileUrl));
     } catch (err: any) {
       console.error("Error loading event data for public page:", err);
       setError("No se pudo cargar la información del evento. Por favor, intenta más tarde.");
@@ -496,6 +509,19 @@ export default function EventoPublicoPage() {
 
       </main>
       <footer className="text-center py-10 mt-12 border-t" style={{ borderColor: `${secondaryColor}33` }}>
+         {socialLinks.length > 0 && (
+            <div className="flex justify-center items-center gap-4 mb-4">
+                {socialLinks.map(link => {
+                    const Icon = platformIcons[link.platform];
+                    return (
+                        <a key={link.platform} href={link.profileUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                            <Icon className="w-6 h-6" />
+                            <span className="sr-only">{link.platform}</span>
+                        </a>
+                    );
+                })}
+            </div>
+        )}
         <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} {fiesta.configuracion.nombreEvento}. Creado con cariño.</p>
       </footer>
     </div>

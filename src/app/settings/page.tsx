@@ -21,10 +21,10 @@ const settingsCards = [
   },
    {
     title: "Cuentas Sociales Vinculadas",
-    description: "Conecta tus redes sociales para la publicación automática de contenido.",
+    description: "Conecta tus redes sociales y gestiona los enlaces de tus perfiles.",
     href: "/settings/social-connections",
     icon: LinkIcon,
-    buttonLabel: "Conectar Cuentas"
+    buttonLabel: "Gestionar Vínculos"
   },
   {
     title: "Feedback y Testimonios",
