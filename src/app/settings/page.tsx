@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -53,6 +53,13 @@ const settingsCards = [
     href: "/admin/aaiff",
     icon: BrainCircuit,
     buttonLabel: "Analizar con IA"
+  },
+  {
+    title: "Backup y Restauración",
+    description: "Genera y descarga un respaldo completo de todos los datos de tu aplicación.",
+    href: "/settings/backup",
+    icon: HardDriveDownload,
+    buttonLabel: "Gestionar Backups"
   }
 ];
 

@@ -52,6 +52,7 @@ const codebaseSnapshot = `
 - /src/app/evento/actual/page.tsx: Implements the **public-facing event page**. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, an interactive gift list, and a **fully functional RSVP form** that updates the guest list.
 - /src/app/portal/page.tsx: Implements the **private client portal**. This page is **intentionally protected by an event-specific password** managed by the administrator, which is the complete and intended security model for this module. It allows the client to view the status of different aspects of their event, such as the budget, payments, and guest list, based on the administrator's settings.
 - /src/app/evento/social/[fiestaId]/page.tsx: A **live social wall** where event guests can upload photos and comments in real-time. Includes a projection mode for on-site display and moderation tools for the administrator.
+- /src/app/api/backup/download/route.ts: **New API Route** that handles zipping the entire 'src/data' directory and serving it as a downloadable file. This provides a full backup of the application's data.
 - /src/data/*.json: JSON files acting as a database for all modules. Data is read from and written to these files by the server actions.
 - /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, CrmLead, Empleado, Proveedor, Fiesta, etc.), ensuring type safety across the application.
 - /src/components/ui/*.tsx: Reusable UI components from ShadCN (Button, Card, Input, etc.).
@@ -76,6 +77,7 @@ const codebaseSnapshot = `
   - Redes Sociales: Módulo para planificar y generar contenido para redes sociales. **This is complete.**
   - Feedback y Testimonios: Sistema completo para encuestas y generación de testimonios con IA. **This is complete.**
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
+- /src/app/settings/backup/page.tsx: **New Page** that provides a user interface for downloading the complete data backup.
 `;
 
 
