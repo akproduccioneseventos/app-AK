@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } fr
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, EventWebPageSettings, SocialGallerySettings, ClientTarea, TareaAsignadaA } from '@/types/fiesta';
-import { getFiestaActual, updateClientPortalSettings, updateWebPageSettingsFiestaActual, updateSocialGallerySettings } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateClientPortalSettings, updateWebPageSettingsFiestaActual, updateSocialGallerySettings, updateClientChecklist } from '@/app/actions/fiesta-actual';
 import { deleteSocialPost, clearGallery, getSocialPosts } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
@@ -21,10 +21,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import NextImage from 'next/image';
+import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
-  ClipboardCheck, FileText, Banknote, FileSignature, Users,
-  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2
+  ClipboardCheck, FileText, Banknote, FileSignature, Users, User, UserCog,
+  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2, Plus, PlusCircle
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -37,7 +39,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type PortalSettingsForm = {
     portal: ClientPortalSettings;
@@ -45,7 +47,7 @@ type PortalSettingsForm = {
     social: SocialGallerySettings;
 };
 
-export default function PortalClientePage() {
+export default function PortalUnificadoPage() {
     const { toast } = useToast();
     const [settings, setSettings] = useState<PortalSettingsForm>({
         portal: defaultClientPortalSettings,
@@ -60,12 +62,19 @@ export default function PortalClientePage() {
     const [isLoadingPosts, setIsLoadingPosts] = useState(false);
     const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
     const [isClearingGallery, setIsClearingGallery] = useState(false);
+    
+    // Checklist State
+    const [tareas, setTareas] = useState<ClientTarea[]>([]);
+    const [isSavingChecklist, setIsSavingChecklist] = useState(false);
+    const [newTaskText, setNewTaskText] = useState('');
+    const [newTaskAssignedTo, setNewTaskAssignedTo] = useState<TareaAsignadaA>('Cliente');
+
 
     const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
     const [storyImagePreview, setStoryImagePreview] = useState<string | null>(null);
     const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
-    const loadSettings = useCallback(async (fiestaIdToLoad?: string) => {
+    const loadData = useCallback(async (fiestaIdToLoad?: string) => {
         setIsLoading(true);
         setError(null);
         try {
@@ -77,6 +86,7 @@ export default function PortalClientePage() {
                 web: fiestaData.webPageSettings || defaultWebPageSettings,
                 social: fiestaData.socialGallerySettings || defaultSocialGallerySettings,
             });
+            setTareas(fiestaData.clientChecklist || []);
             setCoverImagePreview(fiestaData.webPageSettings?.coverImageUrl || null);
             setStoryImagePreview(fiestaData.webPageSettings?.ourStoryImageUrl || null);
             setGalleryPreviews(fiestaData.webPageSettings?.galleryImageUrls || []);
@@ -105,22 +115,9 @@ export default function PortalClientePage() {
     };
 
     useEffect(() => {
-        loadSettings();
-    }, [loadSettings]);
+        loadData();
+    }, [loadData]);
     
-    useEffect(() => {
-      if (isLoading) return; 
-    
-      if (typeof window !== 'undefined' && window.location.hash === '#social-gallery') {
-        const element = document.getElementById('social-gallery');
-        if (element) {
-          setTimeout(() => {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
-        }
-      }
-    }, [isLoading]);
-
     const handlePortalSettingChange = (key: keyof ClientPortalSettings, value: boolean | string) => {
         setSettings(prev => ({ ...prev, portal: { ...prev.portal, [key]: value } }));
     };
@@ -156,6 +153,50 @@ export default function PortalClientePage() {
         setGalleryPreviews(prev => prev.filter((_, index) => index !== indexToRemove));
     };
 
+    // Checklist handlers
+    const handleChecklistSave = async (updatedTareas: ClientTarea[]) => {
+      setIsSavingChecklist(true);
+      const result = await updateClientChecklist(updatedTareas);
+      if (!result.success) {
+        toast({ title: "Error al guardar checklist", description: result.error, variant: "destructive" });
+        await loadData();
+      }
+      setIsSavingChecklist(false);
+    };
+
+    const handleAddTask = async (e: FormEvent) => {
+      e.preventDefault();
+      if (!newTaskText.trim()) { toast({ title: "Título Requerido", variant: "destructive" }); return; }
+      const newTask: ClientTarea = {
+        id: `task_client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        texto: newTaskText.trim(),
+        completada: false,
+        asignadaA: newTaskAssignedTo,
+      };
+      const updatedTareas = [newTask, ...tareas];
+      setTareas(updatedTareas);
+      await handleChecklistSave(updatedTareas);
+      setNewTaskText('');
+    };
+
+    const toggleTaskCompletion = async (taskId: string) => {
+      const updatedTareas = tareas.map(task =>
+        task.id === taskId ? { ...task, completada: !task.completada } : task
+      );
+      setTareas(updatedTareas);
+      await handleChecklistSave(updatedTareas);
+    };
+
+    const deleteTask = async (taskId: string) => {
+      const updatedTareas = tareas.filter(task => task.id !== taskId);
+      setTareas(updatedTareas);
+      await handleChecklistSave(updatedTareas);
+    };
+
+    const completedCount = tareas.filter(task => task.completada).length;
+    const totalCount = tareas.length;
+    const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
@@ -176,7 +217,7 @@ export default function PortalClientePage() {
 
             if (portalResult.success && webResult.success && socialResult.success) {
                 toast({ title: "¡Configuración Guardada!", description: "Se han guardado todas las configuraciones." });
-                await loadSettings(fiestaId);
+                await loadData(fiestaId);
             } else {
                 throw new Error(portalResult.error || webResult.error || socialResult.error || "Error desconocido al guardar.");
             }
@@ -246,7 +287,7 @@ export default function PortalClientePage() {
 
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Columna Izquierda: Portales */}
+                    {/* Columna Izquierda: Portales y Checklist */}
                     <div className="lg:col-span-1 space-y-6">
                         <Card className="shadow-lg sticky top-20">
                             <CardHeader>
@@ -268,7 +309,6 @@ export default function PortalClientePage() {
                                         placeholder="Deja en blanco para acceso público"
                                         disabled={!settings.portal.enabled || isSaving}
                                     />
-                                    <p className="text-xs text-muted-foreground">Si estableces una contraseña, tu cliente deberá ingresarla para ver el portal.</p>
                                 </div>
                                 <Separator />
                                 <div className="space-y-3">
@@ -292,8 +332,39 @@ export default function PortalClientePage() {
                             </CardContent>
                         </Card>
                     </div>
-                    {/* Columna Derecha: Página Pública y Galería Social */}
+                    {/* Columna Derecha: Página Pública, Checklist y Galería Social */}
                     <div className="lg:col-span-2 space-y-6">
+                        <Card className="shadow-lg">
+                           <CardHeader>
+                                <CardTitle className="font-headline text-xl flex items-center gap-2"><ClipboardCheck className="text-primary"/>Checklist Compartida con Cliente</CardTitle>
+                                <CardDescription>Gestiona las tareas que el cliente verá en su portal.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <form onSubmit={handleAddTask} className="space-y-3 p-3 border rounded-md bg-muted/30">
+                                    <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
+                                    <div className="space-y-1"><Label>Asignar a:</Label><RadioGroup value={newTaskAssignedTo} onValueChange={(val) => setNewTaskAssignedTo(val as TareaAsignadaA)} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Cliente" id="assign-cliente" /><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="Organizador" id="assign-organizador" /><Label htmlFor="assign-organizador">Organizador</Label></div></RadioGroup></div>
+                                    <Button type="submit" size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
+                                </form>
+                                <div className="space-y-2">
+                                    <Label>Progreso: {completedCount}/{totalCount}</Label>
+                                    <Progress value={progressPercentage} className="h-2" />
+                                </div>
+                                {tareas.length > 0 && (
+                                    <ScrollArea className="h-48 pr-3 border rounded-md p-2">
+                                        <ul className="space-y-2">
+                                            {tareas.map((task) => (
+                                                <li key={task.id} className="flex items-start gap-3">
+                                                    <Checkbox id={`task-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
+                                                    <div className="flex-grow"><Label htmlFor={`task-${task.id}`} className={`font-medium ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTask(task.id)} disabled={isSavingChecklist}><Trash2 className="w-4 h-4" /></Button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </ScrollArea>
+                                )}
+                            </CardContent>
+                        </Card>
+
                         <Card className="shadow-lg">
                             <CardHeader>
                                 <CardTitle className="font-headline text-xl">Página Pública del Evento</CardTitle>

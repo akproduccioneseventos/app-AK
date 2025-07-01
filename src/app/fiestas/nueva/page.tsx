@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -57,8 +58,8 @@ const planningModules: PlanningModule[] = [
     actionLabel: "Definir Itinerario"
   },
   {
-    title: "Portal del Cliente",
-    description: "Configura lo que tu cliente puede ver y gestiona la página pública del evento.",
+    title: "Página Pública y Portal Cliente",
+    description: "Configura la página pública, el portal privado y el checklist del cliente.",
     icon: Globe,
     href: "/fiestas/nueva/portal-cliente",
     status: "Disponible",
@@ -71,14 +72,6 @@ const planningModules: PlanningModule[] = [
     href: "/fiestas/nueva/tareas",
     status: "Disponible",
     actionLabel: "Gestionar Tareas"
-  },
-  {
-    title: "Checklist del Cliente",
-    description: "Define y sigue las tareas que debe completar tu cliente.",
-    icon: ClipboardCheck,
-    href: "/fiestas/nueva/checklist-cliente",
-    status: "Disponible",
-    actionLabel: "Gestionar Checklist"
   },
   {
     title: "Gestión de Invitados",
