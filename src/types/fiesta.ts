@@ -90,7 +90,9 @@ export interface DecoracionData {
   salonPlanBackgroundImageUrl?: string;
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
-  layoutMode?: 'libre' | 'asignado'; // Nuevo campo para el modo de layout
+  layoutMode?: 'libre' | 'asignado';
+  guestNameStyle?: 'full' | 'initials' | 'none';
+  guestIconStyle?: 'color' | 'bw';
 }
 
 export interface GiftItem {

@@ -60,6 +60,8 @@ export const defaultDecoracion: DecoracionData = {
   salonElements: [],
   generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.',
   layoutMode: 'libre',
+  guestNameStyle: 'full',
+  guestIconStyle: 'color',
 };
 
 export const defaultWebPageSettings: EventWebPageSettings = {

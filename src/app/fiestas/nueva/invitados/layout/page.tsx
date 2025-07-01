@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import Draggable, { type DraggableEvent, type DraggableData } from 'react-draggable';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, LayoutElement, Invitado } from '@/types/fiesta';
@@ -24,9 +24,8 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Slider } from '@/components/ui/slider';
+import { Separator } from '@/components/ui/separator';
 
-
-// --- CONSTANTS MOVED HERE ---
 export const ALL_LAYOUT_ELEMENT_CATEGORIES = [
   'Mesa Redonda', 'Mesa Rectangular', 'Mesa Principal', 'Mobiliario (Sillón)', 'Pista de Baile', 'Cabina de DJ', 'Barra de Tragos', 'Estructura (Toldo/Truss)', 'Planta/Arreglo Floral', 'Elemento Decorativo', 'Otro'
 ];
@@ -41,27 +40,46 @@ export const PALETTE_ITEMS: { category: string; label: string; icon: React.Eleme
     { category: 'Mobiliario (Sillón)', label: 'Sillón / Living', icon: Sofa, default: { width: 120, height: 60 } },
 ];
 
+const GuestSeat = ({ seatNumber, guest, guestNameStyle, guestIconStyle }: {
+    seatNumber: number;
+    guest?: Invitado;
+    style: React.CSSProperties;
+    guestNameStyle: 'full' | 'initials' | 'none';
+    guestIconStyle: 'color' | 'bw';
+}) => {
+    let displayName = '';
+    if (guest && guestNameStyle !== 'none') {
+        if (guestNameStyle === 'full') {
+          displayName = guest.nombre;
+        } else if (guestNameStyle === 'initials') {
+          displayName = guest.nombre.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+    }
+    
+    const iconColorClass = guestIconStyle === 'color' ? 'bg-primary text-primary-foreground' : 'bg-gray-400 text-white';
 
-// --- SUB-COMPONENTS ---
-
-const GuestSeat = ({ name, style }: { name?: string; style: React.CSSProperties }) => {
-  const shortName = name?.split(' ')[0]; // Show first name only
-  return (
-    <div style={style} className="absolute flex flex-col items-center justify-center pointer-events-none w-12 text-center">
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${name ? 'bg-primary/80' : 'bg-gray-300'}`}>
-        {name ? <Users className="w-5 h-5" /> : <div className="w-5 h-5" />}
-      </div>
-      {name && <span className="text-[9px] font-semibold mt-0.5 bg-white/80 px-1 rounded">{shortName}</span>}
-    </div>
-  );
+    return (
+        <div style={style} className="absolute flex flex-col items-center justify-center w-20 text-center pointer-events-none">
+            {guest ? (
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconColorClass} shadow-md`}>
+                    <User className="w-5 h-5" />
+                </div>
+            ) : (
+                <div className="w-10 h-10 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 font-semibold">
+                    {seatNumber}
+                </div>
+            )}
+            {displayName && <span className="text-[9px] font-semibold mt-1 bg-white/80 px-1 rounded shadow truncate max-w-full">{displayName}</span>}
+        </div>
+    );
 };
 
-
-const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick }: {
+const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick, config }: {
   element: LayoutElement;
   invitados: Invitado[];
   onDragStop: (e: DraggableEvent, data: DraggableData, elementId: string) => void;
   onDoubleClick: (element: LayoutElement) => void;
+  config: { guestNameStyle: 'full' | 'initials' | 'none', guestIconStyle: 'color' | 'bw', layoutMode: 'libre' | 'asignado' };
 }) => {
   const nodeRef = useRef(null);
   
@@ -69,59 +87,52 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick 
   const isRound = element.category === 'Mesa Redonda';
 
   const assignedGuests = React.useMemo(() => 
-    isTable ? invitados.filter(inv => inv.tableNumber === element.name) : [], 
-  [invitados, element.name, isTable]);
+    isTable && config.layoutMode === 'asignado' ? invitados.filter(inv => inv.tableNumber === element.name) : [], 
+  [invitados, element.name, isTable, config.layoutMode]);
 
   const renderSeats = () => {
-    if (!isTable || element.layoutMode === 'libre') return null;
+    if (!isTable || config.layoutMode !== 'asignado') return null;
 
     const seatCount = element.seats || (isRound ? 8 : 10);
     const seats = [];
     const centerX = element.width / 2;
     const centerY = element.height / 2;
     
-    // Create an array representing all seats, filled with guests first, then empty slots
-    const seatOccupants: (Invitado | null)[] = [...assignedGuests];
+    const seatOccupants: (Invitado | undefined)[] = [...assignedGuests];
     while(seatOccupants.length < seatCount) {
-        seatOccupants.push(null);
+        seatOccupants.push(undefined);
     }
 
     if (isRound) {
-        const radiusX = centerX + 20; // 20 is padding
-        const radiusY = centerY + 20;
+        const radius = (Math.min(element.width, element.height) / 2) + 15;
         for (let i = 0; i < seatCount; i++) {
-            const angle = (i / seatCount) * 2 * Math.PI - Math.PI / 2; // Start at top
+            const angle = (i / seatCount) * 2 * Math.PI - Math.PI / 2;
             const guest = seatOccupants[i];
-            const style = {
-                transform: `translate(${centerX + radiusX * Math.cos(angle) - 24}px, ${centerY + radiusY * Math.sin(angle) - 24}px)` // 24 is half of seat width (w-12 = 48px)
+            const style: React.CSSProperties = {
+                position: 'absolute',
+                left: `${centerX + radius * Math.cos(angle) - 10}px`,
+                top: `${centerY + radius * Math.sin(angle) - 24}px`,
             };
-            seats.push(<GuestSeat key={i} name={guest?.nombre} style={style} />);
+            seats.push(<GuestSeat key={i} seatNumber={i + 1} guest={guest} style={style} {...config} />);
         }
     } else { // Rectangular
         const seatsTop = Math.ceil(seatCount / 2);
         const seatsBottom = seatCount - seatsTop;
         
-        // Top row
         for(let i = 0; i < seatsTop; i++) {
             const guest = seatOccupants[i];
             const xPos = (element.width / (seatsTop + 1)) * (i + 1);
-            const style = {
-                transform: `translate(${xPos - 24}px, -35px)`
-            };
-            seats.push(<GuestSeat key={`top-${i}`} name={guest?.nombre} style={style} />);
+            const style: React.CSSProperties = { position: 'absolute', left: `${xPos - 30}px`, top: `-45px` };
+            seats.push(<GuestSeat key={`top-${i}`} seatNumber={i + 1} guest={guest} style={style} {...config}/>);
         }
         
-        // Bottom row
         for(let i = 0; i < seatsBottom; i++) {
             const guest = seatOccupants[seatsTop + i];
             const xPos = (element.width / (seatsBottom + 1)) * (i + 1);
-            const style = {
-                transform: `translate(${xPos - 24}px, ${element.height + 5}px)`
-            };
-            seats.push(<GuestSeat key={`bottom-${i}`} name={guest?.nombre} style={style} />);
+            const style: React.CSSProperties = { position: 'absolute', left: `${xPos - 30}px`, top: `${element.height - 5}px` };
+            seats.push(<GuestSeat key={`bottom-${i}`} seatNumber={seatsTop + i + 1} guest={guest} style={style} {...config} />);
         }
     }
-
     return seats;
   };
 
@@ -129,15 +140,46 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick 
 
   return (
     <Draggable nodeRef={nodeRef} bounds="parent" position={{ x: element.x, y: element.y }} onStop={(e, data) => onDragStop(e, data, element.id)} >
-      <div ref={nodeRef} style={{ position: 'absolute', width: `${element.width}px`, height: `${element.height}px`, transform: `rotate(${element.rotation || 0}deg)` }}>
-        <div className={tableStyle} style={{width: '100%', height: '100%'}} onDoubleClick={() => onDoubleClick(element)}>
-          <span>{element.name}</span>
+      <div ref={nodeRef} style={{ position: 'absolute' }}>
+        <div style={{ transform: `rotate(${element.rotation || 0}deg)`, width: `${element.width}px`, height: `${element.height}px` }} onDoubleClick={() => onDoubleClick(element)}>
+          <div className={tableStyle} style={{width: '100%', height: '100%'}}>
+            <span>{element.name}</span>
+          </div>
         </div>
-        <div style={{transform: `rotate(-${element.rotation || 0}deg)`}}>
+        <div className="relative" style={{width: `${element.width}px`, height: `${element.height}px`, transform: `translate(-${element.width/2}px, -${element.height/2}px)`}}>
             {renderSeats()}
         </div>
       </div>
     </Draggable>
+  );
+};
+
+const DesignConfigSidebar = ({ config, onConfigChange }: {
+    config: { guestNameStyle: string; guestIconStyle: string },
+    onConfigChange: (key: 'guestNameStyle' | 'guestIconStyle', value: string) => void
+}) => {
+  return (
+    <Card className="w-full md:w-80 flex-shrink-0 shadow-lg">
+      <CardHeader><CardTitle>Configuración del diseño</CardTitle></CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <Label className="font-semibold">Cómo mostrar los nombres</Label>
+          <RadioGroup value={config.guestNameStyle} onValueChange={(v) => onConfigChange('guestNameStyle', v)} className="mt-2 space-y-2">
+            <div className="flex items-center space-x-2"><RadioGroupItem value="full" id="name-full" /><Label htmlFor="name-full">Nombre completo</Label></div>
+            <div className="flex items-center space-x-2"><RadioGroupItem value="initials" id="name-initials" /><Label htmlFor="name-initials">Iniciales</Label></div>
+            <div className="flex items-center space-x-2"><RadioGroupItem value="none" id="name-none" /><Label htmlFor="name-none">No mostrar nombres</Label></div>
+          </RadioGroup>
+        </div>
+        <Separator/>
+        <div>
+          <Label className="font-semibold">Estilo de los iconos</Label>
+           <RadioGroup value={config.guestIconStyle} onValueChange={(v) => onConfigChange('guestIconStyle', v)} className="mt-2 space-y-2">
+            <div className="flex items-center space-x-2"><RadioGroupItem value="color" id="icon-color" /><Label htmlFor="icon-color">Iconos coloreados</Label></div>
+            <div className="flex items-center space-x-2"><RadioGroupItem value="bw" id="icon-bw" /><Label htmlFor="icon-bw">Iconos en blanco y negro</Label></div>
+          </RadioGroup>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -191,7 +233,9 @@ export default function SalonLayoutPage() {
         layoutMode: decoracionData.layoutMode,
         salonPlanBackgroundImageUrl: decoracionData.salonPlanBackgroundImageUrl,
         salonElements: decoracionData.salonElements,
-        generalNotesSalonLayout: decoracionData.generalNotesSalonLayout
+        generalNotesSalonLayout: decoracionData.generalNotesSalonLayout,
+        guestNameStyle: decoracionData.guestNameStyle,
+        guestIconStyle: decoracionData.guestIconStyle,
     };
     try {
       const result = await updateDecoracionFiestaActual(layoutDataToSave);
@@ -326,79 +370,65 @@ export default function SalonLayoutPage() {
         <div className="flex items-center gap-3"><LayoutDashboard className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Diseño del Salón y Mesas</h1></div>
         <Link href="/fiestas/nueva/invitados" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
       </div>
+      
+       <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex-grow space-y-6">
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/>Modo de Disposición</CardTitle>
+                    <CardDescription>Elige cómo quieres organizar las mesas y a tus invitados.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <RadioGroup value={decoracionData.layoutMode || 'libre'} onValueChange={(value) => handleInputChange('layoutMode', value as 'libre' | 'asignado')} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Label htmlFor="mode-libre" className={`p-4 border-2 rounded-lg cursor-pointer ${decoracionData.layoutMode === 'libre' ? 'border-primary bg-primary/5' : 'border-border'}`}><div className="flex items-center space-x-2 mb-2"><RadioGroupItem value="libre" id="mode-libre" /><span className="font-semibold text-base">Mesas Libres</span></div><p className="text-sm text-muted-foreground ml-6">Diseña la disposición del salón sin asignar invitados a mesas específicas.</p></Label>
+                        <Label htmlFor="mode-asignado" className={`p-4 border-2 rounded-lg cursor-pointer ${decoracionData.layoutMode === 'asignado' ? 'border-primary bg-primary/5' : 'border-border'}`}><div className="flex items-center space-x-2 mb-2"><RadioGroupItem value="asignado" id="mode-asignado" /><span className="font-semibold text-base">Mesas Asignadas</span></div><p className="text-sm text-muted-foreground ml-6">Sincroniza con la lista de invitados para ver quién se sienta en cada mesa.</p></Label>
+                    </RadioGroup>
+                </CardContent>
+            </Card>
 
-       <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/>Modo de Disposición</CardTitle>
-            <CardDescription>Elige cómo quieres organizar las mesas y a tus invitados.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <RadioGroup 
-                value={decoracionData.layoutMode || 'libre'} 
-                onValueChange={(value) => handleInputChange('layoutMode', value as 'libre' | 'asignado')}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
-                <Label htmlFor="mode-libre" className={`p-4 border-2 rounded-lg cursor-pointer ${decoracionData.layoutMode === 'libre' ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                    <div className="flex items-center space-x-2 mb-2"><RadioGroupItem value="libre" id="mode-libre" /><span className="font-semibold text-base">Mesas Libres</span></div>
-                    <p className="text-sm text-muted-foreground ml-6">Ideal para fiestas informales. Diseña la disposición del salón sin asignar invitados a mesas específicas.</p>
-                </Label>
-                <Label htmlFor="mode-asignado" className={`p-4 border-2 rounded-lg cursor-pointer ${decoracionData.layoutMode === 'asignado' ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                    <div className="flex items-center space-x-2 mb-2"><RadioGroupItem value="asignado" id="mode-asignado" /><span className="font-semibold text-base">Mesas Asignadas</span></div>
-                    <p className="text-sm text-muted-foreground ml-6">Para eventos formales. Sincroniza con la lista de invitados para ver quién se sienta en cada mesa y exportar planos.</p>
-                </Label>
-            </RadioGroup>
-          </CardContent>
-       </Card>
-
-      <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl">Diseñador del Salón</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="flex flex-col md:flex-row gap-4">
-                <div className="w-full md:w-56 p-3 border rounded-lg bg-muted/30">
-                    <h3 className="font-semibold text-sm mb-3">Añadir Elementos</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                        {PALETTE_ITEMS.map(item => (
-                            <Button key={item.category} variant="outline" className="h-auto flex-col p-2 gap-1" onClick={() => addElementFromPalette(item.category, item.default)}>
-                                <item.icon className="w-5 h-5"/>
-                                <span className="text-xs text-center">{item.label}</span>
-                            </Button>
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl">Diseñador del Salón</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="relative flex-1 w-full h-[600px] border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
+                        {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
+                            <NextImage src={decoracionData.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))} data-ai-hint="event floor plan"/>
+                        )}
+                        {(decoracionData.salonElements || []).map(element => (
+                            <DraggableLayoutElement key={element.id} element={{...element}} invitados={invitados} onDragStop={handleDragStop} onDoubleClick={openElementSheet}
+                                config={{
+                                    guestNameStyle: decoracionData.guestNameStyle || 'full',
+                                    guestIconStyle: decoracionData.guestIconStyle || 'color',
+                                    layoutMode: decoracionData.layoutMode || 'libre'
+                                }}
+                            />
                         ))}
                     </div>
-                </div>
-                <div className="relative flex-1 w-full h-[500px] border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
-                    {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
-                        <NextImage 
-                        src={decoracionData.salonPlanBackgroundImageUrl} 
-                        alt="Plano del Salón" 
-                        layout="fill" 
-                        objectFit="contain" 
-                        onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))}
-                        data-ai-hint="event floor plan"
-                        />
-                    )}
-                    {(decoracionData.salonElements || []).map(element => (
-                        <DraggableLayoutElement
-                            key={element.id}
-                            element={{...element, layoutMode: decoracionData.layoutMode}}
-                            invitados={invitados}
-                            onDragStop={handleDragStop}
-                            onDoubleClick={openElementSheet}
-                        />
+                    <div className="flex justify-between items-start pt-2 gap-2 flex-wrap">
+                        <Link href="/fiestas/nueva/decoracion/pdf?layout=true" passHref><Button type="button" variant="secondary" size="sm"><Printer className="w-4 h-4 mr-1.5"/>Imprimir Plano con Nombres</Button></Link>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</p>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+        
+        <div className="w-full md:w-80 space-y-6">
+            <DesignConfigSidebar 
+                config={{guestNameStyle: decoracionData.guestNameStyle || 'full', guestIconStyle: decoracionData.guestIconStyle || 'color'}}
+                onConfigChange={(key, value) => handleInputChange(key, value)}
+            />
+             <Card className="shadow-lg">
+                <CardHeader><CardTitle className="font-headline">Añadir Elementos</CardTitle></CardHeader>
+                <CardContent className="grid grid-cols-2 gap-2">
+                    {PALETTE_ITEMS.map(item => (
+                        <Button key={item.category} variant="outline" className="h-auto flex-col p-2 gap-1" onClick={() => addElementFromPalette(item.category, item.default)}><item.icon className="w-5 h-5"/><span className="text-xs text-center">{item.label}</span></Button>
                     ))}
-                </div>
-            </div>
-            <div className="flex justify-between items-start pt-2 gap-2 flex-wrap">
-                 <Link href="/fiestas/nueva/decoracion/pdf?layout=true" passHref>
-                    <Button type="button" variant="secondary" size="sm">
-                        <Printer className="w-4 h-4 mr-1.5"/>Imprimir Plano con Nombres
-                    </Button>
-                </Link>
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</p>
-            </div>
-          </CardContent>
-      </Card>
+                </CardContent>
+            </Card>
+        </div>
+
+      </div>
 
       <div className="flex justify-end pt-6 border-t">
         <Button onClick={handleSaveLayout} disabled={isSaving || isLoading} size="lg">

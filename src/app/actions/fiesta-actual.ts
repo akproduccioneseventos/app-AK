@@ -70,6 +70,9 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         parsedData.decoracion.generalNotesSalonLayout = parsedData.decoracion.generalNotesSalonLayout ?? defaultDecoracion.generalNotesSalonLayout;
         parsedData.decoracion.generalNotesDecoracion = parsedData.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
         parsedData.decoracion.colorGlobos = parsedData.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
+        parsedData.decoracion.layoutMode = parsedData.decoracion.layoutMode ?? defaultDecoracion.layoutMode;
+        parsedData.decoracion.guestNameStyle = parsedData.decoracion.guestNameStyle ?? defaultDecoracion.guestNameStyle;
+        parsedData.decoracion.guestIconStyle = parsedData.decoracion.guestIconStyle ?? defaultDecoracion.guestIconStyle;
     }
     
     // Migration to remove old direccionLugar field
@@ -264,6 +267,9 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       generalNotesSalonLayout: data.decoracion?.generalNotesSalonLayout ?? defaultDecoracion.generalNotesSalonLayout,
       generalNotesDecoracion: data.decoracion?.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion,
       colorGlobos: data.decoracion?.colorGlobos ?? defaultDecoracion.colorGlobos,
+      layoutMode: data.decoracion?.layoutMode ?? defaultDecoracion.layoutMode,
+      guestNameStyle: data.decoracion?.guestNameStyle ?? defaultDecoracion.guestNameStyle,
+      guestIconStyle: data.decoracion?.guestIconStyle ?? defaultDecoracion.guestIconStyle,
     };
 
    const validatedWebPageSettings: EventWebPageSettings = {
