@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
@@ -83,6 +82,11 @@ export async function saveInvoice(
   invoiceDataInput: (Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }) | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
+  // Validate that all item quantities are positive
+  if (invoiceDataInput.items.some(item => item.quantity <= 0)) {
+    return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
+  }
+
   let invoices = await readInvoicesFile();
   let finalInvoiceData: Invoice;
   let invoiceId: string;
