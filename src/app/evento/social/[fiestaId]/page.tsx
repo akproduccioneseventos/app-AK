@@ -8,6 +8,7 @@ import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
 import { getFiestaActual } from '@/app/actions/fiesta-actual'; // To get event name
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -102,7 +103,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
   const params = React.use(paramsProp);
   const { toast } = useToast();
   
-  const [eventName, setEventName] = useState('');
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -125,7 +126,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
           getFiestaActual()
       ]);
       setPosts(fetchedPosts);
-      setEventName(fiestaData.configuracion.nombreEvento);
+      setFiesta(fiestaData);
     } catch (e) {
       toast({ title: "Error al cargar galería", variant: "destructive" });
     } finally {
@@ -228,7 +229,13 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
 
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-sm shadow-sm">
         <div className="max-w-5xl mx-auto p-3 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="text-center sm:text-left"><h1 className="text-2xl font-bold font-headline text-primary flex items-center gap-2"><PartyPopper/> {eventName || 'Galería Social'}</h1><p className="text-sm text-muted-foreground">¡Comparte tus momentos del evento!</p></div>
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl font-bold font-headline text-primary flex items-center gap-2">
+                <PartyPopper/>
+                {fiesta?.webPageSettings?.pageTitle || fiesta?.configuracion.nombreEvento || 'Galería Social'}
+            </h1>
+            <p className="text-sm text-muted-foreground">¡Comparte tus momentos del evento!</p>
+          </div>
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
              <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base flex-grow"/>
              <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
