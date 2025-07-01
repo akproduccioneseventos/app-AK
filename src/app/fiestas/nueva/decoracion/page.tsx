@@ -1,10 +1,10 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import Draggable, { type DraggableEvent, type DraggableData } from 'react-draggable';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,13 +12,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, LayoutDashboard, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus, Pointer, Move, Printer, Users } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, LayoutElement, Invitado } from '@/types/fiesta';
-import { defaultDecoracion, defaultZonasContratadas, ALL_LAYOUT_ELEMENT_CATEGORIES } from '@/lib/fiesta-defaults';
+import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada } from '@/types/fiesta';
+import { defaultDecoracion, defaultZonasContratadas } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -26,23 +25,11 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
-  DialogClose
 } from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-} from "@/components/ui/accordion";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
+import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flows/suggest-palette-flow';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -103,7 +90,6 @@ const ItemSection: React.FC<ItemSectionProps> = ({ title, category, items, onAdd
 export default function DecoracionYDisenoEventoPage() {
   const { toast } = useToast();
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
-  const [fiestaCompleta, setFiestaCompleta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,10 +98,6 @@ export default function DecoracionYDisenoEventoPage() {
   const [currentItem, setCurrentItem] = useState<Partial<DecorationItem> | null>(null);
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
   
-  // State for Salon Layout Designer
-  const [isLayoutElementModalOpen, setIsLayoutElementModalOpen] = useState(false);
-  const [currentLayoutElement, setCurrentLayoutElement] = useState<Partial<LayoutElement> | null>(null);
-
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
 
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -124,15 +106,12 @@ export default function DecoracionYDisenoEventoPage() {
   const [suggestedPalette, setSuggestedPalette] = useState<SuggestedPalette | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
   
-  const invitados: Invitado[] = fiestaCompleta?.invitados || [];
-
   const loadDecoracionData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     setFailedImageUrls({});
     try {
       const fiestaData = await getFiestaActual();
-      setFiestaCompleta(fiestaData);
       const loadedDecoracion = fiestaData.decoracion || defaultDecoracion;
       
       const mergedZonas = defaultZonasContratadas.map(defaultZona => {
@@ -146,7 +125,6 @@ export default function DecoracionYDisenoEventoPage() {
         items: loadedDecoracion.items || [],
         zonasContratadas: mergedZonas,
         salonElements: loadedDecoracion.salonElements || [],
-        layoutMode: loadedDecoracion.layoutMode || 'libre',
         paletaColores: {
           ...defaultDecoracion.paletaColores,
           ...(loadedDecoracion.paletaColores || {})
@@ -172,8 +150,8 @@ export default function DecoracionYDisenoEventoPage() {
 
   const handleInputChange = <K extends keyof DecoracionData>(field: K, value: DecoracionData[K]) => {
     setDecoracionData(prev => ({ ...prev, [field]: value }));
-    if (field === 'moodboardImageUrl' || field === 'salonPlanBackgroundImageUrl') {
-        setFailedImageUrls(prevFailed => ({...prevFailed, [field as string]: false}));
+    if (field === 'moodboardImageUrl') {
+        setFailedImageUrls(prevFailed => ({...prevFailed, moodboardImageUrl: false}));
     }
   };
 
@@ -217,22 +195,6 @@ export default function DecoracionYDisenoEventoPage() {
     }));
     if (field === 'imagenReferenciaUrl') {
         setFailedImageUrls(prevFailed => ({...prevFailed, [zonaId]: false}));
-    }
-  };
-  
-  const handleImageFileChange = (
-    event: ChangeEvent<HTMLInputElement>,
-    setImageCallback: (dataUrl: string) => void,
-    imageKeyForFailure?: string
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageCallback(reader.result as string);
-        if (imageKeyForFailure) setFailedImageUrls(prev => ({...prev, [imageKeyForFailure]: false}));
-      };
-      reader.readAsDataURL(file);
     }
   };
   
@@ -328,50 +290,6 @@ export default function DecoracionYDisenoEventoPage() {
     }
   };
   
-  // Salon Layout Designer Functions
-  const openLayoutElementModal = (element?: LayoutElement) => {
-    setCurrentLayoutElement(element || { name: '', width: 50, height: 50, x: 50, y: 50, rotation: 0, quantity: 1, type: 'custom', category: 'Otro' });
-    setIsLayoutElementModalOpen(true);
-  };
-
-  const handleLayoutElementChange = (field: keyof LayoutElement, value: string | number) => {
-    setCurrentLayoutElement(prev => (prev ? { ...prev, [field]: value } : null));
-  };
-  
-  const handleSaveLayoutElement = () => {
-    if (!currentLayoutElement || !currentLayoutElement.name?.trim()) {
-      toast({ title: "Nombre Requerido", variant: "destructive" });
-      return;
-    }
-    const finalElement = { ...currentLayoutElement, id: currentLayoutElement.id || `layout_${Date.now()}` } as LayoutElement;
-    setDecoracionData(prev => {
-        const salonElements = prev.salonElements || [];
-        const index = salonElements.findIndex(el => el.id === finalElement.id);
-        if (index > -1) {
-            salonElements[index] = finalElement;
-            return { ...prev, salonElements: [...salonElements] };
-        }
-        return { ...prev, salonElements: [...salonElements, finalElement] };
-    });
-    setIsLayoutElementModalOpen(false);
-  };
-
-  const handleDeleteLayoutElement = (elementId: string) => {
-    setDecoracionData(prev => ({
-        ...prev,
-        salonElements: (prev.salonElements || []).filter(el => el.id !== elementId)
-    }));
-  };
-
-  const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
-    setDecoracionData(prev => {
-        const salonElements = (prev.salonElements || []).map(el =>
-            el.id === elementId ? { ...el, x: data.x, y: data.y } : el
-        );
-        return { ...prev, salonElements };
-    });
-  };
-
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
   }
@@ -558,7 +476,7 @@ export default function DecoracionYDisenoEventoPage() {
         </Card>
         
         <Card className="shadow-lg mb-6">
-          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Zonas Decorativas Específicas Contratadas</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><ImageIconLucide className="text-primary"/>Zonas Decorativas Específicas Contratadas</CardTitle></CardHeader>
           <CardContent>
             <Accordion type="multiple" className="w-full space-y-3" defaultValue={(decoracionData.zonasContratadas || []).filter(z => z.activada).map(z => z.id)}>
               {(decoracionData.zonasContratadas || defaultZonasContratadas).map(zona => (
@@ -602,115 +520,6 @@ export default function DecoracionYDisenoEventoPage() {
             </Accordion>
           </CardContent>
         </Card>
-
-        {/* --- SALON LAYOUT DESIGNER --- */}
-        <Card className="shadow-lg mb-6">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="text-primary"/>Diseño del Salón y Disposición</CardTitle>
-            <CardDescription>Organiza el espacio del evento, las mesas y otros elementos clave.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="p-4 border rounded-lg bg-muted/40">
-                <Label className="text-base font-medium">Modo de Disposición</Label>
-                <RadioGroup 
-                  value={decoracionData.layoutMode || 'libre'} 
-                  onValueChange={(value) => handleInputChange('layoutMode', value as 'libre' | 'asignado')}
-                  className="mt-2 flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="libre" id="mode-libre" />
-                    <Label htmlFor="mode-libre">Mesas Libres</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="asignado" id="mode-asignado" />
-                    <Label htmlFor="mode-asignado">Mesas Asignadas</Label>
-                  </div>
-                </RadioGroup>
-                <p className="text-xs text-muted-foreground mt-2">
-                    {decoracionData.layoutMode === 'asignado' 
-                        ? "En este modo, las mesas se sincronizan con la lista de invitados." 
-                        : "Modo visual para fiestas informales sin asignación de asientos."}
-                </p>
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="salon-plan-bg">URL Imagen de Fondo para Plano del Salón</Label>
-                <Input id="salon-plan-bg" type="url" value={decoracionData.salonPlanBackgroundImageUrl || ''} onChange={e => handleInputChange('salonPlanBackgroundImageUrl', e.target.value)} placeholder="https://ejemplo.com/plano_salon.png"/>
-            </div>
-            
-            <div className="relative w-full h-[500px] border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
-                {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
-                    <NextImage 
-                      src={decoracionData.salonPlanBackgroundImageUrl} 
-                      alt="Plano del Salón" 
-                      layout="fill" 
-                      objectFit="contain" 
-                      onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))}
-                      data-ai-hint="event floor plan"
-                    />
-                )}
-                {(decoracionData.salonElements || []).map(element => {
-                    const assignedGuests = decoracionData.layoutMode === 'asignado' 
-                        ? invitados.filter(inv => inv.tableNumber === element.name) 
-                        : [];
-                    
-                    const trigger = (
-                        <div 
-                          className="absolute p-1 border border-primary bg-primary/20 rounded text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg"
-                          style={{ width: element.width, height: element.height }}
-                          onDoubleClick={() => openLayoutElementModal(element)}
-                        >
-                          <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50"/>
-                          <span className="truncate w-full font-semibold">{element.name}</span>
-                           {decoracionData.layoutMode === 'asignado' && <span className="text-xs opacity-80 flex items-center gap-1"><Users className="w-3 h-3"/>{assignedGuests.length}</span>}
-                        </div>
-                    );
-
-                    return (
-                      <Draggable
-                        key={element.id}
-                        bounds="parent"
-                        position={{x: element.x, y: element.y}}
-                        onStop={(e, data) => handleDragStop(e, data, element.id)}
-                      >
-                         {decoracionData.layoutMode === 'asignado' ? (
-                            <Popover>
-                                <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-                                <PopoverContent className="w-64 p-2">
-                                    <div className="font-bold text-sm mb-2">{element.name}</div>
-                                    {assignedGuests.length > 0 ? (
-                                        <ul className="text-xs space-y-1">
-                                            {assignedGuests.map(g => <li key={g.id}>{g.nombre} {g.partySize && g.partySize > 1 ? `(+${g.partySize - 1})` : ''}</li>)}
-                                        </ul>
-                                    ) : <p className="text-xs text-muted-foreground">No hay invitados asignados.</p>}
-                                </PopoverContent>
-                            </Popover>
-                         ) : trigger}
-                      </Draggable>
-                    )
-                })}
-            </div>
-            <div className="flex justify-between items-start pt-2 gap-2 flex-wrap">
-                 <Button type="button" onClick={() => openLayoutElementModal()}>
-                    <PlusCircle className="w-4 h-4 mr-2"/> Añadir Elemento al Plano
-                </Button>
-                {decoracionData.layoutMode === 'asignado' && (
-                  <div className="flex gap-2">
-                     <Link href="/fiestas/nueva/decoracion/pdf?layout=true" passHref>
-                        <Button type="button" variant="secondary" size="sm">
-                          <Printer className="w-4 h-4 mr-1.5"/>Imprimir Plano con Nombres
-                        </Button>
-                      </Link>
-                      <Button type="button" variant="secondary" size="sm" disabled>
-                        <Printer className="w-4 h-4 mr-1.5"/>Imprimir Tarjetas de Mesa
-                      </Button>
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</p>
-            </div>
-
-            <div className="space-y-2"><Label htmlFor="general-notes-salonlayout">Notas Generales de Disposición del Salón</Label><Textarea id="general-notes-salonlayout" value={decoracionData.generalNotesSalonLayout || ''} onChange={e => handleInputChange('generalNotesSalonLayout', e.target.value)} rows={3} placeholder="Ubicación de mesas, pista de baile, áreas especiales..."/></div>
-          </CardContent>
-        </Card>
         
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><StickyNote className="text-primary"/>Notas Adicionales para el PDF de Decoración</CardTitle></CardHeader>
@@ -744,34 +553,6 @@ export default function DecoracionYDisenoEventoPage() {
         </DialogContent>
       </Dialog>
       
-      {/* Layout Element Modal */}
-       <Dialog open={isLayoutElementModalOpen} onOpenChange={setIsLayoutElementModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle className="font-headline">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento al Plano</DialogTitle></DialogHeader>
-          {currentLayoutElement && (
-            <div className="py-2 space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="layout-el-name">Nombre (Ej: "Mesa 5", "Pista") *</Label>
-                <Input id="layout-el-name" value={currentLayoutElement.name || ''} onChange={(e) => handleLayoutElementChange('name', e.target.value)} required />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="layout-el-cat">Categoría</Label>
-                <Select value={currentLayoutElement.category || 'Otro'} onValueChange={(val) => handleLayoutElementChange('category', val)}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger>
-                  <SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                 <div className="space-y-1"><Label htmlFor="layout-el-qty">Cant.</Label><Input id="layout-el-qty" type="number" value={currentLayoutElement.quantity || 1} onChange={(e) => handleLayoutElementChange('quantity', Number(e.target.value) || 1)} min="1"/></div>
-                 <div className="space-y-1"><Label htmlFor="layout-el-w">Ancho (px)</Label><Input id="layout-el-w" type="number" value={currentLayoutElement.width || 50} onChange={(e) => handleLayoutElementChange('width', Number(e.target.value) || 50)}/></div>
-                 <div className="space-y-1"><Label htmlFor="layout-el-h">Alto (px)</Label><Input id="layout-el-h" type="number" value={currentLayoutElement.height || 50} onChange={(e) => handleLayoutElementChange('height', Number(e.target.value) || 50)}/></div>
-              </div>
-              {currentLayoutElement.id && <Button variant="destructive" size="sm" onClick={() => {handleDeleteLayoutElement(currentLayoutElement!.id!); setIsLayoutElementModalOpen(false);}}><Trash2 className="w-4 h-4 mr-2"/>Eliminar del Plano</Button>}
-            </div>
-          )}
-          <DialogFooter><Button variant="outline" onClick={() => setIsLayoutElementModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveLayoutElement}>Guardar Elemento</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

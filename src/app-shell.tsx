@@ -60,6 +60,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
+  if (pathname === '/fiestas/nueva/invitados/layout') return 'Diseño de Mesas y Salón';
   if (pathname === '/fiestas/nueva/servicios-contratados') return 'Servicios Contratados';
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
@@ -149,6 +150,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/pagina-web' || pathname === '/fiestas/nueva/portal-cliente') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/invitados') return Users;
+    if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
     if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardListIcon;
