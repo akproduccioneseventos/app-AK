@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -23,6 +23,7 @@ import {
   defaultListaDeCargaOperativa,
   initialGestionCostosData,
   defaultVideoVidaData,
+  defaultPrograma,
 } from '@/lib/fiesta-defaults';
 
 
@@ -312,6 +313,14 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       ...defaultVideoVidaData,
       ...(data.videoVida || {}),
     };
+    
+    const validatedPrograma: ProgramaEventoItem[] = (data.programa && data.programa.length > 0 ? data.programa : [...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(p => ({
+        id: p.id || `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        hora: p.hora,
+        titulo: p.titulo,
+        descripcion: p.descripcion,
+        icono: p.icono,
+    }));
 
 
    const validatedData: FiestaEnPlanificacion = {
@@ -363,6 +372,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     listaDeCargaOperativa: validatedListaDeCargaOperativa,
     gestionCostos: validatedGestionCostos,
     videoVida: validatedVideoVida,
+    programa: validatedPrograma,
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -998,6 +1008,24 @@ export async function updateVideoVidaSettings(
   }
 }
 
+export async function updateProgramaFiestaActual(
+  nuevoPrograma: ProgramaEventoItem[]
+): Promise<{ success: boolean; updatedData?: ProgramaEventoItem[]; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.programa = nuevoPrograma.map(item => ({
+      id: item.id || `prog_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      hora: item.hora,
+      titulo: item.titulo,
+      descripcion: item.descripcion,
+      icono: item.icono,
+    }));
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.programa)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar el itinerario." };
+  }
+}
 
 export async function resetFiestaActual(): Promise<{ success: boolean; newFiesta?: FiestaEnPlanificacion, error?: string }> {
   try {
@@ -1096,3 +1124,5 @@ export async function claimGift(
     return { success: false, error: e.message || "Ocurrió un error al procesar la solicitud." };
   }
 }
+
+  
