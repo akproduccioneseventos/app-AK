@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem, ClientTarea } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -10,6 +10,7 @@ import {
   initialFiestaActualData,
   defaultConfiguracion,
   baseDefaultTareas as defaultTareas,
+  defaultClientChecklist,
   defaultColorPalette,
   defaultDecoracion,
   defaultWebPageSettings,
@@ -284,6 +285,13 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       ...(data.clientPortalSettings || {}),
     };
 
+    const validatedClientChecklist: ClientTarea[] = (data.clientChecklist && data.clientChecklist.length > 0 ? data.clientChecklist : [...defaultClientChecklist.map(t => ({...t, id: `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(t => ({
+        id: t.id || `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        texto: t.texto || 'Tarea sin descripción',
+        completada: t.completada || false,
+        asignadaA: t.asignadaA || 'Cliente',
+    }));
+
     const validatedSocialGallerySettings: SocialGallerySettings = {
       ...defaultSocialGallerySettings,
       ...(data.socialGallerySettings || {}),
@@ -360,6 +368,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       checkedIn: inv.checkedIn || false,
       checkInTimestamp: inv.checkInTimestamp || undefined,
     })),
+    clientChecklist: validatedClientChecklist,
     webPageSettings: validatedWebPageSettings,
     clientPortalSettings: validatedClientPortalSettings,
     socialGallerySettings: validatedSocialGallerySettings,
@@ -539,6 +548,24 @@ export async function deleteReunionFromFiestaActual(
     }
   } catch (e: any) {
     return { success: false, error: e.message || "Error al eliminar la reunión." };
+  }
+}
+
+export async function updateClientChecklist(
+  nuevasTareas: ClientTarea[]
+): Promise<{ success: boolean; updatedData?: ClientTarea[]; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.clientChecklist = nuevasTareas.map(t => ({
+        id: t.id || `task_client_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        texto: t.texto || 'Tarea sin descripción',
+        completada: t.completada || false,
+        asignadaA: t.asignadaA || 'Cliente',
+    }));
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.clientChecklist)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar el checklist del cliente." };
   }
 }
 
