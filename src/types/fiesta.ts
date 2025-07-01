@@ -190,18 +190,24 @@ export interface ReposteriaData {
   notasGenerales?: string;
 }
 
+export type BebidaItemEstado = 'Pendiente' | 'A Comprar' | 'Reservado Stock' | 'Contratado';
+
 export interface BebidaItem {
   id: string;
   nombre: string;
   marca?: string;
   presentacion?: string;
   cantidadNecesaria?: number;
-  unidadCantidad?: 'unidades' | 'litros' | 'botellas';
+  unidadCantidad?: string; // Flexible para 'unidades', 'botellas', 'litros'
   costoUnitario?: number;
   costoTotal?: number;
   proveedorHabitual?: string;
   notas?: string;
-  mlPorUnidad?: number; // Nuevo: ej, una botella de 2.25L es 2250ml
+  mlPorUnidad?: number;
+  origenId?: string; // ID del producto en el catálogo `servicios-empresa`
+  estado?: BebidaItemEstado;
+  stockDisponible?: number; // Para futura integración con inventario
+  cantidadAComprar?: number; // Para futura integración con inventario
 }
 
 export type BebidaCategoriaId =
