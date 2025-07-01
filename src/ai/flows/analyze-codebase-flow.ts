@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview An AI agent for analyzing a codebase against a specification.
@@ -18,7 +17,7 @@ export type AnalyzeCodebaseInput = z.infer<typeof AnalyzeCodebaseInputSchema>;
 
 const AnalysisItemSchema = z.object({
   module: z.string().describe('The name of the module or feature.'),
-  status: z.string().describe('A brief summary of its status (e.g., "Complete", "Missing", "Needs Improvement").'),
+  status: z.string().describe('A brief summary of its status (e.g., "Completo", "Faltante", "Necesita Mejora").'),
   details: z.string().describe('A detailed explanation of the finding.'),
 });
 
@@ -95,10 +94,15 @@ const prompt = ai.definePrompt({
 3.  **Security Model:** Security for modules like the Client Portal is intentionally handled via a simple password system managed by the administrator. **Do not suggest adding complex authentication systems like Firebase Authentication.**
 4.  **Backups:** A manual backup and restore system via API routes is the intended strategy. **Do not suggest or criticize the lack of automated cloud backups.**
 
+**ABSOLUTELY PROHIBITED ANALYSIS TOPICS (DO NOT SUGGEST THESE):**
+- **New Large-Scale Modules:** Unless the user's specification *explicitly* asks for a feature, DO NOT suggest creating entirely new, large-scale modules like "Sistema de Reportes", "Gestión de Pagos a Proveedores", or "Sistema de Notificaciones Avanzado". Your focus is on what is *specified*, not what would be "nice to have".
+- **Major Architectural Changes:** Do not suggest changing the security model (e.g., adding granular roles/permissions) or the data access model (e.g., adding an abstraction layer) if they are not requested in the specification.
+- **Vague Improvements:** Avoid generic advice like "mejorar validaciones" or "implementar manejo de errores". Instead, point to a *specific file and function* where a validation or error handling is missing and describe *what* is missing (e.g., "En \`invoices.ts\`, la función \`saveInvoice\` no valida que la cantidad de ítems sea positiva.").
+
 **Your analysis MUST operate within these constraints.** Your focus must be exclusively on comparing the user's specification to the provided codebase snapshot to find:
 1.  **Feature Gaps:** Features described in the specification that are missing from the codebase.
 2.  **Implementation Bugs:** Logical errors, incorrect calculations, or broken functionality within the existing code files.
-3.  **Actionable Suggestions:** Concrete improvements that respect the existing architecture (e.g., "Add a search function to the customers page by filtering the JSON data", NOT "Migrate customers to a database for searching").
+3.  **Actionable Suggestions:** Concrete improvements that respect the existing architecture (e.g., "Add a search function to the customers page by filtering the JSON data", NOT "Migrate customers to a database for searching"). If the app is feature-complete according to the spec, your suggestions should be minor, actionable improvements to existing modules.
 
 **Example of a BAD analysis item (What NOT to do):**
 - **Error:** The app uses JSON files for a database. This is not scalable.
@@ -119,7 +123,7 @@ ${codebaseSnapshot}
 \`\`\`
 
 **Your Task:**
-Based on the codebase snapshot and the user's specification, and strictly adhering to the architectural constraints, provide a detailed analysis. **Your entire output, including all summaries, details, and suggestions, MUST be in Spanish.** Fill out the JSON output object with your findings. Be extremely detailed and actionable in your responses.`,
+Based on the codebase snapshot and the user's specification, and strictly adhering to all the rules and constraints provided, provide a detailed analysis. **Your entire output, including all summaries, details, and suggestions, MUST be in Spanish.** Fill out the JSON output object with your findings. Be extremely detailed and actionable in your responses. If the application appears to be complete according to the spec, state that and provide only minor, actionable suggestions.`,
 });
 
 const analyzeCodebaseFlow = ai.defineFlow(
@@ -136,5 +140,3 @@ const analyzeCodebaseFlow = ai.defineFlow(
     return output;
   }
 );
-
-    
