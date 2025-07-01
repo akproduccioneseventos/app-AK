@@ -11,23 +11,35 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, LayoutElement, Invitado } from '@/types/fiesta';
 import { defaultDecoracion, ALL_LAYOUT_ELEMENT_CATEGORIES } from '@/lib/fiesta-defaults';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Slider } from '@/components/ui/slider';
+
+const PALETTE_ITEMS: { category: string; label: string; icon: React.ElementType, default: Partial<LayoutElement> }[] = [
+    { category: 'Mesa Redonda', label: 'Mesa Redonda', icon: Circle, default: { width: 80, height: 80, quantity: 10 } },
+    { category: 'Mesa Rectangular', label: 'Mesa Rectangular', icon: RectangleHorizontal, default: { width: 160, height: 80, quantity: 10 } },
+    { category: 'Mesa Principal', label: 'Mesa Principal', icon: RectangleHorizontal, default: { width: 200, height: 80, quantity: 2 } },
+    { category: 'Pista de Baile', label: 'Pista de Baile', icon: Music, default: { width: 150, height: 150 } },
+    { category: 'Cabina de DJ', label: 'Cabina de DJ', icon: Music, default: { width: 100, height: 50 } },
+    { category: 'Barra de Tragos', label: 'Barra de Tragos', icon: RectangleHorizontal, default: { width: 180, height: 60 } },
+    { category: 'Mobiliario (Sillón)', label: 'Sillón / Living', icon: Sofa, default: { width: 120, height: 60 } },
+];
+
 
 export default function SalonLayoutPage() {
   const { toast } = useToast();
@@ -37,7 +49,7 @@ export default function SalonLayoutPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [isLayoutElementModalOpen, setIsLayoutElementModalOpen] = useState(false);
+  const [isElementSheetOpen, setIsElementSheetOpen] = useState(false);
   const [currentLayoutElement, setCurrentLayoutElement] = useState<Partial<LayoutElement> | null>(null);
 
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
@@ -74,7 +86,6 @@ export default function SalonLayoutPage() {
 
   const handleSaveLayout = async () => {
     setIsSaving(true);
-    // We only save the part of decoracionData that relates to layout
     const layoutDataToSave: Partial<DecoracionData> = {
         layoutMode: decoracionData.layoutMode,
         salonPlanBackgroundImageUrl: decoracionData.salonPlanBackgroundImageUrl,
@@ -98,10 +109,29 @@ export default function SalonLayoutPage() {
     }
   };
 
-  const openLayoutElementModal = (element?: LayoutElement) => {
+  const openElementSheet = (element?: LayoutElement) => {
     setCurrentLayoutElement(element || { name: '', width: 50, height: 50, x: 50, y: 50, rotation: 0, quantity: 1, type: 'custom', category: 'Otro' });
-    setIsLayoutElementModalOpen(true);
+    setIsElementSheetOpen(true);
   };
+  
+  const addElementFromPalette = (category: string, defaults: Partial<LayoutElement>) => {
+    const newElement: LayoutElement = {
+      id: `layout_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      name: `${category} ${decoracionData.salonElements?.filter(e => e.category === category).length + 1}`,
+      x: 100,
+      y: 100,
+      rotation: 0,
+      quantity: 1,
+      category: category,
+      type: 'predefined',
+      ...defaults,
+    };
+    setDecoracionData(prev => ({
+        ...prev,
+        salonElements: [...(prev.salonElements || []), newElement]
+    }));
+  };
+
 
   const handleLayoutElementChange = (field: keyof LayoutElement, value: string | number) => {
     setCurrentLayoutElement(prev => (prev ? { ...prev, [field]: value } : null));
@@ -122,7 +152,7 @@ export default function SalonLayoutPage() {
         }
         return { ...prev, salonElements: [...salonElements, finalElement] };
     });
-    setIsLayoutElementModalOpen(false);
+    setIsElementSheetOpen(false);
   };
 
   const handleDeleteLayoutElement = (elementId: string) => {
@@ -150,11 +180,13 @@ export default function SalonLayoutPage() {
 
   return (
     <div className="space-y-6">
-        <Dialog open={isLayoutElementModalOpen} onOpenChange={setIsLayoutElementModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle className="font-headline">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento al Plano</DialogTitle></DialogHeader>
+        <Sheet open={isElementSheetOpen} onOpenChange={setIsElementSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle className="font-headline text-lg">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento</SheetTitle>
+          </SheetHeader>
           {currentLayoutElement && (
-            <div className="py-2 space-y-3">
+            <div className="py-4 space-y-4">
               <div className="space-y-1">
                 <Label htmlFor="layout-el-name">Nombre (Ej: "Mesa 5", "Pista") *</Label>
                 <Input id="layout-el-name" value={currentLayoutElement.name || ''} onChange={(e) => handleLayoutElementChange('name', e.target.value)} required />
@@ -166,17 +198,23 @@ export default function SalonLayoutPage() {
                   <SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                 <div className="space-y-1"><Label htmlFor="layout-el-qty">Cant.</Label><Input id="layout-el-qty" type="number" value={currentLayoutElement.quantity || 1} onChange={(e) => handleLayoutElementChange('quantity', Number(e.target.value) || 1)} min="1"/></div>
+              <div className="grid grid-cols-2 gap-3">
                  <div className="space-y-1"><Label htmlFor="layout-el-w">Ancho (px)</Label><Input id="layout-el-w" type="number" value={currentLayoutElement.width || 50} onChange={(e) => handleLayoutElementChange('width', Number(e.target.value) || 50)}/></div>
                  <div className="space-y-1"><Label htmlFor="layout-el-h">Alto (px)</Label><Input id="layout-el-h" type="number" value={currentLayoutElement.height || 50} onChange={(e) => handleLayoutElementChange('height', Number(e.target.value) || 50)}/></div>
               </div>
-              {currentLayoutElement.id && <Button variant="destructive" size="sm" onClick={() => {handleDeleteLayoutElement(currentLayoutElement!.id!); setIsLayoutElementModalOpen(false);}}><Trash2 className="w-4 h-4 mr-2"/>Eliminar del Plano</Button>}
+               <div className="space-y-2">
+                <Label htmlFor="layout-el-rotation">Rotación ({currentLayoutElement.rotation || 0}°)</Label>
+                <Slider id="layout-el-rotation" min={0} max={360} step={1} value={[currentLayoutElement.rotation || 0]} onValueChange={(val) => handleLayoutElementChange('rotation', val[0])}/>
+              </div>
             </div>
           )}
-          <DialogFooter><Button variant="outline" onClick={() => setIsLayoutElementModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveLayoutElement}>Guardar Elemento</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <SheetFooter className="gap-2">
+            {currentLayoutElement?.id && <Button variant="destructive" size="sm" onClick={() => {handleDeleteLayoutElement(currentLayoutElement!.id!); setIsElementSheetOpen(false);}}><Trash2 className="w-4 h-4 mr-2"/>Eliminar del Plano</Button>}
+            <Button variant="outline" onClick={() => setIsElementSheetOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveLayoutElement}>Guardar</Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><LayoutDashboard className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Diseño del Salón y Mesas</h1></div>
         <Link href="/fiestas/nueva/invitados" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
@@ -210,76 +248,78 @@ export default function SalonLayoutPage() {
             <CardTitle className="font-headline text-xl">Diseñador del Salón</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="salon-plan-bg">URL Imagen de Fondo para Plano del Salón</Label>
-                <Input id="salon-plan-bg" type="url" value={decoracionData.salonPlanBackgroundImageUrl || ''} onChange={e => handleInputChange('salonPlanBackgroundImageUrl', e.target.value)} placeholder="https://ejemplo.com/plano_salon.png"/>
-            </div>
-            
-            <div className="relative w-full h-[500px] border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
-                {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
-                    <NextImage 
-                      src={decoracionData.salonPlanBackgroundImageUrl} 
-                      alt="Plano del Salón" 
-                      layout="fill" 
-                      objectFit="contain" 
-                      onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))}
-                      data-ai-hint="event floor plan"
-                    />
-                )}
-                {(decoracionData.salonElements || []).map(element => {
-                    const assignedGuests = decoracionData.layoutMode === 'asignado' 
-                        ? invitados.filter(inv => inv.tableNumber === element.name) 
-                        : [];
-                    
-                    const trigger = (
-                        <div 
-                          className="absolute p-1 border border-primary bg-primary/20 rounded text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg"
-                          style={{ width: element.width, height: element.height }}
-                          onDoubleClick={() => openLayoutElementModal(element)}
-                        >
-                          <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50"/>
-                          <span className="truncate w-full font-semibold">{element.name}</span>
-                           {decoracionData.layoutMode === 'asignado' && <span className="text-xs opacity-80 flex items-center gap-1"><Users className="w-3 h-3"/>{assignedGuests.length}</span>}
-                        </div>
-                    );
+             <div className="flex flex-col md:flex-row gap-4">
+                <div className="w-full md:w-56 p-3 border rounded-lg bg-muted/30">
+                    <h3 className="font-semibold text-sm mb-3">Añadir Elementos</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                        {PALETTE_ITEMS.map(item => (
+                            <Button key={item.category} variant="outline" className="h-auto flex-col p-2 gap-1" onClick={() => addElementFromPalette(item.category, item.default)}>
+                                <item.icon className="w-5 h-5"/>
+                                <span className="text-xs text-center">{item.label}</span>
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+                <div className="relative flex-1 w-full h-[500px] border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
+                    {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
+                        <NextImage 
+                        src={decoracionData.salonPlanBackgroundImageUrl} 
+                        alt="Plano del Salón" 
+                        layout="fill" 
+                        objectFit="contain" 
+                        onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))}
+                        data-ai-hint="event floor plan"
+                        />
+                    )}
+                    {(decoracionData.salonElements || []).map(element => {
+                        const assignedGuests = decoracionData.layoutMode === 'asignado' 
+                            ? invitados.filter(inv => inv.tableNumber === element.name) 
+                            : [];
+                        const isRound = element.category === 'Mesa Redonda';
+                        
+                        const trigger = (
+                            <div 
+                              className={`absolute p-1 border border-primary bg-primary/20 text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg ${isRound ? 'rounded-full' : 'rounded-sm'}`}
+                              style={{ width: element.width, height: element.height, transform: `rotate(${element.rotation || 0}deg)` }}
+                              onDoubleClick={() => openElementSheet(element)}
+                            >
+                              <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50"/>
+                              <span className="truncate w-full font-semibold">{element.name}</span>
+                               {decoracionData.layoutMode === 'asignado' && <span className="text-xs opacity-80 flex items-center gap-1"><Users className="w-3 h-3"/>{assignedGuests.length}</span>}
+                            </div>
+                        );
 
-                    return (
-                      <Draggable
-                        key={element.id}
-                        bounds="parent"
-                        position={{x: element.x, y: element.y}}
-                        onStop={(e, data) => handleDragStop(e, data, element.id)}
-                      >
-                         {decoracionData.layoutMode === 'asignado' ? (
-                            <Popover>
-                                <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-                                <PopoverContent className="w-64 p-2">
-                                    <div className="font-bold text-sm mb-2">{element.name}</div>
-                                    {assignedGuests.length > 0 ? (
-                                        <ul className="text-xs space-y-1">
-                                            {assignedGuests.map(g => <li key={g.id}>{g.nombre} {g.partySize && g.partySize > 1 ? `(+${g.partySize - 1})` : ''}</li>)}
-                                        </ul>
-                                    ) : <p className="text-xs text-muted-foreground">No hay invitados asignados.</p>}
-                                </PopoverContent>
-                            </Popover>
-                         ) : trigger}
-                      </Draggable>
-                    )
-                })}
+                        return (
+                          <Draggable
+                            key={element.id}
+                            bounds="parent"
+                            position={{x: element.x, y: element.y}}
+                            onStop={(e, data) => handleDragStop(e, data, element.id)}
+                          >
+                             {decoracionData.layoutMode === 'asignado' ? (
+                                <Popover>
+                                    <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+                                    <PopoverContent className="w-64 p-2">
+                                        <div className="font-bold text-sm mb-2">{element.name}</div>
+                                        {assignedGuests.length > 0 ? (
+                                            <ul className="text-xs space-y-1">
+                                                {assignedGuests.map(g => <li key={g.id}>{g.nombre} {g.partySize && g.partySize > 1 ? `(+${g.partySize - 1})` : ''}</li>)}
+                                            </ul>
+                                        ) : <p className="text-xs text-muted-foreground">No hay invitados asignados.</p>}
+                                    </PopoverContent>
+                                </Popover>
+                             ) : trigger}
+                          </Draggable>
+                        )
+                    })}
+                </div>
             </div>
             <div className="flex justify-between items-start pt-2 gap-2 flex-wrap">
-                 <Button type="button" onClick={() => openLayoutElementModal()}>
-                    <PlusCircle className="w-4 h-4 mr-2"/> Añadir Elemento al Plano
-                </Button>
-                {decoracionData.layoutMode === 'asignado' && (
-                  <div className="flex gap-2">
-                     <Link href="/fiestas/nueva/decoracion/pdf?layout=true" passHref>
-                        <Button type="button" variant="secondary" size="sm">
-                          <Printer className="w-4 h-4 mr-1.5"/>Imprimir Plano con Nombres
-                        </Button>
-                      </Link>
-                  </div>
-                )}
+                 <Link href="/fiestas/nueva/decoracion/pdf?layout=true" passHref>
+                    <Button type="button" variant="secondary" size="sm">
+                        <Printer className="w-4 h-4 mr-1.5"/>Imprimir Plano con Nombres
+                    </Button>
+                </Link>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</p>
             </div>
           </CardContent>
@@ -294,3 +334,4 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+

@@ -10,9 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, Flower, ChevronDown, ListPlus, Printer } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, LayoutDashboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada } from '@/types/fiesta';
@@ -302,12 +301,7 @@ export default function DecoracionYDisenoEventoPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Palette className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">🎨 Decoración y Diseño del Evento</h1></div>
-        <div className="flex gap-2">
-        <Link href="/fiestas/nueva/decoracion/pdf" passHref>
-            <Button variant="outline" size="sm" disabled={isSaving}>Ver PDF Decoración</Button>
-          </Link>
-          <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
-        </div>
+        <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
       <form onSubmit={handleSaveDecoracion}>

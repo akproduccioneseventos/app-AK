@@ -3,17 +3,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Palette, CakeSlice, ClipboardList, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera, Sparkles as SparklesIcon, Flower, Wand2, LayoutDashboard, Users } from 'lucide-react';
+import { ArrowLeft, Printer, Palette, CakeSlice, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera, Sparkles as SparklesIcon } from 'lucide-react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ZonaContratada, ColorPalette, Invitado } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, DecoracionData, ZonaContratada, Invitado } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { AlertTriangle, Info } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import React from 'react';
 
@@ -80,7 +79,18 @@ function DecorationPdfPageContent() {
   }
 
   if (!fiesta || !decoracion || !configuracion) {
-    return <div className="p-8 text-center text-red-600">Error: No se pudieron cargar los datos de decoración.</div>;
+    return (
+      <div className="p-8 max-w-3xl mx-auto bg-white text-center">
+        <div className="flex justify-between items-center mb-6 print:hidden">
+            <Link href="/fiestas/nueva/decoracion" passHref>
+              <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
+            </Link>
+        </div>
+        <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
+        <p className="font-semibold text-lg text-destructive">Error al Cargar</p>
+        <p className="text-sm text-muted-foreground">No se pudieron cargar los datos necesarios.</p>
+      </div>
+    );
   }
   
   const getZonaIcon = (zonaId: ZonaContratada['id']): React.ElementType => {
@@ -90,7 +100,7 @@ function DecorationPdfPageContent() {
         case 'zona_regalos': return Gift;
         case 'zona_fotografia': return Camera;
         case 'centro_salon': return SparklesIcon;
-        default: return LayoutDashboard;
+        default: return Palette;
     }
   };
 
@@ -118,17 +128,18 @@ function DecorationPdfPageContent() {
              <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 print:pb-0.5 print:mb-1.5">
                 Disposición del Salón
               </h2>
-             <div className="relative w-full h-[600px] border rounded-lg bg-muted/30 overflow-hidden">
+             <div className="relative w-full h-[600px] border rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
                 {decoracion.salonPlanBackgroundImageUrl && <NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" data-ai-hint="event floor plan"/>}
                 {(decoracion.salonElements || []).map(element => {
                     const assignedGuests = invitados.filter(inv => inv.tableNumber === element.name);
+                    const isRound = element.category === 'Mesa Redonda';
                     return (
                         <div key={element.id} 
-                             className="absolute border border-gray-500 bg-white/70 p-1 flex flex-col items-center justify-center"
+                             className={`absolute border border-gray-500 bg-white/70 p-1 flex flex-col items-center justify-center ${isRound ? 'rounded-full' : 'rounded-sm'}`}
                              style={{ left: `${element.x}px`, top: `${element.y}px`, width: `${element.width}px`, height: `${element.height}px`, transform: `rotate(${element.rotation}deg)`}}>
-                           <p className="text-[8px] font-bold">{element.name}</p>
+                           <p className="text-xs font-bold print:text-[10pt]">{element.name}</p>
                            {assignedGuests.length > 0 && (
-                               <ul className="text-[6px] list-disc list-inside mt-1">
+                               <ul className="text-[8px] list-disc list-inside mt-1 print:text-[7pt]">
                                    {assignedGuests.map(g => <li key={g.id} className="truncate">{g.nombre}</li>)}
                                </ul>
                            )}
@@ -138,9 +149,7 @@ function DecorationPdfPageContent() {
             </div>
           </section>
         ) : (
-          <>
-            {/* Contenido original de decoración aquí */}
-          </>
+          <p>La vista de decoración se implementará aquí.</p>
         )}
       </div>
     </div>
@@ -154,4 +163,3 @@ export default function Page() {
         </React.Suspense>
     );
 }
-
