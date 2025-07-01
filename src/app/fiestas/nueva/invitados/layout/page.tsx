@@ -15,7 +15,7 @@ import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboa
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, LayoutElement, Invitado } from '@/types/fiesta';
-import { defaultDecoracion, ALL_LAYOUT_ELEMENT_CATEGORIES } from '@/lib/fiesta-defaults';
+import { defaultDecoracion, ALL_LAYOUT_ELEMENT_CATEGORIES, PALETTE_ITEMS } from '@/lib/fiesta-defaults';
 import {
   Sheet,
   SheetContent,
@@ -23,81 +23,103 @@ import {
   SheetTitle,
   SheetFooter,
 } from "@/components/ui/sheet";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Slider } from '@/components/ui/slider';
 
-const PALETTE_ITEMS: { category: string; label: string; icon: React.ElementType, default: Partial<LayoutElement> }[] = [
-    { category: 'Mesa Redonda', label: 'Mesa Redonda', icon: Circle, default: { width: 80, height: 80, quantity: 10 } },
-    { category: 'Mesa Rectangular', label: 'Mesa Rectangular', icon: RectangleHorizontal, default: { width: 160, height: 80, quantity: 10 } },
-    { category: 'Mesa Principal', label: 'Mesa Principal', icon: RectangleHorizontal, default: { width: 200, height: 80, quantity: 2 } },
-    { category: 'Pista de Baile', label: 'Pista de Baile', icon: Music, default: { width: 150, height: 150 } },
-    { category: 'Cabina de DJ', label: 'Cabina de DJ', icon: Music, default: { width: 100, height: 50 } },
-    { category: 'Barra de Tragos', label: 'Barra de Tragos', icon: RectangleHorizontal, default: { width: 180, height: 60 } },
-    { category: 'Mobiliario (Sillón)', label: 'Sillón / Living', icon: Sofa, default: { width: 120, height: 60 } },
-];
+
+// --- SUB-COMPONENTS ---
+
+const GuestSeat = ({ name, style }: { name?: string; style: React.CSSProperties }) => {
+  const shortName = name?.split(' ')[0]; // Show first name only
+  return (
+    <div style={style} className="absolute flex flex-col items-center justify-center pointer-events-none w-12 text-center">
+      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${name ? 'bg-primary/80' : 'bg-gray-300'}`}>
+        {name ? <Users className="w-5 h-5" /> : <div className="w-5 h-5" />}
+      </div>
+      {name && <span className="text-[9px] font-semibold mt-0.5 bg-white/80 px-1 rounded">{shortName}</span>}
+    </div>
+  );
+};
 
 
-// This new component handles the Draggable node reference correctly, fixing the React 18 error.
-const DraggableLayoutElement = ({ element, layoutMode, invitados, onDragStop, onDoubleClick }: {
+const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick }: {
   element: LayoutElement;
-  layoutMode?: 'libre' | 'asignado';
   invitados: Invitado[];
   onDragStop: (e: DraggableEvent, data: DraggableData, elementId: string) => void;
   onDoubleClick: (element: LayoutElement) => void;
 }) => {
   const nodeRef = useRef(null);
-
-  const assignedGuests = layoutMode === 'asignado'
-    ? invitados.filter(inv => inv.tableNumber === element.name)
-    : [];
+  
+  const isTable = element.category?.toLowerCase().includes('mesa');
   const isRound = element.category === 'Mesa Redonda';
 
-  const triggerContent = (
-    <div
-      className={`p-1 border border-primary bg-primary/20 text-primary-foreground text-xs text-center flex flex-col items-center justify-center cursor-move shadow-lg w-full h-full ${isRound ? 'rounded-full' : 'rounded-sm'}`}
-      style={{ transform: `rotate(${element.rotation || 0}deg)` }}
-      onDoubleClick={() => onDoubleClick(element)}
-    >
-      <Move className="w-3 h-3 absolute top-0.5 right-0.5 opacity-50" />
-      <span className="truncate w-full font-semibold">{element.name}</span>
-      {layoutMode === 'asignado' && <span className="text-xs opacity-80 flex items-center gap-1"><Users className="w-3 h-3" />{assignedGuests.length}</span>}
-    </div>
-  );
+  const assignedGuests = React.useMemo(() => 
+    isTable ? invitados.filter(inv => inv.tableNumber === element.name) : [], 
+  [invitados, element.name, isTable]);
+
+  const renderSeats = () => {
+    if (!isTable || element.layoutMode === 'libre') return null;
+
+    const seatCount = element.seats || (isRound ? 8 : 10);
+    const seats = [];
+    const centerX = element.width / 2;
+    const centerY = element.height / 2;
+    
+    // Create an array representing all seats, filled with guests first, then empty slots
+    const seatOccupants: (Invitado | null)[] = [...assignedGuests];
+    while(seatOccupants.length < seatCount) {
+        seatOccupants.push(null);
+    }
+
+    if (isRound) {
+        const radiusX = centerX + 20; // 20 is padding
+        const radiusY = centerY + 20;
+        for (let i = 0; i < seatCount; i++) {
+            const angle = (i / seatCount) * 2 * Math.PI - Math.PI / 2; // Start at top
+            const guest = seatOccupants[i];
+            const style = {
+                transform: `translate(${centerX + radiusX * Math.cos(angle) - 24}px, ${centerY + radiusY * Math.sin(angle) - 24}px)` // 24 is half of seat width (w-12 = 48px)
+            };
+            seats.push(<GuestSeat key={i} name={guest?.nombre} style={style} />);
+        }
+    } else { // Rectangular
+        const seatsTop = Math.ceil(seatCount / 2);
+        const seatsBottom = seatCount - seatsTop;
+        
+        // Top row
+        for(let i = 0; i < seatsTop; i++) {
+            const guest = seatOccupants[i];
+            const xPos = (element.width / (seatsTop + 1)) * (i + 1);
+            const style = {
+                transform: `translate(${xPos - 24}px, -35px)`
+            };
+            seats.push(<GuestSeat key={`top-${i}`} name={guest?.nombre} style={style} />);
+        }
+        
+        // Bottom row
+        for(let i = 0; i < seatsBottom; i++) {
+            const guest = seatOccupants[seatsTop + i];
+            const xPos = (element.width / (seatsBottom + 1)) * (i + 1);
+            const style = {
+                transform: `translate(${xPos - 24}px, ${element.height + 5}px)`
+            };
+            seats.push(<GuestSeat key={`bottom-${i}`} name={guest?.nombre} style={style} />);
+        }
+    }
+
+    return seats;
+  };
+
+  const tableStyle = `absolute border-4 border-gray-400 bg-white/80 flex items-center justify-center text-gray-700 font-bold text-lg cursor-move shadow-lg ${isRound ? 'rounded-full' : 'rounded-sm'}`;
 
   return (
-    <Draggable
-      nodeRef={nodeRef}
-      bounds="parent"
-      position={{ x: element.x, y: element.y }}
-      onStop={(e, data) => onDragStop(e, data, element.id)}
-    >
-      <div
-        ref={nodeRef}
-        style={{
-          position: 'absolute',
-          width: element.width,
-          height: element.height,
-        }}
-      >
-        {layoutMode === 'asignado' ? (
-          <Popover>
-            <PopoverTrigger asChild>{triggerContent}</PopoverTrigger>
-            <PopoverContent className="w-64 p-2">
-              <div className="font-bold text-sm mb-2">{element.name}</div>
-              {assignedGuests.length > 0 ? (
-                <ul className="text-xs space-y-1">
-                  {assignedGuests.map(g => <li key={g.id}>{g.nombre} {g.partySize && g.partySize > 1 ? `(+${g.partySize - 1})` : ''}</li>)}
-                </ul>
-              ) : <p className="text-xs text-muted-foreground">No hay invitados asignados.</p>}
-            </PopoverContent>
-          </Popover>
-        ) : (
-          triggerContent
-        )}
+    <Draggable nodeRef={nodeRef} bounds="parent" position={{ x: element.x, y: element.y }} onStop={(e, data) => onDragStop(e, data, element.id)} >
+      <div ref={nodeRef} style={{ position: 'absolute', width: `${element.width}px`, height: `${element.height}px`, transform: `rotate(${element.rotation || 0}deg)` }}>
+        <div className={tableStyle} style={{width: '100%', height: '100%'}} onDoubleClick={() => onDoubleClick(element)}>
+          <span>{element.name}</span>
+        </div>
+        <div style={{transform: `rotate(-${element.rotation || 0}deg)`}}>
+            {renderSeats()}
+        </div>
       </div>
     </Draggable>
   );
@@ -173,7 +195,7 @@ export default function SalonLayoutPage() {
   };
 
   const openElementSheet = (element?: LayoutElement) => {
-    setCurrentLayoutElement(element || { name: '', width: 50, height: 50, x: 50, y: 50, rotation: 0, quantity: 1, type: 'custom', category: 'Otro' });
+    setCurrentLayoutElement(element || { name: '', width: 50, height: 50, x: 50, y: 50, rotation: 0, seats: 8, quantity: 1, type: 'custom', category: 'Otro' });
     setIsElementSheetOpen(true);
   };
   
@@ -261,6 +283,12 @@ export default function SalonLayoutPage() {
                   <SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
+              {currentLayoutElement.category?.toLowerCase().includes('mesa') && (
+                <div className="space-y-1">
+                  <Label htmlFor="layout-el-seats">Asientos</Label>
+                  <Input id="layout-el-seats" type="number" value={currentLayoutElement.seats || 0} onChange={(e) => handleLayoutElementChange('seats', Number(e.target.value) || 0)} min="0"/>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                  <div className="space-y-1"><Label htmlFor="layout-el-w">Ancho (px)</Label><Input id="layout-el-w" type="number" value={currentLayoutElement.width || 50} onChange={(e) => handleLayoutElementChange('width', Number(e.target.value) || 50)}/></div>
                  <div className="space-y-1"><Label htmlFor="layout-el-h">Alto (px)</Label><Input id="layout-el-h" type="number" value={currentLayoutElement.height || 50} onChange={(e) => handleLayoutElementChange('height', Number(e.target.value) || 50)}/></div>
@@ -337,8 +365,7 @@ export default function SalonLayoutPage() {
                     {(decoracionData.salonElements || []).map(element => (
                         <DraggableLayoutElement
                             key={element.id}
-                            element={element}
-                            layoutMode={decoracionData.layoutMode}
+                            element={{...element, layoutMode: decoracionData.layoutMode}}
                             invitados={invitados}
                             onDragStop={handleDragStop}
                             onDoubleClick={openElementSheet}

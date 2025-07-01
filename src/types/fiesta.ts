@@ -42,6 +42,7 @@ export interface LayoutElement {
   type: 'predefined' | 'custom';
   category?: string;
   dataAiHint?: string;
+  seats?: number;
 }
 
 export interface ColorPalette {
