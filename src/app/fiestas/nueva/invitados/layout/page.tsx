@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import Draggable, { type DraggableEvent, type DraggableData } from 'react-draggable';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -99,7 +99,7 @@ const nameToColor = (name: string): string => {
     return color;
 };
 
-const GuestSeat = ({ seatNumber, guest, guestNameStyle, guestIconStyle }: {
+const GuestSeat = ({ seatNumber, guest, guestNameStyle, guestIconStyle, style }: {
     seatNumber: number;
     guest?: Invitado;
     style: React.CSSProperties;
@@ -556,7 +556,7 @@ export default function SalonLayoutPage() {
             <DesignConfigSidebar 
                 decoracionData={decoracionData}
                 onConfigChange={handleConfigChange}
-                onInputChange={(key, val) => handleInputChange(key, val)}
+                onInputChange={(key, val) => handleInputChange(key, val as string)}
                 disabled={isSaving}
             />
              <Card className="shadow-lg">
