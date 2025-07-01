@@ -87,6 +87,8 @@ export interface DecoracionData {
   zonasContratadas?: ZonaContratada[];
   generalNotesDecoracion?: string;
   pdfNotasAdicionales?: string;
+  salonWidth?: number;
+  salonHeight?: number;
   salonPlanBackgroundImageUrl?: string;
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;

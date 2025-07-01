@@ -107,7 +107,6 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
         costosItems: parsedData.gestionCostos.costosItems || [],
       };
     }
-
     if (!parsedData.videoVida) {
         parsedData.videoVida = { ...defaultVideoVidaData };
     }
@@ -670,6 +669,19 @@ export async function updateInvitadoFiestaActual(
     return { success: true, invitado: updatedInvitado ? JSON.parse(JSON.stringify(updatedInvitado)) : undefined };
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el invitado." };
+  }
+}
+
+export async function updateAllInvitados(
+  nuevosInvitados: Invitado[]
+): Promise<{ success: boolean; updatedData?: Invitado[]; error?: string }> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.invitados = nuevosInvitados;
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.invitados)) };
+  } catch (e: any) {
+    return { success: false, error: e.message || "Error al actualizar la lista de invitados." };
   }
 }
 
