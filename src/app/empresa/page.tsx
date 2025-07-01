@@ -23,7 +23,7 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Empleados',
   },
   {
-    title: 'Gestión de Proveedores',
+    title: 'Gestión de Proveedores y Servicios Subcontratados',
     description: 'Mantén un registro de tus proveedores y sus servicios.',
     href: '/proveedores',
     icon: Briefcase,
