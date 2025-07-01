@@ -45,6 +45,10 @@ export const defaultGiftItems: Omit<GiftItem, 'id' | 'isClaimed'>[] = [
     { name: 'Día de Spa', description: 'Un día completo de masajes y relajación para dos.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'spa day' },
 ];
 
+export const ALL_LAYOUT_ELEMENT_CATEGORIES = [
+  'Mesa Redonda', 'Mesa Rectangular', 'Mesa Principal', 'Mobiliario (Sillón)', 'Pista de Baile', 'Cabina de DJ', 'Barra de Tragos', 'Estructura (Toldo/Truss)', 'Planta/Arreglo Floral', 'Elemento Decorativo', 'Otro'
+];
+
 export const defaultDecoracion: DecoracionData = {
   tema: 'Elegante y Moderno',
   paletaColores: { ...defaultColorPalette },
@@ -195,5 +199,3 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   gestionCostos: { ...initialGestionCostosData },
   videoVida: { ...defaultVideoVidaData },
 };
-
-    

@@ -90,7 +90,17 @@
     "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
     "generalNotes": "Decoración base, detalles por definir."
   },
-  "invitados": [],
+  "invitados": [
+    {
+      "id": "inv_1751389824921_0yrec",
+      "nombre": "pepe",
+      "rsvp": "Confirmado",
+      "partySize": 1,
+      "tableNumber": 1,
+      "companionNames": [],
+      "checkedIn": false
+    }
+  ],
   "webPageSettings": {
     "pageTitle": "Mi Evento Especial",
     "heroSubtitle": "¡Una celebración inolvidable!",
@@ -110,10 +120,11 @@
     "giftRegistryTitle": "Lista de Regalos",
     "giftRegistryText": "Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...",
     "showGiftRegistry": false,
-    "showGallery": true,
+    "giftRegistry": [],
     "showRsvp": true,
     "programaEventoText": "",
-    "musicaEspecialText": ""
+    "musicaEspecialText": "",
+    "showGallery": true
   },
   "clientPortalSettings": {
     "enabled": true,
@@ -124,6 +135,12 @@
     "showInvitados": true,
     "showMusica": true,
     "showMenu": false
+  },
+  "socialGallerySettings": {
+    "enabled": false,
+    "allowLikes": true,
+    "allowComments": true,
+    "uploadsActive": true
   },
   "musica": {
     "cancionEntrada": "",

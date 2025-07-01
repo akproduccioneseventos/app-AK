@@ -16,7 +16,7 @@ import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLuc
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, LayoutElement } from '@/types/fiesta';
-import { defaultDecoracion, defaultZonasContratadas } from '@/lib/fiesta-defaults';
+import { defaultDecoracion, defaultZonasContratadas, ALL_LAYOUT_ELEMENT_CATEGORIES } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -41,10 +41,6 @@ import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flow
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
   'Detalle Entrada', 'Centro de Mesa', 'Detalle Zona Regalos', 'Detalle Cuadro Firmas', 'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Señalética', 'Globos', 'Otro'
-];
-
-const ALL_LAYOUT_ELEMENT_CATEGORIES = [
-  'Mesa Redonda', 'Mesa Rectangular', 'Mesa Principal', 'Mobiliario (Sillón)', 'Pista de Baile', 'Cabina de DJ', 'Barra de Tragos', 'Estructura (Toldo/Truss)', 'Planta/Arreglo Floral', 'Elemento Decorativo', 'Otro'
 ];
 
 const predefinedPalettes: { name: string; colors: ColorPalette }[] = [
@@ -323,7 +319,7 @@ export default function DecoracionYDisenoEventoPage() {
   
   // Salon Layout Designer Functions
   const openLayoutElementModal = (element?: LayoutElement) => {
-    setCurrentLayoutElement(element || { name: '', width: 50, height: 50, x: 50, y: 50, rotation: 0, quantity: 1, type: 'custom' });
+    setCurrentLayoutElement(element || { name: '', width: 50, height: 50, x: 50, y: 50, rotation: 0, quantity: 1, type: 'custom', category: 'Otro' });
     setIsLayoutElementModalOpen(true);
   };
 
@@ -684,8 +680,14 @@ export default function DecoracionYDisenoEventoPage() {
           <DialogHeader><DialogTitle className="font-headline">{currentLayoutElement?.id ? 'Editar' : 'Añadir'} Elemento al Plano</DialogTitle></DialogHeader>
           {currentLayoutElement && (
             <div className="py-2 space-y-3">
-              <div className="space-y-1"><Label htmlFor="layout-el-name">Nombre *</Label><Input id="layout-el-name" value={currentLayoutElement.name || ''} onChange={(e) => handleLayoutElementChange('name', e.target.value)} required /></div>
-              <div className="space-y-1"><Label htmlFor="layout-el-cat">Categoría</Label><Select value={currentLayoutElement.category || ''} onValueChange={(val) => handleLayoutElementChange('category', val)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select></div>
+              <div className="space-y-1"><Label htmlFor="layout-el-name">Nombre (Ej: "Mesa 5", "Pista") *</Label><Input id="layout-el-name" value={currentLayoutElement.name || ''} onChange={(e) => handleLayoutElementChange('name', e.target.value)} required /></div>
+              <div className="space-y-1">
+                <Label htmlFor="layout-el-cat">Categoría</Label>
+                <Select value={currentLayoutElement.category || 'Otro'} onValueChange={(val) => handleLayoutElementChange('category', val)}>
+                  <SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger>
+                  <SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
               <div className="grid grid-cols-3 gap-2">
                  <div className="space-y-1"><Label htmlFor="layout-el-qty">Cant.</Label><Input id="layout-el-qty" type="number" value={currentLayoutElement.quantity || 1} onChange={(e) => handleLayoutElementChange('quantity', Number(e.target.value) || 1)} min="1"/></div>
                  <div className="space-y-1"><Label htmlFor="layout-el-w">Ancho (px)</Label><Input id="layout-el-w" type="number" value={currentLayoutElement.width || 50} onChange={(e) => handleLayoutElementChange('width', Number(e.target.value) || 50)}/></div>
