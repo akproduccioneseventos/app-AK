@@ -86,3 +86,17 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[
     return []; // Return empty array if directory doesn't exist
   }
 }
+
+export async function getPhotoFilePathsForZip(fiestaId: string): Promise<{ path: string, name: string }[]> {
+    const eventPhotoDirPath = path.join(videoVidaDirectoryPath, fiestaId);
+    try {
+        await fs.access(eventPhotoDirPath);
+        const filenames = await fs.readdir(eventPhotoDirPath);
+        return filenames.map(name => ({
+            path: path.join(eventPhotoDirPath, name),
+            name: name
+        }));
+    } catch {
+        return [];
+    }
+}

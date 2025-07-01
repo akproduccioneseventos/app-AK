@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -71,28 +72,27 @@ export default function VideoVidaAdminPage() {
   const handleDownloadAll = async () => {
     if (!fiesta || uploadedPhotos.length === 0) return;
     setIsDownloading(true);
-    toast({ title: "Iniciando descarga...", description: `Se descargarán ${uploadedPhotos.length} fotos. Por favor, permite las descargas múltiples si tu navegador lo solicita.`});
+    toast({ title: "Preparando descarga...", description: `Se comprimirán ${uploadedPhotos.length} fotos.`});
     try {
-      for (const photoName of uploadedPhotos) {
-        const response = await fetch(`/api/video-vida-photos/${fiesta.id}/${photoName}`);
+        const response = await fetch(`/api/video-vida-photos/${fiesta.id}/download`);
         if (!response.ok) {
-          throw new Error(`No se pudo descargar ${photoName}`);
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'No se pudo generar el archivo ZIP.');
         }
+
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         a.href = url;
-        a.download = photoName;
+        a.download = `video-vida-${fiesta.id.substring(0,5)}-${timestamp}.zip`;
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
-        // Pequeña pausa para no sobrecargar el navegador
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
-      toast({ title: "¡Descarga Completa!", description: "Todas las fotos han sido descargadas."});
+        toast({ title: "¡Descarga Iniciada!", description: "El archivo ZIP se está descargando."});
     } catch (error: any) {
-        toast({ title: "Error en la Descarga", description: error.message || "Ocurrió un error al descargar las fotos.", variant: "destructive" });
+        toast({ title: "Error en la Descarga", description: error.message, variant: "destructive" });
     } finally {
         setIsDownloading(false);
     }
@@ -168,13 +168,13 @@ export default function VideoVidaAdminPage() {
               ))}
             </div>
           ) : (
-             <div className="text-center py-8 text-muted-foreground"><Image className="w-12 h-12 mx-auto mb-2 opacity-50"/>Esperando fotos del cliente...</div>
+             <div className="text-center py-8 text-muted-foreground"><ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/>Esperando fotos del cliente...</div>
           )}
         </CardContent>
         <CardFooter className="border-t pt-4">
             <Button onClick={handleDownloadAll} disabled={isDownloading || uploadedPhotos.length === 0}>
                 {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Download className="w-4 h-4 mr-2"/>}
-                {isDownloading ? "Descargando..." : "Descargar Todas las Fotos"}
+                {isDownloading ? "Descargando..." : `Descargar ${uploadedPhotos.length} Fotos (.zip)`}
             </Button>
         </CardFooter>
       </Card>
