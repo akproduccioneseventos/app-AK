@@ -93,6 +93,7 @@ export interface DecoracionData {
   layoutMode?: 'libre' | 'asignado';
   guestNameStyle?: 'full' | 'initials' | 'none';
   guestIconStyle?: 'color' | 'bw';
+  layoutTemplateName?: string;
 }
 
 export interface GiftItem {
