@@ -9,6 +9,7 @@ import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual'
 import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { Progress } from '@/components/ui/progress';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -40,7 +41,7 @@ const internalModules: PlanningModule[] = [
   { title: "Servicios Contratados", description: "Ver proveedores y servicios confirmados.", icon: ClipboardList, href: "/fiestas/nueva/servicios-contratados", status: "Disponible", actionLabel: "Ver Servicios" },
   { title: "Reuniones con Cliente", description: "Registro privado de reuniones y acuerdos.", icon: MessageSquareText, href: "/fiestas/nueva/reuniones", status: "Disponible", actionLabel: "Gestionar Reuniones" },
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
-  { title: "Gestión Documental y Financiera", description: "Contrato, presupuesto, facturas, pagos.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Administrar Documentos" },
+  { title: "Gestión Documental y Financiera", description: "Contratos, presupuestos, facturas, pagos.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Administrar Documentos" },
   { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" }
 ];
