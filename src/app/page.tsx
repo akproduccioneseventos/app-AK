@@ -1,11 +1,18 @@
 
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { KpiCard } from '@/components/dashboard/kpi-card';
+import { getCustomers } from '@/app/actions/customers';
+import { getPresupuestos } from '@/app/actions/presupuestos';
+import { getInvoices } from '@/app/actions/invoices';
+import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
+import { useToast } from '@/hooks/use-toast';
 
 interface ModuleCardProps {
   title: string;
@@ -46,14 +53,75 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon:
   </Link>
 );
 
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return "N/A";
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
 
 export default function DashboardPage() {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [kpiData, setKpiData] = useState({
+    fiestasPasadas: 0,
+    fiestasFuturas: 0,
+    clientesActivos: 0,
+    prospectosActivos: 0,
+    totalPendiente: 0,
+  });
+
+  const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [
+        historialFiestasData,
+        fiestaActualData,
+        customersData,
+        presupuestosData,
+        invoicesData,
+      ] = await Promise.all([
+        getHistorialFiestas(),
+        getFiestaActual(),
+        getCustomers(),
+        getPresupuestos(),
+        getInvoices(),
+      ]);
+
+      const esFiestaFutura = fiestaActualData?.configuracion?.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= new Date();
+      const clientesActivos = customersData.filter(c => c.estadoCliente === 'Actual').length;
+      const prospectosActivos = presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length;
+      
+      const totalPendiente = invoicesData.reduce((total, inv) => {
+        const paidOnThisInvoice = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
+        const dueOnThisInvoice = inv.totalAmount - paidOnThisInvoice;
+        return total + (dueOnThisInvoice > 0 ? dueOnThisInvoice : 0);
+      }, 0);
+
+      setKpiData({
+        fiestasPasadas: historialFiestasData.length,
+        fiestasFuturas: esFiestaFutura ? 1 : 0,
+        clientesActivos,
+        prospectosActivos,
+        totalPendiente,
+      });
+
+    } catch (err: any) {
+      console.error("Error fetching dashboard data:", err);
+      toast({ title: "Error de Carga", description: "No se pudieron cargar los datos del dashboard.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight font-headline text-foreground mb-1">¡Bienvenido a tu Centro de Gestión!</h2>
-          <p className="text-lg text-muted-foreground">Selecciona un módulo para empezar o crea una nueva fiesta o presupuesto.</p>
+          <p className="text-lg text-muted-foreground">Un resumen de tu actividad y accesos directos.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <Link href="/fiestas/nueva/configuracion" passHref className="w-full sm:w-auto">
@@ -69,6 +137,14 @@ export default function DashboardPage() {
               </Button>
           </Link>
         </div>
+      </div>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <KpiCard title="Clientes Activos" value={kpiData.clientesActivos} icon={Users} isLoading={isLoading} description="Clientes con estado 'Actual'." />
+        <KpiCard title="Prospectos Activos" value={kpiData.prospectosActivos} icon={Briefcase} isLoading={isLoading} description="Presupuestos enviados o en borrador." />
+        <KpiCard title="Fiestas Futuras" value={kpiData.fiestasFuturas} icon={CheckCircle} isLoading={isLoading} description="Eventos en planificación actual." />
+        <KpiCard title="Fiestas Pasadas" value={kpiData.fiestasPasadas} icon={CalendarClock} isLoading={isLoading} description="Eventos completados y archivados." />
+        <KpiCard title="Saldo Pendiente General" value={formatCurrency(kpiData.totalPendiente)} icon={Banknote} isLoading={isLoading} description="De todas las facturas no saldadas." className="bg-primary/5 border-primary/20"/>
       </div>
       
       <Separator />

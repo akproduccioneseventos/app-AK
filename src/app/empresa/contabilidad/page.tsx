@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Banknote, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon } from 'lucide-react'; // Added Palette and SettingsIcon
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon } from 'lucide-react'; // Added Palette and SettingsIcon
 import { useToast } from '@/hooks/use-toast';
 import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomers } from '@/app/actions/customers';
@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import type { MonthlyChartData } from '@/components/charts/MonthlySalesChart';
 import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
+import { KpiCard } from '@/components/dashboard/kpi-card'; // Import the new component
 
 const MonthlySalesChart = dynamic(() => 
   import('@/components/charts/MonthlySalesChart').then(mod => mod.MonthlySalesChart), 
@@ -44,32 +45,6 @@ const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return "N/A";
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
-
-interface KpiCardProps {
-  title: string;
-  value: string | number;
-  description?: string;
-  icon: React.ElementType;
-  isLoading?: boolean;
-  className?: string;
-}
-
-const KpiCard: React.FC<KpiCardProps> = ({ title, value, description, icon: Icon, isLoading, className }) => (
-  <Card className={cn("shadow-md hover:shadow-lg transition-shadow", className)}>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-      <Icon className="h-5 w-5 text-primary" />
-    </CardHeader>
-    <CardContent>
-      {isLoading ? (
-        <Loader2 className="h-7 w-7 animate-spin text-primary" />
-      ) : (
-        <div className="text-2xl font-bold">{value}</div>
-      )}
-      {description && <p className="text-xs text-muted-foreground">{description}</p>}
-    </CardContent>
-  </Card>
-);
 
 interface AccesoDirectoItem {
   title: string;
