@@ -143,14 +143,15 @@ export default function PortalUnificadoPage() {
         loadData();
     }, [loadData]);
     
-    const handlePortalSettingChange = (key: keyof ClientPortalSettings | keyof ClientPortalSettings['checklist'], value: boolean | string) => {
-        const keys = (key as string).split('.');
-        if (keys.length > 1) {
-            const [parentKey, childKey] = keys as [keyof ClientPortalSettings, string];
+    const handlePortalSettingChange = (key: string, value: boolean) => {
+        const keys = key.split('.');
+        if (keys.length === 2) {
+            const [parentKey, childKey] = keys;
             setSettings(prev => ({
                 ...prev,
                 portal: {
                     ...prev.portal,
+                    // @ts-ignore
                     [parentKey]: {
                         // @ts-ignore
                         ...prev.portal[parentKey],
@@ -159,7 +160,14 @@ export default function PortalUnificadoPage() {
                 }
             }));
         } else {
-             setSettings(prev => ({ ...prev, portal: { ...prev.portal, [key as keyof ClientPortalSettings]: value } }));
+            // This handles the top-level 'enabled' switch
+            setSettings(prev => ({
+                ...prev,
+                portal: {
+                    ...prev.portal,
+                    [key as keyof ClientPortalSettings]: value
+                }
+            }));
         }
     };
     
@@ -205,7 +213,8 @@ export default function PortalUnificadoPage() {
       setIsSavingChecklist(false);
     };
 
-    const handleAddTask = () => {
+    const handleAddTask = (e: FormEvent) => {
+      e.preventDefault();
       if (!newTaskText.trim()) { toast({ title: "Título Requerido", variant: "destructive" }); return; }
       const newTask: ClientTarea = {
         id: `task_client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -296,12 +305,14 @@ export default function PortalUnificadoPage() {
     if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
     if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
-    const portalSections = [
-        { id: "documentos", title: "Documentos", label: "Documentos (Contrato/Presupuesto/Facturas)", icon: FileText, href: "/fiestas/nueva/gestion-documental", isExternal: false },
-        { id: "itinerario", title: "Itinerario", label: "Itinerario del Evento", icon: Clock, href: "/fiestas/nueva/itinerario", isExternal: false },
-        { id: "musica", title: "Música", label: "Preferencias Musicales", icon: Music2, href: "/fiestas/nueva/musica", isExternal: false },
-        { id: "videoVida", title: "Video de Vida", label: "Carga de Fotos para Video de Vida", icon: Camera, href: "/fiestas/nueva/video-vida", isExternal: false },
-        { id: "listaRegalos", title: "Regalos", label: "Lista de Regalos", icon: Gift, href: "/fiestas/nueva/regalos", isExternal: false },
+    const portalModuleList = [
+        { id: 'checklist', label: 'Checklist Cliente', icon: ClipboardCheck, editable: true },
+        { id: 'documentos', label: 'Documentos', icon: FileText, editable: false },
+        { id: 'itinerario', label: 'Itinerario', icon: Clock, editable: false },
+        { id: 'musica', label: 'Música', icon: Music2, editable: true },
+        { id: 'videoVida', label: 'Video de Vida', icon: Camera, editable: true },
+        { id: 'listaRegalos', label: 'Lista de Regalos', icon: Gift, editable: false },
+        { id: 'notasCliente', label: 'Notas del Cliente', icon: StickyNote, editable: true },
     ];
     
     const accesosDirectos = [
@@ -359,7 +370,7 @@ export default function PortalUnificadoPage() {
                                         id="portal-password"
                                         type="text"
                                         value={settings.portal.accessKey || ''}
-                                        onChange={(e) => handlePortalSettingChange('accessKey', e.target.value)}
+                                        onChange={(e) => handlePortalSettingChange('accessKey', e.target.value as any)}
                                         placeholder="Deja en blanco para acceso público"
                                         disabled={!settings.portal.enabled || isSaving}
                                     />
@@ -367,24 +378,37 @@ export default function PortalUnificadoPage() {
                                 <Separator />
                                 <div className="space-y-3">
                                     <h4 className="text-sm font-medium text-muted-foreground">Secciones Visibles para el Cliente:</h4>
-                                     <div className="flex items-center justify-between text-sm">
-                                        <Label htmlFor="portal-checklist.visible" className="flex items-center gap-2 font-normal"><ClipboardCheck className="w-4 h-4 text-primary/80"/>Checklist Cliente</Label>
-                                        <div className="flex items-center gap-2">
-                                          <Switch id="portal-checklist.visible" checked={settings.portal.checklist.visible} onCheckedChange={(val) => handlePortalSettingChange('checklist.visible', val)} disabled={!settings.portal.enabled} />
-                                          <Select value={settings.portal.checklist.editable ? 'edit' : 'view'} onValueChange={(v) => handlePortalSettingChange('checklist.editable', v === 'edit')} disabled={!settings.portal.checklist.visible || !settings.portal.enabled}>
-                                            <SelectTrigger className="h-7 text-xs w-[80px]"><SelectValue/></SelectTrigger>
-                                            <SelectContent><SelectItem value="view">Ver</SelectItem><SelectItem value="edit">Editar</SelectItem></SelectContent>
-                                          </Select>
-                                        </div>
-                                    </div>
-                                    {portalSections.map(section => (
-                                        <div key={section.id} className="flex items-center justify-between text-sm">
-                                            <Label htmlFor={`portal-${section.id}.visible`} className="flex items-center gap-2 font-normal">
-                                                <section.icon className="w-4 h-4 text-primary/80"/>{section.label}
-                                            </Label>
-                                             <Switch id={`portal-${section.id}.visible`} checked={(settings.portal as any)[section.id]?.visible} onCheckedChange={(val) => handlePortalSettingChange(`${section.id}.visible`, val)} disabled={!settings.portal.enabled} />
-                                        </div>
-                                    ))}
+                                    {portalModuleList.map(section => {
+                                        const sectionSettings = (settings.portal as any)[section.id];
+                                        if (!sectionSettings) return null;
+
+                                        return (
+                                            <div key={section.id} className="flex items-center justify-between text-sm">
+                                                <Label htmlFor={`portal-${section.id}.visible`} className="flex items-center gap-2 font-normal">
+                                                    <section.icon className="w-4 h-4 text-primary/80" />
+                                                    {section.label}
+                                                </Label>
+                                                <div className="flex items-center gap-2">
+                                                    <Switch
+                                                        id={`portal-${section.id}.visible`}
+                                                        checked={sectionSettings.visible}
+                                                        onCheckedChange={(val) => handlePortalSettingChange(`${section.id}.visible`, val)}
+                                                        disabled={!settings.portal.enabled || isSaving}
+                                                    />
+                                                    {section.editable && (
+                                                        <Select
+                                                            value={sectionSettings.editable ? 'edit' : 'view'}
+                                                            onValueChange={(v) => handlePortalSettingChange(`${section.id}.editable`, v === 'edit')}
+                                                            disabled={!sectionSettings.visible || !settings.portal.enabled || isSaving}
+                                                        >
+                                                            <SelectTrigger className="h-7 text-xs w-[80px]"><SelectValue/></SelectTrigger>
+                                                            <SelectContent><SelectItem value="view">Ver</SelectItem><SelectItem value="edit">Editar</SelectItem></SelectContent>
+                                                        </Select>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                                 <Separator className="my-4" />
                                 <div>
@@ -413,9 +437,9 @@ export default function PortalUnificadoPage() {
                             <CardContent>
                                 <div className="space-y-4">
                                     <div className="space-y-3 p-3 border rounded-md bg-muted/30">
-                                      <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
+                                      <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." /></div>
                                       <div className="space-y-1 mt-2"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
-                                      <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist} className="mt-2"><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
+                                      <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist || !newTaskText.trim()} className="mt-2"><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Progreso: {completedCount}/{totalCount}</Label>
