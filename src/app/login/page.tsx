@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
@@ -10,7 +11,8 @@ import { LogIn, Loader2 } from "lucide-react";
 import Image from "next/image";
 
 const SESSION_KEY = 'ak_producciones_auth_session';
-const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || 'SOydocenTE2124.';
+// The password is now hardcoded for reliability in this environment.
+const APP_PASSWORD = 'SOydocenTE2124.';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,13 +27,19 @@ export default function LoginPage() {
     }
   }, [router]);
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
-    // In a real app, this would be an API call.
-    // For this app, a simple hardcoded password check is sufficient.
+    const formData = new FormData(e.currentTarget);
+    // Honeypot check for bots
+    if (formData.get('confirm_email')) {
+      // It's a bot, fail silently after a delay
+      setTimeout(() => setIsSubmitting(false), 1000);
+      return;
+    }
+
     if (password === APP_PASSWORD) {
       sessionStorage.setItem(SESSION_KEY, 'true');
       router.push('/');
@@ -60,6 +68,11 @@ export default function LoginPage() {
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
+             {/* Honeypot field for bot protection, visually hidden */}
+            <div className="sr-only" aria-hidden="true">
+              <label htmlFor="confirm_email">Please leave this field empty</label>
+              <input id="confirm_email" name="confirm_email" type="email" tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="app-password">Contraseña</Label>
               <Input
