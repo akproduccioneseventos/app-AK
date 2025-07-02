@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon } from 'lucide-react'; // Added Palette and SettingsIcon
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomers } from '@/app/actions/customers';
