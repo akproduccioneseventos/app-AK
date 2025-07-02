@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import type { ReactNode } from 'react';
@@ -39,7 +38,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${idSegment}`;
-  
+
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
@@ -187,7 +186,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/notas') return StickyNote;
 
   if (pathname === '/login') return LogInIcon;
-  if (pathname === '/signup') return UserPlus2Icon;
 
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
@@ -223,7 +221,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
 
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
