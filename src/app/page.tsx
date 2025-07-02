@@ -120,18 +120,18 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight font-headline text-foreground mb-1">¡Bienvenido a tu Centro de Gestión!</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline text-foreground mb-1">¡Bienvenido a tu Centro de Gestión!</h2>
           <p className="text-lg text-muted-foreground">Un resumen de tu actividad y accesos directos.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <Link href="/fiestas/nueva/configuracion" passHref className="w-full sm:w-auto">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 py-5 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-4 py-3 text-base sm:px-6 sm:py-5 sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full">
                   <PlusCircle className="w-6 h-6 mr-2.5" />
                   Crear Nueva Fiesta
               </Button>
           </Link>
           <Link href="/presupuestos/nuevo" passHref className="w-full sm:w-auto">
-              <Button variant="outline" size="lg" className="rounded-full px-6 py-5 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-primary text-primary hover:bg-primary/5 w-full">
+              <Button variant="outline" size="lg" className="rounded-full px-4 py-3 text-base sm:px-6 sm:py-5 sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-primary text-primary hover:bg-primary/5 w-full">
                   <FileTextIcon className="w-6 h-6 mr-2.5" />
                   Crear Nuevo Presupuesto
               </Button>

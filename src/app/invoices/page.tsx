@@ -232,7 +232,7 @@ export default function InvoicesPage() {
               </Table>
             </div>
           ) : (
-            <div className="py-10 text-center">
+            <div className="text-center py-10">
               <AlertTriangle className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground text-lg">
                 {allInvoices.length === 0 ? "No has creado ninguna factura todavía." : "No se encontraron facturas con los filtros aplicados."}
@@ -252,4 +252,3 @@ export default function InvoicesPage() {
     </div>
   );
 }
-
