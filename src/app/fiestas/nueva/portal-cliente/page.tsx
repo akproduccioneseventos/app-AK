@@ -25,8 +25,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
-  ClipboardCheck, FileText, Banknote, FileSignature, Users, User, UserCog,
-  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2, Plus, PlusCircle, Gift, StickyNote
+  ClipboardCheck, FileText, Banknote, Music2, Gift, Camera, StickyNote, Lock, QrCode, Clock, Wand2, Plus, PlusCircle
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -296,7 +295,7 @@ export default function PortalUnificadoPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Globe className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del Cliente</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del cliente</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
@@ -307,7 +306,7 @@ export default function PortalUnificadoPage() {
                     <div className="lg:col-span-1 space-y-6">
                         <Card className="shadow-lg sticky top-20">
                             <CardHeader>
-                                <CardTitle className="font-headline text-xl">Portal Privado del Cliente</CardTitle>
+                                <CardTitle className="font-headline text-xl">Portal del cliente</CardTitle>
                                 <CardDescription>Controla qué información puede ver tu cliente.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -355,6 +354,27 @@ export default function PortalUnificadoPage() {
                                         </Button>
                                     </a>
                                 </div>
+                                 <Separator className="my-4" />
+                                <div>
+                                    <h4 className="text-sm font-medium text-muted-foreground mb-3">Accesos directos a módulos</h4>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
+                                            <Link href="/fiestas/nueva/itinerario"><Clock className="w-4 h-4 mr-2 shrink-0" />Itinerario</Link>
+                                        </Button>
+                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
+                                            <Link href="/fiestas/nueva/musica"><Music2 className="w-4 h-4 mr-2 shrink-0" />Música</Link>
+                                        </Button>
+                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
+                                            <Link href="/fiestas/nueva/video-vida"><Camera className="w-4 h-4 mr-2 shrink-0" />Video de Vida</Link>
+                                        </Button>
+                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
+                                            <Link href="/fiestas/nueva/regalos"><Gift className="w-4 h-4 mr-2 shrink-0" />Lista de Regalos</Link>
+                                        </Button>
+                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2 col-span-2">
+                                            <Link href="/fiestas/nueva/gestion-documental"><FileText className="w-4 h-4 mr-2 shrink-0" />Documentos</Link>
+                                        </Button>
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
@@ -365,29 +385,31 @@ export default function PortalUnificadoPage() {
                                 <CardTitle className="font-headline text-xl flex items-center gap-2"><ClipboardCheck className="text-primary"/>Checklist Compartida con Cliente</CardTitle>
                                 <CardDescription>Gestiona las tareas que el cliente verá en su portal.</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-3 p-3 border rounded-md bg-muted/30">
-                                    <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
-                                    <div className="space-y-1"><Label>Asignar a:</Label><RadioGroup value={newTaskAssignedTo} onValueChange={(val) => setNewTaskAssignedTo(val as TareaAsignadaA)} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Cliente" id="assign-cliente" /><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="Organizador" id="assign-organizador" /><Label htmlFor="assign-organizador">Organizador</Label></div></RadioGroup></div>
-                                    <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div className="space-y-3 p-3 border rounded-md bg-muted/30">
+                                        <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
+                                        <div className="space-y-1"><Label>Asignar a:</Label><RadioGroup value={newTaskAssignedTo} onValueChange={(val) => setNewTaskAssignedTo(val as TareaAsignadaA)} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Cliente" id="assign-cliente" /><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="Organizador" id="assign-organizador" /><Label htmlFor="assign-organizador">Organizador</Label></div></RadioGroup></div>
+                                        <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Progreso: {completedCount}/{totalCount}</Label>
+                                        <Progress value={progressPercentage} className="h-2" />
+                                    </div>
+                                    {tareas.length > 0 && (
+                                        <ScrollArea className="h-48 pr-3 border rounded-md p-2">
+                                            <ul className="space-y-2">
+                                                {tareas.map((task) => (
+                                                    <li key={task.id} className="flex items-start gap-3">
+                                                        <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
+                                                        <div className="flex-grow"><Label htmlFor={`task-client-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTask(task.id)} disabled={isSavingChecklist}><Trash2 className="w-4 h-4" /></Button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </ScrollArea>
+                                    )}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Progreso: {completedCount}/{totalCount}</Label>
-                                    <Progress value={progressPercentage} className="h-2" />
-                                </div>
-                                {tareas.length > 0 && (
-                                    <ScrollArea className="h-48 pr-3 border rounded-md p-2">
-                                        <ul className="space-y-2">
-                                            {tareas.map((task) => (
-                                                <li key={task.id} className="flex items-start gap-3">
-                                                    <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
-                                                    <div className="flex-grow"><Label htmlFor={`task-client-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTask(task.id)} disabled={isSavingChecklist}><Trash2 className="w-4 h-4" /></Button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </ScrollArea>
-                                )}
                             </CardContent>
                         </Card>
 
