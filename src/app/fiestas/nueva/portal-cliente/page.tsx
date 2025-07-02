@@ -24,7 +24,7 @@ import NextImage from 'next/image';
 import { Progress } from '@/components/ui/progress';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
-  ClipboardCheck, FileText, Banknote, Music2, Gift, Camera, StickyNote, Lock, QrCode, Clock, Wand2, Plus, PlusCircle, UserCog, User, Trash2
+  ClipboardCheck, FileText, Banknote, Music2, Gift, Camera, StickyNote, Lock, QrCode, Clock, Wand2, Plus, PlusCircle, UserCog, User, Trash2, Users
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -45,6 +45,31 @@ type PortalSettingsForm = {
     web: EventWebPageSettings;
     social: SocialGallerySettings;
 };
+
+interface SectionCardProps {
+    title: string;
+    description: string;
+    icon: React.ElementType;
+    href: string;
+    isExternal?: boolean;
+}
+
+const SectionCard: React.FC<SectionCardProps> = ({ title, description, icon: Icon, href, isExternal }) => (
+    <Card className="hover:shadow-lg transition-shadow">
+        <CardHeader className="flex-row items-center gap-4 space-y-0 pb-2">
+            <div className="p-2.5 bg-primary/10 rounded-lg"><Icon className="w-6 h-6 text-primary" /></div>
+            <CardTitle className="font-headline text-lg">{title}</CardTitle>
+        </CardHeader>
+        <CardContent><p className="text-sm text-muted-foreground">{description}</p></CardContent>
+        <CardFooter>
+            <Button asChild className="w-full">
+                <Link href={href} target={isExternal ? "_blank" : "_self"} rel={isExternal ? "noopener noreferrer" : undefined}>
+                    <Eye className="w-4 h-4 mr-2" /> Acceder
+                </Link>
+            </Button>
+        </CardFooter>
+    </Card>
+);
 
 export default function PortalUnificadoPage() {
     const { toast } = useToast();
@@ -280,12 +305,15 @@ export default function PortalUnificadoPage() {
     ];
     
     const accesosDirectos = [
-        { title: "Checklist Cliente", href: "#checklist-cliente", icon: ClipboardCheck },
-        { title: "Documentos", href: "/fiestas/nueva/gestion-documental", icon: FileText },
-        { title: "Itinerario", href: "/fiestas/nueva/itinerario", icon: Clock },
-        { title: "Música", href: "/fiestas/nueva/musica", icon: Music2 },
-        { title: "Video de Vida", href: "/fiestas/nueva/video-vida", icon: Camera },
-        { title: "Lista de Regalos", href: "/fiestas/nueva/regalos", icon: Gift },
+        { title: "Checklist Cliente", href: "#checklist-cliente", icon: ClipboardCheck, isExternal: false },
+        { title: "Gestión de Invitados", href: "/fiestas/nueva/invitados", icon: Users, isExternal: false },
+        { title: "Itinerario", href: "/fiestas/nueva/itinerario", icon: Clock, isExternal: false },
+        { title: "Música", href: "/fiestas/nueva/musica", icon: Music2, isExternal: false },
+        { title: "Video de Vida", href: "/fiestas/nueva/video-vida", icon: Camera, isExternal: false },
+        { title: "Lista de Regalos", href: "/fiestas/nueva/regalos", icon: Gift, isExternal: false },
+        { title: "Documentos", href: "/fiestas/nueva/gestion-documental", icon: FileText, isExternal: false },
+        { title: "Ver Página Pública", href: `/evento/actual`, icon: Globe, isExternal: true },
+        { title: "Ver Galería Social", href: `/evento/social/${fiestaId}`, icon: Camera, isExternal: true },
     ];
 
 
@@ -305,7 +333,7 @@ export default function PortalUnificadoPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Globe className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del cliente</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del Cliente</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
@@ -316,12 +344,12 @@ export default function PortalUnificadoPage() {
                     <div className="lg:col-span-1 space-y-6">
                         <Card className="shadow-lg sticky top-20">
                             <CardHeader>
-                                <CardTitle className="font-headline text-xl">Portal del cliente</CardTitle>
-                                <CardDescription>Controla qué información puede ver tu cliente.</CardDescription>
+                                <CardTitle className="font-headline text-xl">Panel de Control</CardTitle>
+                                <CardDescription>Gestiona la experiencia del cliente y la página pública.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
-                                    <Label htmlFor="portal-enabled" className="text-base font-medium">Activar Portal</Label>
+                                    <Label htmlFor="portal-enabled" className="text-base font-medium">Activar Portal del Cliente</Label>
                                     <Switch id="portal-enabled" checked={settings.portal.enabled} onCheckedChange={(val) => handlePortalSettingChange('enabled', val)} />
                                 </div>
                                 <div className="space-y-2">
@@ -337,7 +365,7 @@ export default function PortalUnificadoPage() {
                                 </div>
                                 <Separator />
                                 <div className="space-y-3">
-                                    <h4 className="text-sm font-medium text-muted-foreground">Secciones del Portal:</h4>
+                                    <h4 className="text-sm font-medium text-muted-foreground">Secciones Visibles para el Cliente:</h4>
                                      <div className="flex items-center justify-between text-sm">
                                         <Label htmlFor="portal-checklist.visible" className="flex items-center gap-2 font-normal"><ClipboardCheck className="w-4 h-4 text-primary/80"/>Checklist Cliente</Label>
                                         <div className="flex items-center gap-2">
@@ -363,7 +391,7 @@ export default function PortalUnificadoPage() {
                                     <div className="grid grid-cols-2 gap-2">
                                         {accesosDirectos.map(link => (
                                         <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2" key={link.href}>
-                                            <Link href={link.href}>
+                                            <Link href={link.href} target={link.isExternal ? "_blank" : "_self"}>
                                                 <link.icon className="w-4 h-4 mr-2 shrink-0" />
                                                 {link.title}
                                             </Link>
@@ -383,7 +411,7 @@ export default function PortalUnificadoPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                     <div className="space-y-3 p-3 border rounded-md bg-muted/30">
+                                    <div className="space-y-3 p-3 border rounded-md bg-muted/30">
                                         <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
                                         <div className="space-y-1"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
                                         <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
@@ -397,7 +425,7 @@ export default function PortalUnificadoPage() {
                                             <ul className="space-y-2">
                                                 {tareas.map((task) => (
                                                     <li key={task.id} className="flex items-start gap-3">
-                                                        <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
+                                                        <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist || !settings.portal.checklist.editable} />
                                                         <div className="flex-grow"><Label htmlFor={`task-client-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
                                                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTask(task.id)} disabled={isSavingChecklist}><Trash2 className="w-4 h-4" /></Button>
                                                     </li>
