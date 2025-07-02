@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,8 +56,8 @@ const formatDate = (dateString?: string) => {
 type NewPaymentFormState = Omit<Payment, 'id' | 'transactionProofUrl'>;
 
 
-export default function ViewInvoicePage() {
-  const params = useParams();
+export default function ViewInvoicePage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+  const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();
   const invoiceId = params.id as string;

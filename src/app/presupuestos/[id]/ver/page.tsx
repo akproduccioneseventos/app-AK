@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon } from 'lucide-react';
@@ -54,8 +54,8 @@ const COMPANY_LOGO_AI_HINT = "company logo AK circle red";
 const BUDGET_VALIDITY_DAYS = 30;
 const BUDGET_DEPOSIT_NOTE = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
 
-export default function VerPresupuestoPage() {
-  const params = useParams();
+export default function VerPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+  const params = React.use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();
