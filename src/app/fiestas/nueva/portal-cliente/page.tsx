@@ -205,8 +205,7 @@ export default function PortalUnificadoPage() {
       setIsSavingChecklist(false);
     };
 
-    const handleAddTask = (e: FormEvent) => {
-      e.preventDefault();
+    const handleAddTask = () => {
       if (!newTaskText.trim()) { toast({ title: "Título Requerido", variant: "destructive" }); return; }
       const newTask: ClientTarea = {
         id: `task_client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -218,6 +217,7 @@ export default function PortalUnificadoPage() {
       setTareas(updatedTareas);
       handleChecklistSave(updatedTareas); // Asynchronously save
       setNewTaskText('');
+      setNewTaskAssignedTo('Cliente');
     };
 
     const toggleTaskCompletion = async (taskId: string) => {
@@ -334,7 +334,7 @@ export default function PortalUnificadoPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Globe className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del Cliente</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del cliente</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
@@ -413,11 +413,9 @@ export default function PortalUnificadoPage() {
                             <CardContent>
                                 <div className="space-y-4">
                                     <div className="space-y-3 p-3 border rounded-md bg-muted/30">
-                                      <form onSubmit={handleAddTask}>
-                                        <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
-                                        <div className="space-y-1 mt-2"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
-                                        <Button type="submit" size="sm" disabled={isSavingChecklist} className="mt-2"><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
-                                      </form>
+                                      <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
+                                      <div className="space-y-1 mt-2"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
+                                      <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist} className="mt-2"><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Progreso: {completedCount}/{totalCount}</Label>
