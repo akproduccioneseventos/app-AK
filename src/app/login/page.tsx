@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
@@ -11,7 +10,7 @@ import { LogIn, Loader2 } from "lucide-react";
 import Image from "next/image";
 
 const SESSION_KEY = 'ak_producciones_auth_session';
-const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || 'admin';
+const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || 'SOydocenTE2124.';
 
 export default function LoginPage() {
   const router = useRouter();
