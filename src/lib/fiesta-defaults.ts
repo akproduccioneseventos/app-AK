@@ -1,4 +1,4 @@
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -14,11 +14,11 @@ export const defaultConfiguracion: ConfigEventoDataStorage = {
 };
 
 export const baseDefaultTareas: Omit<Tarea, 'id'>[] = [
-  { texto: 'Definir lista de invitados', completada: false, descripcion: 'Crear borrador inicial de la lista de invitados y estimar cantidad final.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
-  { texto: 'Seleccionar catering y menú', completada: false, descripcion: 'Contactar proveedores de catering, degustar opciones y definir el menú.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
-  { texto: 'Contratar DJ o música', completada: false, descripcion: 'Buscar y contratar DJ, banda o sistema de sonido.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
-  { texto: 'Elegir decoración y temática', completada: false, descripcion: 'Definir el estilo, colores y elementos decorativos principales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
-  { texto: 'Enviar invitaciones', completada: false, descripcion: 'Diseñar, imprimir y enviar las invitaciones físicas o digitales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false },
+  { texto: 'Definir lista de invitados', completada: false, descripcion: 'Crear borrador inicial de la lista de invitados y estimar cantidad final.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false, asignadaA: 'Organizador' },
+  { texto: 'Seleccionar catering y menú', completada: false, descripcion: 'Contactar proveedores de catering, degustar opciones y definir el menú.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false, asignadaA: 'Organizador' },
+  { texto: 'Contratar DJ o música', completada: false, descripcion: 'Buscar y contratar DJ, banda o sistema de sonido.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false, asignadaA: 'Organizador' },
+  { texto: 'Elegir decoración y temática', completada: false, descripcion: 'Definir el estilo, colores y elementos decorativos principales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false, asignadaA: 'Organizador' },
+  { texto: 'Enviar invitaciones', completada: false, descripcion: 'Diseñar, imprimir y enviar las invitaciones físicas o digitales.', horaVencimiento: undefined, recordatorio: undefined, esPredeterminada: false, asignadaA: 'Cliente' },
 ];
 
 export const defaultClientChecklist: Omit<ClientTarea, 'id'>[] = [
@@ -109,14 +109,14 @@ export const defaultWebPageSettings: EventWebPageSettings = {
 };
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
-  enabled: true,
+  enabled: false,
   accessKey: '',
-  checklist: { visible: true, editable: true },
-  itinerario: { visible: false, editable: false },
-  musica: { visible: false, editable: true },
+  checklist: { visible: false, editable: false },
+  itinerario: { visible: false },
+  musica: { visible: false, editable: false },
   videoVida: { visible: false, editable: true },
-  listaRegalos: { visible: false, editable: false },
-  documentos: { visible: true, editable: false },
+  listaRegalos: { visible: false },
+  documentos: { visible: true },
   notasCliente: { visible: false, editable: true },
 };
 
@@ -200,8 +200,10 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     horaVencimiento: t.horaVencimiento || undefined,
     recordatorio: t.recordatorio || undefined,
     esPredeterminada: t.esPredeterminada || false,
+    asignadaA: t.asignadaA || 'Organizador',
    }))],
   clientChecklist: [...defaultClientChecklist.map(t => ({ ...t, id: `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
+  clientNotes: '',
   decoracion: {
     ...defaultDecoracion,
     items: [],

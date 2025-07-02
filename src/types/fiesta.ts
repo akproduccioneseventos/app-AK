@@ -1,4 +1,5 @@
 
+
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; // Importar Invitado
 import type { UnidadServicio } from './empresa';
@@ -161,11 +162,10 @@ interface PortalViewOnlyModuleSettings {
 export interface ClientPortalSettings {
   enabled: boolean;
   accessKey?: string;
-  // Visibilidad de módulos
   checklist: PortalModuleSettings;
-  itinerario: PortalModuleSettings;
+  itinerario: PortalViewOnlyModuleSettings;
   musica: PortalModuleSettings;
-  videoVida: PortalModuleSettings; // Client uploads, so it's editable
+  videoVida: PortalModuleSettings;
   listaRegalos: PortalViewOnlyModuleSettings;
   documentos: PortalViewOnlyModuleSettings;
   notasCliente: PortalModuleSettings;
@@ -272,6 +272,8 @@ export interface BebidasData {
   notasGenerales?: string;
 }
 
+export type TareaAsignadaA = 'Cliente' | 'Organizador';
+
 export interface Tarea {
   id: string;
   texto: string;
@@ -280,11 +282,9 @@ export interface Tarea {
   fechaLimite?: string; // ISO string
   horaVencimiento?: string; // HH:mm
   recordatorio?: string; // Ej: "1 día antes", "2 horas antes"
-  asignadaA?: string;
+  asignadaA?: TareaAsignadaA;
   esPredeterminada?: boolean; // Indica si es una tarea base que se puede reutilizar
 }
-
-export type TareaAsignadaA = 'Cliente' | 'Organizador';
 
 export interface ClientTarea {
   id: string;
@@ -363,6 +363,7 @@ export interface FiestaEnPlanificacion {
   decoracion?: DecoracionData;
   invitados?: Invitado[];
   clientChecklist?: ClientTarea[];
+  clientNotes?: string; // Added field for client notes
   webPageSettings?: EventWebPageSettings;
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;

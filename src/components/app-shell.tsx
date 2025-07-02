@@ -82,6 +82,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
+  if (pathname === '/fiestas/nueva/notas-cliente') return 'Notas del Cliente';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -160,6 +161,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
+    if (pathname === '/fiestas/nueva/notas-cliente') return StickyNote;
     return PartyPopper;
   }
 

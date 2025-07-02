@@ -102,8 +102,8 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             itinerario: { visible: oldSettings.showItinerario, editable: false },
             musica: { visible: oldSettings.showMusica, editable: true },
             videoVida: { visible: oldSettings.showVideoVida, editable: true },
-            listaRegalos: { visible: oldSettings.showListaRegalos, editable: false },
-            documentos: { visible: oldSettings.showDocumentos || oldSettings.showPresupuesto || oldSettings.showContrato, editable: false },
+            listaRegalos: { visible: oldSettings.showListaRegalos },
+            documentos: { visible: oldSettings.showDocumentos || oldSettings.showPresupuesto || oldSettings.showContrato },
             notasCliente: { visible: oldSettings.showNotasCliente, editable: true },
         };
     } else if (!parsedData.clientPortalSettings) {
@@ -376,7 +376,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         fechaLimite: t.fechaLimite,
         horaVencimiento: t.horaVencimiento || undefined,
         recordatorio: t.recordatorio || undefined,
-        asignadaA: t.asignadaA,
+        asignadaA: t.asignadaA || 'Organizador',
         esPredeterminada: t.esPredeterminada || false,
     })),
     decoracion: validatedDecoracion,
@@ -393,6 +393,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       checkInTimestamp: inv.checkInTimestamp || undefined,
     })),
     clientChecklist: validatedClientChecklist,
+    clientNotes: data.clientNotes || '',
     webPageSettings: validatedWebPageSettings,
     clientPortalSettings: validatedClientPortalSettings,
     socialGallerySettings: validatedSocialGallerySettings,
@@ -593,6 +594,20 @@ export async function updateClientChecklist(
   }
 }
 
+export async function updateClientNotes(
+  notes: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        let fiestaActual = await getFiestaActual();
+        fiestaActual.clientNotes = notes;
+        await writeFiestaActualFile(fiestaActual);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || "Error al actualizar las notas del cliente."};
+    }
+}
+
+
 export async function updateTareasFiestaActual(
   nuevasTareas: Tarea[]
 ): Promise<{ success: boolean; updatedData?: Tarea[]; error?: string }> {
@@ -606,7 +621,7 @@ export async function updateTareasFiestaActual(
         fechaLimite: t.fechaLimite,
         horaVencimiento: t.horaVencimiento || undefined,
         recordatorio: t.recordatorio || undefined,
-        asignadaA: t.asignadaA,
+        asignadaA: t.asignadaA || 'Organizador',
         esPredeterminada: t.esPredeterminada || false,
     }));
     await writeFiestaActualFile(fiestaActual);

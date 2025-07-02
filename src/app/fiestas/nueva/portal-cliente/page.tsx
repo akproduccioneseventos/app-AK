@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
@@ -204,7 +205,7 @@ export default function PortalUnificadoPage() {
       setIsSavingChecklist(false);
     };
 
-    const handleAddTask = async (e: FormEvent) => {
+    const handleAddTask = (e: FormEvent) => {
       e.preventDefault();
       if (!newTaskText.trim()) { toast({ title: "Título Requerido", variant: "destructive" }); return; }
       const newTask: ClientTarea = {
@@ -215,7 +216,7 @@ export default function PortalUnificadoPage() {
       };
       const updatedTareas = [newTask, ...tareas];
       setTareas(updatedTareas);
-      await handleChecklistSave(updatedTareas);
+      handleChecklistSave(updatedTareas); // Asynchronously save
       setNewTaskText('');
     };
 
@@ -301,7 +302,6 @@ export default function PortalUnificadoPage() {
         { id: "musica", title: "Música", label: "Preferencias Musicales", icon: Music2, href: "/fiestas/nueva/musica", isExternal: false },
         { id: "videoVida", title: "Video de Vida", label: "Carga de Fotos para Video de Vida", icon: Camera, href: "/fiestas/nueva/video-vida", isExternal: false },
         { id: "listaRegalos", title: "Regalos", label: "Lista de Regalos", icon: Gift, href: "/fiestas/nueva/regalos", isExternal: false },
-        { id: "notasCliente", title: "Notas Cliente", label: "Notas y Preferencias del Cliente", icon: StickyNote, href: "#", isExternal: false },
     ];
     
     const accesosDirectos = [
@@ -312,6 +312,7 @@ export default function PortalUnificadoPage() {
         { title: "Video de Vida", href: "/fiestas/nueva/video-vida", icon: Camera, isExternal: false },
         { title: "Lista de Regalos", href: "/fiestas/nueva/regalos", icon: Gift, isExternal: false },
         { title: "Documentos", href: "/fiestas/nueva/gestion-documental", icon: FileText, isExternal: false },
+        { title: "Notas del Cliente", href: "/fiestas/nueva/notas-cliente", icon: StickyNote, isExternal: false },
         { title: "Ver Página Pública", href: `/evento/actual`, icon: Globe, isExternal: true },
         { title: "Ver Galería Social", href: `/evento/social/${fiestaId}`, icon: Camera, isExternal: true },
     ];
@@ -412,9 +413,11 @@ export default function PortalUnificadoPage() {
                             <CardContent>
                                 <div className="space-y-4">
                                     <div className="space-y-3 p-3 border rounded-md bg-muted/30">
+                                      <form onSubmit={handleAddTask}>
                                         <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
-                                        <div className="space-y-1"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
-                                        <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
+                                        <div className="space-y-1 mt-2"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
+                                        <Button type="submit" size="sm" disabled={isSavingChecklist} className="mt-2"><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
+                                      </form>
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Progreso: {completedCount}/{totalCount}</Label>
@@ -425,7 +428,7 @@ export default function PortalUnificadoPage() {
                                             <ul className="space-y-2">
                                                 {tareas.map((task) => (
                                                     <li key={task.id} className="flex items-start gap-3">
-                                                        <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist || !settings.portal.checklist.editable} />
+                                                        <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
                                                         <div className="flex-grow"><Label htmlFor={`task-client-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
                                                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTask(task.id)} disabled={isSavingChecklist}><Trash2 className="w-4 h-4" /></Button>
                                                     </li>
