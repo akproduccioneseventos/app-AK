@@ -8,6 +8,7 @@ import path from 'path';
 const VIDEO_VIDA_DIR_NAME = 'life-story-videos';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const videoVidaDirectoryPath = path.join(dataDirectory, VIDEO_VIDA_DIR_NAME);
+const MAX_VIDEO_VIDA_PHOTOS = 50; // Límite de fotos para el video de vida
 
 async function ensureVideoVidaDirectoryExists() {
   try {
@@ -31,22 +32,27 @@ export async function saveLifeStoryVideoPhotos(formData: FormData): Promise<{ su
   if (files.length === 0) {
     return { success: false, error: "No se subieron fotos." };
   }
+  if (files.length > MAX_VIDEO_VIDA_PHOTOS) {
+    return { success: false, error: `Se ha alcanzado el límite de ${MAX_VIDEO_VIDA_PHOTOS} fotos para el video.` };
+  }
 
   const eventPhotoDirPath = path.join(videoVidaDirectoryPath, fiestaId);
 
   try {
     await fs.mkdir(eventPhotoDirPath, { recursive: true });
 
-    // Delete existing files to ensure a clean slate
+    // This logic has been corrected. The user uploads all photos at once.
+    // The previous state should be completely replaced by the new upload.
     const existingFiles = await fs.readdir(eventPhotoDirPath);
     for (const file of existingFiles) {
         await fs.unlink(path.join(eventPhotoDirPath, file));
     }
 
-    // Save new files with numeric order
+    // Save new files with numeric order based on their position in the FormData
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const fileExtension = path.extname(file.name);
+      // The name reflects the order in which they were received.
       const newFilename = `${String(i + 1).padStart(2, '0')}${fileExtension}`;
       const filePath = path.join(eventPhotoDirPath, newFilename);
       
@@ -55,7 +61,7 @@ export async function saveLifeStoryVideoPhotos(formData: FormData): Promise<{ su
       await fs.writeFile(filePath, buffer);
     }
     
-    // Update fiesta data
+    // Update fiesta data to mark that photos have been uploaded
     await updateVideoVidaSettings({
         photosUploaded: true,
         uploadDate: new Date().toISOString(),

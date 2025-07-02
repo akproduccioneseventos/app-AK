@@ -7,6 +7,7 @@ import path from 'path';
 
 const SOCIAL_GALLERY_DIR = path.join(process.cwd(), 'src', 'data', 'social-gallery');
 const SOCIAL_GALLERY_METADATA_FILE = path.join(SOCIAL_GALLERY_DIR, 'metadata.json');
+const MAX_PHOTOS_PER_EVENT = 200; // Límite de fotos por evento
 
 async function ensureDataDirectoryExists() {
   try {
@@ -31,7 +32,7 @@ async function readMetadataFile(): Promise<SocialGalleryPost[]> {
 async function writeMetadataFile(data: SocialGalleryPost[]): Promise<void> {
   await ensureDataDirectoryExists();
   const sortedData = data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  await fs.writeFile(SOCIAL_GALLERY_METADATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  await fs.writeFile(SOCIAL_GALLERY_METADATA_FILE, JSON.stringify(sortedData, null, 2), 'utf-8');
 }
 
 
@@ -48,6 +49,12 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
   if (!fiestaId || !file) {
     return { success: false, error: "Faltan datos (ID de fiesta o archivo)." };
   }
+  
+  const allPosts = await readMetadataFile();
+  const postsOfFiesta = allPosts.filter(p => p.fiestaId === fiestaId);
+  if (postsOfFiesta.length >= MAX_PHOTOS_PER_EVENT) {
+    return { success: false, error: `Se ha alcanzado el límite de ${MAX_PHOTOS_PER_EVENT} fotos para la galería de este evento.` };
+  }
 
   const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
   try {
@@ -61,7 +68,6 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
     const bytes = await file.arrayBuffer();
     await fs.writeFile(filePath, Buffer.from(bytes));
 
-    const allPosts = await readMetadataFile();
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId: fiestaId,
