@@ -125,8 +125,7 @@ export default function PortalUnificadoPage() {
       setIsSavingChecklist(false);
     };
 
-    const handleAddTask = (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
+    const handleAddTask = () => {
       if (!newTaskText.trim()) { toast({ title: "Título Requerido", variant: "destructive" }); return; }
       const newTask: ClientTarea = {
         id: `task_client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -191,11 +190,16 @@ export default function PortalUnificadoPage() {
     ];
     
     const accesosDirectos = [
-        { title: "Gestionar Invitados", href: "/fiestas/nueva/invitados", icon: Users, isExternal: false },
+        { title: "Gestionar Invitados", href: "/fiestas/nueva/invitados", icon: Users },
         { title: "Ver Página Pública", href: `/evento/actual`, icon: Globe, isExternal: true },
         { title: "Ver Galería Social", href: `/evento/social/${fiestaId}`, icon: Camera, isExternal: true },
+        { title: "Gestionar Itinerario", href: "/fiestas/nueva/itinerario", icon: Clock },
+        { title: "Gestionar Música", href: "/fiestas/nueva/musica", icon: Music2 },
+        { title: "Gestionar Lista Regalos", href: "/fiestas/nueva/regalos", icon: Gift },
+        { title: "Gestionar Video de Vida", href: "/fiestas/nueva/video-vida", icon: Camera },
+        { title: "Gestionar Documentos", href: "/fiestas/nueva/gestion-documental", icon: FileText },
+        { title: "Ver/Editar Notas Cliente", href: "/fiestas/nueva/notas-cliente", icon: StickyNote },
     ];
-
 
     return (
         <div className="max-w-4xl mx-auto space-y-8">
@@ -206,7 +210,7 @@ export default function PortalUnificadoPage() {
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
-
+            
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Columna Izquierda: Panel de Control */}
@@ -336,3 +340,4 @@ export default function PortalUnificadoPage() {
         </div>
     );
 }
+
