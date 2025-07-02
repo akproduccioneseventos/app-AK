@@ -21,18 +21,8 @@ import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
   ClipboardCheck, FileText, Music2, Gift, Camera, StickyNote, Lock, Clock, PlusCircle, User, UserCog, Trash2, Users
 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface SectionCardProps {
     title: string;
@@ -94,23 +84,23 @@ export default function PortalUnificadoPage() {
         loadData();
     }, [loadData]);
     
-    const handlePortalSettingChange = (key: string, value: boolean) => {
-        const keys = key.split('.');
+    const handleNestedSettingChange = <T extends keyof ClientPortalSettings>(
+        section: T,
+        property: keyof ClientPortalSettings[T],
+        value: boolean
+    ) => {
         setPortalSettings(prev => {
-            const newSettings = { ...prev };
-            if (keys.length === 2) {
-                const [parentKey, childKey] = keys as [keyof ClientPortalSettings, 'visible' | 'editable'];
-                const parentObject = newSettings[parentKey];
-                if (typeof parentObject === 'object' && parentObject !== null) {
-                    (newSettings as any)[parentKey] = {
-                        ...parentObject,
-                        [childKey]: value,
-                    };
-                }
-            } else {
-                (newSettings as any)[key] = value;
-            }
-            return newSettings;
+            if (!prev || typeof prev[section] !== 'object') return prev;
+            
+            const updatedSection = {
+                ...prev[section],
+                [property]: value
+            };
+
+            return {
+                ...prev,
+                [section]: updatedSection
+            };
         });
     };
 
@@ -223,7 +213,7 @@ export default function PortalUnificadoPage() {
                             <CardContent className="space-y-4">
                                 <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
                                     <Label htmlFor="portal-enabled" className="text-base font-medium">Activar Portal del Cliente</Label>
-                                    <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => handlePortalSettingChange('enabled', val)} />
+                                    <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => setPortalSettings(p => p ? {...p, enabled: val} : null)} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portal-password" className="flex items-center gap-2"><Lock className="w-4 h-4 text-primary/80"/>Contraseña de Acceso</Label>
@@ -231,7 +221,7 @@ export default function PortalUnificadoPage() {
                                         id="portal-password"
                                         type="text"
                                         value={portalSettings.accessKey || ''}
-                                        onChange={(e) => handlePortalSettingChange('accessKey', e.target.value as any)}
+                                        onChange={(e) => setPortalSettings(p => p ? {...p, accessKey: e.target.value} : null)}
                                         placeholder="Deja en blanco para acceso público"
                                         disabled={!portalSettings.enabled || isSaving}
                                     />
@@ -239,13 +229,19 @@ export default function PortalUnificadoPage() {
                                 <Separator />
                                 <div className="space-y-3">
                                     <h4 className="text-sm font-medium text-muted-foreground">Secciones Visibles para el Cliente:</h4>
-                                    {portalModuleList.map(section => {
-                                        const sectionSettings = (portalSettings as any)[section.id];
-                                        if (!sectionSettings) return null;
+                                     {portalModuleList.map(section => {
+                                        const sectionKey = section.id as keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>;
+                                        const sectionSettings = portalSettings[sectionKey];
+
+                                        if (!sectionSettings) {
+                                            return <div key={section.id} className="text-xs text-destructive">Error: No se encontró config. para {section.label}</div>;
+                                        }
+                                        
+                                        const canBeEditable = 'editable' in sectionSettings;
 
                                         return (
-                                            <div key={section.id} className="flex items-center justify-between text-sm">
-                                                <Label htmlFor={`portal-${section.id}.visible`} className="flex items-center gap-2 font-normal">
+                                            <div key={section.id} className="flex items-center justify-between text-sm p-2 rounded-md hover:bg-background">
+                                                <Label htmlFor={`portal-${section.id}.visible`} className="flex items-center gap-2 font-normal cursor-pointer">
                                                     <section.icon className="w-4 h-4 text-primary/80" />
                                                     {section.label}
                                                 </Label>
@@ -253,17 +249,20 @@ export default function PortalUnificadoPage() {
                                                     <Switch
                                                         id={`portal-${section.id}.visible`}
                                                         checked={sectionSettings.visible}
-                                                        onCheckedChange={(val) => handlePortalSettingChange(`${section.id}.visible`, val)}
+                                                        onCheckedChange={(val) => handleNestedSettingChange(sectionKey, 'visible', val)}
                                                         disabled={!portalSettings.enabled || isSaving}
                                                     />
-                                                    {section.editable && (
+                                                    {section.editable && canBeEditable && (
                                                         <Select
-                                                            value={sectionSettings.editable ? 'edit' : 'view'}
-                                                            onValueChange={(v) => handlePortalSettingChange(`${section.id}.editable`, v === 'edit')}
+                                                            value={(sectionSettings as {editable?: boolean}).editable ? 'edit' : 'view'}
+                                                            onValueChange={(v) => handleNestedSettingChange(sectionKey, 'editable', v === 'edit')}
                                                             disabled={!sectionSettings.visible || !portalSettings.enabled || isSaving}
                                                         >
                                                             <SelectTrigger className="h-7 text-xs w-[80px]"><SelectValue/></SelectTrigger>
-                                                            <SelectContent><SelectItem value="view">Ver</SelectItem><SelectItem value="edit">Editar</SelectItem></SelectContent>
+                                                            <SelectContent>
+                                                                <SelectItem value="view">Ver</SelectItem>
+                                                                <SelectItem value="edit">Editar</SelectItem>
+                                                            </SelectContent>
                                                         </Select>
                                                     )}
                                                 </div>
@@ -301,11 +300,9 @@ export default function PortalUnificadoPage() {
                             <CardContent>
                                 <div className="space-y-4">
                                     <div className="space-y-3 p-3 border rounded-md bg-muted/30">
-                                      <div>
-                                          <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
-                                          <div className="space-y-1 mt-2"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
-                                          <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist || !newTaskText.trim()} className="mt-2"><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
-                                      </div>
+                                      <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
+                                      <div className="space-y-1 mt-2"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
+                                      <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist || !newTaskText.trim()} className="mt-2"><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Progreso: {completedCount}/{totalCount}</Label>
@@ -340,4 +337,3 @@ export default function PortalUnificadoPage() {
         </div>
     );
 }
-
