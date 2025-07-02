@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
@@ -270,12 +271,12 @@ export default function PortalUnificadoPage() {
     if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
     const portalSections = [
-        { id: "documentos", label: "Documentos (Contrato/Presupuesto/Facturas)", icon: FileText, href: "/fiestas/nueva/gestion-documental" },
-        { id: "itinerario", label: "Itinerario del Evento", icon: Clock, href: "/fiestas/nueva/itinerario" },
-        { id: "musica", label: "Preferencias Musicales", icon: Music2, href: "/fiestas/nueva/musica" },
-        { id: "videoVida", label: "Carga de Fotos para Video de Vida", icon: Camera, href: "/fiestas/nueva/video-vida" },
-        { id: "listaRegalos", label: "Lista de Regalos", icon: Gift, href: "/fiestas/nueva/regalos" },
-        { id: "notasCliente", label: "Notas y Preferencias del Cliente", icon: StickyNote, href: "#" }, // No direct link for now
+        { id: "documentos", title: "Documentos", label: "Documentos (Contrato/Presupuesto/Facturas)", icon: FileText, href: "/fiestas/nueva/gestion-documental", isExternal: false },
+        { id: "itinerario", title: "Itinerario", label: "Itinerario del Evento", icon: Clock, href: "/fiestas/nueva/itinerario", isExternal: false },
+        { id: "musica", title: "Música", label: "Preferencias Musicales", icon: Music2, href: "/fiestas/nueva/musica", isExternal: false },
+        { id: "videoVida", title: "Video de Vida", label: "Carga de Fotos para Video de Vida", icon: Camera, href: "/fiestas/nueva/video-vida", isExternal: false },
+        { id: "listaRegalos", title: "Regalos", label: "Lista de Regalos", icon: Gift, href: "/fiestas/nueva/regalos", isExternal: false },
+        { id: "notasCliente", title: "Notas Cliente", label: "Notas y Preferencias del Cliente", icon: StickyNote, href: "#", isExternal: false },
     ];
 
     const webSections = [
@@ -350,14 +351,16 @@ export default function PortalUnificadoPage() {
                                 <div>
                                     <h4 className="text-sm font-medium text-muted-foreground mb-3">Accesos directos a módulos</h4>
                                     <div className="grid grid-cols-2 gap-2">
-                                        {portalSections.map(section => (
-                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2" key={section.href}>
-                                            <Link href={section.href}><section.icon className="w-4 h-4 mr-2 shrink-0" />{section.title}</Link>
-                                        </Button>
+                                        {portalSections
+                                            .filter(section => section.href !== '#')
+                                            .map(section => (
+                                            <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2" key={section.href}>
+                                                <Link href={section.href} target={section.isExternal ? "_blank" : "_self"}>
+                                                    <section.icon className="w-4 h-4 mr-2 shrink-0" />
+                                                    {section.title}
+                                                </Link>
+                                            </Button>
                                         ))}
-                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
-                                            <Link href="#"><StickyNote className="w-4 h-4 mr-2 shrink-0" />Notas Cliente</Link>
-                                        </Button>
                                     </div>
                                 </div>
                             </CardContent>
