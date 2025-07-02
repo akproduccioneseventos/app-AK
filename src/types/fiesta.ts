@@ -169,6 +169,8 @@ export interface ClientPortalSettings {
   listaRegalos: PortalViewOnlyModuleSettings;
   documentos: PortalViewOnlyModuleSettings;
   notasCliente: PortalModuleSettings;
+  invitados: PortalViewOnlyModuleSettings;
+  paginaPublica: PortalViewOnlyModuleSettings;
 }
 
 export interface SocialGallerySettings {

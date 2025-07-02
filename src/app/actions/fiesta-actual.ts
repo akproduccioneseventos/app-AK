@@ -99,7 +99,7 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
             enabled: oldSettings.enabled,
             accessKey: oldSettings.accessKey,
             checklist: { visible: oldSettings.showChecklist, editable: true },
-            itinerario: { visible: oldSettings.showItinerario, editable: false },
+            itinerario: { visible: oldSettings.showItinerario },
             musica: { visible: oldSettings.showMusica, editable: true },
             videoVida: { visible: oldSettings.showVideoVida, editable: true },
             listaRegalos: { visible: oldSettings.showListaRegalos },
@@ -306,6 +306,8 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       listaRegalos: { ...defaultClientPortalSettings.listaRegalos, ...(data.clientPortalSettings?.listaRegalos || {}) },
       documentos: { ...defaultClientPortalSettings.documentos, ...(data.clientPortalSettings?.documentos || {}) },
       notasCliente: { ...defaultClientPortalSettings.notasCliente, ...(data.clientPortalSettings?.notasCliente || {}) },
+      invitados: { ...defaultClientPortalSettings.invitados, ...(data.clientPortalSettings?.invitados || {}) },
+      paginaPublica: { ...defaultClientPortalSettings.paginaPublica, ...(data.clientPortalSettings?.paginaPublica || {}) },
     };
 
 

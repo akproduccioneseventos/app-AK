@@ -118,6 +118,8 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
   listaRegalos: { visible: false },
   documentos: { visible: true },
   notasCliente: { visible: false, editable: true },
+  invitados: { visible: true },
+  paginaPublica: { visible: true },
 };
 
 export const defaultSocialGallerySettings: SocialGallerySettings = {

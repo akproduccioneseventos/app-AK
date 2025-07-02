@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -13,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
@@ -170,6 +170,8 @@ export default function PortalUnificadoPage() {
     if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
     const portalModuleList = [
+        { id: 'paginaPublica', label: 'Ver Página Pública', icon: Globe, editable: false },
+        { id: 'invitados', label: 'Lista de Invitados', icon: Users, editable: false },
         { id: 'checklist', label: 'Checklist Cliente', icon: ClipboardCheck, editable: true },
         { id: 'documentos', label: 'Documentos', icon: FileText, editable: false },
         { id: 'itinerario', label: 'Itinerario', icon: Clock, editable: false },
@@ -313,7 +315,7 @@ export default function PortalUnificadoPage() {
                                             <ul className="space-y-2">
                                                 {tareas.map((task) => (
                                                     <li key={task.id} className="flex items-start gap-3">
-                                                        <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist || !portalSettings.checklist.editable} />
+                                                        <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
                                                         <div className="flex-grow">
                                                             <Label htmlFor={`task-client-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label>
                                                             <div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div>
