@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -110,7 +109,7 @@ export default function GestorFiestasPage() {
         <div className="flex items-center gap-3">
           <CalendarClock className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestor de Fiestas y Eventos
+            Gestor de Fiestas y Eventos General
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
