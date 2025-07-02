@@ -22,7 +22,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import NextImage from 'next/image';
 import { Progress } from '@/components/ui/progress';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
   ClipboardCheck, FileText, Banknote, Music2, Gift, Camera, StickyNote, Lock, QrCode, Clock, Wand2, Plus, PlusCircle, UserCog, User, Trash2
@@ -180,7 +179,8 @@ export default function PortalUnificadoPage() {
       setIsSavingChecklist(false);
     };
 
-    const handleAddTask = async () => {
+    const handleAddTask = async (e: FormEvent) => {
+      e.preventDefault();
       if (!newTaskText.trim()) { toast({ title: "Título Requerido", variant: "destructive" }); return; }
       const newTask: ClientTarea = {
         id: `task_client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -278,6 +278,16 @@ export default function PortalUnificadoPage() {
         { id: "listaRegalos", title: "Regalos", label: "Lista de Regalos", icon: Gift, href: "/fiestas/nueva/regalos", isExternal: false },
         { id: "notasCliente", title: "Notas Cliente", label: "Notas y Preferencias del Cliente", icon: StickyNote, href: "#", isExternal: false },
     ];
+    
+    const accesosDirectos = [
+        { title: "Checklist Cliente", href: "#checklist-cliente", icon: ClipboardCheck },
+        { title: "Documentos", href: "/fiestas/nueva/gestion-documental", icon: FileText },
+        { title: "Itinerario", href: "/fiestas/nueva/itinerario", icon: Clock },
+        { title: "Música", href: "/fiestas/nueva/musica", icon: Music2 },
+        { title: "Video de Vida", href: "/fiestas/nueva/video-vida", icon: Camera },
+        { title: "Lista de Regalos", href: "/fiestas/nueva/regalos", icon: Gift },
+    ];
+
 
     const webSections = [
         { id: "showCountdown", label: "Contador Regresivo" },
@@ -340,26 +350,24 @@ export default function PortalUnificadoPage() {
                                     </div>
                                     {portalSections.map(section => (
                                         <div key={section.id} className="flex items-center justify-between text-sm">
-                                            <Label htmlFor={`portal-${section.id}`} className="flex items-center gap-2 font-normal">
+                                            <Label htmlFor={`portal-${section.id}.visible`} className="flex items-center gap-2 font-normal">
                                                 <section.icon className="w-4 h-4 text-primary/80"/>{section.label}
                                             </Label>
-                                             <Switch id={`portal-${section.id}`} checked={(settings.portal as any)[section.id]?.visible} onCheckedChange={(val) => handlePortalSettingChange(`${section.id}.visible`, val)} disabled={!settings.portal.enabled} />
+                                             <Switch id={`portal-${section.id}.visible`} checked={(settings.portal as any)[section.id]?.visible} onCheckedChange={(val) => handlePortalSettingChange(`${section.id}.visible`, val)} disabled={!settings.portal.enabled} />
                                         </div>
                                     ))}
                                 </div>
-                                 <Separator className="my-4" />
+                                <Separator className="my-4" />
                                 <div>
                                     <h4 className="text-sm font-medium text-muted-foreground mb-3">Accesos directos a módulos</h4>
                                     <div className="grid grid-cols-2 gap-2">
-                                        {portalSections
-                                            .filter(section => section.href !== '#')
-                                            .map(section => (
-                                            <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2" key={section.href}>
-                                                <Link href={section.href} target={section.isExternal ? "_blank" : "_self"}>
-                                                    <section.icon className="w-4 h-4 mr-2 shrink-0" />
-                                                    {section.title}
-                                                </Link>
-                                            </Button>
+                                        {accesosDirectos.map(link => (
+                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2" key={link.href}>
+                                            <Link href={link.href}>
+                                                <link.icon className="w-4 h-4 mr-2 shrink-0" />
+                                                {link.title}
+                                            </Link>
+                                        </Button>
                                         ))}
                                     </div>
                                 </div>
@@ -368,7 +376,7 @@ export default function PortalUnificadoPage() {
                     </div>
                     {/* Columna Derecha: Página Pública, Checklist y Galería Social */}
                     <div className="lg:col-span-2 space-y-6">
-                        <Card className="shadow-lg">
+                        <Card className="shadow-lg" id="checklist-cliente">
                            <CardHeader>
                                 <CardTitle className="font-headline text-xl flex items-center gap-2"><ClipboardCheck className="text-primary"/>Checklist Compartida con Cliente</CardTitle>
                                 <CardDescription>Gestiona las tareas que el cliente verá en su portal.</CardDescription>
@@ -377,7 +385,7 @@ export default function PortalUnificadoPage() {
                                 <div className="space-y-4">
                                      <div className="space-y-3 p-3 border rounded-md bg-muted/30">
                                         <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
-                                        <div className="space-y-1"><Label>Asignar a:</Label><RadioGroup value={newTaskAssignedTo} onValueChange={(val) => setNewTaskAssignedTo(val as TareaAsignadaA)} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Cliente" id="assign-cliente" /><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="Organizador" id="assign-organizador" /><Label htmlFor="assign-organizador">Organizador</Label></div></RadioGroup></div>
+                                        <div className="space-y-1"><Label>Asignar a:</Label><div className="flex gap-4"><div className="flex items-center space-x-2"><Checkbox id="assign-cliente" checked={newTaskAssignedTo === 'Cliente'} onCheckedChange={() => setNewTaskAssignedTo('Cliente')}/><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><Checkbox id="assign-organizador" checked={newTaskAssignedTo === 'Organizador'} onCheckedChange={() => setNewTaskAssignedTo('Organizador')}/><Label htmlFor="assign-organizador">Organizador</Label></div></div></div>
                                         <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
                                     </div>
                                     <div className="space-y-2">
