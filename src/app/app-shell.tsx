@@ -135,7 +135,7 @@ const getPageTitle = (pathname: string): string => {
     }
     return title;
   }
-  return 'AK Producciones';
+  return 'Menú Principal';
 };
 
 const getPageIcon = (pathname: string): React.ElementType | null => {

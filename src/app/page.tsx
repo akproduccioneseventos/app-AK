@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getCustomers } from '@/app/actions/customers';
@@ -13,6 +12,7 @@ import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getInvoices } from '@/app/actions/invoices';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { useToast } from '@/hooks/use-toast';
+import { triggerAppLogout } from '@/components/auth-guard';
 
 interface ModuleCardProps {
   title: string;
@@ -29,7 +29,7 @@ const modules: ModuleCardProps[] = [
 ];
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, href, icon: Icon }) => (
-  <Link href={href} className="group flex flex-col h-full no-underline">
+    <Link href={href} className="group flex flex-col h-full no-underline">
     <Card className="flex flex-col h-full shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3 mb-2">
@@ -116,6 +116,10 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
+  const handleLogoutClick = () => {
+    triggerAppLogout();
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -136,6 +140,10 @@ export default function DashboardPage() {
                   Crear Nuevo Presupuesto
               </Button>
           </Link>
+           <Button onClick={handleLogoutClick} variant="destructive" size="lg" className="rounded-full px-4 py-3 text-base sm:px-6 sm:py-5 sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
+                <LogOut className="w-6 h-6 mr-2.5" />
+                Cerrar Sesión
+            </Button>
         </div>
       </div>
       
