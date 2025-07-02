@@ -26,7 +26,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
   ClipboardCheck, FileText, Banknote, FileSignature, Users, User, UserCog,
-  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2, Plus, PlusCircle, Gift
+  Music2, ChefHat, Image as ImageIcon, Trash2, ExternalLink, Lock, Camera, QrCode, Clock, Wand2, Plus, PlusCircle, Gift, StickyNote
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -40,6 +40,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type PortalSettingsForm = {
     portal: ClientPortalSettings;
@@ -271,12 +272,12 @@ export default function PortalUnificadoPage() {
     if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
     const portalSections = [
-        { id: "documentos", label: "Documentos (Contrato/Presupuesto/Facturas)" },
-        { id: "itinerario", label: "Itinerario del Evento" },
-        { id: "musica", label: "Preferencias Musicales" },
-        { id: "videoVida", label: "Carga de Fotos para Video de Vida" },
-        { id: "listaRegalos", label: "Lista de Regalos" },
-        { id: "notasCliente", label: "Notas y Preferencias del Cliente" },
+        { id: "documentos", label: "Documentos (Contrato/Presupuesto/Facturas)", icon: FileText },
+        { id: "itinerario", label: "Itinerario del Evento", icon: Clock },
+        { id: "musica", label: "Preferencias Musicales", icon: Music2 },
+        { id: "videoVida", label: "Carga de Fotos para Video de Vida", icon: Camera },
+        { id: "listaRegalos", label: "Lista de Regalos", icon: Gift },
+        { id: "notasCliente", label: "Notas y Preferencias del Cliente", icon: StickyNote },
     ];
 
     const webSections = [
@@ -295,7 +296,7 @@ export default function PortalUnificadoPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Globe className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Página Pública y Portal</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del Cliente</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
