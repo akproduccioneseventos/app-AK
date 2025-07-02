@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -42,6 +42,7 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
+  if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
   if (pathname === '/empresa/todos-los-servicios') return 'Inventario General y Valor de Activos';
@@ -61,7 +62,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
   if (pathname === '/fiestas/nueva/invitados/layout') return 'Diseño de Mesas y Salón';
-  if (pathname === '/fiestas/nueva/checklist-cliente') return 'Checklist del Cliente';
+  if (pathname === '/fiestas/nueva/itinerario') return 'Itinerario del Evento';
   if (pathname === '/fiestas/nueva/servicios-contratados') return 'Servicios Contratados';
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
@@ -80,9 +81,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
-  if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública y Portal';
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
+  if (pathname === '/fiestas/nueva/notas-cliente') return 'Notas del Cliente';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -134,7 +135,7 @@ const getPageTitle = (pathname: string): string => {
     }
     return title;
   }
-  return 'AK Producciones';
+  return 'Plataforma Fiestas';
 };
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
@@ -147,11 +148,11 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
-    if (pathname === '/fiestas/nueva/pagina-web' || pathname === '/fiestas/nueva/portal-cliente') return Globe;
+    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
-    if (pathname === '/fiestas/nueva/checklist-cliente') return ClipboardCheck;
+    if (pathname === '/fiestas/nueva/itinerario') return Clock;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
     if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardListIcon;
@@ -161,11 +162,13 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
+    if (pathname === '/fiestas/nueva/notas-cliente') return StickyNote;
     return PartyPopper;
   }
 
   if (pathname === '/empresa') return Building2;
   if (pathname === '/empresa/contabilidad') return BarChart3; 
+  if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
   if (pathname === '/empresa/todos-los-servicios') return Package; 
   if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
   if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;
@@ -245,7 +248,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <AppLogo />
           <span className="mx-2 text-muted-foreground">|</span>
           {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
-          <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -277,7 +280,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
-      <main className="flex-1 p-4 md:p-6 lg:p-8 bg-background">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
     </div>
