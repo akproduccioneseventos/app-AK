@@ -176,7 +176,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
 
   if (pathname === '/proveedores') return Briefcase;
-  if (pathname === '/proveedores/new') return UserPlusIcon;
+  if (pathname === '/proveedores/new') return UserPlus2Icon;
   if (pathname === '/empleados') return ContactRound;
   if (pathname === '/empleados/roles') return SettingsIcon;
   if (pathname === '/customers') return Users;
@@ -187,7 +187,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/notas') return StickyNote;
 
   if (pathname === '/login') return LogInIcon;
-  if (pathname === '/signup') return UserPlusIcon;
+  if (pathname === '/signup') return UserPlus2Icon;
 
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;

@@ -14,8 +14,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Plataforma para Servicios de Fiestas Integral',
-  description: 'Plataforma integral para la planificación y gestión de servicios para fiestas y eventos.',
+  title: 'AK Producciones',
+  description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
 };
 
 export default function RootLayout({
