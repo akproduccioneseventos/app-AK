@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye } from 'lucide-react'; // Added Eye icon
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search } from 'lucide-react'; // Added Eye and Search icon
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
@@ -31,6 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from '@/components/ui/input'; // Added Input
 
 
 const getCustomerStatusBadgeVariant = (status?: CustomerStatus): "default" | "secondary" | "destructive" | "outline" => {
@@ -46,9 +47,11 @@ const getCustomerStatusBadgeVariant = (status?: CustomerStatus): "default" | "se
 export default function CustomersPage() {
   const { toast } = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Record<CustomerStatus, boolean>>(
     ALL_CUSTOMER_STATES.reduce((acc, status) => ({...acc, [status]: true }), {} as Record<CustomerStatus, boolean>)
   );
@@ -68,6 +71,18 @@ export default function CustomersPage() {
   useEffect(() => {
     fetchCustomers();
   }, [fetchCustomers]);
+
+  useEffect(() => {
+    const lowercasedTerm = searchTerm.toLowerCase();
+    const filtered = customers.filter(customer => {
+      const statusMatch = customer.estadoCliente ? statusFilter[customer.estadoCliente] : statusFilter['Actual'];
+      const searchTermMatch = lowercasedTerm === '' ||
+        customer.name?.toLowerCase().includes(lowercasedTerm) ||
+        customer.companyName?.toLowerCase().includes(lowercasedTerm);
+      return statusMatch && searchTermMatch;
+    });
+    setFilteredCustomers(filtered);
+  }, [customers, searchTerm, statusFilter]);
 
   const handleDelete = async (id: string, customerName?: string) => {
     setDeletingId(id);
@@ -90,11 +105,6 @@ export default function CustomersPage() {
     setStatusFilter(prev => ({ ...prev, [status]: !prev[status]}));
   }
 
-  const filteredCustomers = customers.filter(customer => {
-    const statusMatch = customer.estadoCliente ? statusFilter[customer.estadoCliente] : statusFilter['Actual'];
-    return statusMatch;
-  });
-  
   const anyStatusFilterActive = ALL_CUSTOMER_STATES.some(status => !statusFilter[status]);
 
   const handlePrint = () => {
@@ -111,33 +121,6 @@ export default function CustomersPage() {
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Tag className="w-4 h-4 mr-2" />
-                Filtrar Estado
-                {anyStatusFilterActive && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel>Mostrar Estado del Cliente</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {ALL_CUSTOMER_STATES.map(status => (
-                <DropdownMenuCheckboxItem
-                  key={status}
-                  checked={statusFilter[status]}
-                  onCheckedChange={() => handleStatusFilterChange(status)}
-                >
-                  {status}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <Button onClick={handlePrint} variant="outline">
-            <Printer className="w-4 h-4 mr-2" /> Imprimir Lista
-          </Button>
-
           <Link href="/customers/new" passHref>
             <Button>
               <UserPlus className="w-5 h-5 mr-2" />
@@ -146,11 +129,47 @@ export default function CustomersPage() {
           </Link>
         </div>
       </div>
-
-      <Card className="shadow-lg print:shadow-none print:border-none">
-        <CardHeader className="print:hidden">
-          <CardTitle className="font-headline">Listado de Clientes ({filteredCustomers.length})</CardTitle>
-          <CardDescription>Consulta y gestiona la información de tus clientes que han firmado contrato.</CardDescription>
+      
+      <Card>
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <CardTitle className="font-headline">Listado de Clientes ({filteredCustomers.length})</CardTitle>
+              <CardDescription>Consulta y gestiona la información de tus clientes que han firmado contrato.</CardDescription>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                 <div className="relative flex-grow md:min-w-[250px]">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                    type="text"
+                    placeholder="Buscar por nombre o empresa..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10"
+                    />
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <Tag className="w-4 h-4 mr-2" />
+                      Filtrar Estado
+                      {anyStatusFilterActive && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuLabel>Mostrar Estado del Cliente</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {ALL_CUSTOMER_STATES.map(status => (
+                      <DropdownMenuCheckboxItem
+                        key={status}
+                        checked={statusFilter[status]}
+                        onCheckedChange={() => handleStatusFilterChange(status)}
+                      >
+                        {status}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
         </CardHeader>
         <CardContent className="print:p-0">
           {isLoading ? (
@@ -165,7 +184,6 @@ export default function CustomersPage() {
                   <TableRow>
                     <TableHead>Nombre / Empresa</TableHead>
                     <TableHead>Estado Cliente</TableHead>
-                    <TableHead>Email</TableHead>
                     <TableHead>Teléfono</TableHead>
                     <TableHead className="text-right print:hidden">Acciones</TableHead>
                   </TableRow>
@@ -179,11 +197,10 @@ export default function CustomersPage() {
                           {customer.estadoCliente || 'Actual'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="min-w-[180px]">{customer.email || '-'}</TableCell>
                       <TableCell className="min-w-[130px]">{customer.phone || '-'}</TableCell>
-                      <TableCell className="text-right min-w-[200px] print:hidden"> {/* Increased min-width for new button */}
+                      <TableCell className="text-right min-w-[200px] print:hidden">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/customers/${customer.id}`} passHref> {/* Link to new details page */}
+                          <Link href={`/customers/${customer.id}`} passHref>
                             <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${customer.companyName || customer.name}`} title="Ver Detalles">
                               <Eye className="w-4 h-4" />
                             </Button>

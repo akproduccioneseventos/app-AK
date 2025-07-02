@@ -108,6 +108,13 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: Users,
     actionLabel: 'Ir a Clientes',
   },
+   {
+    title: 'Reporte de Ganancias y Pérdidas',
+    description: 'Analiza ingresos, costos y rentabilidad en rangos de fechas.',
+    href: '/empresa/contabilidad/reportes',
+    icon: TrendingUp,
+    actionLabel: 'Generar Reporte',
+  },
 ];
 
 
