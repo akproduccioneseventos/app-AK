@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -41,7 +42,7 @@ const internalModules: PlanningModule[] = [
   { title: "Servicios Contratados", description: "Ver proveedores y servicios confirmados.", icon: ClipboardList, href: "/fiestas/nueva/servicios-contratados", status: "Disponible", actionLabel: "Ver Servicios" },
   { title: "Reuniones con Cliente", description: "Registro privado de reuniones y acuerdos.", icon: MessageSquareText, href: "/fiestas/nueva/reuniones", status: "Disponible", actionLabel: "Gestionar Reuniones" },
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
-  { title: "Gestión Documental y Financiera", description: "Contratos, presupuestos, facturas, pagos.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Administrar Documentos" },
+  { title: "Gestión Documental y Financiera", description: "Contrato, presupuesto, facturas, pagos.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Administrar Documentos" },
   { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" }
 ];
@@ -140,10 +141,10 @@ export default function PlanificarFiestaHubPage() {
     <div className="space-y-8 print:space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
+          <h2 className="text-3xl font-bold tracking-tight font-headline text-foreground mb-1">
             Planificador: {fiestaActual?.configuracion.nombreEvento || "Evento Actual"}
-          </h1>
-          <p className="text-muted-foreground mt-1">
+          </h2>
+          <p className="text-lg text-muted-foreground">
             Módulos internos para la organización de tu equipo.
           </p>
         </div>
@@ -188,7 +189,7 @@ export default function PlanificarFiestaHubPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
              <ModuleCard 
-                title="Portal del Cliente y Página Pública"
+                title="Portal del cliente"
                 description="Gestiona lo que ven el cliente y los invitados (Checklist, RSVP, etc.)."
                 href="/fiestas/nueva/portal-cliente"
                 icon={Globe}
