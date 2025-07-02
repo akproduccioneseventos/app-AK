@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
@@ -25,7 +24,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ArrowLeft, Save, Loader2, AlertTriangle, Globe, Eye,
-  ClipboardCheck, FileText, Banknote, Music2, Gift, Camera, StickyNote, Lock, QrCode, Clock, Wand2, Plus, PlusCircle
+  ClipboardCheck, FileText, Banknote, Music2, Gift, Camera, StickyNote, Lock, QrCode, Clock, Wand2, Plus, PlusCircle, UserCog, User, Trash2
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -271,12 +270,12 @@ export default function PortalUnificadoPage() {
     if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
     const portalSections = [
-        { id: "documentos", label: "Documentos (Contrato/Presupuesto/Facturas)", icon: FileText },
-        { id: "itinerario", label: "Itinerario del Evento", icon: Clock },
-        { id: "musica", label: "Preferencias Musicales", icon: Music2 },
-        { id: "videoVida", label: "Carga de Fotos para Video de Vida", icon: Camera },
-        { id: "listaRegalos", label: "Lista de Regalos", icon: Gift },
-        { id: "notasCliente", label: "Notas y Preferencias del Cliente", icon: StickyNote },
+        { id: "documentos", label: "Documentos (Contrato/Presupuesto/Facturas)", icon: FileText, href: "/fiestas/nueva/gestion-documental" },
+        { id: "itinerario", label: "Itinerario del Evento", icon: Clock, href: "/fiestas/nueva/itinerario" },
+        { id: "musica", label: "Preferencias Musicales", icon: Music2, href: "/fiestas/nueva/musica" },
+        { id: "videoVida", label: "Carga de Fotos para Video de Vida", icon: Camera, href: "/fiestas/nueva/video-vida" },
+        { id: "listaRegalos", label: "Lista de Regalos", icon: Gift, href: "/fiestas/nueva/regalos" },
+        { id: "notasCliente", label: "Notas y Preferencias del Cliente", icon: StickyNote, href: "#" }, // No direct link for now
     ];
 
     const webSections = [
@@ -347,31 +346,17 @@ export default function PortalUnificadoPage() {
                                         </div>
                                     ))}
                                 </div>
-                                <div className="pt-2">
-                                     <a href="/portal" target="_blank" rel="noopener noreferrer">
-                                        <Button type="button" variant="outline" size="sm" className="w-full">
-                                            <Eye className="w-4 h-4 mr-2"/> Previsualizar Portal del Cliente
-                                        </Button>
-                                    </a>
-                                </div>
                                  <Separator className="my-4" />
                                 <div>
                                     <h4 className="text-sm font-medium text-muted-foreground mb-3">Accesos directos a módulos</h4>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
-                                            <Link href="/fiestas/nueva/itinerario"><Clock className="w-4 h-4 mr-2 shrink-0" />Itinerario</Link>
+                                        {portalSections.map(section => (
+                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2" key={section.href}>
+                                            <Link href={section.href}><section.icon className="w-4 h-4 mr-2 shrink-0" />{section.title}</Link>
                                         </Button>
+                                        ))}
                                         <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
-                                            <Link href="/fiestas/nueva/musica"><Music2 className="w-4 h-4 mr-2 shrink-0" />Música</Link>
-                                        </Button>
-                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
-                                            <Link href="/fiestas/nueva/video-vida"><Camera className="w-4 h-4 mr-2 shrink-0" />Video de Vida</Link>
-                                        </Button>
-                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2">
-                                            <Link href="/fiestas/nueva/regalos"><Gift className="w-4 h-4 mr-2 shrink-0" />Lista de Regalos</Link>
-                                        </Button>
-                                        <Button asChild variant="outline" size="sm" className="justify-start text-left h-auto py-2 col-span-2">
-                                            <Link href="/fiestas/nueva/gestion-documental"><FileText className="w-4 h-4 mr-2 shrink-0" />Documentos</Link>
+                                            <Link href="#"><StickyNote className="w-4 h-4 mr-2 shrink-0" />Notas Cliente</Link>
                                         </Button>
                                     </div>
                                 </div>
@@ -387,7 +372,7 @@ export default function PortalUnificadoPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    <div className="space-y-3 p-3 border rounded-md bg-muted/30">
+                                     <div className="space-y-3 p-3 border rounded-md bg-muted/30">
                                         <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
                                         <div className="space-y-1"><Label>Asignar a:</Label><RadioGroup value={newTaskAssignedTo} onValueChange={(val) => setNewTaskAssignedTo(val as TareaAsignadaA)} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Cliente" id="assign-cliente" /><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="Organizador" id="assign-organizador" /><Label htmlFor="assign-organizador">Organizador</Label></div></RadioGroup></div>
                                         <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
@@ -410,88 +395,6 @@ export default function PortalUnificadoPage() {
                                         </ScrollArea>
                                     )}
                                 </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="shadow-lg">
-                            <CardHeader>
-                                <CardTitle className="font-headline text-xl">Página Pública del Evento</CardTitle>
-                                <CardDescription>Configura la página que compartirás con los invitados.</CardDescription>
-                                 <a href="/evento/actual" target="_blank" rel="noopener noreferrer">
-                                    <Button type="button" variant="secondary" size="sm" className="mt-2">
-                                        <ExternalLink className="w-4 h-4 mr-2"/> Ver Página Pública
-                                    </Button>
-                                </a>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Contenido Principal</h3>
-                                <div className="space-y-2"><Label htmlFor="page-title">Título</Label><Input id="page-title" value={settings.web.pageTitle || ''} onChange={(e) => handleWebSettingChange('pageTitle', e.target.value)} /></div>
-                                <div className="space-y-2"><Label htmlFor="hero-subtitle">Subtítulo</Label><Input id="hero-subtitle" value={settings.web.heroSubtitle || ''} onChange={(e) => handleWebSettingChange('heroSubtitle', e.target.value)} /></div>
-                                <div className="space-y-2"><Label htmlFor="welcome-message">Mensaje de Bienvenida</Label><Textarea id="welcome-message" value={settings.web.welcomeMessage || ''} onChange={(e) => handleWebSettingChange('welcomeMessage', e.target.value)} rows={3} /></div>
-                                <div className="space-y-2"><Label htmlFor="cover-image-upload">Imagen de Portada</Label><Input id="cover-image-upload" type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setCoverImagePreview)} />
-                                {coverImagePreview && <NextImage src={coverImagePreview} alt="Vista previa Portada" width={200} height={120} className="rounded object-cover mt-2" data-ai-hint="event cover photo"/>}</div>
-
-                                <Separator />
-                                <h3 className="text-lg font-medium font-headline text-primary border-b pb-2">Activar/Desactivar Secciones</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {webSections.map(section => (
-                                    <div key={section.id} className="flex items-center space-x-2">
-                                        <Checkbox id={`web-${section.id}`} checked={settings.web[section.id as keyof EventWebPageSettings] as boolean} onCheckedChange={(val) => handleWebSettingChange(section.id as keyof EventWebPageSettings, !!val)} />
-                                        <Label htmlFor={`web-${section.id}`} className="text-sm font-normal">{section.label}</Label>
-                                    </div>
-                                ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card className="shadow-lg scroll-mt-24" id="social-gallery">
-                            <CardHeader>
-                                <CardTitle className="font-headline text-xl flex items-center gap-2"><Camera className="w-6 h-6 text-primary"/>Galería Social Interactiva</CardTitle>
-                                <CardDescription>Activa una galería en vivo para que los invitados suban fotos.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
-                                    <Label htmlFor="social-gallery-enabled" className="text-base font-medium">Activar Galería Social</Label>
-                                    <Switch id="social-gallery-enabled" checked={settings.social.enabled} onCheckedChange={(val) => handleSocialSettingChange('enabled', val)} />
-                                </div>
-                                {settings.social.enabled && (
-                                <div className="space-y-4 pt-4 border-t">
-                                    <div className="flex items-center justify-between text-sm"><Label htmlFor="social-likes-enabled" className="font-normal">Permitir "Me Gusta"</Label><Switch id="social-likes-enabled" checked={settings.social.allowLikes} onCheckedChange={(val) => handleSocialSettingChange('allowLikes', val)} /></div>
-                                    <div className="flex items-center justify-between text-sm"><Label htmlFor="social-comments-enabled" className="font-normal">Permitir Comentarios</Label><Switch id="social-comments-enabled" checked={settings.social.allowComments} onCheckedChange={(val) => handleSocialSettingChange('allowComments', val)} /></div>
-                                    <div className="flex items-center justify-between text-sm"><Label htmlFor="social-uploads-enabled" className="font-normal">Permitir Subir Fotos</Label><Switch id="social-uploads-enabled" checked={settings.social.uploadsActive} onCheckedChange={(val) => handleSocialSettingChange('uploadsActive', val)} /></div>
-                                    <Separator />
-                                    <div className="space-y-2">
-                                        <Label>Enlace y QR para Invitados</Label>
-                                        <div className="flex gap-2"><Input value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} readOnly /><Button type="button" size="sm" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/evento/social/${fiestaId}`); toast({title: "Enlace Copiado"}); }}>Copiar</Button></div>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-2">
-                                        <QRCodeStylized value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/social/${fiestaId}`} size={128} />
-                                        <p className="text-xs text-muted-foreground">Muestra este QR en el evento.</p>
-                                    </div>
-                                    <Separator />
-                                    <h4 className="font-medium text-sm">Moderación</h4>
-                                    {isLoadingPosts ? <Loader2 className="animate-spin"/> : socialPosts.length > 0 ? (
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {socialPosts.map(post => (
-                                                <div key={post.id} className="relative group aspect-square">
-                                                    <NextImage src={post.imageUrl} layout="fill" objectFit="cover" alt={`Foto de ${post.authorName}`} className="rounded-md"/>
-                                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <Button variant="destructive" size="icon" className="h-8 w-8" onClick={()=>handleDeletePost(post.id)} disabled={deletingPostId===post.id}>
-                                                          {deletingPostId===post.id ? <Loader2 className="animate-spin w-4 h-4"/> : <Trash2 className="w-4 h-4"/>}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : <p className="text-xs text-muted-foreground text-center">Aún no hay fotos en la galería.</p>}
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild><Button variant="destructive" className="w-full mt-2" disabled={isClearingGallery || socialPosts.length === 0}><Trash2 className="w-4 h-4 mr-2"/>Vaciar Galería</Button></AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader><AlertDialogTitle>¿Vaciar Galería?</AlertDialogTitle><AlertDialogDescription>Se eliminarán TODAS las fotos y comentarios. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
-                                            <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleClearGallery} className="bg-destructive hover:bg-destructive/90">Sí, vaciar</AlertDialogAction></AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                </div>
-                                )}
                             </CardContent>
                         </Card>
                     </div>
