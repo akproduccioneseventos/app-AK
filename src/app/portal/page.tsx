@@ -1,15 +1,20 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, FileSignature, Users, Music2, ChefHat, ExternalLink, ClipboardCheck, Globe, Camera } from 'lucide-react';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, Music2, Gift, Camera, StickyNote, ClipboardCheck } from 'lucide-react';
+import type { FiestaEnPlanificacion, ClientTarea, TareaAsignadaA } from '@/types/fiesta';
+import { getFiestaActual, updateClientChecklist } from '@/app/actions/fiesta-actual';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -35,7 +40,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ title, description, icon: Ico
         <CardFooter>
             <Button asChild className="w-full">
                 <Link href={href} target={isExternal ? "_blank" : "_self"} rel={isExternal ? "noopener noreferrer" : undefined}>
-                    <Eye className="w-4 h-4 mr-2" /> Ver Sección
+                    <Eye className="w-4 h-4 mr-2" /> Acceder
                 </Link>
             </Button>
         </CardFooter>
@@ -43,6 +48,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ title, description, icon: Ico
 );
 
 export default function ClientPortalPage() {
+    const { toast } = useToast();
     const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -52,6 +58,12 @@ export default function ClientPortalPage() {
     const [authError, setAuthError] = useState('');
     const [portalSessionKey, setPortalSessionKey] = useState<string | null>(null);
 
+    // Client-editable modules state
+    const [clientChecklist, setClientChecklist] = useState<ClientTarea[]>([]);
+    const [clientNotes, setClientNotes] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    
+
     const loadData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
@@ -59,6 +71,9 @@ export default function ClientPortalPage() {
             const fiestaData = await getFiestaActual();
             setFiesta(fiestaData);
             setPortalSessionKey(`portal_auth_${fiestaData.id}`); // Set session key based on fiesta ID
+            setClientChecklist(fiestaData.clientChecklist || []);
+            // This is a placeholder for a future feature. Notes from client are not saved yet.
+            // setClientNotes(fiestaData.clientNotes || '');
         } catch (err: any) {
             setError("No se pudo cargar la información del portal. Por favor, contacta al organizador.");
         } finally {
@@ -94,6 +109,20 @@ export default function ClientPortalPage() {
         } else {
             setAuthError('Contraseña incorrecta.');
         }
+    };
+
+    const handleToggleTask = async (taskId: string) => {
+        const updatedTasks = clientChecklist.map(task => 
+            task.id === taskId ? {...task, completada: !task.completada} : task
+        );
+        setClientChecklist(updatedTasks);
+        setIsSaving(true);
+        const result = await updateClientChecklist(updatedTasks);
+        if(!result.success){
+            toast({title: "Error", description: "No se pudo actualizar la tarea.", variant: "destructive"});
+            await loadData(); // Revert
+        }
+        setIsSaving(false);
     };
     
     if (isLoading) {
@@ -150,33 +179,25 @@ export default function ClientPortalPage() {
     const { configuracion, clientPortalSettings } = fiesta;
 
     const sections: (SectionCardProps | null)[] = [
-        clientPortalSettings.showPresupuesto && fiesta.presupuestoId ? {
-            title: "Presupuesto", description: "Revisa el presupuesto detallado de tu evento.", icon: FileText,
-            href: `/presupuestos/${fiesta.presupuestoId}/ver`
+        clientPortalSettings?.itinerario?.visible ? {
+            title: "Itinerario", description: "Consulta el cronograma del evento.", icon: Clock,
+            href: "/evento/actual#schedule", isExternal: true,
         } : null,
-        clientPortalSettings.showPagos && fiesta.invoiceIds && fiesta.invoiceIds.length > 0 ? {
-            title: "Pagos y Facturas", description: "Consulta el estado de tus pagos y facturas.", icon: Banknote,
-            href: `/invoices/${fiesta.invoiceIds[0]}` // Links to the first invoice for now
+        clientPortalSettings?.musica?.visible ? {
+            title: "Música", description: "Revisa y sugiere canciones.", icon: Music2,
+            href: "/fiestas/nueva/musica", // Note: This links to admin view, ideally a client view would be made
         } : null,
-        clientPortalSettings.showContrato ? {
-            title: "Contrato", description: "Accede al contrato del evento.", icon: FileSignature,
-            href: `/fiestas/nueva/gestion-documental` // Placeholder link, points to general doc mgmt
+        clientPortalSettings?.videoVida?.visible ? {
+            title: "Video de Vida", description: "Sube fotos para el video emotivo.", icon: Camera,
+            href: `/video-vida/${fiesta.id}`,
         } : null,
-        clientPortalSettings.showInvitados ? {
-            title: "Lista de Invitados", description: "Consulta la lista de invitados y sus confirmaciones.", icon: Users,
-            href: `/fiestas/nueva/invitados` // Links to planner view, could be a readonly view later
+        clientPortalSettings?.listaRegalos?.visible ? {
+            title: "Lista de Regalos", description: "Explora la lista de regalos.", icon: Gift,
+            href: `/evento/actual#gift-registry`, isExternal: true,
         } : null,
-        clientPortalSettings.showMusica ? {
-            title: "Selección Musical", description: "Revisa las preferencias musicales para la fiesta.", icon: Music2,
-            href: `/fiestas/nueva/musica`
-        } : null,
-         clientPortalSettings.showMenu && fiesta.menuAsignadoId ? {
-            title: "Menú Contratado", description: "Detalles del menú seleccionado para el evento.", icon: ChefHat,
-            href: `/fiestas/nueva/catering/menu/${fiesta.menuAsignadoId}/editar` // Links to edit view for now
-        } : null,
-        clientPortalSettings.showVideoVida ? {
-            title: "Video de Vida", description: "Sube y organiza las fotos para tu video de vida.", icon: Camera,
-            href: `/video-vida/${fiesta.id}`
+        clientPortalSettings?.documentos?.visible ? {
+            title: "Documentos", description: "Accede a tu contrato, presupuesto y facturas.", icon: FileText,
+            href: `/fiestas/nueva/gestion-documental`
         } : null,
     ];
     
@@ -184,35 +205,57 @@ export default function ClientPortalPage() {
 
     return (
         <div className="min-h-screen bg-muted/40 p-4 sm:p-6 md:p-8">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl mx-auto space-y-8">
                 <header className="mb-8 text-center">
-                    <ClipboardCheck className="w-12 h-12 mx-auto text-primary mb-3" />
                     <h1 className="text-4xl font-bold tracking-tight font-headline">{configuracion.nombreEvento}</h1>
                     <p className="text-lg text-muted-foreground">Portal del Cliente | {formatDate(configuracion.fechaEvento)}</p>
                 </header>
 
-                <Card className="mb-8 shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-xl flex items-center gap-2"><Globe className="text-primary"/>Página Pública del Evento</CardTitle>
-                        <CardDescription>Este es el enlace que puedes compartir con tus invitados.</CardDescription>
-                    </CardHeader>
-                    <CardFooter>
-                        <Button asChild className="w-full">
-                           <a href="/evento/actual" target="_blank" rel="noopener noreferrer" className="w-full">
-                                Visitar Página Pública <ExternalLink className="w-4 h-4 ml-2"/>
-                            </a>
-                        </Button>
-                    </CardFooter>
-                </Card>
-
-                {availableSections.length > 0 ? (
+                {availableSections.length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {availableSections.map(section => <SectionCard key={section.title} {...section} />)}
                     </div>
-                ) : (
-                    <div className="text-center py-12">
-                        <p className="text-muted-foreground">No hay secciones activas para mostrar en este momento.</p>
-                    </div>
+                )}
+                
+                {clientPortalSettings.checklist.visible && (
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="font-headline text-xl flex items-center gap-2"><ClipboardCheck className="text-primary"/>Checklist Pre-Evento</CardTitle>
+                            <CardDescription>Tareas importantes a completar antes de la fiesta.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-auto max-h-60 pr-3">
+                                <ul className="space-y-3">
+                                    {clientChecklist.map(task => (
+                                        <li key={task.id} className={`flex items-start gap-3 p-2 border-l-4 rounded-r-md ${task.completada ? 'border-green-300 bg-green-50' : 'border-border bg-card'}`}>
+                                            <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => handleToggleTask(task.id)} className="mt-1" disabled={isSaving || !clientPortalSettings.checklist.editable}/>
+                                            <div>
+                                                <Label htmlFor={`task-client-${task.id}`} className={`font-medium ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label>
+                                                <p className="text-xs text-muted-foreground">Asignado a: {task.asignadaA}</p>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {clientPortalSettings.notasCliente.visible && (
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="font-headline text-xl flex items-center gap-2"><StickyNote className="text-primary"/>Notas y Preferencias</CardTitle>
+                            <CardDescription>Deja aquí cualquier nota, preferencia o detalle importante para el organizador.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Textarea 
+                                placeholder="Escribe aquí tus notas..."
+                                rows={5}
+                                disabled={!clientPortalSettings.notasCliente.editable || isSaving}
+                            />
+                        </CardContent>
+                        {clientPortalSettings.notasCliente.editable && <CardFooter><Button disabled={isSaving}>Guardar Notas</Button></CardFooter>}
+                    </Card>
                 )}
             </div>
         </div>

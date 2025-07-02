@@ -1,4 +1,3 @@
-
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
@@ -93,32 +92,32 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   ourStoryTitle: 'Nuestra Historia',
   ourStoryText: 'Un breve relato de cómo llegamos hasta aquí...',
   ourStoryImageUrl: '',
-  showOurStory: true,
+  showOurStory: false, // Default OFF
   eventDetailsTitle: 'Detalles del Evento',
   eventDetailsText: 'Fecha, hora, lugar y más información importante.',
   showEventDetails: true,
   dressCodeText: 'Elegante Sport',
-  showDressCode: false,
+  showDressCode: false, // Default OFF
   giftRegistryTitle: 'Lista de Regalos',
   giftRegistryText: 'Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...',
-  showGiftRegistry: false,
+  showGiftRegistry: false, // Default OFF
   giftRegistry: [],
   showRsvp: true,
-  showPrograma: true,
+  showPrograma: false, // Default OFF
   musicaEspecialText: '',
-  showGallery: true,
+  showGallery: false, // Default OFF
 };
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
   enabled: true,
   accessKey: '',
   checklist: { visible: true, editable: true },
-  itinerario: { visible: true, editable: false },
-  musica: { visible: true, editable: true },
-  videoVida: { visible: true, editable: true },
-  listaRegalos: { visible: true, editable: false },
+  itinerario: { visible: false, editable: false },
+  musica: { visible: false, editable: true },
+  videoVida: { visible: false, editable: true },
+  listaRegalos: { visible: false, editable: false },
   documentos: { visible: true, editable: false },
-  notasCliente: { visible: true, editable: true },
+  notasCliente: { visible: false, editable: true },
 };
 
 export const defaultSocialGallerySettings: SocialGallerySettings = {
