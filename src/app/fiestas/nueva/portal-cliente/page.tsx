@@ -118,8 +118,24 @@ export default function PortalUnificadoPage() {
         loadData();
     }, [loadData]);
     
-    const handlePortalSettingChange = (key: keyof ClientPortalSettings, value: boolean | string) => {
-        setSettings(prev => ({ ...prev, portal: { ...prev.portal, [key]: value } }));
+    const handlePortalSettingChange = (key: keyof ClientPortalSettings | keyof ClientPortalSettings['checklist'], value: boolean | string) => {
+        const keys = (key as string).split('.');
+        if (keys.length > 1) {
+            const [parentKey, childKey] = keys as [keyof ClientPortalSettings, string];
+            setSettings(prev => ({
+                ...prev,
+                portal: {
+                    ...prev.portal,
+                    [parentKey]: {
+                        // @ts-ignore
+                        ...prev.portal[parentKey],
+                        [childKey]: value
+                    }
+                }
+            }));
+        } else {
+             setSettings(prev => ({ ...prev, portal: { ...prev.portal, [key as keyof ClientPortalSettings]: value } }));
+        }
     };
     
     const handleWebSettingChange = (key: keyof EventWebPageSettings, value: string | boolean) => {
@@ -164,8 +180,7 @@ export default function PortalUnificadoPage() {
       setIsSavingChecklist(false);
     };
 
-    const handleAddTask = async (e: FormEvent) => {
-      e.preventDefault();
+    const handleAddTask = async () => {
       if (!newTaskText.trim()) { toast({ title: "Título Requerido", variant: "destructive" }); return; }
       const newTask: ClientTarea = {
         id: `task_client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -256,13 +271,12 @@ export default function PortalUnificadoPage() {
     if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
     const portalSections = [
-        { id: "showPresupuesto", label: "Presupuesto Detallado", icon: FileText },
-        { id: "showPagos", label: "Resumen de Pagos", icon: Banknote },
-        { id: "showContrato", label: "Contrato del Evento", icon: FileSignature },
-        { id: "showInvitados", label: "Lista de Invitados y RSVP", icon: Users },
-        { id: "showMusica", label: "Selección de Música", icon: Music2 },
-        { id: "showMenu", label: "Menú Contratado", icon: ChefHat },
-        { id: "showVideoVida", label: "Carga Fotos (Video Vida)", icon: Camera },
+        { id: "documentos", label: "Documentos (Contrato/Presupuesto/Facturas)" },
+        { id: "itinerario", label: "Itinerario del Evento" },
+        { id: "musica", label: "Preferencias Musicales" },
+        { id: "videoVida", label: "Carga de Fotos para Video de Vida" },
+        { id: "listaRegalos", label: "Lista de Regalos" },
+        { id: "notasCliente", label: "Notas y Preferencias del Cliente" },
     ];
 
     const webSections = [
@@ -313,13 +327,23 @@ export default function PortalUnificadoPage() {
                                 </div>
                                 <Separator />
                                 <div className="space-y-3">
-                                    <h4 className="text-sm font-medium text-muted-foreground">Secciones Visibles para el Cliente:</h4>
+                                    <h4 className="text-sm font-medium text-muted-foreground">Secciones del Portal:</h4>
+                                     <div className="flex items-center justify-between text-sm">
+                                        <Label htmlFor="portal-checklist.visible" className="flex items-center gap-2 font-normal"><ClipboardCheck className="w-4 h-4 text-primary/80"/>Checklist Cliente</Label>
+                                        <div className="flex items-center gap-2">
+                                          <Switch id="portal-checklist.visible" checked={settings.portal.checklist.visible} onCheckedChange={(val) => handlePortalSettingChange('checklist.visible', val)} disabled={!settings.portal.enabled} />
+                                          <Select value={settings.portal.checklist.editable ? 'edit' : 'view'} onValueChange={(v) => handlePortalSettingChange('checklist.editable', v === 'edit')} disabled={!settings.portal.checklist.visible || !settings.portal.enabled}>
+                                            <SelectTrigger className="h-7 text-xs w-[80px]"><SelectValue/></SelectTrigger>
+                                            <SelectContent><SelectItem value="view">Ver</SelectItem><SelectItem value="edit">Editar</SelectItem></SelectContent>
+                                          </Select>
+                                        </div>
+                                    </div>
                                     {portalSections.map(section => (
                                         <div key={section.id} className="flex items-center justify-between text-sm">
                                             <Label htmlFor={`portal-${section.id}`} className="flex items-center gap-2 font-normal">
                                                 <section.icon className="w-4 h-4 text-primary/80"/>{section.label}
                                             </Label>
-                                            <Switch id={`portal-${section.id}`} checked={settings.portal[section.id as keyof ClientPortalSettings] as boolean} onCheckedChange={(val) => handlePortalSettingChange(section.id as keyof ClientPortalSettings, val)} disabled={!settings.portal.enabled} />
+                                             <Switch id={`portal-${section.id}`} checked={(settings.portal as any)[section.id]?.visible} onCheckedChange={(val) => handlePortalSettingChange(`${section.id}.visible`, val)} disabled={!settings.portal.enabled} />
                                         </div>
                                     ))}
                                 </div>
@@ -341,11 +365,11 @@ export default function PortalUnificadoPage() {
                                 <CardDescription>Gestiona las tareas que el cliente verá en su portal.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <form onSubmit={handleAddTask} className="space-y-3 p-3 border rounded-md bg-muted/30">
+                                <div className="space-y-3 p-3 border rounded-md bg-muted/30">
                                     <div className="space-y-1"><Label htmlFor="task-text">Título de la Tarea</Label><Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Enviar lista de invitados..." required /></div>
                                     <div className="space-y-1"><Label>Asignar a:</Label><RadioGroup value={newTaskAssignedTo} onValueChange={(val) => setNewTaskAssignedTo(val as TareaAsignadaA)} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Cliente" id="assign-cliente" /><Label htmlFor="assign-cliente">Cliente</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="Organizador" id="assign-organizador" /><Label htmlFor="assign-organizador">Organizador</Label></div></RadioGroup></div>
-                                    <Button type="submit" size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
-                                </form>
+                                    <Button type="button" onClick={handleAddTask} size="sm" disabled={isSavingChecklist}><PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea</Button>
+                                </div>
                                 <div className="space-y-2">
                                     <Label>Progreso: {completedCount}/{totalCount}</Label>
                                     <Progress value={progressPercentage} className="h-2" />
@@ -355,8 +379,8 @@ export default function PortalUnificadoPage() {
                                         <ul className="space-y-2">
                                             {tareas.map((task) => (
                                                 <li key={task.id} className="flex items-start gap-3">
-                                                    <Checkbox id={`task-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
-                                                    <div className="flex-grow"><Label htmlFor={`task-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
+                                                    <Checkbox id={`task-client-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1" disabled={isSavingChecklist} />
+                                                    <div className="flex-grow"><Label htmlFor={`task-client-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : ''}`}>{task.texto}</Label><div className={`text-xs flex items-center gap-1 ${task.asignadaA === 'Cliente' ? 'text-blue-600' : 'text-purple-600'}`}>{task.asignadaA === 'Cliente' ? <User className="w-3 h-3"/> : <UserCog className="w-3 h-3"/>}{task.asignadaA}</div></div>
                                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTask(task.id)} disabled={isSavingChecklist}><Trash2 className="w-4 h-4" /></Button>
                                                 </li>
                                             ))}
