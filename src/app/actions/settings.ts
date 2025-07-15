@@ -10,44 +10,38 @@ const SETTINGS_DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const BUDGET_DISPLAY_SETTINGS_FILE_PATH = path.join(SETTINGS_DATA_DIR, 'budget-display-settings.json');
 const INVOICE_TEMPLATE_SETTINGS_FILE_PATH = path.join(SETTINGS_DATA_DIR, 'invoice-template-settings.json');
 
-
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(SETTINGS_DATA_DIR);
-  } catch {
-    await fs.mkdir(SETTINGS_DATA_DIR, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string) {
+    try {
+        await fs.access(SETTINGS_DATA_DIR);
+    } catch {
+        await fs.mkdir(SETTINGS_DATA_DIR, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
+
 
 // --- Budget Display Settings ---
 async function readBudgetDisplaySettingsFile(): Promise<BudgetDisplaySettings> {
+  await ensureDataFileExists(BUDGET_DISPLAY_SETTINGS_FILE_PATH, JSON.stringify(defaultBudgetDisplaySettings));
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(BUDGET_DISPLAY_SETTINGS_FILE_PATH);
     const fileContent = await fs.readFile(BUDGET_DISPLAY_SETTINGS_FILE_PATH, 'utf-8');
-    if (fileContent.trim() === '') return defaultBudgetDisplaySettings;
-    const parsedContent = JSON.parse(fileContent) as Partial<BudgetDisplaySettings>;
+    const parsedContent = JSON.parse(fileContent.trim() === '' ? '{}' : fileContent) as Partial<BudgetDisplaySettings>;
     return { ...defaultBudgetDisplaySettings, ...parsedContent };
   } catch (error) {
-    await writeBudgetDisplaySettingsFile(defaultBudgetDisplaySettings);
+    console.error('Error reading budget display settings, returning defaults.', error);
+    await writeBudgetDisplaySettingsFile(defaultBudgetDisplaySettings); // Attempt to fix
     return defaultBudgetDisplaySettings;
   }
 }
 
 async function writeBudgetDisplaySettingsFile(data: BudgetDisplaySettings): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.writeFile(BUDGET_DISPLAY_SETTINGS_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing budget display settings JSON file:', error);
-  }
+  await ensureDataFileExists(BUDGET_DISPLAY_SETTINGS_FILE_PATH, JSON.stringify(defaultBudgetDisplaySettings));
+  await fs.writeFile(BUDGET_DISPLAY_SETTINGS_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
 }
-
-async function initializeBudgetDisplaySettingsFile() {
-  await readBudgetDisplaySettingsFile();
-}
-initializeBudgetDisplaySettingsFile();
-
 
 export async function getBudgetDisplaySettings(): Promise<BudgetDisplaySettings> {
   return readBudgetDisplaySettingsFile();
@@ -73,32 +67,23 @@ export async function saveBudgetDisplaySettings(
 
 // --- Invoice Template Settings ---
 async function readInvoiceTemplateSettingsFile(): Promise<InvoiceTemplateSettings> {
+  await ensureDataFileExists(INVOICE_TEMPLATE_SETTINGS_FILE_PATH, JSON.stringify(defaultInvoiceTemplateSettings));
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(INVOICE_TEMPLATE_SETTINGS_FILE_PATH);
     const fileContent = await fs.readFile(INVOICE_TEMPLATE_SETTINGS_FILE_PATH, 'utf-8');
-    if (fileContent.trim() === '') return defaultInvoiceTemplateSettings;
-    const parsedContent = JSON.parse(fileContent) as Partial<InvoiceTemplateSettings>;
+    const parsedContent = JSON.parse(fileContent.trim() === '' ? '{}' : fileContent) as Partial<InvoiceTemplateSettings>;
     return { ...defaultInvoiceTemplateSettings, ...parsedContent };
   } catch (error) {
-    await writeInvoiceTemplateSettingsFile(defaultInvoiceTemplateSettings);
+    console.error('Error reading invoice template settings, returning defaults.', error);
+    await writeInvoiceTemplateSettingsFile(defaultInvoiceTemplateSettings); // Attempt to fix
     return defaultInvoiceTemplateSettings;
   }
 }
 
 async function writeInvoiceTemplateSettingsFile(data: InvoiceTemplateSettings): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.writeFile(INVOICE_TEMPLATE_SETTINGS_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing invoice template settings JSON file:', error);
-  }
+  await ensureDataFileExists(INVOICE_TEMPLATE_SETTINGS_FILE_PATH, JSON.stringify(defaultInvoiceTemplateSettings));
+  await fs.writeFile(INVOICE_TEMPLATE_SETTINGS_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
 }
 
-async function initializeInvoiceTemplateSettingsFile() {
-  await readInvoiceTemplateSettingsFile();
-}
-initializeInvoiceTemplateSettingsFile();
 
 export async function getInvoiceTemplateSettings(): Promise<InvoiceTemplateSettings> {
   return readInvoiceTemplateSettingsFile();

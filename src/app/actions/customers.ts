@@ -1,10 +1,7 @@
 
 'use server';
 
-// import { dbAdmin as db } from '@/lib/firebase/server'; // Firebase disabled
 import type { Customer, CustomerStatus } from '@/types/customer';
-// import { getFiestaActual } from '@/app/actions/fiesta-actual'; // Firebase disabled for fiesta-actual too
-
 import fs from 'fs/promises';
 import path from 'path';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
@@ -14,73 +11,57 @@ const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const customersFilePath = path.join(dataDirectory, CLIENTES_COLLECTION_JSON);
 
 const CONTRACTS_DIR_NAME = 'contracts';
-const BUDGETS_DIR_NAME = 'budgets'; // New directory for budgets
+const BUDGETS_DIR_NAME = 'budgets'; 
 const contractsDirectoryPath = path.join(dataDirectory, CONTRACTS_DIR_NAME);
-const budgetsDirectoryPath = path.join(dataDirectory, BUDGETS_DIR_NAME); // New path for budgets
+const budgetsDirectoryPath = path.join(dataDirectory, BUDGETS_DIR_NAME); 
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(dataDirectory);
-  } catch {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(dataDirectory);
+    } catch {
+        await fs.mkdir(dataDirectory, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
-async function ensureContractsDirectoryExists() {
-  try {
-    await fs.access(contractsDirectoryPath);
-  } catch {
-    await fs.mkdir(contractsDirectoryPath, { recursive: true });
-  }
+async function ensureSubdirectoryExists(dirPath: string) {
+    try {
+        await fs.access(dirPath);
+    } catch {
+        await fs.mkdir(dirPath, { recursive: true });
+    }
 }
 
-async function ensureBudgetsDirectoryExists() { // New function for budgets
-  try {
-    await fs.access(budgetsDirectoryPath);
-  } catch {
-    await fs.mkdir(budgetsDirectoryPath, { recursive: true });
-  }
-}
 
 async function readCustomersFile(): Promise<Customer[]> {
+  await ensureDataFileExists(customersFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(customersFilePath);
     const fileContent = await fs.readFile(customersFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     return JSON.parse(fileContent) as Customer[];
   } catch (error) {
+    console.error('Error reading customers file, returning empty array:', error);
     return [];
   }
 }
 
 async function writeCustomersFile(data: Customer[]): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    const sortedData = data.sort((a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
-    await fs.writeFile(customersFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing customers JSON file:', error);
-  }
+  await ensureDataFileExists(customersFilePath, '[]');
+  const sortedData = data.sort((a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
+  await fs.writeFile(customersFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
 }
 
 async function initializeLocalCustomersFile() {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(customersFilePath);
-    const fileContent = await fs.readFile(customersFilePath, 'utf-8');
-    if (fileContent.trim() === '') {
-      await writeCustomersFile([]);
-    } else {
-      JSON.parse(fileContent);
-    }
-  } catch (error) {
-    await writeCustomersFile([]);
-  }
+  await readCustomersFile();
+  await ensureSubdirectoryExists(contractsDirectoryPath);
+  await ensureSubdirectoryExists(budgetsDirectoryPath);
 }
 initializeLocalCustomersFile();
-ensureContractsDirectoryExists();
-ensureBudgetsDirectoryExists(); // Ensure budgets directory also exists
+
 
 export async function getCustomers(): Promise<Customer[]> {
   let customers = await readCustomersFile();
@@ -100,10 +81,10 @@ export async function saveCustomer(
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
   let customers = await readCustomersFile();
   let customerId: string;
-  let customerToSave: Partial<Customer> = {}; // Use Partial for easier assembly
+  let customerToSave: Partial<Customer> = {}; 
 
   let contractFile: File | null = null;
-  let budgetFile: File | null = null; // New for budget file
+  let budgetFile: File | null = null;
 
   if (customerData instanceof FormData) {
     customerToSave.name = customerData.get('name') as string;
@@ -114,13 +95,13 @@ export async function saveCustomer(
     customerToSave.partyDate = customerData.get('partyDate') as string | undefined;
     customerToSave.partyTime = customerData.get('partyTime') as string | undefined;
     customerToSave.partyType = customerData.get('partyType') as string | undefined;
-    customerToSave.partyForWhom = customerData.get('partyForWhom') as string | undefined; // Leer el nuevo campo
+    customerToSave.partyForWhom = customerData.get('partyForWhom') as string | undefined;
     const guestCountStr = customerData.get('guestCount') as string | undefined;
     customerToSave.guestCount = guestCountStr ? parseInt(guestCountStr, 10) : undefined;
     customerToSave.venueName = customerData.get('venueName') as string | undefined;
 
     contractFile = customerData.get('contract') as File | null;
-    budgetFile = customerData.get('budget') as File | null; // Get budget file
+    budgetFile = customerData.get('budget') as File | null; 
 
     const formId = customerData.get('id') as string | undefined;
     if (formId) customerToSave.id = formId;
@@ -156,7 +137,7 @@ export async function saveCustomer(
   } else { // Create
     customerId = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newCustomerBase: Omit<Customer, 'id'> = {
-        ...(customerToSave as Omit<Customer, 'id'>), // Cast excluding id
+        ...(customerToSave as Omit<Customer, 'id'>), 
         name: customerToSave.name || customerToSave.companyName || 'Sin Nombre Asignado',
         estadoCliente: customerToSave.estadoCliente || 'Actual',
     };
@@ -169,7 +150,10 @@ export async function saveCustomer(
   
   if (contractFile) {
     try {
-      await ensureContractsDirectoryExists();
+      if (contractFile.size === 0 || contractFile.type !== 'application/pdf') {
+        throw new Error('El contrato debe ser un archivo PDF y no puede estar vacío.');
+      }
+      await ensureSubdirectoryExists(contractsDirectoryPath);
       const bytes = await contractFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `contract_${customerId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
@@ -183,7 +167,10 @@ export async function saveCustomer(
 
   if (budgetFile) {
     try {
-      await ensureBudgetsDirectoryExists();
+       if (budgetFile.size === 0 || budgetFile.type !== 'application/pdf') {
+        throw new Error('El presupuesto debe ser un archivo PDF y no puede estar vacío.');
+      }
+      await ensureSubdirectoryExists(budgetsDirectoryPath);
       const bytes = await budgetFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `budget_${customerId}_${Date.now()}_${budgetFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
@@ -303,4 +290,3 @@ export async function syncCustomerFromFiestaConfig(
   
   return { success: true };
 }
-    

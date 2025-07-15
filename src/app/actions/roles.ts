@@ -9,50 +9,41 @@ import type { CategoriaServicio } from '@/types/empresa';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const rolesFilePath = path.join(dataDirectory, 'roles.json');
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(dataDirectory);
-  } catch {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(dataDirectory);
+    } catch {
+        await fs.mkdir(dataDirectory, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
 async function readRolesFile(): Promise<Rol[]> {
+  await ensureDataFileExists(rolesFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(rolesFilePath);
     const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     return JSON.parse(fileContent) as Rol[];
   } catch (error) {
+    console.error('Error reading roles file, returning empty array:', error);
     return [];
   }
 }
 
 async function writeRolesFile(data: Rol[]): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    const sortedData = data.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
-    await fs.writeFile(rolesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing roles JSON file:', error);
-  }
+  await ensureDataFileExists(rolesFilePath, '[]');
+  const sortedData = data.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+  await fs.writeFile(rolesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
 }
 
 async function initializeLocalRolesFile() {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(rolesFilePath);
-    const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
-    if (fileContent.trim() === '') {
-      await writeRolesFile([]);
-    }
-  } catch (error) { 
-    await writeRolesFile([]);
-  }
+  await readRolesFile();
 }
 initializeLocalRolesFile();
-
 
 export async function getRoles(): Promise<Rol[]> {
   return readRolesFile();

@@ -15,18 +15,22 @@ const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const presupuestosFilePath = path.join(dataDirectory, PRESUPUESTOS_COLLECTION_JSON);
 
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(dataDirectory);
-  } catch {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(dataDirectory);
+    } catch {
+        await fs.mkdir(dataDirectory, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
 async function readPresupuestosFile(): Promise<Presupuesto[]> {
+  await ensureDataFileExists(presupuestosFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(presupuestosFilePath);
     const fileContent = await fs.readFile(presupuestosFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     // Migration for old structure if needed (platosSeleccionados -> itemsPresupuestados)
@@ -64,40 +68,23 @@ async function readPresupuestosFile(): Promise<Presupuesto[]> {
       };
     });
   } catch (error) {
+    console.error('Error reading presupuestos file, returning empty array:', error);
     return [];
   }
 }
 
 async function writePresupuestosFile(data: Presupuesto[]): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    const sortedData = data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    await fs.writeFile(presupuestosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing presupuestos JSON file:', error);
-  }
+  await ensureDataFileExists(presupuestosFilePath, '[]');
+  const sortedData = data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  await fs.writeFile(presupuestosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
 }
 
 async function initializeLocalPresupuestosFile() {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(presupuestosFilePath);
-    const fileContent = await fs.readFile(presupuestosFilePath, 'utf-8');
-    if (fileContent.trim() === '') {
-      await writePresupuestosFile([]);
-    } else {
-      // Potentially run migration logic here if structure significantly changed
-      const presupuestos = await readPresupuestosFile(); // This will apply migration if needed
-      await writePresupuestosFile(presupuestos); // Re-save if migration occurred
-    }
-  } catch (error) {
-    await writePresupuestosFile([]);
-  }
+  const presupuestos = await readPresupuestosFile(); // This will apply migration if needed
+  await writePresupuestosFile(presupuestos); // Re-save if migration occurred
 }
 initializeLocalPresupuestosFile();
 
-// getPlatos is no longer relevant for the new structure as services are fetched from a different source
-// export async function getPlatos(): Promise<PlatoPresupuesto[]> { ... }
 
 export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string }> {
   let presupuestos = await readPresupuestosFile();
@@ -190,11 +177,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         
         const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
         
-        // CORRECCIÓN: Reemplazar ítems existentes con un nuevo resumen para evitar duplicados.
-        const summaryItem: Omit<InvoiceItem, 'id' | 'total'> = {
+        // Reemplazar ítems existentes con un nuevo resumen para evitar duplicados.
+        const summaryItem: Omit<InvoiceItem, 'id'> = {
             description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
             quantity: 1,
             unitPrice: budgetTotal,
+            total: budgetTotal,
         };
         
         const invoiceDataToUpdate: Invoice = {
@@ -203,7 +191,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
             items: [{
                 ...summaryItem,
                 id: `item_${linkedInvoice.id}_summary_update_${Date.now()}`,
-                total: summaryItem.quantity * summaryItem.unitPrice
             }],
             notes: updatedPresupuesto.notas || linkedInvoice.notes,
         };

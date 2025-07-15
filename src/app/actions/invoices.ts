@@ -12,60 +12,50 @@ const invoicesFilePath = path.join(dataDirectory, INVOICES_COLLECTION_JSON);
 const PAYMENT_PROOFS_DIR_NAME = 'payment-proofs';
 const paymentProofsDirectoryPath = path.join(dataDirectory, PAYMENT_PROOFS_DIR_NAME);
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(dataDirectory);
-  } catch {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(dataDirectory);
+    } catch {
+        await fs.mkdir(dataDirectory, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
-async function ensurePaymentProofsDirectoryExists() {
-  try {
-    await fs.access(paymentProofsDirectoryPath);
-  } catch {
-    await fs.mkdir(paymentProofsDirectoryPath, { recursive: true });
-  }
+async function ensureSubdirectoryExists(dirPath: string) {
+    try {
+        await fs.access(dirPath);
+    } catch {
+        await fs.mkdir(dirPath, { recursive: true });
+    }
 }
 
 async function readInvoicesFile(): Promise<Invoice[]> {
+  await ensureDataFileExists(invoicesFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(invoicesFilePath);
     const fileContent = await fs.readFile(invoicesFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     return JSON.parse(fileContent) as Invoice[];
   } catch (error) {
+    console.error('Error reading invoices file, returning empty array:', error);
     return [];
   }
 }
 
 async function writeInvoicesFile(data: Invoice[]): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    const sortedData = data.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
-    await fs.writeFile(invoicesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing invoices JSON file:', error);
-  }
+  await ensureDataFileExists(invoicesFilePath, '[]');
+  const sortedData = data.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
+  await fs.writeFile(invoicesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
 }
 
 async function initializeLocalInvoicesFile() {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(invoicesFilePath);
-    const fileContent = await fs.readFile(invoicesFilePath, 'utf-8');
-    if (fileContent.trim() === '') {
-      await writeInvoicesFile([]);
-    } else {
-      JSON.parse(fileContent);
-    }
-  } catch (error) {
-    await writeInvoicesFile([]);
-  }
+  await readInvoicesFile();
+  await ensureSubdirectoryExists(paymentProofsDirectoryPath);
 }
 initializeLocalInvoicesFile();
-ensurePaymentProofsDirectoryExists();
 
 export async function getInvoices(): Promise<Invoice[]> {
   const invoices = await readInvoicesFile();
@@ -195,7 +185,7 @@ export async function addPaymentToInvoice(
 
   if (transactionProofFile && transactionProofFile.size > 0) {
     try {
-      await ensurePaymentProofsDirectoryExists();
+      await ensureSubdirectoryExists(paymentProofsDirectoryPath);
       const bytes = await transactionProofFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `proof_${paymentId}_${transactionProofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;

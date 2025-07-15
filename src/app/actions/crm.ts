@@ -19,43 +19,39 @@ const defaultStages: CrmStage[] = [
   { id: 's5', name: 'No contrató', order: 5, bgColor: 'bg-rose-100 dark:bg-rose-900/30', borderColor: 'border-rose-500 dark:border-rose-700', textColor: 'text-rose-700 dark:text-rose-300', headerBgColor: 'bg-rose-500 dark:bg-rose-700', headerTextColor: 'text-rose-50' },
 ];
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(CRM_DATA_DIR);
-  } catch {
-    await fs.mkdir(CRM_DATA_DIR, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(CRM_DATA_DIR);
+    } catch {
+        await fs.mkdir(CRM_DATA_DIR, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
 async function readJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
+  await ensureDataFileExists(filePath, JSON.stringify(defaultValue, null, 2));
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(filePath);
     const fileContent = await fs.readFile(filePath, 'utf-8');
     return fileContent.trim() === '' ? defaultValue : JSON.parse(fileContent) as T;
   } catch (error) {
-    if (defaultValue !== null) { 
-      await writeJsonFile(filePath, defaultValue);
-    }
+    console.error(`Error reading or parsing ${filePath}, returning default value.`, error);
+    await fs.writeFile(filePath, JSON.stringify(defaultValue, null, 2), 'utf-8'); // Attempt to fix the file
     return defaultValue;
   }
 }
 
 async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error(`Error writing to ${filePath}:`, error);
-  }
+  await ensureDataFileExists(filePath); // Ensure directory exists before writing
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 async function initializeCrmFiles() {
   await readJsonFile(LEADS_FILE_PATH, []);
-  const stages = await readJsonFile(STAGES_FILE_PATH, []);
-  if (!stages || stages.length === 0 || JSON.stringify(stages) !== JSON.stringify(defaultStages)) {
-    await writeJsonFile(STAGES_FILE_PATH, defaultStages);
-  }
+  await readJsonFile(STAGES_FILE_PATH, defaultStages);
 }
 initializeCrmFiles();
 
@@ -181,8 +177,8 @@ export async function convertToClientAndMoveProspect(
   if (!prospectId || !prospectName) {
     return { success: false, error: "Faltan datos del prospecto." };
   }
-  if (!contractFile) {
-    return { success: false, error: "El archivo del contrato es obligatorio." };
+  if (!contractFile || contractFile.size === 0) {
+    return { success: false, error: "El archivo del contrato es obligatorio y no puede estar vacío." };
   }
   
   const stages = await getCrmStages();

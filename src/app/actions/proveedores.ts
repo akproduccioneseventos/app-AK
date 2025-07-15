@@ -9,42 +9,39 @@ const PROVEEDORES_COLLECTION_JSON = 'proveedores.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const proveedoresFilePath = path.join(dataDirectory, PROVEEDORES_COLLECTION_JSON);
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(dataDirectory);
-  } catch {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(dataDirectory);
+    } catch {
+        await fs.mkdir(dataDirectory, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
 async function readProveedoresFile(): Promise<Proveedor[]> {
+  await ensureDataFileExists(proveedoresFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(proveedoresFilePath);
     const fileContent = await fs.readFile(proveedoresFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     return JSON.parse(fileContent) as Proveedor[];
   } catch (error) {
+    console.error('Error reading proveedores file, returning empty array:', error);
     return [];
   }
 }
 
 async function writeProveedoresFile(data: Proveedor[]): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    const sortedData = data.sort((a, b) => (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || ''));
-    await fs.writeFile(proveedoresFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing proveedores JSON file:', error);
-  }
+  await ensureDataFileExists(proveedoresFilePath, '[]');
+  const sortedData = data.sort((a, b) => (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || ''));
+  await fs.writeFile(proveedoresFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
 }
 
 async function initializeLocalProveedoresFile() {
-  try {
-    await fs.access(proveedoresFilePath);
-  } catch {
-    await writeProveedoresFile([]);
-  }
+  await readProveedoresFile();
 }
 initializeLocalProveedoresFile();
 

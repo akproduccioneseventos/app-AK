@@ -9,18 +9,22 @@ const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const menusFilePath = path.join(dataDirectory, MENUS_CATERING_COLLECTION_JSON);
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(dataDirectory);
-  } catch {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(dataDirectory);
+    } catch {
+        await fs.mkdir(dataDirectory, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
 async function readMenusFile(): Promise<FullMenu[]> {
+  await ensureDataFileExists(menusFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(menusFilePath);
     const fileContent = await fs.readFile(menusFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     const menus = JSON.parse(fileContent) as FullMenu[];
@@ -47,8 +51,8 @@ async function readMenusFile(): Promise<FullMenu[]> {
 }
 
 async function writeMenusFile(data: FullMenu[]): Promise<void> {
+  await ensureDataFileExists(menusFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
     const sortedData = data.sort((a, b) => {
         if (a.createdAt && b.createdAt) {
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -62,32 +66,23 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 }
 
 async function initializeLocalMenusFile() {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(menusFilePath); 
-    const fileContent = await fs.readFile(menusFilePath, 'utf-8');
-    
-    if (fileContent.trim() === '') {
-      console.warn("menus-catering.json was found empty during initialization.");
-      return;
-    }
-
-    const menus = JSON.parse(fileContent) as FullMenu[];
-    let needsResave = menus.some(menu => 
+  const menus = await readMenusFile();
+  let needsResave = menus.some(menu => 
       menu.items.some(item => 
         item.ingredients.some(ing => 
           typeof ing.cost === 'string' || 
           !('proveedor' in ing) || 
           !('marca' in ing) ||
           !('fecha_actualizacion' in ing) ||
-          !('quantityPerPerson' in ing) // Check for new quantityPerPerson field
+          !('quantityPerPerson' in ing)
         ) ||
-        item.hasOwnProperty('basePortions') || // Check for old fields to remove
-        item.hasOwnProperty('costPerPortion')
+        (item as any).hasOwnProperty('basePortions') ||
+        (item as any).hasOwnProperty('costPerPortion')
       )
     );
 
     if (needsResave) {
+      console.log("Migrating menus-catering.json...");
       const correctedMenus = menus.map(menu => ({
         ...menu,
         items: menu.items.map(item => {
@@ -96,22 +91,19 @@ async function initializeLocalMenusFile() {
             ...restOfItem,
             ingredients: item.ingredients.map(ingredient => ({
               ...ingredient,
-              quantityPerPerson: ingredient.quantityPerPerson || '0', // Default for migration
+              quantityPerPerson: ingredient.quantityPerPerson || '0',
               cost: Number(ingredient.cost) || 0,
               proveedor: ingredient.proveedor || undefined,
               marca: ingredient.marca || undefined,
               fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
             })),
-            totalDishCost: Number(item.totalDishCost) || 0, // Recalculate if needed, but for now keep stored
+            totalDishCost: Number(item.totalDishCost) || 0,
           };
         })
       }));
       await writeMenusFile(correctedMenus);
-      console.log("Migrated existing menus-catering.json for per-person ingredient quantities and removed old fields.");
+      console.log("Migration complete for menus-catering.json.");
     }
-  } catch (error) {
-    console.warn(`Warning during menus-catering.json initialization:`, error);
-  }
 }
 initializeLocalMenusFile();
 
@@ -210,4 +202,3 @@ export async function deleteMenu(id: string): Promise<{ success: boolean; error?
   await writeMenusFile(menus);
   return { success: true };
 }
-

@@ -9,18 +9,22 @@ const SERVICIOS_EMPRESA_COLLECTION_JSON = 'servicios-empresa.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const serviciosFilePath = path.join(dataDirectory, SERVICIOS_EMPRESA_COLLECTION_JSON);
 
-async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(dataDirectory);
-  } catch {
-    await fs.mkdir(dataDirectory, { recursive: true });
-  }
+async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
+    try {
+        await fs.access(dataDirectory);
+    } catch {
+        await fs.mkdir(dataDirectory, { recursive: true });
+    }
+    try {
+        await fs.access(filePath);
+    } catch {
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
+    }
 }
 
 async function readServiciosFile(): Promise<ServicioEmpresa[]> {
+  await ensureDataFileExists(serviciosFilePath, '[]');
   try {
-    await ensureDataDirectoryExists();
-    await fs.access(serviciosFilePath);
     const fileContent = await fs.readFile(serviciosFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     
@@ -38,41 +42,27 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
       precioVenta: item.precioVenta === undefined ? undefined : Number(item.precioVenta),
     }));
   } catch (error) {
+    console.error('Error reading inventory file, returning empty array:', error);
     return [];
   }
 }
 
 async function writeServiciosFile(data: ServicioEmpresa[]): Promise<void> {
-  try {
-    await ensureDataDirectoryExists();
-    const sortedData = data.sort((a, b) => {
+  await ensureDataFileExists(serviciosFilePath, '[]');
+  const sortedData = data.sort((a, b) => {
       const catComp = (a.categoria || '').localeCompare(b.categoria || '');
       if (catComp !== 0) return catComp;
       return (a.nombre || '').localeCompare(b.nombre || '');
     });
-    await fs.writeFile(serviciosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing inventory JSON file:', error);
-  }
+  await fs.writeFile(serviciosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
 }
 
 async function initializeLocalServiciosFile() {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(serviciosFilePath);
-    const fileContent = await fs.readFile(serviciosFilePath, 'utf-8');
-    if (fileContent.trim() === '') {
-      await writeServiciosFile([]);
-    } else {
-      // Re-read and write to apply any new fields/migrations from readServiciosFile
-      const items = await readServiciosFile();
-      await writeServiciosFile(items);
-    }
-  } catch (error) {
-    await writeServiciosFile([]);
-  }
+  const items = await readServiciosFile();
+  await writeServiciosFile(items); // This will apply migrations and save
 }
 initializeLocalServiciosFile();
+
 
 export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
   return readServiciosFile();
