@@ -113,6 +113,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
 
+  if (pathname === '/login') return 'Login';
+  if (pathname === '/signup') return 'Crear Cuenta';
+
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
     let title = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
@@ -135,7 +138,7 @@ const getPageTitle = (pathname: string): string => {
     }
     return title;
   }
-  return 'Menú Principal';
+  return 'AK Producciones';
 };
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
