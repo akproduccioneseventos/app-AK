@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -33,6 +33,13 @@ const settingsCards = [
     icon: Star,
     buttonLabel: "Gestionar Feedback"
   },
+    {
+    title: "Análisis de Plan de Evento con IA",
+    description: "Revisa la completitud y coherencia de tu planificación actual.",
+    href: "/admin/aaiff-fiesta",
+    icon: PartyPopper,
+    buttonLabel: "Analizar Fiesta Actual"
+  },
   {
     title: "Notificaciones",
     description: "Configura cómo y cuándo recibir alertas y avisos.",
@@ -48,11 +55,11 @@ const settingsCards = [
     buttonLabel: "Gestionar Cuenta"
   },
   {
-    title: "Análisis y Optimización por IA",
+    title: "Análisis de Código con IA",
     description: "Permite que la IA analice la app en busca de mejoras y errores.",
     href: "/admin/aaiff",
     icon: BrainCircuit,
-    buttonLabel: "Analizar con IA"
+    buttonLabel: "Analizar Código"
   },
   {
     title: "Backup y Restauración",

@@ -95,7 +95,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/admin/aaiff') return 'Análisis y Optimización por IA';
+  if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
+  if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -114,7 +115,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/notas') return 'Bloc de Notas';
 
   if (pathname === '/login') return 'Login';
-  if (pathname === '/signup') return 'Crear Cuenta';
 
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
@@ -190,7 +190,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/notas') return StickyNote;
 
   if (pathname === '/login') return LogInIcon;
-  if (pathname === '/signup') return UserPlus2Icon;
 
   if (pathname === '/presupuestos') return ListChecks;
   if (pathname === '/invoices') return FileText;
@@ -205,6 +204,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
   if (pathname === '/admin/aaiff') return BrainCircuit;
+  if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
@@ -226,7 +226,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
 
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
