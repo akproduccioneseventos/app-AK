@@ -190,20 +190,20 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         
         const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
         
-        // Se actualiza la factura con un único ítem que resume el nuevo total del presupuesto.
-        // Esto es más seguro que intentar replicar cada ítem y descuento.
-        const summaryItem: Omit<InvoiceItem, 'id'> = {
+        // CORRECCIÓN: Reemplazar ítems existentes con un nuevo resumen para evitar duplicados.
+        const summaryItem: Omit<InvoiceItem, 'id' | 'total'> = {
             description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
             quantity: 1,
             unitPrice: budgetTotal,
-            total: budgetTotal,
         };
         
         const invoiceDataToUpdate: Invoice = {
             ...linkedInvoice,
+            // Reemplaza por completo los items. No se usa el spread de linkedInvoice.items
             items: [{
                 ...summaryItem,
-                id: `item_${linkedInvoice.id}_summary_update` 
+                id: `item_${linkedInvoice.id}_summary_update_${Date.now()}`,
+                total: summaryItem.quantity * summaryItem.unitPrice
             }],
             notes: updatedPresupuesto.notas || linkedInvoice.notes,
         };
