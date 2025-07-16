@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban, CakeSlice, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban, CakeSlice, PlusCircle, Trash2, Printer } from 'lucide-react'; // Added Printer
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { MusicaFiesta } from '@/types/fiesta';
@@ -144,12 +144,17 @@ export default function MusicaFiestaPage() {
             Música de la Fiesta
           </h1>
         </div>
-        <Link href="/fiestas/nueva" passHref>
-          <Button variant="outline" disabled={isSaving}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Planificador
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+            <Link href="/fiestas/nueva/musica/pdf" passHref>
+              <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir para DJ</Button>
+            </Link>
+            <Link href="/fiestas/nueva" passHref>
+              <Button variant="outline" disabled={isSaving}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver al Planificador
+              </Button>
+            </Link>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
