@@ -18,28 +18,9 @@ import type { Invoice as InvoiceType, Payment } from '@/types/invoice';
 import { getInvoiceById, addPaymentToInvoice } from '@/app/actions/invoices';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import Image from 'next/image'; // For company logo
-
-// Placeholder for fetching company/template settings
-// In a real app, these would come from a context or a fetched configuration
-const getCompanySettings = async () => {
-  // Simulate fetching settings
-  return {
-    companyName: "AK Producciones",
-    companyAddress: "Montevideo, Uruguay",
-    companyTaxId: "RUT Ejemplo 123456789012",
-    invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
-  };
-};
-const getInvoiceTemplateSettings = async () => {
-  return {
-    logoUrl: "https://placehold.co/180x70.png?text=Mi+Logo",
-    logoPosition: "left" as "left" | "center" | "right",
-    primaryColor: "#EF4444", // App default red
-    accentColor: "#F97316", // App default orange
-  };
-};
-
+import Image from 'next/image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import type { InvoiceTemplateSettings } from '@/types/settings';
 
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
   if (isNaN(amount)) return 'N/A';
@@ -79,31 +60,36 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
     paymentDate: new Date().toISOString(),
     amount: 0,
     method: 'Transferencia',
-    notes: '', // Will be set by useEffect based on initialNotes or when invoice changes
+    notes: '',
   });
   const [isAddingPayment, setIsAddingPayment] = useState(false);
 
   // State for template settings
   const [companySettings, setCompanySettings] = useState<any>(null);
-  const [templateSettings, setTemplateSettings] = useState<any>(null);
+  const [templateSettings, setTemplateSettings] = useState<InvoiceTemplateSettings | null>(null);
 
   const fetchInvoiceAndSettings = useCallback(async () => {
     if (!invoiceId) return;
     setIsLoadingInvoice(true);
     setErrorInvoice(null);
     try {
-      const [fetchedInvoice, compSettings, tmplSettings] = await Promise.all([
+      const [fetchedInvoice, tmplSettings] = await Promise.all([
         getInvoiceById(invoiceId),
-        getCompanySettings(),      // Placeholder fetch
-        getInvoiceTemplateSettings() // Placeholder fetch
+        getInvoiceTemplateSettings()
       ]);
       
       if (fetchedInvoice) {
         setInvoice(fetchedInvoice);
+        // Use vendor details from the invoice itself
+        setCompanySettings({
+            companyName: fetchedInvoice.vendorName,
+            companyAddress: fetchedInvoice.vendorAddress,
+            companyTaxId: fetchedInvoice.vendorTaxId,
+            invoiceCustomFooter: fetchedInvoice.notes
+        });
       } else {
         setErrorInvoice(`Factura con ID ${invoiceId} no encontrada.`);
       }
-      setCompanySettings(compSettings);
       setTemplateSettings(tmplSettings);
 
     } catch (error: any) {
@@ -118,15 +104,13 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
     fetchInvoiceAndSettings();
   }, [fetchInvoiceAndSettings]);
 
-  // Effect to update newPayment.notes when invoice (and thus initialNotes) changes
   useEffect(() => {
-    if (initialNotes) { // Only update if initialNotes has been calculated
-        // Update notes only if the form is "fresh" (amount is 0) or the current note is empty
+    if (initialNotes) {
         if (newPayment.amount === 0 || newPayment.notes === '') {
              setNewPayment(prev => ({ ...prev, notes: initialNotes }));
         }
     }
-  }, [initialNotes, newPayment.amount, newPayment.notes]); // Add newPayment.notes and newPayment.amount to prevent re-triggering if user typed something
+  }, [initialNotes, newPayment.amount, newPayment.notes]);
 
   const handlePaymentInputChange = (field: keyof NewPaymentFormState, value: any) => {
     setNewPayment(prev => ({ ...prev, [field]: value }));
@@ -164,7 +148,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
       if (result.success && result.invoice) {
         toast({ title: "¡Pago Añadido!", description: "El pago ha sido registrado correctamente." });
         setInvoice(result.invoice); 
-        // Recalculate suggested note for next payment
         const nextPaymentNumber = (result.invoice.payments?.length || 0) + 1;
         const nextSuggestedNote = nextPaymentNumber === 1 ? `Pago ${nextPaymentNumber} - Seña` : `Pago ${nextPaymentNumber} - `;
         setNewPayment({ paymentDate: new Date().toISOString(), amount: 0, method: 'Transferencia', notes: nextSuggestedNote });
@@ -184,15 +167,7 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
   const totalPaid = invoice?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
   const amountDue = invoice ? invoice.totalAmount - totalPaid : 0;
 
-  const handlePrint = () => {
-    const nonPrintable = document.querySelectorAll('.print\\:hidden');
-    nonPrintable.forEach(el => el.classList.add('temp-hidden-for-print'));
-    const mainContent = document.querySelector('main');
-    if (mainContent) mainContent.classList.add('print-main-override');
-    window.print();
-    nonPrintable.forEach(el => el.classList.remove('temp-hidden-for-print'));
-    if (mainContent) mainContent.classList.remove('print-main-override');
-  };
+  const handlePrint = () => { window.print(); };
 
   const handleShare = async () => {
     if (!invoice) return;
@@ -217,13 +192,11 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
   };
   
   const getLogoAlignmentClass = () => {
-    if (!templateSettings) return 'justify-start'; // Default to left
+    if (!templateSettings) return 'justify-start';
     switch (templateSettings.logoPosition) {
       case 'center': return 'justify-center';
       case 'right': return 'justify-end';
-      case 'left':
-      default:
-        return 'justify-start';
+      case 'left': default: return 'justify-start';
     }
   };
 
@@ -247,7 +220,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
     );
   }
 
-  // Style for elements using template colors
   const primaryColorStyle = { color: templateSettings.primaryColor };
   const accentColorStyle = { backgroundColor: templateSettings.accentColor };
 
@@ -265,7 +237,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
       <Card className="overflow-hidden shadow-lg print:shadow-none print:border-none" id="invoice-to-print">
         <CardHeader className="p-6 bg-muted/30 print:bg-transparent print:p-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            {/* Apply Logo Position */}
             <div className={`flex ${getLogoAlignmentClass()} w-full sm:w-auto mb-2 sm:mb-0`}>
               {templateSettings.logoUrl && <Image src={templateSettings.logoUrl} alt={`${companySettings.companyName} Logo`} width={150} height={60} className="object-contain print:w-36 print:h-14" data-ai-hint="company logo invoice"/>}
             </div>
@@ -280,7 +251,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
              <p>RUT/NIF: {companySettings.companyTaxId}</p>
           </div>
         </CardHeader>
-        {/* Line separator with accent color */}
         <div className="h-1 print:h-[2px] mx-6 print:mx-4" style={accentColorStyle}></div>
 
         <CardContent className="p-6 space-y-6 print:p-4 print:space-y-3">
@@ -288,7 +258,7 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
             <div>
               <h3 className="mb-1.5 text-xs font-semibold tracking-wider uppercase text-muted-foreground print:text-[9pt] print:mb-0.5">Facturar a:</h3>
               <p className="font-medium text-foreground print:text-sm">{invoice.customer.companyName || invoice.customer.name}</p>
-              {invoice.customer.address && (<p className="text-sm text-muted-foreground print:text-xs">{invoice.customer.address.street}</p>)}
+              {invoice.customer.address?.street && (<p className="text-sm text-muted-foreground print:text-xs">{invoice.customer.address.street}</p>)}
               {invoice.customer.taxId && <p className="text-sm text-muted-foreground print:text-xs">RUT/NIF: {invoice.customer.taxId}</p>}
               {invoice.customer.email && <p className="text-sm text-muted-foreground print:text-xs">Email: {invoice.customer.email}</p>}
               {invoice.customer.phone && <p className="text-sm text-muted-foreground print:text-xs">Tel: {invoice.customer.phone}</p>}
@@ -342,7 +312,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
             </div>
           </div>
           
-          {/* Payments Section - Visible on screen and print */}
           <div className="space-y-3 print:mt-4 print:break-inside-avoid">
             <div className="flex items-center gap-2"><Banknote className="w-5 h-5 text-primary print:w-4 print:h-4" /><h3 className="font-headline text-md print:text-sm">Pagos Registrados</h3></div>
             {invoice.payments && invoice.payments.length > 0 ? (
@@ -379,7 +348,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
             ) : (<div className="text-center py-3 text-muted-foreground bg-muted/20 rounded-md text-xs print:text-[9pt]"><Info className="w-4 h-4 mx-auto mb-1 opacity-50 print:hidden" />No hay pagos registrados.</div>)}
           </div>
           
-          {/* Add New Payment Form - Hidden on print */}
           {invoice.status !== 'Paid' && (
             <div className="mt-6 pt-4 border-t print:hidden">
               <div className="flex items-center gap-2 mb-3"><PlusCircle className="w-6 h-6 text-primary" /><h3 className="font-headline text-lg">Añadir Nuevo Pago</h3></div>
@@ -397,7 +365,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
           )}
         </CardContent>
         <CardFooter className="p-6 text-center bg-muted/30 print:mt-6 print:pt-3 print:border-t print:border-gray-300">
-            {/* Custom Footer from Company Settings */}
             {companySettings?.invoiceCustomFooter ? (
                 <p className="text-xs text-muted-foreground print:text-[9pt] whitespace-pre-line">{companySettings.invoiceCustomFooter}</p>
             ) : (
@@ -409,52 +376,7 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
       <style jsx global>{`
         @media print {
           body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-          .print\\:hidden { display: none !important; }
-          .print\\:block { display: block !important; } /* Added to ensure payment list shows */
-          .print\\:text-xs { font-size: 0.7rem !important; line-height: 0.9rem !important; }
-          .print\\:text-\\[9pt\\] { font-size: 9pt !important; line-height: 1.1 !important; }
-          .print\\:text-sm { font-size: 0.8rem !important; line-height: 1.1rem !important; }
-          .print\\:text-base { font-size: 0.9rem !important; line-height: 1.3rem !important; }
-          .print\\:text-lg { font-size: 1rem !important; line-height: 1.4rem !important; }
-          .print\\:text-xl { font-size: 1.1rem !important; line-height: 1.5rem !important; }
-          .print\\:p-0 { padding: 0 !important; }
-          .print\\:p-1 { padding: 0.15rem !important; }
-          .print\\:p-2 { padding: 0.3rem !important; }
-          .print\\:p-4 { padding: 0.5rem !important; }
-          .print\\:m-0 { margin: 0 !important; }
-          .print\\:mb-0\\.5 { margin-bottom: 0.1rem !important; }
-          .print\\:mb-1 { margin-bottom: 0.2rem !important; }
-          .print\\:mb-1\\.5 { margin-bottom: 0.3rem !important; }
-          .print\\:mb-2 { margin-bottom: 0.4rem !important; }
-          .print\\:mt-2 { margin-top: 0.4rem !important; }
-          .print\\:mt-3 { margin-top: 0.6rem !important; }
-          .print\\:mt-4 { margin-top: 0.8rem !important; }
-          .print\\:mt-6 { margin-top: 1.2rem !important; }
-          .print\\:pt-3 { padding-top: 0.6rem !important; }
-          .print\\:space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.2rem !important; margin-bottom: 0.2rem !important; }
-          .print\\:space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.4rem !important; margin-bottom: 0.4rem !important; }
-          .print\\:space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.6rem !important; margin-bottom: 0.6rem !important; }
-          .print\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-          .print\\:gap-2 { gap: 0.4rem !important; }
-          .print\\:gap-3 { gap: 0.6rem !important; }
-          .print\\:border-gray-200 { border-color: #e5e7eb !important; }
-          .print\\:border-gray-300 { border-color: #d1d5db !important; }
-          .print\\:bg-transparent { background-color: transparent !important; }
-          .print\\:bg-gray-50 { background-color: #f9fafb !important; }
-          .print\\:bg-gray-100 { background-color: #f3f4f6 !important; }
-          .print\\:w-36 { width: 9rem !important; }
-          .print\\:h-14 { height: 3.5rem !important; }
-          .print\\:w-4 { width: 1rem !important; }
-          .print\\:h-4 { height: 1rem !important; }
-          .print\\:max-w-\\[100px\\] { max-width: 100px !important; }
-          .print\\:break-inside-avoid { break-inside: avoid !important; }
-          main.print-main-override { padding: 0.5in !important; }
-           #invoice-to-print {
-              width: 100%;
-              margin: 0 auto;
-              box-shadow: none !important;
-              border: none !important;
-            }
+          .print-main-override { padding: 0.5in !important; }
         }
         .temp-hidden-for-print { display: none !important; }
       `}</style>
