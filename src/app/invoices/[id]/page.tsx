@@ -48,14 +48,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
   const [errorInvoice, setErrorInvoice] = useState<string | null>(null);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
 
-
-  // Memoize initial notes calculation based on invoice
-  const initialNotes = useMemo(() => {
-    if (!invoice) return '';
-    const paymentNumber = (invoice.payments?.length || 0) + 1;
-    return paymentNumber === 1 ? `Pago ${paymentNumber} - Seña` : `Pago ${paymentNumber} - `;
-  }, [invoice]);
-
   const [newPayment, setNewPayment] = useState<NewPaymentFormState>({
     paymentDate: new Date().toISOString(),
     amount: 0,
@@ -67,6 +59,12 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
   // State for template settings
   const [companySettings, setCompanySettings] = useState<any>(null);
   const [templateSettings, setTemplateSettings] = useState<InvoiceTemplateSettings | null>(null);
+  
+  const suggestedNote = useMemo(() => {
+    if (!invoice) return '';
+    const paymentNumber = (invoice.payments?.length || 0) + 1;
+    return paymentNumber === 1 ? `Pago ${paymentNumber} - Seña` : `Pago ${paymentNumber} - `;
+  }, [invoice]);
 
   const fetchInvoiceAndSettings = useCallback(async () => {
     if (!invoiceId) return;
@@ -87,6 +85,9 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
             companyTaxId: fetchedInvoice.vendorTaxId,
             invoiceCustomFooter: fetchedInvoice.notes
         });
+        const paymentNumber = (fetchedInvoice.payments?.length || 0) + 1;
+        const initialNote = paymentNumber === 1 ? `Pago ${paymentNumber} - Seña` : `Pago ${paymentNumber} - `;
+        setNewPayment(prev => ({...prev, notes: prev.notes || initialNote}));
       } else {
         setErrorInvoice(`Factura con ID ${invoiceId} no encontrada.`);
       }
@@ -103,14 +104,6 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
   useEffect(() => {
     fetchInvoiceAndSettings();
   }, [fetchInvoiceAndSettings]);
-
-  useEffect(() => {
-    if (initialNotes) {
-        if (newPayment.amount === 0 || newPayment.notes === '') {
-             setNewPayment(prev => ({ ...prev, notes: initialNotes }));
-        }
-    }
-  }, [initialNotes, newPayment.amount, newPayment.notes]);
 
   const handlePaymentInputChange = (field: keyof NewPaymentFormState, value: any) => {
     setNewPayment(prev => ({ ...prev, [field]: value }));
