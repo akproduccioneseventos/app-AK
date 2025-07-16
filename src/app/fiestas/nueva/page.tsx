@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
@@ -188,6 +188,13 @@ export default function PlanificarFiestaHubPage() {
           </Card>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             <ModuleCard 
+                title="Resumen Imprimible del Evento"
+                description="Genera un PDF con toda la información clave del evento: itinerario, menús, etc."
+                href="/fiestas/nueva/resumen-imprimible"
+                icon={Printer}
+                actionLabel="Ver Resumen"
+             />
              <ModuleCard 
                 title="Portal del cliente"
                 description="Gestiona lo que ven el cliente y los invitados (Checklist, RSVP, etc.)."

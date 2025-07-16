@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -82,6 +83,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/notas-cliente') return 'Notas del Cliente';
+  if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
+
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -165,6 +168,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/notas-cliente') return StickyNote;
+    if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     return PartyPopper;
   }
 
@@ -231,13 +235,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
   const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
   const isRecibosPersonalPage = pathname === '/fiestas/nueva/personal/recibos';
-  const isMusicaPdfPage = pathname === '/fiestas/nueva/musica/pdf'; // Added this line
+  const isMusicaPdfPage = pathname === '/fiestas/nueva/musica/pdf';
+  const isResumenImprimiblePage = pathname === '/fiestas/nueva/resumen-imprimible';
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
   const isBudgetCreationStep4 = pathname === '/presupuestos/nuevo' && (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('pasoActual') === '4');
 
 
-  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isRecibosPersonalPage || isMusicaPdfPage || isBudgetViewPage || isInvoiceViewPage || isBudgetCreationStep4) {
+  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isRecibosPersonalPage || isMusicaPdfPage || isResumenImprimiblePage || isBudgetViewPage || isInvoiceViewPage || isBudgetCreationStep4) {
     return <main className="min-h-screen">{children}</main>;
   }
   
