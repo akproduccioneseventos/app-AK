@@ -4,25 +4,10 @@
  * @fileOverview An AI agent for generating marketing testimonials from client feedback.
  *
  * - generateTestimonial - Generates a professional testimonial based on client survey responses.
- * - GenerateTestimonialInput - The input type for the generateTestimonial function.
- * - GenerateTestimonialOutput - The return type for the generateTestimonial function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-const GenerateTestimonialInputSchema = z.object({
-  clientName: z.string().describe('The name of the client providing the feedback.'),
-  enjoyedMost: z.string().describe('The part of the service the client enjoyed the most.'),
-  toImprove: z.string().describe('What the client suggests for improvement.'),
-  generalComments: z.string().optional().describe('Any other general comments from the client.'),
-});
-export type GenerateTestimonialInput = z.infer<typeof GenerateTestimonialInputSchema>;
-
-const GenerateTestimonialOutputSchema = z.object({
-  testimonialText: z.string().describe('The generated marketing testimonial, written from the client\'s perspective in a warm and professional tone. It should be concise and ready for use on social media or a website.'),
-});
-export type GenerateTestimonialOutput = z.infer<typeof GenerateTestimonialOutputSchema>;
+import { GenerateTestimonialInputSchema, type GenerateTestimonialInput, GenerateTestimonialOutputSchema, type GenerateTestimonialOutput } from '@/ai/types/generate-testimonial-types';
 
 export async function generateTestimonial(
   input: GenerateTestimonialInput

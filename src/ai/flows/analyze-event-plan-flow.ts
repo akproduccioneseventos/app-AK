@@ -4,33 +4,10 @@
  * @fileOverview An AI agent for analyzing an event plan.
  *
  * - analyzeEventPlan - A function that handles the event plan analysis process.
- * - AnalyzeEventPlanInput - The input type for the analyzeEventPlan function.
- * - AnalyzeEventPlanOutput - The return type for the analyzeEventPlan function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-
-// We don't need a specific input schema if we read the file directly,
-// but for flexibility, we'll pass the data in.
-export const AnalyzeEventPlanInputSchema = z.object({
-  planData: z.any().describe('The entire JSON object of the event plan (FiestaEnPlanificacion).'),
-});
-export type AnalyzeEventPlanInput = z.infer<typeof AnalyzeEventPlanInputSchema>;
-
-const AnalysisItemSchema = z.object({
-  module: z.string().describe('The name of the module or feature (e.g., "Invitados", "Catering", "Decoración").'),
-  status: z.enum(['Completo', 'Parcial', 'Faltante', 'Atención Requerida']).describe('The status of the module.'),
-  details: z.string().describe('A detailed explanation of the finding, including what is missing or what needs attention.'),
-  suggestion: z.string().optional().describe('An actionable suggestion for the planner or client.'),
-});
-
-export const AnalyzeEventPlanOutputSchema = z.object({
-  overallSummary: z.string().describe("A high-level summary of the event plan's completeness."),
-  analysisItems: z.array(AnalysisItemSchema).describe('A detailed list of findings for each module of the event plan.'),
-});
-export type AnalyzeEventPlanOutput = z.infer<typeof AnalyzeEventPlanOutputSchema>;
+import { AnalyzeEventPlanInputSchema, type AnalyzeEventPlanInput, AnalyzeEventPlanOutputSchema, type AnalyzeEventPlanOutput } from '@/ai/types/analyze-event-plan-types';
 
 export async function analyzeEventPlan(input: AnalyzeEventPlanInput): Promise<AnalyzeEventPlanOutput> {
   return analyzeEventPlanFlow(input);
