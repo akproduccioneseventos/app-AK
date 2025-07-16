@@ -30,6 +30,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flows/suggest-palette-flow';
+import { Switch } from '@/components/ui/switch';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -70,7 +71,7 @@ const ItemSection: React.FC<ItemSectionProps> = ({ title, category, items, onAdd
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <p className="font-medium text-sm">{item.name}</p>
-                   {item.imageUrl && !failedImageUrls[item.id] && <NextImage src={item.imageUrl} alt={item.name} width={80} height={60} className="rounded border object-contain max-h-[60px]" data-ai-hint={item.dataAiHint || "decoration item"} />}
+                   {item.imageUrl && !failedImageUrls[item.id] && <NextImage src={item.imageUrl} alt={item.name} width={80} height={60} className="rounded border object-contain max-h-[60px]" data-ai-hint={item.dataAiHint || "decoration item"} onError={()=>setFailedImageUrls(p=>({...p, [item.id]:true}))}/>}
                   {item.notes && <p className="text-xs italic text-muted-foreground/80 mt-0.5 whitespace-pre-line">{item.notes}</p>}
                 </div>
                 <div className="flex flex-col gap-1 flex-shrink-0">
