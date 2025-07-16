@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -107,6 +107,13 @@ export default function RecibosDePagoPage() {
   const handlePrint = () => {
     window.print();
   };
+
+  const handleShareWhatsApp = () => {
+    const pageUrl = window.location.href;
+    const message = `Hola, aquí están los recibos de pago para el personal del evento "${fiesta?.configuracion.nombreEvento}". Puedes verlos e imprimirlos desde este enlace:\n\n${pageUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
   
   if (isLoading) {
     return (
@@ -140,7 +147,10 @@ export default function RecibosDePagoPage() {
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
             <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
-            <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir Recibos</Button>
+            <div className="flex gap-2">
+              <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+              <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir Recibos</Button>
+            </div>
         </div>
         
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">

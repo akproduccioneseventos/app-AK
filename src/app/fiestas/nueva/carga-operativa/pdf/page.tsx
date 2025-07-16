@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, PackageSearch } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
@@ -50,6 +50,13 @@ export default function CargaOperativaPdfPage() {
   const handlePrint = () => {
     window.print();
   };
+  
+  const handleShareWhatsApp = () => {
+    const pageUrl = window.location.href;
+    const message = `¡Hola! Aquí tienes la lista de carga operativa para el evento "${fiesta?.configuracion.nombreEvento}":\n\n${pageUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
   if (isLoading) {
     return (
@@ -87,7 +94,10 @@ export default function CargaOperativaPdfPage() {
           <Link href="/fiestas/nueva/carga-operativa" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
-          <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
+          <div className="flex gap-2">
+            <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
+          </div>
         </div>
 
         <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
@@ -119,7 +129,7 @@ export default function CargaOperativaPdfPage() {
                       <p className="text-sm font-medium text-gray-700 print:text-xs">
                         {item.nombre}
                         <span className="text-gray-500 print:text-gray-600 text-xs ml-1">
-                          (Cant: {item.cantidad} {item.unidad ? `- Un: ${item.unidad}` : ''})
+                          (Cant: {item.cantidad} {item.unidad && `(${item.unidad})`})
                         </span>
                       </p>
                       {item.notas && <p className="text-xs text-gray-500 italic print:text-[8pt] mt-0.5 whitespace-pre-wrap">Nota: {item.notas}</p>}

@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { getHistorialFiestas, archivarFiestaActual, getFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -92,6 +93,23 @@ export default function GestorFiestasPage() {
   const handlePrintSummary = () => {
     window.print();
   };
+  
+  const handleShareWhatsApp = () => {
+    let message = `*Resumen de Eventos - AK Producciones*\n\n`;
+    if (fiestaActual && isFiestaActualConfigured) {
+        message += `*Evento Actual en Planificación:*\n`;
+        message += `*Nombre:* ${fiestaActual.configuracion.nombreEvento}\n`;
+        message += `*Fecha:* ${formatDate(fiestaActual.configuracion.fechaEvento)}\n\n`;
+    }
+    message += `*Historial de Fiestas Archivadas (${historialFiestas.length}):*\n`;
+    historialFiestas.slice(0, 5).forEach(fiesta => { // Limit to 5 for brevity
+        message += `  - ${fiesta.configuracion.nombreEvento} (${formatDate(fiesta.configuracion.fechaEvento)})\n`;
+    });
+    if(historialFiestas.length > 5) message += `  ...y ${historialFiestas.length - 5} más.\n`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
   const fiestasPasadasCount = historialFiestas.length;
   let fiestasFuturasCount = 0;
@@ -115,7 +133,10 @@ export default function GestorFiestasPage() {
         <div className="flex gap-2 flex-wrap">
            <Button variant="outline" onClick={handlePrintSummary} disabled={isLoading}>
               <Printer className="w-4 h-4 mr-2" />
-              Imprimir Resumen
+              Imprimir
+            </Button>
+            <Button variant="outline" onClick={handleShareWhatsApp} disabled={isLoading}>
+              <Share2 className="w-4 h-4 mr-2"/>Compartir
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>

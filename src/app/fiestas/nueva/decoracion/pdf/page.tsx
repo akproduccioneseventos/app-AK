@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Palette, CakeSlice, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera, Sparkles as SparklesIcon } from 'lucide-react';
+import { ArrowLeft, Printer, Palette, CakeSlice, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera, Sparkles as SparklesIcon, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -59,6 +59,13 @@ function DecorationPdfPageContent() {
   const handlePrint = () => {
     window.print();
   };
+  
+  const handleShareWhatsApp = () => {
+    const pageUrl = window.location.href;
+    const message = `¡Hola! Aquí tienes el plan de ${showLayout ? 'disposición del salón' : 'decoración'} para el evento "${fiesta?.configuracion.nombreEvento}":\n\n${pageUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
   const decoracion: DecoracionData | undefined = fiesta?.decoracion;
   const configuracion = fiesta?.configuracion;
@@ -81,9 +88,9 @@ function DecorationPdfPageContent() {
   if (!fiesta || !decoracion || !configuracion) {
     return (
       <div className="p-8 max-w-3xl mx-auto bg-white text-center">
-        <div className="flex justify-between items-center mb-6 print:hidden">
-            <Link href="/fiestas/nueva/decoracion" passHref>
-              <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
+         <div className="flex justify-between items-center mb-6 print:hidden">
+             <Link href="/fiestas/nueva/decoracion" passHref>
+                <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
             </Link>
         </div>
         <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
@@ -111,7 +118,10 @@ function DecorationPdfPageContent() {
           <Link href="/fiestas/nueva/decoracion" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
-          <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
+          <div className="flex gap-2">
+            <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
+          </div>
         </div>
 
         <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
