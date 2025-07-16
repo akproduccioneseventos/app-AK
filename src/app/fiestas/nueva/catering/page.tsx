@@ -221,7 +221,7 @@ export default function CateringEventoHubPage() {
               <Link href="/empresa/todos-los-servicios" passHref>
                   <Button className="w-full" variant="secondary">
                       <HardHat className="w-5 h-5 mr-2" />
-                      Gestionar Catálogo
+                      Gestionar Catálogo de Insumos
                   </Button>
               </Link>
           </CardContent>
