@@ -73,9 +73,12 @@ export async function saveInvoice(
   invoiceDataInput: (Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }) | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
-  // Validate that all item quantities are positive
+  // Validate that all item quantities are positive and descriptions are not empty
   if (invoiceDataInput.items.some(item => item.quantity <= 0)) {
     return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
+  }
+  if (invoiceDataInput.items.some(item => !item.description || item.description.trim() === '')) {
+    return { success: false, error: 'Todos los ítems de la factura deben tener una descripción.' };
   }
 
   let invoices = await readInvoicesFile();
