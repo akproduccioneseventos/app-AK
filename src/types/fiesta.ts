@@ -171,6 +171,7 @@ export interface ClientPortalSettings {
   notasCliente: PortalModuleSettings;
   invitados: PortalViewOnlyModuleSettings;
   paginaPublica: PortalViewOnlyModuleSettings;
+  fotografiaYFilmacion: PortalViewOnlyModuleSettings; // Added for new module
 }
 
 export interface SocialGallerySettings {
@@ -353,6 +354,19 @@ export interface VideoVidaData {
   customText?: string;
 }
 
+export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
+
+export interface FotografiaYFilmacionData {
+    fechaEstimadaEntregaFotos?: string; // ISO String
+    fechaEstimadaEntregaVideo?: string; // ISO String
+    fechaEntregaFinal?: string; // ISO String
+    estadoEntrega: EntregaMaterialEstado;
+    linkDescargaFotos?: string;
+    linkDescargaVideo?: string;
+    recibidoPorCliente: boolean;
+    notasEntrega?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -376,4 +390,5 @@ export interface FiestaEnPlanificacion {
   gestionCostos?: GestionCostosData;
   videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
+  fotografiaYFilmacion?: FotografiaYFilmacionData;
 }

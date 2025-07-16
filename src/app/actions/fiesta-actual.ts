@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem, ClientTarea } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem, ClientTarea, FotografiaYFilmacionData } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -25,6 +25,7 @@ import {
   initialGestionCostosData,
   defaultVideoVidaData,
   defaultPrograma,
+  defaultFotografiaYFilmacionData,
 } from '@/lib/fiesta-defaults';
 
 
@@ -128,6 +129,9 @@ async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
     if (!parsedData.videoVida) {
         parsedData.videoVida = { ...defaultVideoVidaData };
     }
+    if (!parsedData.fotografiaYFilmacion) {
+        parsedData.fotografiaYFilmacion = { ...defaultFotografiaYFilmacionData };
+    }
 
 
     return parsedData;
@@ -188,6 +192,9 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
     }
     if (!dataToWrite.videoVida) {
         dataToWrite.videoVida = { ...defaultVideoVidaData };
+    }
+    if (!dataToWrite.fotografiaYFilmacion) {
+        dataToWrite.fotografiaYFilmacion = { ...defaultFotografiaYFilmacionData };
     }
 
 
@@ -308,6 +315,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
       notasCliente: { ...defaultClientPortalSettings.notasCliente, ...(data.clientPortalSettings?.notasCliente || {}) },
       invitados: { ...defaultClientPortalSettings.invitados, ...(data.clientPortalSettings?.invitados || {}) },
       paginaPublica: { ...defaultClientPortalSettings.paginaPublica, ...(data.clientPortalSettings?.paginaPublica || {}) },
+      fotografiaYFilmacion: { ...defaultClientPortalSettings.fotografiaYFilmacion, ...(data.clientPortalSettings?.fotografiaYFilmacion || {}) },
     };
 
 
@@ -346,6 +354,11 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     const validatedVideoVida: VideoVidaData = {
       ...defaultVideoVidaData,
       ...(data.videoVida || {}),
+    };
+
+    const validatedFotografiaYFilmacion: FotografiaYFilmacionData = {
+        ...defaultFotografiaYFilmacionData,
+        ...(data.fotografiaYFilmacion || {}),
     };
     
     const validatedPrograma: ProgramaEventoItem[] = (data.programa && data.programa.length > 0 ? data.programa : [...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]).map(p => ({
@@ -409,6 +422,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     gestionCostos: validatedGestionCostos,
     videoVida: validatedVideoVida,
     programa: validatedPrograma,
+    fotografiaYFilmacion: validatedFotografiaYFilmacion,
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -1074,6 +1088,22 @@ export async function updateVideoVidaSettings(
   } catch (e: any) {
     return { success: false, error: e.message || "Error al actualizar el módulo de Video de Vida." };
   }
+}
+
+export async function updateFotografiaYFilmacion(
+    data: Partial<FotografiaYFilmacionData>
+): Promise<{ success: boolean; updatedData?: FotografiaYFilmacionData; error?: string }> {
+    try {
+        let fiestaActual = await getFiestaActual();
+        fiestaActual.fotografiaYFilmacion = {
+            ...(fiestaActual.fotografiaYFilmacion || defaultFotografiaYFilmacionData),
+            ...data,
+        };
+        await writeFiestaActualFile(fiestaActual);
+        return { success: true, updatedData: JSON.parse(JSON.stringify(fiestaActual.fotografiaYFilmacion)) };
+    } catch (e: any) {
+        return { success: false, error: e.message || "Error al actualizar la información de fotografía." };
+    }
 }
 
 export async function updateProgramaFiestaActual(

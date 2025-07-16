@@ -1,4 +1,4 @@
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -120,6 +120,7 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
   notasCliente: { visible: false, editable: true },
   invitados: { visible: true },
   paginaPublica: { visible: true },
+  fotografiaYFilmacion: { visible: true },
 };
 
 export const defaultSocialGallerySettings: SocialGallerySettings = {
@@ -187,6 +188,12 @@ export const defaultVideoVidaData: VideoVidaData = {
   customText: '',
 };
 
+export const defaultFotografiaYFilmacionData: FotografiaYFilmacionData = {
+    estadoEntrega: 'Pendiente',
+    recibidoPorCliente: false,
+};
+
+
 export const initialFiestaActualData: FiestaEnPlanificacion = {
   id: `fiesta_${Date.now()}`,
   configuracion: { ...defaultConfiguracion },
@@ -223,4 +230,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   gestionCostos: { ...initialGestionCostosData },
   videoVida: { ...defaultVideoVidaData },
   programa: [...defaultPrograma.map(p => ({ ...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
+  fotografiaYFilmacion: { ...defaultFotografiaYFilmacionData },
 };
