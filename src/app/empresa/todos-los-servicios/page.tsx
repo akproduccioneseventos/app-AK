@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
@@ -83,6 +83,31 @@ export default function InventarioGeneralPage() {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+  
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Inventario General - AK Producciones',
+      text: `Resumen de Inventario y Valor de Activos.`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
+  };
+
   const itemsAgrupadosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
       const categoria = item.categoria || 'Otros';
@@ -108,46 +133,50 @@ export default function InventarioGeneralPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <Package className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Inventario General y Valor de Activos
           </h1>
         </div>
-         <Link href="/empresa/todos-los-servicios/nuevo" passHref>
-          <Button variant="default">
-            <PackagePlus className="w-4 h-4 mr-2" />
-            Añadir Activo
-          </Button>
-        </Link>
+         <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
+            <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
+            <Link href="/empresa/todos-los-servicios/nuevo" passHref>
+                <Button variant="default">
+                    <PackagePlus className="w-4 h-4 mr-2" />
+                    Añadir Activo
+                </Button>
+            </Link>
+        </div>
       </div>
 
-      <Card className="shadow-lg">
-        <CardHeader className="border-b">
+      <Card className="shadow-lg print:shadow-none print:border-none">
+        <CardHeader className="border-b print:border-b-2 print:border-gray-200">
           <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos de la Empresa</CardTitle>
           <CardDescription>Resumen del capital total de insumos y activos físicos, por servicio/categoría.</CardDescription>
         </CardHeader>
-        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-3 print:p-2">
           {capitalPorCategoria.map(cat => (
-            cat.total > 0 && <Card key={cat.nombre} className="bg-muted/50">
-              <CardHeader className="pb-2 pt-3 px-4"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center"><Tag className="w-3.5 h-3.5 mr-1.5"/> {cat.nombre}</CardTitle></CardHeader>
-              <CardContent className="px-4 pb-3"><p className="text-2xl font-bold text-primary">{formatCurrency(cat.total)}</p></CardContent>
+            cat.total > 0 && <Card key={cat.nombre} className="bg-muted/50 print:border print:border-gray-200 print:shadow-none">
+              <CardHeader className="pb-2 pt-3 px-4"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center print:text-xs"><Tag className="w-3.5 h-3.5 mr-1.5"/> {cat.nombre}</CardTitle></CardHeader>
+              <CardContent className="px-4 pb-3"><p className="text-2xl font-bold text-primary print:text-lg">{formatCurrency(cat.total)}</p></CardContent>
             </Card>
           ))}
         </CardContent>
-        <CardFooter className="border-t p-4 bg-muted/30">
+        <CardFooter className="border-t p-4 bg-muted/30 print:border-t-2 print:border-gray-200">
           <div className="flex justify-end items-center w-full gap-2">
             <BarChart3 className="w-5 h-5 text-primary"/>
-            <span className="text-lg font-semibold">Capital Total General:</span>
-            <span className="text-2xl font-bold text-primary">{formatCurrency(capitalTotalGeneral)}</span>
+            <span className="text-lg font-semibold print:text-base">Capital Total General:</span>
+            <span className="text-2xl font-bold text-primary print:text-xl">{formatCurrency(capitalTotalGeneral)}</span>
           </div>
         </CardFooter>
       </Card>
       
-      <Separator />
+      <Separator className="my-6 print:hidden" />
 
-       <Card className="shadow-sm">
+       <Card className="shadow-sm print:hidden">
         <CardContent className="p-4 flex flex-col md:flex-row gap-4">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -165,20 +194,20 @@ export default function InventarioGeneralPage() {
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (
-            <AccordionItem value={categoria} key={categoria} className="border rounded-lg shadow-md bg-card">
-              <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg">
+            <AccordionItem value={categoria} key={categoria} className="border rounded-lg shadow-md bg-card print:break-inside-avoid print:border-gray-300 print:shadow-none">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg print:text-base print:py-2">
                 <div className="flex items-center gap-2"><Tag className="w-5 h-5 text-primary/80"/>{categoria} ({itemsAgrupadosPorCategoria[categoria]?.length || 0} ítems)</div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pt-0 pb-3">
+              <AccordionContent className="px-4 pt-0 pb-3 print:p-2">
                 <div className="space-y-3 mt-2">
                   {itemsAgrupadosPorCategoria[categoria]?.map((item) => {
                     const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
                     return (
-                      <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
+                      <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow print:shadow-none print:border-gray-200">
                         <CardHeader className="pb-2 pt-3 px-3">
                           <div className="flex justify-between items-start">
-                            <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
-                            <div className="flex gap-1">
+                            <CardTitle className="text-base font-semibold print:text-sm">{item.nombre}</CardTitle>
+                            <div className="flex gap-1 print:hidden">
                                 <Link href={`/empresa/todos-los-servicios/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
@@ -187,14 +216,14 @@ export default function InventarioGeneralPage() {
                             </div>
                           </div>
                         </CardHeader>
-                        <CardContent className="px-3 pb-3 text-sm space-y-1">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs">
+                        <CardContent className="px-3 pb-3 text-sm space-y-1 print:text-xs">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
                             <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
                             <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
                           </div>
-                          {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
+                          {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5 print:mt-1 print:pt-0.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>
                       </Card>
                     )
