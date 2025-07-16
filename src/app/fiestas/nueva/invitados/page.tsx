@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -235,7 +235,7 @@ export default function InvitadosEventoPage() {
         <CardFooter className="pt-0">
           <Link href="/fiestas/nueva/invitados/layout" passHref className="w-full">
             <Button variant="default" className="w-full">
-              Ir al Diseñador de Salón <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
+              Ir al Diseñador de Salón <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
         </CardFooter>
