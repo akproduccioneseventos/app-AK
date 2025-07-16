@@ -94,21 +94,25 @@ export default function GestorFiestasPage() {
     window.print();
   };
   
-  const handleShareWhatsApp = () => {
-    let message = `*Resumen de Eventos - AK Producciones*\n\n`;
-    if (fiestaActual && isFiestaActualConfigured) {
-        message += `*Evento Actual en Planificación:*\n`;
-        message += `*Nombre:* ${fiestaActual.configuracion.nombreEvento}\n`;
-        message += `*Fecha:* ${formatDate(fiestaActual.configuracion.fechaEvento)}\n\n`;
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Resumen de Eventos - AK Producciones',
+      text: `Resumen de eventos y planificación actual.`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
     }
-    message += `*Historial de Fiestas Archivadas (${historialFiestas.length}):*\n`;
-    historialFiestas.slice(0, 5).forEach(fiesta => { // Limit to 5 for brevity
-        message += `  - ${fiesta.configuracion.nombreEvento} (${formatDate(fiesta.configuracion.fechaEvento)})\n`;
-    });
-    if(historialFiestas.length > 5) message += `  ...y ${historialFiestas.length - 5} más.\n`;
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
   };
 
   const fiestasPasadasCount = historialFiestas.length;
@@ -135,7 +139,7 @@ export default function GestorFiestasPage() {
               <Printer className="w-4 h-4 mr-2" />
               Imprimir
             </Button>
-            <Button variant="outline" onClick={handleShareWhatsApp} disabled={isLoading}>
+            <Button variant="outline" onClick={handleShare} disabled={isLoading}>
               <Share2 className="w-4 h-4 mr-2"/>Compartir
             </Button>
             <AlertDialog>

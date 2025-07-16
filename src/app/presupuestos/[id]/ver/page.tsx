@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -97,8 +97,29 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   };
   
   const handlePrint = () => {
-    console.log('Print button on VerPresupuestoPage clicked, attempting window.print()');
     window.print();
+  };
+
+  const handleShare = async () => {
+    if (!presupuesto) return;
+    const shareData = {
+      title: `Presupuesto para ${presupuesto.clienteNombre}`,
+      text: `Aquí está el presupuesto para tu ${presupuesto.eventoTipo}.`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
   };
 
   if (isLoading || !displaySettings) {
@@ -128,6 +149,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
           <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
+            <Button variant="outline" size="sm" onClick={handleShare}><Share2 className="mr-2 h-4 w-4"/>Compartir</Button>
             <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             {presupuesto.estado !== 'Facturado' ? 
               (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
@@ -159,7 +181,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         {displaySettings.showClientData && displaySettings.showEventTypeAndDate && (
             <section className="my-4 print:my-2 text-sm print:text-[9pt] text-center">
                 <p>
-                <span className="font-semibold">{presupuesto.clienteNombre}</span> {presupuesto.eventoTipo} - {formatDate(presupuesto.eventoFecha, true)}
+                <span className="font-semibold">{presupuesto.clienteNombre}</span> {presupuesto.eventoTipo ? ` ${presupuesto.eventoTipo}` : ''}{presupuesto.eventoFecha ? ` - ${formatDate(presupuesto.eventoFecha, true)}` : ''}
                 </p>
             </section>
         )}

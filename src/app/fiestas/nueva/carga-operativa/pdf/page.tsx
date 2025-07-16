@@ -51,11 +51,25 @@ export default function CargaOperativaPdfPage() {
     window.print();
   };
   
-  const handleShareWhatsApp = () => {
-    const pageUrl = window.location.href;
-    const message = `¡Hola! Aquí tienes la lista de carga operativa para el evento "${fiesta?.configuracion.nombreEvento}":\n\n${pageUrl}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  const handleShare = async () => {
+    const shareData = {
+      title: `Lista de Carga - ${fiesta?.configuracion.nombreEvento}`,
+      text: `Aquí tienes la lista de carga operativa para el evento.`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
   };
 
   if (isLoading) {
@@ -95,7 +109,7 @@ export default function CargaOperativaPdfPage() {
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
           <div className="flex gap-2">
-            <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
           </div>
         </div>

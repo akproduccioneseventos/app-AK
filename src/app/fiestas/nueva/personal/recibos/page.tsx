@@ -25,7 +25,9 @@ const formatCurrency = (amount?: number) => {
 const formatDate = (dateString?: string) => {
   if (!dateString) return "N/A";
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: '2-digit', month: 'long', year: 'numeric'
+    });
   } catch (e) { return "Fecha Inválida"; }
 };
 
@@ -108,11 +110,25 @@ export default function RecibosDePagoPage() {
     window.print();
   };
 
-  const handleShareWhatsApp = () => {
-    const pageUrl = window.location.href;
-    const message = `Hola, aquí están los recibos de pago para el personal del evento "${fiesta?.configuracion.nombreEvento}". Puedes verlos e imprimirlos desde este enlace:\n\n${pageUrl}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  const handleShare = async () => {
+    const shareData = {
+      title: `Recibos de Pago - ${fiesta?.configuracion.nombreEvento}`,
+      text: 'Recibos de pago para el personal del evento.',
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
   };
   
   if (isLoading) {
@@ -148,7 +164,7 @@ export default function RecibosDePagoPage() {
         <div className="flex justify-between items-center mb-6 print:hidden">
             <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
             <div className="flex gap-2">
-              <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+              <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
               <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir Recibos</Button>
             </div>
         </div>

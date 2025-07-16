@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Download, Send, Edit, AlertTriangle, Loader2, PlusCircle, ReceiptText, Banknote, Info, Link as LinkIconLucide, FileText as FileTextIcon } from 'lucide-react';
+import { ArrowLeft, Download, Send, Edit, AlertTriangle, Loader2, PlusCircle, ReceiptText, Banknote, Info, Link as LinkIconLucide, FileText as FileTextIcon, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/status-badge';
@@ -193,6 +193,28 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
     nonPrintable.forEach(el => el.classList.remove('temp-hidden-for-print'));
     if (mainContent) mainContent.classList.remove('print-main-override');
   };
+
+  const handleShare = async () => {
+    if (!invoice) return;
+    const shareData = {
+      title: `Factura ${invoice.invoiceNumber} de ${companySettings?.companyName}`,
+      text: `Ver la factura para ${invoice.customer.name || invoice.customer.companyName}. Monto total: ${formatCurrency(invoice.totalAmount, invoice.currency)}`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
+  };
   
   const getLogoAlignmentClass = () => {
     if (!templateSettings) return 'justify-start'; // Default to left
@@ -234,7 +256,7 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: Promis
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <Link href="/invoices" passHref><Button variant="outline" disabled={isAddingPayment}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Facturas</Button></Link>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" disabled={isAddingPayment} onClick={() => toast({title: "Funcionalidad Próxima", description: "Enviar por email estará disponible pronto."})}><Send className="w-4 h-4 mr-2" />Enviar</Button>
+          <Button variant="outline" disabled={isAddingPayment} onClick={handleShare}><Share2 className="w-4 h-4 mr-2" />Compartir</Button>
           <Button onClick={handlePrint} disabled={isAddingPayment}><Download className="w-4 h-4 mr-2" />Imprimir/PDF</Button>
           <Link href={`/invoices/${invoice.id}/edit`} passHref><Button variant="secondary" disabled={isAddingPayment}><Edit className="w-4 h-4 mr-2" />Editar</Button></Link>
         </div>
