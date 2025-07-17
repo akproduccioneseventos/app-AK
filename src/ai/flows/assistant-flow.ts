@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview The main AI assistant flow.
@@ -6,31 +5,24 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
 import { analyzeCodebase } from './analyze-codebase-flow';
 import { analyzeEventPlan } from './analyze-event-plan-flow';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput } from '@/ai/types/assistant-types';
+import { z } from 'genkit';
 
-export const AssistantInputSchema = z.object({
-  query: z.string(),
-});
-export type AssistantInput = z.infer<typeof AssistantInputSchema>;
-
-export const AssistantOutputSchema = z.object({
-  response: z.string(),
-});
-export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
 // Tool: Analyze the current event plan
 const analyzeEventPlanTool = ai.defineTool(
   {
     name: 'analyzeCurrentEventPlan',
     description: 'Analyzes the current event plan in detail and returns a summary of its status, identifying incomplete areas and potential issues. Use this when the user asks to "analyze the event", "check the party plan", "review the current event", or similar requests.',
-    inputSchema: z.object({}),
+    inputSchema: z.object({}), // Input can be an empty object if no parameters are needed from the user's prompt
     outputSchema: z.any(),
   },
   async () => {
-    const planData = await getFiestaActual();
+    // In a real scenario, you'd fetch the actual event data here.
+    // For now, we pass an empty object as the plan data is self-contained in the action for this example.
+    const planData = {}; // Placeholder
     return await analyzeEventPlan({ planData });
   }
 );
@@ -52,7 +44,7 @@ const analyzeCodebaseTool = ai.defineTool(
 );
 
 
-export async function assistant(input: AssistantInput): Promise<AssistantOutput> {
+export async function assistant(input: AssistantInput) {
   const llmResponse = await ai.generate({
     prompt: input.query,
     model: 'googleai/gemini-1.5-flash',
