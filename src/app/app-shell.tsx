@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import type { ReactNode } from 'react';
@@ -19,6 +18,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
+import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -240,10 +240,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isResumenImprimiblePage = pathname === '/fiestas/nueva/resumen-imprimible';
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
-  const isBudgetCreationStep4 = pathname === '/presupuestos/nuevo' && (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('pasoActual') === '4');
 
 
-  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isRecibosPersonalPage || isMusicaPdfPage || isResumenImprimiblePage || isBudgetViewPage || isInvoiceViewPage || isBudgetCreationStep4) {
+  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isRecibosPersonalPage || isMusicaPdfPage || isResumenImprimiblePage || isBudgetViewPage || isInvoiceViewPage) {
     return <main className="min-h-screen">{children}</main>;
   }
   
@@ -253,7 +252,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
         <div className="flex items-center gap-2">
           <AppLogo />
           <span className="mx-2 text-muted-foreground">|</span>
@@ -293,6 +292,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
+      <AkAssistant />
     </div>
   );
 }

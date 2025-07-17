@@ -1,6 +1,9 @@
 
 'use server';
 
+// This file is being kept for potential future use or migration of old assistant logic.
+// The primary assistant functionality is now handled by the new AI chat-based assistant.
+
 import type { AsistenteAkConfig, AsistenteData } from '@/types/fiesta';
 import fs from 'fs/promises';
 import path from 'path';
@@ -26,7 +29,7 @@ const defaultConfig: AsistenteAkConfig = {
       descripcion: "Selecciona una opción para empezar.",
       opciones: defaultOpcionesTipoFiesta,
     },
-    // Future steps will be defined here
+    // Future steps can be re-defined here if the old wizard is revived.
   }
 };
 
@@ -48,12 +51,11 @@ export async function getAsistenteAkConfig(): Promise<AsistenteAkConfig> {
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
     if (fileContent.trim() === '') return defaultConfig;
-    // Simple merge logic: if a top-level key from default is missing, add it.
     const savedConfig = JSON.parse(fileContent);
     let needsUpdate = false;
     for (const key in defaultConfig.pasos) {
         if (!savedConfig.pasos[key]) {
-            savedConfig.pasos[key] = (defaultConfig.pasos as any)[key];
+            (savedConfig.pasos as any)[key] = (defaultConfig.pasos as any)[key];
             needsUpdate = true;
         }
     }
@@ -75,81 +77,5 @@ export async function saveAsistenteAkConfig(configData: AsistenteAkConfig): Prom
   } catch (error: any) {
     console.error('Error writing Asistente AK config file:', error);
     return { success: false, error: error.message || "Unknown error saving config." };
-  }
-}
-
-export async function crearPresupuestoDesdeAsistente(
-  data: AsistenteData
-): Promise<{ success: boolean; presupuestoId?: string; error?: string }> {
-  try {
-    const itemsPresupuestados: ItemPresupuestado[] = [];
-    const totalInvitados = data.invitados.adultos + data.invitados.adolescentes + data.invitados.ninos;
-
-    // Helper to add an item to the list
-    const addItem = (item: { nombre: string; costoBase?: number; costoPorPersona?: number; multiplicadorCosto?: number; categoria: string; }) => {
-      let costoUnitario = item.costoBase || 0;
-      let cantidad = 1;
-      let unidad = 'evento';
-
-      if (item.costoPorPersona && item.costoPorPersona > 0) {
-        costoUnitario = item.costoPorPersona;
-        cantidad = totalInvitados;
-        unidad = 'persona';
-      }
-
-      if (item.multiplicadorCosto && item.multiplicadorCosto > 1) {
-        const costoBaseParaMultiplicar = data.tipoFiesta?.costoBase || 50000; // Fallback
-        costoUnitario = costoBaseParaMultiplicar * (item.multiplicadorCosto - 1);
-      }
-      
-      if (costoUnitario > 0 || (item.nombre.toLowerCase().includes('no') && costoUnitario === 0) || item.nombre.toLowerCase().includes('incluir')) {
-        itemsPresupuestados.push({
-          idServicioCatalogo: `asistente_${item.nombre.toLowerCase().replace(/\s+/g, '_')}`,
-          nombreServicio: item.nombre,
-          cantidad,
-          unidad,
-          precioUnitario: costoUnitario,
-          costoTotalItem: costoUnitario * cantidad,
-          categoriaServicio: item.categoria,
-        });
-      }
-    };
-    
-    // Add items based on selections
-    if(data.tipoFiesta) addItem({ ...data.tipoFiesta, categoria: 'Base Evento'});
-    if(data.estiloDecoracion) addItem({ ...data.estiloDecoracion, categoria: 'Decoración'});
-    if(data.catering) addItem({ ...data.catering, categoria: 'Catering'});
-    if(data.bebidas) addItem({ ...data.bebidas, categoria: 'Bebidas'});
-    if(data.fotoVideo) addItem({ ...data.fotoVideo, categoria: 'Foto/Video'});
-    if(data.musica) addItem({ ...data.musica, categoria: 'Música'});
-    if(data.reposteria) addItem({ ...data.reposteria, categoria: 'Repostería'});
-    if(data.entretenimiento) addItem({ ...data.entretenimiento, categoria: 'Entretenimiento'});
-    if(data.listaRegalos) addItem({nombre: 'Gestión de Lista de Regalos', costoBase: 0, categoria: 'Servicios Adicionales'});
-
-
-    const costoTotalEstimado = itemsPresupuestados.reduce((sum, item) => sum + item.costoTotalItem, 0);
-
-    const presupuestoData = {
-      clienteNombre: `Cliente Asistente - ${data.tipoFiesta?.nombre || 'Evento'}`,
-      eventoTipo: data.tipoFiesta?.nombre || 'Evento General',
-      eventoFecha: new Date().toISOString(), // Default to today, to be confirmed by admin
-      invitadosCantidad: totalInvitados,
-      salonFiestas: 'A confirmar',
-      itemsPresupuestados,
-      costoTotalEstimado,
-      notas: `Generado desde Asistente AK. Presupuesto del cliente: ${data.presupuestoCliente.toLocaleString('es-UY', {style: 'currency', currency: 'UYU'})}. Contactar para confirmar detalles.`,
-      timestamp: new Date().toISOString(),
-    };
-    
-    const result = await savePresupuesto(presupuestoData);
-
-    if (result.success) {
-      return { success: true, presupuestoId: result.id };
-    } else {
-      throw new Error(result.error || "No se pudo guardar el presupuesto.");
-    }
-  } catch (error: any) {
-    console.error("Error creating budget from assistant:", error);
-    return { success: false, error: error.message };
   }
 }
