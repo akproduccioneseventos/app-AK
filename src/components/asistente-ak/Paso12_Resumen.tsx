@@ -1,10 +1,15 @@
 
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { AsistenteData, formatCurrency } from '@/app/asistente-ak/page';
 import { Button } from '@/components/ui/button';
-import { Check, Edit, Send } from 'lucide-react';
+import { Check, Send, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { crearPresupuestoDesdeAsistente } from '@/app/actions/asistente-ak';
 
 interface Props {
   data: AsistenteData;
@@ -22,8 +27,35 @@ const ResumenItem: React.FC<{label: string, value?: string | number | null}> = (
 };
 
 export const AsistentePaso12_Resumen: React.FC<Props> = ({ data, presupuestoEstimado }) => {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const totalInvitados = data.invitados.adultos + data.invitados.adolescentes + data.invitados.ninos;
   
+  const handleEnviarSolicitud = async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await crearPresupuestoDesdeAsistente(data);
+      if (result.success && result.presupuestoId) {
+        toast({
+          title: "¡Solicitud Recibida!",
+          description: "Un organizador se pondrá en contacto contigo pronto."
+        });
+        router.push('/asistente-ak/solicitud-enviada');
+      } else {
+        throw new Error(result.error || "No se pudo enviar la solicitud.");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error al Enviar",
+        description: error.message,
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
@@ -56,8 +88,9 @@ export const AsistentePaso12_Resumen: React.FC<Props> = ({ data, presupuestoEsti
       </Card>
       
       <div className="text-center space-y-3">
-        <Button size="lg" className="w-full max-w-sm">
-            <Send className="mr-2"/> Enviar Solicitud al Organizador
+        <Button size="lg" className="w-full max-w-sm" onClick={handleEnviarSolicitud} disabled={isSubmitting}>
+            {isSubmitting ? <Loader2 className="mr-2 animate-spin"/> : <Send className="mr-2"/>}
+            {isSubmitting ? 'Enviando...' : 'Enviar Solicitud al Organizador'}
         </Button>
         <p className="text-xs text-muted-foreground">Al enviar, un organizador se pondrá en contacto contigo para afinar los detalles y confirmar el presupuesto final.</p>
       </div>
