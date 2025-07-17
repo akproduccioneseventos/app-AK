@@ -1,4 +1,5 @@
 
+
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; // Importar Invitado
 import type { UnidadServicio } from './empresa';
@@ -12,6 +13,7 @@ export interface AsistentePasoOpcion {
   multiplicadorCosto?: number;
   img?: string;
   hint?: string;
+  valor?: boolean; // For simple yes/no steps like 'Regalos'
 }
 
 export interface AsistentePasoConfig {
@@ -23,7 +25,14 @@ export interface AsistentePasoConfig {
 export interface AsistenteAkConfig {
   pasos: {
     tipoFiesta: AsistentePasoConfig;
-    // ... aquí irán los demás pasos
+    decoracion: AsistentePasoConfig;
+    catering: AsistentePasoConfig;
+    bebidas: AsistentePasoConfig;
+    fotoVideo: AsistentePasoConfig;
+    musica: AsistentePasoConfig;
+    reposteria: AsistentePasoConfig;
+    entretenimiento: AsistentePasoConfig;
+    regalos: AsistentePasoConfig;
   }
 }
 

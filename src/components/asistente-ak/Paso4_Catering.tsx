@@ -1,10 +1,13 @@
 
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AsistenteData } from '@/app/asistente-ak/page';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
+import { getAsistenteAkConfig } from '@/app/actions/asistente-ak';
+import type { AsistentePasoOpcion } from '@/types/fiesta';
 
 interface Props {
   data: AsistenteData;
@@ -12,26 +15,46 @@ interface Props {
   handleNext: () => void;
 }
 
-const opcionesCatering = [
-  { id: 'clasico', nombre: 'Clásico (3 Pasos)', costoPorPersona: 1800, img: 'https://placehold.co/400x300.png', hint: 'classic dinner plate' },
-  { id: 'gourmet', nombre: 'Gourmet (5 Pasos)', costoPorPersona: 3200, img: 'https://placehold.co/400x300.png', hint: 'gourmet food plating' },
-  { id: 'parrilla', nombre: 'Parrilla Criolla', costoPorPersona: 2500, img: 'https://placehold.co/400x300.png', hint: 'grilled steak' },
-  { id: 'vegetariano', nombre: 'Menú Vegetariano', costoPorPersona: 2200, img: 'https://placehold.co/400x300.png', hint: 'vegetarian dish' },
-  { id: 'infantil', nombre: 'Menú Infantil', costoPorPersona: 900, img: 'https://placehold.co/400x300.png', hint: 'kids meal' },
-];
-
 export const AsistentePaso4_Catering: React.FC<Props> = ({ data, setData, handleNext }) => {
-  const handleSelect = (opcion: typeof opcionesCatering[0]) => {
-    setData(prev => ({ ...prev, catering: opcion }));
+  const [opciones, setOpciones] = useState<AsistentePasoOpcion[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pregunta, setPregunta] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+
+  useEffect(() => {
+    async function loadConfig() {
+      setIsLoading(true);
+      try {
+        const config = await getAsistenteAkConfig();
+        const { catering } = config.pasos;
+        setOpciones(catering.opciones);
+        setPregunta(catering.pregunta);
+        setDescripcion(catering.descripcion);
+      } catch (error) {
+        console.error("Failed to load assistant config", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadConfig();
+  }, []);
+
+  const handleSelect = (opcion: AsistentePasoOpcion) => {
+    const { costoBase, ...restOfOpcion } = opcion;
+    setData(prev => ({ ...prev, catering: { ...restOfOpcion, costoPorPersona: opcion.costoPorPersona || 0 }}));
     setTimeout(() => handleNext(), 300);
   };
+  
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
 
   return (
     <div className="space-y-4 text-center">
-      <h2 className="text-2xl font-bold font-headline">¿Qué tipo de catering prefieres?</h2>
-      <p className="text-muted-foreground">Cada opción ofrece una experiencia gastronómica diferente.</p>
+      <h2 className="text-2xl font-bold font-headline">{pregunta}</h2>
+      <p className="text-muted-foreground">{descripcion}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
-        {opcionesCatering.map((opcion) => (
+        {opciones.map((opcion) => (
           <Card
             key={opcion.id}
             onClick={() => handleSelect(opcion)}
@@ -43,7 +66,7 @@ export const AsistentePaso4_Catering: React.FC<Props> = ({ data, setData, handle
             <CardContent className="p-0 relative">
               <div className="relative aspect-video">
                 <NextImage
-                  src={opcion.img}
+                  src={opcion.img || 'https://placehold.co/400x300.png'}
                   alt={opcion.nombre}
                   layout="fill"
                   objectFit="cover"

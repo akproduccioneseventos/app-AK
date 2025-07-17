@@ -1,10 +1,13 @@
 
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AsistenteData } from '@/app/asistente-ak/page';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
+import { getAsistenteAkConfig } from '@/app/actions/asistente-ak';
+import type { AsistentePasoOpcion } from '@/types/fiesta';
 
 interface Props {
   data: AsistenteData;
@@ -12,26 +15,46 @@ interface Props {
   handleNext: () => void;
 }
 
-const estilosDecoracion = [
-  { id: 'elegante', nombre: 'Elegante y Clásico', multiplicadorCosto: 1.2, img: 'https://placehold.co/400x300.png', hint: 'elegant ballroom' },
-  { id: 'rustico', nombre: 'Rústico Campestre', multiplicadorCosto: 1.1, img: 'https://placehold.co/400x300.png', hint: 'rustic barn wedding' },
-  { id: 'moderno', nombre: 'Moderno y Minimalista', multiplicadorCosto: 1.0, img: 'https://placehold.co/400x300.png', hint: 'modern minimalist event' },
-  { id: 'tematico', nombre: 'Temático Divertido', multiplicadorCosto: 1.3, img: 'https://placehold.co/400x300.png', hint: 'themed party' },
-];
-
 export const AsistentePaso3_Decoracion: React.FC<Props> = ({ data, setData, handleNext }) => {
-  const handleSelect = (estilo: typeof estilosDecoracion[0]) => {
-    setData(prev => ({ ...prev, estiloDecoracion: estilo }));
-    // Automatically go to next step after selection
+  const [opciones, setOpciones] = useState<AsistentePasoOpcion[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pregunta, setPregunta] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+
+  useEffect(() => {
+    async function loadConfig() {
+      setIsLoading(true);
+      try {
+        const config = await getAsistenteAkConfig();
+        const { decoracion } = config.pasos;
+        setOpciones(decoracion.opciones);
+        setPregunta(decoracion.pregunta);
+        setDescripcion(decoracion.descripcion);
+      } catch (error) {
+        console.error("Failed to load assistant config", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadConfig();
+  }, []);
+
+  const handleSelect = (estilo: AsistentePasoOpcion) => {
+    const { costoBase, ...restOfEstilo } = estilo;
+    setData(prev => ({ ...prev, estiloDecoracion: { ...restOfEstilo, multiplicadorCosto: estilo.multiplicadorCosto || 1 } }));
     setTimeout(() => handleNext(), 300);
   };
+  
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
 
   return (
     <div className="space-y-4 text-center">
-      <h2 className="text-2xl font-bold font-headline">¿Qué estilo de decoración te imaginas?</h2>
-      <p className="text-muted-foreground">Tu elección nos ayudará a definir la atmósfera del evento.</p>
+      <h2 className="text-2xl font-bold font-headline">{pregunta}</h2>
+      <p className="text-muted-foreground">{descripcion}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-        {estilosDecoracion.map((estilo) => (
+        {opciones.map((estilo) => (
           <Card
             key={estilo.id}
             onClick={() => handleSelect(estilo)}
@@ -43,7 +66,7 @@ export const AsistentePaso3_Decoracion: React.FC<Props> = ({ data, setData, hand
             <CardContent className="p-0 relative">
               <div className="relative aspect-[4/3]">
                 <NextImage
-                  src={estilo.img}
+                  src={estilo.img || 'https://placehold.co/400x300.png'}
                   alt={estilo.nombre}
                   layout="fill"
                   objectFit="cover"
