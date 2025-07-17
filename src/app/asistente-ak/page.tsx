@@ -5,8 +5,9 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight, CheckCircle, RefreshCw, Send, Users, Palette, Sparkles, PartyPopper, Check, Home, ChefHat, GlassWater, Camera, Music } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, RefreshCw, Send, Users, Palette, Sparkles, PartyPopper, Check, Home, ChefHat, GlassWater, Camera, Music, Gift, Briefcase, Wallet } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+
 import { AsistentePaso1_TipoFiesta } from '@/components/asistente-ak/Paso1_TipoFiesta';
 import { AsistentePaso2_Invitados } from '@/components/asistente-ak/Paso2_Invitados';
 import { AsistentePaso3_Decoracion } from '@/components/asistente-ak/Paso3_Decoracion';
@@ -14,6 +15,11 @@ import { AsistentePaso4_Catering } from '@/components/asistente-ak/Paso4_Caterin
 import { AsistentePaso5_Bebidas } from '@/components/asistente-ak/Paso5_Bebidas';
 import { AsistentePaso6_FotoVideo } from '@/components/asistente-ak/Paso6_FotoVideo';
 import { AsistentePaso7_Musica } from '@/components/asistente-ak/Paso7_Musica';
+import { AsistentePaso8_Reposteria } from '@/components/asistente-ak/Paso8_Reposteria';
+import { AsistentePaso9_Entretenimiento } from '@/components/asistente-ak/Paso9_Entretenimiento';
+import { AsistentePaso10_Regalos } from '@/components/asistente-ak/Paso10_Regalos';
+import { AsistentePaso11_Presupuesto } from '@/components/asistente-ak/Paso11_Presupuesto';
+import { AsistentePaso12_Resumen } from '@/components/asistente-ak/Paso12_Resumen';
 
 import Link from 'next/link';
 
@@ -25,6 +31,10 @@ export interface AsistenteData {
   bebidas: { id: string; nombre: string; costoPorPersona: number } | null;
   fotoVideo: { id: string; nombre: string; costoBase: number } | null;
   musica: { id: string; nombre: string; costoBase: number } | null;
+  reposteria: { id: string; nombre: string; costoBase: number; costoPorPersona: number } | null;
+  entretenimiento: { id: string; nombre: string; costoBase: number } | null;
+  listaRegalos: boolean | null;
+  presupuestoCliente: number;
 }
 
 export const formatCurrency = (amount: number) => {
@@ -42,6 +52,10 @@ export default function AsistenteAkPage() {
     bebidas: null,
     fotoVideo: null,
     musica: null,
+    reposteria: null,
+    entretenimiento: null,
+    listaRegalos: null,
+    presupuestoCliente: 50000,
   });
 
   const pasos = [
@@ -52,7 +66,11 @@ export default function AsistenteAkPage() {
     { numero: 5, nombre: 'Bebidas', icon: GlassWater, fields: ['bebidas'] },
     { numero: 6, nombre: 'Foto/Video', icon: Camera, fields: ['fotoVideo'] },
     { numero: 7, nombre: 'Música', icon: Music, fields: ['musica'] },
-    { numero: 8, nombre: 'Resumen', icon: Check, fields: [] },
+    { numero: 8, nombre: 'Repostería', icon: Cake, fields: ['reposteria'] },
+    { numero: 9, nombre: 'Extras', icon: Briefcase, fields: ['entretenimiento'] },
+    { numero: 10, nombre: 'Regalos', icon: Gift, fields: ['listaRegalos'] },
+    { numero: 11, nombre: 'Presupuesto', icon: Wallet, fields: ['presupuestoCliente'] },
+    { numero: 12, nombre: 'Resumen', icon: Check, fields: [] },
   ];
   const TOTAL_PASOS = pasos.length;
 
@@ -73,6 +91,10 @@ export default function AsistenteAkPage() {
         bebidas: null,
         fotoVideo: null,
         musica: null,
+        reposteria: null,
+        entretenimiento: null,
+        listaRegalos: null,
+        presupuestoCliente: 50000,
       });
       setPaso(1);
   }
@@ -95,6 +117,7 @@ export default function AsistenteAkPage() {
     if(totalInvitados > 0) {
       base += data.catering ? data.catering.costoPorPersona * totalInvitados : 0;
       base += data.bebidas ? data.bebidas.costoPorPersona * totalInvitados : 0;
+      base += data.reposteria ? data.reposteria.costoPorPersona * totalInvitados : 0;
     }
     
     if (data.estiloDecoracion) {
@@ -103,6 +126,8 @@ export default function AsistenteAkPage() {
     
     base += data.fotoVideo?.costoBase || 0;
     base += data.musica?.costoBase || 0;
+    base += data.reposteria?.costoBase || 0;
+    base += data.entretenimiento?.costoBase || 0;
 
     return base;
   }, [data]);
@@ -118,14 +143,11 @@ export default function AsistenteAkPage() {
       case 5: return <AsistentePaso5_Bebidas {...commonProps} />;
       case 6: return <AsistentePaso6_FotoVideo {...commonProps} />;
       case 7: return <AsistentePaso7_Musica {...commonProps} />;
-      case 8:
-         return (
-             <div className="text-center">
-                 <h2 className="text-2xl font-bold">Resumen de tu Fiesta</h2>
-                 <p className="text-muted-foreground">Aquí se mostrará un resumen visual de todas tus selecciones.</p>
-                 <Button className="mt-4"><Send className="mr-2"/>Enviar Solicitud al Organizador</Button>
-            </div>
-         );
+      case 8: return <AsistentePaso8_Reposteria {...commonProps} />;
+      case 9: return <AsistentePaso9_Entretenimiento {...commonProps} />;
+      case 10: return <AsistentePaso10_Regalos {...commonProps} />;
+      case 11: return <AsistentePaso11_Presupuesto {...commonProps} />;
+      case 12: return <AsistentePaso12_Resumen data={data} presupuestoEstimado={presupuestoEstimado} />;
       default:
         return null;
     }
@@ -203,13 +225,16 @@ export default function AsistenteAkPage() {
                         <p className="text-sm text-muted-foreground">Presupuesto Estimado</p>
                         <p className="text-2xl font-bold text-primary">{formatCurrency(presupuestoEstimado)}</p>
                     </div>
-                    <Button onClick={handleNext} disabled={paso === TOTAL_PASOS || !isPasoCompleto(paso)} className="w-28">
-                        Siguiente <ArrowRight className="ml-2" />
-                    </Button>
+                    {paso < TOTAL_PASOS ? (
+                        <Button onClick={handleNext} disabled={paso === TOTAL_PASOS || !isPasoCompleto(paso)} className="w-28">
+                            Siguiente <ArrowRight className="ml-2" />
+                        </Button>
+                    ) : (
+                         <Button disabled className="w-28 opacity-0">Siguiente</Button> // Placeholder for alignment
+                    )}
                 </div>
             </div>
        </footer>
     </div>
   );
 }
-
