@@ -10,17 +10,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { analyzeEventPlan, type AnalyzeEventPlanOutput } from '@/ai/flows/analyze-event-plan-flow';
-import { analyzeCodebase, type AnalyzeCodebaseOutput } from '@/ai/flows/analyze-codebase-flow';
+import { assistant } from '@/ai/flows/assistant-flow';
 import Markdown from 'react-markdown';
 
 
 type Message = {
     role: 'user' | 'assistant';
     content: string | React.ReactNode;
-    type?: 'analysis-result' | 'code-analysis' | 'text';
 };
 
 export function AkAssistant() {
@@ -35,8 +31,7 @@ export function AkAssistant() {
         if (isOpen && messages.length === 0) {
             setMessages([{
                 role: 'assistant',
-                content: "¡Hola! Soy Asistente AK. ¿Cómo puedo ayudarte a optimizar tu evento hoy?",
-                type: 'text',
+                content: "¡Hola! Soy Asistente AK. Puedes pedirme que analice tu evento actual, revise el código de la aplicación y mucho más. ¿En qué te puedo ayudar?",
             }]);
         }
     }, [isOpen, messages.length]);
@@ -47,97 +42,27 @@ export function AkAssistant() {
         }
     }, [messages]);
     
-    const renderAnalysisItems = (items: AnalyzeCodebaseOutput['completedModules'], category: string) => {
-      if (!items || items.length === 0) {
-        return <p className="text-sm text-muted-foreground">No se encontraron elementos en esta categoría.</p>;
-      }
-      return (
-        <ul className="space-y-2 text-sm">
-          {items.map((item, index) => (
-            <li key={`${category}-${index}`} className="p-2 border rounded-md bg-background/50">
-              <p className="font-semibold text-foreground">{item.module}</p>
-              <p className="text-xs text-primary">{item.status}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{item.details}</p>
-            </li>
-          ))}
-        </ul>
-      );
-    }
-
-    const handleCodeAnalysis = async () => {
-        setMessages(prev => [...prev, { role: 'user', content: 'Analizar el código base de la aplicación.' }]);
-        setIsLoading(true);
-        try {
-            // In a real scenario, this might need a more complex way to get the spec,
-            // but for now, an empty string is fine as the prompt has the snapshot.
-            const result = await analyzeCodebase({ specification: '' });
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: (
-                    <div className="space-y-4">
-                        <h4 className="font-bold text-lg">Análisis de Código Completado</h4>
-                        <p className="text-sm text-muted-foreground">{result.overallSummary}</p>
-                        <details><summary className="font-semibold cursor-pointer">Módulos Completados</summary><div className="pt-2">{renderAnalysisItems(result.completedModules, 'completed')}</div></details>
-                        <details><summary className="font-semibold cursor-pointer">Módulos Faltantes</summary><div className="pt-2">{renderAnalysisItems(result.missingModules, 'missing')}</div></details>
-                        <details><summary className="font-semibold cursor-pointer">Errores y Bugs</summary><div className="pt-2">{renderAnalysisItems(result.errorsAndBugs, 'bugs')}</div></details>
-                        <details><summary className="font-semibold cursor-pointer">Sugerencias</summary><div className="pt-2">{renderAnalysisItems(result.suggestions, 'suggestions')}</div></details>
-                    </div>
-                ),
-                type: 'code-analysis'
-            }]);
-        } catch (e: any) {
-            setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${e.message}` }]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleEventPlanAnalysis = async () => {
-        setMessages(prev => [...prev, { role: 'user', content: 'Analizar el plan de la fiesta actual.' }]);
-        setIsLoading(true);
-        try {
-            const planData = await getFiestaActual();
-            const result = await analyzeEventPlan({ planData });
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: (
-                    <div className="space-y-3">
-                        <h4 className="font-bold text-lg">Análisis del Plan de Evento</h4>
-                        <p className="text-sm text-muted-foreground">{result.overallSummary}</p>
-                        <ul className="space-y-2 text-sm">
-                            {result.analysisItems.map(item => (
-                                <li key={item.module} className="p-2 border rounded-md bg-background/50">
-                                    <p className="font-semibold">{item.module}: <span className="text-primary">{item.status}</span></p>
-                                    <p className="text-xs text-muted-foreground mt-0.5">{item.details}</p>
-                                    {item.suggestion && <p className="text-xs text-blue-600 mt-1">Sugerencia: {item.suggestion}</p>}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                ),
-                type: 'analysis-result'
-            }]);
-        } catch (e: any) {
-            setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${e.message}` }]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!input.trim()) return;
+        if (!input.trim() || isLoading) return;
         
         const userMessage: Message = { role: 'user', content: input };
         setMessages(prev => [...prev, userMessage]);
+        const currentQuery = input;
         setInput('');
         setIsLoading(true);
         
-        // Placeholder for future free-form chat logic
-        setTimeout(() => {
-            setMessages(prev => [...prev, { role: 'assistant', content: "La funcionalidad de chat libre está en desarrollo. Por ahora, puedes usar los botones de acción.", type: 'text' }]);
+        try {
+            const result = await assistant({ query: currentQuery });
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: result.response,
+            }]);
+        } catch (e: any) {
+             setMessages(prev => [...prev, { role: 'assistant', content: `Lo siento, ocurrió un error: ${e.message}` }]);
+        } finally {
             setIsLoading(false);
-        }, 1000);
+        }
     };
 
     return (
@@ -158,9 +83,8 @@ export function AkAssistant() {
                                         {messages.map((message, index) => (
                                             <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-end' : 'justify-start')}>
                                                 {message.role === 'assistant' && <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0"><Bot className="w-5 h-5"/></div>}
-                                                <div className={cn("p-3 rounded-lg max-w-xs md:max-w-sm", message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
-                                                    <Markdown className="prose prose-sm dark:prose-invert prose-p:my-1">{typeof message.content === 'string' ? message.content : ''}</Markdown>
-                                                    {typeof message.content !== 'string' && message.content}
+                                                <div className={cn("p-3 rounded-lg max-w-xs md:max-w-sm prose prose-sm dark:prose-invert prose-p:my-1", message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
+                                                    <Markdown>{typeof message.content === 'string' ? message.content : ''}</Markdown>
                                                 </div>
                                                 {message.role === 'user' && <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center flex-shrink-0"><User className="w-5 h-5"/></div>}
                                             </div>
@@ -174,10 +98,6 @@ export function AkAssistant() {
                                     </div>
                                 </ScrollArea>
                                  <div className="mt-4 pt-3 border-t">
-                                     <div className="flex gap-2 flex-wrap justify-center mb-3">
-                                        <Button size="sm" variant="outline" onClick={handleEventPlanAnalysis} disabled={isLoading}>Analizar Fiesta Actual</Button>
-                                        <Button size="sm" variant="outline" onClick={handleCodeAnalysis} disabled={isLoading}>Analizar Código</Button>
-                                    </div>
                                     <form onSubmit={handleSubmit} className="flex items-center gap-2">
                                         <Textarea
                                             value={input}
