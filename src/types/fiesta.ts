@@ -233,30 +233,34 @@ export interface BebidaItem {
   id: string;
   nombre: string;
   marca?: string;
-  presentacion?: string;
-  cantidadNecesaria?: number;
-  unidadCantidad?: string; // Flexible para 'unidades', 'botellas', 'litros'
-  costoUnitario?: number;
-  costoTotal?: number;
+  presentacion?: string; // Ej: "Botella 2.25L", "Lata 355ml"
+  cantidadNecesaria?: number; // Cantidad de unidades a comprar
+  unidadCantidad?: string; // Ej: "botellas", "packs", "cajas"
+  costoUnitario?: number; // Costo por unidad de compra
+  costoTotal?: number; // cantidad * costoUnitario
   proveedorHabitual?: string;
   notas?: string;
-  mlPorUnidad?: number;
-  origenId?: string; // ID del producto en el catálogo `servicios-empresa`
+  mlPorUnidad?: number; // Ej: 2250 para una botella de 2.25L
+  origenId?: string;
   estado?: BebidaItemEstado;
-  stockDisponible?: number; // Para futura integración con inventario
-  cantidadAComprar?: number; // Para futura integración con inventario
+  stockDisponible?: number;
 }
 
 export type BebidaCategoriaId =
   | 'refrescos_gaseosas'
   | 'jugos'
   | 'aguas_saborizadas'
-  | 'bebidas_alcoholicas_varias'
+  | 'cervezas'
   | 'vinos_espumantes'
   | 'barra_tragos'
   | 'cafeteria';
   
-export type TipoEventoAjusteBebidas = 'formal' | 'juvenil' | 'corporativo' | 'mixto_estandar';
+export type TipoAsistente = 'adulto' | 'adolescente' | 'nino';
+
+export type BebidasConsumoConfig = {
+  [key in BebidaCategoriaId]: Record<TipoAsistente, number>;
+};
+
 
 export interface BebidaCategoria {
   id: BebidaCategoriaId;
@@ -264,14 +268,11 @@ export interface BebidaCategoria {
   activada: boolean;
   descripcion?: string;
   items: BebidaItem[];
-  consumoEstimadoPorPersona: { // Nuevo: consumo en LITROS por persona
-    [key in TipoEventoAjusteBebidas]: number;
-  };
 }
 
 export interface BebidasData {
   categorias: BebidaCategoria[];
-  tipoEventoAjuste?: TipoEventoAjusteBebidas;
+  consumoConfig?: BebidasConsumoConfig;
   notasGenerales?: string;
 }
 
