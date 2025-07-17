@@ -267,7 +267,6 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
           quantity: item.quantity === undefined ? 1 : (Number(item.quantity) || 1),
           estimatedCost: item.estimatedCost === undefined ? undefined : (Number(item.estimatedCost) || 0),
           supplier: item.supplier || undefined,
-          notes: item.notes || undefined,
           imageUrl: item.imageUrl || undefined,
           dataAiHint: item.dataAiHint || undefined,
       })),

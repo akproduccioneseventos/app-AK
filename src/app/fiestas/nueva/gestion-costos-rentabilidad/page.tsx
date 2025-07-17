@@ -148,7 +148,7 @@ export default function GestionCostosRentabilidadPage() {
   const margenRentabilidad = useMemo(() => {
     if (gestionCostos.ingresosTotalesEstimados === 0) return 0;
     return (gananciaNetaEstimada / gestionCostos.ingresosTotalesEstimados) * 100;
-  }, [gananciaNetaEstimada, gestionCostos.ingresosTotalesEstimados]);
+  }, [gananciaNetaEstimada, costoTotalEstimadoEvento]);
 
 
   const handleSave = async () => {
