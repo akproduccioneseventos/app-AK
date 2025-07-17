@@ -3,10 +3,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { AsistenteData, formatCurrency } from '@/app/asistente-ak/page';
 import { Button } from '@/components/ui/button';
-import { Check, Send, Loader2 } from 'lucide-react';
+import { Check, Send, Loader2, Printer } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { crearPresupuestoDesdeAsistente } from '@/app/actions/asistente-ak';
@@ -17,11 +17,11 @@ interface Props {
 }
 
 const ResumenItem: React.FC<{label: string, value?: string | number | null}> = ({ label, value }) => {
-    if (!value) return null;
+    if (!value && value !== 0) return null; // Show if value is 0
     return (
         <div className="flex justify-between items-center py-2 border-b">
             <p className="text-muted-foreground">{label}</p>
-            <p className="font-semibold">{value}</p>
+            <p className="font-semibold text-right">{value}</p>
         </div>
     );
 };
@@ -42,6 +42,7 @@ export const AsistentePaso12_Resumen: React.FC<Props> = ({ data, presupuestoEsti
           title: "¡Solicitud Recibida!",
           description: "Un organizador se pondrá en contacto contigo pronto."
         });
+        localStorage.removeItem('asistenteData'); // Clean up temp data
         router.push('/asistente-ak/solicitud-enviada');
       } else {
         throw new Error(result.error || "No se pudo enviar la solicitud.");
@@ -54,6 +55,12 @@ export const AsistentePaso12_Resumen: React.FC<Props> = ({ data, presupuestoEsti
       });
       setIsSubmitting(false);
     }
+  };
+
+  const handleOpenPdfPreview = () => {
+    // We already save to localStorage on every change in the main page.
+    // Just open the new tab.
+    window.open('/asistente-ak/resumen-pdf', '_blank');
   };
 
   return (
@@ -69,7 +76,7 @@ export const AsistentePaso12_Resumen: React.FC<Props> = ({ data, presupuestoEsti
         </CardHeader>
         <CardContent className="space-y-3">
             <ResumenItem label="Tipo de Evento" value={data.tipoFiesta?.nombre} />
-            <ResumenItem label="Total Invitados" value={`${totalInvitados} (Adultos: ${data.invitados.adultos}, Adolescentes: ${data.invitados.adolescentes}, Niños: ${data.invitados.ninos})`} />
+            <ResumenItem label="Total Invitados" value={`${totalInvitados} (A:${data.invitados.adultos}, T:${data.invitados.adolescentes}, N:${data.invitados.ninos})`} />
             <ResumenItem label="Estilo Decoración" value={data.estiloDecoracion?.nombre} />
             <ResumenItem label="Catering" value={data.catering?.nombre} />
             <ResumenItem label="Bebidas" value={data.bebidas?.nombre} />
@@ -77,7 +84,7 @@ export const AsistentePaso12_Resumen: React.FC<Props> = ({ data, presupuestoEsti
             <ResumenItem label="Música" value={data.musica?.nombre} />
             <ResumenItem label="Repostería" value={data.reposteria?.nombre} />
             <ResumenItem label="Entretenimiento Extra" value={data.entretenimiento?.nombre} />
-            <ResumenItem label="Lista de Regalos" value={data.listaRegalos ? 'Sí' : 'No'} />
+            <ResumenItem label="Lista de Regalos" value={data.listaRegalos ? 'Sí' : (data.listaRegalos === false ? 'No' : null)} />
             <ResumenItem label="Tu Presupuesto Aprox." value={formatCurrency(data.presupuestoCliente)} />
             <Separator className="my-3"/>
             <div className="flex justify-between items-center text-xl font-bold pt-2">
@@ -88,10 +95,15 @@ export const AsistentePaso12_Resumen: React.FC<Props> = ({ data, presupuestoEsti
       </Card>
       
       <div className="text-center space-y-3">
-        <Button size="lg" className="w-full max-w-sm" onClick={handleEnviarSolicitud} disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 className="mr-2 animate-spin"/> : <Send className="mr-2"/>}
-            {isSubmitting ? 'Enviando...' : 'Enviar Solicitud al Organizador'}
-        </Button>
+         <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+            <Button size="lg" className="w-full sm:w-auto" onClick={handleEnviarSolicitud} disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="mr-2 animate-spin"/> : <Send className="mr-2"/>}
+                {isSubmitting ? 'Enviando...' : 'Enviar Solicitud al Organizador'}
+            </Button>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleOpenPdfPreview}>
+                <Printer className="mr-2"/> Ver/Descargar Resumen PDF
+            </Button>
+        </div>
         <p className="text-xs text-muted-foreground">Al enviar, un organizador se pondrá en contacto contigo para afinar los detalles y confirmar el presupuesto final.</p>
       </div>
     </div>

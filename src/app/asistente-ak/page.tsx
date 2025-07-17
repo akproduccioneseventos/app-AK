@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -68,13 +68,18 @@ export default function AsistenteAkPage() {
     { numero: 5, nombre: 'Bebidas', icon: GlassWater, fields: ['bebidas'] },
     { numero: 6, nombre: 'Foto/Video', icon: Camera, fields: ['fotoVideo'] },
     { numero: 7, nombre: 'Música', icon: Music, fields: ['musica'] },
-    { numero: 8, nombre: 'Repostería', icon: Cake, fields: ['reposteria'] },
-    { numero: 9, nombre: 'Extras', icon: Briefcase, fields: ['entretenimiento'] },
+    { numero: 8, nombre: 'Repostería', icon: Briefcase, fields: ['reposteria'] },
+    { numero: 9, nombre: 'Extras', icon: Sparkles, fields: ['entretenimiento'] },
     { numero: 10, nombre: 'Regalos', icon: Gift, fields: ['listaRegalos'] },
     { numero: 11, nombre: 'Presupuesto', icon: Wallet, fields: ['presupuestoCliente'] },
     { numero: 12, nombre: 'Resumen', icon: Check, fields: [] },
   ];
   const TOTAL_PASOS = pasos.length;
+
+  // Persist data to localStorage on change
+  useEffect(() => {
+    localStorage.setItem('asistenteData', JSON.stringify(data));
+  }, [data]);
 
   const handleNext = () => {
     setPaso((p) => Math.min(p + 1, TOTAL_PASOS));
@@ -85,7 +90,7 @@ export default function AsistenteAkPage() {
   };
   
   const handleReset = () => {
-      setData({
+      const initialData = {
         tipoFiesta: null,
         invitados: { adultos: 50, adolescentes: 0, ninos: 0 },
         estiloDecoracion: null,
@@ -97,7 +102,9 @@ export default function AsistenteAkPage() {
         entretenimiento: null,
         listaRegalos: null,
         presupuestoCliente: 50000,
-      });
+      };
+      setData(initialData);
+      localStorage.setItem('asistenteData', JSON.stringify(initialData));
       setPaso(1);
       setMode('guided');
   }
@@ -140,7 +147,7 @@ export default function AsistenteAkPage() {
     const commonProps = { data, setData, handleNext };
     switch (paso) {
       case 1: return <AsistentePaso1_TipoFiesta {...commonProps} />;
-      case 2: return <AsistentePaso2_Invitados {...commonProps} />;
+      case 2: return <AsistentePaso2_Invitados data={data} setData={setData} />;
       case 3: return <AsistentePaso3_Decoracion {...commonProps} />;
       case 4: return <AsistentePaso4_Catering {...commonProps} />;
       case 5: return <AsistentePaso5_Bebidas {...commonProps} />;
