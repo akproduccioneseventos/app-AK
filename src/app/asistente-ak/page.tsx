@@ -5,17 +5,26 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight, CheckCircle, RefreshCw, Send, Users, Palette, Sparkles, PartyPopper, Check, Home } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, RefreshCw, Send, Users, Palette, Sparkles, PartyPopper, Check, Home, ChefHat, GlassWater, Camera, Music } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AsistentePaso1_TipoFiesta } from '@/components/asistente-ak/Paso1_TipoFiesta';
 import { AsistentePaso2_Invitados } from '@/components/asistente-ak/Paso2_Invitados';
 import { AsistentePaso3_Decoracion } from '@/components/asistente-ak/Paso3_Decoracion';
+import { AsistentePaso4_Catering } from '@/components/asistente-ak/Paso4_Catering';
+import { AsistentePaso5_Bebidas } from '@/components/asistente-ak/Paso5_Bebidas';
+import { AsistentePaso6_FotoVideo } from '@/components/asistente-ak/Paso6_FotoVideo';
+import { AsistentePaso7_Musica } from '@/components/asistente-ak/Paso7_Musica';
+
 import Link from 'next/link';
 
 export interface AsistenteData {
   tipoFiesta: { id: string; nombre: string; costoBase: number } | null;
   invitados: { adultos: number; adolescentes: number; ninos: number };
   estiloDecoracion: { id:string; nombre: string; multiplicadorCosto: number } | null;
+  catering: { id: string; nombre: string; costoPorPersona: number } | null;
+  bebidas: { id: string; nombre: string; costoPorPersona: number } | null;
+  fotoVideo: { id: string; nombre: string; costoBase: number } | null;
+  musica: { id: string; nombre: string; costoBase: number } | null;
 }
 
 export const formatCurrency = (amount: number) => {
@@ -29,13 +38,21 @@ export default function AsistenteAkPage() {
     tipoFiesta: null,
     invitados: { adultos: 50, adolescentes: 0, ninos: 0 },
     estiloDecoracion: null,
+    catering: null,
+    bebidas: null,
+    fotoVideo: null,
+    musica: null,
   });
 
   const pasos = [
-    { numero: 1, nombre: 'Tipo de Fiesta', icon: PartyPopper, fields: ['tipoFiesta'] },
+    { numero: 1, nombre: 'Tipo', icon: PartyPopper, fields: ['tipoFiesta'] },
     { numero: 2, nombre: 'Invitados', icon: Users, fields: ['invitados'] },
     { numero: 3, nombre: 'Decoración', icon: Palette, fields: ['estiloDecoracion'] },
-    { numero: 4, nombre: 'Resumen', icon: Check, fields: [] },
+    { numero: 4, nombre: 'Catering', icon: ChefHat, fields: ['catering'] },
+    { numero: 5, nombre: 'Bebidas', icon: GlassWater, fields: ['bebidas'] },
+    { numero: 6, nombre: 'Foto/Video', icon: Camera, fields: ['fotoVideo'] },
+    { numero: 7, nombre: 'Música', icon: Music, fields: ['musica'] },
+    { numero: 8, nombre: 'Resumen', icon: Check, fields: [] },
   ];
   const TOTAL_PASOS = pasos.length;
 
@@ -52,6 +69,10 @@ export default function AsistenteAkPage() {
         tipoFiesta: null,
         invitados: { adultos: 50, adolescentes: 0, ninos: 0 },
         estiloDecoracion: null,
+        catering: null,
+        bebidas: null,
+        fotoVideo: null,
+        musica: null,
       });
       setPaso(1);
   }
@@ -72,13 +93,16 @@ export default function AsistenteAkPage() {
     const totalInvitados = data.invitados.adultos + data.invitados.adolescentes + data.invitados.ninos;
 
     if(totalInvitados > 0) {
-      // Simulación de costo por invitado
-      base += totalInvitados * 1500;
+      base += data.catering ? data.catering.costoPorPersona * totalInvitados : 0;
+      base += data.bebidas ? data.bebidas.costoPorPersona * totalInvitados : 0;
     }
     
     if (data.estiloDecoracion) {
         base *= data.estiloDecoracion.multiplicadorCosto;
     }
+    
+    base += data.fotoVideo?.costoBase || 0;
+    base += data.musica?.costoBase || 0;
 
     return base;
   }, [data]);
@@ -87,13 +111,14 @@ export default function AsistenteAkPage() {
   const renderPaso = () => {
     const commonProps = { data, setData, handleNext };
     switch (paso) {
-      case 1:
-        return <AsistentePaso1_TipoFiesta {...commonProps} />;
-      case 2:
-        return <AsistentePaso2_Invitados {...commonProps} />;
-      case 3:
-        return <AsistentePaso3_Decoracion {...commonProps} />;
-      case 4:
+      case 1: return <AsistentePaso1_TipoFiesta {...commonProps} />;
+      case 2: return <AsistentePaso2_Invitados {...commonProps} />;
+      case 3: return <AsistentePaso3_Decoracion {...commonProps} />;
+      case 4: return <AsistentePaso4_Catering {...commonProps} />;
+      case 5: return <AsistentePaso5_Bebidas {...commonProps} />;
+      case 6: return <AsistentePaso6_FotoVideo {...commonProps} />;
+      case 7: return <AsistentePaso7_Musica {...commonProps} />;
+      case 8:
          return (
              <div className="text-center">
                  <h2 className="text-2xl font-bold">Resumen de tu Fiesta</h2>
