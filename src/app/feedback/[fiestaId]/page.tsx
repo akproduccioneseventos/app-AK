@@ -124,4 +124,3 @@ export default function FeedbackPage({ params }: { params: { fiestaId: string } 
     </div>
   );
 }
-
