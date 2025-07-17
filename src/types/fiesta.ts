@@ -222,8 +222,14 @@ export interface ReposteriaCategoria {
   dataAiHint?: string;
 }
 
+export type ReposteriaConsumoConfig = {
+  [key in ReposteriaCategoriaId]: Record<TipoAsistente, number>;
+};
+
+
 export interface ReposteriaData {
   categorias: ReposteriaCategoria[];
+  consumoConfig?: ReposteriaConsumoConfig;
   notasGenerales?: string;
 }
 

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -58,7 +57,6 @@ export default function ListaDeComprasPage() {
               const qtyPerPerson = parseFloat(ing.quantityPerPerson);
               if (!isNaN(qtyPerPerson)) {
                 const totalQty = qtyPerPerson * invitados;
-                // Costo ya es por persona-receta, así que lo multiplicamos por invitados
                 const totalCostoIngrediente = ing.cost * invitados;
                 generatedList.push({
                   id: `${plato.id}-${ing.id}`,
@@ -173,8 +171,8 @@ export default function ListaDeComprasPage() {
         </div>
         <div className="flex gap-2">
            <Button onClick={handlePrint} variant="outline"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
-            <Link href="/fiestas/nueva/catering" passHref>
-                <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Catering</Button>
+            <Link href="/planner-costo-fiesta" passHref>
+                <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button>
             </Link>
         </div>
       </div>

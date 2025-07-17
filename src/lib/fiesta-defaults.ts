@@ -1,5 +1,6 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente } from '@/types/fiesta';
+
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -149,8 +150,19 @@ export const defaultReposteriaCategorias: ReposteriaCategoria[] = [
   { id: 'postres_individuales', nombreDisplay: 'Postres Individuales', activada: false, items: [], descripcion: 'Porciones individuales de postres variados.', cantidadEstimadaPersonas: 0 },
 ];
 
+export const defaultReposteriaConsumoConfig: ReposteriaConsumoConfig = {
+  tortas_personalizadas: { adulto: 0.1, adolescente: 0.1, nino: 0.08 }, // kg por persona
+  cupcakes_minitortas: { adulto: 1.5, adolescente: 2, nino: 1 }, // unidades por persona
+  candy_bar: { adulto: 1, adolescente: 1.5, nino: 2 }, // porción/100gr por persona
+  fuente_chocolate: { adulto: 1, adolescente: 1, nino: 1 }, // porción por persona
+  mesa_dulce_tradicional: { adulto: 2, adolescente: 2, nino: 1.5 }, // porciones por persona
+  mesa_helada: { adulto: 1, adolescente: 1.5, nino: 1.5 }, // porciones por persona
+  postres_individuales: { adulto: 1.5, adolescente: 1.5, nino: 1 }, // unidades por persona
+};
+
 export const defaultReposteriaData: ReposteriaData = {
   categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)),
+  consumoConfig: JSON.parse(JSON.stringify(defaultReposteriaConsumoConfig)),
   notasGenerales: '',
 };
 
