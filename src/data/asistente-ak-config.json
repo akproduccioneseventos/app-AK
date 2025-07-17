@@ -1,0 +1,46 @@
+
+{
+  "pasos": {
+    "tipoFiesta": {
+      "pregunta": "¿Qué tipo de evento estás planeando?",
+      "descripcion": "Selecciona una opción para empezar.",
+      "opciones": [
+        {
+          "id": "boda",
+          "nombre": "Boda",
+          "costoBase": 80000,
+          "img": "https://placehold.co/400x300.png",
+          "hint": "wedding couple"
+        },
+        {
+          "id": "quince",
+          "nombre": "Quince Años",
+          "costoBase": 60000,
+          "img": "https://placehold.co/400x300.png",
+          "hint": "quinceanera dress"
+        },
+        {
+          "id": "infantil",
+          "nombre": "Cumpleaños Infantil",
+          "costoBase": 30000,
+          "img": "https://placehold.co/400x300.png",
+          "hint": "kids party"
+        },
+        {
+          "id": "corporativo",
+          "nombre": "Evento Corporativo",
+          "costoBase": 90000,
+          "img": "https://placehold.co/400x300.png",
+          "hint": "corporate meeting"
+        },
+        {
+          "id": "otro",
+          "nombre": "Otro Tipo de Evento",
+          "costoBase": 40000,
+          "img": "https://placehold.co/400x300.png",
+          "hint": "event celebration"
+        }
+      ]
+    }
+  }
+}

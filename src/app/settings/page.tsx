@@ -1,8 +1,10 @@
 
+'use client';
+
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -39,6 +41,13 @@ const settingsCards = [
     href: "/admin/aaiff-fiesta",
     icon: PartyPopper,
     buttonLabel: "Analizar Fiesta Actual"
+  },
+   {
+    title: "Configuración del Asistente AK",
+    description: "Personaliza las preguntas, opciones e imágenes del asistente para clientes.",
+    href: "/settings/asistente-ak",
+    icon: SparklesIcon,
+    buttonLabel: "Configurar Asistente"
   },
   {
     title: "Notificaciones",

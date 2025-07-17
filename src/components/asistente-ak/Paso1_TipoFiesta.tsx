@@ -1,10 +1,14 @@
 
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AsistenteData } from '@/app/asistente-ak/page';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
+import { getAsistenteAkConfig } from '@/app/actions/asistente-ak';
+import type { AsistentePasoOpcion } from '@/types/fiesta';
 
 interface Props {
   data: AsistenteData;
@@ -12,27 +16,49 @@ interface Props {
   handleNext: () => void;
 }
 
-const tiposDeFiesta = [
-  { id: 'boda', nombre: 'Boda', costoBase: 80000, img: 'https://placehold.co/400x300.png', hint: 'wedding couple' },
-  { id: 'quince', nombre: 'Quince Años', costoBase: 60000, img: 'https://placehold.co/400x300.png', hint: 'quinceanera dress' },
-  { id: 'infantil', nombre: 'Cumpleaños Infantil', costoBase: 30000, img: 'https://placehold.co/400x300.png', hint: 'kids party' },
-  { id: 'corporativo', nombre: 'Evento Corporativo', costoBase: 90000, img: 'https://placehold.co/400x300.png', hint: 'corporate meeting' },
-  { id: 'otro', nombre: 'Otro Tipo de Evento', costoBase: 40000, img: 'https://placehold.co/400x300.png', hint: 'event celebration' },
-];
-
 export const AsistentePaso1_TipoFiesta: React.FC<Props> = ({ data, setData, handleNext }) => {
-  const handleSelect = (tipo: typeof tiposDeFiesta[0]) => {
+  const [opciones, setOpciones] = useState<AsistentePasoOpcion[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pregunta, setPregunta] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+
+  useEffect(() => {
+    async function loadConfig() {
+      setIsLoading(true);
+      try {
+        const config = await getAsistenteAkConfig();
+        const { tipoFiesta } = config.pasos;
+        setOpciones(tipoFiesta.opciones);
+        setPregunta(tipoFiesta.pregunta);
+        setDescripcion(tipoFiesta.descripcion);
+      } catch (error) {
+        console.error("Failed to load assistant config", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadConfig();
+  }, []);
+
+  const handleSelect = (tipo: AsistentePasoOpcion) => {
     setData(prev => ({ ...prev, tipoFiesta: tipo }));
-    // Automatically go to next step after selection
-    setTimeout(() => handleNext(), 300); 
+    setTimeout(() => handleNext(), 300);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 text-center">
-      <h2 className="text-2xl font-bold font-headline">¿Qué tipo de evento estás planeando?</h2>
-      <p className="text-muted-foreground">Selecciona una opción para empezar.</p>
+      <h2 className="text-2xl font-bold font-headline">{pregunta}</h2>
+      <p className="text-muted-foreground">{descripcion}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
-        {tiposDeFiesta.map((tipo) => (
+        {opciones.map((tipo) => (
           <Card
             key={tipo.id}
             onClick={() => handleSelect(tipo)}
@@ -44,7 +70,7 @@ export const AsistentePaso1_TipoFiesta: React.FC<Props> = ({ data, setData, hand
             <CardContent className="p-0 relative">
               <div className="relative aspect-video">
                 <NextImage
-                  src={tipo.img}
+                  src={tipo.img || 'https://placehold.co/400x300.png'}
                   alt={tipo.nombre}
                   layout="fill"
                   objectFit="cover"

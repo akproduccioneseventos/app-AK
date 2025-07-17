@@ -1,8 +1,34 @@
 
-
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; // Importar Invitado
 import type { UnidadServicio } from './empresa';
+
+// --- CONFIGURACIÓN DEL ASISTENTE AK ---
+export interface AsistentePasoOpcion {
+  id: string;
+  nombre: string;
+  costoBase?: number;
+  costoPorPersona?: number;
+  multiplicadorCosto?: number;
+  img?: string;
+  hint?: string;
+}
+
+export interface AsistentePasoConfig {
+  pregunta: string;
+  descripcion: string;
+  opciones: AsistentePasoOpcion[];
+}
+
+export interface AsistenteAkConfig {
+  pasos: {
+    tipoFiesta: AsistentePasoConfig;
+    // ... aquí irán los demás pasos
+  }
+}
+
+
+// --- RESTO DE TIPOS ---
 
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
