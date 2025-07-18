@@ -16,6 +16,7 @@ import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto, TipoEvento } from '@/types/presupuesto';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getCrmLeads } from '@/app/actions/crm';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 
@@ -55,16 +56,16 @@ function NuevoPresupuestoContent() {
 
         // Dinámicamente importar la acción del servidor para servicios
         const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
-        const [fetchedServiciosCatalogo, fiestaActualData] = await Promise.all([
+        const [fetchedServiciosCatalogo, fiestaActualData, crmLeads] = await Promise.all([
           getServiciosEmpresa(),
-          getFiestaActual()
+          getFiestaActual(),
+          getCrmLeads()
         ]);
         setServiciosCatalogo(fetchedServiciosCatalogo);
 
         setFormData(prev => {
           let newClienteNombre = prev.clienteNombre;
           
-          // Prioritize leadName from URL param
           if (leadNameParam) {
             newClienteNombre = leadNameParam;
           }
