@@ -22,8 +22,6 @@ const analyzeEventPlanTool = ai.defineTool(
     outputSchema: z.any(),
   },
   async () => {
-    // In a real scenario, you'd fetch the actual event data here.
-    // For now, we pass an empty object as the plan data is self-contained in the action for this example.
     const planData = await getFiestaActual();
     return await analyzeEventPlan({ planData });
   }
