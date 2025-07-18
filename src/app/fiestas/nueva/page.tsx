@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -40,7 +39,6 @@ const internalModules: PlanningModule[] = [
   { title: "Lista de Tareas (Interna)", description: "Organización interna del equipo.", icon: ListChecks, href: "/fiestas/nueva/tareas", status: "Disponible", actionLabel: "Gestionar Tareas" },
   { title: "Gestión de Personal", description: "Asignación y costos de personal.", icon: UserCheck, href: "/fiestas/nueva/personal", status: "Disponible", actionLabel: "Asignar Personal" },
   { title: "Lista de Carga Operativa", description: "Elementos que deben trasladarse al evento.", icon: PackageSearch, href: "/fiestas/nueva/carga-operativa", status: "Disponible", actionLabel: "Gestionar Carga" },
-  { title: "Servicios Contratados", description: "Ver proveedores y servicios confirmados.", icon: ClipboardList, href: "/fiestas/nueva/servicios-contratados", status: "Disponible", actionLabel: "Ver Servicios" },
   { title: "Reuniones con Cliente", description: "Registro privado de reuniones y acuerdos.", icon: MessageSquareText, href: "/fiestas/nueva/reuniones", status: "Disponible", actionLabel: "Gestionar Reuniones" },
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
   { title: "Gestión Documental y Financiera", description: "Contrato, presupuesto, facturas, pagos.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Administrar Documentos" },
@@ -191,18 +189,18 @@ export default function PlanificarFiestaHubPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
              <ModuleCard 
+                title="Página Pública y Portal"
+                description="Gestiona lo que ven el cliente y los invitados (Checklist, RSVP, etc.)."
+                href="/fiestas/nueva/portal-cliente"
+                icon={Globe}
+                actionLabel="Gestionar Visibilidad"
+             />
+             <ModuleCard 
                 title="Resumen Imprimible del Evento"
                 description="Genera un PDF con toda la información clave del evento: itinerario, menús, etc."
                 href="/fiestas/nueva/resumen-imprimible"
                 icon={Printer}
                 actionLabel="Ver Resumen"
-             />
-             <ModuleCard 
-                title="Portal del cliente"
-                description="Gestiona lo que ven el cliente y los invitados (Checklist, RSVP, etc.)."
-                href="/fiestas/nueva/portal-cliente"
-                icon={Globe}
-                actionLabel="Gestionar Visibilidad"
              />
              {internalModules.map((module) => (
                 <ModuleCard key={module.title} {...module} />

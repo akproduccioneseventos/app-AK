@@ -179,6 +179,7 @@ export default function PortalUnificadoPage() {
         { id: 'videoVida', label: 'Video de Vida', icon: Camera, editable: true },
         { id: 'listaRegalos', label: 'Lista de Regalos', icon: Gift, editable: false },
         { id: 'notasCliente', label: 'Notas del Cliente', icon: StickyNote, editable: true },
+        { id: 'fotografiaYFilmacion', label: 'Fotografía y Filmación', icon: Camera, editable: false },
     ];
     
     const accesosDirectos = [
@@ -198,7 +199,7 @@ export default function PortalUnificadoPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Globe className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Portal del Cliente</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Página Pública y Portal</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>

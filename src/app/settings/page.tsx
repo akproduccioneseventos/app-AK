@@ -43,11 +43,11 @@ const settingsCards = [
     buttonLabel: "Analizar Fiesta Actual"
   },
    {
-    title: "Configuración del Asistente AK",
-    description: "Personaliza las preguntas, opciones e imágenes del asistente para clientes.",
-    href: "/settings/asistente-ak",
-    icon: SparklesIcon,
-    buttonLabel: "Configurar Asistente"
+    title: "Análisis de Código con IA",
+    description: "Permite que la IA analice la app en busca de mejoras y errores.",
+    href: "/admin/aaiff",
+    icon: BrainCircuit,
+    buttonLabel: "Analizar Código"
   },
   {
     title: "Notificaciones",
@@ -62,13 +62,6 @@ const settingsCards = [
     href: "/settings/account", 
     icon: ShieldCheck,
     buttonLabel: "Gestionar Cuenta"
-  },
-  {
-    title: "Análisis de Código con IA",
-    description: "Permite que la IA analice la app en busca de mejoras y errores.",
-    href: "/admin/aaiff",
-    icon: BrainCircuit,
-    buttonLabel: "Analizar Código"
   },
   {
     title: "Backup y Restauración",
