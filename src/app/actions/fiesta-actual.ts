@@ -44,107 +44,6 @@ async function ensureDataDirectoryExists() {
   }
 }
 
-async function readFiestaActualFile(): Promise<FiestaEnPlanificacion> {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(fiestaActualFilePath);
-    const fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
-    if (fileContent.trim() === '') throw new Error('Fiesta actual file is empty');
-    let parsedData = JSON.parse(fileContent) as FiestaEnPlanificacion;
-    
-    // Migration logic for old salonLayout field
-    if ((parsedData as any).salonLayout) {
-      const oldSalonLayout = (parsedData as any).salonLayout as DecoracionData;
-      parsedData.decoracion = {
-        ...(parsedData.decoracion || defaultDecoracion),
-        salonPlanBackgroundImageUrl: oldSalonLayout.salonPlanBackgroundImageUrl || parsedData.decoracion?.salonPlanBackgroundImageUrl || defaultDecoracion.salonPlanBackgroundImageUrl,
-        salonElements: oldSalonLayout.salonElements || parsedData.decoracion?.salonElements || defaultDecoracion.salonElements,
-        generalNotesSalonLayout: oldSalonLayout.generalNotesSalonLayout || parsedData.decoracion?.generalNotesSalonLayout || defaultDecoracion.generalNotesSalonLayout,
-      };
-      delete (parsedData as any).salonLayout;
-    }
-
-    // Ensure decoracion and its nested properties exist with defaults
-    if (!parsedData.decoracion) {
-        parsedData.decoracion = { ...defaultDecoracion };
-    } else {
-        parsedData.decoracion.salonPlanBackgroundImageUrl = parsedData.decoracion.salonPlanBackgroundImageUrl ?? defaultDecoracion.salonPlanBackgroundImageUrl;
-        parsedData.decoracion.salonElements = parsedData.decoracion.salonElements ?? defaultDecoracion.salonElements;
-        parsedData.decoracion.generalNotesSalonLayout = parsedData.decoracion.generalNotesSalonLayout ?? defaultDecoracion.generalNotesSalonLayout;
-        parsedData.decoracion.generalNotesDecoracion = parsedData.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
-        parsedData.decoracion.colorGlobos = parsedData.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
-        parsedData.decoracion.layoutMode = parsedData.decoracion.layoutMode ?? defaultDecoracion.layoutMode;
-        parsedData.decoracion.guestNameStyle = parsedData.decoracion.guestNameStyle ?? defaultDecoracion.guestNameStyle;
-        parsedData.decoracion.guestIconStyle = parsedData.decoracion.guestIconStyle ?? defaultDecoracion.guestIconStyle;
-    }
-    
-    // Migration to remove old direccionLugar field
-    if (parsedData.configuracion && 'direccionLugar' in parsedData.configuracion) {
-      delete (parsedData.configuracion as any).direccionLugar;
-    }
-    
-    if (!parsedData.webPageSettings) {
-      parsedData.webPageSettings = { ...defaultWebPageSettings };
-    } else {
-      parsedData.webPageSettings = {
-        ...defaultWebPageSettings,
-        ...parsedData.webPageSettings,
-        galleryImageUrls: parsedData.webPageSettings.galleryImageUrls || [],
-      };
-    }
-    // Migration for ClientPortalSettings - from flat booleans to nested objects
-    if (parsedData.clientPortalSettings && typeof (parsedData.clientPortalSettings as any).showChecklist === 'boolean') {
-        const oldSettings = parsedData.clientPortalSettings as any;
-        parsedData.clientPortalSettings = {
-            ...defaultClientPortalSettings,
-            enabled: oldSettings.enabled,
-            accessKey: oldSettings.accessKey,
-            checklist: { visible: oldSettings.showChecklist, editable: true },
-            itinerario: { visible: oldSettings.showItinerario },
-            musica: { visible: oldSettings.showMusica, editable: true },
-            videoVida: { visible: oldSettings.showVideoVida, editable: true },
-            listaRegalos: { visible: oldSettings.showListaRegalos },
-            documentos: { visible: oldSettings.showDocumentos || oldSettings.showPresupuesto || oldSettings.showContrato },
-            notasCliente: { visible: oldSettings.showNotasCliente, editable: true },
-        };
-    } else if (!parsedData.clientPortalSettings) {
-      parsedData.clientPortalSettings = { ...defaultClientPortalSettings };
-    }
-
-    if (!parsedData.socialGallerySettings) {
-        parsedData.socialGallerySettings = { ...defaultSocialGallerySettings };
-    }
-    if (!parsedData.listaDeCargaOperativa) {
-      parsedData.listaDeCargaOperativa = { ...defaultListaDeCargaOperativa };
-    }
-    if (!parsedData.gestionCostos) {
-      parsedData.gestionCostos = { ...initialGestionCostosData };
-    } else {
-      parsedData.gestionCostos = {
-        ...initialGestionCostosData,
-        ...parsedData.gestionCostos,
-        costosItems: parsedData.gestionCostos.costosItems || [],
-      };
-    }
-    if (!parsedData.videoVida) {
-        parsedData.videoVida = { ...defaultVideoVidaData };
-    }
-    if (!parsedData.fotografiaYFilmacion) {
-        parsedData.fotografiaYFilmacion = { ...defaultFotografiaYFilmacionData };
-    }
-
-
-    return parsedData;
-  } catch (error) {
-    const cleanInitialData = { ...initialFiestaActualData };
-    if (cleanInitialData.configuracion && 'direccionLugar' in cleanInitialData.configuracion) {
-      delete (cleanInitialData.configuracion as any).direccionLugar;
-    }
-    await writeFiestaActualFile(cleanInitialData);
-    return cleanInitialData;
-  }
-}
-
 async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void> {
   try {
     await ensureDataDirectoryExists();
@@ -216,15 +115,49 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
   }
 }
 
-async function initializeLocalFiestaFiles() {
-  await readFiestaActualFile();
-  await getHistorialFiestas(); // This ensures the file exists
+export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(historialFiestasFilePath);
+    const fileContent = await fs.readFile(historialFiestasFilePath, 'utf-8');
+    if (fileContent.trim() === '') return [];
+    return JSON.parse(fileContent) as FiestaEnPlanificacion[];
+  } catch (error) {
+    return [];
+  }
 }
-initializeLocalFiestaFiles();
 
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  const data = await readFiestaActualFile();
+  let fileContent: string;
+  let fileExists = false;
+  try {
+    await ensureDataDirectoryExists();
+    await fs.access(fiestaActualFilePath);
+    fileExists = true;
+    fileContent = await fs.readFile(fiestaActualFilePath, 'utf-8');
+  } catch (error) {
+    const cleanInitialData = { ...initialFiestaActualData };
+    await writeFiestaActualFile(cleanInitialData);
+    return cleanInitialData;
+  }
+  
+  if (fileContent.trim() === '') {
+    const cleanInitialData = { ...initialFiestaActualData };
+    await writeFiestaActualFile(cleanInitialData);
+    return cleanInitialData;
+  }
+  
+  let data: FiestaEnPlanificacion;
+  try {
+    data = JSON.parse(fileContent);
+  } catch (parseError) {
+    console.error("Error parsing fiesta-actual.json, resetting to default.", parseError);
+    const cleanInitialData = { ...initialFiestaActualData };
+    await writeFiestaActualFile(cleanInitialData);
+    return cleanInitialData;
+  }
+
    const validatedConfig: ConfigEventoDataStorage = {
     ...defaultConfiguracion,
     ...(data.configuracion || {}),
@@ -429,17 +362,14 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   return validatedData;
 }
 
-export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(historialFiestasFilePath);
-    const fileContent = await fs.readFile(historialFiestasFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as FiestaEnPlanificacion[];
-  } catch (error) {
-    return [];
-  }
+
+async function initializeLocalFiestaFiles() {
+  await getFiestaActual();
+  await getHistorialFiestas(); // This ensures the file exists
 }
+initializeLocalFiestaFiles();
+
+
 
 export async function updateConfiguracionFiestaActual(
   configData: Partial<Omit<ConfigEventoDataStorage, 'direccionLugar'>>
@@ -1221,3 +1151,4 @@ export async function claimGift(
     return { success: false, error: e.message || "Ocurrió un error al procesar la solicitud." };
   }
 }
+
