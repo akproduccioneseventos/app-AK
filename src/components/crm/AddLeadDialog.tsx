@@ -19,6 +19,7 @@ import { PlusCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLead } from '@/app/actions/crm';
 import type { CrmStage } from '@/types/crm';
+import { Textarea } from '../ui/textarea';
 
 interface AddLeadDialogProps {
   stages: CrmStage[];
@@ -29,6 +30,9 @@ interface AddLeadDialogProps {
 export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [leadName, setLeadName] = useState('');
+  const [leadEmail, setLeadEmail] = useState('');
+  const [leadPhone, setLeadPhone] = useState('');
+  const [leadNotes, setLeadNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -42,10 +46,19 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
     }
     setIsSaving(true);
     try {
-      const result = await addCrmLead({ name: leadName, currentStageId: defaultStageId || firstStageId });
+      const result = await addCrmLead({ 
+        name: leadName, 
+        currentStageId: defaultStageId || firstStageId,
+        email: leadEmail,
+        phone: leadPhone,
+        notes: leadNotes
+      });
       if (result.success) {
         toast({ title: "Prospecto Añadido", description: `El prospecto "${leadName}" ha sido añadido.` });
         setLeadName('');
+        setLeadEmail('');
+        setLeadPhone('');
+        setLeadNotes('');
         setIsOpen(false);
         onLeadAdded();
       } else {
@@ -70,20 +83,25 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
         <DialogHeader>
           <DialogTitle className="font-headline">Añadir Nuevo Prospecto</DialogTitle>
           <DialogDescription>
-            Ingresa el nombre del nuevo prospecto. Se añadirá a la primera etapa por defecto.
+            Ingresa los datos del nuevo prospecto. Se añadirá a la primera etapa por defecto.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-1">
-            <Label htmlFor="lead-name">Nombre del Prospecto</Label>
-            <Input
-              id="lead-name"
-              value={leadName}
-              onChange={(e) => setLeadName(e.target.value)}
-              placeholder="Ej: Contacto de Empresa XYZ"
-              required
-              disabled={isSaving}
-            />
+            <Label htmlFor="lead-name">Nombre del Prospecto *</Label>
+            <Input id="lead-name" value={leadName} onChange={(e) => setLeadName(e.target.value)} placeholder="Ej: Contacto de Empresa XYZ" required disabled={isSaving}/>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="lead-email">Email (Opcional)</Label>
+            <Input id="lead-email" type="email" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} placeholder="email@ejemplo.com" disabled={isSaving}/>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="lead-phone">Teléfono (Opcional)</Label>
+            <Input id="lead-phone" type="tel" value={leadPhone} onChange={(e) => setLeadPhone(e.target.value)} placeholder="099 123 456" disabled={isSaving}/>
+          </div>
+           <div className="space-y-1">
+            <Label htmlFor="lead-notes">Notas (Opcional)</Label>
+            <Textarea id="lead-notes" value={leadNotes} onChange={(e) => setLeadNotes(e.target.value)} placeholder="Detalles de la consulta, fecha de primer contacto, etc." disabled={isSaving} rows={3}/>
           </div>
           <DialogFooter className="pt-3">
             <DialogClose asChild>

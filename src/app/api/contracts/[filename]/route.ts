@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { getContractFilePath } from '@/app/actions/customers'; // Assuming this function exists
 
 export async function GET(
   request: NextRequest,

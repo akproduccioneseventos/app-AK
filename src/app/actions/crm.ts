@@ -72,7 +72,7 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
 }
 
 export async function addCrmLead(
-  leadData: Pick<CrmLead, 'name' | 'currentStageId' | 'email' | 'phone' | 'notes'>
+  leadData: NewCrmLeadData
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
   if (!leadData.name.trim()) {
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
@@ -127,7 +127,7 @@ export async function moveCrmLead(
   leads[leadIndex] = updatedLead;
 
   await writeJsonFile(LEADS_FILE_PATH, leads);
-  return { success: true, lead: leads[leadIndex] };
+  return { success: true, lead: updatedLead };
 }
 
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {

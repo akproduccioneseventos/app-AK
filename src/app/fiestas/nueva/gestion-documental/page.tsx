@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } fr
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // Added for file input
+import { Input } from '@/components/ui/input'; 
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, ArrowRight, Archive, FileText, Printer, Share2, DollarSign, CreditCard, CalendarCheck, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle, BarChart3, UploadCloud } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import { StatusBadge as InvoiceStatusBadge } from '@/components/status-badge';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -40,6 +41,7 @@ const formatDate = (dateString?: string) => {
 
 export default function GestionDocumentalPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
@@ -401,4 +403,3 @@ export default function GestionDocumentalPage() {
     </div>
   );
 }
-
