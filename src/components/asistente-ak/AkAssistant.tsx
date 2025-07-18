@@ -31,7 +31,7 @@ export function AkAssistant() {
         if (isOpen && messages.length === 0) {
             setMessages([{
                 role: 'assistant',
-                content: "¡Hola! Soy Asistente AK. Puedes pedirme que analice tu evento actual, revise el código de la aplicación y mucho más. ¿En qué te puedo ayudar?",
+                content: "¡Hola! Soy Asistente AK. Puedes pedirme que analice tu evento, asigne invitados a mesas, o que revise el código. ¿En qué te puedo ayudar?",
             }]);
         }
     }, [isOpen, messages.length]);

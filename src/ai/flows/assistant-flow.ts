@@ -7,8 +7,10 @@
 import { ai } from '@/ai/genkit';
 import { analyzeCodebase } from './analyze-codebase-flow';
 import { analyzeEventPlan } from './analyze-event-plan-flow';
+import { assignGuestsToTables } from './assign-guests-flow';
 import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput } from '@/ai/types/assistant-types';
 import { z } from 'genkit';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 
 
 // Tool: Analyze the current event plan
@@ -22,7 +24,7 @@ const analyzeEventPlanTool = ai.defineTool(
   async () => {
     // In a real scenario, you'd fetch the actual event data here.
     // For now, we pass an empty object as the plan data is self-contained in the action for this example.
-    const planData = {}; // Placeholder
+    const planData = await getFiestaActual();
     return await analyzeEventPlan({ planData });
   }
 );
@@ -43,12 +45,33 @@ const analyzeCodebaseTool = ai.defineTool(
     }
 );
 
+// Tool: Assign guests to tables
+const assignGuestsTool = ai.defineTool(
+  {
+    name: 'assignGuestsToTables',
+    description: 'Automatically assigns confirmed guests to available tables based on party size and table capacity. Use this when the user asks to "assign guests", "seat the guests", "distribute guests to tables", or similar requests.',
+    inputSchema: z.object({}),
+    outputSchema: z.any(),
+  },
+  async () => {
+    const fiesta = await getFiestaActual();
+    const confirmedGuests = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado') || [];
+    const tables = fiesta.decoracion?.salonElements?.filter(el => el.category?.toLowerCase().includes('mesa'))
+      .map(el => ({ id: el.id, name: el.name, seats: el.seats || 0 })) || [];
+    
+    if (confirmedGuests.length === 0) return { error: "No hay invitados confirmados para asignar." };
+    if (tables.length === 0) return { error: "No hay mesas definidas en el plano del salón." };
+
+    return await assignGuestsToTables({ guests: confirmedGuests, tables });
+  }
+);
+
 
 export async function assistant(input: AssistantInput) {
   const llmResponse = await ai.generate({
     prompt: input.query,
     model: 'googleai/gemini-1.5-flash',
-    tools: [analyzeEventPlanTool, analyzeCodebaseTool],
+    tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool],
     output: {
         schema: AssistantOutputSchema,
     }
@@ -62,7 +85,7 @@ export async function assistant(input: AssistantInput) {
     
     // Send the tool's structured output back to the model to generate a natural language response
     const finalResponse = await ai.generate({
-        prompt: `The user asked: "${input.query}". The tool "${call.name}" was called and returned this JSON data: ${JSON.stringify(toolResult)}. Please present this information to the user in a clear, friendly, and readable format. Use markdown for formatting.`,
+        prompt: `The user asked: "${input.query}". The tool "${call.name}" was called and returned this JSON data: ${JSON.stringify(toolResult)}. Please present this information to the user in a clear, friendly, and readable format. Use markdown for formatting. If the tool returned an error, explain the error clearly to the user.`,
         model: 'googleai/gemini-1.5-flash',
         output: {
             schema: AssistantOutputSchema,
