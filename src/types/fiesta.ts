@@ -1,7 +1,7 @@
 
 
 import type { TipoEvento } from './presupuesto';
-import type { Invitado } from './invitado'; // Importar Invitado
+import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
 
 // --- CONFIGURACIÓN DEL ASISTENTE AK ---
@@ -13,7 +13,7 @@ export interface AsistentePasoOpcion {
   multiplicadorCosto?: number;
   img?: string;
   hint?: string;
-  valor?: boolean; // For simple yes/no steps like 'Regalos'
+  valor?: boolean; 
 }
 
 export interface AsistentePasoConfig {
@@ -25,14 +25,6 @@ export interface AsistentePasoConfig {
 export interface AsistenteAkConfig {
   pasos: {
     tipoFiesta: AsistentePasoConfig;
-    decoracion: AsistentePasoConfig;
-    catering: AsistentePasoConfig;
-    bebidas: AsistentePasoConfig;
-    fotoVideo: AsistentePasoConfig;
-    musica: AsistentePasoConfig;
-    reposteria: AsistentePasoConfig;
-    entretenimiento: AsistentePasoConfig;
-    regalos: AsistentePasoConfig;
   }
 }
 
@@ -170,7 +162,7 @@ export interface EventWebPageSettings {
   ourStoryImageUrl?: string; // Data URI or URL
   showOurStory?: boolean;
   eventDetailsTitle?: string;
-  eventDetailsText?: string; // Can include program/schedule here
+  eventDetailsText?: string; 
   showEventDetails?: boolean;
   dressCodeText?: string;
   showDressCode?: boolean;
@@ -181,7 +173,7 @@ export interface EventWebPageSettings {
   showRsvp?: boolean;
   showPrograma?: boolean;
   musicaEspecialText?: string;
-  showGallery?: boolean; // Added this
+  showGallery?: boolean; 
 }
 
 interface PortalModuleSettings {
@@ -206,7 +198,7 @@ export interface ClientPortalSettings {
   notasCliente: PortalModuleSettings;
   invitados: PortalViewOnlyModuleSettings;
   paginaPublica: PortalViewOnlyModuleSettings;
-  fotografiaYFilmacion: PortalViewOnlyModuleSettings; // Added for new module
+  fotografiaYFilmacion: PortalViewOnlyModuleSettings;
 }
 
 export interface SocialGallerySettings {
@@ -219,7 +211,7 @@ export interface SocialGallerySettings {
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
-  cancionesTortaBrindis?: string[]; // Música para corte de torta y brindis
+  cancionesTortaBrindis?: string[]; 
   playlistFiesta?: string;
   listaNoReproducir?: string;
 }
@@ -274,14 +266,14 @@ export interface BebidaItem {
   id: string;
   nombre: string;
   marca?: string;
-  presentacion?: string; // Ej: "Botella 2.25L", "Lata 355ml"
-  cantidadNecesaria?: number; // Cantidad de unidades a comprar
-  unidadCantidad?: string; // Ej: "botellas", "packs", "cajas"
-  costoUnitario?: number; // Costo por unidad de compra
-  costoTotal?: number; // cantidad * costoUnitario
+  presentacion?: string; 
+  cantidadNecesaria?: number; 
+  unidadCantidad?: string; 
+  costoUnitario?: number; 
+  costoTotal?: number; 
   proveedorHabitual?: string;
   notas?: string;
-  mlPorUnidad?: number; // Ej: 2250 para una botella de 2.25L
+  mlPorUnidad?: number; 
   origenId?: string;
   estado?: BebidaItemEstado;
   stockDisponible?: number;
@@ -324,11 +316,11 @@ export interface Tarea {
   texto: string;
   descripcion?: string;
   completada: boolean;
-  fechaLimite?: string; // ISO string
-  horaVencimiento?: string; // HH:mm
-  recordatorio?: string; // Ej: "1 día antes", "2 horas antes"
+  fechaLimite?: string; 
+  horaVencimiento?: string; 
+  recordatorio?: string; 
   asignadaA?: TareaAsignadaA;
-  esPredeterminada?: boolean; // Indica si es una tarea base que se puede reutilizar
+  esPredeterminada?: boolean;
 }
 
 export interface ClientTarea {
@@ -342,11 +334,11 @@ export interface ClientTarea {
 export interface CargaOperativaItem {
   id: string;
   nombre: string;
-  cantidad: string; // Mantenemos string para flexibilidad (ej: "10", "1 caja", "Set completo")
+  cantidad: string;
   cargado: boolean;
   notas?: string;
-  origenId?: string; // ID del ítem original en el catálogo maestro (servicios-empresa.json)
-  unidad?: UnidadServicio | string; // Unidad del ítem, idealmente desde el catálogo
+  origenId?: string; 
+  unidad?: UnidadServicio | string; 
 }
 
 export interface CargaOperativaCategoria {
@@ -360,7 +352,6 @@ export interface ListaDeCargaOperativa {
   notasGenerales?: string;
 }
 
-// Tipos para Gestión de Costos y Rentabilidad
 export type CostoCategoria = 
   | 'Servicio Proveedor' 
   | 'Personal Evento' 
@@ -379,12 +370,12 @@ export interface CostoItem {
   montoEstimado: number;
   montoReal?: number;
   notas?: string;
-  proveedorSugerido?: string; // Opcional, para referencia
+  proveedorSugerido?: string; 
 }
 
 export interface GestionCostosData {
   costosItems: CostoItem[];
-  ingresosTotalesEstimados: number; // Ingreso manual del evento
+  ingresosTotalesEstimados: number; 
   notasGeneralesCostos?: string;
 }
 
@@ -421,7 +412,7 @@ export interface FiestaEnPlanificacion {
   decoracion?: DecoracionData;
   invitados?: Invitado[];
   clientChecklist?: ClientTarea[];
-  clientNotes?: string; // Added field for client notes
+  clientNotes?: string; 
   webPageSettings?: EventWebPageSettings;
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;

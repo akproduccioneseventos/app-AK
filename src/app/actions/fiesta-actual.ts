@@ -60,8 +60,8 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
       dataToWrite.decoracion.generalNotesDecoracion = dataToWrite.decoracion.generalNotesDecoracion ?? defaultDecoracion.generalNotesDecoracion;
       dataToWrite.decoracion.colorGlobos = dataToWrite.decoracion.colorGlobos ?? defaultDecoracion.colorGlobos;
     }
-    delete (dataToWrite as any).salonLayout; // Ensure old property is always removed
-    
+    delete (dataToWrite as any).salonLayout; 
+
     if (!dataToWrite.webPageSettings) {
       dataToWrite.webPageSettings = { ...defaultWebPageSettings };
     } else {
@@ -73,7 +73,24 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
     }
     if (!dataToWrite.clientPortalSettings) {
       dataToWrite.clientPortalSettings = { ...defaultClientPortalSettings };
+    } else {
+        const currentSettings = dataToWrite.clientPortalSettings;
+        dataToWrite.clientPortalSettings = {
+            ...defaultClientPortalSettings,
+            ...currentSettings,
+            checklist: { ...defaultClientPortalSettings.checklist, ...currentSettings.checklist },
+            itinerario: { ...defaultClientPortalSettings.itinerario, ...currentSettings.itinerario },
+            musica: { ...defaultClientPortalSettings.musica, ...currentSettings.musica },
+            videoVida: { ...defaultClientPortalSettings.videoVida, ...currentSettings.videoVida },
+            listaRegalos: { ...defaultClientPortalSettings.listaRegalos, ...currentSettings.listaRegalos },
+            documentos: { ...defaultClientPortalSettings.documentos, ...currentSettings.documentos },
+            notasCliente: { ...defaultClientPortalSettings.notasCliente, ...currentSettings.notasCliente },
+            invitados: { ...defaultClientPortalSettings.invitados, ...currentSettings.invitados },
+            paginaPublica: { ...defaultClientPortalSettings.paginaPublica, ...currentSettings.paginaPublica },
+            fotografiaYFilmacion: { ...defaultClientPortalSettings.fotografiaYFilmacion, ...currentSettings.fotografiaYFilmacion },
+        };
     }
+
      if (!dataToWrite.socialGallerySettings) {
       dataToWrite.socialGallerySettings = { ...defaultSocialGallerySettings };
     }
@@ -173,6 +190,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         ...defaultReposteriaData,
         ...(data.reposteria || {}),
         categorias: mergedReposteriaCategorias,
+        consumoConfig: data.reposteria?.consumoConfig || defaultReposteriaData.consumoConfig
     };
 
     const mergedBebidasCategorias = defaultBebidasCategorias.map(defaultCat => {
@@ -183,6 +201,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
         ...defaultBebidasData,
         ...(data.bebidas || {}),
         categorias: mergedBebidasCategorias,
+        consumoConfig: data.bebidas?.consumoConfig || defaultBebidasData.consumoConfig
     };
 
     const validatedDecoracion: DecoracionData = {
@@ -236,18 +255,18 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     };
     
     const validatedClientPortalSettings: ClientPortalSettings = {
-      ...defaultClientPortalSettings,
-      ...(data.clientPortalSettings || {}),
-      checklist: { ...defaultClientPortalSettings.checklist, ...(data.clientPortalSettings?.checklist || {}) },
-      itinerario: { ...defaultClientPortalSettings.itinerario, ...(data.clientPortalSettings?.itinerario || {}) },
-      musica: { ...defaultClientPortalSettings.musica, ...(data.clientPortalSettings?.musica || {}) },
-      videoVida: { ...defaultClientPortalSettings.videoVida, ...(data.clientPortalSettings?.videoVida || {}) },
-      listaRegalos: { ...defaultClientPortalSettings.listaRegalos, ...(data.clientPortalSettings?.listaRegalos || {}) },
-      documentos: { ...defaultClientPortalSettings.documentos, ...(data.clientPortalSettings?.documentos || {}) },
-      notasCliente: { ...defaultClientPortalSettings.notasCliente, ...(data.clientPortalSettings?.notasCliente || {}) },
-      invitados: { ...defaultClientPortalSettings.invitados, ...(data.clientPortalSettings?.invitados || {}) },
-      paginaPublica: { ...defaultClientPortalSettings.paginaPublica, ...(data.clientPortalSettings?.paginaPublica || {}) },
-      fotografiaYFilmacion: { ...defaultClientPortalSettings.fotografiaYFilmacion, ...(data.clientPortalSettings?.fotografiaYFilmacion || {}) },
+        ...defaultClientPortalSettings,
+        ...(data.clientPortalSettings || {}),
+        checklist: { ...defaultClientPortalSettings.checklist, ...(data.clientPortalSettings?.checklist || {}) },
+        itinerario: { ...defaultClientPortalSettings.itinerario, ...(data.clientPortalSettings?.itinerario || {}) },
+        musica: { ...defaultClientPortalSettings.musica, ...(data.clientPortalSettings?.musica || {}) },
+        videoVida: { ...defaultClientPortalSettings.videoVida, ...(data.clientPortalSettings?.videoVida || {}) },
+        listaRegalos: { ...defaultClientPortalSettings.listaRegalos, ...(data.clientPortalSettings?.listaRegalos || {}) },
+        documentos: { ...defaultClientPortalSettings.documentos, ...(data.clientPortalSettings?.documentos || {}) },
+        notasCliente: { ...defaultClientPortalSettings.notasCliente, ...(data.clientPortalSettings?.notasCliente || {}) },
+        invitados: { ...defaultClientPortalSettings.invitados, ...(data.clientPortalSettings?.invitados || {}) },
+        paginaPublica: { ...defaultClientPortalSettings.paginaPublica, ...(data.clientPortalSettings?.paginaPublica || {}) },
+        fotografiaYFilmacion: { ...defaultClientPortalSettings.fotografiaYFilmacion, ...(data.clientPortalSettings?.fotografiaYFilmacion || {}) },
     };
 
 
@@ -365,7 +384,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
 
 async function initializeLocalFiestaFiles() {
   await getFiestaActual();
-  await getHistorialFiestas(); // This ensures the file exists
+  await getHistorialFiestas(); 
 }
 initializeLocalFiestaFiles();
 
@@ -622,7 +641,8 @@ export async function updateDecoracionFiestaActual(
             rotation: el.rotation ?? 0,
             type: el.type ?? 'custom',
             category: el.category || 'Otro',
-            dataAiHint: el.dataAiHint
+            dataAiHint: el.dataAiHint,
+            seats: el.seats,
         })),
     };
     await writeFiestaActualFile(fiestaActual);
@@ -822,7 +842,7 @@ export async function checkInGuest(
     }
 
     if (alreadyCheckedIn) {
-      return { success: true, invitado: updatedGuest }; // Still a success, just no change
+      return { success: true, invitado: updatedGuest }; 
     }
 
     await writeFiestaActualFile(fiestaActual);
@@ -967,11 +987,11 @@ export async function updateListaDeCargaOperativa(
   try {
     let fiestaActual = await getFiestaActual();
     fiestaActual.listaDeCargaOperativa = {
-      ...defaultListaDeCargaOperativa, // Ensure defaults
-      ...lista, // Apply incoming changes
+      ...defaultListaDeCargaOperativa, 
+      ...lista, 
       categorias: lista.categorias.map(cat => ({
         ...cat,
-        items: (cat.items || []).map(item => ({...item})) // Deep copy items
+        items: (cat.items || []).map(item => ({...item})) 
       }))
     };
     await writeFiestaActualFile(fiestaActual);
@@ -1126,7 +1146,7 @@ export async function claimGift(
         giftFound = true;
         if (gift.isClaimed) {
           alreadyClaimed = true;
-          return gift; // Don't change if already claimed
+          return gift; 
         }
         return {
           ...gift,
@@ -1151,4 +1171,6 @@ export async function claimGift(
     return { success: false, error: e.message || "Ocurrió un error al procesar la solicitud." };
   }
 }
+
+
 

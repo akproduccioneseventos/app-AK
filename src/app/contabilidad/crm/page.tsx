@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -63,29 +64,24 @@ export default function CrmPage() {
 
       if (!leadToMove || !targetStage) return;
 
-      // Handle conversion stage logic separately
       if (targetStage.isConversionStage) {
         setLeadToConvert(leadToMove);
         setIsConvertToClientModalOpen(true);
-        return; // Stop here, the modal will handle the move action
+        return; 
       }
 
-      // Optimistic UI update
       setLeads(currentLeads =>
         currentLeads.map(lead =>
           lead.id === activeLeadId ? { ...lead, currentStageId: newStageId, updatedAt: new Date().toISOString() } : lead
         )
       );
 
-      // Call server action
       try {
         const result = await moveCrmLead(activeLeadId, newStageId);
         if (!result.success) {
           throw new Error(result.error || "No se pudo mover el prospecto.");
         }
         toast({ description: `Prospecto "${result.lead?.name}" movido.` });
-        // Optional: Can refetch data to ensure sync, but optimistic update handles UI.
-        // await fetchData(); 
       } catch (error: any) {
         toast({ title: "Error", description: error.message, variant: "destructive" });
         setLeads(originalLeads); // Rollback on error
@@ -115,8 +111,8 @@ export default function CrmPage() {
     if (!leadToConvert) return false;
     formData.append('prospectId', leadToConvert.id);
     formData.append('prospectName', leadToConvert.name);
-    // Ensure email is on the FormData if it exists, for customer creation
     if (leadToConvert.email) formData.append('email', leadToConvert.email);
+    if (leadToConvert.phone) formData.append('phone', leadToConvert.phone);
 
     setIsLoading(true);
     try {
@@ -219,3 +215,4 @@ export default function CrmPage() {
     </DndContext>
   );
 }
+
