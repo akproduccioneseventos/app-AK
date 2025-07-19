@@ -1,3 +1,4 @@
+
 // This file is now obsolete and will be removed.
 'use client';
 
@@ -17,13 +18,13 @@ export default function ChecklistObsoletoPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground">
-                        La gestión del checklist del cliente ha sido integrada en la nueva página de "Página Pública y Portal".
+                        La gestión del checklist del cliente ha sido integrada en el nuevo módulo "Página Pública y Portal".
                     </p>
                 </CardContent>
                 <CardFooter className="justify-center">
                     <Link href="/fiestas/nueva/portal-cliente" passHref>
                         <Button>
-                            <ArrowLeft className="mr-2" /> Ir a la Nueva Página
+                            <ArrowLeft className="mr-2" /> Ir a la Nueva Página de Configuración
                         </Button>
                     </Link>
                 </CardFooter>

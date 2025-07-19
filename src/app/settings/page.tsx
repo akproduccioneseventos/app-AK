@@ -50,6 +50,13 @@ const settingsCards = [
     buttonLabel: "Analizar Código"
   },
   {
+    title: "Asistente AK (IA)",
+    description: "Entiende cómo funciona el asistente de IA y sus capacidades.",
+    href: "/settings/asistente-ak",
+    icon: SparklesIcon,
+    buttonLabel: "Ver Detalles de IA"
+  },
+  {
     title: "Notificaciones",
     description: "Configura cómo y cuándo recibir alertas y avisos.",
     href: "/settings/notifications", 
