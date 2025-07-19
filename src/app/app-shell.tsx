@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -210,7 +211,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/settings/asistente-ak') return Sparkles;
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
@@ -241,6 +241,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
   const isPublicFacingPage = isAuthPage || isPublicEventPage || pathname === '/asistente-ak/cotizador';
 
+  // FIX: Declare variables before they are used.
+  const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
+  const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
+
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
   const isSpecialView = isBudgetViewPage || (isInvoiceViewPage && !pathname.endsWith('/edit'));
 
@@ -250,10 +254,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (isSpecialRender) {
     return <main className="min-h-screen">{children}</main>;
   }
-
-  const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
-  const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
-
 
   const handleLogoutClick = () => {
     triggerAppLogout();
