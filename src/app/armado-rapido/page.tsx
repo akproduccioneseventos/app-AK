@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, type FormEvent, useEffect } from 'react';
+import React, { useState, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Bot, Loader2, Send } from 'lucide-react';
@@ -13,7 +13,7 @@ import type { AsistentePasoOpcion } from '@/types/fiesta';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export default function CotizadorAsistidoPage() {
+export default function ArmadoRapidoPage() {
     const { toast } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);

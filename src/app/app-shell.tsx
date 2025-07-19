@@ -35,7 +35,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/invoices') return 'Gestión de Facturas';
   if (pathname === '/invoices/new') return 'Nueva Factura';
   if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${idSegment}`;
-  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${idSegment}`;
+  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Factura #${idSegment}`;
 
   if (pathname === '/customers') return 'Clientes';
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
@@ -103,7 +103,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
-  if (pathname === '/asistente-ak/cotizador') return 'Cotizador Asistido por IA';
+  if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
+  if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
+
 
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -216,7 +218,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/asistente-ak') return BrainCircuit;
 
-  if (pathname === '/asistente-ak/cotizador') return Wand2;
+  if (pathname === '/asistente-ak') return Bot;
+  if (pathname === '/armado-rapido') return Wand2;
+
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
@@ -241,7 +245,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
-  const isCotizadorPage = pathname === '/asistente-ak/cotizador';
+  const isClientFacingTool = pathname === '/armado-rapido' || pathname === '/asistente-ak';
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
@@ -253,7 +257,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isSpecialRender = 
     isAuthPage || 
     isPublicEventPage || 
-    isCotizadorPage ||
+    isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
     isInvoiceViewPage;

@@ -25,7 +25,7 @@ interface ModuleCardProps {
 }
 
 const modules: ModuleCardProps[] = [
-  { title: "Planificador de fiestas en general", description: "Visualiza y organiza todos tus eventos, el actual y los pasados.", href: "/eventos", icon: CalendarDays },
+  { title: "Planificador de fiestas", description: "Visualiza y organiza todos tus eventos, el actual y los pasados.", href: "/eventos", icon: CalendarDays },
   { title: "Contabilidad y CRM", description: "Gestiona presupuestos, facturas, pagos y tu embudo de ventas.", href: "/empresa/contabilidad", icon: CircleDollarSign },
   { title: "Gestión de Empresa", description: "Administra personal, proveedores y tu catálogo de servicios.", href: "/empresa", icon: Building2 },
   { title: "Configuración General", description: "Ajusta las preferencias de la aplicación y plantillas de documentos.", href: "/settings", icon: Settings },
@@ -73,11 +73,13 @@ export default function DashboardPage() {
   });
   
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  const [cotizadorLink, setCotizadorLink] = useState('');
+  const [armadoRapidoLink, setArmadoRapidoLink] = useState('');
+  const [asistenteAkLink, setAsistenteAkLink] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setCotizadorLink(`${window.location.origin}/asistente-ak/cotizador`);
+      setArmadoRapidoLink(`${window.location.origin}/armado-rapido`);
+      setAsistenteAkLink(`${window.location.origin}/asistente-ak`);
     }
   }, []);
 
@@ -147,32 +149,38 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-xl">Creación de Presupuestos</CardTitle>
-          <CardDescription>Elige el método que mejor se adapte a tus necesidades.</CardDescription>
+          <CardDescription>Elige el método que mejor se adapte a tus necesidades y las de tu cliente.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link href="/presupuestos/nuevo" passHref className="w-full">
                 <Button size="lg" variant="default" className="w-full h-full text-base py-4 flex-col gap-1">
                     <PlusCircle className="w-6 h-6 mb-1"/>
-                    <span>Presupuesto Detallado</span>
-                    <span className="text-xs font-normal">(Uso Interno)</span>
+                    <span>Presupuesto Manual</span>
+                    <span className="text-xs font-normal">(Para el Organizador)</span>
                 </Button>
             </Link>
             <ShareLinkDialog
-                link={cotizadorLink}
+                link={armadoRapidoLink}
                 title="Compartir Armado Rápido"
-                description="Copia este enlace y envíalo a tu cliente para que arme un presupuesto inicial."
+                description="Copia este enlace y envíalo a tu cliente para que arme un presupuesto inicial de forma guiada."
             >
                 <Button size="lg" variant="outline" className="w-full h-full text-base py-4 flex-col gap-1">
                     <Wand2 className="w-6 h-6 mb-1"/>
                     <span>Armado Rápido</span>
-                    <span className="text-xs font-normal">(Para Cliente)</span>
+                    <span className="text-xs font-normal">(Para el Cliente)</span>
                 </Button>
             </ShareLinkDialog>
-             <Button size="lg" variant="outline" onClick={() => setIsAssistantOpen(true)} className="w-full h-full text-base py-4 flex-col gap-1">
+             <ShareLinkDialog
+                link={asistenteAkLink}
+                title="Compartir Asistente Conversacional"
+                description="Copia este enlace para que tu cliente cree un presupuesto conversando con la IA."
+            >
+             <Button size="lg" variant="outline" className="w-full h-full text-base py-4 flex-col gap-1">
                 <Bot className="w-6 h-6 mb-1"/>
                 <span>Asistente AK</span>
-                 <span className="text-xs font-normal">(Uso Interno)</span>
+                 <span className="text-xs font-normal">(Para el Cliente)</span>
             </Button>
+            </ShareLinkDialog>
         </CardContent>
       </Card>
       

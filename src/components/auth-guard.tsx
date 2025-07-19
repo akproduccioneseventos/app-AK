@@ -10,6 +10,12 @@ const SESSION_KEY = 'ak_producciones_auth_session';
 export function triggerAppLogout() {
   if (typeof window !== 'undefined') {
     sessionStorage.removeItem(SESSION_KEY);
+    // Remove portal-specific session keys
+    Object.keys(sessionStorage).forEach(key => {
+        if (key.startsWith('portal_auth_')) {
+            sessionStorage.removeItem(key);
+        }
+    });
     window.location.href = '/login';
   }
 }
@@ -33,7 +39,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/evento/social',
       '/video-vida',
       '/feedback',
-      '/portal'
+      '/portal',
+      '/armado-rapido',
+      '/asistente-ak'
     ];
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
