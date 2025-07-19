@@ -14,8 +14,8 @@ import { getInvoices } from '@/app/actions/invoices';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { useToast } from '@/hooks/use-toast';
 import { triggerAppLogout } from '@/components/auth-guard';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant'; // Importar el asistente
-import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog'; // Importar el nuevo dialog
+import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
+import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
 
 interface ModuleCardProps {
   title: string;
@@ -194,7 +194,6 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-       {/* Renderiza el asistente, pero controla su apertura desde el nuevo botón */}
       <AkAssistant isOpen={isAssistantOpen} setIsOpen={setIsAssistantOpen} />
     </div>
   );
