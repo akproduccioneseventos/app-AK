@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -102,6 +101,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
+  
+  if (pathname === '/asistente-ak/cotizador') return 'Cotizador Asistido por IA';
 
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -214,6 +215,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
 
+  if (pathname === '/asistente-ak/cotizador') return Wand2;
+
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
   if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
@@ -236,20 +239,22 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
-  const isDecoracionPdfPage = pathname === '/fiestas/nueva/decoracion/pdf';
-  const isCargaOperativaPdfPage = pathname === '/fiestas/nueva/carga-operativa/pdf';
-  const isRecibosPersonalPage = pathname === '/fiestas/nueva/personal/recibos';
-  const isMusicaPdfPage = pathname === '/fiestas/nueva/musica/pdf';
-  const isResumenImprimiblePage = pathname === '/fiestas/nueva/resumen-imprimible';
-  const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
-  const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
-  const isBudgetCreationStep4 = pathname === '/presupuestos/nuevo' && (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('pasoActual') === '4');
+  const isPublicFacingPage = isAuthPage || isPublicEventPage || pathname === '/asistente-ak/cotizador';
 
+  const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
+  const isSpecialView = isBudgetViewPage || (isInvoiceViewPage && !pathname.endsWith('/edit'));
 
-  if (isAuthPage || isPublicEventPage || isDecoracionPdfPage || isCargaOperativaPdfPage || isRecibosPersonalPage || isMusicaPdfPage || isResumenImprimiblePage || isBudgetViewPage || isInvoiceViewPage || isBudgetCreationStep4) {
+  const isSpecialRender = isPublicFacingPage || isPdfPage || isSpecialView;
+
+  // Simplified logic for when to render the shell
+  if (isSpecialRender) {
     return <main className="min-h-screen">{children}</main>;
   }
-  
+
+  const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
+  const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
+
+
   const handleLogoutClick = () => {
     triggerAppLogout();
   };
