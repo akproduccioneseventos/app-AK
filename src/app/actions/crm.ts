@@ -12,9 +12,9 @@ const LEADS_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-leads.json');
 const STAGES_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-stages.json');
 
 const defaultStages: CrmStage[] = [
-  { id: 's1', name: 'Consultó', order: 1, bgColor: 'bg-sky-100 dark:bg-sky-900/30', borderColor: 'border-sky-500 dark:border-sky-700', textColor: 'text-sky-700 dark:text-sky-300', headerBgColor: 'bg-sky-500 dark:bg-sky-700', headerTextColor: 'text-sky-50' },
-  { id: 's2', name: 'Agendó entrevista', order: 2, bgColor: 'bg-teal-100 dark:bg-teal-900/30', borderColor: 'border-teal-500 dark:border-teal-700', textColor: 'text-teal-700 dark:text-teal-300', headerBgColor: 'bg-teal-500 dark:bg-teal-700', headerTextColor: 'text-teal-50' },
-  { id: 's3', name: 'Con presupuesto', order: 3, bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-500 dark:border-amber-600', textColor: 'text-amber-700 dark:text-amber-300', headerBgColor: 'bg-amber-500 dark:bg-amber-600', headerTextColor: 'text-amber-900 dark:text-amber-100' },
+  { id: 's1', name: 'Consultó', order: 1, bgColor: 'bg-sky-100 dark:bg-sky-900/30', borderColor: 'border-sky-500 dark:border-sky-700', textColor: 'text-sky-700 dark:text-sky-300' },
+  { id: 's2', name: 'Agendó entrevista', order: 2, bgColor: 'bg-teal-100 dark:bg-teal-900/30', borderColor: 'border-teal-500 dark:border-teal-700', textColor: 'text-teal-700 dark:text-teal-300' },
+  { id: 's3', name: 'Con presupuesto', order: 3, bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-500 dark:border-amber-600', textColor: 'text-amber-700 dark:text-amber-300' },
   { id: 's4', name: 'Firmó contrato', order: 4, bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', borderColor: 'border-emerald-500 dark:border-emerald-700', textColor: 'text-emerald-700 dark:text-emerald-300', headerBgColor: 'bg-emerald-500 dark:bg-emerald-700', headerTextColor: 'text-emerald-50', isConversionStage: true },
   { id: 's5', name: 'No contrató', order: 5, bgColor: 'bg-rose-100 dark:bg-rose-900/30', borderColor: 'border-rose-500 dark:border-rose-700', textColor: 'text-rose-700 dark:text-rose-300', headerBgColor: 'bg-rose-500 dark:bg-rose-700', headerTextColor: 'text-rose-50' },
 ];
@@ -58,11 +58,6 @@ initializeCrmFiles();
 
 export async function getCrmStages(): Promise<CrmStage[]> {
   const stages = await readJsonFile<CrmStage[]>(STAGES_FILE_PATH, defaultStages);
-  // If the stored stages are not the default ones (e.g. after an update), re-initialize with defaults
-  if (JSON.stringify(stages.map(s => ({name: s.name, order: s.order}))) !== JSON.stringify(defaultStages.map(s => ({name: s.name, order: s.order})))) {
-      await writeJsonFile(STAGES_FILE_PATH, defaultStages);
-      return defaultStages.sort((a, b) => a.order - b.order);
-  }
   return stages.sort((a, b) => a.order - b.order);
 }
 
@@ -78,10 +73,11 @@ export async function addCrmLead(
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
   const leads = await getCrmLeads();
-  const stages = await getCrmStages(); // Fetch stages to get name
+  const stages = await getCrmStages();
   const now = new Date().toISOString();
 
-  const stageName = stages.find(s => s.id === leadData.currentStageId)?.name || 'Etapa desconocida';
+  const stageId = leadData.currentStageId || stages[0]?.id || 's1';
+  const stageName = stages.find(s => s.id === stageId)?.name || 'Etapa desconocida';
 
   const newLead: CrmLead = {
     id: `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -89,10 +85,10 @@ export async function addCrmLead(
     email: leadData.email?.trim() || undefined,
     phone: leadData.phone?.trim() || undefined,
     notes: leadData.notes?.trim() || undefined,
-    currentStageId: leadData.currentStageId,
+    currentStageId: stageId,
     createdAt: now,
     updatedAt: now,
-    history: [{ stageId: leadData.currentStageId, stageName, timestamp: now }],
+    history: [{ stageId: stageId, stageName, timestamp: now }],
   };
   leads.push(newLead);
   await writeJsonFile(LEADS_FILE_PATH, leads);
