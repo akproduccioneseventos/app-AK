@@ -53,7 +53,7 @@ export default function CotizadorAsistidoPage() {
             const result = await addCrmLead({
                 name: `Prospecto de ${selectedFiesta.nombre}`,
                 currentStageId: 's1', // ID de la etapa "Consultó"
-                notes: `Generado desde Cotizador Asistido.\nTipo: ${selectedFiesta.nombre}\nInvitados: ${guestCount}\nPresupuesto Estimado: $${presupuestoEstimado.toLocaleString()}`
+                notes: `Generado desde Armado Rápido.\nTipo: ${selectedFiesta.nombre}\nInvitados: ${guestCount}\nPresupuesto Estimado: $${presupuestoEstimado.toLocaleString()}`
             });
 
             if (result.success) {
@@ -97,7 +97,7 @@ export default function CotizadorAsistidoPage() {
             <Card className="w-full max-w-2xl text-center shadow-2xl">
                 <CardHeader>
                     <Bot className="w-12 h-12 mx-auto text-primary mb-2" />
-                    <CardTitle className="font-headline text-3xl">Cotizador Asistido</CardTitle>
+                    <CardTitle className="font-headline text-3xl">Armado Rápido de Presupuesto</CardTitle>
                     <CardDescription className="text-lg text-muted-foreground mt-2">
                         Responde unas pocas preguntas para obtener un presupuesto inicial.
                     </CardDescription>

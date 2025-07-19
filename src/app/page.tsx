@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getCustomers } from '@/app/actions/customers';
@@ -131,8 +131,8 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
            <Link href="/asistente-ak/cotizador" passHref className="w-full sm:w-auto">
               <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-full px-4 py-3 text-base sm:px-6 sm:py-5 sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full">
-                  <Sparkles className="w-6 h-6 mr-2.5" />
-                  Cotizador Asistido por IA
+                  <Wand2 className="w-6 h-6 mr-2.5" />
+                  Armado Rápido de Presupuesto
               </Button>
           </Link>
            <Button onClick={handleLogoutClick} variant="destructive" size="lg" className="rounded-full px-4 py-3 text-base sm:px-6 sm:py-5 sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
