@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getCustomers } from '@/app/actions/customers';
@@ -14,6 +14,8 @@ import { getInvoices } from '@/app/actions/invoices';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { useToast } from '@/hooks/use-toast';
 import { triggerAppLogout } from '@/components/auth-guard';
+import { AkAssistant } from '@/components/asistente-ak/AkAssistant'; // Importar el asistente
+import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog'; // Importar el nuevo dialog
 
 interface ModuleCardProps {
   title: string;
@@ -69,6 +71,15 @@ export default function DashboardPage() {
     prospectosActivos: 0,
     totalPendiente: 0,
   });
+  
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [cotizadorLink, setCotizadorLink] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCotizadorLink(`${window.location.origin}/asistente-ak/cotizador`);
+    }
+  }, []);
 
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
@@ -128,19 +139,42 @@ export default function DashboardPage() {
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline text-foreground mb-1">¡Bienvenido a tu Centro de Gestión!</h2>
           <p className="text-lg text-muted-foreground">Un resumen de tu actividad y accesos directos.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-           <Link href="/asistente-ak/cotizador" passHref className="w-full sm:w-auto">
-              <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-full px-4 py-3 text-base sm:px-6 sm:py-5 sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full">
-                  <Wand2 className="w-6 h-6 mr-2.5" />
-                  Armado Rápido de Presupuesto
-              </Button>
-          </Link>
-           <Button onClick={handleLogoutClick} variant="destructive" size="lg" className="rounded-full px-4 py-3 text-base sm:px-6 sm:py-5 sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
-                <LogOut className="w-6 h-6 mr-2.5" />
-                Cerrar Sesión
-            </Button>
-        </div>
+        <Button onClick={handleLogoutClick} variant="outline" size="lg" className="rounded-full px-6 py-5 text-base shadow-sm w-full sm:w-auto">
+            <LogOut className="w-5 h-5 mr-2" /> Cerrar Sesión
+        </Button>
       </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-xl">Creación de Presupuestos</CardTitle>
+          <CardDescription>Elige el método que mejor se adapte a tus necesidades.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link href="/presupuestos/nuevo" passHref className="w-full">
+                <Button size="lg" variant="default" className="w-full h-full text-base py-4 flex-col gap-1">
+                    <PlusCircle className="w-6 h-6 mb-1"/>
+                    <span>Presupuesto Detallado</span>
+                    <span className="text-xs font-normal">(Uso Interno)</span>
+                </Button>
+            </Link>
+            <ShareLinkDialog
+                link={cotizadorLink}
+                title="Compartir Armado Rápido"
+                description="Copia este enlace y envíalo a tu cliente para que arme un presupuesto inicial."
+            >
+                <Button size="lg" variant="outline" className="w-full h-full text-base py-4 flex-col gap-1">
+                    <Wand2 className="w-6 h-6 mb-1"/>
+                    <span>Armado Rápido</span>
+                    <span className="text-xs font-normal">(Para Cliente)</span>
+                </Button>
+            </ShareLinkDialog>
+             <Button size="lg" variant="outline" onClick={() => setIsAssistantOpen(true)} className="w-full h-full text-base py-4 flex-col gap-1">
+                <Bot className="w-6 h-6 mb-1"/>
+                <span>Asistente AK</span>
+                 <span className="text-xs font-normal">(Uso Interno)</span>
+            </Button>
+        </CardContent>
+      </Card>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <KpiCard title="Clientes Activos" value={kpiData.clientesActivos} icon={Users} isLoading={isLoading} description="Clientes con estado 'Actual'." />
@@ -160,6 +194,8 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+       {/* Renderiza el asistente, pero controla su apertura desde el nuevo botón */}
+      <AkAssistant isOpen={isAssistantOpen} setIsOpen={setIsAssistantOpen} />
     </div>
   );
 }

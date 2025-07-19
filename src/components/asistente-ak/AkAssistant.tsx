@@ -13,14 +13,34 @@ import { useToast } from '@/hooks/use-toast';
 import { assistant } from '@/ai/flows/assistant-flow';
 import Markdown from 'react-markdown';
 
-
 type Message = {
     role: 'user' | 'assistant';
     content: string | React.ReactNode;
 };
 
-export function AkAssistant() {
-    const [isOpen, setIsOpen] = useState(false);
+// SVG Icon for the assistant
+const AssistantIcon = () => (
+    <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="50" fill="hsl(var(--primary))"/>
+        <path d="M68.5 70C68.5 64.201 63.799 59.5 58 59.5H42C36.201 59.5 31.5 64.201 31.5 70V72.5H68.5V70Z" fill="white"/>
+        <path d="M58 59.5H42C36.201 59.5 31.5 64.201 31.5 70V72.5H68.5V70C68.5 64.201 63.799 59.5 58 59.5Z" stroke="hsl(var(--primary-foreground))" strokeOpacity="0.5" strokeWidth="2"/>
+        <rect x="30" y="42" width="40" height="25" rx="12.5" fill="white"/>
+        <rect x="30" y="42" width="40" height="25" rx="12.5" stroke="hsl(var(--primary-foreground))" strokeOpacity="0.5" strokeWidth="2"/>
+        <circle cx="41.5" cy="52.5" r="5.5" fill="hsl(var(--primary))"/>
+        <circle cx="58.5" cy="52.5" r="5.5" fill="hsl(var(--primary))"/>
+        <path d="M50 34C53.866 34 57 30.866 57 27C57 23.134 53.866 20 50 20C46.134 20 43 23.134 43 27C43 30.866 46.134 34 50 34Z" fill="white"/>
+        <path d="M49 25H51V29H49V25Z" fill="hsl(var(--primary))"/>
+        <path d="M45 27H47V29H45V27Z" fill="hsl(var(--primary))"/>
+        <path d="M53 27H55V29H53V27Z" fill="hsl(var(--primary))"/>
+        <text x="40" y="56" fontFamily="Arial, sans-serif" fontSize="12" fontWeight="bold" fill="hsl(var(--primary))">AK</text>
+    </svg>
+);
+
+export function AkAssistant({ isOpen: controlledIsOpen, setIsOpen: setControlledIsOpen }: { isOpen?: boolean; setIsOpen?: (open: boolean) => void }) {
+    const [internalIsOpen, setInternalIsOpen] = useState(false);
+    const isOpen = controlledIsOpen ?? internalIsOpen;
+    const setIsOpen = setControlledIsOpen ?? setInternalIsOpen;
+
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -29,12 +49,20 @@ export function AkAssistant() {
 
     useEffect(() => {
         if (isOpen && messages.length === 0) {
-            setMessages([{
-                role: 'assistant',
-                content: "¡Hola! Soy Asistente AK. Puedes pedirme que analice tu evento, asigne invitados a mesas, o que revise el código. ¿En qué te puedo ayudar?",
-            }]);
+             const fetchInitialMessage = async () => {
+                setIsLoading(true);
+                try {
+                    const result = await assistant({ query: "Salúdame y dame un resumen proactivo del estado de mi evento actual. Menciona si hay algo importante que deba atender, como invitados sin asignar o la falta de un menú." });
+                    setMessages([{ role: 'assistant', content: result.response }]);
+                } catch (e: any) {
+                    setMessages([{ role: 'assistant', content: `¡Hola! Soy Asistente AK. Ocurrió un error al cargar el resumen: ${e.message}` }]);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            fetchInitialMessage();
         }
-    }, [isOpen, messages.length]);
+    }, [isOpen]);
 
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -121,17 +149,26 @@ export function AkAssistant() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            <Button
-                size="icon"
-                className="fixed bottom-4 right-4 sm:right-6 md:right-8 z-50 rounded-full w-16 h-16 shadow-lg"
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="Abrir Asistente AK"
-            >
-                <AnimatePresence>
-                {isOpen ? <motion.div key="close" initial={{ rotate: -90, scale: 0 }} animate={{ rotate: 0, scale: 1 }} exit={{ rotate: 90, scale: 0 }}><X className="w-7 h-7"/></motion.div> 
-                         : <motion.div key="open" initial={{ rotate: 90, scale: 0 }} animate={{ rotate: 0, scale: 1 }} exit={{ rotate: -90, scale: 0 }}><Sparkles className="w-7 h-7"/></motion.div>}
-                </AnimatePresence>
-            </Button>
+            <div className="fixed bottom-4 right-4 sm:right-6 md:right-8 z-50">
+                <Button
+                    size="icon"
+                    className="rounded-full w-16 h-16 shadow-lg bg-transparent hover:bg-transparent p-0 border-2 border-primary/50"
+                    onClick={() => setIsOpen(!isOpen)}
+                    aria-label="Abrir Asistente AK"
+                >
+                     <AnimatePresence>
+                        {isOpen ? 
+                            <motion.div key="close" initial={{ rotate: -90, scale: 0 }} animate={{ rotate: 0, scale: 1 }} exit={{ rotate: 90, scale: 0 }} className="w-full h-full flex items-center justify-center bg-primary rounded-full">
+                                <X className="w-7 h-7 text-primary-foreground"/>
+                            </motion.div> 
+                         : 
+                            <motion.div key="open" initial={{ rotate: 90, scale: 0 }} animate={{ rotate: 0, scale: 1 }} exit={{ rotate: -90, scale: 0 }} className="w-full h-full">
+                                <AssistantIcon />
+                            </motion.div>
+                        }
+                    </AnimatePresence>
+                </Button>
+            </div>
         </>
     );
 }

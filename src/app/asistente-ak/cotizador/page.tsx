@@ -2,22 +2,19 @@
 'use client';
 
 import React, { useState, type FormEvent, useEffect } from 'react';
-import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Wand2, Bot, ArrowRight, Loader2, Send } from 'lucide-react';
+import { ArrowRight, Bot, Loader2, Send } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmLead } from '@/app/actions/crm';
-import { useRouter } from 'next/navigation';
 import { TipoFiestaSelector } from '@/components/asistente-ak/cotizador/TipoFiestaSelector';
-import { AsistentePasoOpcion } from '@/types/fiesta';
+import type { AsistentePasoOpcion } from '@/types/fiesta';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function CotizadorAsistidoPage() {
     const { toast } = useToast();
-    const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -53,7 +50,7 @@ export default function CotizadorAsistidoPage() {
             const result = await addCrmLead({
                 name: `Prospecto de ${selectedFiesta.nombre}`,
                 currentStageId: 's1', // ID de la etapa "Consultó"
-                notes: `Generado desde Armado Rápido.\nTipo: ${selectedFiesta.nombre}\nInvitados: ${guestCount}\nPresupuesto Estimado: $${presupuestoEstimado.toLocaleString()}`
+                notes: `Generado desde Armado Rápido.\nTipo: ${selectedFiesta.nombre}\nInvitados: ${guestCount}\nPresupuesto Estimado: ${formatCurrency(presupuestoEstimado)}`
             });
 
             if (result.success) {
@@ -71,21 +68,22 @@ export default function CotizadorAsistidoPage() {
             setIsSaving(false);
         }
     };
+    
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+    }
 
     if (isSubmitted) {
         return (
             <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
                 <Card className="max-w-xl text-center shadow-2xl">
                     <CardHeader>
-                        <Wand2 className="w-16 h-16 mx-auto text-primary mb-4"/>
+                        <Bot className="w-16 h-16 mx-auto text-primary mb-4"/>
                         <CardTitle className="font-headline text-3xl">¡Gracias!</CardTitle>
                         <CardDescription className="text-lg text-muted-foreground mt-2">
                             Hemos recibido tu solicitud. Un asesor se pondrá en contacto contigo a la brevedad.
                         </CardDescription>
                     </CardHeader>
-                    <CardFooter className="justify-center">
-                        <Button onClick={() => router.push('/')}>Volver al Inicio</Button>
-                    </CardFooter>
                 </Card>
             </div>
         );
@@ -127,7 +125,7 @@ export default function CotizadorAsistidoPage() {
                     </CardContent>
                     <CardFooter className="flex justify-between border-t pt-6">
                         <Button type="button" variant="outline" onClick={handlePrev} disabled={paso === 1 || isSaving}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
+                            Anterior
                         </Button>
                         {paso < 2 ? (
                             <Button type="button" onClick={handleNext} disabled={isSaving}>
