@@ -20,7 +20,12 @@ export async function GET(
   }
   
   const proofsDirectoryPath = path.join(process.cwd(), 'src', 'data', 'payment-proofs');
-  const filePath = path.join(proofsDirectoryPath, safeFilename);
+  const filePath = path.resolve(proofsDirectoryPath, safeFilename);
+
+  // Final check to ensure the resolved path is within the intended directory
+  if (!filePath.startsWith(path.resolve(proofsDirectoryPath))) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   try {
     await fs.access(filePath); // Check if file exists

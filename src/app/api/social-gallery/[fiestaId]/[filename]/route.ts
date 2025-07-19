@@ -21,7 +21,12 @@ export async function GET(
   }
 
   const socialGalleryDirectory = path.join(process.cwd(), 'src', 'data', 'social-gallery');
-  const filePath = path.join(socialGalleryDirectory, safeFiestaId, safeFilename);
+  const filePath = path.resolve(socialGalleryDirectory, safeFiestaId, safeFilename);
+
+  // Final check to ensure the resolved path is within the intended directory
+  if (!filePath.startsWith(path.resolve(socialGalleryDirectory))) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   try {
     await fs.access(filePath); // Check if file exists

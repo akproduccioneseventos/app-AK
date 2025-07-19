@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-// We don't need getBudgetFilePath here as we construct path directly
 
 export async function GET(
   request: NextRequest,
@@ -21,7 +20,12 @@ export async function GET(
   }
   
   const budgetsDirectoryPath = path.join(process.cwd(), 'src', 'data', 'budgets');
-  const filePath = path.join(budgetsDirectoryPath, safeFilename);
+  const filePath = path.resolve(budgetsDirectoryPath, safeFilename);
+
+  // Final check to ensure the resolved path is within the intended directory
+  if (!filePath.startsWith(path.resolve(budgetsDirectoryPath))) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   try {
     await fs.access(filePath); // Check if file exists

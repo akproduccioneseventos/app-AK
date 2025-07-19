@@ -20,7 +20,12 @@ export async function GET(
   }
   
   const contractsDirectoryPath = path.join(process.cwd(), 'src', 'data', 'contracts');
-  const filePath = path.join(contractsDirectoryPath, safeFilename);
+  const filePath = path.resolve(contractsDirectoryPath, safeFilename);
+
+  // Final check to ensure the resolved path is within the intended directory
+  if (!filePath.startsWith(path.resolve(contractsDirectoryPath))) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   try {
     await fs.access(filePath); // Check if file exists

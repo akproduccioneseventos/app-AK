@@ -29,7 +29,8 @@ export async function getRestorePoints(): Promise<RestorePoint[]> {
       .filter(entry => entry.isDirectory() && entry.name.startsWith('backup-'))
       .map(entry => {
         // Attempt to parse a filesystem-safe timestamp back into a valid ISO string
-        const timestampIso = entry.name.replace('backup-', '').replace(/_/g, ':');
+        // Regex replacement for both : and . to handle different ISO string formats
+        const timestampIso = entry.name.replace('backup-', '').replace(/[_\.]/g, ':');
         let date = new Date(timestampIso);
         
         if (isNaN(date.getTime())) {
@@ -88,11 +89,17 @@ export async function createRestorePoint(): Promise<{ success: boolean; error?: 
 // 3. Restore from Point
 export async function restoreFromPoint(backupFolderName: string): Promise<{ success: boolean; error?: string }> {
   // Security: Prevent directory traversal
-  if (path.basename(backupFolderName) !== backupFolderName) {
+  const safeFolderName = path.basename(backupFolderName);
+  if (safeFolderName !== backupFolderName) {
     return { success: false, error: 'Invalid backup name.' };
   }
   
-  const backupFolderPath = path.join(BACKUPS_DIR, backupFolderName);
+  const backupFolderPath = path.resolve(BACKUPS_DIR, safeFolderName);
+
+  // Final security check
+  if (!backupFolderPath.startsWith(path.resolve(BACKUPS_DIR))) {
+    return { success: false, error: 'Access denied.' };
+  }
 
   try {
     await fs.access(backupFolderPath); // Check if backup exists
@@ -122,10 +129,16 @@ export async function restoreFromPoint(backupFolderName: string): Promise<{ succ
 
 // 4. Delete Restore Point
 export async function deleteRestorePoint(backupFolderName: string): Promise<{ success: boolean; error?: string }> {
-   if (path.basename(backupFolderName) !== backupFolderName) {
+   const safeFolderName = path.basename(backupFolderName);
+   if (safeFolderName !== backupFolderName) {
     return { success: false, error: 'Invalid backup name.' };
   }
-  const backupFolderPath = path.join(BACKUPS_DIR, backupFolderName);
+  
+  const backupFolderPath = path.resolve(BACKUPS_DIR, safeFolderName);
+
+  if (!backupFolderPath.startsWith(path.resolve(BACKUPS_DIR))) {
+    return { success: false, error: 'Access denied.' };
+  }
 
   try {
     await fs.access(backupFolderPath);

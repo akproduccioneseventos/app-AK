@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -74,6 +75,17 @@ export default function ClientPortalPage() {
             setPortalSessionKey(`portal_auth_${fiestaData.id}`); // Set session key based on fiesta ID
             setClientChecklist(fiestaData.clientChecklist || []);
             setClientNotes(fiestaData.clientNotes || '');
+
+            // Determine authorization right after loading data
+            const requiresAuth = fiestaData.clientPortalSettings?.accessKey && fiestaData.clientPortalSettings.accessKey.trim() !== '';
+            if (!requiresAuth) {
+                setIsAuthorized(true);
+            } else {
+                const sessionAuth = sessionStorage.getItem(`portal_auth_${fiestaData.id}`);
+                if (sessionAuth === 'true') {
+                    setIsAuthorized(true);
+                }
+            }
         } catch (err: any) {
             setError("No se pudo cargar la información del portal. Por favor, contacta al organizador.");
         } finally {
@@ -84,19 +96,6 @@ export default function ClientPortalPage() {
     useEffect(() => {
         loadData();
     }, [loadData]);
-    
-    useEffect(() => {
-        if (fiesta && portalSessionKey) {
-            if (!fiesta.clientPortalSettings?.accessKey || fiesta.clientPortalSettings.accessKey === '') {
-                setIsAuthorized(true);
-            } else {
-                const sessionAuth = sessionStorage.getItem(portalSessionKey);
-                if (sessionAuth === 'true') {
-                    setIsAuthorized(true);
-                }
-            }
-        }
-    }, [fiesta, portalSessionKey]);
 
     const handleAuthSubmit = (e: FormEvent) => {
         e.preventDefault();

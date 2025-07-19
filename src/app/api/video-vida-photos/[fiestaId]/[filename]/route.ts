@@ -21,7 +21,12 @@ export async function GET(
   }
 
   const videoVidaDirectory = path.join(process.cwd(), 'src', 'data', 'life-story-videos');
-  const filePath = path.join(videoVidaDirectory, safeFiestaId, safeFilename);
+  const filePath = path.resolve(videoVidaDirectory, safeFiestaId, safeFilename);
+  
+  // Final check to ensure the resolved path is within the intended directory
+  if (!filePath.startsWith(path.resolve(videoVidaDirectory))) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   try {
     await fs.access(filePath); // Check if file exists

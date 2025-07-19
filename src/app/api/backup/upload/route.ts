@@ -31,9 +31,8 @@ export async function POST(request: Request) {
 
     zip.forEach((relativePath, zipEntry) => {
       // Security check: ensure files are not written outside the data directory.
-      // JSZip's relativePath should be safe, but this is an extra layer.
-      const resolvedPath = path.join(dataDirectory, relativePath);
-      if (!resolvedPath.startsWith(dataDirectory)) {
+      const resolvedPath = path.resolve(dataDirectory, relativePath);
+      if (!resolvedPath.startsWith(path.resolve(dataDirectory))) {
         console.warn(`Skipping potentially malicious zip entry: ${relativePath}`);
         return; // Skip this entry
       }

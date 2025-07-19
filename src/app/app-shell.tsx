@@ -68,7 +68,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
-  if (pathname === '/fiestas/nueva/portal-cliente') return 'Portal del Cliente';
+  if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
   if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
@@ -214,6 +214,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/settings/asistente-ak') return BrainCircuit;
 
   if (pathname === '/asistente-ak/cotizador') return Wand2;
 
@@ -237,18 +238,25 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
 
+  // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
-  const isPublicFacingPage = isAuthPage || isPublicEventPage || pathname === '/asistente-ak/cotizador';
+  const isCotizadorPage = pathname === '/asistente-ak/cotizador';
 
-  // FIX: Declare variables before they are used.
+  // Define pages that are printable views and should not have the shell.
+  const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
+  
+  // Define special pages that might have their own layout
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
 
-  const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
-  const isSpecialView = isBudgetViewPage || (isInvoiceViewPage && !pathname.endsWith('/edit'));
-
-  const isSpecialRender = isPublicFacingPage || isPdfPage || isSpecialView;
+  const isSpecialRender = 
+    isAuthPage || 
+    isPublicEventPage || 
+    isCotizadorPage ||
+    isPdfPage ||
+    isBudgetViewPage ||
+    isInvoiceViewPage;
 
   // Simplified logic for when to render the shell
   if (isSpecialRender) {

@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
@@ -194,7 +195,10 @@ export async function convertToClientAndMoveProspect(
   customerFormData.append('contract', contractFile);
 
   try {
-    const customerResult = await saveCustomer(customerFormData as unknown as Omit<Customer, 'id'>); // Type assertion might be needed if saveCustomer has specific FormData type
+    // The type assertion Omit<Customer, 'id'> is technically incorrect as FormData is not the same.
+    // However, saveCustomer is designed to handle FormData. We use `any` to bypass strict checks here
+    // as we know the receiving function will correctly parse the FormData.
+    const customerResult = await saveCustomer(customerFormData as any);
 
     if (!customerResult.success || !customerResult.id) {
       return { success: false, error: customerResult.error || "No se pudo crear el cliente." };

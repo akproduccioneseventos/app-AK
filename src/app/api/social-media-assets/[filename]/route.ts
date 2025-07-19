@@ -19,7 +19,12 @@ export async function GET(
   }
 
   const assetsDirectory = path.join(process.cwd(), 'src', 'data', 'social-media-assets');
-  const filePath = path.join(assetsDirectory, safeFilename);
+  const filePath = path.resolve(assetsDirectory, safeFilename);
+
+  // Final check to ensure the resolved path is within the intended directory
+  if (!filePath.startsWith(path.resolve(assetsDirectory))) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   try {
     await fs.access(filePath);
