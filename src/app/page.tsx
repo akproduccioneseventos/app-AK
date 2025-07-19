@@ -8,14 +8,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { getCustomers } from '@/app/actions/customers';
-import { getPresupuestos } from '@/app/actions/presupuestos';
-import { getInvoices } from '@/app/actions/invoices';
-import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { useToast } from '@/hooks/use-toast';
 import { triggerAppLogout } from '@/components/auth-guard';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
+import { getDashboardKpiData } from '@/app/actions/dashboard'; // Import the new optimized action
 
 interface ModuleCardProps {
   title: string;
@@ -86,38 +83,12 @@ export default function DashboardPage() {
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [
-        historialFiestasData,
-        fiestaActualData,
-        customersData,
-        presupuestosData,
-        invoicesData,
-      ] = await Promise.all([
-        getHistorialFiestas(),
-        getFiestaActual(),
-        getCustomers(),
-        getPresupuestos(),
-        getInvoices(),
-      ]);
-
-      const esFiestaFutura = fiestaActualData?.configuracion?.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= new Date();
-      const clientesActivos = customersData.filter(c => c.estadoCliente === 'Actual').length;
-      const prospectosActivos = presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length;
-      
-      const totalPendiente = invoicesData.reduce((total, inv) => {
-        const paidOnThisInvoice = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
-        const dueOnThisInvoice = inv.totalAmount - paidOnThisInvoice;
-        return total + (dueOnThisInvoice > 0 ? dueOnThisInvoice : 0);
-      }, 0);
-
-      setKpiData({
-        fiestasPasadas: historialFiestasData.length,
-        fiestasFuturas: esFiestaFutura ? 1 : 0,
-        clientesActivos,
-        prospectosActivos,
-        totalPendiente,
-      });
-
+      const result = await getDashboardKpiData(); // Use the new optimized action
+      if (result.success && result.data) {
+        setKpiData(result.data);
+      } else {
+        throw new Error(result.error || "Failed to fetch dashboard data.");
+      }
     } catch (err: any) {
       console.error("Error fetching dashboard data:", err);
       toast({ title: "Error de Carga", description: "No se pudieron cargar los datos del dashboard.", variant: "destructive" });
