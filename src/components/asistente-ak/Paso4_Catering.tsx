@@ -1,313 +1,189 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import AppLogo from '@/components/app-logo';
-import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2 } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { triggerAppLogout } from '@/components/auth-guard';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
+import type { PresupuestoFormData, TipoEvento } from '@/types/presupuesto';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerDemo } from '@/components/date-picker-demo';
+import type { Dispatch, SetStateAction } from 'react';
+import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
+import React from 'react';
+import { Separator } from '@/components/ui/separator';
 
-const getPageTitle = (pathname: string): string => {
-  const pathSegments = pathname.split('/').filter(Boolean);
-  const idSegment = pathSegments[pathSegments.length -1];
-
-  if (pathname === '/') return 'Menú Principal';
-
-  if (pathname === '/presupuestos') return 'Presupuestos';
-  if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
-  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
-  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
-
-  if (pathname === '/invoices') return 'Gestión de Facturas';
-  if (pathname === '/invoices/new') return 'Nueva Factura';
-  if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${idSegment}`;
-  if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathSegments[2]) return `Detalle de Factura #${idSegment}`;
-
-  if (pathname === '/customers') return 'Clientes';
-  if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
-  if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${idSegment}`;
-  
-  if (pathname === '/empresa') return 'Gestión de la Empresa';
-  if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
-  if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
-  if (pathname === '/proveedores') return 'Proveedores';
-  if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
-  if (pathname === '/empresa/todos-los-servicios') return 'Inventario General y Valor de Activos';
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Ítem al Inventario';
-  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Ítem #${pathSegments[3]}`;
-  if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
-
-
-  if (pathname === '/compras') return 'Compras y Checklist';
-
-  if (pathname === '/empleados') return 'Gestión de Personal';
-  if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
-  if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado #${idSegment}`;
-  if (pathname === '/empleados/roles') return 'Configuración de Roles';
-
-  if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas';
-  if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
-  if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
-  if (pathname === '/fiestas/nueva/invitados/layout') return 'Diseño de Mesas y Salón';
-  if (pathname === '/fiestas/nueva/itinerario') return 'Itinerario del Evento';
-  if (pathname === '/fiestas/nueva/servicios-contratados') return 'Servicios Contratados';
-  if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
-  if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
-  if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
-  if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
-  if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
-  if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
-  if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
-  if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
-  if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') return `Editando Menú: ${pathSegments[4]}`;
-  if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
-  if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
-  if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
-  if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
-  if (pathname === '/fiestas/nueva/gestion-documental') return 'Gestión Documental y Financiera';
-  if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
-  if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
-  if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
-  if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
-  if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
-  if (pathname === '/fiestas/nueva/notas-cliente') return 'Notas del Cliente';
-  if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
-
-
-  if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
-
-  if (pathname === '/settings') return 'Configuración General';
-  if (pathname === '/settings/templates') return 'Personalizar Plantillas';
-  if (pathname === '/settings/budget-display') return 'Configuración de Presupuestos';
-  if (pathname === '/settings/company') return 'Información de la Empresa';
-  if (pathname === '/settings/social-connections') return 'Cuentas Sociales Vinculadas';
-  if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
-  if (pathname === '/settings/account') return 'Cuenta y Seguridad';
-  if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/settings/asistente-ak') return 'Configuración Asistente';
-  if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
-  if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
-  if (pathname === '/settings/backup') return 'Backup y Restauración';
-  
-  if (pathname === '/asistente-ak/cotizador') return 'Cotizador Asistido por IA';
-
-  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
-  if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
-  if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
-  
-  if (pathname === '/evento/actual') return 'Página Pública del Evento';
-  if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
-  if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
-  if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
-  if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
-  if (pathname.startsWith('/feedback')) return 'Encuesta de Satisfacción';
-
-
-  if (pathname === '/eventos') return 'Todas las Fiestas';
-  if (pathname === '/calendario') return 'Calendario General';
-  if (pathname === '/notas') return 'Bloc de Notas';
-
-  if (pathname === '/login') return 'Login';
-
-  if (pathSegments.length > 0) {
-    const lastSegment = pathSegments[pathSegments.length - 1];
-    let title = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
-    if (pathSegments.length > 1 && pathSegments[pathSegments.length-2]) {
-        const parentSegment = pathSegments[pathSegments.length-2];
-        const parentTitle = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
-        if (!isNaN(Number(title))) { 
-            if (parentTitle.toLowerCase() === 'invoices' && title) return `Factura #${title}`;
-            if (parentTitle.toLowerCase() === 'presupuestos' && title) return `Presupuesto #${title.substring(0,5)}`;
-            if (parentTitle.toLowerCase() === 'customers' && title) return `Cliente #${title}`;
-            if (parentTitle.toLowerCase() === 'empleados' && title) return `Empleado #${title}`;
-            if (parentTitle.toLowerCase() === 'editar' && pathSegments[pathSegments.length-3]?.toLowerCase() === 'todos-los-servicios') return `Editar Ítem #${title}`;
-            return `${parentTitle}: #${title}`;
-        }
-        if(title.toLowerCase() === 'edit' || title.toLowerCase() === 'editar') title = "Editar";
-        if(title.toLowerCase() === 'new' || title.toLowerCase() === 'nuevo' || title.toLowerCase() === 'nueva') title = "Nuevo";
-        if(parentTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(parentTitle.toLowerCase())) return title;
-        if (title === "Editar" && parentTitle.startsWith("Editar Ítem #")) return parentTitle;
-        return `${parentTitle} - ${title}`;
-    }
-    return title;
-  }
-  return 'AK Producciones';
-};
-
-const getPageIcon = (pathname: string): React.ElementType | null => {
-  if (pathname === '/') return LayoutDashboard;
-  if (pathname.startsWith('/fiestas/nueva')) {
-    if (pathname === '/fiestas/nueva/personal') return UserCheck;
-    if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
-    if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
-    if (pathname === '/fiestas/nueva/decoracion') return Palette;
-    if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
-    if (pathname === '/fiestas/nueva/catering') return ChefHat;
-    if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
-    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
-    if (pathname === '/fiestas/nueva/musica') return Music2;
-    if (pathname === '/fiestas/nueva/invitados') return Users;
-    if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
-    if (pathname === '/fiestas/nueva/itinerario') return Clock;
-    if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
-    if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
-    if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardListIcon;
-    if (pathname === '/fiestas/nueva/gestion-documental') return Archive;
-    if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
-    if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
-    if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
-    if (pathname === '/fiestas/nueva/video-vida') return Camera;
-    if (pathname === '/fiestas/nueva/regalos') return Gift;
-    if (pathname === '/fiestas/nueva/notas-cliente') return StickyNote;
-    if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
-    return PartyPopper;
-  }
-
-  if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/contabilidad') return BarChart3; 
-  if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
-  if (pathname === '/empresa/todos-los-servicios') return Package; 
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
-  if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;
-  if (pathname.startsWith('/empresa/redes-sociales')) return Sparkles;
-
-
-  if (pathname === '/proveedores') return Briefcase;
-  if (pathname === '/proveedores/new') return UserPlus2Icon;
-  if (pathname === '/empleados') return ContactRound;
-  if (pathname === '/empleados/roles') return SettingsIcon;
-  if (pathname === '/customers') return Users;
-
-  if (pathname === '/eventos') return CalendarClock;
-  if (pathname === '/compras') return ShoppingCart;
-  if (pathname === '/calendario') return CalendarDaysIcon;
-  if (pathname === '/notas') return StickyNote;
-
-  if (pathname === '/login') return LogInIcon;
-
-  if (pathname === '/presupuestos') return ListChecks;
-  if (pathname === '/invoices') return FileText;
-  if (pathname === '/contabilidad/crm') return KanbanSquare;
-
-  if (pathname === '/settings') return SettingsIcon;
-  if (pathname === '/settings/templates') return Palette;
-  if (pathname === '/settings/budget-display') return SettingsIcon;
-  if (pathname === '/settings/company') return Building2;
-  if (pathname === '/settings/social-connections') return LinkIcon;
-  if (pathname === '/settings/notifications') return BellRing;
-  if (pathname === '/settings/account') return UserCog;
-  if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/admin/aaiff') return BrainCircuit;
-  if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
-  if (pathname === '/settings/backup') return HardDriveDownload;
-  if (pathname === '/settings/asistente-ak') return BrainCircuit;
-
-  if (pathname === '/asistente-ak/cotizador') return Wand2;
-
-  if (pathname === '/planner-costo-fiesta') return Calculator;
-  if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
-  if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
-  
-  if (pathname === '/evento/actual') return PartyPopper;
-  if (pathname === '/evento/actual/mesa') return Ticket;
-  if (pathname === '/evento/actual/checkin') return UserCheck;
-  if (pathname.startsWith('/evento/social')) return Camera;
-  if (pathname.startsWith('/video-vida')) return Camera;
-  if (pathname.startsWith('/feedback')) return Star;
-
-
-  return null;
+interface Paso1Props {
+  formData: PresupuestoFormData;
+  setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const pageTitle = getPageTitle(pathname);
-  const PageIcon = getPageIcon(pathname);
-
-  // Define public-facing paths that should not have the main AppShell (header, etc.)
-  const isAuthPage = pathname === '/login';
-  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
-  const isCotizadorPage = pathname === '/asistente-ak/cotizador';
-
-  // Define pages that are printable views and should not have the shell.
-  const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
+export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
   
-  // Define special pages that might have their own layout
-  const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
-  const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
-
-  const isSpecialRender = 
-    isAuthPage || 
-    isPublicEventPage || 
-    isCotizadorPage ||
-    isPdfPage ||
-    isBudgetViewPage ||
-    isInvoiceViewPage;
-
-  // Simplified logic for when to render the shell
-  if (isSpecialRender) {
-    return <main className="min-h-screen">{children}</main>;
-  }
-
-  const handleLogoutClick = () => {
-    triggerAppLogout();
+  const handleChange = (field: keyof PresupuestoFormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleDateChange = (date: Date | undefined) => {
+    setFormData(prev => ({ ...prev, eventoFecha: date }));
+  };
+  
+  const eventoTipoEnSelect =
+    formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento)
+      ? formData.eventoTipo
+      : (formData.eventoTipo && formData.eventoTipo.trim() !== "" ? "Otro" : "");
+
+
+  const handleSelectTipoEventoChange = (value: string) => {
+    const newTipoEvento = value === "Otro" ? "" : value as TipoEvento;
+    setFormData(prev => ({
+      ...prev,
+      eventoTipo: newTipoEvento,
+      nombreEmpresa: '',
+      protagonista1Nombre: '',
+      protagonista2Nombre: '',
+    }));
+  };
+
+  const handleCustomTipoEventoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
+  };
+  
+  const finalEventType = formData.eventoTipo.trim();
+  const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
+
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
-        <div className="flex items-center gap-2">
-          <AppLogo />
-          <span className="mx-2 text-muted-foreground">|</span>
-          {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
-          <h1 className="text-lg md:text-xl font-semibold text-foreground">{pageTitle}</h1>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="clienteNombre" className="text-base">Nombre del Cliente*</Label>
+          <Input
+            id="clienteNombre"
+            placeholder="Ej: Ana Pérez"
+            value={formData.clienteNombre}
+            onChange={(e) => handleChange('clienteNombre', e.target.value)}
+            className="text-base p-3"
+            required
+          />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src="https://placehold.co/40x40.png" alt="Avatar de Usuario" data-ai-hint="user avatar" />
-                <AvatarFallback className="bg-primary text-primary-foreground">U</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <UserCircle className="mr-2 h-4 w-4" />
-              <span>Perfil</span>
-            </DropdownMenuItem>
-            <Link href="/settings" passHref>
-              <DropdownMenuItem>
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Configuración</span>
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogoutClick}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Cerrar Sesión</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </header>
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
-        {children}
-      </main>
-      {pathname !== '/portal' && <AkAssistant />}
+        <div className="space-y-2">
+          <Label htmlFor="salonFiestas" className="text-base">Salón de Fiestas*</Label>
+          <Input
+            id="salonFiestas"
+            placeholder="Ej: Salón El Paraíso"
+            value={formData.salonFiestas}
+            onChange={(e) => handleChange('salonFiestas', e.target.value)}
+            className="text-base p-3"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento*</Label>
+        <Select
+          value={eventoTipoEnSelect}
+          onValueChange={handleSelectTipoEventoChange}
+          required
+        >
+          <SelectTrigger id="eventoTipoSelect" className="text-base p-3 h-auto">
+            <SelectValue placeholder="Seleccioná un tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            {ALL_TIPOS_EVENTO.map(tipo => (
+              <SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {showCustomTipoInput && (
+          <Input
+            id="eventoTipoOtroInput"
+            placeholder="Especificá el tipo de evento"
+            value={finalEventType !== "Otro" ? finalEventType : ""}
+            onChange={handleCustomTipoEventoInputChange}
+            className="text-base p-3 mt-2"
+            required={showCustomTipoInput}
+          />
+        )}
+      </div>
+
+      <Separator className="my-4" />
+      <h3 className="text-md font-medium text-muted-foreground">Protagonista(s) del Evento (Opcional)</h3>
+
+      {finalEventType === 'Boda' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="protagonista1NombreBoda" className="text-base">Nombre Novio/a 1</Label>
+            <Input
+              id="protagonista1NombreBoda"
+              placeholder="Nombre"
+              value={formData.protagonista1Nombre || ''}
+              onChange={(e) => handleChange('protagonista1Nombre', e.target.value)}
+              className="text-base p-3"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="protagonista2NombreBoda" className="text-base">Nombre Novio/a 2</Label>
+            <Input
+              id="protagonista2NombreBoda"
+              placeholder="Nombre"
+              value={formData.protagonista2Nombre || ''}
+              onChange={(e) => handleChange('protagonista2Nombre', e.target.value)}
+              className="text-base p-3"
+            />
+          </div>
+        </div>
+      )}
+
+      {finalEventType === 'Evento corporativo' && (
+        <div className="space-y-2">
+          <Label htmlFor="nombreEmpresaCorp" className="text-base">Nombre Empresa / Contacto</Label>
+          <Input
+            id="nombreEmpresaCorp"
+            placeholder="Ej: Empresa S.A. / Juan Pérez (Gerente)"
+            value={formData.nombreEmpresa || ''}
+            onChange={(e) => handleChange('nombreEmpresa', e.target.value)}
+            className="text-base p-3"
+          />
+        </div>
+      )}
+
+      {finalEventType && finalEventType !== 'Boda' && finalEventType !== 'Evento corporativo' && finalEventType.trim() !== '' && (
+        <div className="space-y-2">
+          <Label htmlFor="protagonistaNombreGeneral" className="text-base">Nombre del Agasajado/Protagonista</Label>
+          <Input
+            id="protagonistaNombreGeneral"
+            placeholder="Nombre Completo"
+            value={formData.protagonista1Nombre || ''}
+            onChange={(e) => handleChange('protagonista1Nombre', e.target.value)}
+            className="text-base p-3"
+          />
+        </div>
+      )}
+
+
+      <Separator className="my-4" />
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento*</Label>
+          <DatePickerDemo
+            selectedDate={formData.eventoFecha}
+            onDateChange={handleDateChange}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="invitadosCantidad" className="text-base">Cantidad Estimada de Invitados*</Label>
+          <Input
+            id="invitadosCantidad"
+            type="number"
+            placeholder="Ej: 50"
+            value={formData.invitadosCantidad ?? ''}
+            onChange={(e) => handleChange('invitadosCantidad', e.target.value ? parseInt(e.target.value) : null)}
+            min="1"
+            className="text-base p-3"
+            required
+          />
+        </div>
+      </div>
     </div>
   );
 }

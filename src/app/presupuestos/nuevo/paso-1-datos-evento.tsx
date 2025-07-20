@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { PresupuestoFormData, TipoEvento } from '@/types/presupuesto';
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import type { Dispatch, SetStateAction } from 'react';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
-import React from 'react'; // Asegúrate de que React esté importado
+import React from 'react';
 import { Separator } from '@/components/ui/separator';
 
 interface Paso1Props {
@@ -17,6 +18,7 @@ interface Paso1Props {
 }
 
 export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
+  
   const handleChange = (field: keyof PresupuestoFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -24,7 +26,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
   const handleDateChange = (date: Date | undefined) => {
     setFormData(prev => ({ ...prev, eventoFecha: date }));
   };
-
+  
   const eventoTipoEnSelect =
     formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento)
       ? formData.eventoTipo
@@ -36,7 +38,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({
       ...prev,
       eventoTipo: newTipoEvento,
-      nombreEmpresa: '', // Limpiar campos condicionales al cambiar tipo
+      nombreEmpresa: '',
       protagonista1Nombre: '',
       protagonista2Nombre: '',
     }));
@@ -46,43 +48,42 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
     setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
   };
   
-  // Determina el tipo de evento final para la lógica de visualización
   const finalEventType = formData.eventoTipo.trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
-
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="clienteNombre" className="text-base">Nombre del Cliente</Label>
+          <Label htmlFor="clienteNombre" className="text-base">Nombre del Cliente*</Label>
           <Input
             id="clienteNombre"
             placeholder="Ej: Ana Pérez"
             value={formData.clienteNombre}
             onChange={(e) => handleChange('clienteNombre', e.target.value)}
             className="text-base p-3"
-            
+            required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="salonFiestas" className="text-base">Salón de Fiestas</Label>
+          <Label htmlFor="salonFiestas" className="text-base">Salón de Fiestas*</Label>
           <Input
             id="salonFiestas"
             placeholder="Ej: Salón El Paraíso"
             value={formData.salonFiestas}
             onChange={(e) => handleChange('salonFiestas', e.target.value)}
             className="text-base p-3"
-            
+            required
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento</Label>
+        <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento*</Label>
         <Select
           value={eventoTipoEnSelect}
           onValueChange={handleSelectTipoEventoChange}
+          required
         >
           <SelectTrigger id="eventoTipoSelect" className="text-base p-3 h-auto">
             <SelectValue placeholder="Seleccioná un tipo" />
@@ -97,16 +98,16 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
           <Input
             id="eventoTipoOtroInput"
             placeholder="Especificá el tipo de evento"
-            value={finalEventType !== "Otro" ? finalEventType : ""} // Mostrar el tipo personalizado si ya existe
+            value={finalEventType !== "Otro" ? finalEventType : ""}
             onChange={handleCustomTipoEventoInputChange}
             className="text-base p-3 mt-2"
-            
+            required={showCustomTipoInput}
           />
         )}
       </div>
 
       <Separator className="my-4" />
-      <h3 className="text-md font-medium text-muted-foreground">Protagonista(s) del Evento</h3>
+      <h3 className="text-md font-medium text-muted-foreground">Protagonista(s) del Evento (Opcional)</h3>
 
       {finalEventType === 'Boda' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -135,12 +136,12 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
 
       {finalEventType === 'Evento corporativo' && (
         <div className="space-y-2">
-          <Label htmlFor="nombreEmpresa" className="text-base">Nombre Empresa / Contacto Principal (Opcional)</Label>
+          <Label htmlFor="nombreEmpresaCorp" className="text-base">Nombre Empresa / Contacto</Label>
           <Input
-            id="nombreEmpresa" // ID se mantiene para compatibilidad
+            id="nombreEmpresaCorp"
             placeholder="Ej: Empresa S.A. / Juan Pérez (Gerente)"
-            value={formData.protagonista1Nombre || ''} // Usamos protagonista1Nombre para almacenar esto
-            onChange={(e) => handleChange('protagonista1Nombre', e.target.value)}
+            value={formData.nombreEmpresa || ''}
+            onChange={(e) => handleChange('nombreEmpresa', e.target.value)}
             className="text-base p-3"
           />
         </div>
@@ -165,14 +166,14 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento</Label>
+          <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento*</Label>
           <DatePickerDemo
             selectedDate={formData.eventoFecha}
             onDateChange={handleDateChange}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="invitadosCantidad" className="text-base">Cantidad Estimada de Invitados</Label>
+          <Label htmlFor="invitadosCantidad" className="text-base">Cantidad Estimada de Invitados*</Label>
           <Input
             id="invitadosCantidad"
             type="number"
@@ -181,7 +182,7 @@ export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) 
             onChange={(e) => handleChange('invitadosCantidad', e.target.value ? parseInt(e.target.value) : null)}
             min="1"
             className="text-base p-3"
-            
+            required
           />
         </div>
       </div>
