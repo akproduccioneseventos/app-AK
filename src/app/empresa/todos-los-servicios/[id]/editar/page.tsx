@@ -16,7 +16,8 @@ import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpres
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños', 'Menú Adolescente'];
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños y Adolescentes', 'Personal'];
+const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
 export default function EditarItemInventarioPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
@@ -66,6 +67,10 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   const handleFormChange = (field: keyof ServicioEmpresa, value: string | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+  
+  const handleCategoryChange = (value: CategoriaServicio | '') => {
+    setFormData(prev => ({...prev, categoria: value as CategoriaServicio, subcategoria: '' }));
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -121,6 +126,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
 
   const isCatering = formData.categoria === 'Servicio de catering';
+  const isReposteria = formData.categoria === 'Servicio de repostería y regalos';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -153,7 +159,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
-                <Select value={formData.categoria || ''} onValueChange={(value) => handleFormChange('categoria', value as CategoriaServicio)} required disabled={isSaving}>
+                <Select value={formData.categoria || ''} onValueChange={(value) => handleCategoryChange(value as CategoriaServicio)} required disabled={isSaving}>
                   <SelectTrigger id="item-categoria"><SelectValue/></SelectTrigger>
                   <SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                 </Select>
@@ -162,8 +168,13 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
                 <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
                 {isCatering ? (
                     <Select value={formData.subcategoria || ''} onValueChange={(value) => handleFormChange('subcategoria', value)}>
-                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
                         <SelectContent>{CATERING_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                    </Select>
+                ) : isReposteria ? (
+                    <Select value={formData.subcategoria || ''} onValueChange={(value) => handleFormChange('subcategoria', value)}>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
+                        <SelectContent>{REPOSTERIA_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                     </Select>
                 ) : (
                     <Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} disabled={isSaving}/>

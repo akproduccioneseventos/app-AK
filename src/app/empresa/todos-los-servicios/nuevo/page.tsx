@@ -16,7 +16,9 @@ import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpres
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños', 'Menú Adolescente'];
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños y Adolescentes', 'Personal'];
+const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
+
 
 function NuevoItemInventarioContent() {
   const router = useRouter();
@@ -43,6 +45,11 @@ function NuevoItemInventarioContent() {
       setTipoItem(tipoQueryParam);
     }
   }, [tipoQueryParam, isTipoFijo]);
+  
+  const handleCategoryChange = (value: CategoriaServicio | '') => {
+    setCategoria(value);
+    setSubcategoria(''); // Reset subcategory when main category changes
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -94,6 +101,7 @@ function NuevoItemInventarioContent() {
   }
   
   const isCatering = categoria === 'Servicio de catering';
+  const isReposteria = categoria === 'Servicio de repostería y regalos';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -142,7 +150,7 @@ function NuevoItemInventarioContent() {
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
-                <Select value={categoria} onValueChange={(value) => setCategoria(value as CategoriaServicio | '')} required disabled={isSaving}>
+                <Select value={categoria} onValueChange={(value) => handleCategoryChange(value as CategoriaServicio | '')} required disabled={isSaving}>
                   <SelectTrigger id="item-categoria" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar categoría..." /></SelectTrigger>
                   <SelectContent className="max-h-60">{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat} className="text-base">{cat}</SelectItem>))}</SelectContent>
                 </Select>
@@ -150,12 +158,17 @@ function NuevoItemInventarioContent() {
               <div className="space-y-2">
                 <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
                 {isCatering ? (
-                    <Select value={subcategoria} onValueChange={(value) => setSubcategoria(value)}>
-                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="Seleccionar subcategoría..."/></SelectTrigger>
+                    <Select value={subcategoria || ''} onValueChange={(value) => setSubcategoria(value)}>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
                         <SelectContent>{CATERING_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                     </Select>
+                ) : isReposteria ? (
+                     <Select value={subcategoria || ''} onValueChange={(value) => setSubcategoria(value)}>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
+                        <SelectContent>{REPOSTERIA_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                    </Select>
                 ) : (
-                    <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Plato Principal, Mobiliario" className="text-base p-3" disabled={isSaving}/>
+                    <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Mobiliario, Vajilla" className="text-base p-3" disabled={isSaving}/>
                 )}
               </div>
             </div>
