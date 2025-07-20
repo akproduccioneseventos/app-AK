@@ -43,8 +43,10 @@ export default function InventarioGeneralPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      setAllItems(data);
-      setFilteredItems(data);
+      // This page now only shows non-service items.
+      const inventoryItems = data.filter(s => s.tipoItem !== 'Servicio');
+      setAllItems(inventoryItems);
+      setFilteredItems(inventoryItems);
     } catch (err: any) {
       setError("No se pudo cargar el inventario.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -146,7 +148,13 @@ export default function InventarioGeneralPage() {
             <Link href="/empresa/todos-los-servicios/nuevo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
-                    Añadir Activo
+                    Añadir Activo o Insumo
+                </Button>
+            </Link>
+             <Link href="/empresa" passHref>
+                <Button variant="outline">
+                    <ArrowLeft className="w-4 h-4 mr-2"/>
+                    Volver
                 </Button>
             </Link>
         </div>
@@ -237,3 +245,4 @@ export default function InventarioGeneralPage() {
     </div>
   );
 }
+
