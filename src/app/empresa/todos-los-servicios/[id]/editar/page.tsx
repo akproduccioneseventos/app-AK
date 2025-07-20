@@ -68,9 +68,14 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     e.preventDefault();
     if (!item) return;
 
-    if (!formData.nombre?.trim() || !formData.tipoItem || !formData.categoria || !formData.unidad) {
-      toast({ title: "Campos Requeridos", description: "Nombre, Tipo, Categoría y Unidad son obligatorios.", variant: "destructive" });
+    if (!formData.nombre?.trim() || !formData.tipoItem || !formData.categoria) {
+      toast({ title: "Campos Requeridos", description: "Nombre, Tipo y Categoría son obligatorios.", variant: "destructive" });
       return;
+    }
+
+    if (formData.tipoItem !== 'Servicio' && !formData.unidad) {
+        toast({ title: "Campo Requerido", description: "La unidad es obligatoria para Insumos y Activos.", variant: "destructive" });
+        return;
     }
     
     if (formData.tipoItem === 'Servicio' && (formData.precioVenta === undefined || formData.precioVenta <= 0)) {
@@ -85,7 +90,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         nombre: formData.nombre.trim(),
         tipoItem: formData.tipoItem,
         categoria: formData.categoria,
-        unidad: formData.unidad,
+        unidad: formData.tipoItem === 'Servicio' ? undefined : formData.unidad, // Unidad es opcional para servicios
         subcategoria: formData.subcategoria?.trim() || undefined,
         cantidadDisponible: formData.cantidadDisponible !== undefined ? Number(formData.cantidadDisponible) : undefined,
         valorUnitarioEstimado: formData.valorUnitarioEstimado !== undefined ? Number(formData.valorUnitarioEstimado) : undefined,
@@ -162,25 +167,27 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
                     <Input id="item-precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} required disabled={isSaving}/>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label>
-                        <Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/>
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label>
+                            <Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label>
+                            <Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label>
-                        <Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/>
+                     <div className="space-y-2">
+                        <Label htmlFor="item-unidad" className="text-base">Unidad *</Label>
+                        <Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required>
+                        <SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger>
+                        <SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent>
+                        </Select>
                     </div>
-                </div>
+                </>
             )}
             
-            <div className="space-y-2">
-                <Label htmlFor="item-unidad" className="text-base">Unidad *</Label>
-                <Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required>
-                  <SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger>
-                  <SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent>
-                </Select>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="item-notas" className="text-base">Observaciones (Opcional)</Label>
               <Textarea id="item-notas" value={formData.notas || ''} onChange={(e) => handleFormChange('notas', e.target.value)} rows={3} disabled={isSaving}/>
