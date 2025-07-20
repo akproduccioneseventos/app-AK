@@ -43,10 +43,9 @@ export default function InventarioGeneralPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      // This page now only shows non-service items.
-      const inventoryItems = data.filter(s => s.tipoItem !== 'Servicio');
-      setAllItems(inventoryItems);
-      setFilteredItems(inventoryItems);
+      // This page now shows ALL items, not just inventory. Services are filtered out in /empresa/servicios
+      setAllItems(data);
+      setFilteredItems(data);
     } catch (err: any) {
       setError("No se pudo cargar el inventario.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -124,6 +123,7 @@ export default function InventarioGeneralPage() {
   const capitalPorCategoria = useMemo(() => {
     return categoriasOrdenadas.map(categoria => {
       const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
+        if(item.tipoItem === 'Servicio') return sum; // Do not include services in capital calculation
         const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
         return sum + valorItem;
       }, 0);
@@ -139,7 +139,7 @@ export default function InventarioGeneralPage() {
         <div className="flex items-center gap-3">
           <Package className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Inventario General y Valor de Activos
+            Inventario General y Activos
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
@@ -148,7 +148,7 @@ export default function InventarioGeneralPage() {
             <Link href="/empresa/todos-los-servicios/nuevo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
-                    Añadir Activo o Insumo
+                    Añadir Ítem
                 </Button>
             </Link>
              <Link href="/empresa" passHref>
@@ -210,6 +210,7 @@ export default function InventarioGeneralPage() {
                 <div className="space-y-3 mt-2">
                   {itemsAgrupadosPorCategoria[categoria]?.map((item) => {
                     const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+                    const isService = item.tipoItem === 'Servicio';
                     return (
                       <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow print:shadow-none print:border-gray-200">
                         <CardHeader className="pb-2 pt-3 px-3">
@@ -225,12 +226,16 @@ export default function InventarioGeneralPage() {
                           </div>
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1 print:text-xs">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
-                            <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
-                            <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
-                            <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
-                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
-                          </div>
+                           {isService ? (
+                              <div className="font-semibold text-primary">{formatCurrency(item.precioVenta)} / {item.unidad}</div>
+                            ) : (
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
+                                <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
+                                <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
+                                <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
+                                <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
+                              </div>
+                            )}
                           {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5 print:mt-1 print:pt-0.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>
                       </Card>
@@ -245,4 +250,3 @@ export default function InventarioGeneralPage() {
     </div>
   );
 }
-
