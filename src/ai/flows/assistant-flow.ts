@@ -11,14 +11,14 @@ import { assignGuestsToTables } from './assign-guests-flow';
 import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput } from '@/ai/types/assistant-types';
 import { z } from 'genkit';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
-
+import { savePresupuesto } from '@/app/actions/presupuestos';
 
 // Tool: Analyze the current event plan
 const analyzeEventPlanTool = ai.defineTool(
   {
     name: 'analyzeCurrentEventPlan',
     description: 'Analyzes the current event plan in detail and returns a summary of its status, identifying incomplete areas and potential issues. Use this when the user asks to "analyze the event", "check the party plan", "review the current event", or similar requests.',
-    inputSchema: z.object({}), // Input can be an empty object if no parameters are needed from the user's prompt
+    inputSchema: z.object({}), 
     outputSchema: z.any(),
   },
   async () => {
@@ -64,12 +64,60 @@ const assignGuestsTool = ai.defineTool(
   }
 );
 
+// Tool: Create a new quote
+const createQuoteTool = ai.defineTool(
+  {
+    name: 'createQuote',
+    description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, guest count, and event date. If any information is missing, you MUST ask the user for it.',
+    inputSchema: z.object({
+      clienteNombre: z.string().describe("The name of the client or company."),
+      eventoTipo: z.string().describe("The type of event (e.g., 'Boda', 'Cumpleaños de 15', 'Corporativo')."),
+      invitadosCantidad: z.number().describe("The estimated number of guests."),
+      eventoFecha: z.string().describe("The estimated date of the event in YYYY-MM-DD format."),
+    }),
+    outputSchema: z.object({
+      success: z.boolean(),
+      presupuestoId: z.string().optional(),
+      error: z.string().optional(),
+    }),
+  },
+  async (input) => {
+    try {
+        const result = await savePresupuesto({
+            ...input,
+            itemsPresupuestados: [], // Start with an empty list of items, to be added later
+            costoTotalEstimado: 0, 
+            salonFiestas: 'A definir', // Default value
+            timestamp: new Date().toISOString(),
+        });
+        if (result.success && result.id) {
+            return { success: true, presupuestoId: result.id };
+        }
+        return { success: false, error: result.error || 'Unknown error saving budget.' };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+  }
+);
+
 
 export async function assistant(input: AssistantInput) {
+  // This prompt guides the model to be a helpful event planning assistant and use the available tools.
+  const systemPrompt = `Eres "Asistente AK", un asistente experto en planificación de eventos para AK Producciones.
+  Tu objetivo es ayudar al organizador a gestionar su aplicación.
+  Sé conciso, amigable y proactivo.
+  Cuando un usuario te pida realizar una acción (como analizar el evento, asignar invitados o crear un presupuesto), utiliza las herramientas disponibles.
+  Si una herramienta requiere información que no tienes, haz preguntas claras para obtener los datos necesarios antes de llamar a la herramienta.
+  Al presentar los resultados de una herramienta, no solo muestres los datos JSON. En su lugar, explícalos de forma clara, amigable y útil para un organizador de eventos, usando formato markdown para que sea legible.
+  Si una herramienta devuelve un error, explica el problema al usuario de forma sencilla.`;
+
   const llmResponse = await ai.generate({
-    prompt: input.query,
+    prompt: [
+        {text: systemPrompt},
+        {text: `La consulta del usuario es: "${input.query}"`},
+    ],
     model: 'googleai/gemini-1.5-flash',
-    tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool],
+    tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool],
     output: {
         schema: AssistantOutputSchema,
     }
@@ -77,13 +125,12 @@ export async function assistant(input: AssistantInput) {
 
   const toolCalls = llmResponse.toolCalls();
   if (toolCalls.length > 0) {
-    // For now, handle one tool call at a time for simplicity in the chat UI
     const call = toolCalls[0];
     const toolResult = await call.run();
     
     // Send the tool's structured output back to the model to generate a natural language response
     const finalResponse = await ai.generate({
-        prompt: `The user asked: "${input.query}". The tool "${call.name}" was called and returned this JSON data: ${JSON.stringify(toolResult)}. Please present this information to the user in a clear, friendly, and readable format. Use markdown for formatting. If the tool returned an error, explain the error clearly to the user.`,
+        prompt: `El usuario preguntó: "${input.query}". La herramienta "${call.name}" fue ejecutada y devolvió los siguientes datos JSON: ${JSON.stringify(toolResult)}. Por favor, presenta esta información al usuario de forma clara, amigable y legible. Usa markdown para formatear la respuesta. Si el resultado contiene un error, explícalo claramente.`,
         model: 'googleai/gemini-1.5-flash',
         output: {
             schema: AssistantOutputSchema,

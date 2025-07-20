@@ -35,26 +35,12 @@ const settingsCards = [
     icon: Star,
     buttonLabel: "Gestionar Feedback"
   },
-    {
-    title: "Análisis de Plan de Evento con IA",
-    description: "Revisa la completitud y coherencia de tu planificación actual.",
-    href: "/admin/aaiff-fiesta",
-    icon: PartyPopper,
-    buttonLabel: "Analizar Fiesta Actual"
-  },
-   {
-    title: "Análisis de Código con IA",
-    description: "Permite que la IA analice la app en busca de mejoras y errores.",
-    href: "/admin/aaiff",
-    icon: BrainCircuit,
-    buttonLabel: "Analizar Código"
-  },
   {
     title: "Asistente AK (IA)",
-    description: "Entiende cómo funciona el asistente de IA y sus capacidades.",
+    description: "Accede a herramientas de análisis y entiende cómo funciona la IA.",
     href: "/settings/asistente-ak",
-    icon: SparklesIcon,
-    buttonLabel: "Ver Detalles de IA"
+    icon: BrainCircuit,
+    buttonLabel: "Configurar IA"
   },
   {
     title: "Notificaciones",
