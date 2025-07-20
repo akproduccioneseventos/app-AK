@@ -156,7 +156,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   }
 
   if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/servicios') return SparklesIcon;
+  if (pathname === '/empresa/servicios') return Sparkles;
   if (pathname === '/empresa/contabilidad') return BarChart3; 
   if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
   if (pathname === '/empresa/todos-los-servicios') return Package; 
