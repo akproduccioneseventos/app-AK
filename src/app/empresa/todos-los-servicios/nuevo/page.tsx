@@ -16,6 +16,8 @@ import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpres
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños', 'Menú Adolescente'];
+
 function NuevoItemInventarioContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -90,6 +92,8 @@ function NuevoItemInventarioContent() {
     if (isTipoFijo && tipoQueryParam === 'Servicio') return 'Añadir Nuevo Servicio';
     return 'Añadir Ítem al Inventario General';
   }
+  
+  const isCatering = categoria === 'Servicio de catering';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -145,7 +149,14 @@ function NuevoItemInventarioContent() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
-                <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Plato Principal, Mobiliario" className="text-base p-3" disabled={isSaving}/>
+                {isCatering ? (
+                    <Select value={subcategoria} onValueChange={(value) => setSubcategoria(value)}>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="Seleccionar subcategoría..."/></SelectTrigger>
+                        <SelectContent>{CATERING_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                    </Select>
+                ) : (
+                    <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Plato Principal, Mobiliario" className="text-base p-3" disabled={isSaving}/>
+                )}
               </div>
             </div>
             {tipoItem === 'Servicio' ? (

@@ -16,6 +16,9 @@ import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpres
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños', 'Menú Adolescente'];
+
+
 export default function EditarItemInventarioPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
   const params = React.use(paramsProp);
   const router = useRouter();
@@ -117,6 +120,8 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
 
+  const isCatering = formData.categoria === 'Servicio de catering';
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -155,7 +160,14 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
               </div>
               <div className="space-y-2">
                 <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
-                <Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} disabled={isSaving}/>
+                {isCatering ? (
+                    <Select value={formData.subcategoria || ''} onValueChange={(value) => handleFormChange('subcategoria', value)}>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
+                        <SelectContent>{CATERING_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                    </Select>
+                ) : (
+                    <Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} disabled={isSaving}/>
+                )}
               </div>
             </div>
              
