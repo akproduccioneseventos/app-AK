@@ -37,11 +37,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Contabilidad',
   },
   {
-    title: 'Inventario General y Valor de Activos',
-    description: 'Gestiona tu catálogo maestro de insumos, activos y servicios.',
+    title: 'Catálogo de Servicios e Inventario',
+    description: 'Gestiona tu catálogo de servicios, insumos y activos de la empresa.',
     href: '/empresa/todos-los-servicios',
     icon: Package,
-    actionLabel: 'Ir a Inventario',
+    actionLabel: 'Gestionar Catálogo',
   },
    {
     title: 'Redes Sociales y Publicaciones',
