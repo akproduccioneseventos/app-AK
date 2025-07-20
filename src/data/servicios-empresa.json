@@ -1,1 +1,1050 @@
-[]
+
+[
+  {
+    "id": "serv_1752489600001_pmozo",
+    "nombre": "Mozo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Personal",
+    "precioVenta": 2900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600002_pcoci",
+    "nombre": "Mozo de cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Personal",
+    "precioVenta": 2900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600003_pmetr",
+    "nombre": "Metre",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Personal",
+    "precioVenta": 3500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600004_pchef",
+    "nombre": "Cheff",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Personal",
+    "precioVenta": 3500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600005_ppham",
+    "nombre": "Hamburguesa completa c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 270,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600006_ppchi",
+    "nombre": "Chivito completo c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 300,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600007_pppol",
+    "nombre": "Pollo arrollado c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600008_ppcer",
+    "nombre": "Cerdo relleno c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600009_ppgno",
+    "nombre": "Ñoquis al queso",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600010_pprav",
+    "nombre": "Ravioles a la crema",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600011_ppcem",
+    "nombre": "Cerdo a la mostaza c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600012_pppoc",
+    "nombre": "Pollo a la crema c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600013_ppsor",
+    "nombre": "Sorrentinos con salsa rosa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 400,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600014_ppbau",
+    "nombre": "Bauru c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 390,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600015_ppnap",
+    "nombre": "Napolitana c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 380,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600016_ppbro",
+    "nombre": "Brochetas c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 380,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600017_pppae",
+    "nombre": "Paella de mariscos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 380,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600018_ppshu",
+    "nombre": "Shuhsi con ensalada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 400,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600019_ppstr",
+    "nombre": "Strogonoff de pollo c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 400,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600020_ppmer",
+    "nombre": "Merluza a la crema c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 450,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600021_ppbif",
+    "nombre": "Bife al champiñón c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 480,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600022_ppcor",
+    "nombre": "Cordero Asado c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 560,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600023_ppasa",
+    "nombre": "Asado completo c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 645,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600024_ental",
+    "nombre": "Buñuelo de algas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 120,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600025_entfa",
+    "nombre": "Faina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 100,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600026_entta",
+    "nombre": "Tapas saborizadas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 100,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600027_entar",
+    "nombre": "Arrolladitos primavera",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 100,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600028_entps",
+    "nombre": "Picada Snack",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 120,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600029_entpc",
+    "nombre": "Planchas calientes",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 120,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600030_entke",
+    "nombre": "Kebabs",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 130,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600031_entpf",
+    "nombre": "Picada de fiambres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600032_entsp",
+    "nombre": "Salpicón de pollo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600033_entem",
+    "nombre": "Empanadas caseras",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600034_entmc",
+    "nombre": "Mini Chivitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 180,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600035_entpi",
+    "nombre": "Pizzetitas y empanaditas de copetín",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 180,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600036_entci",
+    "nombre": "Calzones Italianos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600037_enttm",
+    "nombre": "Tacos mexicanos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600038_entav",
+    "nombre": "Arepas venezolanas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600039_entmb",
+    "nombre": "Mini brochetas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600040_entpcc",
+    "nombre": "Picada caliente",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600041_entpcr",
+    "nombre": "Picada Criolla",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600042_entpma",
+    "nombre": "Picada de mar",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600043_entppr",
+    "nombre": "Picada premium",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600044_entss",
+    "nombre": "Sandwiches y Saladitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 220,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600045_entshu",
+    "nombre": "Shuhsi",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 250,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600046_enttgf",
+    "nombre": "Tabla gourmet de fiambre",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "precioVenta": 280,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600047_spmcel",
+    "nombre": "Menú celíaco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 700,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600048_spmces",
+    "nombre": "Menú celíacos (Sorrentinos)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 700,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600049_spmni1",
+    "nombre": "Menú niños 1",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Niños y Adolescentes",
+    "precioVenta": 320,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600050_spmni2",
+    "nombre": "Menú niños 2",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Niños y Adolescentes",
+    "precioVenta": 349,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600051_spmveg",
+    "nombre": "Menú vegetariano - Spaghetti con Salsa Pesto",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600052_mnnham",
+    "nombre": "Menú niños - Hamburguesa completa c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Niños y Adolescentes",
+    "precioVenta": 250,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600053_mnnpan",
+    "nombre": "Menú niños - Panchos c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Niños y Adolescentes",
+    "precioVenta": 165,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600054_mnnpanm",
+    "nombre": "Menú niños - Panchos medio metro c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Niños y Adolescentes",
+    "precioVenta": 300,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600055_mnnchi",
+    "nombre": "Menú niños - Chivitos c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Niños y Adolescentes",
+    "precioVenta": 300,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600056_shwpiz",
+    "nombre": "Show de pizzas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 329,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600057_shwpizf",
+    "nombre": "Show de pizzas y faena",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 389,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600058_shwpiza",
+    "nombre": "Show de pizzas + arrolladitos primavera",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 399,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600059_shwpizb",
+    "nombre": "Show de pizzas + buñuelos de algas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 389,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600060_shwpizc",
+    "nombre": "Show de pizzas + calzones italianos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 489,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600061_shwpizm",
+    "nombre": "Show de pizzas + minichivitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 429,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600062_shwpizpf",
+    "nombre": "Show de pizzas + picada de fiambre",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 419,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600063_shwpizps",
+    "nombre": "Show de pizzas + picada Snack",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 419,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600064_shwpizpc",
+    "nombre": "Show de pizzas + planchas calientes",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 419,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600065_shwpizss",
+    "nombre": "Show de pizzas + sandwiches y saladitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 469,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600066_shwpizt",
+    "nombre": "Show de pizzas + Tacos mexicanos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
+    "precioVenta": 489,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600067_decman",
+    "nombre": "Mesas con manteles",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mantelería",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600068_decsil",
+    "nombre": "Sillas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mobiliario",
+    "precioVenta": 25,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600069_decvaj",
+    "nombre": "Vajilla completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Vajilla",
+    "precioVenta": 70,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600070_decmanc",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mantelería",
+    "precioVenta": 70,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600071_decmob",
+    "nombre": "Mobiliario",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mobiliario",
+    "precioVenta": 69,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600072_repchee",
+    "nombre": "Mesa de postres - Cheesecake",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1200,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600073_repchmc",
+    "nombre": "Mesa de postres - Cheesecake de menta y chocolate",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1600,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600074_repflco",
+    "nombre": "Mesa de postres - Flan de coco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600075_repimru",
+    "nombre": "Mesa de postres - Imperial Ruso",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1200,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600076_replepi",
+    "nombre": "Mesa de postres - Lemon Pie",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600077_repmoch",
+    "nombre": "Mesa de postres - Mousse de chocolate",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600078_repmode",
+    "nombre": "Mesa de postres - Mousse de dulce de leche",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600079_reproge",
+    "nombre": "Mesa de postres - Rogel",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 950,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600080_reptaco",
+    "nombre": "Mesa de postres - Tarta de coco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600081_reptama",
+    "nombre": "Mesa de postres - Tarta de manzana",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600082_reptafr",
+    "nombre": "Mesa de postres - Tarta frutal",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600083_repsene",
+    "nombre": "Selva Negra",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Torta Principal",
+    "precioVenta": 1400,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600084_repfuen",
+    "nombre": "Fuente de chocolate con mesa de frutas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería y regalos",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 119,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600085_bebli",
+    "nombre": "Barra de licuados",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "precioVenta": 199,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600086_bebtra",
+    "nombre": "Barra de tragos, canilla libre",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "precioVenta": 299,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "insu_1752489600087_insbj",
+    "nombre": "Bebidas y jugos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 70,
+    "unidad": "Litro"
+  },
+  {
+    "id": "insu_1752489600088_insca",
+    "nombre": "Caña",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "insu_1752489600089_inscc",
+    "nombre": "Cerveza corona",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "insu_1752489600090_insct",
+    "nombre": "Coctel (50 litros)",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 6000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "insu_1752489600091_inscop",
+    "nombre": "Copón",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Vajilla",
+    "valorUnitarioEstimado": 750,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "insu_1752489600092_insgr",
+    "nombre": "Granadina",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 250,
+    "unidad": "Litro"
+  },
+  {
+    "id": "insu_1752489600093_insgi",
+    "nombre": "Gin",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "insu_1752489600094_inspi",
+    "nombre": "Piña colada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 350,
+    "unidad": "Litro"
+  },
+  {
+    "id": "insu_1752489600095_insro",
+    "nombre": "Ron",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "insu_1752489600096_insvo",
+    "nombre": "Vodka",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "insu_1752489600097_insjn",
+    "nombre": "Jugos naturales",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Bebida",
+    "valorUnitarioEstimado": 70,
+    "unidad": "Litro"
+  },
+  {
+    "id": "serv_1752489600098_decbas",
+    "nombre": "DECORACION BASICA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 14500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600099_decsil",
+    "nombre": "Zona de fotos con sillón DIVA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 5000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600100_deccen",
+    "nombre": "Centro de mesa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 250,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600101_deccua",
+    "nombre": "CUADRO DE FIRMAS",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 2900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600102_decban",
+    "nombre": "BANNER GIGANTOGRAFIA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 2900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600103_disbas",
+    "nombre": "Discoteca Básica",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 5500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600104_disbasp",
+    "nombre": "Discoteca Básica Plus",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 6500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600105_disest",
+    "nombre": "Discoteca Estándar",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 8000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600106_disint",
+    "nombre": "Discoteca Intermedia",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 14500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600107_dispre",
+    "nombre": "Discoteca Premium",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 23900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600108_disson",
+    "nombre": "Sonido",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 8000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600109_entpla",
+    "nombre": "Plataforma 360",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "precioVenta": 3900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600110_entfot",
+    "nombre": "FOTOCABINA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "precioVenta": 2900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600111_entsho",
+    "nombre": "SHOW EN VIVO",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "precioVenta": 9000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600112_filfie",
+    "nombre": "Filmación de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "precioVenta": 7500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600113_filpin",
+    "nombre": "Filmación de pintada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "precioVenta": 3000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600114_fotigl",
+    "nombre": "FOTOGRAFIA IGLESIA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 3890,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600115_fotciv",
+    "nombre": "FOTOGRAFIA CIVIL",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 3900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600116_fotfie",
+    "nombre": "Fotografía de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 8500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600117_fotext",
+    "nombre": "Fotografía de exteriores",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 3500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600118_regalb",
+    "nombre": "Álbum digital",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "precioVenta": 2500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600119_regvid",
+    "nombre": "Video de vida",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "precioVenta": 2500,
+    "unidad": "Unidad"
+  }
+]
