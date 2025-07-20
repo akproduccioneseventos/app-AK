@@ -31,13 +31,16 @@ function NuevoItemInventarioContent() {
   const [notas, setNotas] = useState('');
   const [precioVenta, setPrecioVenta] = useState<string>('');
   const [subcategoria, setSubcategoria] = useState('');
+  
+  const tipoQueryParam = searchParams.get('tipo') as TipoItemEmpresa | null;
+  const isTipoFijo = tipoQueryParam && ALL_TIPOS_ITEM_EMPRESA.includes(tipoQueryParam);
+
 
   useEffect(() => {
-    const tipoQueryParam = searchParams.get('tipo');
-    if (tipoQueryParam && ALL_TIPOS_ITEM_EMPRESA.includes(tipoQueryParam as TipoItemEmpresa)) {
-      setTipoItem(tipoQueryParam as TipoItemEmpresa);
+    if (isTipoFijo) {
+      setTipoItem(tipoQueryParam);
     }
-  }, [searchParams]);
+  }, [tipoQueryParam, isTipoFijo]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -104,13 +107,20 @@ function NuevoItemInventarioContent() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
-                <Select value={tipoItem} onValueChange={(value) => setTipoItem(value as TipoItemEmpresa | '')} required disabled={isSaving}>
-                  <SelectTrigger id="item-tipo" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo..." /></SelectTrigger>
-                  <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (<SelectItem key={t} value={t} className="text-base">{t}</SelectItem>))}</SelectContent>
-                </Select>
-              </div>
+              {!isTipoFijo ? (
+                <div className="space-y-2">
+                  <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
+                  <Select value={tipoItem} onValueChange={(value) => setTipoItem(value as TipoItemEmpresa | '')} required disabled={isSaving}>
+                    <SelectTrigger id="item-tipo" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo..." /></SelectTrigger>
+                    <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (<SelectItem key={t} value={t} className="text-base">{t}</SelectItem>))}</SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="item-tipo-fijo" className="text-base">Tipo de Ítem</Label>
+                  <Input id="item-tipo-fijo" value={tipoItem} readOnly disabled className="bg-muted/70"/>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="item-nombre" className="text-base">Nombre del Ítem *</Label>
                 <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Silla Tiffany, Servicio DJ" className="text-base p-3" required disabled={isSaving}/>
@@ -184,4 +194,3 @@ export default function NuevoItemInventarioPage() {
         </Suspense>
     )
 }
-
