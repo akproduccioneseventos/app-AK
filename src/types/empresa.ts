@@ -42,7 +42,7 @@ export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de
   nombre: string;
   tipoItem?: TipoItemEmpresa; 
   categoria: CategoriaServicio;
-  subcategoria?: 'Entrada' | 'Mobiliario' | 'Vajilla' | 'Mantelería' | 'Plato Principal' | 'Portero' | 'Seguridad' | string; 
+  subcategoria?: 'Entrada' | 'Plato Principal' | 'Postre' | 'Menú Niños' | 'Menú Adolescente' | 'Mobiliario' | 'Vajilla' | 'Mantelería' | 'Portero' | 'Seguridad' | string; 
   
   // Campos de inventario/costo (más relevantes para insumos y activos)
   cantidadDisponible?: number; 
@@ -54,4 +54,7 @@ export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de
   
   // Campo de precio de venta (para usar en presupuestos)
   precioVenta?: number; 
+  
+  // Campo para contacto principal/proveedor asociado (para insumos/activos)
+  contactoPrincipal?: string;
 }
