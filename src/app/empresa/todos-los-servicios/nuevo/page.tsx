@@ -82,19 +82,24 @@ function NuevoItemInventarioContent() {
     }
   };
 
+  const getPageTitle = () => {
+    if (isTipoFijo && tipoQueryParam === 'Servicio') return 'Añadir Nuevo Servicio';
+    return 'Añadir Ítem al Inventario General';
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Ítem al Inventario General
+            {getPageTitle()}
           </h1>
         </div>
         <Link href="/empresa/todos-los-servicios" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Inventario
+            Volver
           </Button>
         </Link>
       </div>
@@ -107,18 +112,18 @@ function NuevoItemInventarioContent() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {!isTipoFijo ? (
+              {isTipoFijo ? (
+                <div className="space-y-2">
+                  <Label htmlFor="item-tipo-fijo" className="text-base">Tipo de Ítem</Label>
+                  <Input id="item-tipo-fijo" value={tipoItem} readOnly disabled className="bg-muted/70 font-semibold"/>
+                </div>
+              ) : (
                 <div className="space-y-2">
                   <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
                   <Select value={tipoItem} onValueChange={(value) => setTipoItem(value as TipoItemEmpresa | '')} required disabled={isSaving}>
                     <SelectTrigger id="item-tipo" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo..." /></SelectTrigger>
                     <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (<SelectItem key={t} value={t} className="text-base">{t}</SelectItem>))}</SelectContent>
                   </Select>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label htmlFor="item-tipo-fijo" className="text-base">Tipo de Ítem</Label>
-                  <Input id="item-tipo-fijo" value={tipoItem} readOnly disabled className="bg-muted/70"/>
                 </div>
               )}
               <div className="space-y-2">

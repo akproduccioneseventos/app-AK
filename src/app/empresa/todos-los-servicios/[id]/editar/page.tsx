@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, PackagePlus, AlertTriangle, StickyNote } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, PackagePlus, AlertTriangle, StickyNote, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa, getServicioEmpresaById } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa } from '@/types/empresa';
@@ -72,6 +72,11 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
       toast({ title: "Campos Requeridos", description: "Nombre, Tipo, Categoría y Unidad son obligatorios.", variant: "destructive" });
       return;
     }
+    
+    if (formData.tipoItem === 'Servicio' && (formData.precioVenta === undefined || formData.precioVenta <= 0)) {
+        toast({ title: "Precio Requerido", description: "Los servicios deben tener un precio de venta mayor a cero.", variant: "destructive" });
+        return;
+    }
 
     setIsSaving(true);
     const itemDataToSave: ServicioEmpresa = {
@@ -81,24 +86,19 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         tipoItem: formData.tipoItem,
         categoria: formData.categoria,
         unidad: formData.unidad,
+        subcategoria: formData.subcategoria?.trim() || undefined,
         cantidadDisponible: formData.cantidadDisponible !== undefined ? Number(formData.cantidadDisponible) : undefined,
         valorUnitarioEstimado: formData.valorUnitarioEstimado !== undefined ? Number(formData.valorUnitarioEstimado) : undefined,
+        precioVenta: formData.precioVenta !== undefined ? Number(formData.precioVenta) : undefined,
         notas: formData.notas?.trim() || undefined,
     };
-    // Clean out service-related fields that no longer exist
-    delete (itemDataToSave as any).precioVenta;
-    delete (itemDataToSave as any).contactoPrincipal;
-    delete (itemDataToSave as any).telefonoContacto;
-    delete (itemDataToSave as any).emailContacto;
-    delete (itemDataToSave as any).descripcionServicio;
-    delete (itemDataToSave as any).productosOfrecidos;
-
-
+    
     try {
       const result = await saveServicioEmpresa(itemDataToSave);
       if (result.success && result.servicio) {
         toast({ title: "¡Ítem Actualizado!", description: `El ítem "${result.servicio.nombre}" ha sido actualizado.` });
-        router.push('/empresa/todos-los-servicios');
+        const redirectUrl = result.servicio.tipoItem === 'Servicio' ? '/empresa/servicios' : '/empresa/todos-los-servicios';
+        router.push(redirectUrl);
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el ítem.");
       }
@@ -111,7 +111,6 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
-
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -134,17 +133,14 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="space-y-2">
+                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
+                 <Input id="item-tipo-fijo" value={formData.tipoItem || ''} readOnly disabled className="bg-muted/70 font-semibold"/>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="item-nombre" className="text-base">Nombre del Ítem *</Label>
               <Input id="item-nombre" value={formData.nombre || ''} onChange={(e) => handleFormChange('nombre', e.target.value)} required disabled={isSaving}/>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
-                <Select value={formData.tipoItem || ''} onValueChange={(value) => handleFormChange('tipoItem', value as TipoItemEmpresa)} required disabled={isSaving}>
-                  <SelectTrigger id="item-tipo"><SelectValue /></SelectTrigger>
-                  <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (<SelectItem key={t} value={t}>{t}</SelectItem>))}</SelectContent>
-                </Select>
-              </div>
               <div className="space-y-2">
                 <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
                 <Select value={formData.categoria || ''} onValueChange={(value) => handleFormChange('categoria', value as CategoriaServicio)} required disabled={isSaving}>
@@ -152,17 +148,32 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
                   <SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
+                <Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} disabled={isSaving}/>
+              </div>
             </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label>
-                    <Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/>
+             
+             {formData.tipoItem === 'Servicio' ? (
+                 <div className="space-y-2 p-3 border rounded-md border-primary/30 bg-primary/5">
+                    <Label htmlFor="item-precio-venta" className="text-base flex items-center gap-2 text-primary">
+                        <DollarSign className="w-5 h-5"/>Precio de Venta (UYU) *
+                    </Label>
+                    <Input id="item-precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} required disabled={isSaving}/>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label>
-                    <Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label>
+                        <Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label>
+                        <Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/>
+                    </div>
                 </div>
-            </div>
+            )}
+            
             <div className="space-y-2">
                 <Label htmlFor="item-unidad" className="text-base">Unidad *</Label>
                 <Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required>
