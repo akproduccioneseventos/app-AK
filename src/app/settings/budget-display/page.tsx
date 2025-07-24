@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
@@ -91,12 +90,12 @@ export default function BudgetDisplaySettingsPage() {
 
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <SettingsIcon className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Configuración de Visualización de Presupuestos
+            Configuración de Presupuestos
           </h1>
         </div>
         <Link href="/presupuestos" passHref>
@@ -107,9 +106,29 @@ export default function BudgetDisplaySettingsPage() {
         </Link>
       </div>
 
+       <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Configuración de Paquetes (Armado Rápido)</CardTitle>
+          <CardDescription>
+            Define los servicios incluidos en cada paquete para el "Armado Rápido". La lógica (ej. 1 mozo cada 25 personas) y los servicios se gestionan directamente en los archivos de código por ahora.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <p className="text-sm text-muted-foreground">
+                Para modificar los servicios de cada paquete, edita el archivo:
+                 <code className="block my-2 p-2 rounded-md bg-muted font-mono text-xs">src/data/armado-rapido-config.json</code>
+            </p>
+             <p className="text-sm text-muted-foreground">
+                Para modificar las reglas de cálculo (ej. cantidad de mozos), edita el archivo:
+                 <code className="block my-2 p-2 rounded-md bg-muted font-mono text-xs">src/app/actions/armado-rapido.ts</code>
+            </p>
+        </CardContent>
+      </Card>
+
+
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Opciones de Contenido</CardTitle>
+          <CardTitle className="font-headline text-xl">Opciones de Contenido del PDF</CardTitle>
           <CardDescription>
             Selecciona qué elementos quieres que aparezcan al imprimir o compartir tus presupuestos.
           </CardDescription>
