@@ -33,40 +33,8 @@ async function readPresupuestosFile(): Promise<Presupuesto[]> {
   try {
     const fileContent = await fs.readFile(presupuestosFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
-    // Migration for old structure if needed (platosSeleccionados -> itemsPresupuestados)
-    return (JSON.parse(fileContent) as Presupuesto[]).map(p => {
-      if ((p as any).platosSeleccionados || (p as any).serviciosAdicionales) {
-        const newItems: ItemPresupuestado[] = [];
-        ((p as any).platosSeleccionados || []).forEach((plato: any) => {
-          newItems.push({
-            idServicioCatalogo: plato.idPlato || `plato_${plato.nombrePlato.replace(/\s+/g, '_')}`,
-            nombreServicio: plato.nombrePlato,
-            cantidad: plato.cantidad,
-            precioUnitario: plato.costoUnitario,
-            costoTotalItem: plato.costoTotalPlato,
-            categoriaServicio: 'Menú', // Or derive from plato.descripcion
-            unidad: 'porción', // Default or derive
-          });
-        });
-        ((p as any).serviciosAdicionales || []).forEach((sa: any) => {
-          newItems.push({
-            idServicioCatalogo: sa.idServicio || `sa_${sa.nombreServicio.replace(/\s+/g, '_')}`,
-            nombreServicio: sa.nombreServicio,
-            cantidad: 1, // Assume 1 for old services
-            precioUnitario: sa.costoServicio,
-            costoTotalItem: sa.costoServicio,
-            categoriaServicio: 'Servicio Adicional', // Or derive
-            unidad: 'evento', // Default
-          });
-        });
-        const { platosSeleccionados, serviciosAdicionales, costoSubtotalPlatos, costoSubtotalServicios, ...rest } = p as any;
-        return { ...rest, itemsPresupuestados: newItems };
-      }
-      return {
-        ...p,
-        itemsPresupuestados: p.itemsPresupuestados || [], // Ensure it exists
-      };
-    });
+    // The data is now in the correct format, no migration needed.
+    return JSON.parse(fileContent) as Presupuesto[];
   } catch (error) {
     console.error('Error reading presupuestos file, returning empty array:', error);
     return [];
@@ -80,8 +48,7 @@ async function writePresupuestosFile(data: Presupuesto[]): Promise<void> {
 }
 
 async function initializeLocalPresupuestosFile() {
-  const presupuestos = await readPresupuestosFile(); // This will apply migration if needed
-  await writePresupuestosFile(presupuestos); // Re-save if migration occurred
+  await readPresupuestosFile();
 }
 initializeLocalPresupuestosFile();
 
