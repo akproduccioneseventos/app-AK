@@ -78,34 +78,56 @@ const createQuoteTool = ai.defineTool(
     outputSchema: z.object({
       success: z.boolean(),
       presupuestoId: z.string().optional(),
+      message: z.string(),
       error: z.string().optional(),
     }),
   },
   async (input) => {
     try {
         const result = await savePresupuesto({
-            ...input,
+            clienteNombre: input.clienteNombre,
+            eventoTipo: input.eventoTipo,
+            invitadosCantidad: input.invitadosCantidad,
+            eventoFecha: input.eventoFecha,
             itemsPresupuestados: [], // Start with an empty list of items, to be added later
             costoTotalEstimado: 0, 
             salonFiestas: 'A definir', // Default value
             timestamp: new Date().toISOString(),
         });
         if (result.success && result.id) {
-            return { success: true, presupuestoId: result.id };
+            return { 
+                success: true, 
+                presupuestoId: result.id,
+                message: `¡Perfecto! He creado el presupuesto #${result.id.substring(0,6)} para ${input.clienteNombre}. Un asesor se pondrá en contacto para detallar los servicios y costos.`
+            };
         }
-        return { success: false, error: result.error || 'Unknown error saving budget.' };
+        return { success: false, message: "Hubo un problema al guardar el presupuesto.", error: result.error || 'Unknown error saving budget.' };
     } catch (e: any) {
-        return { success: false, error: e.message };
+        return { success: false, message: "Hubo una excepción al intentar guardar el presupuesto.", error: e.message };
     }
   }
 );
 
 
 export async function assistant(input: AssistantInput) {
+  // This prompt guides the model to be a helpful event planning assistant and use the available tools.
+  const systemPrompt = `Eres "Asistente AK", un asistente experto en planificación de eventos para AK Producciones.
+  Tu objetivo es ayudar al organizador a gestionar su aplicación.
+  Sé conciso, amigable y proactivo.
+  Cuando un usuario te pida realizar una acción (como analizar el evento, asignar invitados o crear un presupuesto), utiliza las herramientas disponibles.
+  Si una herramienta requiere información que no tienes, haz preguntas claras y directas para obtener los datos necesarios antes de llamar a la herramienta. NO inventes información.
+  Al presentar los resultados de una herramienta, no solo muestres los datos JSON. En su lugar, explícalos de forma clara, amigable y útil para un organizador de eventos, usando formato markdown para que sea legible.
+  Si una herramienta devuelve un error, explica el problema al usuario de forma sencilla y amigable.
+  Para fechas, asume que el año actual es 2025 si no se especifica.`;
+
   const llmResponse = await ai.generate({
-    prompt: input.query,
+    prompt: [
+        {text: systemPrompt},
+        {text: `La consulta del usuario es: "${input.query}"`},
+    ],
     model: 'googleai/gemini-1.5-flash',
-    tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool], // Added createQuoteTool
+    tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool],
+    toolChoice: 'auto',
     output: {
         schema: AssistantOutputSchema,
     }
@@ -113,14 +135,18 @@ export async function assistant(input: AssistantInput) {
 
   const toolCalls = llmResponse.toolCalls();
   if (toolCalls.length > 0) {
-    // For now, handle one tool call at a time for simplicity in the chat UI
     const call = toolCalls[0];
     const toolResult = await call.run();
     
     // Send the tool's structured output back to the model to generate a natural language response
     const finalResponse = await ai.generate({
-        prompt: `The user asked: "${input.query}". The tool "${call.name}" was called and returned this JSON data: ${JSON.stringify(toolResult)}. Please present this information to the user in a clear, friendly, and readable format. Use markdown for formatting. If the tool returned an error, explain the error clearly to the user.`,
+        prompt: [
+            {text: systemPrompt},
+            {text: `El usuario preguntó: "${input.query}"`},
+            {toolResult: {name: call.name, output: toolResult}}
+        ],
         model: 'googleai/gemini-1.5-flash',
+        tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool],
         output: {
             schema: AssistantOutputSchema,
         }
