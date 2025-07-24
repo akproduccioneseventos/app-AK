@@ -44,11 +44,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Servicios',
   },
   {
-    title: 'Inventario General y Activos',
-    description: 'Gestiona tu inventario de insumos y activos de la empresa.',
+    title: 'Gestión de Activos Fijos',
+    description: 'Gestiona tu inventario de activos de la empresa (mobiliario, equipo, etc.).',
     href: '/empresa/todos-los-servicios',
     icon: Package,
-    actionLabel: 'Gestionar Inventario',
+    actionLabel: 'Gestionar Activos',
   },
    {
     title: 'Redes Sociales y Publicaciones',

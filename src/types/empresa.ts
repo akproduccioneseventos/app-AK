@@ -12,8 +12,8 @@ export type CategoriaServicio =
   | 'Regalo exclusivo'
   | 'Personal'
   | 'Otros servicios'
-  | 'Insumo/Ingrediente' // From previous inventory module
-  | 'Activo Fijo'; // From previous inventory module
+  | 'Insumo/Ingrediente' // Para uso interno del planificador gastronómico
+  | 'Activo Fijo';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Servicio de catering',
@@ -34,11 +34,12 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
 export type UnidadServicio = 'Unidad' | 'Set' | 'Metro' | 'Kg' | 'Litro' | 'Caja' | 'Rollo' | 'Docena' | 'Por persona' | 'Por evento' | 'Gramos' | 'Cc' | 'Pack';
 export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'];
 
+// Se mantiene para dar contexto, pero la UI se enfocará en Activos Fijos para esta sección.
 export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Activo Fijo' | 'Servicio';
 export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Activo Fijo', 'Servicio'];
 
 
-export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de Inventario o un Servicio
+export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de Inventario (Activo/Insumo) o un Servicio
   id: string;
   nombre: string;
   tipoItem?: TipoItemEmpresa; 
@@ -53,7 +54,7 @@ export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de
   // Nuevo campo de observaciones
   notas?: string;
   
-  // Campo de precio de venta (para usar en presupuestos)
+  // Campo de precio de venta (para usar en presupuestos, principalmente para servicios)
   precioVenta?: number; 
   
   // Campo para contacto principal/proveedor asociado (para insumos/activos)

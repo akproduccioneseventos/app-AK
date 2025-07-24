@@ -43,11 +43,11 @@ export default function InventarioGeneralPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem !== 'Servicio');
+      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo'); // Filtra solo Activos Fijos
       setAllItems(inventoryItems);
       setFilteredItems(inventoryItems);
     } catch (err: any) {
-      setError("No se pudo cargar el inventario.");
+      setError("No se pudo cargar el inventario de activos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -90,8 +90,8 @@ export default function InventarioGeneralPage() {
   
   const handleShare = async () => {
     const shareData = {
-      title: 'Inventario General - AK Producciones',
-      text: `Resumen de Inventario y Valor de Activos.`,
+      title: 'Gestión de Activos - AK Producciones',
+      text: `Resumen de activos fijos.`,
       url: window.location.href,
     };
     try {
@@ -123,7 +123,6 @@ export default function InventarioGeneralPage() {
   const capitalPorCategoria = useMemo(() => {
     return categoriasOrdenadas.map(categoria => {
       const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
-        if(item.tipoItem === 'Servicio') return sum; // This check is redundant now but safe
         const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
         return sum + valorItem;
       }, 0);
@@ -139,7 +138,7 @@ export default function InventarioGeneralPage() {
         <div className="flex items-center gap-3">
           <Package className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Inventario General y Activos
+            Gestión de Activos Fijos
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
@@ -148,7 +147,7 @@ export default function InventarioGeneralPage() {
             <Link href="/empresa/todos-los-servicios/nuevo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
-                    Añadir Ítem
+                    Añadir Activo
                 </Button>
             </Link>
              <Link href="/empresa" passHref>
@@ -163,7 +162,7 @@ export default function InventarioGeneralPage() {
       <Card className="shadow-lg print:shadow-none print:border-none">
         <CardHeader className="border-b print:border-b-2 print:border-gray-200">
           <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos de la Empresa</CardTitle>
-          <CardDescription>Resumen del capital total de insumos y activos físicos, por servicio/categoría.</CardDescription>
+          <CardDescription>Resumen del capital total de activos físicos, por categoría.</CardDescription>
         </CardHeader>
         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-3 print:p-2">
           {capitalPorCategoria.map(cat => (
@@ -176,7 +175,7 @@ export default function InventarioGeneralPage() {
         <CardFooter className="border-t p-4 bg-muted/30 print:border-t-2 print:border-gray-200">
           <div className="flex justify-end items-center w-full gap-2">
             <BarChart3 className="w-5 h-5 text-primary"/>
-            <span className="text-lg font-semibold print:text-base">Capital Total General:</span>
+            <span className="text-lg font-semibold print:text-base">Capital Total en Activos:</span>
             <span className="text-2xl font-bold text-primary print:text-xl">{formatCurrency(capitalTotalGeneral)}</span>
           </div>
         </CardFooter>
@@ -198,7 +197,7 @@ export default function InventarioGeneralPage() {
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron ítems que coincidan." : "El inventario está vacío."}</CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron activos que coincidan." : "El inventario de activos está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (
@@ -210,7 +209,6 @@ export default function InventarioGeneralPage() {
                 <div className="space-y-3 mt-2">
                   {itemsAgrupadosPorCategoria[categoria]?.map((item) => {
                     const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
-                    const isService = item.tipoItem === 'Servicio'; // This will be false now
                     return (
                       <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow print:shadow-none print:border-gray-200">
                         <CardHeader className="pb-2 pt-3 px-3">
@@ -226,16 +224,12 @@ export default function InventarioGeneralPage() {
                           </div>
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1 print:text-xs">
-                           {isService ? (
-                              <div className="font-semibold text-primary">{formatCurrency(item.precioVenta)}</div>
-                            ) : (
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
-                                <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
-                                <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
-                                <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
-                                <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
-                              </div>
-                            )}
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
+                            <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
+                            <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
+                            <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
+                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
+                          </div>
                           {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5 print:mt-1 print:pt-0.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>
                       </Card>
