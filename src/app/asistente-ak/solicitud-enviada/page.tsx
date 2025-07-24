@@ -1,6 +1,8 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -21,13 +23,6 @@ function PageContent() {
                     <p className="text-lg text-muted-foreground">
                         Gracias por tu interés. Hemos generado un presupuesto inicial para tu evento. Un asesor de nuestro equipo se pondrá en contacto contigo a la brevedad para refinar los detalles y seleccionar el menú.
                     </p>
-                    {presupuestoId && (
-                         <div className="mt-6">
-                            <Link href={`/presupuestos/${presupuestoId}/ver`}>
-                                <Button>Ver mi Presupuesto</Button>
-                            </Link>
-                        </div>
-                    )}
                 </CardContent>
                  <CardFooter className="justify-center mt-4">
                     <p className="text-sm text-muted-foreground">

@@ -3,43 +3,31 @@
   "pasos": {
     "tipoFiesta": {
       "pregunta": "¿Qué tipo de evento estás planeando?",
-      "descripcion": "Selecciona una opción para empezar.",
+      "descripcion": "Selecciona una opción para que pueda darte un presupuesto inicial.",
       "opciones": [
         {
           "id": "boda",
-          "nombre": "Boda",
-          "costoBase": 80000,
-          "costoPorPersona": 500
+          "nombre": "Boda"
         },
         {
           "id": "quince",
-          "nombre": "Quince Años",
-          "costoBase": 60000,
-          "costoPorPersona": 400
+          "nombre": "Quince Años"
         },
         {
           "id": "cumpleanos",
-          "nombre": "Fiestas de Cumpleaños",
-          "costoBase": 45000,
-          "costoPorPersona": 350
+          "nombre": "Fiestas de Cumpleaños"
         },
         {
           "id": "infantil",
-          "nombre": "Cumpleaños Infantil",
-          "costoBase": 30000,
-          "costoPorPersona": 300
+          "nombre": "Cumpleaños Infantil"
         },
         {
           "id": "corporativo",
-          "nombre": "Evento Corporativo",
-          "costoBase": 90000,
-          "costoPorPersona": 600
+          "nombre": "Evento Corporativo"
         },
         {
           "id": "otro",
-          "nombre": "Otro Tipo de Evento",
-          "costoBase": 40000,
-          "costoPorPersona": 300
+          "nombre": "Otro Tipo de Evento"
         }
       ]
     }
