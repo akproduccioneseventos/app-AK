@@ -7,7 +7,7 @@ export type CategoriaServicio =
   | 'Servicio de entretenimiento'
   | 'Servicio de bebidas'
   | 'Servicio de discoteca'
-  | 'Servicio de repostería y regalos'
+  | 'Servicio de repostería'
   | 'Regalo exclusivo'
   | 'Personal'
   | 'Otros servicios'
@@ -22,7 +22,7 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Servicio de entretenimiento',
   'Servicio de bebidas',
   'Servicio de discoteca',
-  'Servicio de repostería y regalos',
+  'Servicio de repostería',
   'Regalo exclusivo',
   'Personal',
   'Otros servicios',
