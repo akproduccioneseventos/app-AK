@@ -47,7 +47,7 @@
   },
   {
     "id": "serv_1752489600006_ppchi",
-    "nombre": "Chivito completo c/ fritas",
+    "nombre": "Chivito completo  c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Plato Principal",
@@ -1048,3 +1048,5 @@
     "unidad": "Unidad"
   }
 ]
+
+  
