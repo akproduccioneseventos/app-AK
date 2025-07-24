@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -18,9 +19,10 @@ interface DatePickerDemoProps {
   selectedDate?: Date;
   onDateChange: (date?: Date) => void;
   className?: string;
+  disabled?: Date[] | boolean;
 }
 
-export function DatePickerDemo({ selectedDate, onDateChange, className }: DatePickerDemoProps) {
+export function DatePickerDemo({ selectedDate, onDateChange, className, disabled }: DatePickerDemoProps) {
   const [date, setDate] = React.useState<Date | undefined>(selectedDate);
 
   React.useEffect(() => {
@@ -42,6 +44,7 @@ export function DatePickerDemo({ selectedDate, onDateChange, className }: DatePi
             !date && "text-muted-foreground",
             className
           )}
+          disabled={disabled === true}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? format(date, "PPP", { locale: es }) : <span>Selecciona una fecha</span>}
@@ -54,6 +57,7 @@ export function DatePickerDemo({ selectedDate, onDateChange, className }: DatePi
           onSelect={handleSelect}
           initialFocus
           locale={es}
+          disabled={disabled}
         />
       </PopoverContent>
     </Popover>

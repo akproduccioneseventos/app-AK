@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent, useEffect, useCallback, useMemo } from 'react';
+import { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +9,10 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, ArrowRight, Loader2, CheckCircle, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Checkbox } from '@/components/ui/checkbox';
 
 import { crearPresupuestoDesdeArmadoRapido } from '../actions/armado-rapido';
+import { getOcupiedDates } from '../actions/agenda';
 import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -31,17 +33,32 @@ export default function ArmadoRapidoPage() {
   const [paso, setPaso] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Paso 1 State
+  // Step 1 State
   const [clienteNombre, setClienteNombre] = useState('');
   const [eventoTipo, setEventoTipo] = useState<TipoEvento | string>('');
   const [invitadosCantidad, setInvitadosCantidad] = useState<number>(50);
   const [eventoFecha, setEventoFecha] = useState<Date | undefined>(new Date());
   const [salonFiestas, setSalonFiestas] = useState('');
+  const [fechaIndefinida, setFechaIndefinida] = useState(false);
+  const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
+
+  useEffect(() => {
+    async function fetchDates() {
+        const dateStrings = await getOcupiedDates();
+        const dates = dateStrings.map(d => new Date(d));
+        setOccupiedDates(dates);
+    }
+    fetchDates();
+  }, []);
 
   const handleNextStep = (e: FormEvent) => {
     e.preventDefault();
-     if (!clienteNombre || !eventoTipo || !invitadosCantidad || !eventoFecha || !salonFiestas) {
-        toast({title: "Datos requeridos", description: "Por favor, completa todos los campos.", variant: "destructive"});
+     if (!clienteNombre || !eventoTipo || !invitadosCantidad || !salonFiestas) {
+        toast({title: "Datos requeridos", description: "Por favor, completa todos los campos obligatorios.", variant: "destructive"});
+        return;
+    }
+    if (!fechaIndefinida && !eventoFecha) {
+        toast({title: "Fecha Requerida", description: "Por favor, selecciona una fecha o marca que no la has decidido.", variant: "destructive"});
         return;
     }
     setPaso(2);
@@ -53,7 +70,7 @@ export default function ArmadoRapidoPage() {
         clienteNombre,
         eventoTipo,
         invitadosCantidad,
-        eventoFecha: eventoFecha!.toISOString(),
+        eventoFecha: fechaIndefinida ? undefined : eventoFecha?.toISOString(),
         salonFiestas,
         paqueteId: paqueteId,
     });
@@ -84,7 +101,11 @@ export default function ArmadoRapidoPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2"><Label htmlFor="invitados">Nº de Invitados *</Label><Input id="invitados" type="number" value={invitadosCantidad} onChange={(e) => setInvitadosCantidad(Number(e.target.value))} min="1" required/></div>
-                        <div className="space-y-2"><Label htmlFor="eventoFecha">Fecha del Evento *</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
+                        <div className="space-y-2"><Label htmlFor="eventoFecha">Fecha del Evento *</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} disabled={fechaIndefinida || occupiedDates} /></div>
+                    </div>
+                     <div className="flex items-center space-x-2">
+                        <Checkbox id="fecha-indefinida" checked={fechaIndefinida} onCheckedChange={(checked) => setFechaIndefinida(checked as boolean)} />
+                        <label htmlFor="fecha-indefinida" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Aún no he decidido la fecha</label>
                     </div>
                     <div className="space-y-2"><Label htmlFor="salon">Salón de Fiestas / Lugar *</Label><Input id="salon" value={salonFiestas} onChange={e => setSalonFiestas(e.target.value)} placeholder="Ej: Salón El Paraíso" required/></div>
                 </CardContent>

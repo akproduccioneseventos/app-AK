@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview The main AI assistant flow.
@@ -12,6 +13,7 @@ import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput } from
 import { z } from 'genkit';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { savePresupuesto } from '@/app/actions/presupuestos';
+import { getOcupiedDates } from '@/app/actions/agenda';
 
 // Tool: Analyze the current event plan
 const analyzeEventPlanTool = ai.defineTool(
@@ -68,34 +70,53 @@ const assignGuestsTool = ai.defineTool(
 const createQuoteTool = ai.defineTool(
   {
     name: 'createQuote',
-    description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, guest count, and event date. If any information is missing, you MUST ask the user for it.',
+    description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, and guest count. The event date is optional. If any information is missing, you MUST ask the user for it.',
     inputSchema: z.object({
       clienteNombre: z.string().describe("The name of the client or company."),
       eventoTipo: z.string().describe("The type of event (e.g., 'Boda', 'Cumpleaños de 15', 'Corporativo')."),
       invitadosCantidad: z.number().describe("The estimated number of guests."),
-      eventoFecha: z.string().describe("The estimated date of the event in YYYY-MM-DD format."),
+      eventoFecha: z.string().optional().describe("The estimated date of the event in YYYY-MM-DD format. Optional."),
     }),
     outputSchema: z.object({
       success: z.boolean(),
       presupuestoId: z.string().optional(),
+      message: z.string(),
       error: z.string().optional(),
     }),
   },
   async (input) => {
     try {
+        if (input.eventoFecha) {
+            const occupiedDates = await getOcupiedDates();
+            const requestedDate = new Date(input.eventoFecha).toISOString().split('T')[0];
+            if (occupiedDates.includes(requestedDate)) {
+                return { 
+                    success: false, 
+                    message: `La fecha ${new Date(input.eventoFecha).toLocaleDateString('es-ES')} no está disponible. Por favor, sugiere al cliente otra fecha.`,
+                    error: 'Date not available' 
+                };
+            }
+        }
         const result = await savePresupuesto({
-            ...input,
-            itemsPresupuestados: [], // Start with an empty list of items, to be added later
+            clienteNombre: input.clienteNombre,
+            eventoTipo: input.eventoTipo,
+            invitadosCantidad: input.invitadosCantidad,
+            eventoFecha: input.eventoFecha || new Date().toISOString(),
+            itemsPresupuestados: [],
             costoTotalEstimado: 0, 
-            salonFiestas: 'A definir', // Default value
+            salonFiestas: 'A definir', 
             timestamp: new Date().toISOString(),
         });
         if (result.success && result.id) {
-            return { success: true, presupuestoId: result.id };
+            return { 
+                success: true, 
+                presupuestoId: result.id,
+                message: `¡Perfecto! He creado el presupuesto #${result.id.substring(0,6)} para ${input.clienteNombre}. ${input.eventoFecha ? '' : 'La fecha queda a confirmar.'} Un asesor se pondrá en contacto.`
+            };
         }
-        return { success: false, error: result.error || 'Unknown error saving budget.' };
+        return { success: false, message: "Hubo un problema al guardar el presupuesto.", error: result.error || 'Unknown error saving budget.' };
     } catch (e: any) {
-        return { success: false, error: e.message };
+        return { success: false, message: "Hubo una excepción al intentar guardar el presupuesto.", error: e.message };
     }
   }
 );
@@ -107,9 +128,11 @@ export async function assistant(input: AssistantInput) {
   Tu objetivo es ayudar al organizador a gestionar su aplicación.
   Sé conciso, amigable y proactivo.
   Cuando un usuario te pida realizar una acción (como analizar el evento, asignar invitados o crear un presupuesto), utiliza las herramientas disponibles.
-  Si una herramienta requiere información que no tienes, haz preguntas claras para obtener los datos necesarios antes de llamar a la herramienta.
+  Si una herramienta requiere información que no tienes, haz preguntas claras y directas para obtener los datos necesarios antes de llamar a la herramienta. NO inventes información.
+  Si el usuario quiere crear un presupuesto pero no especifica una fecha, no hay problema, es opcional.
   Al presentar los resultados de una herramienta, no solo muestres los datos JSON. En su lugar, explícalos de forma clara, amigable y útil para un organizador de eventos, usando formato markdown para que sea legible.
-  Si una herramienta devuelve un error, explica el problema al usuario de forma sencilla.`;
+  Si una herramienta devuelve un error, explica el problema al usuario de forma sencilla y amigable.
+  Para fechas, asume que el año actual es 2025 si no se especifica.`;
 
   const llmResponse = await ai.generate({
     prompt: [
@@ -118,6 +141,7 @@ export async function assistant(input: AssistantInput) {
     ],
     model: 'googleai/gemini-1.5-flash',
     tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool],
+    toolChoice: 'auto',
     output: {
         schema: AssistantOutputSchema,
     }
@@ -130,8 +154,13 @@ export async function assistant(input: AssistantInput) {
     
     // Send the tool's structured output back to the model to generate a natural language response
     const finalResponse = await ai.generate({
-        prompt: `El usuario preguntó: "${input.query}". La herramienta "${call.name}" fue ejecutada y devolvió los siguientes datos JSON: ${JSON.stringify(toolResult)}. Por favor, presenta esta información al usuario de forma clara, amigable y legible. Usa markdown para formatear la respuesta. Si el resultado contiene un error, explícalo claramente.`,
+        prompt: [
+            {text: systemPrompt},
+            {text: `El usuario preguntó: "${input.query}"`},
+            {toolResult: {name: call.name, output: toolResult}}
+        ],
         model: 'googleai/gemini-1.5-flash',
+        tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool],
         output: {
             schema: AssistantOutputSchema,
         }

@@ -1,3 +1,4 @@
+
 'use server';
 
 import { savePresupuesto } from './presupuestos';
@@ -40,7 +41,7 @@ interface ArmadoRapidoData {
   clienteNombre: string;
   eventoTipo: string;
   invitadosCantidad: number;
-  eventoFecha: string; // ISO String
+  eventoFecha?: string; // ISO String - Now optional
   salonFiestas: string;
   paqueteId: string; // ID of the selected package
 }
@@ -160,12 +161,12 @@ export async function crearPresupuestoDesdeArmadoRapido(
             clienteNombre: data.clienteNombre,
             eventoTipo: data.eventoTipo,
             invitadosCantidad: data.invitadosCantidad,
-            eventoFecha: data.eventoFecha,
+            eventoFecha: data.eventoFecha || new Date().toISOString(), // Use current date if none provided
             salonFiestas: data.salonFiestas,
             itemsPresupuestados: itemsCalculados,
             costoTotalEstimado: costoTotal,
             timestamp: new Date().toISOString(),
-            notas: `Presupuesto inicial generado por Armado Rápido con el paquete "${paqueteSeleccionado.nombre}". Menú a confirmar por el cliente.`
+            notas: `Presupuesto inicial generado por Armado Rápido con el paquete "${paqueteSeleccionado.nombre}". Menú a confirmar por el cliente. ${!data.eventoFecha ? 'Fecha del evento a confirmar.' : ''}`
         };
 
         const resultPresupuesto = await savePresupuesto(presupuestoData);
