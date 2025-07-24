@@ -16,7 +16,7 @@ import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpres
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños y Adolescentes', 'Personal'];
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños y Adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
@@ -101,7 +101,7 @@ function NuevoItemInventarioContent() {
   }
   
   const isCatering = categoria === 'Servicio de catering';
-  const isReposteria = categoria === 'Servicio de repostería y regalos';
+  const isReposteria = categoria === 'Servicio de repostería';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -156,7 +156,7 @@ function NuevoItemInventarioContent() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
+                <Label htmlFor="item-subcategoria" className="text-base">Subcategoría</Label>
                 {isCatering ? (
                     <Select value={subcategoria || ''} onValueChange={(value) => setSubcategoria(value)}>
                         <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>

@@ -1,4 +1,5 @@
 
+
 export type CategoriaServicio =
   | 'Servicio de catering'
   | 'Servicio de filmación'
@@ -42,7 +43,7 @@ export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de
   nombre: string;
   tipoItem?: TipoItemEmpresa; 
   categoria: CategoriaServicio;
-  subcategoria?: 'Entrada' | 'Plato Principal' | 'Postre' | 'Menú Niños y Adolescentes' | 'Personal' | 'Mobiliario' | 'Vajilla' | 'Mantelería' | 'Portero' | 'Seguridad' | 'Mesa de Postres' | 'Torta Principal' | 'Souvenirs Comestibles' | string; 
+  subcategoria?: 'Entrada' | 'Plato Principal' | 'Menú Niños y Adolescentes' | 'Personal' | 'Mobiliario' | 'Vajilla' | 'Mantelería' | 'Portero' | 'Seguridad' | 'Mesa de Postres' | 'Torta Principal' | 'Souvenirs Comestibles' | string; 
   
   // Campos de inventario/costo (más relevantes para insumos y activos)
   cantidadDisponible?: number; 

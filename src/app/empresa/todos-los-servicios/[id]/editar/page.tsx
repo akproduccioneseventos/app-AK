@@ -16,7 +16,7 @@ import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpres
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Postre', 'Menú Niños y Adolescentes', 'Personal'];
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños y Adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
@@ -126,7 +126,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
 
   const isCatering = formData.categoria === 'Servicio de catering';
-  const isReposteria = formData.categoria === 'Servicio de repostería y regalos';
+  const isReposteria = formData.categoria === 'Servicio de repostería';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -165,7 +165,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="item-subcategoria" className="text-base">Subcategoría (Opcional)</Label>
+                <Label htmlFor="item-subcategoria" className="text-base">Subcategoría</Label>
                 {isCatering ? (
                     <Select value={formData.subcategoria || ''} onValueChange={(value) => handleFormChange('subcategoria', value)}>
                         <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
