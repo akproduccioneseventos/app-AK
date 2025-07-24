@@ -8,11 +8,11 @@ import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainC
 
 const settingsCards = [
    {
-    title: "Apariencia de Documentos",
-    description: "Personaliza el logo y colores de tus facturas y presupuestos.",
-    href: "/settings/templates", 
+    title: "Configuración de Presupuestos",
+    description: "Personaliza el PDF, el Armado Rápido y el Asistente de IA.",
+    href: "/settings/budget-display", 
     icon: FileText,
-    buttonLabel: "Personalizar Plantillas"
+    buttonLabel: "Personalizar Presupuestos"
   },
   {
     title: "Información de la Empresa",

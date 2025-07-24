@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
@@ -79,7 +80,7 @@ export default function BudgetDisplaySettingsPage() {
       </div>
     );
   }
-
+  
   const settingsOptions = [
     { id: "showCompanyLogo", label: "Mostrar logo de la empresa", description: "Incluye el logo de tu empresa en la parte superior." },
     { id: "showClientData", label: "Mostrar datos del cliente", description: "Incluye el nombre y detalles del cliente." },
@@ -95,45 +96,77 @@ export default function BudgetDisplaySettingsPage() {
         <div className="flex items-center gap-3">
           <SettingsIcon className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Configuración de Presupuestos
+            Configuración de Presupuestos y Cotizaciones
           </h1>
         </div>
-        <Link href="/presupuestos" passHref>
+        <Link href="/settings" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver
           </Button>
         </Link>
       </div>
-
-       <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Configuración de Paquetes (Armado Rápido)</CardTitle>
-          <CardDescription>
-            Define los servicios incluidos en cada paquete para el "Armado Rápido". La lógica (ej. 1 mozo cada 25 personas) y los servicios se gestionan directamente en los archivos de código por ahora.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <p className="text-sm text-muted-foreground">
-                Para modificar los servicios de cada paquete, edita el archivo:
-                 <code className="block my-2 p-2 rounded-md bg-muted font-mono text-xs">src/data/armado-rapido-config.json</code>
-            </p>
-             <p className="text-sm text-muted-foreground">
-                Para modificar las reglas de cálculo (ej. cantidad de mozos), edita el archivo:
-                 <code className="block my-2 p-2 rounded-md bg-muted font-mono text-xs">src/app/actions/armado-rapido.ts</code>
-            </p>
-        </CardContent>
-      </Card>
+      
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><Sparkles className="text-primary"/>Catálogo de Servicios para Venta</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Añade o edita los servicios que se ofrecerán tanto en el "Armado Rápido" como en la creación manual de presupuestos.
+                </p>
+                <Link href="/empresa/servicios" passHref className="w-full">
+                    <Button variant="outline" className="w-full">Gestionar Catálogo</Button>
+                </Link>
+            </CardContent>
+          </Card>
+          <Card className="shadow-lg">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><Bot className="text-primary"/>Asistente de Presupuestos (IA)</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  La IA crea presupuestos básicos usando lenguaje natural. Su lógica se define en el código.
+                </p>
+                <Link href="/settings/asistente-ak" passHref className="w-full">
+                     <Button variant="outline" className="w-full">Ver Configuración de IA</Button>
+                </Link>
+            </CardContent>
+          </Card>
+        </div>
 
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Opciones de Contenido del PDF</CardTitle>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Configuración de Paquetes (Armado Rápido)</CardTitle>
           <CardDescription>
-            Selecciona qué elementos quieres que aparezcan al imprimir o compartir tus presupuestos.
+            Define los servicios incluidos en cada paquete y las reglas automáticas para el "Armado Rápido" del cliente.
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-4">
+            <div className="p-3 border rounded-md bg-muted/50">
+                <Label className="font-semibold text-sm flex items-center gap-2"><Info className="text-blue-500 w-4 h-4"/>Paquetes y Reglas</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                    Para modificar los servicios de cada paquete, edita el archivo:
+                    <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/data/armado-rapido-config.json</code>
+                </p>
+                 <p className="text-xs text-muted-foreground mt-2">
+                    Para modificar las reglas de cálculo (ej. cantidad de mozos), edita el archivo:
+                    <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/app/actions/armado-rapido.ts</code>
+                </p>
+            </div>
+        </CardContent>
+      </Card>
+      
+       <form onSubmit={handleSubmit}>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl">Opciones de Contenido del PDF</CardTitle>
+            <CardDescription>
+              Selecciona qué elementos quieres que aparezcan al imprimir o compartir tus presupuestos.
+            </CardDescription>
+          </CardHeader>
           <CardContent className="space-y-6">
             {settingsOptions.map((option, index) => (
               <React.Fragment key={option.id}>
@@ -173,31 +206,15 @@ export default function BudgetDisplaySettingsPage() {
                     className="max-w-xs"
                 />
             </div>
-            <Separator />
-            <div className="space-y-3 p-3 border rounded-md bg-muted/30">
-                <Label className="text-base font-medium flex items-center gap-2">
-                    <Tag className="w-5 h-5 text-primary/80" /> Descuentos Promocionales
-                </Label>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Info className="w-5 h-5 text-blue-500"/>
-                    <p>La funcionalidad para definir y aplicar descuentos promocionales personalizados (porcentaje o monto fijo) se habilitará en futuras actualizaciones.</p>
-                </div>
-            </div>
-
-             <div className="p-3 border rounded-md bg-yellow-50 border-yellow-200 text-yellow-700">
-                <AlertTriangle className="inline w-4 h-4 mr-1" />
-                <span className="text-xs font-medium">Nota:</span>
-                <span className="text-xs"> La opción "Mostrar totales con o sin impuestos" se interpreta como mostrar/ocultar el desglose detallado de precios. La lógica específica de cálculo de impuestos no está implementada.</span>
-            </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" disabled={isSaving || isLoading}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              {isSaving ? "Guardando..." : "Guardar Configuración"}
+              {isSaving ? "Guardando..." : "Guardar Configuración de Visualización"}
             </Button>
           </CardFooter>
-        </form>
-      </Card>
+        </Card>
+      </form>
     </div>
   );
 }
