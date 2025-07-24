@@ -160,8 +160,11 @@ function NuevoPresupuestoContent() {
         precioUnitario: servicioInfo.precioUnitarioPresupuesto,
         costoTotalItem: costoTotalItem,
         categoriaServicio: servicioInfo.categoriaServicio,
+        esRegalo: servicioInfo.esRegalo,
       });
-      costoTotalSinDescuento += costoTotalItem;
+       if (!servicioInfo.esRegalo) {
+          costoTotalSinDescuento += costoTotalItem;
+      }
     });
 
     let totalConDescuentoCalculado = costoTotalSinDescuento;
@@ -245,7 +248,7 @@ function NuevoPresupuestoContent() {
     }
     switch (formData.pasoActual) {
       case 1: return <Paso1DatosEvento formData={formData} setFormData={setFormData} />;
-      case 2: return <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} />;
+      case 2: return <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} setServiciosCatalogo={setServiciosCatalogo} />;
       case 3:
         const presupuestoCalculado = calcularPresupuestoDesdeForm(formData);
         const presupuestoParaResumen: Presupuesto = {
