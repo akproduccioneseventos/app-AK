@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -11,16 +11,16 @@ export default function SolicitudEnviadaPage() {
             <Card className="w-full max-w-lg text-center shadow-2xl p-8">
                 <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-4"/>
                 <CardHeader>
-                    <CardTitle className="text-3xl font-bold font-headline text-green-700">¡Solicitud Enviada con Éxito!</CardTitle>
+                    <CardTitle className="text-3xl font-bold font-headline text-green-700">¡Presupuesto Generado con Éxito!</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-lg text-muted-foreground">
-                        Gracias por tu interés. Un asesor de nuestro equipo se pondrá en contacto contigo a la brevedad para brindarte un presupuesto detallado y personalizado.
+                        Gracias por tu interés. Hemos generado un presupuesto inicial para tu evento. Un asesor de nuestro equipo se pondrá en contacto contigo a la brevedad para refinar los detalles y seleccionar el menú.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center mt-4">
                     <p className="text-sm text-muted-foreground">
-                        <Link href="/" className="text-primary underline">Volver a la página principal.</Link>
+                       Mientras esperas, puedes volver a la página principal.
                     </p>
                 </CardFooter>
             </Card>
