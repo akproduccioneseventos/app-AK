@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2 } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -48,9 +48,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
-  if (pathname === '/empresa/todos-los-servicios') return 'Catálogo e Inventario General';
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Ítem';
-  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Ítem`;
+  if (pathname === '/empresa/todos-los-servicios') return 'Gestión de Activos Fijos';
+  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Activo Fijo';
+  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Activo`;
   if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
 
 
