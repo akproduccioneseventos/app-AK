@@ -9,43 +9,37 @@
           "id": "boda",
           "nombre": "Boda",
           "costoBase": 80000,
-          "img": "https://placehold.co/400x300.png",
-          "hint": "wedding couple"
+          "costoPorPersona": 500
         },
         {
           "id": "quince",
           "nombre": "Quince Años",
           "costoBase": 60000,
-          "img": "https://placehold.co/400x300.png",
-          "hint": "quinceanera dress"
+          "costoPorPersona": 400
         },
         {
           "id": "cumpleanos",
           "nombre": "Fiestas de Cumpleaños",
           "costoBase": 45000,
-          "img": "https://placehold.co/400x300.png",
-          "hint": "birthday party"
+          "costoPorPersona": 350
         },
         {
           "id": "infantil",
           "nombre": "Cumpleaños Infantil",
           "costoBase": 30000,
-          "img": "https://placehold.co/400x300.png",
-          "hint": "kids party"
+          "costoPorPersona": 300
         },
         {
           "id": "corporativo",
           "nombre": "Evento Corporativo",
           "costoBase": 90000,
-          "img": "https://placehold.co/400x300.png",
-          "hint": "corporate meeting"
+          "costoPorPersona": 600
         },
         {
           "id": "otro",
           "nombre": "Otro Tipo de Evento",
           "costoBase": 40000,
-          "img": "https://placehold.co/400x300.png",
-          "hint": "event celebration"
+          "costoPorPersona": 300
         }
       ]
     }

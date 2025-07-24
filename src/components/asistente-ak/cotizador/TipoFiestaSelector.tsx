@@ -28,7 +28,7 @@ export function TipoFiestaSelector({ selectedId, onSelect }: TipoFiestaSelectorP
   if (!pasoConfig) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-32 w-full" />
         ))}
       </div>
@@ -37,8 +37,6 @@ export function TipoFiestaSelector({ selectedId, onSelect }: TipoFiestaSelectorP
 
   return (
     <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">{pasoConfig.pregunta}</h2>
-        <p className="text-muted-foreground">{pasoConfig.descripcion}</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {pasoConfig.opciones.map((opcion) => (
             <Card
@@ -49,22 +47,13 @@ export function TipoFiestaSelector({ selectedId, onSelect }: TipoFiestaSelectorP
                 selectedId === opcion.id && "ring-2 ring-primary shadow-lg"
             )}
             >
-            <CardContent className="p-0">
-                <div className="relative aspect-video">
-                <Image
-                    src={opcion.img || "https://placehold.co/400x300.png"}
-                    alt={opcion.nombre}
-                    layout="fill"
-                    objectFit="cover"
-                    data-ai-hint={opcion.hint}
-                />
+            <CardContent className="p-3 text-center font-medium flex items-center justify-center h-24">
+                {opcion.nombre}
                 {selectedId === opcion.id && (
-                    <div className="absolute inset-0 bg-primary/70 flex items-center justify-center">
-                        <CheckCircle className="w-10 h-10 text-white" />
+                    <div className="absolute top-1 right-1 bg-white rounded-full">
+                        <CheckCircle className="w-5 h-5 text-primary" />
                     </div>
                 )}
-                </div>
-                <div className="p-3 text-center font-medium">{opcion.nombre}</div>
             </CardContent>
             </Card>
         ))}
