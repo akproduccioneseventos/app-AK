@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent } from 'react';
@@ -42,8 +41,8 @@ export default function ArmadoRapidoPage() {
         salonFiestas,
     });
 
-    if (result.success) {
-        router.push(`/asistente-ak/solicitud-enviada?id=${result.presupuestoId}`);
+    if (result.success && result.presupuestoId) {
+        router.push(`/presupuestos/${result.presupuestoId}/ver`);
     } else {
         toast({title: "Error al generar presupuesto", description: result.error, variant: "destructive"});
     }

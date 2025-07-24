@@ -1,10 +1,10 @@
-
 'use server';
 
 import { savePresupuesto } from './presupuestos';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import { getServiciosEmpresa } from './servicios-empresa';
 import type { ServicioEmpresa } from '@/types/empresa';
+import { addCrmLead } from './crm'; // Import CRM action
 
 
 interface ArmadoRapidoData {
@@ -127,13 +127,20 @@ export async function crearPresupuestoDesdeArmadoRapido(
             notas: "Presupuesto inicial generado por el Armado Rápido. Menú a confirmar por el cliente."
         };
 
-        const result = await savePresupuesto(presupuestoData);
+        const resultPresupuesto = await savePresupuesto(presupuestoData);
 
-        if (!result.success || !result.id) {
-            throw new Error(result.error || "No se pudo guardar el presupuesto generado.");
+        if (!resultPresupuesto.success || !resultPresupuesto.id) {
+            throw new Error(resultPresupuesto.error || "No se pudo guardar el presupuesto generado.");
         }
 
-        return { success: true, presupuestoId: result.id };
+        // Crear prospecto en CRM
+        await addCrmLead({
+            name: `Prospecto de ${data.eventoTipo}: ${data.clienteNombre}`,
+            notes: `Generado desde Armado Rápido.\nTipo: ${data.eventoTipo}\nInvitados: ${data.invitadosCantidad}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(costoTotal)}`,
+        });
+
+
+        return { success: true, presupuestoId: resultPresupuesto.id };
 
     } catch (error: any) {
         console.error("Error en crearPresupuestoDesdeArmadoRapido:", error);
