@@ -43,9 +43,9 @@ export default function InventarioGeneralPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      // This page now shows ALL items, not just inventory. Services are filtered out in /empresa/servicios
-      setAllItems(data);
-      setFilteredItems(data);
+      const inventoryItems = data.filter(s => s.tipoItem !== 'Servicio');
+      setAllItems(inventoryItems);
+      setFilteredItems(inventoryItems);
     } catch (err: any) {
       setError("No se pudo cargar el inventario.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -123,7 +123,7 @@ export default function InventarioGeneralPage() {
   const capitalPorCategoria = useMemo(() => {
     return categoriasOrdenadas.map(categoria => {
       const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
-        if(item.tipoItem === 'Servicio') return sum; // Do not include services in capital calculation
+        if(item.tipoItem === 'Servicio') return sum; // This check is redundant now but safe
         const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
         return sum + valorItem;
       }, 0);
@@ -210,7 +210,7 @@ export default function InventarioGeneralPage() {
                 <div className="space-y-3 mt-2">
                   {itemsAgrupadosPorCategoria[categoria]?.map((item) => {
                     const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
-                    const isService = item.tipoItem === 'Servicio';
+                    const isService = item.tipoItem === 'Servicio'; // This will be false now
                     return (
                       <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow print:shadow-none print:border-gray-200">
                         <CardHeader className="pb-2 pt-3 px-3">
@@ -227,7 +227,7 @@ export default function InventarioGeneralPage() {
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1 print:text-xs">
                            {isService ? (
-                              <div className="font-semibold text-primary">{formatCurrency(item.precioVenta)} / {item.unidad}</div>
+                              <div className="font-semibold text-primary">{formatCurrency(item.precioVenta)}</div>
                             ) : (
                               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
                                 <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
