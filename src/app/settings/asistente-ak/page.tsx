@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Wand2, User, HelpCircle, PartyPopper, Code2 } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Wand2, User, HelpCircle, PartyPopper, Code2, FileJson } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const steps = [
@@ -50,33 +50,28 @@ export default function AsistenteAkInfoPage() {
 
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Un Copiloto Inteligente</CardTitle>
+                    <CardTitle className="font-headline text-2xl">Un Copiloto Inteligente y Configurable</CardTitle>
                     <CardDescription className="text-lg">
-                        El Asistente AK no es solo un chat. Es un agente de IA que puede entender tus peticiones y utilizar herramientas internas para realizar tareas complejas en la aplicación.
+                        El Asistente AK puede entender tus peticiones y utilizar herramientas para realizar tareas complejas, como crear presupuestos de forma conversacional.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div>
-                        <h3 className="font-semibold text-lg mb-3">Herramientas de Análisis por IA</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <Link href="/admin/aaiff-fiesta" passHref>
-                                <Button variant="outline" className="h-auto flex-col items-start p-4 gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <PartyPopper className="w-5 h-5 text-primary"/>
-                                        <span className="font-semibold">Análisis de Evento</span>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground text-left">Revisa la completitud y coherencia de tu planificación actual.</p>
-                                </Button>
-                            </Link>
-                            <Link href="/admin/aaiff" passHref>
-                                <Button variant="outline" className="h-auto flex-col items-start p-4 gap-2">
-                                     <div className="flex items-center gap-2">
-                                        <Code2 className="w-5 h-5 text-primary"/>
-                                        <span className="font-semibold">Análisis de Código</span>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground text-left">Permite que la IA analice la app en busca de mejoras y errores.</p>
-                                </Button>
-                            </Link>
+                     <div>
+                        <h3 className="font-semibold text-lg mb-3">Configura la Conversación del Asistente</h3>
+                         <div className="p-4 border rounded-lg bg-muted/40">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2 bg-primary/10 rounded-full">
+                                    <FileJson className="w-5 h-5 text-primary" />
+                                </div>
+                                <h4 className="font-semibold">Edita el Flujo de Conversación</h4>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">
+                                Puedes definir los pasos, preguntas y opciones que el Asistente AK utilizará para crear presupuestos.
+                            </p>
+                             <p className="text-xs text-muted-foreground">
+                                Para modificar el diálogo, edita el archivo:
+                                <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/data/asistente-ak-config.json</code>
+                            </p>
                         </div>
                     </div>
                     <Separator/>

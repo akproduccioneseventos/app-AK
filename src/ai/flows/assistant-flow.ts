@@ -14,6 +14,16 @@ import { z } from 'genkit';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import { getOcupiedDates } from '@/app/actions/agenda';
+import fs from 'fs/promises';
+import path from 'path';
+
+// Helper to load the conversational configuration
+async function getAssistantConfig() {
+    const filePath = path.join(process.cwd(), 'src', 'data', 'asistente-ak-config.json');
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    return JSON.parse(fileContent);
+}
+
 
 // Tool: Analyze the current event plan
 const analyzeEventPlanTool = ai.defineTool(
@@ -123,10 +133,20 @@ const createQuoteTool = ai.defineTool(
 
 
 export async function assistant(input: AssistantInput) {
+  const config = await getAssistantConfig();
+  
   // This prompt guides the model to be a helpful event planning assistant and use the available tools.
   const systemPrompt = `Eres "Asistente AK", un asistente experto en planificación de eventos para AK Producciones.
   Tu objetivo es ayudar al organizador a gestionar su aplicación.
   Sé conciso, amigable y proactivo.
+  
+  Tu principal tarea es guiar al usuario para crear presupuestos. Usa la configuración de diálogo que se te proporciona.
+  
+  Aquí está la configuración del diálogo:
+  ${JSON.stringify(config.pasos, null, 2)}
+  
+  Comienza la conversación con la pregunta del primer paso: "${config.pasos.tipoFiesta.pregunta}".
+  
   Cuando un usuario te pida realizar una acción (como analizar el evento, asignar invitados o crear un presupuesto), utiliza las herramientas disponibles.
   Si una herramienta requiere información que no tienes, haz preguntas claras y directas para obtener los datos necesarios antes de llamar a la herramienta. NO inventes información.
   Si el usuario quiere crear un presupuesto pero no especifica una fecha, no hay problema, es opcional.
