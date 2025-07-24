@@ -340,6 +340,11 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
             <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
             {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
+            {showAnnualAdjustmentLegend && (
+              <p className="mt-1 print:mt-0.5 text-orange-600">
+                  Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
+              </p>
+            )}
           </footer>
         </CardContent>
       </Card>
