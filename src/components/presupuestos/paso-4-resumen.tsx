@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon } from 'lucide-react';
+import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useEffect, useState } from 'react'; 
@@ -102,7 +102,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     );
   }
 
-  const costoTotalAntesDescuento = presupuesto.costoTotalEstimado;
+  const costoTotalAntesDescuento = presupuesto.itemsPresupuestados.reduce((sum, item) => sum + (item.esRegalo ? 0 : item.costoTotalItem), 0);
   let descuentoAplicado = 0;
   const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
 
@@ -147,9 +147,10 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
       presupuesto.itemsPresupuestados.forEach(item => {
-        texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-         if (formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0) {
-            texto += `    (Descuento ${formData.descuentoValor}% aplicado)\n`;
+        if (item.esRegalo) {
+             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(item.precioUnitario * item.cantidad)})\n`;
+        } else {
+            texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
         }
       });
       texto += `\n  SUBTOTAL: *${formatCurrency(costoTotalAntesDescuento)}*\n\n`;
@@ -249,18 +250,18 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                   {presupuesto.itemsPresupuestados.map((item) => (
                       <tr key={item.idServicioCatalogo}>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                          {item.nombreServicio}
-                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 && (
+                          {item.esRegalo ? <span className="flex items-center gap-1 text-primary font-semibold"><Gift className="w-3 h-3"/> {item.nombreServicio}</span> : item.nombreServicio}
+                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 && !item.esRegalo && (
                           <div className="text-gray-500 print:text-gray-600 text-[6pt]">{formData.descuentoValor}% de descuento</div>
                           )}
                       </td>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">$</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.precioUnitario, false)}</td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">
-                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 ? `${formData.descuentoValor}%` : ''}
+                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 && !item.esRegalo ? `${formData.descuentoValor}%` : ''}
                       </td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.costoTotalItem, false)}</td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
                       </tr>
                   ))}
                   </tbody>
@@ -314,10 +315,10 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
             {descuentoAplicado > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoAplicado)}</p>}
           </Card>
 
-          <Separator className="my-4 print:hidden"/>
+          <Separator className="my-4"/>
           
           {showAnnualAdjustmentLegend && (
-            <div className="my-4 p-3 border-l-4 border-orange-400 bg-orange-50 text-orange-700 text-xs print:hidden">
+            <div className="my-4 p-3 border-l-4 border-orange-400 bg-orange-50 text-orange-700 text-xs">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <AlertTriangle className="h-5 w-5 text-orange-500" />

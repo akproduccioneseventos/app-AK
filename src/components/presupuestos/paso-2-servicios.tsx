@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Tag, Search, PackageSearch } from 'lucide-react';
+import { Sparkles, Tag, Search, PackageSearch, Gift } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -48,6 +48,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           nombreServicio: servicio.nombre,
           unidad: servicio.unidad,
           categoriaServicio: servicio.categoria,
+          esRegalo: false, // Default value for new item
         });
       }
       return { ...prev, serviciosSeleccionados: newSelected };
@@ -56,23 +57,34 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
   const handleServicioDetailChange = (
     servicioId: string,
-    field: 'cantidad' | 'precioUnitarioPresupuesto',
-    value: string | number
+    field: 'cantidad' | 'precioUnitarioPresupuesto' | 'esRegalo',
+    value: string | number | boolean
   ) => {
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
       const currentServicio = newSelected.get(servicioId);
       if (currentServicio) {
-        let numericValue = Number(value);
-        if (field === 'cantidad') {
-            numericValue = Math.max(1, Math.floor(numericValue));
-        } else if (field === 'precioUnitarioPresupuesto') {
-            numericValue = Math.max(0, numericValue);
+        if (field === 'esRegalo') {
+            const esRegalo = !!value;
+            newSelected.set(servicioId, {
+              ...currentServicio,
+              esRegalo,
+              // Si es regalo, el precio del presupuesto es 0, si no, se restaura al original.
+              precioUnitarioPresupuesto: esRegalo ? 0 : currentServicio.precioUnitarioOriginal,
+            });
+        } else {
+            let numericValue = Number(value);
+            if (field === 'cantidad') {
+                numericValue = Math.max(1, Math.floor(numericValue));
+            } else if (field === 'precioUnitarioPresupuesto') {
+                numericValue = Math.max(0, numericValue);
+            }
+            newSelected.set(servicioId, {
+              ...currentServicio,
+              [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
+               esRegalo: false, // Desmarcar como regalo si se edita el precio manualmente
+            });
         }
-        newSelected.set(servicioId, {
-          ...currentServicio,
-          [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-        });
       }
       return { ...prev, serviciosSeleccionados: newSelected };
     });
@@ -218,8 +230,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                                       </div>
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
-                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm"/>
+                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" disabled={selectedInfo.esRegalo}/>
                                       </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2 pt-2">
+                                        <Checkbox id={`gift-${servicio.id}`} checked={selectedInfo.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(servicio.id, 'esRegalo', !!checked)}/>
+                                        <Label htmlFor={`gift-${servicio.id}`} className="text-xs font-normal flex items-center gap-1 text-primary"><Gift className="w-3 h-3"/>Marcar como Regalo (Precio = $0)</Label>
                                     </div>
                                     <p className="text-xs font-medium text-right pt-1">Subtotal Servicio: {formatCurrency(selectedInfo.cantidad * selectedInfo.precioUnitarioPresupuesto)}</p>
                                   </div>

@@ -18,6 +18,7 @@ export interface ItemPresupuestado {
   precioUnitario: number;
   costoTotalItem: number;
   categoriaServicio?: string;
+  esRegalo?: boolean; // Nuevo campo para marcar como regalo
 }
 
 export interface Presupuesto {
@@ -70,6 +71,7 @@ export interface PresupuestoFormData {
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
+    esRegalo: boolean; // Nuevo campo
   }>;
 
   // Paso 3 (Resumen) - Descuentos y Notas
