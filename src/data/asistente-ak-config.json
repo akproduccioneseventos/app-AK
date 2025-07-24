@@ -20,6 +20,13 @@
           "hint": "quinceanera dress"
         },
         {
+          "id": "cumpleanos",
+          "nombre": "Fiestas de Cumpleaños",
+          "costoBase": 45000,
+          "img": "https://placehold.co/400x300.png",
+          "hint": "birthday party"
+        },
+        {
           "id": "infantil",
           "nombre": "Cumpleaños Infantil",
           "costoBase": 30000,

@@ -5,5 +5,20 @@
     "currentStageId": "s3",
     "createdAt": "2025-06-18T18:54:15.466Z",
     "updatedAt": "2025-06-18T18:54:29.065Z"
+  },
+  {
+    "id": "lead_1753396021561_u4q7r3n",
+    "name": "Prospecto de Boda",
+    "notes": "Generado desde Armado Rápido.\nTipo: Boda\nInvitados: 50\nPresupuesto Estimado: $ 97.500,00",
+    "currentStageId": "s1",
+    "createdAt": "2025-07-24T22:27:01.561Z",
+    "updatedAt": "2025-07-24T22:27:01.561Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-07-24T22:27:01.561Z"
+      }
+    ]
   }
 ]
