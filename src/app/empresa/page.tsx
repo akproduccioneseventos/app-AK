@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles, Server, ChefHat } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles, Server, ChefHat, GlassWater } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -44,11 +44,18 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Servicios',
   },
    {
-    title: 'Catálogo de Ingredientes y Bebidas',
-    description: 'Gestiona los insumos para tus menús de catering y barras.',
+    title: 'Catálogo de Ingredientes (Catering)',
+    description: 'Gestiona los insumos para tus menús de catering y repostería.',
     href: '/empresa/ingredientes',
     icon: ChefHat,
     actionLabel: 'Gestionar Ingredientes',
+  },
+   {
+    title: 'Catálogo de Bebidas',
+    description: 'Gestiona tu inventario de bebidas para las barras y el servicio general.',
+    href: '/empresa/bebidas',
+    icon: GlassWater,
+    actionLabel: 'Gestionar Bebidas',
   },
   {
     title: 'Gestión de Activos Fijos',

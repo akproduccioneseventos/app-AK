@@ -9,21 +9,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, PackagePlus } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, PackagePlus, StickyNote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa } from '@/types/empresa';
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 
-function NuevoIngredienteContent() {
+function NuevaBebidaContent() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
   const [nombre, setNombre] = useState('');
-  const tipoItem: TipoItemEmpresa = 'Insumo/Ingrediente'; 
-  const [categoria, setCategoria] = useState<CategoriaServicio | ''>('Insumo/Ingrediente');
+  const tipoItem: TipoItemEmpresa = 'Bebida (Insumo)'; 
+  const [categoria, setCategoria] = useState<CategoriaServicio | ''>('Bebida (Insumo)');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
@@ -53,8 +53,8 @@ function NuevoIngredienteContent() {
     try {
       const result = await saveServicioEmpresa(itemData);
       if (result.success && result.id) {
-        toast({ title: "¡Ingrediente Guardado!", description: `El ingrediente "${itemData.nombre}" ha sido guardado.` });
-        router.push('/empresa/ingredientes');
+        toast({ title: "¡Bebida Guardada!", description: `La bebida "${itemData.nombre}" ha sido guardada.` });
+        router.push('/empresa/bebidas');
       } else {
         toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar el ítem.", variant: "destructive"});
       }
@@ -71,10 +71,10 @@ function NuevoIngredienteContent() {
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Ingrediente
+            Añadir Nueva Bebida
           </h1>
         </div>
-        <Link href="/empresa/ingredientes" passHref>
+        <Link href="/empresa/bebidas" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver
@@ -84,8 +84,8 @@ function NuevoIngredienteContent() {
       
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Detalles del Ingrediente</CardTitle>
-          <CardDescription>Registra un nuevo insumo para usar en tus menús de catering.</CardDescription>
+          <CardTitle className="font-headline">Detalles de la Bebida</CardTitle>
+          <CardDescription>Registra una nueva bebida para usar en tus eventos.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
@@ -94,8 +94,8 @@ function NuevoIngredienteContent() {
                 <Input id="item-tipo-fijo" value={tipoItem} readOnly disabled className="bg-muted/70 font-semibold"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="item-nombre" className="text-base">Nombre del Ingrediente *</Label>
-              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Harina, Tomates, Aceite de Oliva" className="text-base p-3" required disabled={isSaving}/>
+              <Label htmlFor="item-nombre" className="text-base">Nombre de la Bebida *</Label>
+              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Coca-Cola 2.25L, Vino Tinto Tannat" className="text-base p-3" required disabled={isSaving}/>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -103,14 +103,14 @@ function NuevoIngredienteContent() {
                 <Select value={categoria} onValueChange={(value) => setCategoria(value as CategoriaServicio | '')} required disabled={isSaving}>
                   <SelectTrigger id="item-categoria" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar categoría..." /></SelectTrigger>
                   <SelectContent className="max-h-60">
-                    <SelectItem value="Insumo/Ingrediente" className="text-base">Insumo/Ingrediente</SelectItem>
-                    <SelectItem value="Servicio de catering" className="text-base">Servicio de catering</SelectItem>
+                    <SelectItem value="Bebida (Insumo)" className="text-base">Bebida (Insumo)</SelectItem>
+                    <SelectItem value="Servicio de bebidas" className="text-base">Servicio de bebidas</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="item-subcategoria" className="text-base">Subcategoría</Label>
-                 <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Lácteos, Verduras, Especias" className="text-base p-3" disabled={isSaving}/>
+                 <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Gaseosas, Vinos, Aguas" className="text-base p-3" disabled={isSaving}/>
               </div>
             </div>
             
@@ -141,7 +141,7 @@ function NuevoIngredienteContent() {
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Ingrediente'}
+              {isSaving ? 'Guardando...' : 'Guardar Bebida'}
             </Button>
           </CardFooter>
         </form>
@@ -150,10 +150,10 @@ function NuevoIngredienteContent() {
   );
 }
 
-export default function NuevoIngredientePage() {
+export default function NuevaBebidaPage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <NuevoIngredienteContent/>
+            <NuevaBebidaContent/>
         </Suspense>
     )
 }
