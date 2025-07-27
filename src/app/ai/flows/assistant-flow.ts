@@ -6,14 +6,10 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { analyzeCodebase } from './analyze-codebase-flow';
-import { analyzeEventPlan } from './analyze-event-plan-flow';
-import { assignGuestsToTables } from './assign-guests-flow';
 import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput, type AssistantOutput } from '@/ai/types/assistant-types';
 import { z } from 'genkit';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { savePresupuesto } from '@/app/actions/presupuestos';
 import { getOcupiedDates } from '@/app/actions/agenda';
+import { savePresupuesto } from '@/app/actions/presupuestos';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -35,58 +31,6 @@ async function getAssistantConfig() {
         }
     }
 }
-
-
-// Tool: Analyze the current event plan
-const analyzeEventPlanTool = ai.defineTool(
-  {
-    name: 'analyzeCurrentEventPlan',
-    description: 'Analyzes the current event plan in detail and returns a summary of its status, identifying incomplete areas and potential issues. Use this when the user asks to "analyze the event", "check the party plan", "review the current event", or similar requests.',
-    inputSchema: z.object({}), 
-    outputSchema: z.any(),
-  },
-  async () => {
-    const planData = await getFiestaActual();
-    return await analyzeEventPlan({ planData });
-  }
-);
-
-// Tool: Analyze the application's codebase
-const analyzeCodebaseTool = ai.defineTool(
-    {
-        name: 'analyzeCodebase',
-        description: 'Performs a thorough analysis of the application\'s codebase against a predefined specification. Use this when the user asks to "analyze the code", "check the codebase", "review the project structure", or similar requests.',
-        inputSchema: z.object({
-            specification: z.string().optional().describe("An optional user-provided specification to analyze against. If not provided, a default one is used."),
-        }),
-        outputSchema: z.any(),
-    },
-    async ({ specification }) => {
-        const defaultSpec = 'Analyze the current application state and report on completeness, bugs, and suggest improvements.';
-        return await analyzeCodebase({ specification: specification || defaultSpec });
-    }
-);
-
-// Tool: Assign guests to tables
-const assignGuestsTool = ai.defineTool(
-  {
-    name: 'assignGuestsToTables',
-    description: 'Automatically assigns confirmed guests to available tables based on party size and table capacity. Use this when the user asks to "assign guests", "seat the guests", "distribute guests to tables", or similar requests.',
-    inputSchema: z.object({}),
-    outputSchema: z.any(),
-  },
-  async () => {
-    const fiesta = await getFiestaActual();
-    const confirmedGuests = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado') || [];
-    const tables = fiesta.decoracion?.salonElements?.filter(el => el.category?.toLowerCase().includes('mesa'))
-      .map(el => ({ id: el.id, name: el.name, seats: el.seats || 0 })) || [];
-    
-    if (confirmedGuests.length === 0) return { error: "No hay invitados confirmados para asignar." };
-    if (tables.length === 0) return { error: "No hay mesas definidas en el plano del salón." };
-
-    return await assignGuestsToTables({ guests: confirmedGuests, tables });
-  }
-);
 
 // Tool: Create a new quote
 const createQuoteTool = ai.defineTool(
@@ -165,11 +109,7 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   - **Responde en base a la herramienta:** Cuando uses una herramienta, basa tu respuesta final en el resultado que esta te devuelva. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma amigable.
   - **Año por defecto:** Si el usuario da una fecha sin año, asume que es para el próximo año, 2025.
   - **Formato:** Usa markdown para que tus respuestas sean claras y legibles.
-
-  **Otras capacidades (solo si el usuario pregunta explícitamente):**
-  - Si un organizador te pide analizar el estado del evento actual, usa \`analyzeCurrentEventPlan\`.
-  - Si un organizador te pide analizar el código de la aplicación, usa \`analyzeCodebase\`.
-  - Si un organizador te pide asignar invitados, usa \`assignGuestsToTables\`.`;
+  - **Capacidad única:** Solo tienes la capacidad de crear presupuestos. No puedes analizar el código, ni el estado del evento. Si te preguntan por otra cosa, responde amablemente que tu única función es ayudar a crear presupuestos.`;
 
   const llmResponse = await ai.generate({
     prompt: [
@@ -177,16 +117,15 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
         {text: `La consulta del usuario es: "${input.query}"`},
     ],
     model: 'googleai/gemini-1.5-flash',
-    tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool],
+    tools: [createQuoteTool],
     toolChoice: 'auto',
     output: {
         schema: AssistantOutputSchema,
     }
   });
 
-  const toolCalls = llmResponse.toolCalls;
-  if (toolCalls && toolCalls.length > 0) {
-    const call = toolCalls[0];
+  if (llmResponse.toolCalls && llmResponse.toolCalls.length > 0) {
+    const call = llmResponse.toolCalls[0];
     const toolResult = await call.run() as any; 
     
     const finalResponse = await ai.generate({
@@ -196,7 +135,7 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
             {toolResult: {name: call.name, output: toolResult}}
         ],
         model: 'googleai/gemini-1.5-flash',
-        tools: [analyzeEventPlanTool, analyzeCodebaseTool, assignGuestsTool, createQuoteTool],
+        tools: [createQuoteTool],
         output: {
             schema: AssistantOutputSchema,
         }
@@ -220,4 +159,3 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   }
   return output;
 }
-

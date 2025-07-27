@@ -1,0 +1,17 @@
+
+{
+  "pasos": {
+    "tipoFiesta": {
+      "pregunta": "¿Qué tipo de evento estás planeando? Por ejemplo: una boda, un cumpleaños de 15, un evento corporativo..."
+    },
+    "cantidadInvitados": {
+      "pregunta": "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"
+    },
+    "nombreCliente": {
+      "pregunta": "Perfecto. Para ir creando el borrador, ¿a nombre de quién lo preparo?"
+    },
+    "fechaEvento": {
+      "pregunta": "Por último, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
+    }
+  }
+}
