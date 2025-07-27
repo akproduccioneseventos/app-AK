@@ -5,14 +5,14 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleDollarSign, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot, Share2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { useToast } from '@/hooks/use-toast';
 import { triggerAppLogout } from '@/components/auth-guard';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
-import { getDashboardKpiData } from '@/app/actions/dashboard'; // Import the new optimized action
+import { getDashboardKpiData } from '@/app/actions/dashboard'; 
 
 interface ModuleCardProps {
   title: string;
@@ -70,12 +70,10 @@ export default function DashboardPage() {
   });
   
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  const [armadoRapidoLink, setArmadoRapidoLink] = useState('');
   const [asistenteAkLink, setAsistenteAkLink] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setArmadoRapidoLink(`${window.location.origin}/armado-rapido`);
       setAsistenteAkLink(`${window.location.origin}/asistente-ak`);
     }
   }, []);
@@ -83,7 +81,7 @@ export default function DashboardPage() {
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await getDashboardKpiData(); // Use the new optimized action
+      const result = await getDashboardKpiData(); 
       if (result.success && result.data) {
         setKpiData(result.data);
       } else {
@@ -123,35 +121,30 @@ export default function DashboardPage() {
           <CardDescription>Elige el método que mejor se adapte a tus necesidades y las de tu cliente.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/presupuestos/nuevo" passHref className="w-full">
-                <Button size="lg" variant="default" className="w-full h-full text-base py-4 flex-col gap-1">
-                    <PlusCircle className="w-6 h-6 mb-1"/>
-                    <span>Presupuesto Manual</span>
-                    <span className="text-xs font-normal">(Para el Organizador)</span>
-                </Button>
-            </Link>
-            <ShareLinkDialog
-                link={armadoRapidoLink}
-                title="Compartir Armado Rápido"
-                description="Copia este enlace y envíalo a tu cliente para que arme un presupuesto inicial de forma guiada."
-            >
-                <Button size="lg" variant="outline" className="w-full h-full text-base py-4 flex-col gap-1">
-                    <Wand2 className="w-6 h-6 mb-1"/>
-                    <span>Armado Rápido</span>
-                    <span className="text-xs font-normal">(Para el Cliente)</span>
-                </Button>
-            </ShareLinkDialog>
-             <ShareLinkDialog
-                link={asistenteAkLink}
-                title="Compartir Asistente Conversacional"
-                description="Copia este enlace para que tu cliente cree un presupuesto conversando con la IA."
-            >
-             <Button size="lg" variant="outline" className="w-full h-full text-base py-4 flex-col gap-1">
-                <Bot className="w-6 h-6 mb-1"/>
-                <span>Asistente AK</span>
-                 <span className="text-xs font-normal">(Para el Cliente)</span>
-            </Button>
-            </ShareLinkDialog>
+          <Card className="p-4 flex flex-col justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2"><PlusCircle className="w-5 h-5"/>Presupuesto Manual</CardTitle>
+              <CardDescription className="text-sm mt-1 mb-3">Para el Organizador. Control total sobre cada detalle.</CardDescription>
+            </div>
+            <Link href="/presupuestos/nuevo" passHref className="w-full"><Button className="w-full">Crear Manualmente</Button></Link>
+          </Card>
+
+          <Card className="p-4 flex flex-col justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Bot className="w-5 h-5"/>Asistente AK</CardTitle>
+              <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Un chat guiado para crear un presupuesto.</CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/asistente-ak" passHref className="flex-grow"><Button className="w-full">Probar Asistente</Button></Link>
+              <ShareLinkDialog
+                  link={asistenteAkLink}
+                  title="Compartir Asistente AK"
+                  description="Copia este enlace para que tu cliente cree un presupuesto conversando con la IA."
+              >
+                  <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
+              </ShareLinkDialog>
+            </div>
+          </Card>
         </CardContent>
       </Card>
       
