@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -60,7 +61,8 @@ export default function GestionReposteriaPage() {
       setReposteriaData({
         ...fetchedReposteriaData,
         categorias: mergedCategorias,
-        consumoConfig: fetchedReposteriaData.consumoConfig || defaultReposteriaConsumoConfig
+        consumoConfig: fetchedReposteriaData.consumoConfig || defaultReposteriaConsumoConfig,
+        notasGenerales: fetchedReposteriaData.notasGenerales || '',
       });
       setConsumoConfig(fetchedReposteriaData.consumoConfig || defaultReposteriaConsumoConfig);
 
@@ -229,7 +231,7 @@ export default function GestionReposteriaPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador de Repostería</h1>
         </div>
         <div className="flex gap-2">
-            <Link href="/planner-costo-fiesta/lista-compras" passHref>
+            <Link href="/fiestas/nueva/catering/lista-compras" passHref>
                 <Button variant="outline"><ShoppingCart className="w-4 h-4 mr-2"/>Ver Lista de Compras</Button>
             </Link>
             <Link href="/planner-costo-fiesta" passHref>
@@ -314,6 +316,7 @@ export default function GestionReposteriaPage() {
                     {cat.activada && (
                       <>
                         <div className="space-y-2 mt-2"><Label htmlFor={`desc-${cat.id}`}>Descripción</Label><Textarea id={`desc-${cat.id}`} value={cat.descripcion || ''} onChange={(e) => handleCategoryChange(cat.id, 'descripcion', e.target.value)} rows={2} placeholder="Detalles, sabores, etc." /></div>
+                        
                         <Separator/>
                         <div className="flex justify-between items-center">
                             <h4 className="font-medium text-sm">Productos en esta categoría</h4>

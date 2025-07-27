@@ -137,7 +137,7 @@ export default function GestionBebidasPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador de Bebidas</h1>
         </div>
         <div className="flex gap-2">
-            <Link href="/planner-costo-fiesta/lista-compras" passHref>
+            <Link href="/fiestas/nueva/catering/lista-compras" passHref>
                 <Button variant="outline"><ShoppingCart className="w-4 h-4 mr-2"/>Ver Lista de Compras</Button>
             </Link>
             <Link href="/planner-costo-fiesta" passHref>
@@ -197,7 +197,7 @@ export default function GestionBebidasPage() {
              <CardHeader className="flex-row justify-between items-center">
                 <div className="flex items-center gap-3">
                   <h3 className="text-lg font-semibold">{cat.nombreDisplay}</h3>
-                  <Badge variant="secondary">Estimado: {totalLitrosNecesarios.toFixed(1)} Litros</Badge>
+                  <Badge variant="secondary">Est: {totalLitrosNecesarios.toFixed(1)} Litros</Badge>
                 </div>
                  <div className="flex items-center gap-2">
                     <Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label>

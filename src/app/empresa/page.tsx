@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles, Server, ChefHat, GlassWater } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles, Server, ChefHat, GlassWater, Calculator } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -16,6 +16,13 @@ interface HubItem {
 
 const empresaHubItems: HubItem[] = [
   {
+    title: 'Planificador Gastronómico',
+    description: 'Calcula costos y precios para catering, repostería y bebidas.',
+    href: '/planner-costo-fiesta',
+    icon: Calculator,
+    actionLabel: 'Acceder al Planificador',
+  },
+  {
     title: 'Gestión de Empleados',
     description: 'Administra la información, roles y sueldos de tu personal.',
     href: '/empleados',
@@ -23,7 +30,7 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Empleados',
   },
   {
-    title: 'Gestión de Proveedores y Servicios Subcontratados',
+    title: 'Proveedores y Servicios',
     description: 'Mantén un registro de tus proveedores y sus servicios.',
     href: '/proveedores',
     icon: Briefcase,
@@ -44,7 +51,7 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Servicios',
   },
    {
-    title: 'Catálogo de Ingredientes (Catering)',
+    title: 'Catálogo de Ingredientes',
     description: 'Gestiona los insumos para tus menús de catering y repostería.',
     href: '/empresa/ingredientes',
     icon: ChefHat,

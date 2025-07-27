@@ -233,32 +233,7 @@ export default function GestorFiestasPage() {
               )}
             </CardContent>
           </Card>
-
-          <Card className="shadow-lg print:shadow-none print:border-2 print:border-primary/50 print:break-inside-avoid">
-            <CardHeader className="pb-4 print:pb-2">
-              <CardTitle className="font-headline text-xl md:text-2xl text-primary flex items-center gap-2 print:text-lg">
-                <Calculator className="w-7 h-7 print:w-5 print:h-5"/> Planificador Gastronómico Integral
-              </CardTitle>
-              <CardDescription className="text-sm mt-1">
-                Calcula y gestiona proporciones, costos y precios para tus eventos.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Este módulo te permitirá diseñar menús, planificar repostería, gestionar bebidas y más.
-              </p>
-            </CardContent>
-            <CardFooter className="pt-3">
-              <Link href="/planner-costo-fiesta" passHref className="w-full">
-                <Button variant="default" className="w-full">
-                  Acceder al Planificador Gastronómico
-                  <ArrowRight className="w-4 h-4 ml-2"/>
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-
-
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 print:hidden">
             <Card className="shadow-md">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
