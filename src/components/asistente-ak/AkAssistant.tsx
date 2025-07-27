@@ -64,7 +64,7 @@ export function AkAssistant({ isOpen: controlledIsOpen, setIsOpen: setControlled
             };
             fetchInitialMessage();
         }
-    }, [isOpen]);
+    }, [isOpen, messages.length]); // Added messages.length dependency
 
     useEffect(() => {
         if (scrollAreaRef.current) {
