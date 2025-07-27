@@ -20,15 +20,15 @@ const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños y Ad
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
-function NuevoItemInventarioContent() {
+function NuevoIngredienteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
   const [nombre, setNombre] = useState('');
-  const tipoItem: TipoItemEmpresa = 'Activo Fijo'; 
-  const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
+  const tipoItem: TipoItemEmpresa = 'Insumo/Ingrediente'; 
+  const [categoria, setCategoria] = useState<CategoriaServicio | ''>('Insumo/Ingrediente');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
@@ -45,21 +45,21 @@ function NuevoItemInventarioContent() {
     setIsSaving(true);
     const itemData: Omit<ServicioEmpresa, 'id'> = {
       nombre: nombre.trim(),
-      tipoItem: tipoItem, // Se asigna el tipo fijo
+      tipoItem: tipoItem,
       categoria: categoria as CategoriaServicio,
       subcategoria: subcategoria.trim() || undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
       unidad: unidad as UnidadServicio,
       notas: notas.trim() || undefined,
-      precioVenta: undefined, // No aplica para Activos Fijos
+      precioVenta: undefined,
     };
 
     try {
       const result = await saveServicioEmpresa(itemData);
       if (result.success && result.id) {
-        toast({ title: "¡Activo Guardado!", description: `El activo "${itemData.nombre}" ha sido guardado.` });
-        router.push('/empresa/todos-los-servicios');
+        toast({ title: "¡Ingrediente Guardado!", description: `El ingrediente "${itemData.nombre}" ha sido guardado.` });
+        router.push('/empresa/ingredientes');
       } else {
         toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar el ítem.", variant: "destructive"});
       }
@@ -76,10 +76,10 @@ function NuevoItemInventarioContent() {
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Activo Fijo
+            Añadir Nuevo Ingrediente
           </h1>
         </div>
-        <Link href="/empresa/todos-los-servicios" passHref>
+        <Link href="/empresa/ingredientes" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver
@@ -89,8 +89,8 @@ function NuevoItemInventarioContent() {
       
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Detalles del Activo</CardTitle>
-          <CardDescription>Registra un nuevo activo físico de la empresa, como mobiliario, equipo de sonido, etc.</CardDescription>
+          <CardTitle className="font-headline">Detalles del Ingrediente/Bebida</CardTitle>
+          <CardDescription>Registra un nuevo insumo para usar en tus menús.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
@@ -99,8 +99,8 @@ function NuevoItemInventarioContent() {
                 <Input id="item-tipo-fijo" value={tipoItem} readOnly disabled className="bg-muted/70 font-semibold"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="item-nombre" className="text-base">Nombre del Activo *</Label>
-              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Silla Tiffany, Parlante JBL" className="text-base p-3" required disabled={isSaving}/>
+              <Label htmlFor="item-nombre" className="text-base">Nombre del Ingrediente *</Label>
+              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Harina, Tomates, Coca-Cola 2.25L" className="text-base p-3" required disabled={isSaving}/>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -112,7 +112,7 @@ function NuevoItemInventarioContent() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="item-subcategoria" className="text-base">Subcategoría</Label>
-                <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Mobiliario, Sonido" className="text-base p-3" disabled={isSaving}/>
+                 <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Lácteos, Verduras, Gaseosas" className="text-base p-3" disabled={isSaving}/>
               </div>
             </div>
             
@@ -137,13 +137,13 @@ function NuevoItemInventarioContent() {
 
              <div className="space-y-2">
               <Label htmlFor="item-notas" className="text-base">Observaciones (Opcional)</Label>
-              <Textarea id="item-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Anotaciones sobre el estado, ubicación, etc." rows={3} disabled={isSaving}/>
+              <Textarea id="item-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Marca preferida, proveedor, etc." rows={3} disabled={isSaving}/>
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Activo'}
+              {isSaving ? 'Guardando...' : 'Guardar Ingrediente'}
             </Button>
           </CardFooter>
         </form>
@@ -152,10 +152,10 @@ function NuevoItemInventarioContent() {
   );
 }
 
-export default function NuevoItemInventarioPage() {
+export default function NuevoIngredientePage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <NuevoItemInventarioContent/>
+            <NuevoIngredienteContent/>
         </Suspense>
     )
 }

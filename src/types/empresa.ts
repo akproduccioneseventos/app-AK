@@ -12,7 +12,8 @@ export type CategoriaServicio =
   | 'Regalo exclusivo'
   | 'Personal'
   | 'Otros servicios'
-  | 'Insumo/Ingrediente' // Para uso interno del planificador gastronómico
+  | 'Insumo/Ingrediente'
+  | 'Bebida (Insumo)' // Added for clarity in the catalog
   | 'Activo Fijo';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
@@ -28,23 +29,22 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Personal',
   'Otros servicios',
   'Insumo/Ingrediente',
+  'Bebida (Insumo)',
   'Activo Fijo',
 ];
 
 export type UnidadServicio = 'Unidad' | 'Set' | 'Metro' | 'Kg' | 'Litro' | 'Caja' | 'Rollo' | 'Docena' | 'Por persona' | 'Por evento' | 'Gramos' | 'Cc' | 'Pack';
 export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'];
 
-// Se mantiene para dar contexto, pero la UI se enfocará en Activos Fijos para esta sección.
-export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Activo Fijo' | 'Servicio';
-export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Activo Fijo', 'Servicio'];
-
+export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Bebida (Insumo)' | 'Activo Fijo' | 'Servicio';
+export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)', 'Activo Fijo', 'Servicio'];
 
 export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de Inventario (Activo/Insumo) o un Servicio
   id: string;
   nombre: string;
   tipoItem?: TipoItemEmpresa; 
   categoria: CategoriaServicio;
-  subcategoria?: 'Entrada' | 'Plato Principal' | 'Menú Niños y Adolescentes' | 'Personal' | 'Mobiliario' | 'Vajilla' | 'Mantelería' | 'Portero' | 'Seguridad' | 'Mesa de Postres' | 'Torta Principal' | 'Souvenirs Comestibles' | string; 
+  subcategoria?: string; 
   
   // Campos de inventario/costo (más relevantes para insumos y activos)
   cantidadDisponible?: number; 

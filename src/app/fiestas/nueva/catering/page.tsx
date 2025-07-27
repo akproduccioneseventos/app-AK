@@ -218,7 +218,7 @@ export default function CateringEventoHubPage() {
               <p className="text-muted-foreground mb-4 text-sm">
                   Mantén un registro de tus insumos para usarlos en tus menús.
               </p>
-              <Link href="/empresa/todos-los-servicios" passHref>
+              <Link href="/empresa/ingredientes" passHref>
                   <Button className="w-full" variant="secondary">
                       <HardHat className="w-5 h-5 mr-2" />
                       Gestionar Catálogo de Ingredientes

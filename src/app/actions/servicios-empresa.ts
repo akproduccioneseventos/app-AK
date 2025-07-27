@@ -108,8 +108,8 @@ export async function saveServicioEmpresa(
   if (!dataWithParsedNumbers.categoria) {
     return { success: false, error: "La categoría es obligatoria." };
   }
-  if (!dataWithParsedNumbers.unidad) {
-    return { success: false, error: "La unidad es obligatoria." };
+  if (!dataWithParsedNumbers.unidad && dataWithParsedNumbers.tipoItem !== 'Servicio') {
+    return { success: false, error: "La unidad es obligatoria para Insumos y Activos." };
   }
   if (!dataWithParsedNumbers.tipoItem) {
     return { success: false, error: "El tipo de ítem es obligatorio." };
