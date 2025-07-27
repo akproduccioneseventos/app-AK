@@ -9,7 +9,7 @@ import { ai } from '@/ai/genkit';
 import { analyzeCodebase } from './analyze-codebase-flow';
 import { analyzeEventPlan } from './analyze-event-plan-flow';
 import { assignGuestsToTables } from './assign-guests-flow';
-import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput } from '@/ai/types/assistant-types';
+import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput, type AssistantOutput } from '@/ai/types/assistant-types';
 import { z } from 'genkit';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { savePresupuesto } from '@/app/actions/presupuestos';
@@ -144,10 +144,9 @@ const createQuoteTool = ai.defineTool(
 );
 
 
-export async function assistant(input: AssistantInput) {
+export async function assistant(input: AssistantInput): Promise<AssistantOutput> {
   const config = await getAssistantConfig();
   
-  // This prompt guides the model to be a helpful event planning assistant and use the available tools.
   const systemPrompt = `Eres "Asistente AK", un asesor experto en planificación de eventos para AK Producciones.
   Tu objetivo principal es ayudar a los clientes a crear un presupuesto inicial para su fiesta. Debes ser amigable, servicial y proactivo.
 
