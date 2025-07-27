@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -10,7 +11,6 @@ import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { useToast } from '@/hooks/use-toast';
 import { triggerAppLogout } from '@/components/auth-guard';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
 import { getDashboardKpiData } from '@/app/actions/dashboard'; 
 
@@ -69,7 +69,6 @@ export default function DashboardPage() {
     totalPendiente: 0,
   });
   
-  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [asistenteAkLink, setAsistenteAkLink] = useState('');
 
   useEffect(() => {
@@ -120,7 +119,7 @@ export default function DashboardPage() {
           <CardTitle className="font-headline text-xl">Creación de Presupuestos</CardTitle>
           <CardDescription>Elige el método que mejor se adapte a tus necesidades y las de tu cliente.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4 flex flex-col justify-between">
             <div>
               <CardTitle className="text-lg font-semibold flex items-center gap-2"><PlusCircle className="w-5 h-5"/>Presupuesto Manual</CardTitle>
@@ -137,26 +136,9 @@ export default function DashboardPage() {
              <div className="flex gap-2">
               <Link href="/armado-rapido" passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
               <ShareLinkDialog
-                  link={asistenteAkLink} // Still points to the assistant, but we can change the page itself
+                  link={`${typeof window !== 'undefined' ? window.location.origin : ''}/armado-rapido`}
                   title="Compartir Armado Rápido"
                   description="Copia este enlace para que tu cliente cree un presupuesto con los paquetes."
-              >
-                  <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
-              </ShareLinkDialog>
-            </div>
-          </Card>
-
-          <Card className="p-4 flex flex-col justify-between">
-            <div>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Bot className="w-5 h-5"/>Asistente AK</CardTitle>
-              <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Un chat para crear un presupuesto.</CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Link href="/asistente-ak" passHref className="flex-grow"><Button className="w-full">Probar Asistente</Button></Link>
-              <ShareLinkDialog
-                  link={asistenteAkLink}
-                  title="Compartir Asistente AK"
-                  description="Copia este enlace para que tu cliente cree un presupuesto conversando con la IA."
               >
                   <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
               </ShareLinkDialog>
@@ -183,7 +165,6 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-      <AkAssistant isOpen={isAssistantOpen} setIsOpen={setIsAssistantOpen} />
     </div>
   );
 }

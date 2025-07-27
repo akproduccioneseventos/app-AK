@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -63,20 +64,16 @@ export default function AsistenteAkInfoPage() {
                                 <div className="p-2 bg-primary/10 rounded-full">
                                     <FileJson className="w-5 h-5 text-primary" />
                                 </div>
-                                <h4 className="font-semibold">Edita el Flujo de Conversación</h4>
+                                <h4 className="font-semibold">El Asistente ha sido eliminado.</h4>
                             </div>
                             <p className="text-sm text-muted-foreground mb-2">
-                                Puedes definir los pasos, preguntas y opciones que el Asistente AK utilizará para crear presupuestos.
-                            </p>
-                             <p className="text-xs text-muted-foreground">
-                                Para modificar el diálogo, edita el archivo:
-                                <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/data/asistente-ak-config.json</code>
+                               La funcionalidad del Asistente AK ha sido eliminada.
                             </p>
                         </div>
                     </div>
                     <Separator/>
                      <div>
-                        <h3 className="font-semibold text-lg mb-3">¿Cómo funciona? El Proceso, Paso a Paso:</h3>
+                        <h3 className="font-semibold text-lg mb-3">¿Cómo funcionaba? El Proceso, Paso a Paso:</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {steps.map(step => (
                                 <div key={step.title} className="p-4 border rounded-lg bg-muted/40">
@@ -92,21 +89,6 @@ export default function AsistenteAkInfoPage() {
                         </div>
                     </div>
                 </CardContent>
-                 <CardFooter className="flex-col items-start gap-2 text-sm text-muted-foreground bg-amber-50 dark:bg-amber-900/30 p-4 border-t">
-                    <div className="flex items-center gap-2 font-semibold text-amber-800 dark:text-amber-200">
-                        <HelpCircle className="w-5 h-5"/>
-                        ¿Cómo interactúo?
-                    </div>
-                    <p>
-                        Usa lenguaje natural en el chat del asistente flotante en la esquina inferior derecha. Prueba con frases como:
-                    </p>
-                    <ul className="list-disc list-inside pl-5 font-mono text-xs">
-                        <li>`revisa la planificación de la fiesta`</li>
-                        <li>`asigna los invitados`</li>
-                        <li>`analiza el código de la app`</li>
-                        <li>`crea un presupuesto para una boda de 50 personas el 15/12/2025`</li>
-                    </ul>
-                </CardFooter>
             </Card>
         </div>
     );
