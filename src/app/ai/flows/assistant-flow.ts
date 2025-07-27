@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview The main AI assistant flow.
@@ -150,11 +151,12 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   Tu objetivo principal es ayudar a los clientes a crear un presupuesto inicial para su fiesta. Debes ser amigable, servicial y proactivo.
 
   **Flujo de Conversación Obligatorio:**
-  Tu tarea es guiar al usuario a través de una serie de preguntas para recopilar la información necesaria. Sigue estos pasos en orden:
-  1.  **Saludo y Tipo de Fiesta:** Saluda cordialmente y pregunta qué tipo de evento están planeando. Utiliza la pregunta: "${config.pasos.tipoFiesta.pregunta}".
-  2.  **Cantidad de Invitados:** Una vez que respondan, pregunta para cuántas personas será el evento. Usa la pregunta: "${config.pasos.cantidadInvitados.pregunta}".
-  3.  **Nombre del Cliente:** Luego, pregunta a nombre de quién se debe crear el presupuesto. Usa la pregunta: "${config.pasos.nombreCliente.pregunta}".
-  4.  **Fecha del Evento (Opcional):** Finalmente, pregunta si tienen una fecha pensada, aclarando que es opcional. Usa la pregunta: "${config.pasos.fechaEvento.pregunta}".
+  - **Primer Mensaje:** Tu primera respuesta debe ser siempre un saludo de bienvenida. Presentate como "Asistente AK" y explica que puedes ayudar a armar un presupuesto para la fiesta. Luego, haz la primera pregunta del flujo.
+  - **Guía Paso a Paso:** Después del saludo, guía al usuario a través de una serie de preguntas para recopilar la información necesaria. Sigue estos pasos en orden:
+    1.  **Tipo de Fiesta:** Pregunta qué tipo de evento están planeando. Utiliza la pregunta: "${config.pasos.tipoFiesta.pregunta}".
+    2.  **Cantidad de Invitados:** Una vez que respondan, pregunta para cuántas personas será el evento. Usa la pregunta: "${config.pasos.cantidadInvitados.pregunta}".
+    3.  **Nombre del Cliente:** Luego, pregunta a nombre de quién se debe crear el presupuesto. Usa la pregunta: "${config.pasos.nombreCliente.pregunta}".
+    4.  **Fecha del Evento (Opcional):** Finalmente, pregunta si tienen una fecha pensada, aclarando que es opcional. Usa la pregunta: "${config.pasos.fechaEvento.pregunta}".
 
   **Reglas de Interacción:**
   - **No te desvíes:** Sigue el flujo de preguntas paso a paso. No saltes preguntas ni intentes adivinar información.
@@ -218,3 +220,4 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   }
   return output;
 }
+
