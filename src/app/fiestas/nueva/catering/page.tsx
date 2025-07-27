@@ -209,7 +209,7 @@ export default function CateringEventoHubPage() {
               <div className="flex items-center gap-3">
                   <HardHat className="w-8 h-8 text-primary" />
                   <div>
-                      <CardTitle className="font-headline text-xl">Catálogo de Insumos</CardTitle>
+                      <CardTitle className="font-headline text-xl">Catálogo de Ingredientes</CardTitle>
                       <CardDescription>Gestiona tu lista maestra de ingredientes.</CardDescription>
                   </div>
               </div>
