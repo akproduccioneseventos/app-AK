@@ -8,6 +8,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { addCrmLead } from './crm';
 import fs from 'fs/promises';
 import path from 'path';
+import type { TipoEvento } from '@/types/presupuesto';
 
 // Define types for the configuration structure
 interface ReglaPersonal {
@@ -39,7 +40,7 @@ interface ArmadoRapidoConfig {
 
 interface ArmadoRapidoData {
   clienteNombre: string;
-  eventoTipo: string;
+  eventoTipo: TipoEvento;
   invitadosCantidad: number;
   eventoFecha?: string; // ISO String - Now optional
   salonFiestas: string;

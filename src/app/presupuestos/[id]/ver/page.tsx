@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2 } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Copy } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -16,28 +16,30 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
-const formatCurrency = (amount?: number, includeSymbol = true) => {
+const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   const options = { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 };
   const formatted = new Intl.NumberFormat('es-UY', options).format(amount);
-  return includeSymbol ? `$ ${formatted}` : formatted;
+  if (!includeSymbol) return formatted;
+  return useNUS ? `NU$ ${formatted}` : `$ ${formatted}`;
 };
 
 const formatDate = (dateString?: string, shortMonth = false) => {
   if (!dateString) return "Fecha no especificada";
   try {
     const date = new Date(dateString);
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth(); 
-    const day = date.getUTCDate();
+    const year = dateString.includes('T') ? date.getUTCFullYear() : date.getFullYear();
+    const month = dateString.includes('T') ? date.getUTCMonth() : date.getMonth();
+    const day = dateString.includes('T') ? date.getUTCDate() : date.getDate();
 
     if (shortMonth) {
-        return `${String(day).padStart(2,'0')}/${String(month + 1).padStart(2,'0')}/${year}`;
+      return `${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
     }
     return new Date(year, month, day).toLocaleDateString('es-ES', {
       day: '2-digit', month: 'long', year: 'numeric'
     });
   } catch (e) {
+    console.error("Error formatting date:", dateString, e);
     return 'Fecha inválida';
   }
 };
@@ -45,14 +47,14 @@ const formatDate = (dateString?: string, shortMonth = false) => {
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos";
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
-const COMPANY_ADDRESS_LINE1 = "Salto";
-const COMPANY_ADDRESS_LINE2 = "50000 Salto";
-const COMPANY_CONTACT_EMAIL = "akproduccionessalto@gmail.com";
-const COMPANY_WEBSITE = "www.akproduccioneseventos.com";
-const COMPANY_LOGO_URL = "https://placehold.co/120x120/EF4444/FFFFFF.png?text=AK&font=montserrat"; 
-const COMPANY_LOGO_AI_HINT = "company logo AK circle red";
-const BUDGET_VALIDITY_DAYS = 30;
-const BUDGET_DEPOSIT_NOTE = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
+const COMPANY_ADDRESS_LINE1_PDF = "Salto";
+const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
+const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
+const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
+const COMPANY_LOGO_URL_PDF = "https://placehold.co/120x120/EF4444/FFFFFF.png?text=AK&font=montserrat"; 
+const COMPANY_LOGO_AI_HINT_PDF = "company logo AK circle red";
+const BUDGET_VALIDITY_DAYS_PDF = 30;
+const BUDGET_DEPOSIT_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
 
 export default function VerPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
   const params = React.use(paramsProp);
@@ -99,28 +101,59 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   const handlePrint = () => {
     window.print();
   };
+  
+  const generarTextoWhatsApp = () => {
+    if (!presupuesto || !displaySettings) return '';
+    const totalFinalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+    let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
+    texto += `Estimado/a *${presupuesto.clienteNombre}*,\n\n`;
+    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}* para tu *${presupuesto.eventoTipo}*.\n`;
+    if (displaySettings.showClientData) {
+      texto += `*Salón:* ${presupuesto.salonFiestas}\n`;
+    }
+    if (displaySettings.showEventTypeAndDate) {
+      texto += `*Fecha del Evento:* ${formatDate(presupuesto.eventoFecha)}\n`;
+      texto += `*Cantidad de Invitados:* ${presupuesto.invitadosCantidad}\n`;
+    }
+    texto += `\n`;
+    if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
+      texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
+      presupuesto.itemsPresupuestados.forEach(item => {
+        if (!item.nombreServicio.toLowerCase().includes('elección')) {
+          texto += `  • ${item.nombreServicio}\n`;
+        }
+      });
+      texto += `\n`;
+    }
+    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinalConDescuento, true, true)}*\n\n`;
+    if(presupuesto.notas && presupuesto.notas.trim() !== '' && displaySettings.showPaymentMethodNotes){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
+    texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
+    return texto;
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(generarTextoWhatsApp())
+      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
+      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
+  };
 
   const handleShare = async () => {
-    if (!presupuesto) return;
     const shareData = {
-      title: `Presupuesto para ${presupuesto.clienteNombre}`,
-      text: `Aquí está el presupuesto para tu ${presupuesto.eventoTipo}.`,
+      title: `Presupuesto para ${presupuesto?.clienteNombre}`,
+      text: `Aquí está el presupuesto para tu ${presupuesto?.eventoTipo}.`,
       url: window.location.href,
     };
     try {
       if (navigator.share && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
-        throw new Error();
+        throw new Error('Share API not supported');
       }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
+      handleCopyToClipboard(); // Fallback to copy link
     }
   };
+
 
   if (isLoading || !displaySettings) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
@@ -129,11 +162,11 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado."}</p><Link href="/presupuestos" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
   }
 
-  const costoTotalSinDescuento = presupuesto.itemsPresupuestados.reduce((sum, item) => sum + item.costoTotalItem, 0);
+  const costoTotalSinDescuento = presupuesto.itemsPresupuestados.reduce((sum, item) => sum + (item.esRegalo ? 0 : item.costoTotalItem), 0);
   const totalFinalMostrado = presupuesto.totalConDescuento ?? costoTotalSinDescuento;
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
-  fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS);
+  fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
 
   const eventYear = new Date(presupuesto.eventoFecha).getFullYear();
   const currentYear = new Date().getFullYear();
@@ -161,18 +194,18 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         </div>
         
         <header className="mb-6 print:mb-4">
-          <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE} - {COMPANY_NAME_BRAND}</h1>
+          <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
           <div className="flex justify-between items-start text-xs print:text-[8pt]">
             <div className="space-y-px">
               <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-              <p>{COMPANY_ADDRESS_LINE1}</p>
-              <p>{COMPANY_ADDRESS_LINE2}</p>
-              <p>{COMPANY_CONTACT_EMAIL}</p>
-              <p>{COMPANY_WEBSITE}</p>
+              <p>{COMPANY_ADDRESS_LINE1_PDF}</p>
+              <p>{COMPANY_ADDRESS_LINE2_PDF}</p>
+              <p>{COMPANY_CONTACT_EMAIL_PDF}</p>
+              <p>{COMPANY_WEBSITE_PDF}</p>
             </div>
             {displaySettings.showCompanyLogo && (
                 <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-                    <Image src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT}/>
+                    <Image src={COMPANY_LOGO_URL_PDF} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT_PDF}/>
                 </div>
             )}
           </div>
@@ -187,7 +220,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         )}
         
         <section className="mb-6 print:mb-3">
-          <table className="w-full text-xs print:text-[8pt] border-collapse">
+          <table className="w-full text-xs print:text-[7pt] border-collapse">
             <thead className="print:bg-gray-100">
               <tr>
                 <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Número de cliente</th>
@@ -211,7 +244,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
 
         {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
             <section className="mb-6 print:mb-3">
-            <table className="w-full text-xs print:text-[8pt] border-collapse">
+            <table className="w-full text-xs print:text-[7pt] border-collapse">
                 <thead className="print:bg-gray-100">
                 <tr>
                     <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
@@ -228,7 +261,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                     <td className="border border-gray-300 print:border-gray-400 px-2 py-1 align-top">
                         {item.nombreServicio}
                         {presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
-                        <div className="text-gray-500 print:text-gray-600 text-[7pt]">{presupuesto.descuentoValor}% de descuento</div>
+                        <div className="text-gray-500 print:text-gray-600 text-[6pt]">{presupuesto.descuentoValor}% de descuento</div>
                         )}
                     </td>
                     <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">{item.cantidad}</td>
@@ -283,7 +316,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         </section>
         
         <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
-          <p>{BUDGET_DEPOSIT_NOTE}</p>
+          <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-2 whitespace-pre-line">{presupuesto.notas}</p>}
           {showAnnualAdjustmentLegend && (
             <p className="mt-1 print:mt-0.5 text-orange-600">
