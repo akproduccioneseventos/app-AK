@@ -46,4 +46,3 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to create zip file.', details: error.message }, { status: 500 });
   }
 }
-

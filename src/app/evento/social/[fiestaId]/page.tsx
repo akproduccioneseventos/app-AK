@@ -222,7 +222,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
                  <form onSubmit={handleUploadSubmit} className="space-y-4">
                     {uploadPreview ? <div className="relative aspect-video"><NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md"/></div>
                     : <div className="h-48 border-2 border-dashed rounded-md flex flex-col items-center justify-center bg-background"><Label htmlFor="file-upload-dialog" className="cursor-pointer text-center text-muted-foreground p-4"><Upload className="w-8 h-8 mx-auto mb-2"/>Selecciona o arrastra una foto aquí</Label><Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/jpeg,image/png,image/gif" /></div>}
-                    <DialogFooter><Button type="submit" disabled={isUploading || !fileToUpload}>{isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Upload className="w-4 h-4 mr-2"/>}{isUploading ? "Subiendo..." : "Publicar Foto"}</Button></DialogFooter>
+                    <DialogFooter><Button type="submit" disabled={isUploading || !fileToUpload}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Upload className="w-4 h-4 mr-2"/>}{isUploading ? "Subiendo..." : "Publicar Foto"}</Button></DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>

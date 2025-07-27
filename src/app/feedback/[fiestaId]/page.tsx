@@ -12,7 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveFeedback } from '@/app/actions/feedback';
 
-export default function FeedbackPage({ params }: { params: { fiestaId: string } }) {
+export default function FeedbackPage({ params: paramsProp }: { params: Promise<{ fiestaId: string }> }) {
+  const params = React.use(paramsProp);
   const { toast } = useToast();
   const [clientName, setClientName] = useState('');
   const [enjoyedMost, setEnjoyedMost] = useState('');
