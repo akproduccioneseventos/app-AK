@@ -101,7 +101,7 @@ export default function IngredientesPage() {
         <div className="flex items-center gap-3">
           <Package className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Catálogo de Ingredientes y Bebidas
+            Catálogo de Ingredientes
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
@@ -119,7 +119,7 @@ export default function IngredientesPage() {
             </Link>
         </div>
       </div>
-      <CardDescription>Gestiona el inventario de insumos que utilizas para elaborar tus menús de catering, repostería y bebidas.</CardDescription>
+      <CardDescription>Gestiona el inventario de insumos que utilizas para elaborar tus menús de catering y repostería.</CardDescription>
        <Card className="shadow-sm">
         <CardContent className="p-4 flex flex-col md:flex-row gap-4">
           <div className="relative flex-grow">
