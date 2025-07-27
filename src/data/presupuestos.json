@@ -3,6 +3,101 @@
     "clienteNombre": "Ana García",
     "eventoTipo": "Boda",
     "invitadosCantidad": 50,
+    "eventoFecha": "2025-07-27T19:25:16.527Z",
+    "salonFiestas": "Club Uruguay",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_1752489600001_pmozo",
+        "nombreServicio": "Mozo",
+        "cantidad": 2,
+        "unidad": "Por evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600002_pcoci",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 2,
+        "unidad": "Por evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600103_disbas",
+        "nombreServicio": "Discoteca Básica",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 5500,
+        "costoTotalItem": 5500,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600004_pchef",
+        "nombreServicio": "Cheff",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600003_pmetr",
+        "nombreServicio": "Metre",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600098_decbas",
+        "nombreServicio": "DECORACION BASICA",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 14500,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600116_fotfie",
+        "nombreServicio": "Fotografía de la fiesta",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 8500,
+        "costoTotalItem": 8500,
+        "categoriaServicio": "Servicio de fotografía"
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600112_filfie",
+        "nombreServicio": "Filmación de la fiesta",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 7500,
+        "costoTotalItem": 7500,
+        "categoriaServicio": "Servicio de filmación"
+      },
+      {
+        "idServicioCatalogo": "menu_placeholder",
+        "nombreServicio": "Menú Gastronómico a elección",
+        "cantidad": 50,
+        "unidad": "Por persona",
+        "precioUnitario": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Servicio de catering"
+      }
+    ],
+    "costoTotalEstimado": 54600,
+    "timestamp": "2025-07-27T19:25:16.528Z",
+    "notas": "Presupuesto inicial generado por Armado Rápido con el paquete \"Paquete Premium\". Menú a confirmar por el cliente. Fecha del evento a confirmar.",
+    "id": "pres_1753644316528_ir5xbpq",
+    "estado": "Borrador"
+  },
+  {
+    "clienteNombre": "Ana García",
+    "eventoTipo": "Boda",
+    "invitadosCantidad": 50,
     "eventoFecha": "2025-07-27T19:14:59.227Z",
     "salonFiestas": "Club Uruguay",
     "itemsPresupuestados": [
