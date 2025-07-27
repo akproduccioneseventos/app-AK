@@ -7,7 +7,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.175,
+    "notas": "Proveedor: CALSAL"
   },
   {
     "id": "ing_1753733075249_algas",
@@ -16,7 +17,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 2
+    "valorUnitarioEstimado": 2,
+    "notas": "Proveedor: MONTEVIDEO"
   },
   {
     "id": "ing_1753733075249_salsasoja",
@@ -25,7 +27,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Litro",
-    "valorUnitarioEstimado": 500
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_aceite",
@@ -34,7 +37,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Aceites y Vinagres",
     "unidad": "Litro",
-    "valorUnitarioEstimado": 70
+    "valorUnitarioEstimado": 0.07,
+    "notas": "Proveedor: DK MOYORISTA"
   },
   {
     "id": "ing_1753733075249_gas",
@@ -42,7 +46,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Otros servicios",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 1000
+    "valorUnitarioEstimado": 1,
+    "notas": "Proveedor: No definido"
   },
   {
     "id": "ing_1753733075249_huevo",
@@ -51,7 +56,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Lácteos y Huevos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 10
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_arrolladitos",
@@ -60,7 +66,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 6
+    "valorUnitarioEstimado": 6,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_tostaditas",
@@ -69,7 +76,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.39
+    "valorUnitarioEstimado": 0.4,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_albahaca",
@@ -78,7 +86,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 40
+    "valorUnitarioEstimado": 40,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_hongos",
@@ -87,7 +96,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.28
+    "valorUnitarioEstimado": 0.26666666666666666,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_picles",
@@ -96,7 +106,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_pate",
@@ -105,7 +116,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_salsa",
@@ -114,7 +126,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.16666666666666666,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_aceitunasrodajas",
@@ -123,7 +136,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_salsasvarias",
@@ -132,7 +146,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_tomatecherry",
@@ -141,7 +156,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_jamon",
@@ -150,7 +166,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.175,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_manteca",
@@ -159,7 +176,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Lácteos y Huevos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_muzarella",
@@ -168,7 +186,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.33
+    "valorUnitarioEstimado": 0.325,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_pandesandwiches",
@@ -177,7 +196,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38
+    "valorUnitarioEstimado": 0.38333333333333336,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_aceitunas",
@@ -186,7 +206,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.22
+    "valorUnitarioEstimado": 0.24,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_palitossalados",
@@ -195,7 +216,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: BAGASHOPING"
   },
   {
     "id": "ing_1753733075249_mani",
@@ -204,7 +226,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_papaschips",
@@ -213,7 +236,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.4
+    "valorUnitarioEstimado": 0.4,
+    "notas": "Proveedor: DK MOYORISTA"
   },
   {
     "id": "ing_1753733075249_doritos",
@@ -222,7 +246,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.8
+    "valorUnitarioEstimado": 0.8,
+    "notas": "Proveedor: DK MOYORISTA"
   },
   {
     "id": "ing_1753733075249_paleta",
@@ -231,7 +256,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.16666666666666666,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_quesodambo",
@@ -240,7 +266,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.43
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_salame",
@@ -249,7 +276,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.43
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_quesomuzzarela",
@@ -258,7 +286,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.34
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_quesodecerdo",
@@ -267,7 +296,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_quesoalpa",
@@ -276,7 +306,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.28
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_leonesaprimavera",
@@ -285,7 +316,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.322
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_aceitunassincarozo",
@@ -294,7 +326,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25
+    "valorUnitarioEstimado": 0.25,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_grisineschicos",
@@ -303,7 +336,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.37
+    "valorUnitarioEstimado": 0.375,
+    "notas": "Proveedor: BISIO"
   },
   {
     "id": "ing_1753733075249_galletasredondasarcor",
@@ -312,7 +346,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.28
+    "valorUnitarioEstimado": 0.25,
+    "notas": "Proveedor: DK MOYORISTA"
   },
   {
     "id": "ing_1753733075249_galletasmalteadassinsal",
@@ -321,7 +356,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.27
+    "valorUnitarioEstimado": 0.25,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_tostadasbaguetsaborizadas",
@@ -330,7 +366,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.635
+    "valorUnitarioEstimado": 0.625,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_catalan20gconsesamoderemolacha",
@@ -339,7 +376,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.34
+    "valorUnitarioEstimado": 0.375,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_catalan20gconsesamoverde",
@@ -348,7 +386,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.34
+    "valorUnitarioEstimado": 0.375,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_picadadecarne",
@@ -357,7 +396,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.33
+    "valorUnitarioEstimado": 0.33,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_aderezos",
@@ -366,7 +406,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.15
+    "valorUnitarioEstimado": 0.15,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_perejilyajonatural",
@@ -375,7 +416,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1
+    "valorUnitarioEstimado": 0.1,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_cebollas",
@@ -384,7 +426,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1
+    "valorUnitarioEstimado": 0.1,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_pollo",
@@ -393,7 +436,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.12,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_papa",
@@ -402,7 +446,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.06
+    "valorUnitarioEstimado": 0.06666666666666667,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_zanahoria",
@@ -411,7 +456,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.13333333333333333,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_arbejas",
@@ -420,7 +466,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.5
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_mayonesa",
@@ -429,7 +476,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.125,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_condimentos",
@@ -438,7 +486,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Especias",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1
+    "valorUnitarioEstimado": 0.1,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_tapa",
@@ -447,7 +496,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Otros Insumos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 6
+    "valorUnitarioEstimado": 6,
+    "notas": "Proveedor: PASTAS LULU"
   },
   {
     "id": "ing_1753733075249_cebolla",
@@ -456,7 +506,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1
+    "valorUnitarioEstimado": 0.1,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_morron",
@@ -465,7 +516,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.11666666666666667,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_carnepicada",
@@ -474,7 +526,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25
+    "valorUnitarioEstimado": 0.25,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_pan",
@@ -483,7 +536,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 6
+    "valorUnitarioEstimado": 6,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_lechuga",
@@ -492,7 +546,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 50
+    "valorUnitarioEstimado": 50,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_carne",
@@ -501,7 +556,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38
+    "valorUnitarioEstimado": 0.38333333333333336,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_tomate",
@@ -510,7 +566,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.15
+    "valorUnitarioEstimado": 0.15,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_queso",
@@ -519,7 +576,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.4
+    "valorUnitarioEstimado": 0.4,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_choclo",
@@ -528,7 +586,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.26
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_papaspai",
@@ -537,7 +596,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.45
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_palmitos",
@@ -546,7 +606,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.16666666666666666,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_panchos",
@@ -555,7 +616,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.16666666666666666,
+    "notas": "Proveedor: DK MOYORISTA"
   },
   {
     "id": "ing_1753733075249_panceta",
@@ -564,7 +626,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.421
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_conos",
@@ -573,7 +636,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Otros Insumos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 25
+    "valorUnitarioEstimado": 25,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_pizzas",
@@ -582,7 +646,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 60
+    "valorUnitarioEstimado": 60,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_morronrojo",
@@ -591,7 +656,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.15
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_harinademaizblanco",
@@ -600,7 +666,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.12,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_tapasdehojaldre",
@@ -609,7 +676,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Otros Insumos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 65
+    "valorUnitarioEstimado": 66,
+    "notas": "Proveedor: PASTAS LULU"
   },
   {
     "id": "ing_1753733075249_salsapicante",
@@ -618,7 +686,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_morronverde",
@@ -627,7 +696,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.13333333333333333,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_palta",
@@ -636,7 +706,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 40
+    "valorUnitarioEstimado": 40,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_muzzarellapararallar",
@@ -645,7 +716,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.33
+    "valorUnitarioEstimado": 0.32,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_enpanaditascopetin",
@@ -654,7 +726,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 13
+    "valorUnitarioEstimado": 13,
+    "notas": "Proveedor: VALENTIN"
   },
   {
     "id": "ing_1753733075249_pizzetitasconmuzzarella",
@@ -663,7 +736,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 15
+    "valorUnitarioEstimado": 15,
+    "notas": "Proveedor: VALENTIN"
   },
   {
     "id": "ing_1753733075249_nuggetdepollo",
@@ -672,7 +746,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.283
+    "valorUnitarioEstimado": 0.26666666666666666,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_arosdecebolla",
@@ -681,7 +756,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.253
+    "valorUnitarioEstimado": 0.26666666666666666,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_papasfritas",
@@ -690,7 +766,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.13
+    "valorUnitarioEstimado": 0.13333333333333333,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_croquetasdepapa",
@@ -699,7 +776,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25
+    "valorUnitarioEstimado": 0.26666666666666666,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_noisettes",
@@ -708,7 +786,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_formitasdemerluza",
@@ -717,7 +796,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.239
+    "valorUnitarioEstimado": 0.23333333333333334,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_milanesadecarne",
@@ -726,7 +806,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.32
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_milanesadepollo",
@@ -735,7 +816,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25
+    "valorUnitarioEstimado": 0.26666666666666666,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_galletas",
@@ -744,7 +826,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.22
+    "valorUnitarioEstimado": 0.23333333333333334,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_grisines",
@@ -753,7 +836,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_salsacriolla",
@@ -762,7 +846,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.20754716981132076,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_quesocolonia",
@@ -771,7 +856,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.16666666666666666,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_raviolesfritos",
@@ -780,7 +866,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.209
+    "valorUnitarioEstimado": 0.21568627450980393,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_papasrústicas",
@@ -789,7 +876,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18
+    "valorUnitarioEstimado": 0.17307692307692307,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_chorizos",
@@ -798,7 +886,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25
+    "valorUnitarioEstimado": 0.26,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_morcilla",
@@ -807,7 +896,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.36
+    "valorUnitarioEstimado": 0.36,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_pandecampo",
@@ -816,7 +906,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 120
+    "valorUnitarioEstimado": 120,
+    "notas": "Proveedor: PANONO"
   },
   {
     "id": "ing_1753733075249_milanesadepescado",
@@ -825,7 +916,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.4
+    "valorUnitarioEstimado": 0.4,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_rabasrebozadasdecalamar",
@@ -834,7 +926,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.415
+    "valorUnitarioEstimado": 0.4,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_bastonesdemuzarella",
@@ -843,7 +936,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.365
+    "valorUnitarioEstimado": 0.36666666666666664,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_salmon",
@@ -852,7 +946,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 1
+    "valorUnitarioEstimado": 1,
+    "notas": "Proveedor: FERRANDO"
   },
   {
     "id": "ing_1753733075249_arrozdeshushi",
@@ -861,7 +956,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.135
+    "valorUnitarioEstimado": 0.14,
+    "notas": "Proveedor: TATA"
   },
   {
     "id": "ing_1753733075249_quesocrema",
@@ -869,8 +965,9 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.4
+    "unidad": "Litro",
+    "valorUnitarioEstimado": 0.4,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_pepino",
@@ -879,7 +976,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.09
+    "valorUnitarioEstimado": 0.1,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_sandwichespanblanco",
@@ -888,7 +986,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 15
+    "valorUnitarioEstimado": 16,
+    "notas": "Proveedor: VALENTIN"
   },
   {
     "id": "ing_1753733075249_pebetes",
@@ -897,7 +996,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 11
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: VALENTIN"
   },
   {
     "id": "ing_1753733075249_arrolladitosdehojalre",
@@ -906,7 +1006,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 11
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: VALENTIN"
   },
   {
     "id": "ing_1753733075249_medialunas",
@@ -915,7 +1016,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 15
+    "valorUnitarioEstimado": 16,
+    "notas": "Proveedor: VALENTIN"
   },
   {
     "id": "ing_1753733075249_cañoncitos",
@@ -924,7 +1026,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.152
+    "valorUnitarioEstimado": 13.333333333333334,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_palmitas",
@@ -933,7 +1036,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 2.082
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_tarteletas",
@@ -942,7 +1046,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.894
+    "valorUnitarioEstimado": 8,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_arrolladitosdulces",
@@ -951,7 +1056,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 7
+    "valorUnitarioEstimado": 6.666666666666667,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_jesuitas",
@@ -960,7 +1066,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.03
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_sandwichespannegro",
@@ -969,7 +1076,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 13
+    "valorUnitarioEstimado": 14,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_vulevanes",
@@ -978,7 +1086,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.152
+    "valorUnitarioEstimado": 13.333333333333334,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_esconesdequesoconsesamo",
@@ -986,8 +1095,9 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.55
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_chipa",
@@ -995,8 +1105,9 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.55
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_quesoconcereza",
@@ -1005,7 +1116,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 11
+    "valorUnitarioEstimado": 10,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_cerezasroja",
@@ -1014,7 +1126,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.8
+    "valorUnitarioEstimado": 1,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_lomitoahumado",
@@ -1023,7 +1136,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.511
+    "valorUnitarioEstimado": 0.5333333333333333,
+    "notas": "Proveedor: BORDENAVE"
   },
   {
     "id": "ing_1753733075249_mortadela",
@@ -1032,7 +1146,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.327
+    "valorUnitarioEstimado": 0.3333333333333333,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_jamoncrudo",
@@ -1041,7 +1156,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.799
+    "valorUnitarioEstimado": 1.8,
+    "notas": "Proveedor: FENIX"
   },
   {
     "id": "ing_1753733075249_bondiolacocidaahumada",
@@ -1050,7 +1166,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.48
+    "valorUnitarioEstimado": 0.4666666666666667,
+    "notas": "Proveedor: BORDENAVE"
   },
   {
     "id": "ing_1753733075249_cerezasverde",
@@ -1059,7 +1176,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 1
+    "valorUnitarioEstimado": 1,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_aceitunasnegras",
@@ -1068,7 +1186,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3
+    "valorUnitarioEstimado": 0.3,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_panchosmediometro",
@@ -1077,7 +1196,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.27
+    "valorUnitarioEstimado": 0.26842105263157895,
+    "notas": "Proveedor: BORDENAVE"
   },
   {
     "id": "ing_1753733075249_portapanchomediometro",
@@ -1086,7 +1206,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Otros Insumos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 15
+    "valorUnitarioEstimado": 15,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_pandepanchosmediometro",
@@ -1095,7 +1216,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 48
+    "valorUnitarioEstimado": 48,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_pandepanchos",
@@ -1104,7 +1226,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 13
+    "valorUnitarioEstimado": 13,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_hamburguesas",
@@ -1113,7 +1236,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 35
+    "valorUnitarioEstimado": 35,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_tortugasbrioche70gramos",
@@ -1122,7 +1246,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 20
+    "valorUnitarioEstimado": 20,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_tortuga",
@@ -1131,7 +1256,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 16
+    "valorUnitarioEstimado": 16,
+    "notas": "Proveedor: DON DIEGO"
   },
   {
     "id": "ing_1753733075249_emboltorio",
@@ -1140,7 +1266,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Otros Insumos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 6
+    "valorUnitarioEstimado": 6,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_polloarrollado",
@@ -1149,7 +1276,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 500
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: NICO"
   },
   {
     "id": "ing_1753733075249_guarnición",
@@ -1158,7 +1286,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Otros Insumos",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 40
+    "valorUnitarioEstimado": 40,
+    "notas": "Proveedor: No definido"
   },
   {
     "id": "ing_1753733075249_bondiola",
@@ -1167,7 +1296,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.19
+    "valorUnitarioEstimado": 0.192,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_cremadeleche",
@@ -1176,7 +1306,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Lácteos y Huevos",
     "unidad": "Litro",
-    "valorUnitarioEstimado": 200
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_miel",
@@ -1185,7 +1316,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.13333333333333333,
+    "notas": "Proveedor: CASA DE LA MIEL"
   },
   {
     "id": "ing_1753733075249_mostaza",
@@ -1194,7 +1326,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25
+    "valorUnitarioEstimado": 0.25,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_salsabarbacoa",
@@ -1203,7 +1336,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3
+    "valorUnitarioEstimado": 0.3,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_ajo",
@@ -1212,7 +1346,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1
+    "valorUnitarioEstimado": 0.1,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_ravioles",
@@ -1221,7 +1356,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.22
+    "valorUnitarioEstimado": 0.22,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_quesorallado",
@@ -1230,7 +1366,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.45
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: EL TROPERO"
   },
   {
     "id": "ing_1753733075249_noquiscongelados",
@@ -1239,7 +1376,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.16
+    "valorUnitarioEstimado": 0.16,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_cerdoarrollado",
@@ -1248,7 +1386,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 110
+    "valorUnitarioEstimado": 110,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_muslos",
@@ -1257,7 +1396,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 70
+    "valorUnitarioEstimado": 70,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_ketchut",
@@ -1266,7 +1406,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2
+    "valorUnitarioEstimado": 0.2,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_sorrentinos",
@@ -1275,7 +1416,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.465
+    "valorUnitarioEstimado": 0.464,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_supremadepollo",
@@ -1284,7 +1426,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3
+    "valorUnitarioEstimado": 0.3,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_papasparafreir",
@@ -1293,7 +1436,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12
+    "valorUnitarioEstimado": 0.12,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_milanesa",
@@ -1302,7 +1446,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.35
+    "valorUnitarioEstimado": 0.352,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_champiñon",
@@ -1311,7 +1456,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.5
+    "valorUnitarioEstimado": 0.5,
+    "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_merluza",
@@ -1320,7 +1466,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.345
+    "valorUnitarioEstimado": 0.344,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_guarnicionverde",
@@ -1329,7 +1476,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 40
+    "valorUnitarioEstimado": 40,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_bife",
@@ -1338,7 +1486,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38
+    "valorUnitarioEstimado": 0.38,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_corderocrudo",
@@ -1347,7 +1496,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3
+    "valorUnitarioEstimado": 0.3,
+    "notas": "Proveedor: CARNICERIA"
   },
   {
     "id": "ing_1753733075249_asadovacio",
@@ -1356,7 +1506,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.37
+    "valorUnitarioEstimado": 0.37,
+    "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_repolloblanco",
@@ -1365,7 +1516,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 119
+    "valorUnitarioEstimado": 100,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_repollomorado",
@@ -1374,7 +1526,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 120
+    "valorUnitarioEstimado": 100,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_cebollablanca",
@@ -1383,7 +1536,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1
+    "valorUnitarioEstimado": 0.1,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_cebollamorada",
@@ -1392,7 +1546,8 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.07
+    "valorUnitarioEstimado": 0.07,
+    "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_lechugacresparylisa",
@@ -1401,6 +1556,7 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 100
+    "valorUnitarioEstimado": 100,
+    "notas": "Proveedor: VERDULERIA"
   }
 ]
