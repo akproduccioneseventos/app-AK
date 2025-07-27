@@ -1,5 +1,4 @@
 
-
 [
   {
     "id": "ing_1753733075249_harina",
@@ -7,8 +6,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: CALSAL"
   },
   {
@@ -17,8 +16,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 2000,
     "notas": "Proveedor: MONTEVIDEO"
   },
   {
@@ -28,7 +27,7 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
     "unidad": "Litro",
-    "valorUnitarioEstimado": 0.5,
+    "valorUnitarioEstimado": 500,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -38,7 +37,7 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Aceites y Vinagres",
     "unidad": "Litro",
-    "valorUnitarioEstimado": 0.07,
+    "valorUnitarioEstimado": 70,
     "notas": "Proveedor: DK MOYORISTA"
   },
   {
@@ -47,7 +46,7 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Otros servicios",
     "unidad": "Unidad",
-    "valorUnitarioEstimado": 1,
+    "valorUnitarioEstimado": 1000,
     "notas": "Proveedor: No definido"
   },
   {
@@ -76,8 +75,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.39,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 390,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -96,8 +95,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.28,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 280,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -106,8 +105,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -116,8 +115,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -126,8 +125,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -136,8 +135,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -146,8 +145,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -156,8 +155,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -166,8 +165,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -176,8 +175,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Lácteos y Huevos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -186,8 +185,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.33,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 330,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -196,8 +195,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 380,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -206,8 +205,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.22,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 220,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -216,8 +215,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: BAGASHOPING"
   },
   {
@@ -226,8 +225,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -236,8 +235,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.4,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 400,
     "notas": "Proveedor: DK MOYORISTA"
   },
   {
@@ -246,8 +245,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.8,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 800,
     "notas": "Proveedor: DK MOYORISTA"
   },
   {
@@ -256,8 +255,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -266,8 +265,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.43,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 430,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -276,8 +275,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.43,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 430,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -286,8 +285,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.34,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 340,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -296,8 +295,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 380,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -306,8 +305,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.28,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 280,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -316,8 +315,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.322,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 322,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -326,8 +325,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 250,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -336,8 +335,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.37,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 370,
     "notas": "Proveedor: BISIO"
   },
   {
@@ -346,8 +345,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.28,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 280,
     "notas": "Proveedor: DK MOYORISTA"
   },
   {
@@ -356,8 +355,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.27,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 270,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -366,8 +365,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.635,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 635,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -376,8 +375,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.34,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 340,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -386,8 +385,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.34,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 340,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -396,8 +395,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.33,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 330,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -406,8 +405,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.15,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 150,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -416,8 +415,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 100,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -426,8 +425,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 100,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -436,8 +435,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -446,8 +445,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.06,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 60,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -456,8 +455,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -466,8 +465,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.5,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 500,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -476,8 +475,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -486,8 +485,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Especias",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 100,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -506,8 +505,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 100,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -516,8 +515,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -526,8 +525,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 250,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -542,7 +541,7 @@
   },
   {
     "id": "ing_1753733075249_lechuga",
-    "nombre": "lechuga",
+    "nombre": "Lechuga",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
@@ -556,8 +555,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 380,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -566,18 +565,18 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.15,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 150,
     "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_queso",
-    "nombre": "queso",
+    "nombre": "Queso",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.4,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 400,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -586,8 +585,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.26,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 260,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -596,8 +595,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Snacks",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.45,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 450,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -606,8 +605,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -616,8 +615,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: DK MOYORISTA"
   },
   {
@@ -626,8 +625,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.421,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 421,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -656,8 +655,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.15,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 150,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -666,8 +665,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -686,8 +685,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 300,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -696,8 +695,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -716,8 +715,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.33,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 330,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -746,8 +745,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.283,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 283,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -756,8 +755,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.253,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 253,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -766,8 +765,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.13,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 130,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -776,8 +775,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 250,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -786,8 +785,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -796,8 +795,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.239,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 239,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -806,8 +805,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.32,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 320,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -816,8 +815,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 250,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -826,8 +825,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.22,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 220,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -836,8 +835,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -846,8 +845,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -856,8 +855,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -866,8 +865,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.209,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 209,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -876,8 +875,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.18,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 180,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -886,8 +885,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 250,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -896,8 +895,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.36,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 360,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -916,8 +915,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.4,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 400,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -926,8 +925,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.415,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 415,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -936,8 +935,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.365,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 365,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -946,8 +945,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 1000,
     "notas": "Proveedor: FERRANDO"
   },
   {
@@ -956,8 +955,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Secos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.135,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 135,
     "notas": "Proveedor: TATA"
   },
   {
@@ -966,8 +965,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Litro",
-    "valorUnitarioEstimado": 0.4,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 400,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -976,8 +975,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.09,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 90,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -1026,8 +1025,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.152,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 1152,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -1036,8 +1035,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 2.082,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 2082,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -1046,8 +1045,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.894,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 1894,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -1066,8 +1065,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.03,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 1030,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -1086,8 +1085,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Panificados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.152,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 1152,
     "notas": "Proveedor: DON DIEGO"
   },
   {
@@ -1126,8 +1125,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.8,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 800,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -1136,8 +1135,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.511,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 511,
     "notas": "Proveedor: BORDENAVE"
   },
   {
@@ -1146,8 +1145,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.327,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 327,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -1156,8 +1155,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 1.799,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 1799,
     "notas": "Proveedor: FENIX"
   },
   {
@@ -1166,8 +1165,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.48,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 480,
     "notas": "Proveedor: BORDENAVE"
   },
   {
@@ -1176,8 +1175,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 1000,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -1186,8 +1185,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 300,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -1196,8 +1195,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.27,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 270,
     "notas": "Proveedor: BORDENAVE"
   },
   {
@@ -1276,13 +1275,13 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Unidad",
+    "unidad": "Kg",
     "valorUnitarioEstimado": 500,
     "notas": "Proveedor: NICO"
   },
   {
     "id": "ing_1753733075249_guarnición",
-    "nombre": "guarnición",
+    "nombre": "Guarnición",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Otros Insumos",
@@ -1296,8 +1295,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.19,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 190,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -1307,27 +1306,27 @@
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Lácteos y Huevos",
     "unidad": "Litro",
-    "valorUnitarioEstimado": 0.2,
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_miel",
-    "nombre": "miel",
+    "nombre": "Miel",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: CASA DE LA MIEL"
   },
   {
     "id": "ing_1753733075249_mostaza",
-    "nombre": "mostaza",
+    "nombre": "Mostaza",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.25,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 250,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -1336,28 +1335,28 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 300,
     "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_ajo",
-    "nombre": "ajo",
+    "nombre": "Ajo",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 100,
     "notas": "Proveedor: VERDULERIA"
   },
   {
     "id": "ing_1753733075249_ravioles",
-    "nombre": "ravioles",
+    "nombre": "Ravioles",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.22,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 220,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -1366,8 +1365,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Fiambres y Lácteos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.45,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 450,
     "notas": "Proveedor: EL TROPERO"
   },
   {
@@ -1376,8 +1375,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.16,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 160,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -1402,22 +1401,22 @@
   },
   {
     "id": "ing_1753733075249_ketchut",
-    "nombre": "ketchut",
+    "nombre": "Ketchup",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Salsas y Aderezos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.2,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 200,
     "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_sorrentinos",
-    "nombre": "sorrentinos",
+    "nombre": "Sorrentinos",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pastas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.465,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 465,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -1426,8 +1425,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 300,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -1436,8 +1435,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Congelados",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.12,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 120,
     "notas": "Proveedor: DOPACA"
   },
   {
@@ -1446,8 +1445,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.35,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 350,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -1456,23 +1455,23 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Conservas",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.5,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 500,
     "notas": "Proveedor: DOPACA"
   },
   {
     "id": "ing_1753733075249_merluza",
-    "nombre": "merluza",
+    "nombre": "Merluza",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Pescados y Mariscos",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.345,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 345,
     "notas": "Proveedor: UNIPLAS"
   },
   {
     "id": "ing_1753733075249_guarnicionverde",
-    "nombre": "guarnicion verde",
+    "nombre": "Guarnicion verde",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
@@ -1486,8 +1485,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.38,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 380,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -1496,8 +1495,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.3,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 300,
     "notas": "Proveedor: CARNICERIA"
   },
   {
@@ -1506,8 +1505,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Carnes",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.37,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 370,
     "notas": "Proveedor: UNIPLAS"
   },
   {
@@ -1536,8 +1535,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.1,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 100,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -1546,8 +1545,8 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumo/Ingrediente",
     "subcategoria": "Frutas y Verduras",
-    "unidad": "Gramos",
-    "valorUnitarioEstimado": 0.07,
+    "unidad": "Kg",
+    "valorUnitarioEstimado": 70,
     "notas": "Proveedor: VERDULERIA"
   },
   {
@@ -1561,5 +1560,3 @@
     "notas": "Proveedor: VERDULERIA"
   }
 ]
-
-    
