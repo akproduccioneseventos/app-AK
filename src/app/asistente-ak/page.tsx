@@ -10,8 +10,8 @@ import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 
 export default function AsistentePage() {
     return (
-        <div className="flex h-screen w-full flex-col">
-            <header className="p-4 border-b">
+        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
+            <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm">
                 <div className="flex justify-between items-center max-w-4xl mx-auto">
                     <div className="flex items-center gap-3">
                         <Bot className="w-8 h-8 text-primary" />
@@ -24,8 +24,8 @@ export default function AsistentePage() {
                     </Link>
                 </div>
             </header>
-            <main className="flex-1 flex justify-center items-center p-4 bg-muted/30">
-                <div className="w-full max-w-4xl h-full flex flex-col">
+            <main className="flex-1 flex justify-center items-center p-4 w-full pt-20">
+                <div className="w-full max-w-2xl h-full flex flex-col">
                     <AkAssistant isPage />
                 </div>
             </main>

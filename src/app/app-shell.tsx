@@ -98,13 +98,12 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/settings/asistente-ak') return 'Configuración Asistente';
   if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
   if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
-  if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
+  if (pathname.startsWith('/asistente-ak')) return 'Asistente de Presupuestos IA';
 
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -116,6 +115,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
   if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
   if (pathname.startsWith('/feedback')) return 'Encuesta de Satisfacción';
+  if (pathname.startsWith('/acceso-personal')) return 'Acceso de Colaboradores';
+
 
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
@@ -195,7 +196,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/asistente-ak') return BrainCircuit;
 
   if (pathname === '/armado-rapido') return Wand2;
-  if (pathname === '/asistente-ak') return Bot;
+  if (pathname.startsWith('/asistente-ak')) return Bot;
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
@@ -207,6 +208,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/evento/social')) return Camera;
   if (pathname.startsWith('/video-vida')) return Camera;
   if (pathname.startsWith('/feedback')) return Star;
+  if (pathname.startsWith('/acceso-personal')) return UserCog;
 
 
   return null;
@@ -288,7 +290,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
-      {pathname !== '/portal' && <AkAssistant />}
+      {pathname !== '/portal' && !pathname.startsWith('/asistente-ak') && <AkAssistant />}
     </div>
   );
 }
