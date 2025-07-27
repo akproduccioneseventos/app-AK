@@ -15,6 +15,7 @@ import armadoRapidoConfig from '@/data/armado-rapido-config.json';
 import { useToast } from '@/hooks/use-toast';
 import { DatePickerDemo } from '../date-picker-demo';
 import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Step {
     id: 'tipoFiesta' | 'cantidadInvitados' | 'nombreCliente' | 'fechaEvento' | 'confirmacion';
