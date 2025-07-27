@@ -95,7 +95,7 @@ const createQuoteTool = ai.defineTool(
     description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, and guest count. The event date is optional. If any information is missing, you MUST ask the user for it.',
     inputSchema: z.object({
       clienteNombre: z.string().describe("The name of the client or company."),
-      eventoTipo: z.string().describe("The type of event (e.g., 'Boda', 'Cumpleaños de 15', 'Corporativo')."),
+      eventoTipo: z.string().describe("The type of event (e.g., \'Boda\', \'Cumpleaños de 15\', \'Corporativo\')."),
       invitadosCantidad: z.number().describe("The estimated number of guests."),
       eventoFecha: z.string().optional().describe("The estimated date of the event in YYYY-MM-DD format. Optional."),
     }),
@@ -188,7 +188,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
     const call = toolCalls[0];
     const toolResult = await call.run() as any; 
     
-    // Send the tool's structured output back to the model to generate a natural language response
     const finalResponse = await ai.generate({
         prompt: [
             {text: systemPrompt},
@@ -207,7 +206,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
       throw new Error("El asistente de IA no pudo generar una respuesta final después de usar una herramienta.");
     }
     
-    // Check if the tool was createQuote and it was successful
     if (call.name === 'createQuote' && toolResult.success && toolResult.presupuestoId) {
         output.presupuestoId = toolResult.presupuestoId;
     }
@@ -215,10 +213,11 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
     return output;
   }
   
-  // If no tool was called, return the direct text response
   const output = llmResponse.output;
   if(!output) {
       throw new Error("El asistente de IA no pudo generar una respuesta inicial.");
   }
   return output;
 }
+
+    
