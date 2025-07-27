@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useCallback, useRef, useEffect, type FormEvent } from 'react';
@@ -12,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { assistant } from '@/ai/flows/assistant-flow';
 import Markdown from 'react-markdown';
+import type { AssistantOutput } from '@/ai/types/assistant-types';
+
 
 type Message = {
     role: 'user' | 'assistant';
@@ -52,7 +53,8 @@ export function AkAssistant({ isOpen: controlledIsOpen, setIsOpen: setControlled
              const fetchInitialMessage = async () => {
                 setIsLoading(true);
                 try {
-                    const result = await assistant({ query: "Salúdame y dame un resumen proactivo del estado de mi evento actual. Menciona si hay algo importante que deba atender, como invitados sin asignar o la falta de un menú." });
+                    // Use a more proactive initial query for the internal assistant.
+                    const result = await assistant({ query: "Hola, soy el organizador. ¿Hay algo importante que deba saber sobre mi evento actual?" });
                     setMessages([{ role: 'assistant', content: result.response }]);
                 } catch (e: any) {
                     setMessages([{ role: 'assistant', content: `¡Hola! Soy Asistente AK. Ocurrió un error al cargar el resumen: ${e.message}` }]);
@@ -81,7 +83,7 @@ export function AkAssistant({ isOpen: controlledIsOpen, setIsOpen: setControlled
         setIsLoading(true);
         
         try {
-            const result = await assistant({ query: currentQuery });
+            const result: AssistantOutput = await assistant({ query: currentQuery });
             setMessages(prev => [...prev, {
                 role: 'assistant',
                 content: result.response,

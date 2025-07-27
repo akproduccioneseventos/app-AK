@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview The main AI assistant flow.
@@ -95,7 +94,7 @@ const createQuoteTool = ai.defineTool(
     description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, and guest count. The event date is optional. If any information is missing, you MUST ask the user for it.',
     inputSchema: z.object({
       clienteNombre: z.string().describe("The name of the client or company."),
-      eventoTipo: z.string().describe("The type of event (e.g., \'Boda\', \'Cumpleaños de 15\', \'Corporativo\')."),
+      eventoTipo: z.string().describe("The type of event (e.g., 'Boda', 'Cumpleaños de 15', 'Corporativo')."),
       invitadosCantidad: z.number().describe("The estimated number of guests."),
       eventoFecha: z.string().optional().describe("The estimated date of the event in YYYY-MM-DD format. Optional."),
     }),
@@ -219,5 +218,3 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   }
   return output;
 }
-
-    
