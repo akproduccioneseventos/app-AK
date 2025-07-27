@@ -11,17 +11,13 @@ import Markdown from 'react-markdown';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
+import type { AssistantOutput } from '@/ai/types/assistant-types';
 
 type MessageRole = 'user' | 'assistant';
 
 interface Message {
     role: MessageRole;
     content: string;
-}
-
-interface AssistantResponse {
-    response: string;
-    presupuestoId?: string;
 }
 
 export default function AsistenteAkPage() {
@@ -36,7 +32,8 @@ export default function AsistenteAkPage() {
         const fetchInitialMessage = async () => {
             setIsLoading(true);
             try {
-                const result = await assistant({ query: "Salúdame y pregúntame qué tipo de evento estoy planeando, usando las opciones de tu configuración." });
+                // The query is what a user would type to start. The AI will follow the system prompt's instructions.
+                const result = await assistant({ query: "Hola, quiero organizar mi fiesta." });
                 setMessages([{ role: 'assistant', content: result.response }]);
             } catch (e: any) {
                 setMessages([{ role: 'assistant', content: `¡Hola! Soy Asistente AK. Ocurrió un error al iniciar: ${e.message}` }]);
@@ -64,7 +61,7 @@ export default function AsistenteAkPage() {
         setIsLoading(true);
 
         try {
-            const result: AssistantResponse = await assistant({ query: currentQuery });
+            const result: AssistantOutput = await assistant({ query: currentQuery });
             setMessages(prev => [...prev, { role: 'assistant', content: result.response }]);
 
             if (result.presupuestoId) {

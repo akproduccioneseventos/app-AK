@@ -23,6 +23,11 @@ function PageContent() {
                     <p className="text-lg text-muted-foreground">
                         Gracias por tu interés. Hemos generado un presupuesto inicial para tu evento. Un asesor de nuestro equipo se pondrá en contacto contigo a la brevedad para refinar los detalles y seleccionar el menú.
                     </p>
+                    {presupuestoId && (
+                        <p className="text-sm mt-4 text-muted-foreground">
+                            Tu número de presupuesto es: <span className="font-mono bg-gray-200 px-1.5 py-0.5 rounded-md text-gray-700">#{presupuestoId.substring(0,6)}</span>
+                        </p>
+                    )}
                 </CardContent>
                  <CardFooter className="justify-center mt-4">
                     <p className="text-sm text-muted-foreground">

@@ -1,35 +1,17 @@
-
 {
-  "pasos": {
-    "tipoFiesta": {
-      "pregunta": "¿Qué tipo de evento estás planeando?",
-      "descripcion": "Selecciona una opción para que pueda darte un presupuesto inicial.",
-      "opciones": [
-        {
-          "id": "boda",
-          "nombre": "Boda"
-        },
-        {
-          "id": "quince",
-          "nombre": "Quince Años"
-        },
-        {
-          "id": "cumpleanos",
-          "nombre": "Fiestas de Cumpleaños"
-        },
-        {
-          "id": "infantil",
-          "nombre": "Cumpleaños Infantil"
-        },
-        {
-          "id": "corporativo",
-          "nombre": "Evento Corporativo"
-        },
-        {
-          "id": "otro",
-          "nombre": "Otro Tipo de Evento"
-        }
-      ]
+    "pasos": {
+      "tipoFiesta": {
+        "pregunta": "¿Qué tipo de evento estás planeando?"
+      },
+      "cantidadInvitados": {
+        "pregunta": "¡Excelente! ¿Para cuántas personas sería el evento, aproximadamente?"
+      },
+      "nombreCliente": {
+        "pregunta": "Perfecto. ¿A nombre de quién creo este presupuesto inicial?"
+      },
+      "fechaEvento": {
+        "pregunta": "¡Genial! Y por último, ¿tienes alguna fecha pensada para el evento? Si no, no te preocupes, es opcional."
+      }
     }
   }
-}
+  

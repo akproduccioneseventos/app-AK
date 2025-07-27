@@ -19,9 +19,21 @@ import path from 'path';
 
 // Helper to load the conversational configuration
 async function getAssistantConfig() {
-    const filePath = path.join(process.cwd(), 'src', 'data', 'asistente-ak-config.json');
-    const fileContent = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(fileContent);
+    try {
+        const filePath = path.join(process.cwd(), 'src', 'data', 'asistente-ak-config.json');
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+        return JSON.parse(fileContent);
+    } catch (e) {
+        // Fallback in case the file doesn't exist
+        return {
+            "pasos": {
+                "tipoFiesta": { "pregunta": "¿Qué tipo de evento estás planeando?" },
+                "cantidadInvitados": { "pregunta": "¿Para cuántas personas sería el evento?" },
+                "nombreCliente": { "pregunta": "¿A nombre de quién creo el presupuesto?" },
+                "fechaEvento": { "pregunta": "¿Tienes una fecha pensada para el evento? (Opcional)" }
+            }
+        }
+    }
 }
 
 
@@ -136,25 +148,28 @@ export async function assistant(input: AssistantInput) {
   const config = await getAssistantConfig();
   
   // This prompt guides the model to be a helpful event planning assistant and use the available tools.
-  const systemPrompt = `Eres "Asistente AK", un asistente experto en planificación de eventos para AK Producciones.
-  Tu objetivo es ayudar al organizador a gestionar su aplicación y a los clientes a crear presupuestos.
-  Sé conciso, amigable y proactivo.
-  
-  Tu principal tarea es guiar al usuario para crear presupuestos. Usa la configuración de diálogo que se te proporciona para estructurar la conversación.
-  
-  Aquí está la configuración del diálogo que debes seguir PASO a PASO:
-  ${JSON.stringify(config.pasos, null, 2)}
-  
-  Comienza la conversación con la pregunta del primer paso: "${config.pasos.tipoFiesta.pregunta}".
-  Presenta las opciones al usuario de forma clara. Una vez que el usuario responde, continúa con el siguiente paso lógico.
-  
-  Cuando un usuario te pida realizar una acción (como analizar el evento, asignar invitados o crear un presupuesto), utiliza las herramientas disponibles.
-  Si una herramienta requiere información que no tienes, haz preguntas claras y directas para obtener los datos necesarios antes de llamar a la herramienta. NO inventes información.
-  Si el usuario quiere crear un presupuesto pero no especifica una fecha, no hay problema, es opcional.
-  
-  Al presentar los resultados de una herramienta, no solo muestres los datos JSON. En su lugar, explícalos de forma clara, amigable y útil para un organizador de eventos, usando formato markdown para que sea legible.
-  Si una herramienta devuelve un error, explica el problema al usuario de forma sencilla y amigable.
-  Para fechas, asume que el año actual es 2025 si no se especifica.`;
+  const systemPrompt = `Eres "Asistente AK", un asesor experto en planificación de eventos para AK Producciones.
+  Tu objetivo principal es ayudar a los clientes a crear un presupuesto inicial para su fiesta. Debes ser amigable, servicial y proactivo.
+
+  **Flujo de Conversación Obligatorio:**
+  Tu tarea es guiar al usuario a través de una serie de preguntas para recopilar la información necesaria. Sigue estos pasos en orden:
+  1.  **Saludo y Tipo de Fiesta:** Saluda cordialmente y pregunta qué tipo de evento están planeando. Utiliza la pregunta: "${config.pasos.tipoFiesta.pregunta}".
+  2.  **Cantidad de Invitados:** Una vez que respondan, pregunta para cuántas personas será el evento. Usa la pregunta: "${config.pasos.cantidadInvitados.pregunta}".
+  3.  **Nombre del Cliente:** Luego, pregunta a nombre de quién se debe crear el presupuesto. Usa la pregunta: "${config.pasos.nombreCliente.pregunta}".
+  4.  **Fecha del Evento (Opcional):** Finalmente, pregunta si tienen una fecha pensada, aclarando que es opcional. Usa la pregunta: "${config.pasos.fechaEvento.pregunta}".
+
+  **Reglas de Interacción:**
+  - **No te desvíes:** Sigue el flujo de preguntas paso a paso. No saltes preguntas ni intentes adivinar información.
+  - **Usa Herramientas SOLO al final:** NO uses la herramienta \`createQuote\` hasta que hayas recopilado **toda** la información requerida (nombre, tipo, cantidad de invitados). La fecha es opcional.
+  - **Claridad:** Sé muy claro en tus preguntas.
+  - **Responde en base a la herramienta:** Cuando uses una herramienta, basa tu respuesta final en el resultado que esta te devuelva. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma amigable.
+  - **Año por defecto:** Si el usuario da una fecha sin año, asume que es para el próximo año, 2025.
+  - **Formato:** Usa markdown para que tus respuestas sean claras y legibles.
+
+  **Otras capacidades (solo si el usuario pregunta explícitamente):**
+  - Si un organizador te pide analizar el estado del evento actual, usa \`analyzeCurrentEventPlan\`.
+  - Si un organizador te pide analizar el código de la aplicación, usa \`analyzeCodebase\`.
+  - Si un organizador te pide asignar invitados, usa \`assignGuestsToTables\`.`;
 
   const llmResponse = await ai.generate({
     prompt: [
@@ -172,7 +187,7 @@ export async function assistant(input: AssistantInput) {
   const toolCalls = llmResponse.toolCalls;
   if (toolCalls && toolCalls.length > 0) {
     const call = toolCalls[0];
-    const toolResult = await call.run();
+    const toolResult = await call.run() as any; // Cast to any to check for presupuestoId
     
     // Send the tool's structured output back to the model to generate a natural language response
     const finalResponse = await ai.generate({
@@ -188,15 +203,23 @@ export async function assistant(input: AssistantInput) {
         }
     });
 
-    if(!finalResponse.output) {
+    const output = finalResponse.output;
+    if(!output) {
       throw new Error("El asistente de IA no pudo generar una respuesta final después de usar una herramienta.");
     }
-    return finalResponse.output;
+    
+    // Check if the tool was createQuote and it was successful
+    if (call.name === 'createQuote' && toolResult.success && toolResult.presupuestoId) {
+        output.presupuestoId = toolResult.presupuestoId;
+    }
+
+    return output;
   }
   
   // If no tool was called, return the direct text response
-  if(!llmResponse.output) {
+  const output = llmResponse.output;
+  if(!output) {
       throw new Error("El asistente de IA no pudo generar una respuesta inicial.");
   }
-  return llmResponse.output;
+  return output;
 }
