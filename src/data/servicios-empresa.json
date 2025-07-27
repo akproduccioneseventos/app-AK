@@ -1,1 +1,1406 @@
-[]
+
+[
+  {
+    "id": "ing_1753733075249_harina",
+    "nombre": "Harina",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Secos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_algas",
+    "nombre": "Algas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Secos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 2
+  },
+  {
+    "id": "ing_1753733075249_salsasoja",
+    "nombre": "Salsa de soja",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Litro",
+    "valorUnitarioEstimado": 500
+  },
+  {
+    "id": "ing_1753733075249_aceite",
+    "nombre": "Aceite",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Aceites y Vinagres",
+    "unidad": "Litro",
+    "valorUnitarioEstimado": 70
+  },
+  {
+    "id": "ing_1753733075249_gas",
+    "nombre": "Gas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Otros servicios",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 1000
+  },
+  {
+    "id": "ing_1753733075249_huevo",
+    "nombre": "Huevo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Lácteos y Huevos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 10
+  },
+  {
+    "id": "ing_1753733075249_arrolladitos",
+    "nombre": "Arrolladitos primavera",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 6
+  },
+  {
+    "id": "ing_1753733075249_tostaditas",
+    "nombre": "Tostaditas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.39
+  },
+  {
+    "id": "ing_1753733075249_albahaca",
+    "nombre": "Albahaca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 40
+  },
+  {
+    "id": "ing_1753733075249_hongos",
+    "nombre": "Hongos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.28
+  },
+  {
+    "id": "ing_1753733075249_picles",
+    "nombre": "Picles",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_pate",
+    "nombre": "Pate",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_salsa",
+    "nombre": "Salsa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_aceitunasrodajas",
+    "nombre": "Aceitunas rodajas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_salsasvarias",
+    "nombre": "Salsas (varias)",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_tomatecherry",
+    "nombre": "Tomate cherry",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_jamon",
+    "nombre": "Jamon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_manteca",
+    "nombre": "Manteca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Lácteos y Huevos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_muzarella",
+    "nombre": "Muzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.33
+  },
+  {
+    "id": "ing_1753733075249_pandesandwiches",
+    "nombre": "Pan de Sandwiches",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.38
+  },
+  {
+    "id": "ing_1753733075249_aceitunas",
+    "nombre": "Aceitunas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.22
+  },
+  {
+    "id": "ing_1753733075249_palitossalados",
+    "nombre": "Palitos salados",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Snacks",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_mani",
+    "nombre": "Mani",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Snacks",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_papaschips",
+    "nombre": "Papas Chips",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Snacks",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.4
+  },
+  {
+    "id": "ing_1753733075249_doritos",
+    "nombre": "Doritos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Snacks",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.8
+  },
+  {
+    "id": "ing_1753733075249_paleta",
+    "nombre": "Paleta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_quesodambo",
+    "nombre": "Queso Dambo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.43
+  },
+  {
+    "id": "ing_1753733075249_salame",
+    "nombre": "Salame",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.43
+  },
+  {
+    "id": "ing_1753733075249_quesomuzzarela",
+    "nombre": "Queso muzzarela",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.34
+  },
+  {
+    "id": "ing_1753733075249_quesodecerdo",
+    "nombre": "Queso de cerdo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.38
+  },
+  {
+    "id": "ing_1753733075249_quesoalpa",
+    "nombre": "Queso alpa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.28
+  },
+  {
+    "id": "ing_1753733075249_leonesaprimavera",
+    "nombre": "Leonesa primavera",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.322
+  },
+  {
+    "id": "ing_1753733075249_aceitunassincarozo",
+    "nombre": "Aceitunas s/ carozo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.25
+  },
+  {
+    "id": "ing_1753733075249_grisineschicos",
+    "nombre": "Grisines chicos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.37
+  },
+  {
+    "id": "ing_1753733075249_galletasredondasarcor",
+    "nombre": "Galletas redondas arcor",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.28
+  },
+  {
+    "id": "ing_1753733075249_galletasmalteadassinsal",
+    "nombre": "Galletas malteadas sin sal",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.27
+  },
+  {
+    "id": "ing_1753733075249_tostadasbaguetsaborizadas",
+    "nombre": "Tostadas baguet saborizadas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.635
+  },
+  {
+    "id": "ing_1753733075249_catalan20gconsesamoderemolacha",
+    "nombre": "Catalan 20g con sesamo de remolacha",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.34
+  },
+  {
+    "id": "ing_1753733075249_catalan20gconsesamoverde",
+    "nombre": "Catalan 20g con sesamo verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.34
+  },
+  {
+    "id": "ing_1753733075249_picadadecarne",
+    "nombre": "Picada de carne",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.33
+  },
+  {
+    "id": "ing_1753733075249_aderezos",
+    "nombre": "Aderezos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.15
+  },
+  {
+    "id": "ing_1753733075249_perejilyajonatural",
+    "nombre": "Perejil y ajo natural",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.1
+  },
+  {
+    "id": "ing_1753733075249_cebollas",
+    "nombre": "Cebollas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.1
+  },
+  {
+    "id": "ing_1753733075249_pollo",
+    "nombre": "Pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_papa",
+    "nombre": "Papa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.06
+  },
+  {
+    "id": "ing_1753733075249_zanahoria",
+    "nombre": "Zanahoria",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_arbejas",
+    "nombre": "Arbejas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.5
+  },
+  {
+    "id": "ing_1753733075249_mayonesa",
+    "nombre": "Mayonesa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_condimentos",
+    "nombre": "Condimentos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Especias",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.1
+  },
+  {
+    "id": "ing_1753733075249_tapa",
+    "nombre": "Tapa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Otros Insumos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 6
+  },
+  {
+    "id": "ing_1753733075249_cebolla",
+    "nombre": "Cebolla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.1
+  },
+  {
+    "id": "ing_1753733075249_morron",
+    "nombre": "Morron",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_carnepicada",
+    "nombre": "Carne picada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.25
+  },
+  {
+    "id": "ing_1753733075249_pan",
+    "nombre": "Pan",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 6
+  },
+  {
+    "id": "ing_1753733075249_lechuga",
+    "nombre": "lechuga",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 50
+  },
+  {
+    "id": "ing_1753733075249_carne",
+    "nombre": "Carne",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.38
+  },
+  {
+    "id": "ing_1753733075249_tomate",
+    "nombre": "Tomate",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.15
+  },
+  {
+    "id": "ing_1753733075249_queso",
+    "nombre": "queso",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.4
+  },
+  {
+    "id": "ing_1753733075249_choclo",
+    "nombre": "Choclo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.26
+  },
+  {
+    "id": "ing_1753733075249_papaspai",
+    "nombre": "Papas pay",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Snacks",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.45
+  },
+  {
+    "id": "ing_1753733075249_palmitos",
+    "nombre": "Palmitos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_panchos",
+    "nombre": "Panchos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_panceta",
+    "nombre": "Panceta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.421
+  },
+  {
+    "id": "ing_1753733075249_conos",
+    "nombre": "Conos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Otros Insumos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 25
+  },
+  {
+    "id": "ing_1753733075249_pizzas",
+    "nombre": "Pizzas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 60
+  },
+  {
+    "id": "ing_1753733075249_morronrojo",
+    "nombre": "Morron rojo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.15
+  },
+  {
+    "id": "ing_1753733075249_harinademaizblanco",
+    "nombre": "Harina de maiz blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Secos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_tapasdehojaldre",
+    "nombre": "Tapas de hojaldre",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Otros Insumos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 65
+  },
+  {
+    "id": "ing_1753733075249_salsapicante",
+    "nombre": "Salsa picante",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.3
+  },
+  {
+    "id": "ing_1753733075249_morronverde",
+    "nombre": "Morrón verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_palta",
+    "nombre": "Palta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 40
+  },
+  {
+    "id": "ing_1753733075249_muzzarellapararallar",
+    "nombre": "Muzzarella para rallar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.33
+  },
+  {
+    "id": "ing_1753733075249_enpanaditascopetin",
+    "nombre": "Enpanaditas copetin",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 13
+  },
+  {
+    "id": "ing_1753733075249_pizzetitasconmuzzarella",
+    "nombre": "pizzetitas con muzzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 15
+  },
+  {
+    "id": "ing_1753733075249_nuggetdepollo",
+    "nombre": "Nugget de pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.283
+  },
+  {
+    "id": "ing_1753733075249_arosdecebolla",
+    "nombre": "Aros de cebolla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.253
+  },
+  {
+    "id": "ing_1753733075249_papasfritas",
+    "nombre": "Papas fritas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.13
+  },
+  {
+    "id": "ing_1753733075249_croquetasdepapa",
+    "nombre": "Croquetas de papa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.25
+  },
+  {
+    "id": "ing_1753733075249_noisettes",
+    "nombre": "Noisettes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_formitasdemerluza",
+    "nombre": "Formitas de merluza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.239
+  },
+  {
+    "id": "ing_1753733075249_milanesadecarne",
+    "nombre": "Milanesa de carne",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.32
+  },
+  {
+    "id": "ing_1753733075249_milanesadepollo",
+    "nombre": "Milanesa de pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.25
+  },
+  {
+    "id": "ing_1753733075249_galletas",
+    "nombre": "Galletas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.22
+  },
+  {
+    "id": "ing_1753733075249_grisines",
+    "nombre": "Grisines",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_salsacriolla",
+    "nombre": "Salsa criolla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_quesocolonia",
+    "nombre": "Queso colonia",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_raviolesfritos",
+    "nombre": "Ravioles Fritos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pastas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.209
+  },
+  {
+    "id": "ing_1753733075249_papasrústicas",
+    "nombre": "Papas rústicas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.18
+  },
+  {
+    "id": "ing_1753733075249_chorizos",
+    "nombre": "Chorizos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.25
+  },
+  {
+    "id": "ing_1753733075249_morcilla",
+    "nombre": "Morcilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.36
+  },
+  {
+    "id": "ing_1753733075249_pandecampo",
+    "nombre": "Pan de campo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 120
+  },
+  {
+    "id": "ing_1753733075249_milanesadepescado",
+    "nombre": "Milanesa de pescado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pescados y Mariscos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.4
+  },
+  {
+    "id": "ing_1753733075249_rabasrebozadasdecalamar",
+    "nombre": "Rabas rebozadas de calamar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pescados y Mariscos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.415
+  },
+  {
+    "id": "ing_1753733075249_bastonesdemuzarella",
+    "nombre": "Bastones de muzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.365
+  },
+  {
+    "id": "ing_1753733075249_salmon",
+    "nombre": "Salmon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pescados y Mariscos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 1
+  },
+  {
+    "id": "ing_1753733075249_arrozdeshushi",
+    "nombre": "Arroz de Shushi",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Secos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.135
+  },
+  {
+    "id": "ing_1753733075249_quesocrema",
+    "nombre": "Queso crema",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.4
+  },
+  {
+    "id": "ing_1753733075249_pepino",
+    "nombre": "Pepino",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.09
+  },
+  {
+    "id": "ing_1753733075249_sandwichespanblanco",
+    "nombre": "Sandwiches pan blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 15
+  },
+  {
+    "id": "ing_1753733075249_pebetes",
+    "nombre": "Pebetes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 11
+  },
+  {
+    "id": "ing_1753733075249_arrolladitosdehojalre",
+    "nombre": "Arrolladitos de hojalre",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 11
+  },
+  {
+    "id": "ing_1753733075249_medialunas",
+    "nombre": "Medialunas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 15
+  },
+  {
+    "id": "ing_1753733075249_cañoncitos",
+    "nombre": "Cañoncitos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 1.152
+  },
+  {
+    "id": "ing_1753733075249_palmitas",
+    "nombre": "Palmitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 2.082
+  },
+  {
+    "id": "ing_1753733075249_tarteletas",
+    "nombre": "Tarteletas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 1.894
+  },
+  {
+    "id": "ing_1753733075249_arrolladitosdulces",
+    "nombre": "Arrolladitos (dulces)",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 7
+  },
+  {
+    "id": "ing_1753733075249_jesuitas",
+    "nombre": "Jesuitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 1.03
+  },
+  {
+    "id": "ing_1753733075249_sandwichespannegro",
+    "nombre": "Sandwiches pan negro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 13
+  },
+  {
+    "id": "ing_1753733075249_vulevanes",
+    "nombre": "Vulevanes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 1.152
+  },
+  {
+    "id": "ing_1753733075249_esconesdequesoconsesamo",
+    "nombre": "Escones de queso con sesamo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.55
+  },
+  {
+    "id": "ing_1753733075249_chipa",
+    "nombre": "Chipa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.55
+  },
+  {
+    "id": "ing_1753733075249_quesoconcereza",
+    "nombre": "Queso con cereza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 11
+  },
+  {
+    "id": "ing_1753733075249_cerezasroja",
+    "nombre": "Cerezas roja",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.8
+  },
+  {
+    "id": "ing_1753733075249_lomitoahumado",
+    "nombre": "Lomito ahumado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.511
+  },
+  {
+    "id": "ing_1753733075249_mortadela",
+    "nombre": "Mortadela",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.327
+  },
+  {
+    "id": "ing_1753733075249_jamoncrudo",
+    "nombre": "Jamon crudo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 1.799
+  },
+  {
+    "id": "ing_1753733075249_bondiolacocidaahumada",
+    "nombre": "Bondiola cocida ahumada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.48
+  },
+  {
+    "id": "ing_1753733075249_cerezasverde",
+    "nombre": "Cerezas verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 1
+  },
+  {
+    "id": "ing_1753733075249_aceitunasnegras",
+    "nombre": "Aceitunas negras",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.3
+  },
+  {
+    "id": "ing_1753733075249_panchosmediometro",
+    "nombre": "Panchos medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.27
+  },
+  {
+    "id": "ing_1753733075249_portapanchomediometro",
+    "nombre": "Porta pancho medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Otros Insumos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 15
+  },
+  {
+    "id": "ing_1753733075249_pandepanchosmediometro",
+    "nombre": "Pan de panchos medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 48
+  },
+  {
+    "id": "ing_1753733075249_pandepanchos",
+    "nombre": "Pan de panchos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 13
+  },
+  {
+    "id": "ing_1753733075249_hamburguesas",
+    "nombre": "Hamburguesas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 35
+  },
+  {
+    "id": "ing_1753733075249_tortugasbrioche70gramos",
+    "nombre": "Tortugas brioche 70 gramos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 20
+  },
+  {
+    "id": "ing_1753733075249_tortuga",
+    "nombre": "Tortuga",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Panificados",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 16
+  },
+  {
+    "id": "ing_1753733075249_emboltorio",
+    "nombre": "Emboltorio",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Otros Insumos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 6
+  },
+  {
+    "id": "ing_1753733075249_polloarrollado",
+    "nombre": "Pollo arrollado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 500
+  },
+  {
+    "id": "ing_1753733075249_guarnición",
+    "nombre": "guarnición",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Otros Insumos",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 40
+  },
+  {
+    "id": "ing_1753733075249_bondiola",
+    "nombre": "Bondiola",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.19
+  },
+  {
+    "id": "ing_1753733075249_cremadeleche",
+    "nombre": "Crema de leche",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Lácteos y Huevos",
+    "unidad": "Litro",
+    "valorUnitarioEstimado": 200
+  },
+  {
+    "id": "ing_1753733075249_miel",
+    "nombre": "miel",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_mostaza",
+    "nombre": "mostaza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.25
+  },
+  {
+    "id": "ing_1753733075249_salsabarbacoa",
+    "nombre": "Salsa Barbacoa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.3
+  },
+  {
+    "id": "ing_1753733075249_ajo",
+    "nombre": "ajo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.1
+  },
+  {
+    "id": "ing_1753733075249_ravioles",
+    "nombre": "ravioles",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pastas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.22
+  },
+  {
+    "id": "ing_1753733075249_quesorallado",
+    "nombre": "Queso rallado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Fiambres y Lácteos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.45
+  },
+  {
+    "id": "ing_1753733075249_noquiscongelados",
+    "nombre": "Noquis congelados",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pastas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.16
+  },
+  {
+    "id": "ing_1753733075249_cerdoarrollado",
+    "nombre": "Cerdo arrollado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 110
+  },
+  {
+    "id": "ing_1753733075249_muslos",
+    "nombre": "Muslos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 70
+  },
+  {
+    "id": "ing_1753733075249_ketchut",
+    "nombre": "ketchut",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Salsas y Aderezos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.2
+  },
+  {
+    "id": "ing_1753733075249_sorrentinos",
+    "nombre": "sorrentinos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pastas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.465
+  },
+  {
+    "id": "ing_1753733075249_supremadepollo",
+    "nombre": "Suprema de pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.3
+  },
+  {
+    "id": "ing_1753733075249_papasparafreir",
+    "nombre": "Papas para freir",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Congelados",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.12
+  },
+  {
+    "id": "ing_1753733075249_milanesa",
+    "nombre": "Milanesa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.35
+  },
+  {
+    "id": "ing_1753733075249_champiñon",
+    "nombre": "Champiñon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Conservas",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.5
+  },
+  {
+    "id": "ing_1753733075249_merluza",
+    "nombre": "merluza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Pescados y Mariscos",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.345
+  },
+  {
+    "id": "ing_1753733075249_guarnicionverde",
+    "nombre": "guarnicion verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 40
+  },
+  {
+    "id": "ing_1753733075249_bife",
+    "nombre": "Bife",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.38
+  },
+  {
+    "id": "ing_1753733075249_corderocrudo",
+    "nombre": "Cordero crudo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.3
+  },
+  {
+    "id": "ing_1753733075249_asadovacio",
+    "nombre": "Asado vacio",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Carnes",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.37
+  },
+  {
+    "id": "ing_1753733075249_repolloblanco",
+    "nombre": "Repollo Blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 119
+  },
+  {
+    "id": "ing_1753733075249_repollomorado",
+    "nombre": "Repollo Morado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 120
+  },
+  {
+    "id": "ing_1753733075249_cebollablanca",
+    "nombre": "Cebolla blanca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.1
+  },
+  {
+    "id": "ing_1753733075249_cebollamorada",
+    "nombre": "Cebolla morada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Gramos",
+    "valorUnitarioEstimado": 0.07
+  },
+  {
+    "id": "ing_1753733075249_lechugacresparylisa",
+    "nombre": "Lechuga crespa y lisa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumo/Ingrediente",
+    "subcategoria": "Frutas y Verduras",
+    "unidad": "Unidad",
+    "valorUnitarioEstimado": 100
+  }
+]
