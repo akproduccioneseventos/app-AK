@@ -132,10 +132,10 @@ export default function DashboardPage() {
           <Card className="p-4 flex flex-col justify-between">
             <div>
               <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>Armado Rápido</CardTitle>
-              <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Selección de paquetes predefinidos.</CardDescription>
+              <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Un flujo guiado para obtener una cotización rápida.</CardDescription>
             </div>
              <div className="flex gap-2">
-              <Link href="/asistente-ak" passHref className="flex-grow"><Button className="w-full">Probar Asistente</Button></Link>
+              <Link href="/asistente-ak" passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
               <ShareLinkDialog
                   link={asistenteAkLink}
                   title="Compartir Armado Rápido"
@@ -149,7 +149,7 @@ export default function DashboardPage() {
           <Card className="p-4 flex flex-col justify-between">
             <div>
               <CardTitle className="text-lg font-semibold flex items-center gap-2"><Bot className="w-5 h-5"/>Asistente AK</CardTitle>
-              <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Un chat guiado para crear un presupuesto.</CardDescription>
+              <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Un chat para crear un presupuesto.</CardDescription>
             </div>
             <div className="flex gap-2">
               <Link href="/asistente-ak" passHref className="flex-grow"><Button className="w-full">Probar Asistente</Button></Link>
