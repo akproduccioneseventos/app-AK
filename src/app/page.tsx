@@ -135,9 +135,9 @@ export default function DashboardPage() {
               <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Un flujo guiado para obtener una cotización rápida.</CardDescription>
             </div>
              <div className="flex gap-2">
-              <Link href="/asistente-ak" passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
+              <Link href="/armado-rapido" passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
               <ShareLinkDialog
-                  link={asistenteAkLink}
+                  link={asistenteAkLink} // Still points to the assistant, but we can change the page itself
                   title="Compartir Armado Rápido"
                   description="Copia este enlace para que tu cliente cree un presupuesto con los paquetes."
               >
