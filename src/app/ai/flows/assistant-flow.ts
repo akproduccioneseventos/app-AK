@@ -186,7 +186,7 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   const toolCalls = llmResponse.toolCalls;
   if (toolCalls && toolCalls.length > 0) {
     const call = toolCalls[0];
-    const toolResult = await call.run() as any; // Cast to any to check for presupuestoId
+    const toolResult = await call.run() as any; 
     
     // Send the tool's structured output back to the model to generate a natural language response
     const finalResponse = await ai.generate({
