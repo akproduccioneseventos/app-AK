@@ -4,43 +4,34 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { es } from 'date-fns/locale'; // Import Spanish locale
+import { es } from 'date-fns/locale';
 
 interface DashboardCalendarProps {
-  eventDate?: string; // Changed to string to match common data source type
+  occupiedDates?: Date[];
 }
 
-export function DashboardCalendar({ eventDate }: DashboardCalendarProps) {
+export function DashboardCalendar({ occupiedDates = [] }: DashboardCalendarProps) {
   const [clientSideMonth, setClientSideMonth] = useState<Date | undefined>(undefined);
-  const [parsedEventDate, setParsedEventDate] = useState<Date | undefined>(undefined);
-
-  const calculateAndSetDates = useCallback(() => {
-    let validDate: Date | undefined = undefined;
-    if (eventDate) {
-      const d = new Date(eventDate);
-      if (!isNaN(d.getTime())) {
-        validDate = d;
-      }
-    }
-    setParsedEventDate(validDate);
-    // Initialize clientSideMonth after hydration, using eventDate if valid, else current date
-    setClientSideMonth(validDate || new Date());
-  }, [eventDate]);
 
   useEffect(() => {
-    // This now only runs on the client, avoiding server/client mismatch for new Date()
-    calculateAndSetDates();
-  }, [calculateAndSetDates]);
+    // This ensures that the calendar's initial month is set on the client-side,
+    // avoiding hydration mismatches with server-rendered content.
+    setClientSideMonth(new Date());
+  }, []);
 
-  const modifiers = parsedEventDate ? { booked: [parsedEventDate] } : {};
-  const modifiersStyles = parsedEventDate ? {
+  const modifiers = {
+    booked: occupiedDates.filter(d => !isNaN(d.getTime())), // Filter out invalid dates
+  };
+
+  const modifiersStyles = {
     booked: {
       fontWeight: 'bold',
-      color: 'hsl(var(--primary-foreground))',
-      backgroundColor: 'hsl(var(--primary))',
+      color: 'hsl(var(--destructive-foreground))',
+      backgroundColor: 'hsl(var(--destructive))',
+      opacity: 0.8,
       borderRadius: 'var(--radius)',
     }
-  } : {};
+  };
 
   if (!clientSideMonth) {
     return (
@@ -53,13 +44,13 @@ export function DashboardCalendar({ eventDate }: DashboardCalendarProps) {
   return (
     <Calendar
       mode="single"
-      selected={parsedEventDate}
-      defaultMonth={clientSideMonth} // Use clientSideMonth which is set after hydration
-      month={clientSideMonth} // Control the displayed month
-      onMonthChange={setClientSideMonth} // Allow user to navigate months
+      defaultMonth={clientSideMonth}
+      month={clientSideMonth}
+      onMonthChange={setClientSideMonth}
       modifiers={modifiers}
       modifiersStyles={modifiersStyles}
-      locale={es} // Set locale to Spanish
+      disabled={occupiedDates} // Disables selection of occupied dates
+      locale={es}
       className="p-0 rounded-md border shadow-sm mx-auto"
       classNames={{
         caption_label: "text-base font-medium",

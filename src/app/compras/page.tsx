@@ -1,43 +1,61 @@
 
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, ShoppingCart } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowLeft, ShoppingCart, ChefHat, Palette, HardHat } from 'lucide-react';
 
 export default function ComprasPage() {
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Compras y Checklist
-        </h1>
+        <div className="flex items-center gap-3">
+            <ShoppingCart className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+              Compras y Adquisiciones
+            </h1>
+        </div>
         <Link href="/" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Dashboard
+            Volver
           </Button>
         </Link>
       </div>
 
       <Card className="shadow-lg">
         <CardHeader className="text-center">
-          <div className="mx-auto bg-primary/10 p-4 rounded-full inline-block mb-4">
-            <ShoppingCart className="w-12 h-12 text-primary" />
-          </div>
-          <CardTitle className="font-headline text-2xl">Página en Construcción</CardTitle>
+          <CardTitle className="font-headline text-2xl">Módulo de Compras Centralizado</CardTitle>
           <CardDescription className="text-lg">
-            La gestión de compras y checklist detallados estará disponible próximamente.
+            Accede a las listas de compras generadas por cada módulo del planificador.
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <p className="text-muted-foreground">
-            Podrás llevar un control de todas las compras necesarias para tus eventos y crear listas de verificación personalizadas.
-          </p>
-           <p className="text-sm text-muted-foreground pt-4">
-            Por ahora, puedes usar la sección de "Tareas del Evento" dentro del planificador de la fiesta actual.
-          </p>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link href="/fiestas/nueva/catering/lista-compras" passHref>
+                <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
+                    <CardHeader><CardTitle className="flex items-center gap-2"><ChefHat className="text-primary"/>Compras de Catering</CardTitle></CardHeader>
+                    <CardContent><p className="text-sm text-muted-foreground">Ver la lista consolidada de ingredientes y bebidas.</p></CardContent>
+                </Card>
+            </Link>
+             <Link href="/fiestas/nueva/decoracion" passHref>
+                <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
+                    <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="text-primary"/>Compras de Decoración</CardTitle></CardHeader>
+                    <CardContent><p className="text-sm text-muted-foreground">Gestionar y adquirir los elementos decorativos.</p></CardContent>
+                </Card>
+            </Link>
+             <Link href="/empresa/todos-los-servicios" passHref>
+                <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
+                    <CardHeader><CardTitle className="flex items-center gap-2"><HardHat className="text-primary"/>Adquisición de Activos</CardTitle></CardHeader>
+                    <CardContent><p className="text-sm text-muted-foreground">Gestionar la compra de activos fijos para la empresa.</p></CardContent>
+                </Card>
+            </Link>
         </CardContent>
       </Card>
+       <p className="text-xs text-center text-muted-foreground">
+        Este módulo centraliza los accesos a las diferentes áreas de compra para una gestión más eficiente.
+      </p>
     </div>
   );
 }

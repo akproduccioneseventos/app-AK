@@ -1,11 +1,40 @@
 
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarDays } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Loader2, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
-import { DashboardCalendar } from '@/components/dashboard-calendar'; // Reutilizamos el calendario del dashboard
+import { DashboardCalendar } from '@/components/dashboard-calendar';
+import { getOcupiedDates } from '@/app/actions/agenda';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CalendarioGeneralPage() {
+  const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const fetchOccupiedDates = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const dateStrings = await getOcupiedDates();
+      const dates = dateStrings.map(ds => new Date(ds));
+      setOccupiedDates(dates);
+    } catch (err: any) {
+      setError("No se pudieron cargar las fechas de los eventos.");
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchOccupiedDates();
+  }, [fetchOccupiedDates]);
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -25,25 +54,30 @@ export default function CalendarioGeneralPage() {
           <div className="mx-auto bg-primary/10 p-4 rounded-full inline-block mb-4">
             <CalendarDays className="w-12 h-12 text-primary" />
           </div>
-          <CardTitle className="font-headline text-2xl">Calendario (En Desarrollo)</CardTitle>
+          <CardTitle className="font-headline text-2xl">Calendario de Eventos</CardTitle>
           <CardDescription className="text-lg">
-            Visualiza todos tus eventos y fechas importantes en un solo lugar.
+            Visualiza las fechas de tus eventos confirmados.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center space-y-4">
-          <p className="text-muted-foreground text-center">
-            Próximamente, este calendario mostrará todos tus eventos planificados. 
-            Por ahora, muestra una vista genérica.
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-64">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="mt-2 text-muted-foreground">Cargando calendario...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center text-destructive">
+                <AlertTriangle className="mx-auto w-8 h-8 mb-2"/>
+                <p>{error}</p>
+            </div>
+          ) : (
+            <div className="w-full max-w-md">
+              <DashboardCalendar occupiedDates={occupiedDates} />
+            </div>
+          )}
+          <p className="text-sm text-muted-foreground pt-4">
+            Los días marcados en rojo corresponden a eventos ya agendados.
           </p>
-          <div className="w-full max-w-md">
-            <DashboardCalendar /> 
-          </div>
-          <img 
-            src="https://placehold.co/600x250.png" 
-            alt="Calendario de eventos en construcción" 
-            className="mt-6 rounded-md shadow-md mx-auto"
-            data-ai-hint="event calendar construction"
-          />
         </CardContent>
       </Card>
     </div>

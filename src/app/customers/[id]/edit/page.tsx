@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger, // Added AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
+import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
 
 export default function EditCustomerPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
   const params = React.use(paramsProp); // Unwrap the params promise
@@ -44,7 +45,8 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
   const [partyTime, setPartyTime] = useState('');
-  const [partyType, setPartyType] = useState('');
+  const [partyType, setPartyType] = useState<TipoEvento | string>('');
+  const [customPartyType, setCustomPartyType] = useState('');
   const [guestCount, setGuestCount] = useState<string>('');
   const [partyForWhom, setPartyForWhom] = useState('');
   const [venueName, setVenueName] = useState('');
@@ -117,7 +119,10 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
     
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
-    if (partyType.trim()) formData.append('partyType', partyType.trim());
+    
+    const finalPartyType = partyType === "Otro" ? customPartyType.trim() : partyType.trim();
+    if (finalPartyType) formData.append('partyType', finalPartyType);
+    
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
     if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
@@ -171,6 +176,22 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
       setIsDeleting(false);
     }
   };
+  
+  const handlePartyTypeChange = (value: string) => {
+    if (value === "Otro") {
+      setPartyType("Otro"); 
+      setCustomPartyType(''); 
+    } else {
+      setPartyType(value as TipoEvento);
+      setCustomPartyType(''); 
+    }
+  };
+
+  const eventoTipoEnSelect =
+    partyType && ALL_TIPOS_EVENTO.includes(partyType as TipoEvento)
+      ? partyType
+      : (partyType && partyType.trim() !== "" ? "Otro" : "");
+  const showCustomPartyTypeInput = eventoTipoEnSelect === "Otro" || (partyType && !ALL_TIPOS_EVENTO.includes(partyType as TipoEvento));
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Cliente no encontrado. <Link href="/customers" className="underline">Volver a clientes</Link>.</div>;
@@ -238,9 +259,30 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <Label htmlFor="party-type">Tipo de Fiesta</Label>
-                  <Input id="party-type" value={partyType} onChange={(e) => setPartyType(e.target.value)} placeholder="Ej: Boda, Cumpleaños de 15" disabled={isSaving || isDeleting}/>
+                <div className="space-y-2">
+                  <Label htmlFor="party-type-select">Tipo de Fiesta</Label>
+                   <Select 
+                    value={eventoTipoEnSelect}
+                    onValueChange={handlePartyTypeChange}
+                  >
+                    <SelectTrigger id="party-type-select" className="text-base p-3 h-auto">
+                      <SelectValue placeholder="Seleccioná un tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ALL_TIPOS_EVENTO.map(tipo => (
+                        <SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {showCustomPartyTypeInput && (
+                     <Input 
+                        id="party-type-otro" 
+                        placeholder="Especificá el tipo de fiesta" 
+                        value={partyType !== "Otro" ? partyType : customPartyType}
+                        onChange={(e) => setCustomPartyType(e.target.value)}
+                        className="text-base p-3 mt-2"
+                    />
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="guest-count">Cantidad de Invitados</Label>
@@ -315,5 +357,3 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
     </div>
   );
 }
-
-    
