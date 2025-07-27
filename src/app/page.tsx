@@ -128,6 +128,23 @@ export default function DashboardPage() {
             </div>
             <Link href="/presupuestos/nuevo" passHref className="w-full"><Button className="w-full">Crear Manualmente</Button></Link>
           </Card>
+          
+          <Card className="p-4 flex flex-col justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>Armado Rápido</CardTitle>
+              <CardDescription className="text-sm mt-1 mb-3">Para el Cliente. Selección de paquetes predefinidos.</CardDescription>
+            </div>
+             <div className="flex gap-2">
+              <Link href="/asistente-ak" passHref className="flex-grow"><Button className="w-full">Probar Asistente</Button></Link>
+              <ShareLinkDialog
+                  link={asistenteAkLink}
+                  title="Compartir Armado Rápido"
+                  description="Copia este enlace para que tu cliente cree un presupuesto con los paquetes."
+              >
+                  <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
+              </ShareLinkDialog>
+            </div>
+          </Card>
 
           <Card className="p-4 flex flex-col justify-between">
             <div>
