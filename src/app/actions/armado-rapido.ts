@@ -179,7 +179,7 @@ export async function crearPresupuestoDesdeArmadoRapido(
         // Crear prospecto en CRM
         await addCrmLead({
             name: `Prospecto de ${data.eventoTipo}: ${data.clienteNombre}`,
-            notes: `Generado desde Armado Rápido con paquete "${paqueteSeleccionado.nombre}".\nTipo: ${data.eventoTipo}\nInvitados: ${data.invitadosCantidad}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(costoTotal)}`,
+            notes: `Generado desde Armado Rápido con paquete "${paqueteSeleccionado.nombre}".\nTipo: ${data.eventoTipo}\nInvitados: ${data.invitadosCantidad}\nSalón: ${data.salonFiestas}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(costoTotal)}`,
         });
 
         return { success: true, presupuestoId: resultPresupuesto.id };

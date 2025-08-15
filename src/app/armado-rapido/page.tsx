@@ -14,10 +14,12 @@ import { Loader2, Wand2, Send, AlertTriangle, CheckCircle, Info, ArrowRight } fr
 import { useToast } from '@/hooks/use-toast';
 import { crearPresupuestoDesdeArmadoRapido } from '@/app/actions/armado-rapido';
 import type { TipoEvento } from '@/types/presupuesto';
+import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import armadoRapidoConfig from '@/data/armado-rapido-config.json';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ArmadoRapidoPage() {
     const router = useRouter();
@@ -27,37 +29,55 @@ export default function ArmadoRapidoPage() {
 
     const [clienteNombre, setClienteNombre] = useState('');
     const [eventoTipo, setEventoTipo] = useState<TipoEvento | string>('');
+    const [customEventoTipo, setCustomEventoTipo] = useState('');
     const [invitadosCantidad, setInvitadosCantidad] = useState(50);
     const [salonFiestas, setSalonFiestas] = useState('');
+    const [salonPorConfirmar, setSalonPorConfirmar] = useState(false);
     const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
-    const [paqueteId, setPaqueteId] = useState<string>('');
     const [fechaPorConfirmar, setFechaPorConfirmar] = useState(false);
+    const [paqueteId, setPaqueteId] = useState<string>('');
     
     const { paquetes } = armadoRapidoConfig;
+
+    const handleSelectTipoEventoChange = (value: string) => {
+        if (value === "Otro") {
+            setEventoTipo("Otro");
+            setCustomEventoTipo("");
+        } else {
+            setEventoTipo(value as TipoEvento);
+            setCustomEventoTipo("");
+        }
+    };
+    
+    const finalEventType = eventoTipo === "Otro" ? customEventoTipo : eventoTipo;
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
-        if (!paqueteId) {
-            setError("Por favor, selecciona un paquete.");
+        
+        const salonValue = salonPorConfirmar ? "A confirmar" : salonFiestas.trim();
+        
+        if (!clienteNombre.trim() || !finalEventType.trim() || !salonValue || invitadosCantidad <= 0) {
+            setError("Por favor, completa todos los datos del evento (nombre, tipo, salón e invitados).");
             return;
         }
         if (!fechaPorConfirmar && !eventoFecha) {
             setError("Por favor, selecciona una fecha para el evento o marca la casilla para confirmar después.");
             return;
         }
-        if (!clienteNombre.trim() || !eventoTipo.trim() || !salonFiestas.trim() || invitadosCantidad <= 0) {
-            setError("Por favor, completa todos los datos del evento (nombre, tipo, salón e invitados).");
+        if (!paqueteId) {
+            setError("Por favor, selecciona un paquete.");
             return;
         }
+
 
         setIsSubmitting(true);
         try {
             const result = await crearPresupuestoDesdeArmadoRapido({
                 clienteNombre,
-                eventoTipo: eventoTipo as TipoEvento,
+                eventoTipo: finalEventType as TipoEvento,
                 invitadosCantidad,
-                salonFiestas,
+                salonFiestas: salonValue,
                 paqueteId,
                 eventoFecha: fechaPorConfirmar ? undefined : eventoFecha?.toISOString()
             });
@@ -81,13 +101,56 @@ export default function ArmadoRapidoPage() {
                     <Wand2 className="w-16 h-16 mx-auto text-primary mb-4" />
                     <CardTitle className="font-headline text-3xl">Armado Rápido de Presupuesto</CardTitle>
                     <CardDescription className="text-lg text-muted-foreground mt-2">
-                        Elige un paquete y completa tus datos para obtener una cotización inicial al instante.
+                        Completa tus datos y elige un paquete para obtener una cotización inicial al instante.
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-8">
+                       <div className="space-y-4">
+                            <h3 className="text-xl font-semibold text-center font-headline">1. Cuéntanos sobre tu Evento</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1"><Label htmlFor="clienteNombre">Tu Nombre Completo *</Label><Input id="clienteNombre" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} required /></div>
+                                <div className="space-y-1"><Label htmlFor="invitadosCantidad">Cantidad de Invitados *</Label><Input id="invitadosCantidad" type="number" value={invitadosCantidad} onChange={(e) => setInvitadosCantidad(Number(e.target.value))} required min="1"/></div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                                <div className="space-y-1">
+                                    <Label htmlFor="salonFiestas">Salón de Fiestas *</Label>
+                                    <Input id="salonFiestas" value={salonFiestas} onChange={(e) => setSalonFiestas(e.target.value)} required disabled={salonPorConfirmar}/>
+                                    <div className="flex items-center space-x-2 pt-1">
+                                        <Checkbox id="salon-confirmar" checked={salonPorConfirmar} onCheckedChange={(checked) => setSalonPorConfirmar(!!checked)} />
+                                        <Label htmlFor="salon-confirmar" className="text-sm font-normal">Aún no he decidido el salón</Label>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="eventoTipo">Tipo de Evento *</Label>
+                                    <Select value={eventoTipo} onValueChange={handleSelectTipoEventoChange}>
+                                        <SelectTrigger id="eventoTipo"><SelectValue placeholder="Selecciona un tipo..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {ALL_TIPOS_EVENTO.map(tipo => <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                {eventoTipo === 'Otro' && (
+                                     <div className="space-y-1 md:col-span-2">
+                                        <Label htmlFor="customEventoTipo">Especifica el tipo de evento</Label>
+                                        <Input id="customEventoTipo" value={customEventoTipo} onChange={e => setCustomEventoTipo(e.target.value)} required/>
+                                     </div>
+                                )}
+                            </div>
+                            <div className="space-y-2 pt-2">
+                                <Label className="font-semibold">Fecha del Evento *</Label>
+                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} disabled={fechaPorConfirmar} />
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <Checkbox id="fecha-confirmar" checked={fechaPorConfirmar} onCheckedChange={(checked) => setFechaPorConfirmar(!!checked)} />
+                                    <Label htmlFor="fecha-confirmar" className="text-sm font-normal">Aún no he decidido la fecha</Label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Separator />
+                        
                         <div className="space-y-4">
-                            <h3 className="text-xl font-semibold text-center font-headline">1. Elige tu Paquete Ideal</h3>
+                            <h3 className="text-xl font-semibold text-center font-headline">2. Elige tu Paquete Ideal</h3>
                              <RadioGroup value={paqueteId} onValueChange={setPaqueteId} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {paquetes.map(pkg => (
                                     <Label key={pkg.id} htmlFor={pkg.id} className={cn(
@@ -107,26 +170,6 @@ export default function ArmadoRapidoPage() {
                             </RadioGroup>
                         </div>
                         
-                        <Separator />
-
-                        <div className="space-y-4">
-                            <h3 className="text-xl font-semibold text-center font-headline">2. Cuéntanos sobre tu Evento</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1"><Label htmlFor="clienteNombre">Tu Nombre Completo *</Label><Input id="clienteNombre" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} required /></div>
-                                <div className="space-y-1"><Label htmlFor="salonFiestas">Salón de Fiestas *</Label><Input id="salonFiestas" value={salonFiestas} onChange={(e) => setSalonFiestas(e.target.value)} required /></div>
-                                <div className="space-y-1"><Label htmlFor="eventoTipo">Tipo de Evento *</Label><Input id="eventoTipo" value={eventoTipo} onChange={(e) => setEventoTipo(e.target.value)} required /></div>
-                                <div className="space-y-1"><Label htmlFor="invitadosCantidad">Cantidad de Invitados *</Label><Input id="invitadosCantidad" type="number" value={invitadosCantidad} onChange={(e) => setInvitadosCantidad(Number(e.target.value))} required min="1"/></div>
-                            </div>
-                            <div className="space-y-2 pt-2">
-                                <Label className="font-semibold">Fecha del Evento *</Label>
-                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} disabled={fechaPorConfirmar} />
-                                <div className="flex items-center space-x-2 pt-2">
-                                    <Checkbox id="fecha-confirmar" checked={fechaPorConfirmar} onCheckedChange={(checked) => setFechaPorConfirmar(!!checked)} />
-                                    <Label htmlFor="fecha-confirmar" className="text-sm font-normal">Aún no he decidido la fecha</Label>
-                                </div>
-                            </div>
-                        </div>
-
                         {error && (
                             <Alert variant="destructive">
                                 <AlertTriangle className="h-4 w-4" />
@@ -136,7 +179,7 @@ export default function ArmadoRapidoPage() {
                         )}
                     </CardContent>
                     <CardFooter>
-                        <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting || !paqueteId}>
+                        <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting}>
                             {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Send className="mr-2 h-5 w-5" />}
                             {isSubmitting ? 'Generando Presupuesto...' : 'Ver Mi Presupuesto Detallado'}
                         </Button>
