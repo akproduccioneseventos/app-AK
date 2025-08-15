@@ -1,5 +1,28 @@
 [
   {
+    "clienteNombre": "prueba",
+    "eventoTipo": "Evento corporativo",
+    "invitadosCantidad": 50,
+    "eventoFecha": "2025-08-29T03:00:00.000Z",
+    "salonFiestas": "A confirmar",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "menu_placeholder",
+        "nombreServicio": "Menú Gastronómico a elección",
+        "cantidad": 50,
+        "unidad": "Por persona",
+        "precioUnitario": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Servicio de catering"
+      }
+    ],
+    "costoTotalEstimado": 0,
+    "timestamp": "2025-08-15T23:16:00.714Z",
+    "notas": "Presupuesto inicial generado por Armado Rápido con el paquete \"Paquete Básico\". Menú a confirmar por el cliente. ",
+    "id": "pres_1755299760714_3qnj9rb",
+    "estado": "Borrador"
+  },
+  {
     "clienteNombre": "Ana García",
     "eventoTipo": "Boda",
     "invitadosCantidad": 50,
