@@ -103,7 +103,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
   if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
-  if (pathname.startsWith('/asistente-ak')) return 'Asistente de Presupuestos IA';
+  if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
 
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -196,7 +196,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/asistente-ak') return BrainCircuit;
 
   if (pathname === '/armado-rapido') return Wand2;
-  if (pathname.startsWith('/asistente-ak')) return Bot;
+  if (pathname === '/asistente-ak') return Bot;
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
@@ -290,7 +290,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
-      {pathname !== '/portal' && !pathname.startsWith('/asistente-ak') && <AkAssistant />}
+      {pathname !== '/portal' && <AkAssistant />}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React from 'react';
@@ -64,16 +63,17 @@ export default function AsistenteAkInfoPage() {
                                 <div className="p-2 bg-primary/10 rounded-full">
                                     <FileJson className="w-5 h-5 text-primary" />
                                 </div>
-                                <h4 className="font-semibold">El Asistente ha sido eliminado.</h4>
+                                <h4 className="font-semibold">Personaliza el Diálogo</h4>
                             </div>
                             <p className="text-sm text-muted-foreground mb-2">
-                               La funcionalidad del Asistente AK ha sido eliminada.
+                                Puedes cambiar las preguntas que hace el asistente para recopilar información y crear un presupuesto. Edita directamente el archivo de configuración:
                             </p>
+                             <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/data/asistente-ak-config.json</code>
                         </div>
                     </div>
                     <Separator/>
                      <div>
-                        <h3 className="font-semibold text-lg mb-3">¿Cómo funcionaba? El Proceso, Paso a Paso:</h3>
+                        <h3 className="font-semibold text-lg mb-3">¿Cómo funciona? El Proceso, Paso a Paso:</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {steps.map(step => (
                                 <div key={step.title} className="p-4 border rounded-lg bg-muted/40">
