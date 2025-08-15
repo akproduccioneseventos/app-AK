@@ -1,16 +1,12 @@
+
 'use server';
 
 import fs from 'fs/promises';
 import path from 'path';
+import type { RestorePoint } from '@/types/fiesta'; // Asumimos que este tipo está definido en algún lugar
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
-
-export interface RestorePoint {
-  name: string; // The folder name, e.g., "backup-2024-07-02T10-30-00"
-  timestamp: string; // ISO string
-  displayDate: string; // User-friendly date
-}
 
 async function ensureBackupsDirectoryExists() {
   try {
@@ -149,3 +145,4 @@ export async function deleteRestorePoint(backupFolderName: string): Promise<{ su
     return { success: false, error: error.message || `Failed to delete ${backupFolderName}` };
   }
 }
+
