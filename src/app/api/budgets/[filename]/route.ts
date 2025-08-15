@@ -19,11 +19,11 @@ export async function GET(
     return new NextResponse('Invalid filename', { status: 400 });
   }
   
-  const budgetsDirectoryPath = path.join(process.cwd(), 'src', 'data', 'budgets');
-  const filePath = path.resolve(budgetsDirectoryPath, safeFilename);
+  const budgetsDirectoryPath = path.resolve(process.cwd(), 'src', 'data', 'budgets');
+  const filePath = path.join(budgetsDirectoryPath, safeFilename);
 
   // Final check to ensure the resolved path is within the intended directory
-  if (!filePath.startsWith(path.resolve(budgetsDirectoryPath))) {
+  if (!filePath.startsWith(budgetsDirectoryPath)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 

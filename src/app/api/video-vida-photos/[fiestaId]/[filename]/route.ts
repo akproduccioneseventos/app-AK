@@ -20,11 +20,11 @@ export async function GET(
     return new NextResponse('Invalid path segments', { status: 400 });
   }
 
-  const videoVidaDirectory = path.join(process.cwd(), 'src', 'data', 'life-story-videos');
-  const filePath = path.resolve(videoVidaDirectory, safeFiestaId, safeFilename);
+  const videoVidaDirectory = path.resolve(process.cwd(), 'src', 'data', 'life-story-videos');
+  const filePath = path.join(videoVidaDirectory, safeFiestaId, safeFilename);
   
   // Final check to ensure the resolved path is within the intended directory
-  if (!filePath.startsWith(path.resolve(videoVidaDirectory))) {
+  if (!filePath.startsWith(videoVidaDirectory)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 

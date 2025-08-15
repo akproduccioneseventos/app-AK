@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { RestorePoint } from '@/types/fiesta'; // Asumimos que este tipo está definido en algún lugar
 
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+const DATA_DIR = path.resolve(process.cwd(), 'src', 'data');
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 
 async function ensureBackupsDirectoryExists() {
@@ -93,7 +93,7 @@ export async function restoreFromPoint(backupFolderName: string): Promise<{ succ
   const backupFolderPath = path.resolve(BACKUPS_DIR, safeFolderName);
 
   // Final security check
-  if (!backupFolderPath.startsWith(path.resolve(BACKUPS_DIR))) {
+  if (!backupFolderPath.startsWith(BACKUPS_DIR)) {
     return { success: false, error: 'Access denied.' };
   }
 
@@ -132,7 +132,7 @@ export async function deleteRestorePoint(backupFolderName: string): Promise<{ su
   
   const backupFolderPath = path.resolve(BACKUPS_DIR, safeFolderName);
 
-  if (!backupFolderPath.startsWith(path.resolve(BACKUPS_DIR))) {
+  if (!backupFolderPath.startsWith(BACKUPS_DIR)) {
     return { success: false, error: 'Access denied.' };
   }
 
@@ -145,4 +145,3 @@ export async function deleteRestorePoint(backupFolderName: string): Promise<{ su
     return { success: false, error: error.message || `Failed to delete ${backupFolderName}` };
   }
 }
-

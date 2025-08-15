@@ -19,11 +19,11 @@ export async function GET(
     return new NextResponse('Invalid filename', { status: 400 });
   }
   
-  const proofsDirectoryPath = path.join(process.cwd(), 'src', 'data', 'payment-proofs');
-  const filePath = path.resolve(proofsDirectoryPath, safeFilename);
+  const proofsDirectoryPath = path.resolve(process.cwd(), 'src', 'data', 'payment-proofs');
+  const filePath = path.join(proofsDirectoryPath, safeFilename);
 
   // Final check to ensure the resolved path is within the intended directory
-  if (!filePath.startsWith(path.resolve(proofsDirectoryPath))) {
+  if (!filePath.startsWith(proofsDirectoryPath)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 

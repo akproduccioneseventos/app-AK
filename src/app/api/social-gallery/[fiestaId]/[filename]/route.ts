@@ -20,11 +20,11 @@ export async function GET(
     return new NextResponse('Invalid path segments', { status: 400 });
   }
 
-  const socialGalleryDirectory = path.join(process.cwd(), 'src', 'data', 'social-gallery');
-  const filePath = path.resolve(socialGalleryDirectory, safeFiestaId, safeFilename);
+  const socialGalleryDirectory = path.resolve(process.cwd(), 'src', 'data', 'social-gallery');
+  const filePath = path.join(socialGalleryDirectory, safeFiestaId, safeFilename);
 
   // Final check to ensure the resolved path is within the intended directory
-  if (!filePath.startsWith(path.resolve(socialGalleryDirectory))) {
+  if (!filePath.startsWith(socialGalleryDirectory)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 

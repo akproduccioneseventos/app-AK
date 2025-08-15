@@ -18,11 +18,11 @@ export async function GET(
     return new NextResponse('Invalid filename', { status: 400 });
   }
 
-  const assetsDirectory = path.join(process.cwd(), 'src', 'data', 'social-media-assets');
-  const filePath = path.resolve(assetsDirectory, safeFilename);
+  const assetsDirectory = path.resolve(process.cwd(), 'src', 'data', 'social-media-assets');
+  const filePath = path.join(assetsDirectory, safeFilename);
 
   // Final check to ensure the resolved path is within the intended directory
-  if (!filePath.startsWith(path.resolve(assetsDirectory))) {
+  if (!filePath.startsWith(assetsDirectory)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
