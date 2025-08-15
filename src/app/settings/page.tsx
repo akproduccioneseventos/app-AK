@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,9 +10,9 @@ const settingsCards = [
    {
     title: "Configuración de Presupuestos",
     description: "Personaliza el PDF, el Armado Rápido y el Asistente de IA.",
-    href: "/settings/budget-display", 
+    href: "/presupuestos", 
     icon: FileText,
-    buttonLabel: "Personalizar Presupuestos"
+    buttonLabel: "Ir a Central de Presupuestos"
   },
   {
     title: "Información de la Empresa",

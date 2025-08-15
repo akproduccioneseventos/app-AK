@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import type { MonthlyChartData } from '@/components/charts/MonthlySalesChart';
 import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
-import { KpiCard } from '@/components/dashboard/kpi-card'; // Import the new component
+import { KpiCard } from '@/components/dashboard/kpi-card';
 
 const MonthlySalesChart = dynamic(() => 
   import('@/components/charts/MonthlySalesChart').then(mod => mod.MonthlySalesChart), 
@@ -239,10 +239,10 @@ export default function ContabilidadDashboardPage() {
               Panel Contable y Financiero
             </h1>
         </div>
-         <Link href="/" passHref>
+         <Link href="/empresa" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Panel Principal
+            Volver a Gestión Empresa
           </Button>
         </Link>
       </div>

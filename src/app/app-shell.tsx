@@ -26,7 +26,7 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/') return 'Menú Principal';
 
-  if (pathname === '/presupuestos') return 'Presupuestos';
+  if (pathname === '/presupuestos') return 'Central de Presupuestos';
   if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
@@ -98,6 +98,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
+  if (pathname === '/settings/asistente-ak') return 'Configuración Asistente';
   if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
@@ -190,10 +191,10 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
+  if (pathname === '/settings/asistente-ak') return BrainCircuit;
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
-  if (pathname === '/settings/asistente-ak') return BrainCircuit;
 
   if (pathname === '/armado-rapido') return Wand2;
   if (pathname === '/asistente-ak') return Bot;

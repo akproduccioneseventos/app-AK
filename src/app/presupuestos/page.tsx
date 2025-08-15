@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon } from 'lucide-react'; // Added SettingsIcon
+import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -47,7 +47,6 @@ export default function PresupuestosPage() {
         getFiestaActual()
       ]);
       setAllPresupuestos(presupuestosData);
-      // setFilteredPresupuestos(presupuestosData); // Filter will be applied by useEffect
       setFiestaActual(fiestaData);
     } catch (err: any) {
       console.error("Error cargando datos:", err);
@@ -65,7 +64,7 @@ export default function PresupuestosPage() {
   useEffect(() => {
     const lowercasedSearchTerm = searchTerm.toLowerCase();
     const filtered = allPresupuestos.filter(presupuesto => {
-      const searchTermMatch = presupuesto.clienteNombre.toLowerCase().includes(lowercasedSearchTerm);
+      const searchTermMatch = presupuesto.clienteNombre.toLowerCase().includes(lowercasedSearchTerm) || presupuesto.eventoTipo.toLowerCase().includes(lowercasedSearchTerm);
       const statusMatch = statusFilter[presupuesto.estado];
       return searchTermMatch && statusMatch;
     });
@@ -107,33 +106,41 @@ export default function PresupuestosPage() {
     <div className="space-y-8">
       <Card className="shadow-xl overflow-hidden bg-gradient-to-br from-primary/20 via-background to-accent/10">
         <CardHeader className="p-6 md:p-8 text-center">
-          <div className="mb-6 flex justify-center space-x-4">
-            <CheckSquare className="w-12 h-12 text-primary opacity-80" />
-            <CalendarDays className="w-12 h-12 text-primary opacity-80" />
+           <div className="mb-6 flex justify-center space-x-4">
             <Coins className="w-12 h-12 text-primary opacity-80" />
+            <FileTextIcon className="w-12 h-12 text-primary opacity-80" />
+            <CalendarDays className="w-12 h-12 text-primary opacity-80" />
           </div>
           <CardTitle className="text-4xl font-bold tracking-tight font-headline text-primary">
-            Presupuesto Personalizado
+            Central de Presupuestos
           </CardTitle>
           <CardDescription className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Creá, gestioná y enviá presupuestos detallados para tus eventos. Configurá cada detalle y sorprendé a tus clientes.
+            Crea, gestiona y configura todas tus herramientas de cotización desde un solo lugar.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-6 md:p-8 text-center">
+        <CardContent className="p-6 md:p-8 text-center bg-muted/20">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link href="/presupuestos/nuevo" passHref>
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-10 py-6 text-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
                 <PlusCircle className="w-7 h-7 mr-3" />
-                Crear Nuevo Presupuesto
+                Crear Presupuesto Manual
               </Button>
             </Link>
-            <Link href="/settings/budget-display" passHref>
-              <Button variant="outline" size="lg" className="rounded-full px-10 py-6 text-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-primary text-primary hover:bg-primary/5 w-full sm:w-auto">
+             <Link href="/settings/budget-display" passHref>
+              <Button variant="outline" size="lg" className="rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-primary text-primary hover:bg-primary/5 w-full sm:w-auto">
                 <SettingsIcon className="w-6 h-6 mr-3"/>
                 Configurar Presupuestos
               </Button>
             </Link>
           </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 max-w-md mx-auto">
+                <Link href="/armado-rapido" passHref>
+                    <Button variant="secondary" className="w-full py-6 text-base"><Wand2 className="w-5 h-5 mr-2"/>Armado Rápido</Button>
+                </Link>
+                 <Link href="/asistente-ak" passHref>
+                    <Button variant="secondary" className="w-full py-6 text-base"><Bot className="w-5 h-5 mr-2"/>Asistente IA</Button>
+                </Link>
+            </div>
         </CardContent>
       </Card>
 
@@ -151,7 +158,7 @@ export default function PresupuestosPage() {
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                     type="text"
-                    placeholder="Buscar por cliente..."
+                    placeholder="Buscar por cliente o tipo..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10"
