@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import type { ReactNode } from 'react';
@@ -117,6 +115,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
   if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
   if (pathname.startsWith('/feedback')) return 'Encuesta de Satisfacción';
+  if (pathname.startsWith('/acceso-personal')) return 'Acceso de Colaboradores';
+
 
   if (pathname === '/eventos') return 'Todas las Fiestas';
   if (pathname === '/calendario') return 'Calendario General';
@@ -208,6 +208,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/evento/social')) return Camera;
   if (pathname.startsWith('/video-vida')) return Camera;
   if (pathname.startsWith('/feedback')) return Star;
+  if (pathname.startsWith('/acceso-personal')) return UserCog;
 
 
   return null;
@@ -220,7 +221,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
-  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname === '/portal';
+  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
   const isClientFacingTool = pathname === '/armado-rapido' || pathname === '/asistente-ak';
 
   // Define pages that are printable views and should not have the shell.

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
@@ -11,7 +10,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { assistant, type AssistantOutput } from '@/app/ai/flows/assistant-flow';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
-import armadoRapidoConfig from '@/data/armado-rapido-config.json';
 import { useToast } from '@/hooks/use-toast';
 import { DatePickerDemo } from '../date-picker-demo';
 import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
@@ -51,14 +49,14 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
           setCurrentStep(currentStep + 1);
       }
     };
-
+    
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
         try {
             const result = await assistant({
-                query: JSON.stringify(formData), // Send all data at once
+                query: `Crear presupuesto para ${formData.tipoFiesta} de ${formData.cantidadInvitados} personas a nombre de ${formData.nombreCliente}${formData.fechaEvento ? ` para la fecha ${formData.fechaEvento.toISOString().split('T')[0]}` : ''}.`,
                 history: [], // No history needed for this flow
             });
             setResultado(result);
@@ -70,6 +68,7 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
             setIsLoading(false);
         }
     }
+
 
     const containerClasses = isPage 
         ? "relative w-full h-full flex flex-col bg-card border rounded-lg" 
