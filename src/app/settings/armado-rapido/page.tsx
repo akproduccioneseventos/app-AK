@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Search } from 'lucide-react';
+import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Search, X } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   getArmadoRapidoConfig,
@@ -34,6 +33,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 // Component for editing a single package
 const PackageEditor = ({
@@ -110,7 +117,7 @@ const PackageEditor = ({
                       {includedServices.map(s => (
                         <li key={s.id} className="flex items-center justify-between p-1.5 text-sm">
                           <span>{s.nombre}</span>
-                          <Button size="sm" variant="ghost" className="h-7 text-destructive" onClick={() => removeService(s.id)}>Quitar</Button>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => removeService(s.id)}><X className="w-4 h-4"/></Button>
                         </li>
                       ))}
                     </ul>
@@ -171,7 +178,7 @@ export default function ArmadoRapidoConfigPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      setServicios(serviciosData.filter(s => s.tipoItem === 'Servicio'));
+      setServicios(serviciosData);
     } catch (error) {
       toast({ title: "Error", description: "No se pudo cargar la configuración o los servicios.", variant: "destructive" });
     } finally {
@@ -234,6 +241,8 @@ export default function ArmadoRapidoConfigPage() {
       return { ...prev, reglas: newRules };
     });
   };
+  
+  const serviciosDeVenta = useMemo(() => servicios.filter(s => s.tipoItem === 'Servicio'), [servicios]);
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary"/></div>;
 
@@ -260,7 +269,7 @@ export default function ArmadoRapidoConfigPage() {
                   <PackageEditor
                       key={paquete.id}
                       paquete={paquete}
-                      servicios={servicios}
+                      servicios={serviciosDeVenta}
                       onPackageChange={handlePackageChange}
                       onDelete={deletePackage}
                   />
@@ -286,7 +295,7 @@ export default function ArmadoRapidoConfigPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                        <Select value={regla.servicioCatalogoId} onValueChange={v => handleRuleChange('dinamicas', i, 'servicioCatalogoId', v)}>
                            <SelectTrigger><SelectValue placeholder="Seleccionar servicio..."/></SelectTrigger>
-                           <SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent>
+                           <SelectContent>{serviciosDeVenta.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent>
                        </Select>
                        <Input type="number" placeholder="Invitados por unidad" value={regla.invitadosPorUnidad} onChange={e => handleRuleChange('dinamicas', i, 'invitadosPorUnidad', Number(e.target.value))}/>
                     </div>
@@ -303,8 +312,8 @@ export default function ArmadoRapidoConfigPage() {
                     </div>
                     <div className="space-y-3">
                       <Input type="number" placeholder="Umbral de Invitados" value={regla.umbralInvitados} onChange={e => handleRuleChange('condicionales', i, 'umbralInvitados', Number(e.target.value))}/>
-                      <Select value={regla.servicioMenorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMenorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MENOR O IGUAL al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
-                      <Select value={regla.servicioMayorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMayorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MAYOR al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
+                      <Select value={regla.servicioMenorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMenorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MENOR O IGUAL al umbral..."/></SelectTrigger><SelectContent>{serviciosDeVenta.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
+                      <Select value={regla.servicioMayorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMayorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MAYOR al umbral..."/></SelectTrigger><SelectContent>{serviciosDeVenta.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
                     </div>
                 </div>
             ))}
@@ -321,5 +330,3 @@ export default function ArmadoRapidoConfigPage() {
     </div>
   );
 }
-
-    
