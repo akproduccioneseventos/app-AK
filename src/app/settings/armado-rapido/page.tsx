@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Edit } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   getArmadoRapidoConfig,
@@ -23,13 +22,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 export default function ArmadoRapidoConfigPage() {
   const { toast } = useToast();
@@ -37,6 +39,11 @@ export default function ArmadoRapidoConfigPage() {
   const [servicios, setServicios] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // State for package editing sheet
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [editingPackage, setEditingPackage] = useState<Paquete | null>(null);
+
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -70,11 +77,44 @@ export default function ArmadoRapidoConfigPage() {
   };
   
   const addPackage = () => {
-      const newPackage: Paquete = { id: `pkg_${Date.now()}`, nombre: 'Nuevo Paquete', descripcion: '', serviciosIncluidosIds: [] };
+      const newPackage: Paquete = { id: `pkg_${Date.now()}`, nombre: 'Nuevo Paquete', descripcion: '', serviciosIncluidosIds: [], costoFijoAdicional: 0 };
       setConfig(prev => ({...prev, paquetes: [...prev.paquetes, newPackage]}));
   }
   const deletePackage = (id: string) => setConfig(prev => ({...prev, paquetes: prev.paquetes.filter(p => p.id !== id)}));
   
+  const openEditPackageSheet = (paquete: Paquete) => {
+    setEditingPackage({ ...paquete });
+    setIsSheetOpen(true);
+  };
+
+  const handleUpdateEditingPackage = (field: keyof Omit<Paquete, 'id' | 'serviciosIncluidosIds'>, value: string | number) => {
+      setEditingPackage(prev => prev ? {...prev, [field]: value} : null);
+  };
+
+  const handleToggleServiceInSheet = (serviceId: string) => {
+      setEditingPackage(prev => {
+          if (!prev) return null;
+          const newServiceIds = new Set(prev.serviciosIncluidosIds);
+          if (newServiceIds.has(serviceId)) {
+              newServiceIds.delete(serviceId);
+          } else {
+              newServiceIds.add(serviceId);
+          }
+          return {...prev, serviciosIncluidosIds: Array.from(newServiceIds)};
+      });
+  };
+  
+  const handleSavePackageChanges = () => {
+      if (!editingPackage) return;
+      setConfig(prev => ({
+          ...prev,
+          paquetes: prev.paquetes.map(p => p.id === editingPackage.id ? editingPackage : p)
+      }));
+      setIsSheetOpen(false);
+      setEditingPackage(null);
+  };
+
+
   const addRule = (type: 'dinamicas' | 'condicionales') => {
       if(type === 'dinamicas') {
         const newRule: ReglaDinamica = { servicioCatalogoId: '', invitadosPorUnidad: 1 };
@@ -91,32 +131,7 @@ export default function ArmadoRapidoConfigPage() {
         return {...prev, reglas: newRules};
     });
   }
-
-  const handlePackageChange = (id: string, field: keyof Omit<Paquete, 'serviciosIncluidosIds' | 'id'>, value: string | number) => {
-      setConfig(prev => ({
-          ...prev,
-          paquetes: prev.paquetes.map(p => p.id === id ? {...p, [field]: value} : p)
-      }));
-  }
   
-  const handlePackageServiceToggle = (packageId: string, serviceId: string) => {
-     setConfig(prev => ({
-          ...prev,
-          paquetes: prev.paquetes.map(p => {
-              if (p.id === packageId) {
-                  const newServiceIds = new Set(p.serviciosIncluidosIds);
-                  if (newServiceIds.has(serviceId)) {
-                      newServiceIds.delete(serviceId);
-                  } else {
-                      newServiceIds.add(serviceId);
-                  }
-                  return {...p, serviciosIncluidosIds: Array.from(newServiceIds) };
-              }
-              return p;
-          })
-      }));
-  }
-
   const handleRuleChange = (type: 'dinamicas' | 'condicionales', index: number, field: string, value: string | number) => {
     setConfig(prev => {
       const newRules = { ...prev.reglas };
@@ -131,6 +146,50 @@ export default function ArmadoRapidoConfigPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetContent className="w-full sm:max-w-md">
+                <SheetHeader>
+                    <SheetTitle className="font-headline text-lg">Editar Paquete: {editingPackage?.nombre}</SheetTitle>
+                </SheetHeader>
+                {editingPackage && (
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="pkg-name">Nombre del Paquete</Label>
+                            <Input id="pkg-name" value={editingPackage.nombre} onChange={e => handleUpdateEditingPackage('nombre', e.target.value)} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="pkg-desc">Descripción</Label>
+                            <Input id="pkg-desc" value={editingPackage.descripcion} onChange={e => handleUpdateEditingPackage('descripcion', e.target.value)} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="pkg-costo">Costo Fijo Adicional</Label>
+                            <Input id="pkg-costo" type="number" value={editingPackage.costoFijoAdicional || ''} onChange={e => handleUpdateEditingPackage('costoFijoAdicional', Number(e.target.value))} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label className="font-medium">Servicios Incluidos</Label>
+                            <ScrollArea className="h-64 w-full rounded-md border p-2">
+                                <div className="space-y-1">
+                                {servicios.map(s => (
+                                    <div key={s.id} className="flex items-center space-x-2 p-1 rounded hover:bg-muted">
+                                        <Checkbox 
+                                            id={`service-${editingPackage.id}-${s.id}`} 
+                                            checked={editingPackage.serviciosIncluidosIds.includes(s.id)}
+                                            onCheckedChange={() => handleToggleServiceInSheet(s.id)}
+                                        />
+                                        <Label htmlFor={`service-${editingPackage.id}-${s.id}`} className="font-normal text-sm cursor-pointer">{s.nombre}</Label>
+                                    </div>
+                                ))}
+                                </div>
+                            </ScrollArea>
+                        </div>
+                    </div>
+                )}
+                <SheetFooter>
+                    <SheetClose asChild><Button type="button" variant="outline">Cancelar</Button></SheetClose>
+                    <Button type="button" onClick={handleSavePackageChanges}>Guardar Paquete</Button>
+                </SheetFooter>
+            </SheetContent>
+        </Sheet>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Wand2 className="w-8 h-8 text-primary" />
@@ -152,38 +211,11 @@ export default function ArmadoRapidoConfigPage() {
                     key={paquete.id} 
                     title={paquete.nombre} 
                     onDelete={() => deletePackage(paquete.id)}
-                    description={paquete.descripcion}
+                    description={`${paquete.descripcion} (${paquete.serviciosIncluidosIds.length} servicios)`}
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input placeholder="Nombre del Paquete" value={paquete.nombre} onChange={e => handlePackageChange(paquete.id, 'nombre', e.target.value)} />
-                        <Input placeholder="Descripción corta" value={paquete.descripcion} onChange={e => handlePackageChange(paquete.id, 'descripcion', e.target.value)} />
-                        <Input type="number" placeholder="Costo Fijo Adicional" value={paquete.costoFijoAdicional || ''} onChange={e => handlePackageChange(paquete.id, 'costoFijoAdicional', Number(e.target.value))} />
-                    </div>
-                     <div className="space-y-2">
-                        <Label className="text-xs font-medium">Servicios Base Incluidos</Label>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="w-full justify-between">
-                                    <span>{paquete.serviciosIncluidosIds.length} servicio(s) seleccionado(s)</span>
-                                    <ChevronDown className="w-4 h-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
-                                <DropdownMenuLabel>Seleccionar Servicios</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {servicios.map(s => (
-                                    <DropdownMenuCheckboxItem
-                                        key={s.id}
-                                        checked={paquete.serviciosIncluidosIds.includes(s.id)}
-                                        onCheckedChange={() => handlePackageServiceToggle(paquete.id, s.id)}
-                                        onSelect={(e) => e.preventDefault()} // Prevent closing on click
-                                    >
-                                        {s.nombre}
-                                    </DropdownMenuCheckboxItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                   <Button onClick={() => openEditPackageSheet(paquete)} className="w-full">
+                       <Edit className="w-4 h-4 mr-2"/> Editar Paquete y Servicios
+                   </Button>
                 </ConfigFormItem>
             ))}
             <Button variant="outline" onClick={addPackage} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Paquete</Button>
