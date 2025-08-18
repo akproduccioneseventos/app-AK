@@ -19,7 +19,9 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { useToast } from '@/hooks/use-toast';
 import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
-
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ArmadoRapidoConfigPage() {
   const { toast } = useToast();
@@ -82,10 +84,17 @@ export default function ArmadoRapidoConfigPage() {
     });
   }
 
-  const handlePackageChange = (id: string, field: keyof Paquete, value: string | string[]) => {
+  const handlePackageChange = (id: string, field: keyof Omit<Paquete, 'serviciosIncluidosIds'>, value: string | number) => {
       setConfig(prev => ({
           ...prev,
           paquetes: prev.paquetes.map(p => p.id === id ? {...p, [field]: value} : p)
+      }));
+  }
+  
+  const handlePackageServicesChange = (id: string, serviceIds: string[]) => {
+     setConfig(prev => ({
+          ...prev,
+          paquetes: prev.paquetes.map(p => p.id === id ? {...p, serviciosIncluidosIds: serviceIds } : p)
       }));
   }
 
@@ -128,10 +137,10 @@ export default function ArmadoRapidoConfigPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input placeholder="Nombre del Paquete" value={paquete.nombre} onChange={e => handlePackageChange(paquete.id, 'nombre', e.target.value)} />
                         <Input placeholder="Descripción corta" value={paquete.descripcion} onChange={e => handlePackageChange(paquete.id, 'descripcion', e.target.value)} />
-                        <Input type="number" placeholder="Costo Fijo Adicional" value={paquete.costoFijoAdicional || 0} onChange={e => handlePackageChange(paquete.id, 'costoFijoAdicional', e.target.value)} />
+                        <Input type="number" placeholder="Costo Fijo Adicional" value={paquete.costoFijoAdicional || ''} onChange={e => handlePackageChange(paquete.id, 'costoFijoAdicional', Number(e.target.value))} />
                     </div>
                      <Label className="text-xs font-medium">Servicios Base Incluidos</Label>
-                    <Select value={paquete.serviciosIncluidosIds.join(',')} onValueChange={(val) => handlePackageChange(paquete.id, 'serviciosIncluidosIds', val.split(','))}>
+                    <Select value={paquete.serviciosIncluidosIds.join(',')} onValueChange={(val) => handlePackageServicesChange(paquete.id, val ? val.split(',') : [])}>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar servicios base...">
                           {paquete.serviciosIncluidosIds.length} servicio(s) seleccionado(s)
@@ -170,9 +179,11 @@ export default function ArmadoRapidoConfigPage() {
             <h4 className="font-semibold text-md">Reglas Condicionales (Por Umbral)</h4>
              {config.reglas.condicionales.map((regla, i) => (
                 <ConfigFormItem key={i} title={`Regla Condicional #${i+1}`} onDelete={() => deleteRule('condicionales', i)}>
-                    <Input type="number" placeholder="Umbral de Invitados" value={regla.umbralInvitados} onChange={e => handleRuleChange('condicionales', i, 'umbralInvitados', Number(e.target.value))}/>
-                    <Select value={regla.servicioMenorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMenorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MENOR O IGUAL al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
-                    <Select value={regla.servicioMayorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMayorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MAYOR al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
+                    <div className="space-y-3">
+                      <Input type="number" placeholder="Umbral de Invitados" value={regla.umbralInvitados} onChange={e => handleRuleChange('condicionales', i, 'umbralInvitados', Number(e.target.value))}/>
+                      <Select value={regla.servicioMenorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMenorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MENOR O IGUAL al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
+                      <Select value={regla.servicioMayorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMayorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MAYOR al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
+                    </div>
                 </ConfigFormItem>
             ))}
             <Button variant="outline" onClick={() => addRule('condicionales')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Regla Condicional</Button>
