@@ -1,11 +1,10 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Edit, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Edit, ChevronDown, Search } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   getArmadoRapidoConfig,
@@ -16,7 +15,7 @@ import {
   type ReglaCondicional,
 } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { useToast } from '@/hooks/use-toast';
 import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
 import { Input } from '@/components/ui/input';
@@ -32,6 +31,7 @@ import {
 } from "@/components/ui/sheet";
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 
 export default function ArmadoRapidoConfigPage() {
@@ -44,6 +44,7 @@ export default function ArmadoRapidoConfigPage() {
   // State for package editing sheet
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Paquete | null>(null);
+  const [serviceSearchTerm, setServiceSearchTerm] = useState('');
 
 
   const loadData = useCallback(async () => {
@@ -85,6 +86,7 @@ export default function ArmadoRapidoConfigPage() {
   
   const openEditPackageSheet = (paquete: Paquete) => {
     setEditingPackage({ ...paquete });
+    setServiceSearchTerm('');
     setIsSheetOpen(true);
   };
 
@@ -114,6 +116,21 @@ export default function ArmadoRapidoConfigPage() {
       setIsSheetOpen(false);
       setEditingPackage(null);
   };
+
+  const filteredServices = useMemo(() => {
+    return servicios.filter(s => s.nombre.toLowerCase().includes(serviceSearchTerm.toLowerCase()));
+  }, [servicios, serviceSearchTerm]);
+
+  const groupedServices = useMemo(() => {
+     return filteredServices.reduce((acc, servicio) => {
+        const categoria = servicio.categoria || 'Otros';
+        if (!acc[categoria]) {
+            acc[categoria] = [];
+        }
+        acc[categoria].push(servicio);
+        return acc;
+    }, {} as Record<string, ServicioEmpresa[]>);
+  }, [filteredServices]);
 
 
   const addRule = (type: 'dinamicas' | 'condicionales') => {
@@ -148,12 +165,12 @@ export default function ArmadoRapidoConfigPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <SheetContent className="w-full sm:max-w-md">
+            <SheetContent className="w-full sm:max-w-md flex flex-col">
                 <SheetHeader>
                     <SheetTitle className="font-headline text-lg">Editar Paquete: {editingPackage?.nombre}</SheetTitle>
                 </SheetHeader>
                 {editingPackage && (
-                    <div className="py-4 space-y-4">
+                    <div className="py-2 space-y-4 flex-grow flex flex-col">
                         <div className="space-y-1">
                             <Label htmlFor="pkg-name">Nombre del Paquete</Label>
                             <Input id="pkg-name" value={editingPackage.nombre} onChange={e => handleUpdateEditingPackage('nombre', e.target.value)} />
@@ -166,21 +183,39 @@ export default function ArmadoRapidoConfigPage() {
                             <Label htmlFor="pkg-costo">Costo Fijo Adicional</Label>
                             <Input id="pkg-costo" type="number" value={editingPackage.costoFijoAdicional || ''} onChange={e => handleUpdateEditingPackage('costoFijoAdicional', Number(e.target.value))} />
                         </div>
-                         <div className="space-y-2">
-                            <Label className="font-medium">Servicios Incluidos</Label>
-                            <ScrollArea className="h-64 w-full rounded-md border p-2">
-                                <div className="space-y-1">
-                                {servicios.map(s => (
-                                    <div key={s.id} className="flex items-center space-x-2 p-1 rounded hover:bg-muted">
-                                        <Checkbox 
-                                            id={`service-${editingPackage?.id}-${s.id}`} 
-                                            checked={editingPackage?.serviciosIncluidosIds.includes(s.id)}
-                                            onCheckedChange={() => handleToggleServiceInSheet(s.id)}
-                                        />
-                                        <Label htmlFor={`service-${editingPackage?.id}-${s.id}`} className="font-normal text-sm cursor-pointer">{s.nombre}</Label>
-                                    </div>
-                                ))}
-                                </div>
+                         <div className="space-y-2 flex-grow flex flex-col min-h-0">
+                            <Label className="font-medium">Servicios Incluidos ({editingPackage.serviciosIncluidosIds.length})</Label>
+                             <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                                <Input 
+                                    placeholder="Buscar servicio..."
+                                    value={serviceSearchTerm}
+                                    onChange={(e) => setServiceSearchTerm(e.target.value)}
+                                    className="pl-9"
+                                />
+                            </div>
+                            <ScrollArea className="flex-grow rounded-md border">
+                                <Accordion type="multiple" defaultValue={Object.keys(groupedServices)} className="p-1">
+                                    {Object.keys(groupedServices).sort().map(category => (
+                                        <AccordionItem key={category} value={category} className="border-b-0">
+                                            <AccordionTrigger className="text-sm py-1.5 hover:no-underline">{category}</AccordionTrigger>
+                                            <AccordionContent className="pl-2">
+                                                 <div className="space-y-1">
+                                                    {groupedServices[category].map(s => (
+                                                        <div key={s.id} className="flex items-center space-x-2 p-1 rounded hover:bg-muted">
+                                                            <Checkbox 
+                                                                id={`service-${editingPackage?.id}-${s.id}`} 
+                                                                checked={editingPackage?.serviciosIncluidosIds.includes(s.id)}
+                                                                onCheckedChange={() => handleToggleServiceInSheet(s.id)}
+                                                            />
+                                                            <Label htmlFor={`service-${editingPackage?.id}-${s.id}`} className="font-normal text-sm cursor-pointer">{s.nombre}</Label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
                             </ScrollArea>
                         </div>
                     </div>
