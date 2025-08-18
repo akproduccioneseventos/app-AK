@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot } from 'lucide-react';
+import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot, FileText } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -108,7 +108,7 @@ export default function PresupuestosPage() {
         <CardHeader className="p-6 md:p-8 text-center">
            <div className="mb-6 flex justify-center space-x-4">
             <Coins className="w-12 h-12 text-primary opacity-80" />
-            <FileTextIcon className="w-12 h-12 text-primary opacity-80" />
+            <FileText className="w-12 h-12 text-primary opacity-80" />
             <CalendarDays className="w-12 h-12 text-primary opacity-80" />
           </div>
           <CardTitle className="text-4xl font-bold tracking-tight font-headline text-primary">
