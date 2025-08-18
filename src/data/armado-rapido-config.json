@@ -6,11 +6,10 @@
       "nombre": "Paquete Básico",
       "descripcion": "Lo esencial para una gran fiesta, enfocado en catering de calidad.",
       "costoFijoAdicional": 0,
-      "serviciosIncluidos": [
-        "Cheff",
-        "Metre",
-        "Parrillero (si aplica)",
-        "Ayudante de cocina"
+      "serviciosIncluidosIds": [
+        "serv_1752489600004_pchef",
+        "serv_1752489600003_pmetr",
+        "serv_1752489600099_ayucoc"
       ]
     },
     {
@@ -18,12 +17,11 @@
       "nombre": "Paquete Intermedio",
       "descripcion": "La opción más popular. Catering excelente y buena música para la fiesta.",
       "costoFijoAdicional": 0,
-      "serviciosIncluidos": [
-        "Cheff",
-        "Metre",
-        "Parrillero (si aplica)",
-        "Ayudante de cocina",
-        "Decoracion basica"
+      "serviciosIncluidosIds": [
+        "serv_1752489600004_pchef",
+        "serv_1752489600003_pmetr",
+        "serv_1752489600099_ayucoc",
+        "serv_1752489600098_decbas"
       ]
     },
     {
@@ -31,26 +29,33 @@
       "nombre": "Paquete Premium",
       "descripcion": "La experiencia completa y sin preocupaciones. Incluye todo.",
       "costoFijoAdicional": 0,
-      "serviciosIncluidos": [
-        "Cheff",
-        "Metre",
-        "Parrillero (si aplica)",
-        "Ayudante de cocina",
-        "Decoracion basica",
-        "Fotografía de la fiesta",
-        "Filmación de la fiesta"
+      "serviciosIncluidosIds": [
+        "serv_1752489600004_pchef",
+        "serv_1752489600003_pmetr",
+        "serv_1752489600099_ayucoc",
+        "serv_1752489600098_decbas",
+        "serv_1752489600116_fotfie",
+        "serv_1752489600112_filfie"
       ]
     }
   ],
   "reglas": {
-    "personal": {
-      "mozo": { "invitadosPorUnidad": 25 },
-      "mozo_cocina": { "invitadosPorUnidad": 25 }
-    },
-    "discoteca": {
-      "umbralInvitados": 70,
-      "servicioMenor": "Discoteca Básica",
-      "servicioMayor": "Discoteca Intermedia"
-    }
+    "dinamicas": [
+      {
+        "servicioCatalogoId": "serv_1752489600001_pmozo",
+        "invitadosPorUnidad": 25
+      },
+      {
+        "servicioCatalogoId": "serv_1752489600002_pcoci",
+        "invitadosPorUnidad": 50
+      }
+    ],
+    "condicionales": [
+      {
+        "umbralInvitados": 70,
+        "servicioMenorId": "serv_1752489600103_disbas",
+        "servicioMayorId": "serv_1752489600104_disint"
+      }
+    ]
   }
 }

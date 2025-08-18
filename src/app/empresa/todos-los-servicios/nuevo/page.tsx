@@ -27,39 +27,57 @@ function NuevoItemInventarioContent() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [nombre, setNombre] = useState('');
-  const tipoItem: TipoItemEmpresa = 'Activo Fijo'; 
+  const [tipoItem, setTipoItem] = useState<TipoItemEmpresa | ''>('');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
   const [notas, setNotas] = useState('');
+  const [precioVenta, setPrecioVenta] = useState<string>('');
   const [subcategoria, setSubcategoria] = useState('');
   
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam === 'servicio') {
+      setTipoItem('Servicio');
+      setUnidad('Por evento');
+    }
+  }, [searchParams]);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!nombre.trim() || !categoria || !unidad) {
-      toast({ title: "Campos Requeridos", description: "Nombre, Categoría y Unidad son obligatorios.", variant: "destructive" });
+    if (!nombre.trim() || !tipoItem || !categoria) {
+      toast({ title: "Campos Requeridos", description: "Nombre, Tipo y Categoría son obligatorios.", variant: "destructive" });
       return;
+    }
+    if (tipoItem !== 'Servicio' && !unidad) {
+        toast({ title: "Unidad Requerida", description: "La unidad es obligatoria para Insumos y Activos.", variant: "destructive" });
+        return;
+    }
+     if (tipoItem === 'Servicio' && (!precioVenta || parseFloat(precioVenta) <= 0)) {
+        toast({ title: "Precio Requerido", description: "Los servicios deben tener un precio de venta mayor a cero.", variant: "destructive" });
+        return;
     }
 
     setIsSaving(true);
     const itemData: Omit<ServicioEmpresa, 'id'> = {
       nombre: nombre.trim(),
-      tipoItem: tipoItem, // Se asigna el tipo fijo
+      tipoItem: tipoItem as TipoItemEmpresa,
       categoria: categoria as CategoriaServicio,
       subcategoria: subcategoria.trim() || undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
-      unidad: unidad as UnidadServicio,
+      unidad: unidad as UnidadServicio | undefined,
       notas: notas.trim() || undefined,
-      precioVenta: undefined, // No aplica para Activos Fijos
+      precioVenta: precioVenta ? parseFloat(precioVenta) : undefined,
     };
 
     try {
       const result = await saveServicioEmpresa(itemData);
       if (result.success && result.id) {
-        toast({ title: "¡Activo Guardado!", description: `El activo "${itemData.nombre}" ha sido guardado.` });
-        router.push('/empresa/todos-los-servicios');
+        toast({ title: "¡Ítem Guardado!", description: `El ítem "${itemData.nombre}" ha sido guardado.` });
+        if (tipoItem === 'Servicio') router.push('/empresa/servicios');
+        else router.push('/empresa/todos-los-servicios');
       } else {
         toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar el ítem.", variant: "destructive"});
       }
@@ -70,13 +88,32 @@ function NuevoItemInventarioContent() {
     }
   };
 
+  const handleTipoItemChange = (value: TipoItemEmpresa | '') => {
+    setTipoItem(value);
+    setUnidad(''); // Reset unit when type changes
+    if (value === 'Servicio') {
+        setUnidad('Por evento');
+        setCategoria('Otros servicios');
+    } else {
+        setCategoria('');
+    }
+  };
+
+  const handleCategoryChange = (value: CategoriaServicio | '') => {
+    setCategoria(value);
+    setSubcategoria(''); // Reset subcategory when category changes
+  };
+
+  const isCatering = categoria === 'Servicio de catering';
+  const isReposteria = categoria === 'Servicio de repostería';
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Activo Fijo
+            Añadir Nuevo Ítem al Catálogo
           </h1>
         </div>
         <Link href="/empresa/todos-los-servicios" passHref>
@@ -89,47 +126,71 @@ function NuevoItemInventarioContent() {
       
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Detalles del Activo</CardTitle>
-          <CardDescription>Registra un nuevo activo físico de la empresa, como mobiliario, equipo de sonido, etc.</CardDescription>
+          <CardTitle className="font-headline">Detalles del Ítem</CardTitle>
+          <CardDescription>Registra un nuevo activo, insumo o servicio para usar en tus eventos y presupuestos.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
              <div className="space-y-2">
-                <Label htmlFor="item-tipo-fijo" className="text-base">Tipo de Ítem</Label>
-                <Input id="item-tipo-fijo" value={tipoItem} readOnly disabled className="bg-muted/70 font-semibold"/>
+                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
+                <Select value={tipoItem} onValueChange={handleTipoItemChange} required disabled={isSaving}>
+                  <SelectTrigger id="item-tipo" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo..." /></SelectTrigger>
+                  <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (<SelectItem key={t} value={t} className="text-base">{t}</SelectItem>))}</SelectContent>
+                </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="item-nombre" className="text-base">Nombre del Activo *</Label>
-              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Silla Tiffany, Parlante JBL" className="text-base p-3" required disabled={isSaving}/>
+              <Label htmlFor="item-nombre" className="text-base">Nombre del Ítem *</Label>
+              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Silla Tiffany, Servicio de DJ, Harina" className="text-base p-3" required disabled={isSaving}/>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
-                <Select value={categoria} onValueChange={(value) => setCategoria(value as CategoriaServicio | '')} required disabled={isSaving}>
+                <Select value={categoria} onValueChange={handleCategoryChange} required disabled={isSaving}>
                   <SelectTrigger id="item-categoria" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar categoría..." /></SelectTrigger>
                   <SelectContent className="max-h-60">{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat} className="text-base">{cat}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="item-subcategoria" className="text-base">Subcategoría</Label>
-                <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Mobiliario, Sonido" className="text-base p-3" disabled={isSaving}/>
+                {isCatering ? (
+                    <Select value={subcategoria} onValueChange={(val) => setSubcategoria(val)}>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
+                        <SelectContent>{CATERING_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                    </Select>
+                ) : isReposteria ? (
+                    <Select value={subcategoria} onValueChange={(val) => setSubcategoria(val)}>
+                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
+                        <SelectContent>{REPOSTERIA_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                    </Select>
+                ) : (
+                    <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Mobiliario, Sonido, Lácteos" className="text-base p-3" disabled={isSaving}/>
+                )}
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <Label htmlFor="item-cantidad" className="text-base">Cantidad Disponible (Stock)</Label>
-                    <Input id="item-cantidad" type="number" value={cantidadDisponible} onChange={(e) => setCantidadDisponible(e.target.value)} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/>
+            {tipoItem === 'Servicio' ? (
+                <div className="space-y-2 p-3 border rounded-md border-primary/30 bg-primary/5">
+                    <Label htmlFor="item-precio-venta" className="text-base flex items-center gap-2 text-primary">
+                        <DollarSign className="w-5 h-5"/>Precio de Venta (UYU) *
+                    </Label>
+                    <Input id="item-precio-venta" type="number" value={precioVenta} onChange={(e) => setPrecioVenta(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" required disabled={isSaving}/>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="item-valor-unitario" className="text-base">Valor Unitario (Costo UYU)</Label>
-                    <Input id="item-valor-unitario" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/>
-                    <p className="text-xs text-muted-foreground">Costo de reposición o valor actual por unidad.</p>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="item-cantidad" className="text-base">Cantidad Disponible (Stock)</Label>
+                        <Input id="item-cantidad" type="number" value={cantidadDisponible} onChange={(e) => setCantidadDisponible(e.target.value)} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="item-valor-unitario" className="text-base">Valor Unitario (Costo UYU)</Label>
+                        <Input id="item-valor-unitario" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/>
+                        <p className="text-xs text-muted-foreground">Costo de reposición o valor actual por unidad.</p>
+                    </div>
                 </div>
-            </div>
+            )}
              <div className="space-y-2">
-                <Label htmlFor="item-unidad" className="text-base">Unidad *</Label>
-                <Select value={unidad} onValueChange={(value) => setUnidad(value as UnidadServicio | '')} disabled={isSaving} required>
+                <Label htmlFor="item-unidad" className="text-base">Unidad {tipoItem !== 'Servicio' && '*'}</Label>
+                <Select value={unidad} onValueChange={(value) => setUnidad(value as UnidadServicio | '')} disabled={isSaving || tipoItem === 'Servicio'} required={tipoItem !== 'Servicio'}>
                   <SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..." /></SelectTrigger>
                   <SelectContent className="max-h-60">{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent>
                 </Select>
@@ -137,13 +198,13 @@ function NuevoItemInventarioContent() {
 
              <div className="space-y-2">
               <Label htmlFor="item-notas" className="text-base">Observaciones (Opcional)</Label>
-              <Textarea id="item-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Anotaciones sobre el estado, ubicación, etc." rows={3} disabled={isSaving}/>
+              <Textarea id="item-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Detalles, proveedor preferido, etc." rows={3} disabled={isSaving}/>
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Activo'}
+              {isSaving ? 'Guardando...' : 'Guardar Ítem'}
             </Button>
           </CardFooter>
         </form>

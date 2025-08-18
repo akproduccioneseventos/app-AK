@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2 } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
@@ -110,14 +110,14 @@ export default function BudgetDisplaySettingsPage() {
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle className="font-headline text-xl flex items-center gap-2"><Sparkles className="text-primary"/>Catálogo de Servicios para Venta</CardTitle>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Configuración de Armado Rápido</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Añade o edita los servicios que se ofrecerán tanto en el "Armado Rápido" como en la creación manual de presupuestos.
+                  Define los paquetes y reglas automáticas para la herramienta de "Armado Rápido" que usan tus clientes.
                 </p>
-                <Link href="/empresa/servicios" passHref className="w-full">
-                    <Button variant="outline" className="w-full">Gestionar Catálogo</Button>
+                <Link href="/settings/armado-rapido" passHref className="w-full">
+                    <Button variant="outline" className="w-full">Gestionar Armado Rápido</Button>
                 </Link>
             </CardContent>
           </Card>
@@ -130,36 +130,14 @@ export default function BudgetDisplaySettingsPage() {
                   La IA crea presupuestos básicos usando lenguaje natural. Su lógica se define en el código.
                 </p>
                 <Link href="/settings/asistente-ak" passHref className="w-full">
-                     <Button variant="outline" className="w-full">Ver Configuración de IA</Button>
+                     <Button variant="outline" className="w-full">Configurar Asistente IA</Button>
                 </Link>
             </CardContent>
           </Card>
         </div>
 
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Configuración de Paquetes (Armado Rápido)</CardTitle>
-          <CardDescription>
-            Define los servicios incluidos en cada paquete y las reglas automáticas para el "Armado Rápido" del cliente.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="p-3 border rounded-md bg-muted/50">
-                <Label className="font-semibold text-sm flex items-center gap-2"><Info className="text-blue-500 w-4 h-4"/>Paquetes y Reglas</Label>
-                <p className="text-xs text-muted-foreground mt-1">
-                    Para modificar los servicios de cada paquete, edita el archivo:
-                    <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/data/armado-rapido-config.json</code>
-                </p>
-                 <p className="text-xs text-muted-foreground mt-2">
-                    Para modificar las reglas de cálculo (ej. cantidad de mozos), edita el archivo:
-                    <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/app/actions/armado-rapido.ts</code>
-                </p>
-            </div>
-        </CardContent>
-      </Card>
-      
-       <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl">Opciones de Contenido del PDF</CardTitle>

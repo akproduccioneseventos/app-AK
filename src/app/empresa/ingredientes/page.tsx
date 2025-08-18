@@ -43,7 +43,7 @@ export default function IngredientesPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)');
+      const inventoryItems = data.filter(s => s.tipoItem === 'Insumo/Ingrediente');
       setAllItems(inventoryItems);
       setFilteredItems(inventoryItems);
     } catch (err: any) {

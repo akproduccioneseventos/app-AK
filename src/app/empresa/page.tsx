@@ -16,13 +16,6 @@ interface HubItem {
 
 const empresaHubItems: HubItem[] = [
   {
-    title: 'Planificador Gastronómico',
-    description: 'Calcula costos y precios para catering, repostería y bebidas.',
-    href: '/planner-costo-fiesta',
-    icon: Calculator,
-    actionLabel: 'Acceder al Planificador',
-  },
-  {
     title: 'Gestión de Empleados',
     description: 'Administra la información, roles y sueldos de tu personal.',
     href: '/empleados',
@@ -115,13 +108,13 @@ export default function EmpresaHubPage() {
             <CardContent className="flex-grow space-y-2">
               <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
             </CardContent>
-            <CardContent className="pt-2">
+            <CardFooter className="pt-2">
               <Link href={item.href} passHref className="w-full">
                 <Button variant="default" className="w-full">
                   {item.actionLabel}
                 </Button>
               </Link>
-            </CardContent>
+            </CardFooter>
           </Card>
         ))}
       </div>

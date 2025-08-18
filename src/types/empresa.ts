@@ -13,7 +13,6 @@ export type CategoriaServicio =
   | 'Personal'
   | 'Otros servicios'
   | 'Insumo/Ingrediente'
-  | 'Bebida (Insumo)' // Added for clarity in the catalog
   | 'Activo Fijo';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
@@ -29,7 +28,6 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Personal',
   'Otros servicios',
   'Insumo/Ingrediente',
-  'Bebida (Insumo)',
   'Activo Fijo',
 ];
 

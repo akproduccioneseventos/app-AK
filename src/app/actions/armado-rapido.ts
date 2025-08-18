@@ -11,26 +11,26 @@ import path from 'path';
 import type { TipoEvento } from '@/types/presupuesto';
 
 // Define types for the configuration structure
-interface ReglaPersonal {
+interface ReglaDinamica {
+    servicioCatalogoId: string; // ID del servicio en el catálogo
     invitadosPorUnidad: number;
 }
+
+interface ReglaCondicional {
+    umbralInvitados: number;
+    servicioMenorId: string;
+    servicioMayorId: string;
+}
 interface Reglas {
-    personal: {
-        mozo: ReglaPersonal;
-        mozo_cocina: ReglaPersonal;
-    };
-    discoteca: {
-        umbralInvitados: number;
-        servicioMenor: string;
-        servicioMayor: string;
-    };
+    dinamicas: ReglaDinamica[];
+    condicionales: ReglaCondicional[];
 }
 interface Paquete {
     id: string;
     nombre: string;
     descripcion: string;
     costoFijoAdicional: number;
-    serviciosIncluidos: string[];
+    serviciosIncluidosIds: string[]; // IDs from servicios-empresa.json
 }
 interface ArmadoRapidoConfig {
     paquetes: Paquete[];
@@ -47,7 +47,7 @@ interface ArmadoRapidoData {
   paqueteId: string; // ID of the selected package
 }
 
-async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
+export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
     const filePath = path.join(process.cwd(), 'src', 'data', 'armado-rapido-config.json');
     const fileContent = await fs.readFile(filePath, 'utf-8');
     return JSON.parse(fileContent);
@@ -60,65 +60,56 @@ async function calcularServicios(
     catalogo: ServicioEmpresa[]
 ): Promise<ItemPresupuestado[]> {
     const items: ItemPresupuestado[] = [];
+    const findService = (serviceId: string) => catalogo.find(s => s.id === serviceId);
 
-    const findService = (name: string) => catalogo.find(s => s.nombre.toLowerCase() === name.toLowerCase());
+    // 1. Reglas dinámicas (basadas en cantidad)
+    reglas.dinamicas.forEach(regla => {
+        const cantidad = Math.ceil(invitados / regla.invitadosPorUnidad);
+        if (cantidad > 0) {
+            const servicio = findService(regla.servicioCatalogoId);
+            if (servicio && servicio.precioVenta !== undefined) {
+                items.push({
+                    idServicioCatalogo: servicio.id,
+                    nombreServicio: servicio.nombre,
+                    cantidad: cantidad,
+                    unidad: servicio.unidad,
+                    precioUnitario: servicio.precioVenta,
+                    costoTotalItem: cantidad * servicio.precioVenta,
+                    categoriaServicio: servicio.categoria,
+                });
+            }
+        }
+    });
 
-    // Regla 1: Personal dinámico
-    const cantidadMozos = Math.ceil(invitados / reglas.personal.mozo.invitadosPorUnidad);
-    const mozoService = findService('mozo');
-    if (mozoService && mozoService.precioVenta !== undefined) {
-        items.push({
-            idServicioCatalogo: mozoService.id,
-            nombreServicio: mozoService.nombre,
-            cantidad: cantidadMozos,
-            unidad: mozoService.unidad,
-            precioUnitario: mozoService.precioVenta,
-            costoTotalItem: cantidadMozos * mozoService.precioVenta,
-            categoriaServicio: mozoService.categoria,
-        });
-    }
-
-    const cantidadCocina = Math.ceil(invitados / reglas.personal.mozo_cocina.invitadosPorUnidad);
-    const mozoCocinaService = findService('mozo de cocina');
-    if (mozoCocinaService && mozoCocinaService.precioVenta !== undefined) {
-        items.push({
-            idServicioCatalogo: mozoCocinaService.id,
-            nombreServicio: mozoCocinaService.nombre,
-            cantidad: cantidadCocina,
-            unidad: mozoCocinaService.unidad,
-            precioUnitario: mozoCocinaService.precioVenta,
-            costoTotalItem: cantidadCocina * mozoCocinaService.precioVenta,
-            categoriaServicio: mozoCocinaService.categoria,
-        });
-    }
-
-    // Regla 2: Discoteca dinámica
-    let discotecaServiceName = invitados <= reglas.discoteca.umbralInvitados ? reglas.discoteca.servicioMenor : reglas.discoteca.servicioMayor;
-    const discotecaService = findService(discotecaServiceName);
-    if (discotecaService && discotecaService.precioVenta !== undefined) {
-         items.push({
-            idServicioCatalogo: discotecaService.id,
-            nombreServicio: discotecaService.nombre,
-            cantidad: 1,
-            unidad: discotecaService.unidad,
-            precioUnitario: discotecaService.precioVenta,
-            costoTotalItem: discotecaService.precioVenta,
-            categoriaServicio: discotecaService.categoria,
-        });
-    }
-
-    // Regla 3: Servicios base del paquete
-    paquete.serviciosIncluidos.forEach(serviceName => {
-        const service = findService(serviceName);
-        if (service && service.precioVenta !== undefined) {
+    // 2. Reglas condicionales (basadas en umbrales)
+    reglas.condicionales.forEach(regla => {
+        const servicioId = invitados <= regla.umbralInvitados ? regla.servicioMenorId : regla.servicioMayorId;
+        const servicio = findService(servicioId);
+        if (servicio && servicio.precioVenta !== undefined) {
             items.push({
-                idServicioCatalogo: service.id,
-                nombreServicio: service.nombre,
+                idServicioCatalogo: servicio.id,
+                nombreServicio: servicio.nombre,
                 cantidad: 1,
-                unidad: service.unidad,
-                precioUnitario: service.precioVenta,
-                costoTotalItem: service.precioVenta,
-                categoriaServicio: service.categoria,
+                unidad: servicio.unidad,
+                precioUnitario: servicio.precioVenta,
+                costoTotalItem: servicio.precioVenta,
+                categoriaServicio: servicio.categoria,
+            });
+        }
+    });
+
+    // 3. Servicios base del paquete
+    paquete.serviciosIncluidosIds.forEach(servicioId => {
+        const servicio = findService(servicioId);
+        if (servicio && servicio.precioVenta !== undefined) {
+            items.push({
+                idServicioCatalogo: servicio.id,
+                nombreServicio: servicio.nombre,
+                cantidad: 1,
+                unidad: servicio.unidad,
+                precioUnitario: servicio.precioVenta,
+                costoTotalItem: servicio.precioVenta,
+                categoriaServicio: servicio.categoria,
             });
         }
     });
