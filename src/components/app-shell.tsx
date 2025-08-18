@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -25,7 +26,7 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/') return 'Menú Principal';
 
-  if (pathname === '/presupuestos') return 'Presupuestos';
+  if (pathname === '/presupuestos') return 'Central de Presupuestos';
   if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
@@ -71,7 +72,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
-  if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
+  if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Catálogo de Platos';
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') return `Editando Menú`;
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
