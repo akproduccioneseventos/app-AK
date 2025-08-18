@@ -18,7 +18,6 @@ import {
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { useToast } from '@/hooks/use-toast';
-import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -173,8 +172,8 @@ export default function ArmadoRapidoConfigPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      // Filter for services only
-      setServicios(serviciosData.filter(s => s.tipoItem === 'Servicio'));
+      // Filter for services that have a sale price, as those are the ones usable in a budget
+      setServicios(serviciosData.filter(s => typeof s.precioVenta === 'number' && s.precioVenta > 0));
     } catch (error) {
       toast({ title: "Error", description: "No se pudo cargar la configuración o los servicios.", variant: "destructive" });
     } finally {
@@ -281,7 +280,11 @@ export default function ArmadoRapidoConfigPage() {
         <CardContent className="space-y-4">
             <h4 className="font-semibold text-md">Reglas Dinámicas (Por Cantidad)</h4>
             {config.reglas.dinamicas.map((regla, i) => (
-                <ConfigFormItem key={`dinamica-${i}`} title={`Regla Dinámica #${i+1}`} onDelete={() => deleteRule('dinamicas', i)}>
+                <div key={`dinamica-${i}`} className="p-3 border rounded-md bg-muted/30">
+                    <div className="flex justify-between items-center mb-2">
+                        <p className="text-sm font-medium">Regla Dinámica #{i+1}</p>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteRule('dinamicas', i)}><Trash2 className="w-4 h-4"/></Button>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                        <Select value={regla.servicioCatalogoId} onValueChange={v => handleRuleChange('dinamicas', i, 'servicioCatalogoId', v)}>
                            <SelectTrigger><SelectValue placeholder="Seleccionar servicio..."/></SelectTrigger>
@@ -289,19 +292,23 @@ export default function ArmadoRapidoConfigPage() {
                        </Select>
                        <Input type="number" placeholder="Invitados por unidad" value={regla.invitadosPorUnidad} onChange={e => handleRuleChange('dinamicas', i, 'invitadosPorUnidad', Number(e.target.value))}/>
                     </div>
-                </ConfigFormItem>
+                </div>
             ))}
             <Button variant="outline" onClick={() => addRule('dinamicas')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Regla Dinámica</Button>
             <Separator/>
             <h4 className="font-semibold text-md">Reglas Condicionales (Por Umbral)</h4>
              {config.reglas.condicionales.map((regla, i) => (
-                <ConfigFormItem key={`condicional-${i}`} title={`Regla Condicional #${i+1}`} onDelete={() => deleteRule('condicionales', i)}>
+                <div key={`condicional-${i}`} className="p-3 border rounded-md bg-muted/30">
+                     <div className="flex justify-between items-center mb-2">
+                        <p className="text-sm font-medium">Regla Condicional #{i+1}</p>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteRule('condicionales', i)}><Trash2 className="w-4 h-4"/></Button>
+                    </div>
                     <div className="space-y-3">
                       <Input type="number" placeholder="Umbral de Invitados" value={regla.umbralInvitados} onChange={e => handleRuleChange('condicionales', i, 'umbralInvitados', Number(e.target.value))}/>
                       <Select value={regla.servicioMenorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMenorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MENOR O IGUAL al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
                       <Select value={regla.servicioMayorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMayorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MAYOR al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>
                     </div>
-                </ConfigFormItem>
+                </div>
             ))}
             <Button variant="outline" onClick={() => addRule('condicionales')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Regla Condicional</Button>
         </CardContent>
@@ -316,3 +323,5 @@ export default function ArmadoRapidoConfigPage() {
     </div>
   );
 }
+
+    
