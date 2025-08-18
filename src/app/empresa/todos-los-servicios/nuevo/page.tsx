@@ -67,7 +67,7 @@ function NuevoItemInventarioContent() {
       subcategoria: subcategoria.trim() || undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
-      unidad: unidad as UnidadServicio | undefined,
+      unidad: tipoItem === 'Servicio' ? undefined : (unidad as UnidadServicio | undefined),
       notas: notas.trim() || undefined,
       precioVenta: precioVenta ? parseFloat(precioVenta) : undefined,
     };
