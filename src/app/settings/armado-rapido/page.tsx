@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Search } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -24,6 +24,18 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 // Component for editing a single package
 const PackageEditor = ({
@@ -42,6 +54,20 @@ const PackageEditor = ({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onPackageChange({ ...paquete, nombre: e.target.value });
   };
+  
+  const includedServices = useMemo(() => {
+    return paquete.serviciosIncluidosIds
+      .map(id => servicios.find(s => s.id === id))
+      .filter((s): s is ServicioEmpresa => !!s);
+  }, [paquete.serviciosIncluidosIds, servicios]);
+
+  const availableServices = useMemo(() => {
+    const includedIds = new Set(paquete.serviciosIncluidosIds);
+    return servicios.filter(s =>
+      !includedIds.has(s.id) &&
+      s.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [paquete.serviciosIncluidosIds, servicios, searchTerm]);
 
   const addService = (service: ServicioEmpresa) => {
     if (!paquete.serviciosIncluidosIds.includes(service.id)) {
@@ -58,20 +84,6 @@ const PackageEditor = ({
       serviciosIncluidosIds: paquete.serviciosIncluidosIds.filter(id => id !== serviceId)
     });
   };
-
-  const includedServices = useMemo(() => {
-    return paquete.serviciosIncluidosIds
-      .map(id => servicios.find(s => s.id === id))
-      .filter((s): s is ServicioEmpresa => !!s);
-  }, [paquete.serviciosIncluidosIds, servicios]);
-
-  const availableServices = useMemo(() => {
-    const includedIds = new Set(paquete.serviciosIncluidosIds);
-    return servicios.filter(s =>
-      !includedIds.has(s.id) &&
-      s.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [paquete.serviciosIncluidosIds, servicios, searchTerm]);
 
   return (
     <AccordionItem value={paquete.id} className="border-b-0">
@@ -93,7 +105,7 @@ const PackageEditor = ({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Servicios Incluidos</Label>
+                <Label>Servicios Incluidos ({includedServices.length})</Label>
                 <ScrollArea className="h-48 rounded-md border p-2">
                   {includedServices.length > 0 ? (
                     <ul className="space-y-1">
@@ -128,7 +140,15 @@ const PackageEditor = ({
               </div>
             </div>
              <div className="flex justify-end pt-2">
-                 <Button variant="destructive" size="sm" onClick={() => onDelete(paquete.id)}><Trash2 className="w-4 h-4 mr-2"/>Eliminar Paquete</Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                         <Button variant="destructive" size="sm"><Trash2 className="w-4 h-4 mr-2"/>Eliminar Paquete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>Se eliminará el paquete "{paquete.nombre}". Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => onDelete(paquete.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
           </div>
         </AccordionContent>
@@ -153,7 +173,8 @@ export default function ArmadoRapidoConfigPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      setServicios(serviciosData); // Load ALL services, not just those with price
+      // Filter for services only
+      setServicios(serviciosData.filter(s => s.tipoItem === 'Servicio'));
     } catch (error) {
       toast({ title: "Error", description: "No se pudo cargar la configuración o los servicios.", variant: "destructive" });
     } finally {
