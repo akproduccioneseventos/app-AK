@@ -226,7 +226,7 @@ export default function ArmadoRapidoConfigPage() {
                 )}
                 <SheetFooter>
                     <SheetClose asChild><Button type="button" variant="outline">Cancelar</Button></SheetClose>
-                    <Button type="button" onClick={handleSavePackageChanges}>Guardar Cambios del Paquete</Button>
+                    <Button type="button" onClick={handleSavePackageChanges}>Guardar Paquete</Button>
                 </SheetFooter>
             </SheetContent>
         </Sheet>
