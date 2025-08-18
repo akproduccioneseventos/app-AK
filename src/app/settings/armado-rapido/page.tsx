@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Edit, ChevronDown, Search } from 'lucide-react';
+import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Search } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   getArmadoRapidoConfig,
@@ -153,7 +153,7 @@ export default function ArmadoRapidoConfigPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      setServicios(serviciosData.filter(s => s.precioVenta !== undefined));
+      setServicios(serviciosData); // Load ALL services, not just those with price
     } catch (error) {
       toast({ title: "Error", description: "No se pudo cargar la configuración o los servicios.", variant: "destructive" });
     } finally {
