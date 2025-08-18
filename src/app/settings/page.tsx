@@ -4,15 +4,15 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2 } from 'lucide-react';
 
 const settingsCards = [
    {
     title: "Configuración de Presupuestos",
     description: "Personaliza el PDF, el Armado Rápido y el Asistente de IA.",
-    href: "/presupuestos", 
+    href: "/settings/budget-display", 
     icon: FileText,
-    buttonLabel: "Ir a Central de Presupuestos"
+    buttonLabel: "Configurar Presupuestos"
   },
   {
     title: "Información de la Empresa",
@@ -97,7 +97,7 @@ export default function SettingsPage() {
             <CardFooter className="pt-3">
                  <Link href={item.href} passHref className="w-full">
                     <Button variant="outline" className="w-full">
-                        Ir a {item.buttonLabel}
+                        {item.buttonLabel}
                     </Button>
                 </Link>
             </CardFooter>
