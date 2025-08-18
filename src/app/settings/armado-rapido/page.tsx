@@ -35,7 +35,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
 // Component for editing a single package
 const PackageEditor = ({
   paquete,
@@ -172,8 +171,7 @@ export default function ArmadoRapidoConfigPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      // Filter for services that have a sale price, as those are the ones usable in a budget
-      setServicios(serviciosData.filter(s => typeof s.precioVenta === 'number' && s.precioVenta > 0));
+      setServicios(serviciosData.filter(s => s.tipoItem === 'Servicio'));
     } catch (error) {
       toast({ title: "Error", description: "No se pudo cargar la configuración o los servicios.", variant: "destructive" });
     } finally {
