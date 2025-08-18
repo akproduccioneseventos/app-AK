@@ -15,7 +15,7 @@ import {
   type ReglaCondicional,
 } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { useToast } from '@/hooks/use-toast';
 import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
 import { Input } from '@/components/ui/input';
