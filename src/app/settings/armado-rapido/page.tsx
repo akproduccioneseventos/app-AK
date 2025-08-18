@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,17 +22,120 @@ import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-  SheetClose,
-} from "@/components/ui/sheet";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
+// Component for editing a single package
+const PackageEditor = ({
+  paquete,
+  servicios,
+  onPackageChange,
+  onDelete
+}: {
+  paquete: Paquete;
+  servicios: ServicioEmpresa[];
+  onPackageChange: (updatedPackage: Paquete) => void;
+  onDelete: (packageId: string) => void;
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onPackageChange({ ...paquete, nombre: e.target.value });
+  };
+
+  const addService = (service: ServicioEmpresa) => {
+    if (!paquete.serviciosIncluidosIds.includes(service.id)) {
+      onPackageChange({
+        ...paquete,
+        serviciosIncluidosIds: [...paquete.serviciosIncluidosIds, service.id]
+      });
+    }
+  };
+
+  const removeService = (serviceId: string) => {
+    onPackageChange({
+      ...paquete,
+      serviciosIncluidosIds: paquete.serviciosIncluidosIds.filter(id => id !== serviceId)
+    });
+  };
+
+  const includedServices = useMemo(() => {
+    return paquete.serviciosIncluidosIds
+      .map(id => servicios.find(s => s.id === id))
+      .filter((s): s is ServicioEmpresa => !!s);
+  }, [paquete.serviciosIncluidosIds, servicios]);
+
+  const availableServices = useMemo(() => {
+    const includedIds = new Set(paquete.serviciosIncluidosIds);
+    return servicios.filter(s =>
+      !includedIds.has(s.id) &&
+      s.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [paquete.serviciosIncluidosIds, servicios, searchTerm]);
+
+  return (
+    <AccordionItem value={paquete.id} className="border-b-0">
+      <Card className="shadow-sm">
+        <AccordionTrigger className="p-3 hover:no-underline">
+          <div className="flex w-full justify-between items-center">
+            <h4 className="font-semibold text-foreground flex items-center gap-2"><Package className="w-4 h-4"/>{paquete.nombre}</h4>
+            <span className="text-xs font-mono bg-muted px-2 py-1 rounded">{paquete.serviciosIncluidosIds.length} servicio(s)</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="p-4 border-t">
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor={`pkg-name-${paquete.id}`}>Nombre del Paquete</Label>
+              <Input id={`pkg-name-${paquete.id}`} value={paquete.nombre} onChange={handleNameChange} />
+            </div>
+
+            <Separator />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Servicios Incluidos</Label>
+                <ScrollArea className="h-48 rounded-md border p-2">
+                  {includedServices.length > 0 ? (
+                    <ul className="space-y-1">
+                      {includedServices.map(s => (
+                        <li key={s.id} className="flex items-center justify-between p-1.5 text-sm">
+                          <span>{s.nombre}</span>
+                          <Button size="sm" variant="ghost" className="h-7 text-destructive" onClick={() => removeService(s.id)}>Quitar</Button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : <p className="text-center text-xs text-muted-foreground pt-4">Añade servicios del catálogo.</p>}
+                </ScrollArea>
+              </div>
+              <div className="space-y-2">
+                <Label>Añadir Servicios desde Catálogo</Label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
+                  <Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/>
+                </div>
+                <ScrollArea className="h-40 rounded-md border">
+                  {availableServices.length > 0 ? (
+                     <ul className="space-y-1 p-2">
+                      {availableServices.map(s => (
+                        <li key={s.id} className="flex items-center justify-between p-1.5 text-sm">
+                          <span>{s.nombre}</span>
+                          <Button size="sm" variant="outline" onClick={() => addService(s)}>Añadir</Button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : <p className="text-center text-xs text-muted-foreground pt-4">No hay más servicios disponibles.</p>}
+                </ScrollArea>
+              </div>
+            </div>
+             <div className="flex justify-end pt-2">
+                 <Button variant="destructive" size="sm" onClick={() => onDelete(paquete.id)}><Trash2 className="w-4 h-4 mr-2"/>Eliminar Paquete</Button>
+            </div>
+          </div>
+        </AccordionContent>
+      </Card>
+    </AccordionItem>
+  );
+};
 
 
 export default function ArmadoRapidoConfigPage() {
@@ -40,11 +144,6 @@ export default function ArmadoRapidoConfigPage() {
   const [servicios, setServicios] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [editingPackage, setEditingPackage] = useState<Paquete | null>(null);
-  const [serviceSearchTerm, setServiceSearchTerm] = useState('');
-
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -78,62 +177,18 @@ export default function ArmadoRapidoConfigPage() {
   };
   
   const addPackage = () => {
-      const newPackage: Paquete = { id: `pkg_${Date.now()}`, nombre: 'Nuevo Paquete', descripcion: 'Descripción del nuevo paquete', serviciosIncluidosIds: [], costoFijoAdicional: 0 };
+      const newPackage: Paquete = { id: `pkg_${Date.now()}`, nombre: 'Nuevo Paquete', serviciosIncluidosIds: [] };
       setConfig(prev => ({...prev, paquetes: [...prev.paquetes, newPackage]}));
   }
+  
+  const handlePackageChange = (updatedPackage: Paquete) => {
+    setConfig(prev => ({
+        ...prev,
+        paquetes: prev.paquetes.map(p => p.id === updatedPackage.id ? updatedPackage : p)
+    }));
+  }
+
   const deletePackage = (id: string) => setConfig(prev => ({...prev, paquetes: prev.paquetes.filter(p => p.id !== id)}));
-  
-  const openEditPackageSheet = (paquete: Paquete) => {
-    setEditingPackage({ ...paquete });
-    setServiceSearchTerm('');
-    setIsSheetOpen(true);
-  };
-
-  const handleUpdateEditingPackage = (field: keyof Omit<Paquete, 'id' | 'serviciosIncluidosIds'>, value: string | number) => {
-      setEditingPackage(prev => prev ? {...prev, [field]: value} : null);
-  };
-
-  const addServiceToPackage = (serviceId: string) => {
-    setEditingPackage(prev => {
-        if (!prev) return null;
-        if (prev.serviciosIncluidosIds.includes(serviceId)) return prev; // Avoid duplicates
-        return { ...prev, serviciosIncluidosIds: [...prev.serviciosIncluidosIds, serviceId] };
-    });
-  };
-
-  const removeServiceFromPackage = (serviceId: string) => {
-    setEditingPackage(prev => {
-        if (!prev) return null;
-        return { ...prev, serviciosIncluidosIds: prev.serviciosIncluidosIds.filter(id => id !== serviceId) };
-    });
-  };
-  
-  const handleSavePackageChanges = () => {
-      if (!editingPackage) return;
-      setConfig(prev => ({
-          ...prev,
-          paquetes: prev.paquetes.map(p => p.id === editingPackage.id ? editingPackage : p)
-      }));
-      setIsSheetOpen(false);
-      setEditingPackage(null);
-  };
-
-  const includedServicesForEditing = useMemo(() => {
-    if (!editingPackage) return [];
-    return editingPackage.serviciosIncluidosIds
-      .map(id => servicios.find(s => s.id === id))
-      .filter((s): s is ServicioEmpresa => !!s);
-  }, [editingPackage, servicios]);
-
-  const availableServicesForEditing = useMemo(() => {
-    if (!editingPackage) return [];
-    const includedIds = new Set(editingPackage.serviciosIncluidosIds);
-    return servicios.filter(s => 
-      !includedIds.has(s.id) &&
-      s.nombre.toLowerCase().includes(serviceSearchTerm.toLowerCase())
-    );
-  }, [editingPackage, servicios, serviceSearchTerm]);
-
 
   const addRule = (type: 'dinamicas' | 'condicionales') => {
       if(type === 'dinamicas') {
@@ -147,7 +202,7 @@ export default function ArmadoRapidoConfigPage() {
   const deleteRule = (type: 'dinamicas' | 'condicionales', index: number) => {
     setConfig(prev => {
         const newRules = {...prev.reglas};
-        newRules[type].splice(index, 1);
+        (newRules[type] as any[]).splice(index, 1);
         return {...prev, reglas: newRules};
     });
   }
@@ -155,9 +210,9 @@ export default function ArmadoRapidoConfigPage() {
   const handleRuleChange = (type: 'dinamicas' | 'condicionales', index: number, field: string, value: string | number) => {
     setConfig(prev => {
       const newRules = { ...prev.reglas };
-      const ruleToUpdate = { ...newRules[type][index] };
+      const ruleToUpdate = { ...(newRules[type] as any[])[index] };
       (ruleToUpdate as any)[field] = value;
-      newRules[type][index] = ruleToUpdate as any;
+      (newRules[type] as any[])[index] = ruleToUpdate;
       return { ...prev, reglas: newRules };
     });
   };
@@ -166,70 +221,6 @@ export default function ArmadoRapidoConfigPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <SheetContent className="w-full sm:max-w-lg flex flex-col">
-                <SheetHeader>
-                    <SheetTitle className="font-headline text-lg">Editar Paquete: {editingPackage?.nombre}</SheetTitle>
-                    <SheetDescription>Modifica los detalles del paquete y gestiona los servicios incluidos.</SheetDescription>
-                </SheetHeader>
-                {editingPackage && (
-                    <div className="py-2 space-y-4 flex-grow flex flex-col min-h-0">
-                        <div className="space-y-1">
-                            <Label htmlFor="pkg-name">Nombre del Paquete</Label>
-                            <Input id="pkg-name" value={editingPackage.nombre} onChange={e => handleUpdateEditingPackage('nombre', e.target.value)} />
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="pkg-desc">Descripción</Label>
-                            <Input id="pkg-desc" value={editingPackage.descripcion} onChange={e => handleUpdateEditingPackage('descripcion', e.target.value)} />
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="pkg-costo">Costo Fijo Adicional</Label>
-                            <Input id="pkg-costo" type="number" value={editingPackage.costoFijoAdicional || ''} onChange={e => handleUpdateEditingPackage('costoFijoAdicional', Number(e.target.value))} />
-                        </div>
-                         <Separator />
-                         <div className="space-y-2 flex-grow flex flex-col min-h-0">
-                            <Label className="font-medium">Servicios Incluidos ({includedServicesForEditing.length})</Label>
-                             <ScrollArea className="flex-grow rounded-md border p-2">
-                                {includedServicesForEditing.length > 0 ? (
-                                    <ul className="space-y-1">
-                                        {includedServicesForEditing.map(s => (
-                                            <li key={s.id} className="flex items-center justify-between text-sm p-1.5 rounded bg-muted/50">
-                                                <span>{s.nombre}</span>
-                                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => removeServiceFromPackage(s.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : <p className="text-center text-xs text-muted-foreground py-3">No hay servicios en este paquete.</p>}
-                            </ScrollArea>
-                        </div>
-                        <Separator />
-                        <div className="space-y-2 flex-grow flex flex-col min-h-0">
-                           <Label className="font-medium">Catálogo de Servicios Disponibles</Label>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                                <Input placeholder="Buscar servicio para añadir..." value={serviceSearchTerm} onChange={(e) => setServiceSearchTerm(e.target.value)} className="pl-9"/>
-                            </div>
-                            <ScrollArea className="flex-grow rounded-md border">
-                               {availableServicesForEditing.length > 0 ? (
-                                    <ul className="space-y-1 p-2">
-                                        {availableServicesForEditing.map(s => (
-                                             <li key={s.id} className="flex items-center justify-between text-sm p-1.5 rounded hover:bg-muted">
-                                                <span>{s.nombre} <span className="text-xs text-muted-foreground">({s.categoria})</span></span>
-                                                <Button type="button" size="sm" variant="outline" onClick={() => addServiceToPackage(s.id)}><PlusCircle className="w-4 h-4 mr-1.5"/> Añadir</Button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                               ) : <p className="text-center text-xs text-muted-foreground py-3">No hay más servicios para añadir.</p>}
-                            </ScrollArea>
-                        </div>
-                    </div>
-                )}
-                <SheetFooter>
-                    <SheetClose asChild><Button type="button" variant="outline">Cancelar</Button></SheetClose>
-                    <Button type="button" onClick={handleSavePackageChanges}>Guardar Paquete</Button>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Wand2 className="w-8 h-8 text-primary" />
@@ -243,22 +234,21 @@ export default function ArmadoRapidoConfigPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes</CardTitle>
-          <CardDescription>Define los combos que se mostrarán a tus clientes.</CardDescription>
+          <CardDescription>Define los combos que se mostrarán a tus clientes. Expande cada paquete para editar sus servicios.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            {config.paquetes.map(paquete => (
-                <ConfigFormItem 
-                    key={paquete.id} 
-                    title={paquete.nombre} 
-                    onDelete={() => deletePackage(paquete.id)}
-                    description={`${paquete.descripcion} (${paquete.serviciosIncluidosIds.length} servicios)`}
-                >
-                   <Button onClick={() => openEditPackageSheet(paquete)} className="w-full">
-                       <Edit className="w-4 h-4 mr-2"/> Editar Paquete y Servicios
-                   </Button>
-                </ConfigFormItem>
-            ))}
-            <Button variant="outline" onClick={addPackage} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Paquete</Button>
+            <Accordion type="multiple" className="space-y-3">
+              {config.paquetes.map(paquete => (
+                  <PackageEditor
+                      key={paquete.id}
+                      paquete={paquete}
+                      servicios={servicios}
+                      onPackageChange={handlePackageChange}
+                      onDelete={deletePackage}
+                  />
+              ))}
+            </Accordion>
+            <Button variant="outline" onClick={addPackage} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paquete</Button>
         </CardContent>
       </Card>
 
@@ -270,7 +260,7 @@ export default function ArmadoRapidoConfigPage() {
         <CardContent className="space-y-4">
             <h4 className="font-semibold text-md">Reglas Dinámicas (Por Cantidad)</h4>
             {config.reglas.dinamicas.map((regla, i) => (
-                <ConfigFormItem key={i} title={`Regla Dinámica #${i+1}`} onDelete={() => deleteRule('dinamicas', i)}>
+                <ConfigFormItem key={`dinamica-${i}`} title={`Regla Dinámica #${i+1}`} onDelete={() => deleteRule('dinamicas', i)}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                        <Select value={regla.servicioCatalogoId} onValueChange={v => handleRuleChange('dinamicas', i, 'servicioCatalogoId', v)}>
                            <SelectTrigger><SelectValue placeholder="Seleccionar servicio..."/></SelectTrigger>
@@ -284,7 +274,7 @@ export default function ArmadoRapidoConfigPage() {
             <Separator/>
             <h4 className="font-semibold text-md">Reglas Condicionales (Por Umbral)</h4>
              {config.reglas.condicionales.map((regla, i) => (
-                <ConfigFormItem key={i} title={`Regla Condicional #${i+1}`} onDelete={() => deleteRule('condicionales', i)}>
+                <ConfigFormItem key={`condicional-${i}`} title={`Regla Condicional #${i+1}`} onDelete={() => deleteRule('condicionales', i)}>
                     <div className="space-y-3">
                       <Input type="number" placeholder="Umbral de Invitados" value={regla.umbralInvitados} onChange={e => handleRuleChange('condicionales', i, 'umbralInvitados', Number(e.target.value))}/>
                       <Select value={regla.servicioMenorId} onValueChange={v => handleRuleChange('condicionales', i, 'servicioMenorId', v)}><SelectTrigger><SelectValue placeholder="Servicio si es MENOR O IGUAL al umbral..."/></SelectTrigger><SelectContent>{servicios.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}</SelectContent></Select>

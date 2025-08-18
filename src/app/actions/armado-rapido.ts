@@ -25,13 +25,13 @@ export interface Reglas {
     dinamicas: ReglaDinamica[];
     condicionales: ReglaCondicional[];
 }
+
 export interface Paquete {
     id: string;
     nombre: string;
-    descripcion: string;
     serviciosIncluidosIds: string[]; // IDs from servicios-empresa.json
-    costoFijoAdicional?: number;
 }
+
 export interface ArmadoRapidoConfig {
     paquetes: Paquete[];
     reglas: Reglas;
@@ -52,8 +52,12 @@ const ARMADO_RAPIDO_CONFIG_PATH = path.join(process.cwd(), 'src', 'data', 'armad
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
     const fileContent = await fs.readFile(ARMADO_RAPIDO_CONFIG_PATH, 'utf-8');
     const config = JSON.parse(fileContent);
-    // Asegurar que costoFijoAdicional exista
-    config.paquetes = config.paquetes.map((p: Paquete) => ({ ...p, costoFijoAdicional: p.costoFijoAdicional || 0 }));
+    // Ensure packages have the correct, simplified structure
+    config.paquetes = config.paquetes.map((p: any) => ({
+        id: p.id,
+        nombre: p.nombre,
+        serviciosIncluidosIds: p.serviciosIncluidosIds || []
+    }));
     return config;
 }
 
@@ -164,7 +168,7 @@ export async function crearPresupuestoDesdeArmadoRapido(
         }
 
         const itemsCalculados = await calcularServicios(data.invitadosCantidad, paqueteSeleccionado, config.reglas, catalogo);
-        const costoTotal = itemsCalculados.reduce((sum, item) => sum + item.costoTotalItem, 0) + (paqueteSeleccionado.costoFijoAdicional || 0);
+        const costoTotal = itemsCalculados.reduce((sum, item) => sum + item.costoTotalItem, 0);
 
         const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'> = {
             clienteNombre: data.clienteNombre,

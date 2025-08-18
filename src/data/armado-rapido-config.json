@@ -4,8 +4,6 @@
     {
       "id": "basico",
       "nombre": "Paquete Básico",
-      "descripcion": "Lo esencial para una gran fiesta, enfocado en catering de calidad.",
-      "costoFijoAdicional": 0,
       "serviciosIncluidosIds": [
         "serv_1752489600004_pchef",
         "serv_1752489600003_pmetr",
@@ -15,11 +13,9 @@
     {
       "id": "intermedio",
       "nombre": "Paquete Intermedio",
-      "descripcion": "La opción más popular. Catering excelente y buena música para la fiesta.",
-      "costoFijoAdicional": 0,
       "serviciosIncluidosIds": [
         "serv_1752489600004_pchef",
-        "serv_1752489600003_pmetr",
+        "serv__1752489600003_pmetr",
         "serv_1752489600099_ayucoc",
         "serv_1752489600098_decbas"
       ]
@@ -27,8 +23,6 @@
     {
       "id": "premium",
       "nombre": "Paquete Premium",
-      "descripcion": "La experiencia completa y sin preocupaciones. Incluye todo.",
-      "costoFijoAdicional": 0,
       "serviciosIncluidosIds": [
         "serv_1752489600004_pchef",
         "serv_1752489600003_pmetr",
