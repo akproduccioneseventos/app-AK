@@ -11,28 +11,28 @@ import path from 'path';
 import type { TipoEvento } from '@/types/presupuesto';
 
 // Define types for the configuration structure
-interface ReglaDinamica {
+export interface ReglaDinamica {
     servicioCatalogoId: string; // ID del servicio en el catálogo
     invitadosPorUnidad: number;
 }
 
-interface ReglaCondicional {
+export interface ReglaCondicional {
     umbralInvitados: number;
     servicioMenorId: string;
     servicioMayorId: string;
 }
-interface Reglas {
+export interface Reglas {
     dinamicas: ReglaDinamica[];
     condicionales: ReglaCondicional[];
 }
-interface Paquete {
+export interface Paquete {
     id: string;
     nombre: string;
     descripcion: string;
-    costoFijoAdicional: number;
     serviciosIncluidosIds: string[]; // IDs from servicios-empresa.json
+    costoFijoAdicional?: number;
 }
-interface ArmadoRapidoConfig {
+export interface ArmadoRapidoConfig {
     paquetes: Paquete[];
     reglas: Reglas;
 }
@@ -47,11 +47,28 @@ interface ArmadoRapidoData {
   paqueteId: string; // ID of the selected package
 }
 
+const ARMADO_RAPIDO_CONFIG_PATH = path.join(process.cwd(), 'src', 'data', 'armado-rapido-config.json');
+
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
-    const filePath = path.join(process.cwd(), 'src', 'data', 'armado-rapido-config.json');
-    const fileContent = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(fileContent);
+    const fileContent = await fs.readFile(ARMADO_RAPIDO_CONFIG_PATH, 'utf-8');
+    const config = JSON.parse(fileContent);
+    // Asegurar que costoFijoAdicional exista
+    config.paquetes = config.paquetes.map((p: Paquete) => ({ ...p, costoFijoAdicional: p.costoFijoAdicional || 0 }));
+    return config;
 }
+
+export async function saveArmadoRapidoConfig(
+    config: ArmadoRapidoConfig
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await fs.writeFile(ARMADO_RAPIDO_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error writing armado-rapido-config.json:", error);
+        return { success: false, error: error.message || "No se pudo guardar la configuración." };
+    }
+}
+
 
 async function calcularServicios(
     invitados: number, 
@@ -147,7 +164,7 @@ export async function crearPresupuestoDesdeArmadoRapido(
         }
 
         const itemsCalculados = await calcularServicios(data.invitadosCantidad, paqueteSeleccionado, config.reglas, catalogo);
-        const costoTotal = itemsCalculados.reduce((sum, item) => sum + item.costoTotalItem, 0) + paqueteSeleccionado.costoFijoAdicional;
+        const costoTotal = itemsCalculados.reduce((sum, item) => sum + item.costoTotalItem, 0) + (paqueteSeleccionado.costoFijoAdicional || 0);
 
         const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'> = {
             clienteNombre: data.clienteNombre,
