@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Edit } from 'lucide-react';
+import { ArrowLeft, Wand2, Package, ListChecks, PlusCircle, Trash2, Loader2, Save, Edit, ChevronDown } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   getArmadoRapidoConfig,
@@ -78,7 +78,7 @@ export default function ArmadoRapidoConfigPage() {
   };
   
   const addPackage = () => {
-      const newPackage: Paquete = { id: `pkg_${Date.now()}`, nombre: 'Nuevo Paquete', descripcion: '', serviciosIncluidosIds: [], costoFijoAdicional: 0 };
+      const newPackage: Paquete = { id: `pkg_${Date.now()}`, nombre: 'Nuevo Paquete', descripcion: 'Descripción del nuevo paquete', serviciosIncluidosIds: [], costoFijoAdicional: 0 };
       setConfig(prev => ({...prev, paquetes: [...prev.paquetes, newPackage]}));
   }
   const deletePackage = (id: string) => setConfig(prev => ({...prev, paquetes: prev.paquetes.filter(p => p.id !== id)}));
@@ -95,13 +95,13 @@ export default function ArmadoRapidoConfigPage() {
   const handleToggleServiceInSheet = (serviceId: string) => {
       setEditingPackage(prev => {
           if (!prev) return null;
-          const newServiceIds = new Set(prev.serviciosIncluidosIds);
-          if (newServiceIds.has(serviceId)) {
-              newServiceIds.delete(serviceId);
+          const currentIds = new Set(prev.serviciosIncluidosIds);
+          if (currentIds.has(serviceId)) {
+            currentIds.delete(serviceId);
           } else {
-              newServiceIds.add(serviceId);
+            currentIds.add(serviceId);
           }
-          return {...prev, serviciosIncluidosIds: Array.from(newServiceIds)};
+          return { ...prev, serviciosIncluidosIds: Array.from(currentIds) };
       });
   };
   
@@ -173,11 +173,11 @@ export default function ArmadoRapidoConfigPage() {
                                 {servicios.map(s => (
                                     <div key={s.id} className="flex items-center space-x-2 p-1 rounded hover:bg-muted">
                                         <Checkbox 
-                                            id={`service-${editingPackage.id}-${s.id}`} 
-                                            checked={editingPackage.serviciosIncluidosIds.includes(s.id)}
+                                            id={`service-${editingPackage?.id}-${s.id}`} 
+                                            checked={editingPackage?.serviciosIncluidosIds.includes(s.id)}
                                             onCheckedChange={() => handleToggleServiceInSheet(s.id)}
                                         />
-                                        <Label htmlFor={`service-${editingPackage.id}-${s.id}`} className="font-normal text-sm cursor-pointer">{s.nombre}</Label>
+                                        <Label htmlFor={`service-${editingPackage?.id}-${s.id}`} className="font-normal text-sm cursor-pointer">{s.nombre}</Label>
                                     </div>
                                 ))}
                                 </div>
