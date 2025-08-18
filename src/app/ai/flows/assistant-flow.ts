@@ -94,15 +94,15 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   Tu objetivo principal es ayudar a los clientes a crear un presupuesto inicial para su fiesta. Debes ser amigable, servicial y proactivo.
 
   **Flujo de Conversación Obligatorio:**
-  1.  **Saludo Inicial:** Siempre, en tu primer mensaje, saluda amablemente. Preséntate como "Asistente AK" y explica que puedes ayudar a armar un presupuesto para una fiesta.
-  2.  **Iniciar Preguntas:** Inmediatamente después del saludo, haz la primera pregunta del flujo: "${config.pasos.tipoFiesta.pregunta}".
-  3.  **Guía Paso a Paso:** Después de obtener la respuesta a una pregunta, procede a la siguiente en este orden estricto:
+  1.  **Saludo Inicial:** Si la conversación es nueva (no hay historial), saluda amablemente. Preséntate como "Asistente AK" y explica que puedes ayudar a armar un presupuesto para una fiesta. Inmediatamente después del saludo, haz la primera pregunta del flujo: "${config.pasos.tipoFiesta.pregunta}".
+  2.  **Guía Paso a Paso:** Después de obtener la respuesta a una pregunta, procede a la siguiente en este orden estricto:
       - Pregunta por el tipo de fiesta (si no lo sabes).
       - Pregunta por la cantidad de invitados.
       - Pregunta por el nombre del cliente.
       - Pregunta por la fecha (aclarando que es opcional).
   
   **Reglas de Interacción:**
+  - **Usa el Historial:** SIEMPRE revisa el historial de la conversación para saber qué información ya tienes y cuál es la siguiente pregunta que debes hacer. No repitas preguntas que ya fueron respondidas.
   - **No te desvíes:** Sigue el flujo de preguntas paso a paso. No saltes preguntas ni intentes adivinar información.
   - **Usa Herramientas SOLO al final:** NO uses la herramienta \`createQuote\` hasta que hayas recopilado TODA la información requerida (nombre, tipo, cantidad). La fecha es opcional. Antes de ese punto, tu única función es hacer la siguiente pregunta del flujo.
   - **Claridad:** Sé muy claro en tus preguntas.
@@ -111,12 +111,18 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   - **Formato:** Usa markdown para que tus respuestas sean claras y legibles.
   - **Capacidad única:** Solo tienes la capacidad de crear presupuestos. No puedes analizar el código, ni el estado del evento. Si te preguntan por otra cosa, responde amablemente que tu única función es ayudar a crear presupuestos.`;
 
+  const history = input.history || [];
+  const prompts = [
+    { text: systemPrompt },
+    ...history.map((h: any) => ({
+      role: h.role,
+      content: h.content,
+    })),
+    { text: input.query },
+  ];
+  
   const llmResponse = await ai.generate({
-    prompt: [
-        {text: systemPrompt},
-        {text: `Historial de conversación anterior (ignorar si es el primer mensaje): ${JSON.stringify(input.history || [])}`},
-        {text: `La nueva consulta del usuario es: "${input.query}"`},
-    ],
+    prompt: prompts,
     model: 'googleai/gemini-1.5-flash',
     tools: [createQuoteTool],
     toolChoice: 'auto',
@@ -129,12 +135,15 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
     const call = llmResponse.toolCalls[0];
     const toolResult = await call.run() as any; 
     
+    // Create new prompt list for final response, including the tool call and its result
+    const finalPrompts = [
+        ...prompts,
+        { role: 'model', content: [{ toolCall: call.toJson() }] },
+        { role: 'tool', content: [{ toolResult: { name: call.name, output: toolResult } }] }
+    ];
+
     const finalResponse = await ai.generate({
-        prompt: [
-            {text: systemPrompt},
-            {text: `El usuario preguntó: "${input.query}"`},
-            {toolResult: {name: call.name, output: toolResult}}
-        ],
+        prompt: finalPrompts,
         model: 'googleai/gemini-1.5-flash',
         tools: [createQuoteTool],
         output: {
