@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
@@ -27,10 +26,10 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
-import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -42,7 +41,6 @@ export default function ArmadoRapidoConfigPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
-  // State for package editing sheet
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Paquete | null>(null);
   const [serviceSearchTerm, setServiceSearchTerm] = useState('');
@@ -95,17 +93,19 @@ export default function ArmadoRapidoConfigPage() {
       setEditingPackage(prev => prev ? {...prev, [field]: value} : null);
   };
 
-  const handleToggleServiceInSheet = (serviceId: string) => {
-      setEditingPackage(prev => {
-          if (!prev) return null;
-          const currentIds = new Set(prev.serviciosIncluidosIds);
-          if (currentIds.has(serviceId)) {
-            currentIds.delete(serviceId);
-          } else {
-            currentIds.add(serviceId);
-          }
-          return { ...prev, serviciosIncluidosIds: Array.from(currentIds) };
-      });
+  const addServiceToPackage = (serviceId: string) => {
+    setEditingPackage(prev => {
+        if (!prev) return null;
+        if (prev.serviciosIncluidosIds.includes(serviceId)) return prev; // Avoid duplicates
+        return { ...prev, serviciosIncluidosIds: [...prev.serviciosIncluidosIds, serviceId] };
+    });
+  };
+
+  const removeServiceFromPackage = (serviceId: string) => {
+    setEditingPackage(prev => {
+        if (!prev) return null;
+        return { ...prev, serviciosIncluidosIds: prev.serviciosIncluidosIds.filter(id => id !== serviceId) };
+    });
   };
   
   const handleSavePackageChanges = () => {
@@ -118,20 +118,21 @@ export default function ArmadoRapidoConfigPage() {
       setEditingPackage(null);
   };
 
-  const filteredServices = useMemo(() => {
-    return servicios.filter(s => s.nombre.toLowerCase().includes(serviceSearchTerm.toLowerCase()));
-  }, [servicios, serviceSearchTerm]);
+  const includedServicesForEditing = useMemo(() => {
+    if (!editingPackage) return [];
+    return editingPackage.serviciosIncluidosIds
+      .map(id => servicios.find(s => s.id === id))
+      .filter((s): s is ServicioEmpresa => !!s);
+  }, [editingPackage, servicios]);
 
-  const groupedServices = useMemo(() => {
-     return filteredServices.reduce((acc, servicio) => {
-        const categoria = servicio.categoria || 'Otros';
-        if (!acc[categoria]) {
-            acc[categoria] = [];
-        }
-        acc[categoria].push(servicio);
-        return acc;
-    }, {} as Record<string, ServicioEmpresa[]>);
-  }, [filteredServices]);
+  const availableServicesForEditing = useMemo(() => {
+    if (!editingPackage) return [];
+    const includedIds = new Set(editingPackage.serviciosIncluidosIds);
+    return servicios.filter(s => 
+      !includedIds.has(s.id) &&
+      s.nombre.toLowerCase().includes(serviceSearchTerm.toLowerCase())
+    );
+  }, [editingPackage, servicios, serviceSearchTerm]);
 
 
   const addRule = (type: 'dinamicas' | 'condicionales') => {
@@ -166,9 +167,10 @@ export default function ArmadoRapidoConfigPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <SheetContent className="w-full sm:max-w-md flex flex-col">
+            <SheetContent className="w-full sm:max-w-lg flex flex-col">
                 <SheetHeader>
                     <SheetTitle className="font-headline text-lg">Editar Paquete: {editingPackage?.nombre}</SheetTitle>
+                    <SheetDescription>Modifica los detalles del paquete y gestiona los servicios incluidos.</SheetDescription>
                 </SheetHeader>
                 {editingPackage && (
                     <div className="py-2 space-y-4 flex-grow flex flex-col min-h-0">
@@ -184,46 +186,47 @@ export default function ArmadoRapidoConfigPage() {
                             <Label htmlFor="pkg-costo">Costo Fijo Adicional</Label>
                             <Input id="pkg-costo" type="number" value={editingPackage.costoFijoAdicional || ''} onChange={e => handleUpdateEditingPackage('costoFijoAdicional', Number(e.target.value))} />
                         </div>
+                         <Separator />
                          <div className="space-y-2 flex-grow flex flex-col min-h-0">
-                            <Label className="font-medium">Servicios Incluidos ({editingPackage.serviciosIncluidosIds.length})</Label>
-                             <div className="relative">
+                            <Label className="font-medium">Servicios Incluidos ({includedServicesForEditing.length})</Label>
+                             <ScrollArea className="flex-grow rounded-md border p-2">
+                                {includedServicesForEditing.length > 0 ? (
+                                    <ul className="space-y-1">
+                                        {includedServicesForEditing.map(s => (
+                                            <li key={s.id} className="flex items-center justify-between text-sm p-1.5 rounded bg-muted/50">
+                                                <span>{s.nombre}</span>
+                                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => removeServiceFromPackage(s.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : <p className="text-center text-xs text-muted-foreground py-3">No hay servicios en este paquete.</p>}
+                            </ScrollArea>
+                        </div>
+                        <Separator />
+                        <div className="space-y-2 flex-grow flex flex-col min-h-0">
+                           <Label className="font-medium">Catálogo de Servicios Disponibles</Label>
+                            <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                                <Input 
-                                    placeholder="Buscar servicio..."
-                                    value={serviceSearchTerm}
-                                    onChange={(e) => setServiceSearchTerm(e.target.value)}
-                                    className="pl-9"
-                                />
+                                <Input placeholder="Buscar servicio para añadir..." value={serviceSearchTerm} onChange={(e) => setServiceSearchTerm(e.target.value)} className="pl-9"/>
                             </div>
                             <ScrollArea className="flex-grow rounded-md border">
-                                <Accordion type="multiple" defaultValue={Object.keys(groupedServices)} className="p-1">
-                                    {Object.keys(groupedServices).sort().map(category => (
-                                        <AccordionItem key={category} value={category} className="border-b-0">
-                                            <AccordionTrigger className="text-sm py-1.5 hover:no-underline">{category}</AccordionTrigger>
-                                            <AccordionContent className="pl-2">
-                                                 <div className="space-y-1">
-                                                    {groupedServices[category].map(s => (
-                                                        <div key={s.id} className="flex items-center space-x-2 p-1 rounded hover:bg-muted">
-                                                            <Checkbox 
-                                                                id={`service-${editingPackage?.id}-${s.id}`} 
-                                                                checked={editingPackage?.serviciosIncluidosIds.includes(s.id)}
-                                                                onCheckedChange={() => handleToggleServiceInSheet(s.id)}
-                                                            />
-                                                            <Label htmlFor={`service-${editingPackage?.id}-${s.id}`} className="font-normal text-sm cursor-pointer">{s.nombre}</Label>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    ))}
-                                </Accordion>
+                               {availableServicesForEditing.length > 0 ? (
+                                    <ul className="space-y-1 p-2">
+                                        {availableServicesForEditing.map(s => (
+                                             <li key={s.id} className="flex items-center justify-between text-sm p-1.5 rounded hover:bg-muted">
+                                                <span>{s.nombre} <span className="text-xs text-muted-foreground">({s.categoria})</span></span>
+                                                <Button type="button" size="sm" variant="outline" onClick={() => addServiceToPackage(s.id)}><PlusCircle className="w-4 h-4 mr-1.5"/> Añadir</Button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                               ) : <p className="text-center text-xs text-muted-foreground py-3">No hay más servicios para añadir.</p>}
                             </ScrollArea>
                         </div>
                     </div>
                 )}
                 <SheetFooter>
                     <SheetClose asChild><Button type="button" variant="outline">Cancelar</Button></SheetClose>
-                    <Button type="button" onClick={handleSavePackageChanges}>Guardar Paquete</Button>
+                    <Button type="button" onClick={handleSavePackageChanges}>Guardar Cambios del Paquete</Button>
                 </SheetFooter>
             </SheetContent>
         </Sheet>
