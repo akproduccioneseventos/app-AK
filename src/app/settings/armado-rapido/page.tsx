@@ -170,7 +170,7 @@ export default function ArmadoRapidoConfigPage() {
                     <SheetTitle className="font-headline text-lg">Editar Paquete: {editingPackage?.nombre}</SheetTitle>
                 </SheetHeader>
                 {editingPackage && (
-                    <div className="py-2 space-y-4 flex-grow flex flex-col">
+                    <div className="py-2 space-y-4 flex-grow flex flex-col min-h-0">
                         <div className="space-y-1">
                             <Label htmlFor="pkg-name">Nombre del Paquete</Label>
                             <Input id="pkg-name" value={editingPackage.nombre} onChange={e => handleUpdateEditingPackage('nombre', e.target.value)} />
