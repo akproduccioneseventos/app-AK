@@ -22,6 +22,14 @@ import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function ArmadoRapidoConfigPage() {
   const { toast } = useToast();
@@ -84,25 +92,37 @@ export default function ArmadoRapidoConfigPage() {
     });
   }
 
-  const handlePackageChange = (id: string, field: keyof Omit<Paquete, 'serviciosIncluidosIds'>, value: string | number) => {
+  const handlePackageChange = (id: string, field: keyof Omit<Paquete, 'serviciosIncluidosIds' | 'id'>, value: string | number) => {
       setConfig(prev => ({
           ...prev,
           paquetes: prev.paquetes.map(p => p.id === id ? {...p, [field]: value} : p)
       }));
   }
   
-  const handlePackageServicesChange = (id: string, serviceIds: string[]) => {
+  const handlePackageServiceToggle = (packageId: string, serviceId: string) => {
      setConfig(prev => ({
           ...prev,
-          paquetes: prev.paquetes.map(p => p.id === id ? {...p, serviciosIncluidosIds: serviceIds } : p)
+          paquetes: prev.paquetes.map(p => {
+              if (p.id === packageId) {
+                  const newServiceIds = new Set(p.serviciosIncluidosIds);
+                  if (newServiceIds.has(serviceId)) {
+                      newServiceIds.delete(serviceId);
+                  } else {
+                      newServiceIds.add(serviceId);
+                  }
+                  return {...p, serviciosIncluidosIds: Array.from(newServiceIds) };
+              }
+              return p;
+          })
       }));
   }
 
   const handleRuleChange = (type: 'dinamicas' | 'condicionales', index: number, field: string, value: string | number) => {
     setConfig(prev => {
       const newRules = { ...prev.reglas };
-      const rule = { ...newRules[type][index], [field]: value };
-      newRules[type][index] = rule as any;
+      const ruleToUpdate = { ...newRules[type][index] };
+      (ruleToUpdate as any)[field] = value;
+      newRules[type][index] = ruleToUpdate as any;
       return { ...prev, reglas: newRules };
     });
   };
@@ -139,17 +159,31 @@ export default function ArmadoRapidoConfigPage() {
                         <Input placeholder="Descripción corta" value={paquete.descripcion} onChange={e => handlePackageChange(paquete.id, 'descripcion', e.target.value)} />
                         <Input type="number" placeholder="Costo Fijo Adicional" value={paquete.costoFijoAdicional || ''} onChange={e => handlePackageChange(paquete.id, 'costoFijoAdicional', Number(e.target.value))} />
                     </div>
-                     <Label className="text-xs font-medium">Servicios Base Incluidos</Label>
-                    <Select value={paquete.serviciosIncluidosIds.join(',')} onValueChange={(val) => handlePackageServicesChange(paquete.id, val ? val.split(',') : [])}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar servicios base...">
-                          {paquete.serviciosIncluidosIds.length} servicio(s) seleccionado(s)
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        {servicios.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                     <div className="space-y-2">
+                        <Label className="text-xs font-medium">Servicios Base Incluidos</Label>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="w-full justify-between">
+                                    <span>{paquete.serviciosIncluidosIds.length} servicio(s) seleccionado(s)</span>
+                                    <ChevronDown className="w-4 h-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
+                                <DropdownMenuLabel>Seleccionar Servicios</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {servicios.map(s => (
+                                    <DropdownMenuCheckboxItem
+                                        key={s.id}
+                                        checked={paquete.serviciosIncluidosIds.includes(s.id)}
+                                        onCheckedChange={() => handlePackageServiceToggle(paquete.id, s.id)}
+                                        onSelect={(e) => e.preventDefault()} // Prevent closing on click
+                                    >
+                                        {s.nombre}
+                                    </DropdownMenuCheckboxItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </ConfigFormItem>
             ))}
             <Button variant="outline" onClick={addPackage} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Paquete</Button>
