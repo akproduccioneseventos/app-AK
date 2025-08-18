@@ -113,12 +113,12 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
 
   const history = input.history || [];
   const prompts = [
-    { text: systemPrompt },
+    { role: 'system', content: [{ text: systemPrompt }] },
     ...history.map((h: any) => ({
       role: h.role,
       content: h.content,
     })),
-    { text: input.query },
+    { role: 'user', content: [{ text: input.query }] },
   ];
   
   const llmResponse = await ai.generate({
