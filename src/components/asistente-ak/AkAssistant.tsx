@@ -29,7 +29,7 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if(isPage) {
+        if(isPage && messages.length === 0) {
             // Initial greeting from the assistant
             setIsLoading(true);
             assistant({ query: 'Hola' }).then(response => {
@@ -45,7 +45,7 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                 setIsLoading(false);
             });
         }
-    }, [isPage, toast]);
+    }, [isPage, toast, messages.length]);
     
     useEffect(() => {
         // Auto-scroll to bottom
@@ -91,6 +91,15 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
         ? "relative w-full h-full flex flex-col bg-card border rounded-lg" 
         : "fixed bottom-5 right-5 z-50";
 
+    const extractOptions = (text: string): string[] => {
+      const regex = /(?<=Opci(ón|ones):\s*\[)([^\]]+)(?=\])/i;
+      const match = text.match(regex);
+      if (match && match[2]) {
+        return match[2].split(',').map(s => s.trim());
+      }
+      return [];
+    };
+
     return (
         <div className={containerClasses}>
             <AnimatePresence>
@@ -116,19 +125,24 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                                     const isModel = message.role === 'model';
                                     const messageContent = message.content[0].text;
                                     const presupuestoId = message.content[0].data?.custom?.presupuestoId;
+                                    const suggestedReplies = extractOptions(messageContent);
+
                                     return (
                                         <div key={message.id} className={`flex items-start gap-3 ${isModel ? '' : 'justify-end'}`}>
                                             {isModel && <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>}
                                             <div className={`max-w-xs rounded-lg px-3 py-2 text-sm ${isModel ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
-                                                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{messageContent}</ReactMarkdown>
+                                                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '')}</ReactMarkdown>
                                                 {presupuestoId && (
                                                     <Button asChild variant="secondary" size="sm" className="mt-2">
                                                         <Link href={`/presupuestos/${presupuestoId}/ver`}>Ver Presupuesto <ArrowRight className="w-4 h-4 ml-2"/></Link>
                                                     </Button>
                                                 )}
-                                                {/* Button suggestions based on content */}
-                                                {isModel && messageContent.includes('Sí, arranquemos') && (
-                                                   <Button size="sm" variant="outline" className="mt-2" onClick={() => handleSubmit(undefined, 'Sí, arranquemos')}>Sí, arranquemos 🎉</Button>
+                                                {isModel && suggestedReplies.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        {suggestedReplies.map((reply, i) => (
+                                                            <Button key={i} size="sm" variant="outline" onClick={() => handleSubmit(undefined, reply)}>{reply}</Button>
+                                                        ))}
+                                                    </div>
                                                 )}
                                             </div>
                                             {!isModel && <Avatar className="h-6 w-6"><AvatarFallback><User className="h-4 w-4"/></AvatarFallback></Avatar>}
@@ -163,4 +177,3 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
         </div>
     );
 }
-
