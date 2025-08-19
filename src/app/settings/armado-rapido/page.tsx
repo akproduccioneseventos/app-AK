@@ -44,12 +44,20 @@ function EditPackageModal({
   const [includedServices, setIncludedServices] = useState<ServicioPaquete[]>(pkg.serviciosIncluidos);
   const [searchTerm, setSearchTerm] = useState('');
 
+  useEffect(() => {
+    if (isOpen) {
+      setPackageName(pkg.nombre);
+      setIncludedServices(pkg.serviciosIncluidos);
+      setSearchTerm('');
+    }
+  }, [isOpen, pkg]);
+
   const includedServiceIds = useMemo(() => new Set(includedServices.map(s => s.id)), [includedServices]);
 
   const availableServices = useMemo(() => {
     return allServices
-      .filter(s => !includedServiceIds.has(s.id)) // No mostrar los ya incluidos
-      .filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())); // Filtrar por búsqueda
+      .filter(s => !includedServiceIds.has(s.id))
+      .filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [allServices, includedServiceIds, searchTerm]);
 
   const addService = (service: ServicioEmpresa) => {
@@ -101,7 +109,7 @@ function EditPackageModal({
                 {/* Columna del Catálogo */}
                 <div className="space-y-3">
                     <h4 className="font-medium text-foreground">Catálogo de Servicios Disponibles</h4>
-                     <div className="relative">
+                    <div className="relative">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input placeholder="Buscar servicio para añadir..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
                     </div>
@@ -144,7 +152,6 @@ export default function ArmadoRapidoSettingsPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      // Pre-filtrar el catálogo para mostrar solo servicios vendibles
       setCatalogo(catalogoData.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0));
     } catch (e: any) {
       setError("No se pudieron cargar los datos necesarios.");
