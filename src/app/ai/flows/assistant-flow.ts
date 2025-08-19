@@ -76,13 +76,16 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   - **No Converses:** No hagas preguntas de seguimiento. Tu única función es ejecutar la herramienta con los datos que te dan.
   - **Año por defecto:** Si el usuario da una fecha sin año, asume que es para el próximo año, 2025.
   - **Responde en base a la herramienta:** Tu respuesta final al usuario debe basarse únicamente en el mensaje que devuelve la herramienta 'createQuote'. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma amigable.
-  - **Capacidad única:** Solo tienes la capacidad de crear presupuestos. Si te preguntan por otra cosa, responde amablemente que tu única función es ayudar a crear presupuestos.`;
+  - **Capacidad única:** Si no puedes determinar cómo usar la herramienta 'createQuote' con la consulta del usuario, o si se te pregunta por otra cosa, responde amablemente que tu única función es ayudar a crear presupuestos iniciales y que no entendiste la petición.`;
 
   const llmResponse = await ai.generate({
     prompt: systemPrompt + "\n\nUser Query: " + input.query,
     model: 'googleai/gemini-1.5-flash',
     tools: [createQuoteTool],
     toolChoice: 'auto',
+    output: {
+      schema: AssistantOutputSchema,
+    }
   });
 
   const toolCall = llmResponse.toolCalls?.[0];
@@ -112,10 +115,11 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
     return output;
   }
   
-  // Fallback if no tool was called (shouldn't happen with this prompt)
+  // Fallback if no tool was called
   const output = llmResponse.output;
-  if(!output) {
-      throw new Error("El asistente de IA no pudo generar una respuesta inicial.");
+  if (!output) {
+    console.error("AI Fallback response was null/undefined.", llmResponse);
+    throw new Error("El asistente de IA no pudo generar una respuesta inicial. Por favor, reformula tu pregunta.");
   }
   return output;
 }
