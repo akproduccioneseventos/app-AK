@@ -3,129 +3,93 @@
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User, X, Loader2, ArrowRight } from 'lucide-react';
+import { Bot, User, X, Loader2, ArrowRight, CornerDownLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { assistant, type AssistantOutput } from '@/app/ai/flows/assistant-flow';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { DatePickerDemo } from '../date-picker-demo';
-import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Message } from 'genkit';
+import { ScrollArea } from '../ui/scroll-area';
 
-interface Step {
-    id: 'tipoFiesta' | 'cantidadInvitados' | 'nombreCliente' | 'fechaEvento' | 'confirmacion';
-    title: string;
-    description: string;
+interface ChatMessage extends Message {
+  id: string;
 }
-
-const steps: Step[] = [
-    { id: 'tipoFiesta', title: 'Tipo de Evento', description: 'Para empezar, cuéntanos qué tipo de evento estás planeando.' },
-    { id: 'cantidadInvitados', title: 'Cantidad de Invitados', description: '¿Para cuántas personas sería el evento aproximadamente?' },
-    { id: 'nombreCliente', title: 'Tu Nombre', description: 'Para personalizar la propuesta, ¿a nombre de quién la preparamos?' },
-    { id: 'fechaEvento', title: 'Fecha del Evento', description: '¿Tienes alguna fecha en mente? Si no, no te preocupes, lo vemos después.' },
-    { id: 'confirmacion', title: '¡Listo para Calcular!', description: 'Revisa los datos y generaremos una propuesta inicial para ti.' },
-];
 
 export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
     const [isOpen, setIsOpen] = useState(isPage);
-    const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [formData, setFormData] = useState({
-        tipoFiesta: '',
-        cantidadInvitados: '50',
-        nombreCliente: '',
-        fechaEvento: undefined as Date | undefined,
-    });
-    const [resultado, setResultado] = useState<AssistantOutput | null>(null);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [input, setInput] = useState('');
     const { toast } = useToast();
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleNext = () => {
-      // Validation logic for each step can be added here
-      if (currentStep < steps.length - 1) {
-          setCurrentStep(currentStep + 1);
-      }
-    };
+    useEffect(() => {
+        if(isPage) {
+            // Initial greeting from the assistant
+            setIsLoading(true);
+            assistant({ query: 'Hola' }).then(response => {
+                setMessages(prev => [...prev, {
+                    id: `ai-${Date.now()}`,
+                    role: 'model',
+                    content: [{text: response.response}]
+                }]);
+            }).catch(err => {
+                setError(err.message);
+                toast({ title: "Error del Asistente", description: err.message, variant: "destructive" });
+            }).finally(() => {
+                setIsLoading(false);
+            });
+        }
+    }, [isPage, toast]);
     
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
+    useEffect(() => {
+        // Auto-scroll to bottom
+        if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+        }
+    }, [messages]);
+
+    const handleSubmit = async (e?: FormEvent<HTMLFormElement>, prompt?: string) => {
+        if(e) e.preventDefault();
+        const userMessage = prompt || input;
+        if (!userMessage.trim()) return;
+
+        const newUserMessage: ChatMessage = {
+            id: `user-${Date.now()}`,
+            role: 'user',
+            content: [{ text: userMessage }]
+        };
+        setMessages(prev => [...prev, newUserMessage]);
+        setInput('');
         setIsLoading(true);
         setError('');
+
         try {
-            const result = await assistant({
-                query: `Crear presupuesto para ${formData.tipoFiesta} de ${formData.cantidadInvitados} personas a nombre de ${formData.nombreCliente}${formData.fechaEvento ? ` para la fecha ${formData.fechaEvento.toISOString().split('T')[0]}` : ''}.`,
-            });
-            setResultado(result);
-            setCurrentStep(currentStep + 1); // Move to final step
+            const history = messages.map(m => ({ role: m.role, content: m.content }));
+            const response = await assistant({ query: userMessage, history });
+            
+            setMessages(prev => [...prev, {
+                id: `ai-${Date.now()}`,
+                role: 'model',
+                content: [{ text: response.response, data: { custom: { presupuestoId: response.presupuestoId } } }]
+            }]);
         } catch (err: any) {
-            setError(err.message || "Ocurrió un error al generar el presupuesto.");
-            toast({ title: "Error", description: err.message, variant: 'destructive'});
+            setError(err.message || "Ocurrió un error.");
+            toast({ title: "Error", description: err.message, variant: 'destructive' });
         } finally {
             setIsLoading(false);
+            inputRef.current?.focus();
         }
-    }
-
-
+    };
+    
     const containerClasses = isPage 
         ? "relative w-full h-full flex flex-col bg-card border rounded-lg" 
         : "fixed bottom-5 right-5 z-50";
-        
-    const renderStepContent = () => {
-        const step = steps[currentStep];
-        switch(step.id) {
-            case 'tipoFiesta':
-                return (
-                    <RadioGroup value={formData.tipoFiesta} onValueChange={(v) => setFormData(p => ({...p, tipoFiesta: v}))} className="grid grid-cols-2 gap-3">
-                        {ALL_TIPOS_EVENTO.map(tipo => (
-                           <Label key={tipo} htmlFor={tipo} className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${formData.tipoFiesta === tipo ? 'border-primary' : 'hover:bg-muted/50'}`}>
-                               <RadioGroupItem value={tipo} id={tipo} className="sr-only"/>
-                               <span className="font-semibold">{tipo}</span>
-                           </Label>
-                        ))}
-                    </RadioGroup>
-                );
-            case 'cantidadInvitados':
-                return <Input type="number" value={formData.cantidadInvitados} onChange={(e) => setFormData(p => ({...p, cantidadInvitados: e.target.value}))} placeholder="Ej: 50" className="text-center text-lg h-12" />;
-            case 'nombreCliente':
-                return <Input value={formData.nombreCliente} onChange={(e) => setFormData(p => ({...p, nombreCliente: e.target.value}))} placeholder="Tu nombre y apellido" className="text-center text-lg h-12"/>;
-            case 'fechaEvento':
-                return <DatePickerDemo selectedDate={formData.fechaEvento} onDateChange={(date) => setFormData(p => ({...p, fechaEvento: date}))} />;
-            case 'confirmacion':
-                 return (
-                    <div className="text-center space-y-4">
-                        <p>Hemos recopilado la información necesaria. ¿Listo para crear tu presupuesto inicial?</p>
-                        <Button size="lg" onClick={handleSubmit} disabled={isLoading}>
-                            {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-                            Crear Mi Presupuesto
-                        </Button>
-                    </div>
-                );
-            default:
-                return null;
-        }
-    }
-    
-    const renderFinalStep = () => {
-        if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary"/></div>;
-        if (error) return <p className="text-destructive text-center">{error}</p>;
-        if (!resultado) return null;
-        return (
-             <div className="text-center space-y-4 p-4">
-                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{resultado.response}</ReactMarkdown>
-                 {resultado.presupuestoId && (
-                    <Button asChild variant="default" size="lg" className="mt-4 w-full">
-                        <Link href={`/presupuestos/${resultado.presupuestoId}/ver`}>
-                            Ver Presupuesto Detallado <ArrowRight className="w-4 h-4 ml-2"/>
-                        </Link>
-                    </Button>
-                )}
-            </div>
-        )
-    }
 
     return (
         <div className={containerClasses}>
@@ -146,29 +110,48 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                             {!isPage && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}><X className="h-4 w-4" /></Button>}
                         </header>
                         
-                        <div className="flex-1 p-4 flex flex-col items-center justify-center text-center">
-                            {currentStep < steps.length ? (
-                                <>
-                                  <div className="mb-6">
-                                    <h4 className="font-bold text-lg text-primary">{steps[currentStep].title}</h4>
-                                    <p className="text-muted-foreground text-sm">{steps[currentStep].description}</p>
-                                  </div>
-                                  <div className="w-full max-w-sm">
-                                    {renderStepContent()}
-                                  </div>
-                                </>
-                            ) : (
-                                renderFinalStep()
-                            )}
-                        </div>
-
-                         {currentStep < steps.length - 1 && (
-                            <footer className="p-3 border-t flex justify-end">
-                                <Button onClick={handleNext}>
-                                    Siguiente <ArrowRight className="w-4 h-4 ml-2"/>
-                                </Button>
-                            </footer>
-                        )}
+                        <ScrollArea className="flex-1" ref={scrollAreaRef}>
+                            <div className="p-4 space-y-4">
+                                {messages.map((message) => {
+                                    const isModel = message.role === 'model';
+                                    const messageContent = message.content[0].text;
+                                    const presupuestoId = message.content[0].data?.custom?.presupuestoId;
+                                    return (
+                                        <div key={message.id} className={`flex items-start gap-3 ${isModel ? '' : 'justify-end'}`}>
+                                            {isModel && <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>}
+                                            <div className={`max-w-xs rounded-lg px-3 py-2 text-sm ${isModel ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
+                                                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{messageContent}</ReactMarkdown>
+                                                {presupuestoId && (
+                                                    <Button asChild variant="secondary" size="sm" className="mt-2">
+                                                        <Link href={`/presupuestos/${presupuestoId}/ver`}>Ver Presupuesto <ArrowRight className="w-4 h-4 ml-2"/></Link>
+                                                    </Button>
+                                                )}
+                                                {/* Button suggestions based on content */}
+                                                {isModel && messageContent.includes('Sí, arranquemos') && (
+                                                   <Button size="sm" variant="outline" className="mt-2" onClick={() => handleSubmit(undefined, 'Sí, arranquemos')}>Sí, arranquemos 🎉</Button>
+                                                )}
+                                            </div>
+                                            {!isModel && <Avatar className="h-6 w-6"><AvatarFallback><User className="h-4 w-4"/></AvatarFallback></Avatar>}
+                                        </div>
+                                    );
+                                })}
+                                {isLoading && (
+                                    <div className="flex items-start gap-3">
+                                        <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>
+                                        <div className="max-w-xs rounded-lg px-3 py-2 text-sm bg-muted flex items-center">
+                                            <Loader2 className="h-4 w-4 animate-spin text-primary"/>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </ScrollArea>
+                        
+                        <footer className="p-3 border-t">
+                             <form onSubmit={handleSubmit} className="flex items-center gap-2">
+                                <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
+                                <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
+                            </form>
+                        </footer>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -180,3 +163,4 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
         </div>
     );
 }
+

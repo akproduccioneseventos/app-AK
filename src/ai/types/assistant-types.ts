@@ -1,8 +1,10 @@
 
+import type { Message } from 'genkit';
 import { z } from 'genkit';
 
 export const AssistantInputSchema = z.object({
   query: z.string(),
+  history: z.array(z.custom<Message>()).optional(),
 });
 export type AssistantInput = z.infer<typeof AssistantInputSchema>;
 
