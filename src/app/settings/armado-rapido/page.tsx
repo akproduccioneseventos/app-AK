@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Search } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -30,8 +30,6 @@ export default function ArmadoRapidoSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -71,6 +69,20 @@ export default function ArmadoRapidoSettingsPage() {
         }
     })
   }
+  
+  const handleAddPackage = () => {
+    const newPackage: PaqueteArmadoRapido = {
+      id: `paquete_${Date.now()}`,
+      nombre: 'Nuevo Paquete',
+      serviciosIncluidos: [],
+    };
+    setConfig(prev => prev ? ({ ...prev, paquetes: [...prev.paquetes, newPackage] }) : null);
+  };
+  
+  const handleDeletePackage = (packageId: string) => {
+    setConfig(prev => prev ? ({ ...prev, paquetes: prev.paquetes.filter(p => p.id !== packageId)}) : null);
+  };
+
 
   const handleAddServiceToPackage = (packageId: string, service: ServicioEmpresa) => {
     const newService: ServicioIncluido = {
@@ -143,14 +155,7 @@ export default function ArmadoRapidoSettingsPage() {
             <Accordion type="single" collapsible className="w-full space-y-4">
                 {config.paquetes.map(pkg => {
                     const includedServiceIds = new Set(pkg.serviciosIncluidos.map(s => s.id));
-                    const searchTerm = searchTerms[pkg.id] || '';
-                    
-                    const availableServices = vendibleServices.filter(s => {
-                        const isInPackage = includedServiceIds.has(s.id);
-                        if (isInPackage) return false;
-                        if (!searchTerm) return true;
-                        return s.nombre.toLowerCase().includes(searchTerm.toLowerCase());
-                    });
+                    const availableServices = vendibleServices.filter(s => !includedServiceIds.has(s.id));
                     
                     return (
                         <AccordionItem value={pkg.id} key={pkg.id} className="border rounded-lg shadow-sm">
@@ -158,13 +163,18 @@ export default function ArmadoRapidoSettingsPage() {
                                 {pkg.nombre}
                             </AccordionTrigger>
                             <AccordionContent className="p-4 border-t">
-                              <div className="space-y-2 mb-4">
-                                <Label htmlFor={`pkg-name-${pkg.id}`}>Nombre del Paquete</Label>
-                                <Input
-                                  id={`pkg-name-${pkg.id}`}
-                                  value={pkg.nombre}
-                                  onChange={(e) => handlePackageChange(pkg.id, { nombre: e.target.value })}
-                                />
+                              <div className="flex items-end gap-2 mb-4">
+                                <div className="space-y-2 flex-grow">
+                                  <Label htmlFor={`pkg-name-${pkg.id}`}>Nombre del Paquete</Label>
+                                  <Input
+                                    id={`pkg-name-${pkg.id}`}
+                                    value={pkg.nombre}
+                                    onChange={(e) => handlePackageChange(pkg.id, { nombre: e.target.value })}
+                                  />
+                                </div>
+                                <Button variant="destructive" size="icon" onClick={() => handleDeletePackage(pkg.id)}>
+                                    <Trash2 className="w-4 h-4"/>
+                                </Button>
                               </div>
                               <Separator className="my-4"/>
                               <div className="grid md:grid-cols-2 gap-6">
@@ -185,11 +195,6 @@ export default function ArmadoRapidoSettingsPage() {
                                 </div>
                                 <div className="space-y-2 flex flex-col">
                                     <h3 className="font-semibold text-foreground">Catálogo de Servicios Disponibles</h3>
-                                    <Input 
-                                      placeholder="Buscar servicio para añadir..." 
-                                      value={searchTerm}
-                                      onChange={e => setSearchTerms(prev => ({...prev, [pkg.id]: e.target.value}))}
-                                    />
                                     <ScrollArea className="flex-grow border rounded-lg p-2">
                                         {availableServices.length > 0 ? (
                                             <ul className="space-y-2">
@@ -203,7 +208,7 @@ export default function ArmadoRapidoSettingsPage() {
                                                     </li>
                                                 ))}
                                             </ul>
-                                        ) : <p className="text-center text-muted-foreground p-4">No hay más servicios disponibles.</p>}
+                                        ) : <p className="text-center text-muted-foreground p-4">No hay más servicios disponibles para añadir.</p>}
                                     </ScrollArea>
                                 </div>
                               </div>
@@ -212,6 +217,7 @@ export default function ArmadoRapidoSettingsPage() {
                     )
                 })}
             </Accordion>
+             <Button variant="outline" onClick={handleAddPackage} className="mt-4"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paquete</Button>
         </CardContent>
       </Card>
       <CardFooter className="border-t pt-6">
