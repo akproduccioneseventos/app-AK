@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -134,7 +135,7 @@ export default function ArmadoRapidoSettingsPage() {
       <Accordion type="multiple" className="w-full space-y-4" defaultValue={config.paquetes.map(p => p.id)}>
         {config.paquetes.map(pkg => {
             const includedServiceIds = new Set(pkg.serviciosIncluidos.map(s => s.id));
-            constsearchTerm = searchTerms[pkg.id] || '';
+            const searchTerm = searchTerms[pkg.id] || '';
             
             const availableServices = vendibleServices.filter(s => {
                 const isInPackage = includedServiceIds.has(s.id);
