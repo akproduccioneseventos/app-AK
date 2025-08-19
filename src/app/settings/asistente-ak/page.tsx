@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Wand2, User, HelpCircle, PartyPopper, Code2, FileJson, MessageSquare, Edit, List, Settings } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Wand2, User, HelpCircle, PartyPopper, Code2, FileJson, MessageSquare, Edit, List, Settings, Users, CalendarDays } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { useToast } from '@/hooks/use-toast';
