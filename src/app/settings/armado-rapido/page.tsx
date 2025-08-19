@@ -46,7 +46,8 @@ function EditPackageModal({ pkg, allServices, onSave, children }: EditPackageMod
 
     useEffect(() => {
         if (isOpen) {
-            setEditedPackage(JSON.parse(JSON.stringify(pkg))); // Deep copy to avoid state issues
+            // Deep copy to avoid state mutations across components on edit
+            setEditedPackage(JSON.parse(JSON.stringify(pkg))); 
         }
     }, [isOpen, pkg]);
 
@@ -73,10 +74,12 @@ function EditPackageModal({ pkg, allServices, onSave, children }: EditPackageMod
     };
     
     const includedServiceIds = useMemo(() => new Set(editedPackage.serviciosIncluidos.map(s => s.id)), [editedPackage.serviciosIncluidos]);
+    
     const availableServices = useMemo(() => {
+        const lowerSearchTerm = searchTerm.toLowerCase();
         return allServices.filter(s => 
             !includedServiceIds.has(s.id) &&
-            s.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+            s.nombre.toLowerCase().includes(lowerSearchTerm)
         );
     }, [allServices, includedServiceIds, searchTerm]);
     
