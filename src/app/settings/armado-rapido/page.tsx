@@ -111,7 +111,6 @@ export default function ArmadoRapidoSettingsPage() {
   const vendibleServices = useMemo(() => {
     return catalogo.filter(s => s.tipoItem === 'Servicio');
   }, [catalogo]);
-  
 
   if (isLoading || !config) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
@@ -135,10 +134,14 @@ export default function ArmadoRapidoSettingsPage() {
       <Accordion type="multiple" className="w-full space-y-4" defaultValue={config.paquetes.map(p => p.id)}>
         {config.paquetes.map(pkg => {
             const includedServiceIds = new Set(pkg.serviciosIncluidos.map(s => s.id));
-            const availableServices = vendibleServices.filter(s => 
-                !includedServiceIds.has(s.id) &&
-                s.nombre.toLowerCase().includes((searchTerms[pkg.id] || '').toLowerCase())
-            );
+            constsearchTerm = searchTerms[pkg.id] || '';
+            
+            const availableServices = vendibleServices.filter(s => {
+                const isInPackage = includedServiceIds.has(s.id);
+                if (isInPackage) return false;
+                if (!searchTerm) return true;
+                return s.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+            });
 
             return (
                 <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-lg shadow-sm">
@@ -176,7 +179,7 @@ export default function ArmadoRapidoSettingsPage() {
                                     <Input 
                                         placeholder="Buscar servicio para añadir..." 
                                         className="pl-8"
-                                        value={searchTerms[pkg.id] || ''}
+                                        value={searchTerm}
                                         onChange={e => setSearchTerms(prev => ({...prev, [pkg.id]: e.target.value}))}
                                     />
                                 </div>
