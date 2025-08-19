@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -30,6 +30,7 @@ export default function ArmadoRapidoSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -73,7 +74,7 @@ export default function ArmadoRapidoSettingsPage() {
   const handleAddPackage = () => {
     const newPackage: PaqueteArmadoRapido = {
       id: `paquete_${Date.now()}`,
-      nombre: 'Nuevo Paquete',
+      nombre: `Nuevo Paquete #${(config?.paquetes.length || 0) + 1}`,
       serviciosIncluidos: [],
     };
     setConfig(prev => prev ? ({ ...prev, paquetes: [...prev.paquetes, newPackage] }) : null);
@@ -155,7 +156,10 @@ export default function ArmadoRapidoSettingsPage() {
             <Accordion type="single" collapsible className="w-full space-y-4">
                 {config.paquetes.map(pkg => {
                     const includedServiceIds = new Set(pkg.serviciosIncluidos.map(s => s.id));
-                    const availableServices = vendibleServices.filter(s => !includedServiceIds.has(s.id));
+                    const availableServices = vendibleServices.filter(s => 
+                        !includedServiceIds.has(s.id) &&
+                        s.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
                     
                     return (
                         <AccordionItem value={pkg.id} key={pkg.id} className="border rounded-lg shadow-sm">
@@ -195,6 +199,15 @@ export default function ArmadoRapidoSettingsPage() {
                                 </div>
                                 <div className="space-y-2 flex flex-col">
                                     <h3 className="font-semibold text-foreground">Catálogo de Servicios Disponibles</h3>
+                                    <div className="relative">
+                                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                      <Input
+                                        placeholder="Buscar servicio para añadir..."
+                                        value={searchTerm}
+                                        onChange={e => setSearchTerm(e.target.value)}
+                                        className="pl-9 mb-2"
+                                      />
+                                    </div>
                                     <ScrollArea className="flex-grow border rounded-lg p-2">
                                         {availableServices.length > 0 ? (
                                             <ul className="space-y-2">
