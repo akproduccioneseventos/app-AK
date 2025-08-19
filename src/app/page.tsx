@@ -151,7 +151,7 @@ export default function DashboardPage() {
            <Card className="p-4 flex flex-col justify-between">
             <div>
               <CardTitle className="text-lg font-semibold flex items-center gap-2"><Bot className="w-5 h-5"/>Asistente AK (IA)</CardTitle>
-              <CardDescription className="text-sm mt-1 mb-3">Un chat interactivo que guía al cliente en la creación del presupuesto.</CardDescription>
+              <CardDescription className="text-sm mt-1 mb-3">Un chat guía al cliente en la creación del presupuesto. Comparte el enlace.</CardDescription>
             </div>
              <div className="flex gap-2">
               <Link href={asistenteAkLink} passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
@@ -189,4 +189,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

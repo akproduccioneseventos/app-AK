@@ -127,10 +127,10 @@ export default function BudgetDisplaySettingsPage() {
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  La IA crea presupuestos básicos usando lenguaje natural. Su lógica se define en el código.
+                  Define cómo el asistente conversacional guía a los clientes para crear un presupuesto.
                 </p>
-                <Link href="/asistente-ak" passHref className="w-full">
-                     <Button variant="outline" className="w-full">Probar Asistente IA</Button>
+                <Link href="/settings/asistente-ak" passHref className="w-full">
+                     <Button variant="outline" className="w-full">Configurar Asistente IA</Button>
                 </Link>
             </CardContent>
           </Card>
