@@ -3,7 +3,6 @@ import { z } from 'genkit';
 
 export const AssistantInputSchema = z.object({
   query: z.string(),
-  history: z.any().optional(), // To pass conversation history
 });
 export type AssistantInput = z.infer<typeof AssistantInputSchema>;
 

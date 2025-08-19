@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
@@ -58,7 +57,6 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
         try {
             const result = await assistant({
                 query: `Crear presupuesto para ${formData.tipoFiesta} de ${formData.cantidadInvitados} personas a nombre de ${formData.nombreCliente}${formData.fechaEvento ? ` para la fecha ${formData.fechaEvento.toISOString().split('T')[0]}` : ''}.`,
-                history: [], // No history needed for this flow
             });
             setResultado(result);
             setCurrentStep(currentStep + 1); // Move to final step
