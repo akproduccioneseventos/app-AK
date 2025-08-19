@@ -116,7 +116,7 @@ export default function BudgetDisplaySettingsPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   La IA crea presupuestos básicos usando lenguaje natural. Su lógica se define en el código.
                 </p>
-                <Link href="/settings/asistente-ak" passHref className="w-full">
+                <Link href="/asistente-ak" passHref className="w-full">
                      <Button variant="outline" className="w-full">Configurar Asistente IA</Button>
                 </Link>
             </CardContent>
