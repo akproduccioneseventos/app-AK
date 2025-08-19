@@ -33,11 +33,884 @@
     "unidad": "Por evento"
   },
   {
+    "id": "serv_1752489600005_hambur",
+    "nombre": "Hamburguesa completa c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 270,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600006_chivit",
+    "nombre": "Chivito completo c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 300,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600007_pollarr",
+    "nombre": "Pollo arrollado c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600008_cerdorel",
+    "nombre": "Cerdo relleno c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600009_noquis",
+    "nombre": "Ñoquis al queso",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600010_raviol",
+    "nombre": "Ravioles a la crema",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600011_cerdmos",
+    "nombre": "Cerdo a la mostaza c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600012_pollcre",
+    "nombre": "Pollo a la crema c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600013_sorren",
+    "nombre": "Sorrentinos con salsa rosa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 400,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600014_bauru",
+    "nombre": "Bauru c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 390,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600015_napoli",
+    "nombre": "Napolitana c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 380,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600016_brochet",
+    "nombre": "Brochetas c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 380,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600017_paella",
+    "nombre": "Paella de mariscos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 380,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600018_sushi",
+    "nombre": "Sushi con ensalada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 400,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600019_strogon",
+    "nombre": "Strogonoff de pollo c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 400,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600020_merluz",
+    "nombre": "Merluza a la crema c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 450,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600021_bifech",
+    "nombre": "Bife al champiñón c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 480,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600022_cordero",
+    "nombre": "Cordero Asado c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 560,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600023_asadocom",
+    "nombre": "Asado completo c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Platos Principales",
+    "precioVenta": 645,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600024_bunalga",
+    "nombre": "Buñuelo de algas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 120,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600025_faina",
+    "nombre": "Faina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 100,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600026_tapsab",
+    "nombre": "Tapas saborizadas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 100,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600027_arrprim",
+    "nombre": "Arrolladitos primavera",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 100,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600028_picsna",
+    "nombre": "Picada Snack",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 120,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600029_plancal",
+    "nombre": "Planchas calientes",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 120,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600030_kebabs",
+    "nombre": "Kebabs",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 130,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600031_picfiam",
+    "nombre": "Picada de fiambres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600032_salpoll",
+    "nombre": "Salpicón de pollo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600033_empcas",
+    "nombre": "Empanadas caseras",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600034_minichiv",
+    "nombre": "Mini Chivitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 180,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600035_pizzemp",
+    "nombre": "Pizzetitas y empanaditas de copetín",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 180,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600036_calzita",
+    "nombre": "Calzones Italianos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600037_tacmex",
+    "nombre": "Tacos mexicanos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600038_arepven",
+    "nombre": "Arepas venezolanas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600039_minibro",
+    "nombre": "Mini brochetas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600040_piccal",
+    "nombre": "Picada caliente",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600041_piccrio",
+    "nombre": "Picada Criolla",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600042_picmar",
+    "nombre": "Picada de mar",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 210,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600043_picprem",
+    "nombre": "Picada premium",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 200,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600044_sansal",
+    "nombre": "Sandwiches y Saladitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 220,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600045_shushi",
+    "nombre": "Sushi",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 250,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600046_tabgour",
+    "nombre": "Tabla gourmet de fiambre",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entradas",
+    "precioVenta": 280,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600047_mencel",
+    "nombre": "Menú celíaco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús Especiales",
+    "precioVenta": 700,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600048_mensorr",
+    "nombre": "Menú celíacos (Sorrentinos)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús Especiales",
+    "precioVenta": 700,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600049_mennin1",
+    "nombre": "Menú niños 1",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús para Niños",
+    "precioVenta": 320,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600050_mennin2",
+    "nombre": "Menú niños 2",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús para Niños",
+    "precioVenta": 349,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600051_menveg",
+    "nombre": "Menú vegetariano - Spaghetti con Salsa Pesto",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús Especiales",
+    "precioVenta": 350,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600052_menninham",
+    "nombre": "Menú niños - Hamburguesa completa c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús para Niños",
+    "precioVenta": 250,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600053_menninpan",
+    "nombre": "Menú niños - Panchos c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús para Niños",
+    "precioVenta": 165,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600054_menninpanm",
+    "nombre": "Menú niños - Panchos medio metro c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús para Niños",
+    "precioVenta": 300,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600055_menninchiv",
+    "nombre": "Menú niños - Chivitos c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menús para Niños",
+    "precioVenta": 300,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600056_showpiz",
+    "nombre": "Show de pizzas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 329,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600057_showpizfai",
+    "nombre": "Show de pizzas y faena",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 389,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600058_showpizarr",
+    "nombre": "Show de pizzas + arrolladitos primavera",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 399,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600059_showpizbun",
+    "nombre": "Show de pizzas + buñuelos de algas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 389,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600060_showpizcal",
+    "nombre": "Show de pizzas + calzones italianos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 489,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600061_showpizmini",
+    "nombre": "Show de pizzas + minichivitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 429,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600062_showpizpicfiam",
+    "nombre": "Show de pizzas + picada de fiambre",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 419,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600063_showpizpicsna",
+    "nombre": "Show de pizzas + picada Snack",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 419,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600064_showpizplancal",
+    "nombre": "Show de pizzas + planchas calientes",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 419,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600065_showpizsansal",
+    "nombre": "Show de pizzas + sandwiches y saladitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 469,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600066_showpiztacmex",
+    "nombre": "Show de pizzas + Tacos mexicanos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Show de Pizzas",
+    "precioVenta": 489,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600067_mesmant",
+    "nombre": "Mesas con manteles",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mobiliario",
+    "precioVenta": 150,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600068_sillas",
+    "nombre": "Sillas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mobiliario",
+    "precioVenta": 25,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600069_vajcomp",
+    "nombre": "Vajilla completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Vajilla",
+    "precioVenta": 70,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600070_mantcomp",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Textiles",
+    "precioVenta": 70,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600071_mobil",
+    "nombre": "Mobiliario",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mobiliario",
+    "precioVenta": 69,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600072_cheesecake",
+    "nombre": "Mesa de postres - Cheesecake",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1200,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600073_cheesecakementa",
+    "nombre": "Mesa de postres - Cheesecake de menta y chocolate",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1600,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600074_flancoco",
+    "nombre": "Mesa de postres - Flan de coco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600075_impruso",
+    "nombre": "Mesa de postres - Imperial Ruso",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1200,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600076_lemonpie",
+    "nombre": "Mesa de postres - Lemon Pie",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600077_mouschoc",
+    "nombre": "Mesa de postres - Mousse de chocolate",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600078_mousddl",
+    "nombre": "Mesa de postres - Mousse de dulce de leche",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600079_rogel",
+    "nombre": "Mesa de postres - Rogel",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 950,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600080_tartcoco",
+    "nombre": "Mesa de postres - Tarta de coco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600081_tartmanz",
+    "nombre": "Mesa de postres - Tarta de manzana",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 900,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600082_tartfrut",
+    "nombre": "Mesa de postres - Tarta frutal",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600083_selvneg",
+    "nombre": "Selva Negra",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "precioVenta": 1400,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600084_fuentchoc",
+    "nombre": "Fuente de chocolate con mesa de frutas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Fuente de Chocolate",
+    "precioVenta": 119,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600085_barlic",
+    "nombre": "Barra de licuados",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Barras",
+    "precioVenta": 199,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600086_barlib",
+    "nombre": "Barra libre con tragos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Barras",
+    "precioVenta": 299,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600087_bebidjug",
+    "nombre": "Bebidas y jugos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas sin Alcohol",
+    "precioVenta": 70,
+    "unidad": "Por persona"
+  },
+  {
+    "id": "serv_1752489600088_cana",
+    "nombre": "Caña",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "serv_1752489600089_cervcor",
+    "nombre": "Cerveza corona",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600090_coctel",
+    "nombre": "Coctel (50 litros)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 6000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600091_copon",
+    "nombre": "Copón",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 750,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600092_granad",
+    "nombre": "Granadina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas sin Alcohol",
+    "precioVenta": 250,
+    "unidad": "Litro"
+  },
+  {
+    "id": "serv_1752489600093_gin",
+    "nombre": "Gin",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "serv_1752489600094_pinacol",
+    "nombre": "Piña colada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 350,
+    "unidad": "Litro"
+  },
+  {
+    "id": "serv_1752489600095_ron",
+    "nombre": "Ron",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "serv_1752489600096_vodka",
+    "nombre": "Vodka",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas con Alcohol",
+    "precioVenta": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "serv_1752489600097_jugnat",
+    "nombre": "Jugos naturales",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Bebidas sin Alcohol",
+    "precioVenta": 70,
+    "unidad": "Por persona"
+  },
+  {
     "id": "serv_1752489600098_decbas",
     "nombre": "DECORACION BASICA",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "precioVenta": 14500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600099_zonafot",
+    "nombre": "Zona de fotos con sillón DIVA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mobiliario",
+    "precioVenta": 5000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600100_cenmes",
+    "nombre": "Centro de mesa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Centros de Mesa",
+    "precioVenta": 250,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1752489600101_cuafirm",
+    "nombre": "CUADRO DE FIRMAS",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Señalética",
+    "precioVenta": 2900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600102_banner",
+    "nombre": "BANNER GIGANTOGRAFIA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Señalética",
+    "precioVenta": 2900,
     "unidad": "Por evento"
   },
   {
@@ -49,11 +922,99 @@
     "unidad": "Por evento"
   },
   {
+    "id": "serv_1752489600104_disbasp",
+    "nombre": "Discoteca Básica Plus",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 6500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600105_disest",
+    "nombre": "Discoteca Estándar",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 8000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600106_disint",
+    "nombre": "Discoteca Intermedia",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 14500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600107_disprem",
+    "nombre": "Discoteca Premium",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 23900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600108_sonido",
+    "nombre": "Sonido",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 8000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600109_plat360",
+    "nombre": "Plataforma 360",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "precioVenta": 3900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600110_fotcab",
+    "nombre": "FOTOCABINA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "precioVenta": 2900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600111_showvivo",
+    "nombre": "SHOW EN VIVO",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "precioVenta": 9000,
+    "unidad": "Por evento"
+  },
+  {
     "id": "serv_1752489600112_filfie",
     "nombre": "Filmación de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
     "precioVenta": 7500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600113_filpin",
+    "nombre": "Filmación de pintada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "precioVenta": 3000,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600114_fotigl",
+    "nombre": "FOTOGRAFIA IGLESIA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 3890,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600115_fotciv",
+    "nombre": "FOTOGRAFIA CIVIL",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 3900,
     "unidad": "Por evento"
   },
   {
@@ -65,1562 +1026,27 @@
     "unidad": "Por evento"
   },
   {
-    "id": "ing_1753733075249_aceite",
-    "nombre": "Aceite",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Aceites y Vinagres",
-    "valorUnitarioEstimado": 70,
-    "unidad": "Litro",
-    "notas": "Proveedor: DK MOYORISTA"
-  },
-  {
-    "id": "ing_1753733075249_aceitunas",
-    "nombre": "Aceitunas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 220,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_aceitunasnegras",
-    "nombre": "Aceitunas negras",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_aceitunasrodajas",
-    "nombre": "Aceitunas rodajas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_aceitunassincarozo",
-    "nombre": "Aceitunas s/ carozo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_aderezos",
-    "nombre": "Aderezos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 150,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_ajo",
-    "nombre": "Ajo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_albahaca",
-    "nombre": "Albahaca",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 40,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_algas",
-    "nombre": "Algas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Secos",
-    "valorUnitarioEstimado": 2000,
-    "unidad": "Kg",
-    "notas": "Proveedor: MONTEVIDEO"
-  },
-  {
-    "id": "ing_1753733075249_arbejas",
-    "nombre": "Arbejas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 500,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_arosdecebolla",
-    "nombre": "Aros de cebolla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 253,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_arrolladitosdulces",
-    "nombre": "Arrolladitos (dulces)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 7,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_arrolladitosdehojalre",
-    "nombre": "Arrolladitos de hojalre",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 11,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VALENTIN"
-  },
-  {
-    "id": "ing_1753733075249_arrolladitos",
-    "nombre": "Arrolladitos primavera",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 6,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_arrozdeshushi",
-    "nombre": "Arroz de Shushi",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Secos",
-    "valorUnitarioEstimado": 135,
-    "unidad": "Kg",
-    "notas": "Proveedor: TATA"
-  },
-  {
-    "id": "ing_1753733075249_asadovacio",
-    "nombre": "Asado vacio",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 370,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_bastonesdemuzarella",
-    "nombre": "Bastones de muzarella",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 365,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_bife",
-    "nombre": "Bife",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_bondiola",
-    "nombre": "Bondiola",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 190,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_bondiolacocidaahumada",
-    "nombre": "Bondiola cocida ahumada",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 480,
-    "unidad": "Kg",
-    "notas": "Proveedor: BORDENAVE"
-  },
-  {
-    "id": "ing_1753733075249_cañoncitos",
-    "nombre": "Cañoncitos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 1152,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_carne",
-    "nombre": "Carne",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_carnepicada",
-    "nombre": "Carne picada",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_catalan20gconsesamoderemolacha",
-    "nombre": "Catalan 20g con sesamo de remolacha",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 340,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_catalan20gconsesamoverde",
-    "nombre": "Catalan 20g con sesamo verde",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 340,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_cebolla",
-    "nombre": "Cebolla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_cebollablanca",
-    "nombre": "Cebolla blanca",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_cebollamorada",
-    "nombre": "Cebolla morada",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 70,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_cebollas",
-    "nombre": "Cebollas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_cerdoarrollado",
-    "nombre": "Cerdo arrollado",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 110,
-    "unidad": "Unidad",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_cerezasroja",
-    "nombre": "Cerezas roja",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 800,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_cerezasverde",
-    "nombre": "Cerezas verde",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 1000,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_champiñon",
-    "nombre": "Champiñon",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 500,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_chipa",
-    "nombre": "Chipa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 11,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_choclo",
-    "nombre": "Choclo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 260,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_chorizos",
-    "nombre": "Chorizos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_condimentos",
-    "nombre": "Condimentos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Especias",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_conos",
-    "nombre": "Conos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Otros Insumos",
-    "valorUnitarioEstimado": 25,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_corderocrudo",
-    "nombre": "Cordero crudo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_cremadeleche",
-    "nombre": "Crema de leche",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Lácteos y Huevos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Litro",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_croquetasdepapa",
-    "nombre": "Croquetas de papa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_doritos",
-    "nombre": "Doritos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Snacks",
-    "valorUnitarioEstimado": 800,
-    "unidad": "Kg",
-    "notas": "Proveedor: DK MOYORISTA"
-  },
-  {
-    "id": "ing_1753733075249_emboltorio",
-    "nombre": "Emboltorio",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Otros Insumos",
-    "valorUnitarioEstimado": 6,
-    "unidad": "Unidad",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_enpanaditascopetin",
-    "nombre": "Enpanaditas copetin",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 13,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VALENTIN"
-  },
-  {
-    "id": "ing_1753733075249_esconesdequesoconsesamo",
-    "nombre": "Escones de queso con sesamo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 11,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_formitasdemerluza",
-    "nombre": "Formitas de merluza",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 239,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_galletas",
-    "nombre": "Galletas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 220,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_galletasmalteadassinsal",
-    "nombre": "Galletas malteadas sin sal",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 270,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_galletasredondasarcor",
-    "nombre": "Galletas redondas arcor",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 280,
-    "unidad": "Kg",
-    "notas": "Proveedor: DK MOYORISTA"
-  },
-  {
-    "id": "ing_1753733075249_grisines",
-    "nombre": "Grisines",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_grisineschicos",
-    "nombre": "Grisines chicos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 370,
-    "unidad": "Kg",
-    "notas": "Proveedor: BISIO"
-  },
-  {
-    "id": "ing_1753733075249_guarnición",
-    "nombre": "Guarnición",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Otros Insumos",
-    "valorUnitarioEstimado": 40,
-    "unidad": "Unidad",
-    "notas": "Proveedor: No definido"
-  },
-  {
-    "id": "ing_1753733075249_guarnicionverde",
-    "nombre": "Guarnicion verde",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 40,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_hamburguesas",
-    "nombre": "Hamburguesas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 35,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_harina",
-    "nombre": "Harina",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Secos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: CALSAL"
-  },
-  {
-    "id": "ing_1753733075249_harinademaizblanco",
-    "nombre": "Harina de maiz blanco",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Secos",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_hongos",
-    "nombre": "Hongos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 280,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_huevo",
-    "nombre": "Huevo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Lácteos y Huevos",
-    "valorUnitarioEstimado": 10,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_jamon",
-    "nombre": "Jamon",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_jamoncrudo",
-    "nombre": "Jamon crudo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 1799,
-    "unidad": "Kg",
-    "notas": "Proveedor: FENIX"
-  },
-  {
-    "id": "ing_1753733075249_jesuitas",
-    "nombre": "Jesuitas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 1030,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_ketchut",
-    "nombre": "Ketchup",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_lechuga",
-    "nombre": "Lechuga",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 50,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_lechugacresparylisa",
-    "nombre": "Lechuga crespa y lisa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_leonesaprimavera",
-    "nombre": "Leonesa primavera",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 322,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_lomitoahumado",
-    "nombre": "Lomito ahumado",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 511,
-    "unidad": "Kg",
-    "notas": "Proveedor: BORDENAVE"
-  },
-  {
-    "id": "ing_1753733075249_mani",
-    "nombre": "Mani",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Snacks",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_manteca",
-    "nombre": "Manteca",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Lácteos y Huevos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_mayonesa",
-    "nombre": "Mayonesa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_medialunas",
-    "nombre": "Medialunas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 15,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VALENTIN"
-  },
-  {
-    "id": "ing_1753733075249_merluza",
-    "nombre": "Merluza",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pescados y Mariscos",
-    "valorUnitarioEstimado": 345,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_miel",
-    "nombre": "Miel",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: CASA DE LA MIEL"
-  },
-  {
-    "id": "ing_1753733075249_milanesa",
-    "nombre": "Milanesa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 350,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_milanesadecarne",
-    "nombre": "Milanesa de carne",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 320,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_milanesadepescado",
-    "nombre": "Milanesa de pescado",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pescados y Mariscos",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_milanesadepollo",
-    "nombre": "Milanesa de pollo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_morcilla",
-    "nombre": "Morcilla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 360,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_morron",
-    "nombre": "Morron",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_morronrojo",
-    "nombre": "Morron rojo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 150,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_morronverde",
-    "nombre": "Morrón verde",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_mortadela",
-    "nombre": "Mortadela",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 327,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_mostaza",
-    "nombre": "Mostaza",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_muslos",
-    "nombre": "Muslos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 70,
-    "unidad": "Unidad",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_muzarella",
-    "nombre": "Muzarella",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 330,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_muzzarellapararallar",
-    "nombre": "Muzzarella para rallar",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 330,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_noisettes",
-    "nombre": "Noisettes",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_noquiscongelados",
-    "nombre": "Noquis congelados",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pastas",
-    "valorUnitarioEstimado": 160,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_nuggetdepollo",
-    "nombre": "Nugget de pollo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 283,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_paleta",
-    "nombre": "Paleta",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_palitossalados",
-    "nombre": "Palitos salados",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Snacks",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: BAGASHOPING"
-  },
-  {
-    "id": "ing_1753733075249_palmitas",
-    "nombre": "Palmitas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 2082,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_palmitos",
-    "nombre": "Palmitos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_palta",
-    "nombre": "Palta",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 40,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_pan",
-    "nombre": "Pan",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 6,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_pandecampo",
-    "nombre": "Pan de campo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Unidad",
-    "notas": "Proveedor: PANONO"
-  },
-  {
-    "id": "ing_1753733075249_pandepanchos",
-    "nombre": "Pan de panchos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 13,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_pandepanchosmediometro",
-    "nombre": "Pan de panchos medio metro",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 48,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_pandesandwiches",
-    "nombre": "Pan de Sandwiches",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_panceta",
-    "nombre": "Panceta",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 421,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_panchos",
-    "nombre": "Panchos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: DK MOYORISTA"
-  },
-  {
-    "id": "ing_1753733075249_panchosmediometro",
-    "nombre": "Panchos medio metro",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 270,
-    "unidad": "Kg",
-    "notas": "Proveedor: BORDENAVE"
-  },
-  {
-    "id": "ing_1753733075249_papa",
-    "nombre": "Papa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 60,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_papaschips",
-    "nombre": "Papas Chips",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Snacks",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "notas": "Proveedor: DK MOYORISTA"
-  },
-  {
-    "id": "ing_1753733075249_papasfritas",
-    "nombre": "Papas fritas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 130,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_papasparafreir",
-    "nombre": "Papas para freir",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_papaspai",
-    "nombre": "Papas pay",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Snacks",
-    "valorUnitarioEstimado": 450,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_papasrústicas",
-    "nombre": "Papas rústicas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Congelados",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_pate",
-    "nombre": "Pate",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_pebetes",
-    "nombre": "Pebetes",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 11,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VALENTIN"
-  },
-  {
-    "id": "ing_1753733075249_pepino",
-    "nombre": "Pepino",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 90,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_perejilyajonatural",
-    "nombre": "Perejil y ajo natural",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_picadadecarne",
-    "nombre": "Picada de carne",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 330,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_picles",
-    "nombre": "Picles",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Conservas",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_pizzas",
-    "nombre": "Pizzas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 60,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_pizzetitasconmuzzarella",
-    "nombre": "pizzetitas con muzzarella",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 15,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VALENTIN"
-  },
-  {
-    "id": "ing_1753733075249_pollo",
-    "nombre": "Pollo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_polloarrollado",
-    "nombre": "Pollo arrollado",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 500,
-    "unidad": "Kg",
-    "notas": "Proveedor: NICO"
-  },
-  {
-    "id": "ing_1753733075249_portapanchomediometro",
-    "nombre": "Porta pancho medio metro",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Otros Insumos",
-    "valorUnitarioEstimado": 15,
-    "unidad": "Unidad",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_queso",
-    "nombre": "Queso",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesoalpa",
-    "nombre": "Queso alpa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 280,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesocolonia",
-    "nombre": "Queso colonia",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesoconcereza",
-    "nombre": "Queso con cereza",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 11,
-    "unidad": "Unidad",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesocrema",
-    "nombre": "Queso crema",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesodambo",
-    "nombre": "Queso Dambo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 430,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesodecerdo",
-    "nombre": "Queso de cerdo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesomuzzarela",
-    "nombre": "Queso muzzarela",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 340,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_quesorallado",
-    "nombre": "Queso rallado",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 450,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_rabasrebozadasdecalamar",
-    "nombre": "Rabas rebozadas de calamar",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pescados y Mariscos",
-    "valorUnitarioEstimado": 415,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_ravioles",
-    "nombre": "Ravioles",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pastas",
-    "valorUnitarioEstimado": 220,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_raviolesfritos",
-    "nombre": "Ravioles Fritos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pastas",
-    "valorUnitarioEstimado": 209,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_repolloblanco",
-    "nombre": "Repollo Blanco",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 119,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_repollomorado",
-    "nombre": "Repollo Morado",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_salame",
-    "nombre": "Salame",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Fiambres y Lácteos",
-    "valorUnitarioEstimado": 430,
-    "unidad": "Kg",
-    "notas": "Proveedor: EL TROPERO"
-  },
-  {
-    "id": "ing_1753733075249_salmon",
-    "nombre": "Salmon",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pescados y Mariscos",
-    "valorUnitarioEstimado": 1000,
-    "unidad": "Kg",
-    "notas": "Proveedor: FERRANDO"
-  },
-  {
-    "id": "ing_1753733075249_salsa",
-    "nombre": "Salsa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_salsabarbacoa",
-    "nombre": "Salsa Barbacoa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_salsacriolla",
-    "nombre": "Salsa criolla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_salsasoja",
-    "nombre": "Salsa de soja",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 500,
-    "unidad": "Litro",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_salsapicante",
-    "nombre": "Salsa picante",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_salsasvarias",
-    "nombre": "Salsas (varias)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Salsas y Aderezos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "notas": "Proveedor: UNIPLAS"
-  },
-  {
-    "id": "ing_1753733075249_sandwichespanblanco",
-    "nombre": "Sandwiches pan blanco",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 15,
-    "unidad": "Unidad",
-    "notas": "Proveedor: VALENTIN"
-  },
-  {
-    "id": "ing_1753733075249_sandwichespannegro",
-    "nombre": "Sandwiches pan negro",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 13,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_sorrentinos",
-    "nombre": "Sorrentinos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Pastas",
-    "valorUnitarioEstimado": 465,
-    "unidad": "Kg",
-    "notas": "Proveedor: DOPACA"
-  },
-  {
-    "id": "ing_1753733075249_supremadepollo",
-    "nombre": "Suprema de pollo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Carnes",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "notas": "Proveedor: CARNICERIA"
-  },
-  {
-    "id": "ing_1753733075249_tapa",
-    "nombre": "Tapa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Otros Insumos",
-    "valorUnitarioEstimado": 6,
-    "unidad": "Unidad",
-    "notas": "Proveedor: PASTAS LULU"
-  },
-  {
-    "id": "ing_1753733075249_tapasdehojaldre",
-    "nombre": "Tapas de hojaldre",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Otros Insumos",
-    "valorUnitarioEstimado": 65,
-    "unidad": "Unidad",
-    "notas": "Proveedor: PASTAS LULU"
-  },
-  {
-    "id": "ing_1753733075249_tarteletas",
-    "nombre": "Tarteletas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 1894,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_tomate",
-    "nombre": "Tomate",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 150,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_tomatecherry",
-    "nombre": "Tomate cherry",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_tortuga",
-    "nombre": "Tortuga",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 16,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_tortugasbrioche70gramos",
-    "nombre": "Tortugas brioche 70 gramos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 20,
-    "unidad": "Unidad",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_tostadasbaguetsaborizadas",
-    "nombre": "Tostadas baguet saborizadas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 635,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_tostaditas",
-    "nombre": "Tostaditas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 390,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_vulevanes",
-    "nombre": "Vulevanes",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Panificados",
-    "valorUnitarioEstimado": 1152,
-    "unidad": "Kg",
-    "notas": "Proveedor: DON DIEGO"
-  },
-  {
-    "id": "ing_1753733075249_zanahoria",
-    "nombre": "Zanahoria",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumo/Ingrediente",
-    "subcategoria": "Frutas y Verduras",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "notas": "Proveedor: VERDULERIA"
-  },
-  {
-    "id": "ing_1753733075249_gas",
-    "nombre": "Gas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 1000,
-    "unidad": "Unidad",
-    "notas": "Proveedor: No definido"
+    "id": "serv_1752489600117_fotext",
+    "nombre": "Fotografía de exteriores",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 3500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600118_albdig",
+    "nombre": "Álbum digital",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "precioVenta": 2500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600119_vidvid",
+    "nombre": "Video de vida",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "precioVenta": 2500,
+    "unidad": "Por evento"
   }
 ]
