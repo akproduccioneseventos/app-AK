@@ -42,19 +42,23 @@ function EditPackageModal({
   const [isOpen, setIsOpen] = useState(false);
   const [packageName, setPackageName] = useState(pkg.nombre);
   const [includedServices, setIncludedServices] = useState<ServicioPaquete[]>(pkg.serviciosIncluidos);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setPackageName(pkg.nombre);
       setIncludedServices(pkg.serviciosIncluidos);
+      setSearchTerm('');
     }
   }, [isOpen, pkg]);
 
   const includedServiceIds = useMemo(() => new Set(includedServices.map(s => s.id)), [includedServices]);
 
   const availableServices = useMemo(() => {
-    return allServices.filter(s => !includedServiceIds.has(s.id));
-  }, [allServices, includedServiceIds]);
+    return allServices
+        .filter(s => !includedServiceIds.has(s.id))
+        .filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [allServices, includedServiceIds, searchTerm]);
 
   const addService = (service: ServicioEmpresa) => {
     setIncludedServices(prev => [...prev, { id: service.id, nombre: service.nombre }]);
@@ -104,8 +108,18 @@ function EditPackageModal({
                 </div>
                 {/* Columna del Catálogo */}
                 <div className="space-y-3">
-                    <h4 className="font-medium text-foreground">Catálogo de Servicios Disponibles</h4>
-                    <ScrollArea className="h-[288px] border rounded-md p-2">
+                    <h4 className="font-medium text-foreground">Añadir Servicios desde Catálogo</h4>
+                    <div className="relative">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            placeholder="Buscar servicio..."
+                            className="pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <ScrollArea className="h-[240px] border rounded-md p-2">
                          {availableServices.length > 0 ? (
                             availableServices.map(service => (
                                 <div key={service.id} className="flex items-center justify-between p-2 hover:bg-muted/50 rounded">
@@ -113,7 +127,7 @@ function EditPackageModal({
                                     <Button variant="secondary" size="sm" onClick={() => addService(service)}>Añadir</Button>
                                 </div>
                             ))
-                        ) : <p className="text-sm text-muted-foreground text-center p-4">No hay más servicios disponibles.</p>}
+                        ) : <p className="text-sm text-muted-foreground text-center p-4">No hay más servicios disponibles o que coincidan.</p>}
                     </ScrollArea>
                 </div>
             </div>
