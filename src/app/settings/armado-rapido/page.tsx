@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -110,7 +109,7 @@ export default function ArmadoRapidoSettingsPage() {
   };
 
   const vendibleServices = useMemo(() => {
-    return catalogo.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
+    return catalogo.filter(s => s.tipoItem === 'Servicio');
   }, [catalogo]);
   
 
