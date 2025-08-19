@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -49,28 +50,12 @@ export default function AsistenteAkInfoPage() {
 
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Un Copiloto Inteligente y Configurable</CardTitle>
+                    <CardTitle className="font-headline text-2xl">Un Copiloto Inteligente</CardTitle>
                     <CardDescription className="text-lg">
-                        El Asistente AK puede entender tus peticiones y utilizar herramientas para realizar tareas complejas, como crear presupuestos de forma conversacional.
+                        El Asistente AK puede entender tus peticiones y utilizar herramientas para realizar tareas complejas, como crear presupuestos a partir de una conversación.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                     <div>
-                        <h3 className="font-semibold text-lg mb-3">Configura la Conversación del Asistente</h3>
-                         <div className="p-4 border rounded-lg bg-muted/40">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-primary/10 rounded-full">
-                                    <FileJson className="w-5 h-5 text-primary" />
-                                </div>
-                                <h4 className="font-semibold">Personaliza el Diálogo</h4>
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-2">
-                                Puedes cambiar las preguntas que hace el asistente para recopilar información y crear un presupuesto. Edita directamente el archivo de configuración:
-                            </p>
-                             <code className="block my-1 p-2 rounded-md bg-gray-200 dark:bg-gray-700 font-mono text-xs">src/data/asistente-ak-config.json</code>
-                        </div>
-                    </div>
-                    <Separator/>
                      <div>
                         <h3 className="font-semibold text-lg mb-3">¿Cómo funciona? El Proceso, Paso a Paso:</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -88,6 +73,9 @@ export default function AsistenteAkInfoPage() {
                         </div>
                     </div>
                 </CardContent>
+                 <CardFooter>
+                    <p className="text-xs text-muted-foreground">La configuración del diálogo conversacional ha sido simplificada. El asistente ahora actúa directamente basado en el prompt del sistema.</p>
+                </CardFooter>
             </Card>
         </div>
     );

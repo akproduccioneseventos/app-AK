@@ -10,33 +10,12 @@ import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput, type 
 import { z } from 'genkit';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { savePresupuesto } from '@/app/actions/presupuestos';
-import fs from 'fs/promises';
-import path from 'path';
-
-// Helper to load the conversational configuration
-async function getAssistantConfig() {
-    try {
-        const filePath = path.join(process.cwd(), 'src', 'data', 'asistente-ak-config.json');
-        const fileContent = await fs.readFile(filePath, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch (e) {
-        // Fallback in case the file doesn't exist
-        return {
-            "pasos": {
-                "tipoFiesta": { "pregunta": "¿Qué tipo de evento estás planeando?" },
-                "cantidadInvitados": { "pregunta": "¿Para cuántas personas sería el evento?" },
-                "nombreCliente": { "pregunta": "¿A nombre de quién creo el presupuesto?" },
-                "fechaEvento": { "pregunta": "¿Tienes una fecha pensada para el evento? (Opcional)" }
-            }
-        }
-    }
-}
 
 // Tool: Create a new quote
 const createQuoteTool = ai.defineTool(
   {
     name: 'createQuote',
-    description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, and guest count. The event date is optional. If any information is missing, you MUST ask the user for it.',
+    description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, and guest count. The event date is optional.',
     inputSchema: z.object({
       clienteNombre: z.string().describe("The name of the client or company."),
       eventoTipo: z.string().describe("The type of event (e.g., 'Boda', 'Cumpleaños de 15', 'Corporativo')."),
@@ -89,64 +68,32 @@ const createQuoteTool = ai.defineTool(
 
 
 export async function assistant(input: AssistantInput): Promise<AssistantOutput> {
-  const config = await getAssistantConfig();
-  
   const systemPrompt = `Eres "Asistente AK", un asesor experto en planificación de eventos para AK Producciones.
-  Tu objetivo principal es ayudar a los clientes a crear un presupuesto inicial para su fiesta. Debes ser amigable, servicial y proactivo.
+  Tu único objetivo es tomar la información proporcionada en la consulta del usuario y utilizar la herramienta 'createQuote' para crear un presupuesto.
 
-  **Flujo de Conversación Obligatorio:**
-  1.  **Saludo Inicial:** Si la conversación es nueva (no hay historial), saluda amablemente. Preséntate como "Asistente AK" y explica que puedes ayudar a armar un presupuesto para una fiesta. Inmediatamente después del saludo, haz la primera pregunta del flujo: "${config.pasos.tipoFiesta.pregunta}".
-  2.  **Guía Paso a Paso:** Después de obtener la respuesta a una pregunta, procede a la siguiente en este orden estricto:
-      - Pregunta por el tipo de fiesta (si no lo sabes).
-      - Pregunta por la cantidad de invitados.
-      - Pregunta por el nombre del cliente.
-      - Pregunta por la fecha (aclarando que es opcional).
-  
   **Reglas de Interacción:**
-  - **Usa el Historial:** SIEMPRE revisa el historial de la conversación para saber qué información ya tienes y cuál es la siguiente pregunta que debes hacer. No repitas preguntas que ya fueron respondidas.
-  - **No te desvíes:** Sigue el flujo de preguntas paso a paso. No saltes preguntas ni intentes adivinar información.
-  - **Usa Herramientas SOLO al final:** NO uses la herramienta \`createQuote\` hasta que hayas recopilado TODA la información requerida (nombre, tipo, cantidad). La fecha es opcional. Antes de ese punto, tu única función es hacer la siguiente pregunta del flujo.
-  - **Claridad:** Sé muy claro en tus preguntas.
-  - **Responde en base a la herramienta:** Cuando finalmente uses una herramienta, basa tu respuesta en el resultado que esta te devuelva. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma amigable.
+  - **Usa la herramienta directamente:** Al recibir la consulta del usuario, inmediatamente extrae los detalles (nombre, tipo de evento, cantidad de invitados, fecha opcional) y llama a la herramienta 'createQuote'.
+  - **No Converses:** No hagas preguntas de seguimiento. Tu única función es ejecutar la herramienta con los datos que te dan.
   - **Año por defecto:** Si el usuario da una fecha sin año, asume que es para el próximo año, 2025.
-  - **Formato:** Usa markdown para que tus respuestas sean claras y legibles.
-  - **Capacidad única:** Solo tienes la capacidad de crear presupuestos. No puedes analizar el código, ni el estado del evento. Si te preguntan por otra cosa, responde amablemente que tu única función es ayudar a crear presupuestos.`;
+  - **Responde en base a la herramienta:** Tu respuesta final al usuario debe basarse únicamente en el mensaje que devuelve la herramienta 'createQuote'. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma amigable.
+  - **Capacidad única:** Solo tienes la capacidad de crear presupuestos. Si te preguntan por otra cosa, responde amablemente que tu única función es ayudar a crear presupuestos.`;
 
-  const history = input.history || [];
-  const prompts = [
-    { role: 'system', content: [{ text: systemPrompt }] },
-    ...history.map((h: any) => ({
-      role: h.role,
-      content: h.content,
-    })),
-    { role: 'user', content: [{ text: input.query }] },
-  ];
-  
   const llmResponse = await ai.generate({
-    prompt: prompts,
+    prompt: systemPrompt + "\n\nUser Query: " + input.query,
     model: 'googleai/gemini-1.5-flash',
     tools: [createQuoteTool],
     toolChoice: 'auto',
-    output: {
-        schema: AssistantOutputSchema,
-    }
   });
 
-  if (llmResponse.toolCalls && llmResponse.toolCalls.length > 0) {
-    const call = llmResponse.toolCalls[0];
-    const toolResult = await call.run() as any; 
+  const toolCall = llmResponse.toolCalls?.[0];
+  
+  if (toolCall) {
+    const toolResult = await toolCall.run() as any;
     
-    // Create new prompt list for final response, including the tool call and its result
-    const finalPrompts = [
-        ...prompts,
-        { role: 'model', content: [{ toolCall: call.toJson() }] },
-        { role: 'tool', content: [{ toolResult: { name: call.name, output: toolResult } }] }
-    ];
-
+    // Now, generate a final, user-friendly response based on the tool's output
     const finalResponse = await ai.generate({
-        prompt: finalPrompts,
+        prompt: `El usuario pidió crear un presupuesto. Usaste una herramienta y este fue el resultado: ${JSON.stringify(toolResult)}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado.`,
         model: 'googleai/gemini-1.5-flash',
-        tools: [createQuoteTool],
         output: {
             schema: AssistantOutputSchema,
         }
@@ -157,13 +104,15 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
       throw new Error("El asistente de IA no pudo generar una respuesta final después de usar una herramienta.");
     }
     
-    if (call.name === 'createQuote' && toolResult.success && toolResult.presupuestoId) {
+    // Pass the budget ID from the successful tool call to the final output
+    if (toolResult.success && toolResult.presupuestoId) {
         output.presupuestoId = toolResult.presupuestoId;
     }
 
     return output;
   }
   
+  // Fallback if no tool was called (shouldn't happen with this prompt)
   const output = llmResponse.output;
   if(!output) {
       throw new Error("El asistente de IA no pudo generar una respuesta inicial.");
