@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent, useEffect, Suspense } from 'react';
@@ -27,7 +26,7 @@ function NuevoItemInventarioContent() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [nombre, setNombre] = useState('');
-  const [tipoItem, setTipoItem] = useState<TipoItemEmpresa | ''>('');
+  const [tipoItem, setTipoItem] = useState<TipoItemEmpresa | ''>('Activo Fijo');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');

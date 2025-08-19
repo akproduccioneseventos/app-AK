@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -158,7 +157,7 @@ export default function InventarioGeneralPage() {
             </Link>
         </div>
       </div>
-
+      <CardDescription>Gestiona tu inventario de activos de la empresa (mobiliario, equipo, etc.).</CardDescription>
       <Card className="shadow-lg print:shadow-none print:border-none">
         <CardHeader className="border-b print:border-b-2 print:border-gray-200">
           <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos de la Empresa</CardTitle>

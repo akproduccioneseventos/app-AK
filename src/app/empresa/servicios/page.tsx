@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -104,7 +103,7 @@ export default function ServiciosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
-            <Link href="/empresa/todos-los-servicios/nuevo" passHref>
+            <Link href="/empresa/todos-los-servicios/nuevo?type=servicio" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
                     Añadir Nuevo Servicio
@@ -160,7 +159,7 @@ export default function ServiciosPage() {
                            {item.subcategoria && <CardDescription className="text-xs">{item.subcategoria}</CardDescription>}
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1">
-                            <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-bold text-primary/90">{formatCurrency(item.precioVenta)} / {item.unidad?.toLowerCase()}</span></p>
+                            <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-bold text-primary/90">{formatCurrency(item.precioVenta)} {item.unidad ? `/ ${item.unidad.toLowerCase()}` : ''}</span></p>
                             {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>
                       </Card>
