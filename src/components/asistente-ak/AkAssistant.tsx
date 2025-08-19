@@ -92,10 +92,10 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
         : "fixed bottom-5 right-5 z-50";
 
     const extractOptions = (text: string): string[] => {
-      const regex = /(?<=Opci(ón|ones):\s*\[)([^\]]+)(?=\])/i;
+      const regex = /Opciones:\s*\[([^\]]+)\]/i;
       const match = text.match(regex);
-      if (match && match[2]) {
-        return match[2].split(',').map(s => s.trim());
+      if (match && match[1]) {
+        return match[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
       }
       return [];
     };
