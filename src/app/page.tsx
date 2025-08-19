@@ -69,13 +69,11 @@ export default function DashboardPage() {
   });
   
   const [asistenteAkLink, setAsistenteAkLink] = useState('');
-  const [armadoRapidoLink, setArmadoRapidoLink] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
       setAsistenteAkLink(`${origin}/asistente-ak`);
-      setArmadoRapidoLink(`${origin}/armado-rapido`);
     }
   }, []);
 

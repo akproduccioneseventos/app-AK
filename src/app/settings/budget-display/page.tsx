@@ -110,19 +110,6 @@ export default function BudgetDisplaySettingsPage() {
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Armado Rápido de Paquetes</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Crea y gestiona paquetes de servicios predefinidos para generar presupuestos de forma rápida y consistente.
-                </p>
-                <Link href="/settings/armado-rapido" passHref className="w-full">
-                     <Button variant="outline" className="w-full">Configurar Paquetes</Button>
-                </Link>
-            </CardContent>
-          </Card>
-          <Card className="shadow-lg">
-            <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Bot className="text-primary"/>Asistente de Presupuestos (IA)</CardTitle>
             </CardHeader>
             <CardContent>
