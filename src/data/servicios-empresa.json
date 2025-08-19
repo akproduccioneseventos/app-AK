@@ -1,4 +1,69 @@
+
 [
+  {
+    "id": "serv_1752489600001_pmozo",
+    "nombre": "Mozo",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "precioVenta": 2900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600002_pcoci",
+    "nombre": "Mozo de cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "precioVenta": 2900,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600003_pmetr",
+    "nombre": "Metre",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "precioVenta": 3500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600004_pchef",
+    "nombre": "Cheff",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "precioVenta": 3500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600098_decbas",
+    "nombre": "DECORACION BASICA",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 14500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600103_disbas",
+    "nombre": "Discoteca Básica",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 5500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600112_filfie",
+    "nombre": "Filmación de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "precioVenta": 7500,
+    "unidad": "Por evento"
+  },
+  {
+    "id": "serv_1752489600116_fotfie",
+    "nombre": "Fotografía de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 8500,
+    "unidad": "Por evento"
+  },
   {
     "id": "ing_1753733075249_aceite",
     "nombre": "Aceite",
