@@ -6,8 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Wand2, PlusCircle, Trash2, Search, Settings } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Wand2, PlusCircle, Trash2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -21,15 +20,15 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
-  const [catalogo, setCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [catalogoServicios, setCatalogoServicios] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
 
   const vendibleServices = useMemo(() => {
-    return catalogo.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
-  }, [catalogo]);
+    return catalogoServicios.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
+  }, [catalogoServicios]);
 
   const loadInitialData = useCallback(async () => {
     setIsLoading(true);
@@ -40,7 +39,7 @@ export default function ArmadoRapidoSettingsPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      setCatalogo(catalogoData);
+      setCatalogoServicios(catalogoData);
     } catch (e: any) {
       setError("No se pudieron cargar los datos necesarios.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -53,37 +52,27 @@ export default function ArmadoRapidoSettingsPage() {
     loadInitialData();
   }, [loadInitialData]);
 
-  const handlePackageUpdate = (updatedPackage: PaqueteArmadoRapido) => {
+  const handlePackageNameChange = (pkgId: string, newName: string) => {
     if (!config) return;
+    const updatedPackages = config.paquetes.map(p => p.id === pkgId ? { ...p, nombre: newName } : p);
+    setConfig({ ...config, paquetes: updatedPackages });
+  };
+  
+  const handleToggleService = (pkgId: string, service: ServicioEmpresa) => {
     setConfig(prevConfig => {
       if (!prevConfig) return null;
-      return {
-        ...prevConfig,
-        paquetes: prevConfig.paquetes.map(p => p.id === updatedPackage.id ? updatedPackage : p)
-      };
+      const updatedPackages = prevConfig.paquetes.map(pkg => {
+        if (pkg.id === pkgId) {
+          const serviceExists = pkg.serviciosIncluidos.some(s => s.id === service.id);
+          const newServicios = serviceExists
+            ? pkg.serviciosIncluidos.filter(s => s.id !== service.id)
+            : [...pkg.serviciosIncluidos, { id: service.id, nombre: service.nombre }];
+          return { ...pkg, serviciosIncluidos: newServicios };
+        }
+        return pkg;
+      });
+      return { ...prevConfig, paquetes: updatedPackages };
     });
-  };
-
-  const addServiceToPackage = (pkgId: string, service: ServicioEmpresa) => {
-    const pkg = config?.paquetes.find(p => p.id === pkgId);
-    if (!pkg) return;
-
-    const updatedPackage = {
-      ...pkg,
-      serviciosIncluidos: [...pkg.serviciosIncluidos, { id: service.id, nombre: service.nombre }]
-    };
-    handlePackageUpdate(updatedPackage);
-  };
-
-  const removeServiceFromPackage = (pkgId: string, serviceId: string) => {
-    const pkg = config?.paquetes.find(p => p.id === pkgId);
-    if (!pkg) return;
-    
-    const updatedPackage = {
-      ...pkg,
-      serviciosIncluidos: pkg.serviciosIncluidos.filter(s => s.id !== serviceId)
-    };
-    handlePackageUpdate(updatedPackage);
   };
 
   const handleSaveConfig = async () => {
@@ -135,7 +124,7 @@ export default function ArmadoRapidoSettingsPage() {
               
               const availableServices = vendibleServices.filter(s => {
                   const isInPackage = includedServiceIds.has(s.id);
-                  const matchesSearch = s.nombre.toLowerCase().includes(currentSearchTerm.toLowerCase());
+                  const matchesSearch = currentSearchTerm === '' || s.nombre.toLowerCase().includes(currentSearchTerm.toLowerCase());
                   return !isInPackage && matchesSearch;
               });
 
@@ -143,7 +132,17 @@ export default function ArmadoRapidoSettingsPage() {
                 <AccordionItem key={pkg.id} value={pkg.id}>
                   <AccordionTrigger className="p-4 bg-muted/30 hover:bg-muted/50 text-lg font-medium">{pkg.nombre}</AccordionTrigger>
                   <AccordionContent className="p-4 border-t">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2 mb-4">
+                      <Label htmlFor={`pkg-name-${pkg.id}`}>Nombre del Paquete</Label>
+                      <Input
+                        id={`pkg-name-${pkg.id}`}
+                        value={pkg.nombre}
+                        onChange={(e) => handlePackageNameChange(pkg.id, e.target.value)}
+                        className="text-lg font-semibold"
+                      />
+                    </div>
+                    <Separator/>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                       <div className="space-y-3">
                         <h4 className="font-medium text-foreground">Servicios Incluidos ({pkg.serviciosIncluidos.length})</h4>
                         <ScrollArea className="h-72 border rounded-md p-2">
@@ -151,19 +150,19 @@ export default function ArmadoRapidoSettingsPage() {
                             pkg.serviciosIncluidos.map(service => (
                               <div key={service.id} className="flex items-center justify-between p-2 hover:bg-background rounded">
                                 <span className="text-sm">{service.nombre}</span>
-                                <Button variant="destructive" size="sm" onClick={() => removeServiceFromPackage(pkg.id, service.id)}>Quitar</Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleToggleService(pkg.id, { id: service.id, nombre: service.nombre, tipoItem: 'Servicio', categoria: 'Otros servicios' } as ServicioEmpresa)}>Quitar</Button>
                               </div>
                             ))
                           ) : <p className="text-sm text-muted-foreground text-center p-4">Añade servicios desde el catálogo.</p>}
                         </ScrollArea>
                       </div>
                       <div className="space-y-3">
-                        <h4 className="font-medium text-foreground">Añadir Servicios desde Catálogo</h4>
+                        <h4 className="font-medium text-foreground">Catálogo de Servicios Disponibles</h4>
                         <div className="relative">
                           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="search"
-                            placeholder="Buscar servicio..."
+                            placeholder="Buscar servicio para añadir..."
                             className="pl-8"
                             value={currentSearchTerm}
                             onChange={(e) => setSearchTerms(prev => ({...prev, [pkg.id]: e.target.value}))}
@@ -174,10 +173,10 @@ export default function ArmadoRapidoSettingsPage() {
                             availableServices.map(service => (
                               <div key={service.id} className="flex items-center justify-between p-2 hover:bg-background rounded">
                                 <span className="text-sm">{service.nombre}</span>
-                                <Button variant="secondary" size="sm" onClick={() => addServiceToPackage(pkg.id, service)}>Añadir</Button>
+                                <Button variant="secondary" size="sm" onClick={() => handleToggleService(pkg.id, service)}>Añadir</Button>
                               </div>
                             ))
-                          ) : <p className="text-sm text-muted-foreground text-center p-4">No hay más servicios disponibles o que coincidan.</p>}
+                          ) : <p className="text-sm text-muted-foreground text-center p-4">No hay más servicios disponibles.</p>}
                         </ScrollArea>
                       </div>
                     </div>
@@ -198,4 +197,3 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
-    
