@@ -153,7 +153,7 @@ export default function ArmadoRapidoSettingsPage() {
           <CardDescription>Crea y edita los paquetes que tus clientes podrán seleccionar.</CardDescription>
         </CardHeader>
         <CardContent>
-            <Accordion type="single" collapsible className="w-full space-y-4">
+            <Accordion type="multiple" className="w-full space-y-4">
                 {config.paquetes.map(pkg => {
                     const includedServiceIds = new Set(pkg.serviciosIncluidos.map(s => s.id));
                     const availableServices = vendibleServices.filter(s => 
