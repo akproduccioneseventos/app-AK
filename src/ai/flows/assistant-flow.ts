@@ -1,8 +1,7 @@
-
 'use server';
 /**
- * @fileOverview The main AI assistant flow.
- * This flow acts as a central brain, capable of using other flows and actions as tools.
+ * @fileOverview The main AI assistant flow for conversational quoting.
+ * This flow guides the user step-by-step to create a budget.
  */
 
 import { ai } from '@/ai/genkit';
@@ -10,12 +9,13 @@ import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput, type 
 import { z } from 'genkit';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { savePresupuesto } from '@/app/actions/presupuestos';
+import type { Message } from 'genkit';
 
 // Tool: Create a new quote
 const createQuoteTool = ai.defineTool(
   {
     name: 'createQuote',
-    description: 'Creates a new budget/quote for a potential client. Use this when the user asks to "create a quote", "make a budget", "prepare a proposal", or similar requests. It requires client name, event type, and guest count. The event date is optional.',
+    description: 'Creates a new budget/quote for a potential client once all necessary information has been gathered (event type, guest count, client name, and optionally the date).',
     inputSchema: z.object({
       clienteNombre: z.string().describe("The name of the client or company."),
       eventoTipo: z.string().describe("The type of event (e.g., 'Boda', 'Cumpleaños de 15', 'Corporativo')."),
@@ -68,18 +68,23 @@ const createQuoteTool = ai.defineTool(
 
 
 export async function assistant(input: AssistantInput): Promise<AssistantOutput> {
-  const systemPrompt = `Eres "Asistente AK", un asesor experto en planificación de eventos para AK Producciones.
-  Tu único objetivo es tomar la información proporcionada en la consulta del usuario y utilizar la herramienta 'createQuote' para crear un presupuesto.
+  const systemPrompt = `Eres "Asistente AK", un asesor experto y amigable para AK Producciones. Tu objetivo es guiar al usuario paso a paso para crear un presupuesto inicial para su evento.
 
   **Reglas de Interacción:**
-  - **Usa la herramienta directamente:** Al recibir la consulta del usuario, inmediatamente extrae los detalles (nombre, tipo de evento, cantidad de invitados, fecha opcional) y llama a la herramienta 'createQuote'.
-  - **No Converses:** No hagas preguntas de seguimiento. Tu única función es ejecutar la herramienta con los datos que te dan.
-  - **Año por defecto:** Si el usuario da una fecha sin año, asume que es para el próximo año, 2025.
-  - **Responde en base a la herramienta:** Tu respuesta final al usuario debe basarse únicamente en el mensaje que devuelve la herramienta 'createQuote'. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma amigable.
-  - **Capacidad única:** Si no puedes determinar cómo usar la herramienta 'createQuote' con la consulta del usuario, o si se te pregunta por otra cosa, responde amablemente que tu única función es ayudar a crear presupuestos iniciales y que no entendiste la petición.`;
+  1.  **Inicia la Conversación:** Si no hay historial, o si el usuario dice "hola", saluda al usuario y pregunta si desea iniciar el proceso de cotización. Al final de tu respuesta, DEBES incluir las opciones en una línea separada con el formato: "Opciones: [Sí, arranquemos, No por ahora]".
+  2.  **Guía Paso a Paso:** Una vez que el usuario confirma, sigue ESTRICTAMENTE esta secuencia de preguntas, una por una. No avances a la siguiente hasta que te respondan la actual:
+      a.  Pregunta por el **Tipo de Evento**.
+      b.  Pregunta por la **Cantidad de Invitados**.
+      c.  Pregunta por el **Nombre del Cliente**.
+      d.  Pregunta por la **Fecha del Evento** (aclara que es opcional).
+  3.  **Recopila Información:** En cada paso, espera la respuesta del usuario. Usa el historial para saber qué información ya tienes y qué preguntar a continuación.
+  4.  **Usa la Herramienta al Final:** Una vez que tengas toda la información necesaria (tipo, invitados, nombre), y opcionalmente la fecha, utiliza la herramienta 'createQuote' para generar el presupuesto.
+  5.  **Responde Basado en la Herramienta:** Después de llamar a la herramienta, tu respuesta final al usuario debe basarse únicamente en el campo "message" del resultado que te devuelve la herramienta. No añadas más información. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma clara y amigable.
+  6.  **Capacidad Única:** Si en algún momento el usuario te pregunta por algo que no sea parte de este flujo de creación de presupuestos, responde amablemente que tu única función es ayudar a crear presupuestos iniciales.`;
 
   const llmResponse = await ai.generate({
     prompt: systemPrompt + "\n\nUser Query: " + input.query,
+    history: input.history,
     model: 'googleai/gemini-1.5-flash',
     tools: [createQuoteTool],
     toolChoice: 'auto',
@@ -115,7 +120,7 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
     return output;
   }
   
-  // Fallback if no tool was called
+  // Fallback if no tool was called (e.g., it's just a conversational turn)
   const output = llmResponse.output;
   if (!output) {
     console.error("AI Fallback response was null/undefined.", llmResponse);
