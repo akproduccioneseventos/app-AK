@@ -42,23 +42,19 @@ function EditPackageModal({
   const [isOpen, setIsOpen] = useState(false);
   const [packageName, setPackageName] = useState(pkg.nombre);
   const [includedServices, setIncludedServices] = useState<ServicioPaquete[]>(pkg.serviciosIncluidos);
-  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setPackageName(pkg.nombre);
       setIncludedServices(pkg.serviciosIncluidos);
-      setSearchTerm('');
     }
   }, [isOpen, pkg]);
 
   const includedServiceIds = useMemo(() => new Set(includedServices.map(s => s.id)), [includedServices]);
 
   const availableServices = useMemo(() => {
-    return allServices
-      .filter(s => !includedServiceIds.has(s.id))
-      .filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [allServices, includedServiceIds, searchTerm]);
+    return allServices.filter(s => !includedServiceIds.has(s.id));
+  }, [allServices, includedServiceIds]);
 
   const addService = (service: ServicioEmpresa) => {
     setIncludedServices(prev => [...prev, { id: service.id, nombre: service.nombre }]);
@@ -109,11 +105,7 @@ function EditPackageModal({
                 {/* Columna del Catálogo */}
                 <div className="space-y-3">
                     <h4 className="font-medium text-foreground">Catálogo de Servicios Disponibles</h4>
-                    <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Buscar servicio para añadir..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
-                    </div>
-                    <ScrollArea className="h-[238px] border rounded-md p-2">
+                    <ScrollArea className="h-[288px] border rounded-md p-2">
                          {availableServices.length > 0 ? (
                             availableServices.map(service => (
                                 <div key={service.id} className="flex items-center justify-between p-2 hover:bg-muted/50 rounded">
@@ -121,7 +113,7 @@ function EditPackageModal({
                                     <Button variant="secondary" size="sm" onClick={() => addService(service)}>Añadir</Button>
                                 </div>
                             ))
-                        ) : <p className="text-sm text-muted-foreground text-center p-4">No hay más servicios disponibles o que coincidan.</p>}
+                        ) : <p className="text-sm text-muted-foreground text-center p-4">No hay más servicios disponibles.</p>}
                     </ScrollArea>
                 </div>
             </div>
@@ -143,6 +135,10 @@ export default function ArmadoRapidoSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const vendibleServices = useMemo(() => {
+    return catalogo.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
+  }, [catalogo]);
+
   const loadInitialData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -152,7 +148,7 @@ export default function ArmadoRapidoSettingsPage() {
         getServiciosEmpresa(),
       ]);
       setConfig(configData);
-      setCatalogo(catalogoData.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0));
+      setCatalogo(catalogoData);
     } catch (e: any) {
       setError("No se pudieron cargar los datos necesarios.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -228,7 +224,7 @@ export default function ArmadoRapidoSettingsPage() {
                             </div>
                             <EditPackageModal
                                 pkg={pkg}
-                                allServices={catalogo}
+                                allServices={vendibleServices}
                                 onPackageUpdate={handlePackageUpdate}
                             >
                                 <Button variant="secondary">Administrar Paquete</Button>
