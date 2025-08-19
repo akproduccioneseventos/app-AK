@@ -108,6 +108,19 @@ export default function BudgetDisplaySettingsPage() {
       </div>
       
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <Card className="shadow-lg">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Armado Rápido</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configura los paquetes predefinidos que los clientes pueden usar para obtener una cotización instantánea.
+                </p>
+                <Link href="/settings/armado-rapido" passHref className="w-full">
+                     <Button variant="outline" className="w-full">Configurar Paquetes</Button>
+                </Link>
+            </CardContent>
+          </Card>
           <Card className="shadow-lg">
             <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Bot className="text-primary"/>Asistente de Presupuestos (IA)</CardTitle>
@@ -117,7 +130,7 @@ export default function BudgetDisplaySettingsPage() {
                   La IA crea presupuestos básicos usando lenguaje natural. Su lógica se define en el código.
                 </p>
                 <Link href="/asistente-ak" passHref className="w-full">
-                     <Button variant="outline" className="w-full">Configurar Asistente IA</Button>
+                     <Button variant="outline" className="w-full">Probar Asistente IA</Button>
                 </Link>
             </CardContent>
           </Card>
