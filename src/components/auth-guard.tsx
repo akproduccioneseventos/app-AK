@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
@@ -39,7 +40,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/video-vida',
       '/feedback',
       '/portal',
-      '/armado-rapido',
       '/asistente-ak'
     ];
     

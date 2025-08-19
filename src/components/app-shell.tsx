@@ -103,7 +103,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
-  if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
   if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
 
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
@@ -196,7 +195,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/asistente-ak') return BrainCircuit;
 
-  if (pathname === '/armado-rapido') return Wand2;
   if (pathname === '/asistente-ak') return Bot;
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
@@ -223,7 +221,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
-  const isClientFacingTool = pathname === '/armado-rapido' || pathname === '/asistente-ak';
+  const isClientFacingTool = pathname === '/asistente-ak';
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');

@@ -110,19 +110,6 @@ export default function BudgetDisplaySettingsPage() {
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Configuración de Armado Rápido</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Define los paquetes y reglas automáticas para la herramienta de "Armado Rápido" que usan tus clientes.
-                </p>
-                <Link href="/settings/armado-rapido" passHref className="w-full">
-                    <Button variant="outline" className="w-full">Gestionar Armado Rápido</Button>
-                </Link>
-            </CardContent>
-          </Card>
-          <Card className="shadow-lg">
-            <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Bot className="text-primary"/>Asistente de Presupuestos (IA)</CardTitle>
             </CardHeader>
             <CardContent>
