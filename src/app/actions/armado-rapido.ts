@@ -15,41 +15,20 @@ const defaultPaquetes: Paquete[] = [
       id: 'paq_1',
       nombre: 'Paquete Básico',
       serviciosIncluidos: [],
-      costoFijoAdicional: 0,
-      descripcion: "Lo esencial para una gran fiesta."
     },
     {
       id: 'paq_2',
       nombre: 'Paquete Intermedio',
       serviciosIncluidos: [],
-      costoFijoAdicional: 0,
-      descripcion: "Una opción balanceada con más servicios."
     },
     {
       id: 'paq_3',
       nombre: 'Paquete Premium',
       serviciosIncluidos: [],
-      costoFijoAdicional: 0,
-      descripcion: "La experiencia completa con todos los detalles."
     },
 ];
 
-const defaultReglas: Regla[] = [
-    {
-      id: 'regla_1',
-      condicion: {
-        tipo: 'invitados',
-        operador: 'mayor_que',
-        valor: 100,
-      },
-      accion: {
-        tipo: 'agregar_servicio',
-        servicioId: '', // Placeholder
-        cantidad: 1,
-      },
-      descripcion: 'Si hay más de 100 invitados, agregar un mozo extra.'
-    },
-];
+const defaultReglas: Regla[] = [];
 
 
 const defaultConfig: ArmadoRapidoConfig = {
@@ -89,7 +68,12 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
 
 export async function saveArmadoRapidoConfig(config: ArmadoRapidoConfig): Promise<{ success: boolean; error?: string }> {
   try {
-    await writeConfigFile(config);
+    // Remove description and costoFijoAdicional before saving
+    const cleanedConfig = {
+        ...config,
+        paquetes: config.paquetes.map(({ descripcion, costoFijoAdicional, ...rest }) => rest)
+    };
+    await writeConfigFile(cleanedConfig);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -152,20 +136,6 @@ export async function generateQuickBudget(
                 costoTotal += (servicio.unidad === 'Por persona' ? guestCount : 1) * servicio.precioVenta;
             }
         }
-        
-        // Add fixed cost from package
-        if(selectedPackage.costoFijoAdicional) {
-            costoTotal += selectedPackage.costoFijoAdicional;
-            itemsPresupuestados.push({
-                idServicioCatalogo: `fijo_${selectedPackage.id}`,
-                nombreServicio: "Costo Fijo del Paquete",
-                cantidad: 1,
-                unidad: "Unidad",
-                precioUnitario: selectedPackage.costoFijoAdicional,
-                costoTotalItem: selectedPackage.costoFijoAdicional,
-                categoriaServicio: 'Otros servicios'
-            });
-        }
 
         const notasPresupuesto = `Presupuesto inicial generado por Armado Rápido con el paquete "${selectedPackage.nombre}". Menú a confirmar por el cliente. ${eventDate ? '' : 'Fecha del evento a confirmar.'}`;
 
@@ -188,7 +158,7 @@ export async function generateQuickBudget(
             eventoFecha: eventDate ? eventDate.toISOString() : new Date().toISOString(),
             itemsPresupuestados,
             costoTotalEstimado: costoTotal,
-            salonFiestas: 'A confirmar',
+            salonFiestas: 'A confirmar', 
             timestamp: new Date().toISOString(),
             notas: notasPresupuesto,
         });

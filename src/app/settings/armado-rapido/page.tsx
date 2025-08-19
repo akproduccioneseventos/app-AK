@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,6 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from '@/components/ui/separator';
 
-const formatCurrency = (amount?: number) => {
-  if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-};
-
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
@@ -28,9 +23,7 @@ export default function ArmadoRapidoSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [activePackageId, setActivePackageId] = useState<string | null>(null);
-  const [packageSearchTerm, setPackageSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -41,7 +34,6 @@ export default function ArmadoRapidoSettingsPage() {
         getServiciosEmpresa()
       ]);
       setConfig(configData);
-      // Filter for only services with a price
       setServiciosCatalogo(catalogoData.filter(s => s.tipoItem === 'Servicio'));
     } catch (err: any) {
       setError("No se pudieron cargar los datos.");
@@ -55,7 +47,7 @@ export default function ArmadoRapidoSettingsPage() {
     loadData();
   }, [loadData]);
 
-  const handlePackageChange = (packageId: string, field: keyof Paquete, value: string | number) => {
+  const handlePackageChange = (packageId: string, field: 'nombre', value: string) => {
     setConfig(prev => {
       if (!prev) return null;
       return {
@@ -65,7 +57,7 @@ export default function ArmadoRapidoSettingsPage() {
     });
   };
 
-  const handleToggleServiceInPackage = (packageId: string, serviceId: string) => {
+  const handleToggleServiceInPackage = (packageId: string, service: ServicioEmpresa) => {
     setConfig(prev => {
       if (!prev) return null;
       return {
@@ -73,10 +65,10 @@ export default function ArmadoRapidoSettingsPage() {
         paquetes: prev.paquetes.map(p => {
           if (p.id === packageId) {
             const newServicios = new Set(p.serviciosIncluidos);
-            if (newServicios.has(serviceId)) {
-              newServicios.delete(serviceId);
+            if (newServicios.has(service.id)) {
+              newServicios.delete(service.id);
             } else {
-              newServicios.add(serviceId);
+              newServicios.add(service.id);
             }
             return { ...p, serviciosIncluidos: Array.from(newServicios) };
           }
@@ -85,21 +77,6 @@ export default function ArmadoRapidoSettingsPage() {
       };
     });
   };
-  
-  const handleRemoveServiceFromPackage = (packageId: string, serviceId: string) => {
-    setConfig(prev => {
-      if(!prev) return null;
-      return {
-        ...prev,
-        paquetes: prev.paquetes.map(p => {
-          if (p.id === packageId) {
-             return { ...p, serviciosIncluidos: p.serviciosIncluidos.filter(id => id !== serviceId) };
-          }
-          return p;
-        })
-      }
-    });
-  }
 
   const handleSaveConfig = async () => {
     if (!config) return;
@@ -118,16 +95,11 @@ export default function ArmadoRapidoSettingsPage() {
     }
   };
 
-  const filteredCatalogForPackage = useMemo(() => {
-    if (!activePackageId) return [];
-    const activePackage = config?.paquetes.find(p => p.id === activePackageId);
-    if (!activePackage) return [];
-    
+  const filteredServicios = useMemo(() => {
     return serviciosCatalogo.filter(s => 
-      !activePackage.serviciosIncluidos.includes(s.id) &&
-      s.nombre.toLowerCase().includes(packageSearchTerm.toLowerCase())
+      s.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [activePackageId, packageSearchTerm, serviciosCatalogo, config]);
+  }, [searchTerm, serviciosCatalogo]);
 
   if (isLoading || !config) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -153,10 +125,7 @@ export default function ArmadoRapidoSettingsPage() {
           const includedServices = serviciosCatalogo.filter(s => pkg.serviciosIncluidos.includes(s.id));
           return (
           <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-lg shadow-sm">
-            <AccordionTrigger 
-                className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg"
-                onClick={() => setActivePackageId(activePackageId === pkg.id ? null : pkg.id)}
-            >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
               <div className="flex items-center gap-3">{pkg.nombre}</div>
             </AccordionTrigger>
             <AccordionContent className="p-4 border-t space-y-6">
@@ -174,7 +143,7 @@ export default function ArmadoRapidoSettingsPage() {
                     {includedServices.map(s => (
                       <li key={s.id} className="flex justify-between items-center p-2 border rounded-md bg-green-50/50">
                         <span className="text-sm">{s.nombre}</span>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveServiceFromPackage(pkg.id, s.id)}><Trash2 className="w-4 h-4"/></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleToggleServiceInPackage(pkg.id, s)}><Trash2 className="w-4 h-4"/></Button>
                       </li>
                     ))}
                   </ul>
@@ -185,22 +154,18 @@ export default function ArmadoRapidoSettingsPage() {
                 <h4 className="font-semibold mb-2">Añadir Servicios desde Catálogo</h4>
                  <div className="relative mb-2">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Buscar servicio para añadir..." value={packageSearchTerm} onChange={e => setPackageSearchTerm(e.target.value)} className="pl-8"/>
+                    <Input placeholder="Buscar servicio para añadir..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/>
                 </div>
-                <ScrollArea className="h-48 border rounded-md">
-                    {filteredCatalogForPackage.length > 0 ? (
-                      <ul className="p-2 space-y-1">
-                        {filteredCatalogForPackage.map(s => (
+                <ul className="space-y-1 max-h-48 overflow-y-auto border rounded-md p-2">
+                    {filteredServicios
+                        .filter(s => !pkg.serviciosIncluidos.includes(s.id))
+                        .map(s => (
                            <li key={s.id} className="flex justify-between items-center p-1.5 hover:bg-muted rounded">
                              <span className="text-sm">{s.nombre}</span>
-                             <Button size="sm" variant="secondary" onClick={() => handleToggleServiceInPackage(pkg.id, s.id)}>Añadir</Button>
+                             <Button size="sm" variant="secondary" onClick={() => handleToggleServiceInPackage(pkg.id, s)}>Añadir</Button>
                            </li>
                         ))}
-                      </ul>
-                    ) : (
-                      <p className="p-4 text-center text-sm text-muted-foreground">No hay más servicios disponibles o que coincidan.</p>
-                    )}
-                </ScrollArea>
+                </ul>
               </div>
             </AccordionContent>
           </AccordionItem>
