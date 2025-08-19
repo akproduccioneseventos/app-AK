@@ -1,0 +1,21 @@
+
+{
+  "paquetes": [
+    {
+      "id": "paquete_basico",
+      "nombre": "Paquete Básico",
+      "serviciosIncluidos": []
+    },
+    {
+      "id": "paquete_premium",
+      "nombre": "Paquete Premium",
+      "serviciosIncluidos": []
+    },
+    {
+      "id": "paquete_completo",
+      "nombre": "Paquete Completo",
+      "serviciosIncluidos": []
+    }
+  ],
+  "reglasAdicionales": []
+}
