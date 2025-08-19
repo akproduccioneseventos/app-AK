@@ -1,45 +1,80 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Wand2, User, HelpCircle, PartyPopper, Code2, FileJson } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Wand2, User, HelpCircle, PartyPopper, Code2, FileJson, MessageSquare, Edit, List, Settings } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
+import { useToast } from '@/hooks/use-toast';
+// We will need to create an action to get and save this config
+// For now, we'll use a placeholder or import it directly if it's simple
+import initialConfig from '@/data/asistente-ak-config.json';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const steps = [
-  {
-    icon: User,
-    title: "1. Tu Petición",
-    description: "Cuando escribes en el chat, tu mensaje se envía a la IA como una instrucción clara."
-  },
-  {
-    icon: BrainCircuit,
-    title: "2. El Cerebro (Genkit Flow)",
-    description: "Tu mensaje llega a un 'flujo' central. Este flujo tiene acceso a un conjunto de herramientas (otras funciones de la app)."
-  },
-  {
-    icon: Wand2,
-    title: "3. La Decisión de la IA",
-    description: "La IA analiza tu petición y la compara con la descripción de sus herramientas. Si pides 'analiza el evento', la IA sabe que debe usar la herramienta de análisis de eventos."
-  },
-  {
-    icon: Bot,
-    title: "4. Ejecución y Respuesta",
-    description: "La IA ejecuta la herramienta seleccionada, la cual realiza la tarea (ej: leer los datos del evento). Luego, la IA toma el resultado y te lo presenta en el chat de forma amigable."
+
+interface DialogStep {
+  pregunta: string;
+}
+
+interface DialogConfig {
+  pasos: {
+    tipoFiesta: DialogStep;
+    cantidadInvitados: DialogStep;
+    nombreCliente: DialogStep;
+    fechaEvento: DialogStep;
   }
-];
+}
 
-export default function AsistenteAkInfoPage() {
+export default function AsistenteAkConfigPage() {
+    const { toast } = useToast();
+    const [config, setConfig] = useState<DialogConfig | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const loadConfig = useCallback(async () => {
+        setIsLoading(true);
+        // In the future, this would be an server action call:
+        // const fetchedConfig = await getAssistantConfig();
+        // For now, we use the imported JSON.
+        setConfig(initialConfig);
+        setIsLoading(false);
+    }, []);
+
+    useEffect(() => {
+        loadConfig();
+    }, [loadConfig]);
+
+    if (isLoading || !config) {
+        return (
+             <div className="max-w-4xl mx-auto space-y-8">
+                 <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <BrainCircuit className="w-10 h-10 text-primary" />
+                        <h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Asistente AK</h1>
+                    </div>
+                    <Skeleton className="h-10 w-24" />
+                </div>
+                <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-20 w-full"/></CardContent></Card>
+                 <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-40 w-full"/></CardContent></Card>
+            </div>
+        )
+    }
+
+    const steps = [
+        { id: 'tipoFiesta', title: 'Paso 1: Tipo de Fiesta', question: config.pasos.tipoFiesta.pregunta, icon: PartyPopper },
+        { id: 'cantidadInvitados', title: 'Paso 2: Cantidad de Invitados', question: config.pasos.cantidadInvitados.pregunta, icon: Users },
+        { id: 'nombreCliente', title: 'Paso 3: Nombre del Cliente', question: config.pasos.nombreCliente.pregunta, icon: User },
+        { id: 'fechaEvento', title: 'Paso 4: Fecha del Evento', question: config.pasos.fechaEvento.pregunta, icon: CalendarDays },
+    ];
+
     return (
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="max-w-6xl mx-auto space-y-8">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <BrainCircuit className="w-10 h-10 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">
-                        Asistente AK (IA)
-                    </h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Asistente AK</h1>
                 </div>
                 <Link href="/settings" passHref>
                     <Button variant="outline">
@@ -47,36 +82,66 @@ export default function AsistenteAkInfoPage() {
                     </Button>
                 </Link>
             </div>
-
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Un Copiloto Inteligente</CardTitle>
-                    <CardDescription className="text-lg">
-                        El Asistente AK puede entender tus peticiones y utilizar herramientas para realizar tareas complejas, como crear presupuestos a partir de una conversación.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                     <div>
-                        <h3 className="font-semibold text-lg mb-3">¿Cómo funciona? El Proceso, Paso a Paso:</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Columna de Configuración */}
+                <div className="lg:col-span-2 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
+                            <CardDescription>
+                                Edita las preguntas y opciones que el asistente usará para conversar con los clientes.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
                             {steps.map(step => (
-                                <div key={step.title} className="p-4 border rounded-lg bg-muted/40">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-primary/10 rounded-full">
-                                            <step.icon className="w-5 h-5 text-primary" />
+                                <Card key={step.id} className="shadow-sm bg-muted/30">
+                                    <CardHeader className="p-4">
+                                        <div className="flex justify-between items-start gap-2">
+                                            <div className="flex items-center gap-3">
+                                                 <div className="p-2 bg-background rounded-md border">
+                                                    <step.icon className="w-5 h-5 text-primary"/>
+                                                 </div>
+                                                 <div>
+                                                    <CardTitle className="text-lg">{step.title}</CardTitle>
+                                                    <CardDescription className="text-xs">Pregunta del Asistente:</CardDescription>
+                                                 </div>
+                                            </div>
+                                             <Button variant="ghost" size="sm" disabled><Edit className="w-4 h-4 mr-2"/>Editar</Button>
                                         </div>
-                                        <h4 className="font-semibold">{step.title}</h4>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">{step.description}</p>
-                                </div>
+                                    </CardHeader>
+                                    <CardContent className="p-4 pt-0">
+                                        <p className="p-3 bg-background rounded-md border text-sm italic">"{step.question}"</p>
+                                        <div className="mt-2 text-xs text-muted-foreground p-2 text-center border-t">
+                                            La edición de opciones y lógica de respuesta se habilitará próximamente.
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             ))}
-                        </div>
-                    </div>
-                </CardContent>
-                 <CardFooter>
-                    <p className="text-xs text-muted-foreground">La configuración del diálogo conversacional ha sido simplificada. El asistente ahora actúa directamente basado en el prompt del sistema.</p>
-                </CardFooter>
-            </Card>
+                        </CardContent>
+                        <CardFooter>
+                             <Button disabled><Save className="w-4 h-4 mr-2"/>Guardar Flujo</Button>
+                        </CardFooter>
+                    </Card>
+                </div>
+                
+                {/* Columna de Simulación */}
+                <div className="lg:col-span-1">
+                     <Card className="sticky top-20">
+                        <CardHeader>
+                            <CardTitle className="font-headline text-xl">Simulador de Chat</CardTitle>
+                             <CardDescription>
+                                Prueba el flujo de conversación en tiempo real.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           <div className="h-[450px] w-full">
+                             <AkAssistant isPage />
+                           </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
         </div>
     );
 }
