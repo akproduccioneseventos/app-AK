@@ -126,12 +126,14 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                                     const messageContent = message.content[0].text;
                                     const presupuestoId = message.content[0].data?.custom?.presupuestoId;
                                     const suggestedReplies = extractOptions(messageContent);
+                                    
+                                    const cleanMessageContent = messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '').trim();
 
                                     return (
                                         <div key={message.id} className={`flex items-start gap-3 ${isModel ? '' : 'justify-end'}`}>
                                             {isModel && <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>}
                                             <div className={`max-w-xs rounded-lg px-3 py-2 text-sm ${isModel ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
-                                                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '')}</ReactMarkdown>
+                                                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{cleanMessageContent}</ReactMarkdown>
                                                 {presupuestoId && (
                                                     <Button asChild variant="secondary" size="sm" className="mt-2">
                                                         <Link href={`/presupuestos/${presupuestoId}/ver`}>Ver Presupuesto <ArrowRight className="w-4 h-4 ml-2"/></Link>
