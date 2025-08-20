@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,12 +70,16 @@ export default function AsistenteAkConfigPage() {
         }
     };
 
-    const steps = config ? [
-        { id: 'tipoFiesta' as DialogStepKey, title: 'Paso 1: Tipo de Fiesta', question: config.pasos.tipoFiesta.pregunta, icon: PartyPopper },
-        { id: 'cantidadInvitados' as DialogStepKey, title: 'Paso 2: Cantidad de Invitados', question: config.pasos.cantidadInvitados.pregunta, icon: Users },
-        { id: 'nombreCliente' as DialogStepKey, title: 'Paso 3: Nombre del Cliente', question: config.pasos.nombreCliente.pregunta, icon: User },
-        { id: 'fechaEvento' as DialogStepKey, title: 'Paso 4: Fecha del Evento', question: config.pasos.fechaEvento.pregunta, icon: CalendarDays },
-    ] : [];
+    const steps = useMemo(() => {
+        if (!config) return [];
+        return [
+            { id: 'tipoFiesta' as DialogStepKey, title: 'Paso 1: Tipo de Fiesta', question: config.pasos.tipoFiesta.pregunta, icon: PartyPopper },
+            { id: 'cantidadInvitados' as DialogStepKey, title: 'Paso 2: Cantidad de Invitados', question: config.pasos.cantidadInvitados.pregunta, icon: Users },
+            { id: 'nombreCliente' as DialogStepKey, title: 'Paso 3: Nombre del Cliente', question: config.pasos.nombreCliente.pregunta, icon: User },
+            { id: 'fechaEvento' as DialogStepKey, title: 'Paso 4: Fecha del Evento', question: config.pasos.fechaEvento.pregunta, icon: CalendarDays },
+        ];
+    }, [config]);
+
 
     if (isLoading) {
         return (
