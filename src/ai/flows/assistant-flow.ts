@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview The main AI assistant flow for conversational quoting.
@@ -10,6 +11,8 @@ import { z } from 'genkit';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import type { Message } from 'genkit';
+import { getAssistantConfig, type DialogConfig } from '@/app/actions/assistant-config';
+
 
 // Tool: Create a new quote
 const createQuoteTool = ai.defineTool(
@@ -68,24 +71,31 @@ const createQuoteTool = ai.defineTool(
 
 
 export async function assistant(input: AssistantInput): Promise<AssistantOutput> {
-  const systemPrompt = `Eres "Asistente AK", un asesor experto y amigable para AK Producciones. Tu objetivo es guiar al usuario paso a paso para crear un presupuesto inicial para su evento.
+  const dialogConfig: DialogConfig = await getAssistantConfig();
+  
+  const systemPrompt = `Eres "Asistente AK", un asesor experto y amigable para AK Producciones. Tu objetivo es guiar al usuario paso a paso para crear un presupuesto inicial para su evento, siguiendo un flujo de diálogo dinámico definido.
 
-  **Reglas de Interacción:**
-  1.  **Inicia la Conversación:** Si no hay historial, o si el usuario dice "hola", saluda al usuario y pregunta si desea iniciar el proceso de cotización. Al final de tu respuesta, DEBES incluir las opciones en una línea separada con el formato: "Opciones: [Sí, arranquemos, No por ahora]".
-  2.  **Guía Paso a Paso:** Una vez que el usuario confirma, sigue ESTRICTAMENTE esta secuencia de preguntas, una por una. No avances a la siguiente hasta que te respondan la actual:
-      a.  Pregunta por el **Tipo de Evento**.
-      b.  Pregunta por la **Cantidad de Invitados**.
-      c.  Pregunta por el **Nombre del Cliente**.
-      d.  Pregunta por la **Fecha del Evento** (aclara que es opcional).
-  3.  **Recopila Información:** En cada paso, espera la respuesta del usuario. Usa el historial para saber qué información ya tienes y qué preguntar a continuación.
-  4.  **Usa la Herramienta al Final:** Una vez que tengas toda la información necesaria (tipo, invitados, nombre), y opcionalmente la fecha, utiliza la herramienta 'createQuote' para generar el presupuesto.
-  5.  **Responde Basado en la Herramienta:** Después de llamar a la herramienta, tu respuesta final al usuario debe basarse únicamente en el campo "message" del resultado que te devuelve la herramienta. No añadas más información. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma clara y amigable.
-  6.  **Capacidad Única:** Si en algún momento el usuario te pregunta por algo que no sea parte de este flujo de creación de presupuestos, responde amablemente que tu única función es ayudar a crear presupuestos iniciales.`;
+  **Flujo de Diálogo a Seguir:**
+  Tu conversación DEBE seguir esta secuencia de pasos. Analiza el historial para determinar en qué paso estás y qué preguntar a continuación.
+  ${dialogConfig.pasos.map((paso, index) => `${index + 1}. **${paso.title} (ID: ${paso.id})**: Pregunta: "${paso.pregunta}"`).join('\n  ')}
+
+  **Reglas de Interacción Estrictas:**
+  1.  **Inicio:** Si el historial está vacío o el usuario saluda, responde con un saludo amigable y pregunta si desea iniciar la cotización. Tu respuesta DEBE terminar en una nueva línea con el formato: "Opciones: [Sí, arranquemos, No por ahora]".
+  2.  **Guía Estricta:** Una vez que el usuario confirma, sigue la secuencia del flujo de diálogo. NO te saltes pasos ni combines preguntas. Haz una pregunta a la vez.
+  3.  **Uso de Configuración:** Utiliza el texto EXACTO de la pregunta configurada para el paso actual.
+  4.  **Opciones Clicables:** Si el paso actual tiene un array 'opciones' configurado, DEBES incluirlas en tu respuesta, en una nueva línea y con el formato exacto: "Opciones: [Opción 1, Opción 2, ...]".
+  5.  **Recopilación de Información:** Antes de preguntar, revisa el historial para ver qué datos ya tienes. Si ya tienes la información para un paso, salta a la siguiente pregunta.
+  6.  **Uso de la Herramienta:** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo, y solo entonces, DEBES usar la herramienta 'createQuote'.
+  7.  **Respuesta Final:** Después de llamar a la herramienta, basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
+  8.  **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
+  
+  const history: Message[] = input.history || [];
+  history.push({ role: 'user', content: [{ text: input.query }] });
 
   const llmResponse = await ai.generate({
-    prompt: systemPrompt + "\n\nUser Query: " + input.query,
-    history: input.history,
     model: 'googleai/gemini-1.5-flash',
+    prompt: systemPrompt,
+    history: history,
     tools: [createQuoteTool],
     toolChoice: 'auto',
     output: {
@@ -98,7 +108,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   if (toolCall) {
     const toolResult = await toolCall.run() as any;
     
-    // Now, generate a final, user-friendly response based on the tool's output
     const finalResponse = await ai.generate({
         prompt: `El usuario pidió crear un presupuesto. Usaste una herramienta y este fue el resultado: ${JSON.stringify(toolResult)}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado.`,
         model: 'googleai/gemini-1.5-flash',
@@ -112,7 +121,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
       throw new Error("El asistente de IA no pudo generar una respuesta final después de usar una herramienta.");
     }
     
-    // Pass the budget ID from the successful tool call to the final output
     if (toolResult.success && toolResult.presupuestoId) {
         output.presupuestoId = toolResult.presupuestoId;
     }
@@ -120,7 +128,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
     return output;
   }
   
-  // Fallback if no tool was called (e.g., it's just a conversational turn)
   const output = llmResponse.output;
   if (!output) {
     console.error("AI Fallback response was null/undefined.", llmResponse);

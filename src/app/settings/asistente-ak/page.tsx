@@ -1,24 +1,23 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X } from 'lucide-react';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { useToast } from '@/hooks/use-toast';
-import { getAssistantConfig, saveAssistantConfig, type DialogConfig } from '@/app/actions/assistant-config';
+import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep } from '@/app/actions/assistant-config';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-
-type DialogStepKey = keyof DialogConfig['pasos'];
+const iconMap: Record<string, React.ElementType> = {
+  PartyPopper, Users, User, CalendarDays,
+};
 
 export default function AsistenteAkConfigPage() {
     const { toast } = useToast();
@@ -26,12 +25,12 @@ export default function AsistenteAkConfigPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     
+    // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentStep, setCurrentStep] = useState<{ id: DialogStepKey; title: string } | null>(null);
-    const [currentQuestion, setCurrentQuestion] = useState('');
-    const [currentOptions, setCurrentOptions] = useState<string[]>([]);
+    const [currentStep, setCurrentStep] = useState<DialogStep | null>(null);
+    const [currentStepIndex, setCurrentStepIndex] = useState<number | null>(null);
+    
     const [newOption, setNewOption] = useState('');
-
     const [simulatorKey, setSimulatorKey] = useState(0);
 
     const loadConfig = useCallback(async () => {
@@ -49,60 +48,72 @@ export default function AsistenteAkConfigPage() {
     useEffect(() => {
         loadConfig();
     }, [loadConfig]);
-
-    const openEditModal = (stepId: DialogStepKey, title: string) => {
-        if (!config) return;
-        setCurrentStep({ id: stepId, title });
-        setCurrentQuestion(config.pasos[stepId].pregunta);
-        setCurrentOptions(config.pasos[stepId].opciones || []);
-        setNewOption('');
+    
+    const openEditModal = (step: DialogStep, index: number) => {
+        setCurrentStep(JSON.parse(JSON.stringify(step))); // Deep copy to avoid direct state mutation
+        setCurrentStepIndex(index);
         setIsModalOpen(true);
     };
-    
+
+    const handleModalInputChange = (field: keyof DialogStep, value: string) => {
+        setCurrentStep(prev => prev ? { ...prev, [field]: value } : null);
+    };
+
     const handleAddOption = () => {
-        if (newOption.trim() && !currentOptions.includes(newOption.trim())) {
-            setCurrentOptions(prev => [...prev, newOption.trim()]);
+        if (newOption.trim() && currentStep && !currentStep.opciones?.includes(newOption.trim())) {
+            setCurrentStep(prev => prev ? ({ ...prev, opciones: [...(prev.opciones || []), newOption.trim()] }) : null);
             setNewOption('');
         }
     };
 
     const handleRemoveOption = (optionToRemove: string) => {
-        setCurrentOptions(prev => prev.filter(opt => opt !== optionToRemove));
+        setCurrentStep(prev => prev ? ({ ...prev, opciones: (prev.opciones || []).filter(opt => opt !== optionToRemove) }) : null);
     };
 
     const handleSaveStep = async () => {
-        if (!currentStep || !currentQuestion.trim() || !config) return;
+        if (!currentStep || !currentStep.pregunta.trim() || currentStepIndex === null || !config) return;
         
-        const newConfig: DialogConfig = JSON.parse(JSON.stringify(config)); // Deep copy
-        newConfig.pasos[currentStep.id].pregunta = currentQuestion;
-        if(newConfig.pasos[currentStep.id].opciones !== undefined) {
-             newConfig.pasos[currentStep.id].opciones = currentOptions;
-        }
+        const newConfig = { ...config };
+        newConfig.pasos[currentStepIndex] = currentStep;
 
-        setIsSaving(true);
+        await saveAndReload(newConfig);
+        setIsModalOpen(false);
+    };
+
+    const handleAddStep = () => {
+        if (!config) return;
+        const newStep: DialogStep = {
+            id: `step_${Date.now()}`,
+            title: "Nuevo Paso sin Título",
+            pregunta: "¿Cuál es tu pregunta?",
+            icon: "Users" // Default icon
+        };
+        const newConfig = { ...config, pasos: [...config.pasos, newStep] };
+        openEditModal(newStep, config.pasos.length);
+    };
+
+    const handleDeleteStep = async (index: number) => {
+        if (!config || config.pasos.length <= 1) {
+            toast({ title: "Acción no permitida", description: "Debe haber al menos un paso en el flujo.", variant: "destructive" });
+            return;
+        }
+        const newConfig = { ...config, pasos: config.pasos.filter((_, i) => i !== index) };
+        await saveAndReload(newConfig, "Paso eliminado correctamente.");
+    };
+
+    const saveAndReload = async (newConfig: DialogConfig, message: string = "Configuración guardada.") => {
+         setIsSaving(true);
         try {
             await saveAssistantConfig(newConfig);
             setConfig(newConfig);
-            setSimulatorKey(prev => prev + 1); // Force remount of the assistant component
-            toast({ title: "¡Guardado!", description: `El paso "${currentStep.title}" ha sido actualizado.` });
-            setIsModalOpen(false);
+            setSimulatorKey(prev => prev + 1);
+            toast({ title: "¡Éxito!", description: message });
         } catch(e: any) {
              toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
         } finally {
             setIsSaving(false);
         }
     };
-
-    const steps = useMemo(() => {
-        if (!config) return [];
-        return [
-            { id: 'tipoFiesta' as DialogStepKey, title: 'Paso 1: Tipo de Fiesta', config: config.pasos.tipoFiesta, icon: PartyPopper },
-            { id: 'cantidadInvitados' as DialogStepKey, title: 'Paso 2: Cantidad de Invitados', config: config.pasos.cantidadInvitados, icon: Users },
-            { id: 'nombreCliente' as DialogStepKey, title: 'Paso 3: Nombre del Cliente', config: config.pasos.nombreCliente, icon: User },
-            { id: 'fechaEvento' as DialogStepKey, title: 'Paso 4: Fecha del Evento', config: config.pasos.fechaEvento, icon: CalendarDays },
-        ];
-    }, [config]);
-
 
     if (isLoading || !config) {
         return (
@@ -125,31 +136,35 @@ export default function AsistenteAkConfigPage() {
                         <DialogTitle>Editar Paso: {currentStep?.title}</DialogTitle>
                         <DialogDescription>Modifica la pregunta y las opciones de respuesta para este paso.</DialogDescription>
                     </DialogHeader>
+                    {currentStep && (
                     <div className="py-4 space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="question-text">Texto de la Pregunta</Label>
-                            <Textarea id="question-text" value={currentQuestion} onChange={e => setCurrentQuestion(e.target.value)} rows={3} className="mt-2"/>
+                           <Label htmlFor="step-title">Título del Paso</Label>
+                           <Input id="step-title" value={currentStep.title || ''} onChange={(e) => handleModalInputChange('title', e.target.value)} />
                         </div>
-                        {config.pasos[currentStep?.id || 'tipoFiesta']?.opciones !== undefined && (
-                             <div className="space-y-2">
-                                <Label>Opciones de Respuesta</Label>
-                                {currentOptions.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-muted/50">
-                                    {currentOptions.map(opt => (
-                                        <Badge key={opt} variant="secondary" className="text-sm py-1">
-                                            {opt}
-                                            <Button variant="ghost" size="icon" className="h-4 w-4 ml-1.5" onClick={() => handleRemoveOption(opt)}><X className="h-3 w-3"/></Button>
-                                        </Badge>
-                                    ))}
-                                    </div>
-                                )}
-                                <div className="flex gap-2">
-                                    <Input value={newOption} onChange={e => setNewOption(e.target.value)} placeholder="Añadir nueva opción..." onKeyDown={(e) => {if(e.key === 'Enter'){ e.preventDefault(); handleAddOption();}}}/>
-                                    <Button type="button" variant="outline" onClick={handleAddOption}>Añadir</Button>
+                        <div className="space-y-2">
+                            <Label htmlFor="question-text">Texto de la Pregunta</Label>
+                            <Textarea id="question-text" value={currentStep.pregunta || ''} onChange={e => handleModalInputChange('pregunta', e.target.value)} rows={3}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Opciones de Respuesta</Label>
+                            {(currentStep.opciones || []).length > 0 && (
+                                <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-muted/50">
+                                {currentStep.opciones?.map(opt => (
+                                    <Badge key={opt} variant="secondary" className="text-sm py-1">
+                                        {opt}
+                                        <Button variant="ghost" size="icon" className="h-4 w-4 ml-1.5" onClick={() => handleRemoveOption(opt)}><X className="h-3 w-3"/></Button>
+                                    </Badge>
+                                ))}
                                 </div>
-                             </div>
-                        )}
+                            )}
+                            <div className="flex gap-2">
+                                <Input value={newOption} onChange={e => setNewOption(e.target.value)} placeholder="Añadir nueva opción..." onKeyDown={(e) => {if(e.key === 'Enter'){ e.preventDefault(); handleAddOption();}}}/>
+                                <Button type="button" variant="outline" onClick={handleAddOption}>Añadir</Button>
+                            </div>
+                        </div>
                     </div>
+                    )}
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
                         <Button onClick={handleSaveStep} disabled={isSaving}>
@@ -165,9 +180,7 @@ export default function AsistenteAkConfigPage() {
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Asistente AK</h1>
                 </div>
                 <Link href="/settings" passHref>
-                    <Button variant="outline">
-                        <ArrowLeft className="mr-2" /> Volver a Configuración
-                    </Button>
+                    <Button variant="outline"><ArrowLeft className="mr-2" /> Volver a Configuración</Button>
                 </Link>
             </div>
             
@@ -181,35 +194,39 @@ export default function AsistenteAkConfigPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {steps.map(step => (
+                            {config.pasos.map((step, index) => {
+                                const Icon = iconMap[step.icon || 'Users'] || Users;
+                                return (
                                 <Card key={step.id} className="shadow-sm bg-muted/30">
                                     <CardHeader className="p-4">
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="flex items-center gap-3">
-                                                 <div className="p-2 bg-background rounded-md border">
-                                                    <step.icon className="w-5 h-5 text-primary"/>
-                                                 </div>
+                                                 <div className="p-2 bg-background rounded-md border"><Icon className="w-5 h-5 text-primary"/></div>
                                                  <div>
-                                                    <CardTitle className="text-lg">{step.title}</CardTitle>
+                                                    <CardTitle className="text-lg">{index + 1}. {step.title}</CardTitle>
                                                     <CardDescription className="text-xs">Pregunta del Asistente:</CardDescription>
                                                  </div>
                                             </div>
-                                             <Button variant="ghost" size="sm" onClick={() => openEditModal(step.id, step.title)}><Edit className="w-4 h-4 mr-2"/>Editar</Button>
+                                            <div className="flex items-center gap-1">
+                                                <Button variant="ghost" size="sm" onClick={() => openEditModal(step, index)}><Edit className="w-4 h-4 mr-2"/>Editar</Button>
+                                                {config.pasos.length > 1 && <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteStep(index)}><Trash2 className="w-4 h-4"/></Button>}
+                                            </div>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-4 pt-0">
-                                        <p className="p-3 bg-background rounded-md border text-sm italic">"{step.config.pregunta}"</p>
-                                        {step.config.opciones && (
+                                        <p className="p-3 bg-background rounded-md border text-sm italic">"{step.pregunta}"</p>
+                                        {step.opciones && step.opciones.length > 0 && (
                                             <div className="mt-2">
                                                 <p className="text-xs text-muted-foreground mb-1">Opciones de respuesta:</p>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {step.config.opciones.map(opt => <Badge key={opt} variant="secondary">{opt}</Badge>)}
+                                                    {step.opciones.map(opt => <Badge key={opt} variant="secondary">{opt}</Badge>)}
                                                 </div>
                                             </div>
                                         )}
                                     </CardContent>
                                 </Card>
-                            ))}
+                            )})}
+                             <Button variant="outline" className="w-full border-dashed" onClick={handleAddStep}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paso</Button>
                         </CardContent>
                     </Card>
                 </div>

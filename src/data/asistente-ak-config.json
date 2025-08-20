@@ -1,7 +1,9 @@
-
 {
-  "pasos": {
-    "tipoFiesta": {
+  "pasos": [
+    {
+      "id": "tipoFiesta",
+      "title": "Tipo de Fiesta",
+      "icon": "PartyPopper",
       "pregunta": "¿Qué tipo de evento estás planeando?",
       "opciones": [
         "Cumpleaños",
@@ -11,14 +13,23 @@
         "Otro"
       ]
     },
-    "cantidadInvitados": {
+    {
+      "id": "cantidadInvitados",
+      "title": "Cantidad de Invitados",
+      "icon": "Users",
       "pregunta": "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"
     },
-    "nombreCliente": {
+    {
+      "id": "nombreCliente",
+      "title": "Nombre del Cliente",
+      "icon": "User",
       "pregunta": "Perfecto. Para ir creando el borrador, ¿a nombre de quién lo preparo?"
     },
-    "fechaEvento": {
+    {
+      "id": "fechaEvento",
+      "title": "Fecha del Evento",
+      "icon": "CalendarDays",
       "pregunta": "Por último, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
     }
-  }
+  ]
 }
