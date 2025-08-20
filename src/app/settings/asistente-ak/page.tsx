@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 
 type DialogStepKey = keyof DialogConfig['pasos'];
@@ -30,6 +31,8 @@ export default function AsistenteAkConfigPage() {
     const [currentQuestion, setCurrentQuestion] = useState('');
     const [currentOptions, setCurrentOptions] = useState<string[]>([]);
     const [newOption, setNewOption] = useState('');
+
+    const [simulatorKey, setSimulatorKey] = useState(0);
 
     const loadConfig = useCallback(async () => {
         setIsLoading(true);
@@ -80,6 +83,7 @@ export default function AsistenteAkConfigPage() {
         try {
             await saveAssistantConfig(newConfig);
             setConfig(newConfig);
+            setSimulatorKey(prev => prev + 1); // Force remount of the assistant component
             toast({ title: "¡Guardado!", description: `El paso "${currentStep.title}" ha sido actualizado.` });
             setIsModalOpen(false);
         } catch(e: any) {
@@ -220,7 +224,7 @@ export default function AsistenteAkConfigPage() {
                         </CardHeader>
                         <CardContent>
                            <div className="h-[450px] w-full">
-                             <AkAssistant isPage />
+                             <AkAssistant key={simulatorKey} isPage />
                            </div>
                         </CardContent>
                     </Card>
