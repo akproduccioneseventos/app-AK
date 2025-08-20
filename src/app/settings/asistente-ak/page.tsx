@@ -1,11 +1,11 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical, CornerDownLeft, RefreshCcw } from 'lucide-react';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { useToast } from '@/hooks/use-toast';
 import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep } from '@/app/actions/assistant-config';
@@ -71,6 +71,7 @@ export default function AsistenteAkConfigPage() {
     
     const [newOption, setNewOption] = useState('');
     const [simulatorKey, setSimulatorKey] = useState(0);
+    const questionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -111,6 +112,25 @@ export default function AsistenteAkConfigPage() {
         setCurrentStep(prev => prev ? ({ ...prev, opciones: (prev.opciones || []).filter(opt => opt !== optionToRemove) }) : null);
     };
 
+    const handleInsertPlaceholder = () => {
+        const textarea = questionTextareaRef.current;
+        if (textarea && currentStep) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const placeholder = "{{{nombreCliente}}}";
+            const newText = text.substring(0, start) + placeholder + text.substring(end);
+            
+            handleModalInputChange('pregunta', newText);
+
+            setTimeout(() => {
+                textarea.focus();
+                textarea.selectionStart = textarea.selectionEnd = start + placeholder.length;
+            }, 0);
+        }
+    };
+
+
     const handleSaveStep = async () => {
         if (!currentStep || !currentStep.pregunta.trim() || currentStepIndex === null || !config) return;
         
@@ -140,6 +160,7 @@ export default function AsistenteAkConfigPage() {
             icon: "Users"
         };
         const newConfig = { ...config, pasos: [...config.pasos, newStep] };
+        setConfig(newConfig); // Optimistically update UI
         openEditModal(newStep, config.pasos.length);
     };
 
@@ -194,8 +215,11 @@ export default function AsistenteAkConfigPage() {
                            <Input id="step-title" value={currentStep.title || ''} onChange={(e) => handleModalInputChange('title', e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="question-text">Texto de la Pregunta</Label>
-                            <Textarea id="question-text" value={currentStep.pregunta || ''} onChange={e => handleModalInputChange('pregunta', e.target.value)} rows={3}/>
+                            <div className="flex justify-between items-center">
+                                <Label htmlFor="question-text">Texto de la Pregunta</Label>
+                                <Button type="button" size="sm" variant="link" onClick={handleInsertPlaceholder} className="text-xs p-0 h-auto">Insertar Nombre del Cliente</Button>
+                            </div>
+                            <Textarea ref={questionTextareaRef} id="question-text" value={currentStep.pregunta || ''} onChange={e => handleModalInputChange('pregunta', e.target.value)} rows={3}/>
                         </div>
                         <div className="space-y-2">
                             <Label>Opciones de Respuesta</Label>
@@ -262,7 +286,12 @@ export default function AsistenteAkConfigPage() {
                 <div className="lg:col-span-1">
                      <Card className="sticky top-20">
                         <CardHeader>
-                            <CardTitle className="font-headline text-xl">Simulador de Chat</CardTitle>
+                            <div className="flex justify-between items-center">
+                                <CardTitle className="font-headline text-xl">Simulador de Chat</CardTitle>
+                                <Button variant="ghost" size="icon" onClick={() => setSimulatorKey(prev => prev + 1)} title="Reiniciar Chat">
+                                    <RefreshCcw className="w-4 h-4 text-muted-foreground"/>
+                                </Button>
+                            </div>
                              <CardDescription>
                                 Prueba el flujo de conversación en tiempo real.
                             </CardDescription>
@@ -278,6 +307,3 @@ export default function AsistenteAkConfigPage() {
         </div>
     );
 }
-
-
-    
