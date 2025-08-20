@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview The main AI assistant flow for conversational quoting.
@@ -77,7 +78,7 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   **Reglas de Interacción Estrictas:**
   1.  **Inicia la Conversación:** Si el historial está vacío o el usuario dice "hola" o algo similar, saluda amablemente y pregunta si desea iniciar la cotización. Tu respuesta DEBE terminar con la línea: "Opciones: [Sí, arranquemos, No por ahora]". No hagas nada más.
   2.  **Secuencia de Preguntas:** Una vez que el usuario confirma, sigue ESTRICTAMENTE esta secuencia de preguntas, UNA POR UNA. NO te saltes ninguna ni combines preguntas. Usa el texto EXACTO de la configuración de diálogo proporcionada:
-      a.  **Tipo de Fiesta:** Pregunta: "${dialogConfig.pasos.tipoFiesta.pregunta}". Luego, ofrece las opciones en una nueva línea: "Opciones: [Cumpleaños, Fiesta de 15, Boda, Evento empresarial, Otro]".
+      a.  **Tipo de Fiesta:** Pregunta: "${dialogConfig.pasos.tipoFiesta.pregunta}". Luego, si existen opciones configuradas (${JSON.stringify(dialogConfig.pasos.tipoFiesta.opciones)}), ofrécelas en una nueva línea: "Opciones: [${dialogConfig.pasos.tipoFiesta.opciones?.join(', ')}]".
       b.  **Cantidad de Invitados:** Pregunta: "${dialogConfig.pasos.cantidadInvitados.pregunta}". No ofrezcas opciones aquí, espera la respuesta del usuario.
       c.  **Nombre del Cliente:** Pregunta: "${dialogConfig.pasos.nombreCliente.pregunta}". No ofrezcas opciones aquí.
       d.  **Fecha del Evento:** Pregunta: "${dialogConfig.pasos.fechaEvento.pregunta}". No ofrezcas opciones aquí.
@@ -93,10 +94,8 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
 
   const llmResponse = await ai.generate({
     model: 'googleai/gemini-1.5-flash',
-    prompt: [
-        {role: 'system', content: [{text: systemPrompt}]},
-        ...history
-    ],
+    prompt: systemPrompt,
+    history: history,
     tools: [createQuoteTool],
     toolChoice: 'auto',
     output: {
@@ -109,7 +108,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   if (toolCall) {
     const toolResult = await toolCall.run() as any;
     
-    // Now, generate a final, user-friendly response based on the tool's output
     const finalResponse = await ai.generate({
         prompt: `El usuario pidió crear un presupuesto. Usaste una herramienta y este fue el resultado: ${JSON.stringify(toolResult)}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado.`,
         model: 'googleai/gemini-1.5-flash',
@@ -123,7 +121,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
       throw new Error("El asistente de IA no pudo generar una respuesta final después de usar una herramienta.");
     }
     
-    // Pass the budget ID from the successful tool call to the final output
     if (toolResult.success && toolResult.presupuestoId) {
         output.presupuestoId = toolResult.presupuestoId;
     }
@@ -131,7 +128,6 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
     return output;
   }
   
-  // Fallback if no tool was called (e.g., it's just a conversational turn)
   const output = llmResponse.output;
   if (!output) {
     console.error("AI Fallback response was null/undefined.", llmResponse);

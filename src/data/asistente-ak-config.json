@@ -2,7 +2,14 @@
 {
   "pasos": {
     "tipoFiesta": {
-      "pregunta": "¿Qué tipo de evento estás planeando? Por ejemplo: una boda, un cumpleaños de 15, un evento corporativo..."
+      "pregunta": "¿Qué tipo de evento estás planeando?",
+      "opciones": [
+        "Cumpleaños",
+        "Fiesta de 15",
+        "Boda",
+        "Evento empresarial",
+        "Otro"
+      ]
     },
     "cantidadInvitados": {
       "pregunta": "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"

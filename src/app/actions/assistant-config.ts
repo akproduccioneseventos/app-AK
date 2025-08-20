@@ -6,6 +6,7 @@ import path from 'path';
 
 export interface DialogStep {
   pregunta: string;
+  opciones?: string[]; // Opcional, para pasos que tienen respuestas predefinidas
 }
 
 export interface DialogConfig {
@@ -23,7 +24,8 @@ const CONFIG_FILE_PATH = path.join(DATA_DIR, 'asistente-ak-config.json');
 const defaultConfig: DialogConfig = {
   pasos: {
     tipoFiesta: {
-      pregunta: "¿Qué tipo de evento estás planeando? Por ejemplo: una boda, un cumpleaños de 15, un evento corporativo..."
+      pregunta: "¿Qué tipo de evento estás planeando?",
+      opciones: ["Cumpleaños", "Fiesta de 15", "Boda", "Evento empresarial", "Otro"]
     },
     cantidadInvitados: {
       pregunta: "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"
@@ -46,7 +48,16 @@ export async function getAssistantConfig(): Promise<DialogConfig> {
   await ensureConfigFileExists();
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
-    return fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
+    // Deep merge with defaults to ensure new fields are present
+    const savedConfig = fileContent.trim() === '' ? {} : JSON.parse(fileContent);
+    const mergedConfig = {
+        ...defaultConfig,
+        pasos: {
+            ...defaultConfig.pasos,
+            ...savedConfig.pasos
+        }
+    };
+    return mergedConfig;
   } catch (error) {
     console.error("Error reading asistente-ak-config.json, returning default.", error);
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8');
