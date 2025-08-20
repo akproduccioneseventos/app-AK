@@ -1,10 +1,11 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical } from 'lucide-react';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { useToast } from '@/hooks/use-toast';
 import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep } from '@/app/actions/assistant-config';
@@ -14,10 +15,49 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const iconMap: Record<string, React.ElementType> = {
   PartyPopper, Users, User, CalendarDays,
 };
+
+function SortableStep({ step, index, onEdit, onDelete }: { step: DialogStep, index: number, onEdit: (step: DialogStep, index: number) => void, onDelete: (index: number) => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: step.id });
+    const style = { transform: CSS.Transform.toString(transform), transition };
+    const Icon = iconMap[step.icon || 'Users'] || Users;
+
+    return (
+        <Card ref={setNodeRef} style={style} className="shadow-sm bg-muted/30">
+            <CardHeader className="p-4">
+                <div className="flex justify-between items-start gap-2">
+                    <div className="flex items-start gap-3 flex-grow">
+                        <div {...listeners} {...attributes} className="cursor-grab p-1 text-muted-foreground mt-1"><GripVertical className="w-5 h-5" /></div>
+                        <div className="p-2 bg-background rounded-md border flex-shrink-0"><Icon className="w-5 h-5 text-primary"/></div>
+                        <div className="flex-grow">
+                            <CardTitle className="text-lg">{index + 1}. {step.title}</CardTitle>
+                            <CardDescription className="text-xs">Pregunta del Asistente:</CardDescription>
+                            <p className="p-3 bg-background rounded-md border text-sm italic mt-2">"{step.pregunta}"</p>
+                            {step.opciones && step.opciones.length > 0 && (
+                                <div className="mt-2">
+                                    <p className="text-xs text-muted-foreground mb-1">Opciones de respuesta:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {step.opciones.map(opt => <Badge key={opt} variant="secondary">{opt}</Badge>)}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button variant="ghost" size="sm" onClick={() => onEdit(step, index)}><Edit className="w-4 h-4 mr-2"/>Editar</Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(index)}><Trash2 className="w-4 h-4"/></Button>
+                    </div>
+                </div>
+            </CardHeader>
+        </Card>
+    );
+}
 
 export default function AsistenteAkConfigPage() {
     const { toast } = useToast();
@@ -25,13 +65,14 @@ export default function AsistenteAkConfigPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     
-    // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState<DialogStep | null>(null);
     const [currentStepIndex, setCurrentStepIndex] = useState<number | null>(null);
     
     const [newOption, setNewOption] = useState('');
     const [simulatorKey, setSimulatorKey] = useState(0);
+
+    const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
     const loadConfig = useCallback(async () => {
         setIsLoading(true);
@@ -50,7 +91,7 @@ export default function AsistenteAkConfigPage() {
     }, [loadConfig]);
     
     const openEditModal = (step: DialogStep, index: number) => {
-        setCurrentStep(JSON.parse(JSON.stringify(step))); // Deep copy to avoid direct state mutation
+        setCurrentStep(JSON.parse(JSON.stringify(step)));
         setCurrentStepIndex(index);
         setIsModalOpen(true);
     };
@@ -79,6 +120,16 @@ export default function AsistenteAkConfigPage() {
         await saveAndReload(newConfig);
         setIsModalOpen(false);
     };
+    
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id && config) {
+            const oldIndex = config.pasos.findIndex(p => p.id === active.id);
+            const newIndex = config.pasos.findIndex(p => p.id === over.id);
+            const newPasos = arrayMove(config.pasos, oldIndex, newIndex);
+            saveAndReload({ ...config, pasos: newPasos }, "Orden guardado.");
+        }
+    };
 
     const handleAddStep = () => {
         if (!config) return;
@@ -86,7 +137,7 @@ export default function AsistenteAkConfigPage() {
             id: `step_${Date.now()}`,
             title: "Nuevo Paso sin Título",
             pregunta: "¿Cuál es tu pregunta?",
-            icon: "Users" // Default icon
+            icon: "Users"
         };
         const newConfig = { ...config, pasos: [...config.pasos, newStep] };
         openEditModal(newStep, config.pasos.length);
@@ -190,42 +241,19 @@ export default function AsistenteAkConfigPage() {
                         <CardHeader>
                             <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
                             <CardDescription>
-                                Edita las preguntas y opciones que el asistente usará para conversar con los clientes.
+                                Edita y reordena las preguntas que el asistente usará para conversar con los clientes.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {config.pasos.map((step, index) => {
-                                const Icon = iconMap[step.icon || 'Users'] || Users;
-                                return (
-                                <Card key={step.id} className="shadow-sm bg-muted/30">
-                                    <CardHeader className="p-4">
-                                        <div className="flex justify-between items-start gap-2">
-                                            <div className="flex items-center gap-3">
-                                                 <div className="p-2 bg-background rounded-md border"><Icon className="w-5 h-5 text-primary"/></div>
-                                                 <div>
-                                                    <CardTitle className="text-lg">{index + 1}. {step.title}</CardTitle>
-                                                    <CardDescription className="text-xs">Pregunta del Asistente:</CardDescription>
-                                                 </div>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <Button variant="ghost" size="sm" onClick={() => openEditModal(step, index)}><Edit className="w-4 h-4 mr-2"/>Editar</Button>
-                                                {config.pasos.length > 1 && <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteStep(index)}><Trash2 className="w-4 h-4"/></Button>}
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="p-4 pt-0">
-                                        <p className="p-3 bg-background rounded-md border text-sm italic">"{step.pregunta}"</p>
-                                        {step.opciones && step.opciones.length > 0 && (
-                                            <div className="mt-2">
-                                                <p className="text-xs text-muted-foreground mb-1">Opciones de respuesta:</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {step.opciones.map(opt => <Badge key={opt} variant="secondary">{opt}</Badge>)}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            )})}
+                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                <SortableContext items={config.pasos.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                                    <div className="space-y-4">
+                                        {config.pasos.map((step, index) => (
+                                           <SortableStep key={step.id} step={step} index={index} onEdit={openEditModal} onDelete={handleDeleteStep} />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
                              <Button variant="outline" className="w-full border-dashed" onClick={handleAddStep}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paso</Button>
                         </CardContent>
                     </Card>
@@ -250,3 +278,6 @@ export default function AsistenteAkConfigPage() {
         </div>
     );
 }
+
+
+    
