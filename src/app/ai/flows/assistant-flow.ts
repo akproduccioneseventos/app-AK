@@ -82,10 +82,13 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   5.  **Responde Basado en la Herramienta:** Después de llamar a la herramienta, tu respuesta final al usuario debe basarse únicamente en el campo "message" del resultado que te devuelve la herramienta. No añadas más información. Si la herramienta da un error (ej. fecha no disponible), explica el problema al usuario de forma clara y amigable.
   6.  **Capacidad Única:** Si en algún momento el usuario te pregunta por algo que no sea parte de este flujo de creación de presupuestos, responde amablemente que tu única función es ayudar a crear presupuestos iniciales.`;
 
+  const history: Message[] = input.history || [];
+  history.push({ role: 'user', content: [{ text: input.query }] });
+
   const llmResponse = await ai.generate({
-    prompt: systemPrompt + "\n\nUser Query: " + input.query,
-    history: input.history,
     model: 'googleai/gemini-1.5-flash',
+    system: systemPrompt,
+    history: history,
     tools: [createQuoteTool],
     toolChoice: 'auto',
     output: {
