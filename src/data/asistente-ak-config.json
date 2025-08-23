@@ -1,4 +1,3 @@
-
 {
   "pasos": [
     {
@@ -34,9 +33,27 @@
     },
     {
       "id": "seleccionServicios",
-      "title": "Selección de Servicios",
+      "title": "Comenzamos a hacer el presupuesto",
       "icon": "Sparkles",
-      "pregunta": "Perfecto, {{{nombreCliente}}}. Ahora comencemos a armar el presupuesto. Utiliza el botón 'Añadir Servicio' para empezar a seleccionar los ítems que desees."
+      "pregunta": "{{{nombreCliente}}} ahora vamos a elegir los menú para el catering. primero elegiremos la primer entrada."
+    },
+    {
+      "id": "step_1755976920250",
+      "title": "Elegir entrada 2",
+      "pregunta": "Ahora debes elegir la segunda entrada",
+      "icon": "Users"
+    },
+    {
+      "id": "step_1755976978146",
+      "title": "Elegir Plato principal",
+      "pregunta": "{{{nombreCliente}}}¿Que plato principal te gustaria?",
+      "icon": "Users"
+    },
+    {
+      "id": "step_1755977112686",
+      "title": "Plato principal para niños y adolescente",
+      "pregunta": "¿Qué plato plato principal te gustaría para niños y adolescente?",
+      "icon": "Users"
     }
   ]
 }

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { Label } from '../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 interface ChatMessage extends Message {
   id: string;
@@ -38,7 +38,17 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean, assistantKey?: number }) {
+export function AkAssistant({ 
+    isPage = false, 
+    assistantKey,
+    currentServices,
+    setCurrentServices
+}: { 
+    isPage?: boolean, 
+    assistantKey?: number,
+    currentServices: ServiceInfo[],
+    setCurrentServices: React.Dispatch<React.SetStateAction<ServiceInfo[]>>
+}) {
     const [isOpen, setIsOpen] = useState(isPage);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -47,8 +57,6 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
     const { toast } = useToast();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-
-    const [currentServices, setCurrentServices] = useState<ServiceInfo[]>([]);
     
     const [isCatalogOpen, setIsCatalogOpen] = useState(false);
     const [catalog, setCatalog] = useState<SelectableService[]>([]);
@@ -71,7 +79,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
         }).finally(() => {
             setIsLoading(false);
         });
-    }, [toast]);
+    }, [toast, setCurrentServices]);
     
     useEffect(() => {
         if(isPage || assistantKey) {
@@ -112,8 +120,17 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
         const service = catalog.find(s => s.id === selectedCatalogServiceId);
         if (!service) return;
 
-        const prompt = `Añade el servicio "${service.nombre}" al presupuesto.`;
-        handleSubmit(undefined, prompt);
+        const serviceToAdd: ServiceInfo = {
+            id: service.id,
+            name: service.nombre,
+            quantity: 1,
+            unitPrice: service.precioVenta || 0,
+        };
+
+        if (!currentServices.some(s => s.id === serviceToAdd.id)) {
+            setCurrentServices(prev => [...prev, serviceToAdd]);
+        }
+        
         setIsCatalogOpen(false);
         setSelectedCatalogServiceId('');
     };
@@ -135,10 +152,11 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
 
         try {
             const history: Message[] = messages.map(m => ({ role: m.role, content: m.content }));
+            const serviceIds = currentServices.map(s => s.id);
             const response = await assistant({ 
                 query: userMessage, 
                 history,
-                currentServices: currentServices,
+                currentServices: serviceIds.length > 0 ? currentServices : undefined
             });
             
             setMessages(prev => [...prev, {
@@ -147,11 +165,6 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                 content: [{ text: response.response }],
                 data: response,
             }]);
-
-            if (response.currentServices) {
-                setCurrentServices(response.currentServices);
-            }
-
         } catch (err: any) {
             setError(err.message || "Ocurrió un error.");
             toast({ title: "Error", description: err.message, variant: 'destructive' });
@@ -173,8 +186,6 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
       }
       return [];
     };
-
-    const totalPresupuesto = currentServices.reduce((sum, service) => sum + (service.unitPrice * service.quantity), 0);
 
     return (
         <div className={containerClasses}>
@@ -261,20 +272,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                         </ScrollArea>
                         
                         <footer className="p-3 border-t">
-                            {currentServices.length > 0 && (
-                                <div className="p-2 mb-2 border rounded-md text-sm bg-background">
-                                    <h4 className="font-semibold text-xs text-muted-foreground mb-1">Presupuesto Actual:</h4>
-                                    <ul className="space-y-0.5 max-h-24 overflow-y-auto">
-                                        {currentServices.map(s => <li key={s.id} className="flex justify-between items-center text-xs"><span>{s.quantity}x {s.name}</span> <span>{formatCurrency(s.unitPrice * s.quantity)}</span></li>)}
-                                    </ul>
-                                    <div className="flex justify-between font-bold border-t mt-1 pt-1">
-                                        <span>Total:</span>
-                                        <span>{formatCurrency(totalPresupuesto)}</span>
-                                    </div>
-                                </div>
-                            )}
-                             <Button variant="outline" size="sm" className="w-full mb-2" onClick={() => setIsCatalogOpen(true)} type="button"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio al Presupuesto</Button>
-                             <form onSubmit={handleSubmit}>
+                            <form onSubmit={handleSubmit}>
                                 <div className="flex items-center gap-2">
                                   <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
                                   <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
