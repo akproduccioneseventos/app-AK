@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 interface ChatMessage extends Message {
   id: string;
@@ -290,5 +292,3 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
         </div>
     );
 }
-
-    
