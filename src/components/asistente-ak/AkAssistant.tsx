@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User, X, Loader2, ArrowRight, CornerDownLeft, Check, Sparkles } from 'lucide-react';
+import { Bot, User, X, Loader2, ArrowRight, CornerDownLeft, Check, Sparkles, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { assistant, type AssistantOutput } from '@/ai/flows/assistant-flow';
@@ -13,12 +13,29 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Message } from 'genkit';
 import { ScrollArea } from '../ui/scroll-area';
-import type { SelectableService } from '@/ai/types/assistant-types';
+import type { SelectableService, ServiceInfo } from '@/ai/types/assistant-types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { Label } from '../ui/label';
 
 interface ChatMessage extends Message {
   id: string;
   data?: AssistantOutput;
 }
+
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
 
 export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
     const [isOpen, setIsOpen] = useState(isPage);
@@ -31,13 +48,18 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     // State for interactive service selection
-    const [selectedServices, setSelectedServices] = useState<Map<string, SelectableService>>(new Map());
+    const [currentServices, setCurrentServices] = useState<ServiceInfo[]>([]);
+    
+    // State for service catalog modal
+    const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+    const [catalog, setCatalog] = useState<SelectableService[]>([]);
+    const [selectedCatalogServiceId, setSelectedCatalogServiceId] = useState<string>('');
+
 
     useEffect(() => {
         if(isPage && messages.length === 0) {
-            // Initial greeting from the assistant
             setIsLoading(true);
-            assistant({ query: '' }).then(response => { // Use empty query for initial message
+            assistant({ query: '' }).then(response => {
                 setMessages(prev => [...prev, {
                     id: `ai-${Date.now()}`,
                     role: 'model',
@@ -54,29 +76,42 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
     }, [isPage, toast, messages.length]);
     
     useEffect(() => {
-        // Auto-scroll to bottom
         if (scrollAreaRef.current) {
             scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
         }
     }, [messages]);
-
-    const handleServiceToggle = (service: SelectableService) => {
-        setSelectedServices(prev => {
-            const newMap = new Map(prev);
-            if (newMap.has(service.id)) {
-                newMap.delete(service.id);
-            } else {
-                newMap.set(service.id, service);
+    
+    useEffect(() => {
+        async function fetchCatalog() {
+            try {
+                const services = await getServiciosEmpresa();
+                const selectableServices = services
+                    .filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined)
+                    .map(s => ({
+                        id: s.id,
+                        nombre: s.nombre,
+                        precioVenta: s.precioVenta,
+                        unidad: s.unidad
+                    }));
+                setCatalog(selectableServices);
+            } catch (e) {
+                toast({title: "Error", description: "No se pudo cargar el catálogo de servicios."});
             }
-            return newMap;
-        });
-    };
+        }
+        if(isOpen) {
+            fetchCatalog();
+        }
+    }, [isOpen, toast]);
 
-    const handleConfirmServiceSelection = () => {
-        const serviceNames = Array.from(selectedServices.values()).map(s => s.nombre).join(', ');
-        const prompt = `He seleccionado los siguientes servicios: ${serviceNames}. Por favor, añádelos al presupuesto y continúa.`;
+    const handleAddServiceFromCatalog = () => {
+        if (!selectedCatalogServiceId) return;
+        const service = catalog.find(s => s.id === selectedCatalogServiceId);
+        if (!service) return;
+
+        const prompt = `Añade el servicio "${service.nombre}" al presupuesto.`;
         handleSubmit(undefined, prompt);
-        setSelectedServices(new Map()); // Clear selection after confirming
+        setIsCatalogOpen(false);
+        setSelectedCatalogServiceId('');
     };
 
     const handleSubmit = async (e?: FormEvent<HTMLFormElement>, prompt?: string) => {
@@ -96,7 +131,11 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
 
         try {
             const history = messages.map(m => ({ role: m.role, content: m.content }));
-            const response = await assistant({ query: userMessage, history });
+            const response = await assistant({ 
+                query: userMessage, 
+                history,
+                currentServices: currentServices,
+            });
             
             setMessages(prev => [...prev, {
                 id: `ai-${Date.now()}`,
@@ -104,6 +143,11 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                 content: [{ text: response.response }],
                 data: response,
             }]);
+
+            if (response.currentServices) {
+                setCurrentServices(response.currentServices);
+            }
+
         } catch (err: any) {
             setError(err.message || "Ocurrió un error.");
             toast({ title: "Error", description: err.message, variant: 'destructive' });
@@ -126,8 +170,32 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
       return [];
     };
 
+    const totalPresupuesto = currentServices.reduce((sum, service) => sum + (service.unitPrice * service.quantity), 0);
+
     return (
         <div className={containerClasses}>
+             <Dialog open={isCatalogOpen} onOpenChange={setIsCatalogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Añadir Servicio al Presupuesto</DialogTitle>
+                        <DialogDescription>Selecciona un servicio del catálogo para añadirlo a la cotización actual.</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-2">
+                        <Label htmlFor="service-catalog-select">Servicio</Label>
+                        <Select value={selectedCatalogServiceId} onValueChange={setSelectedCatalogServiceId}>
+                            <SelectTrigger id="service-catalog-select"><SelectValue placeholder="Seleccionar servicio..."/></SelectTrigger>
+                            <SelectContent><ScrollArea className="h-64">
+                                {catalog.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre} - {formatCurrency(s.precioVenta)}</SelectItem>)}
+                            </ScrollArea></SelectContent>
+                        </Select>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose>
+                        <Button onClick={handleAddServiceFromCatalog} disabled={!selectedCatalogServiceId}>Añadir</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -151,7 +219,6 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                                     const isModel = message.role === 'model';
                                     const messageContent = message.content[0].text;
                                     const presupuestoId = message.data?.presupuestoId;
-                                    const selectableServices = message.data?.selectableServices;
                                     const suggestedReplies = extractOptions(messageContent);
                                     
                                     const cleanMessageContent = messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '').trim();
@@ -161,30 +228,7 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                                             {isModel && <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>}
                                             <div className={`max-w-xs rounded-lg px-3 py-2 text-sm ${isModel ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
                                                 <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{cleanMessageContent}</ReactMarkdown>
-                                                {selectableServices && selectableServices.length > 0 && (
-                                                    <div className="space-y-2 mt-3">
-                                                        {selectableServices.map(service => (
-                                                            <Button
-                                                                key={service.id}
-                                                                variant={selectedServices.has(service.id) ? 'default' : 'outline'}
-                                                                size="sm"
-                                                                className="w-full justify-start h-auto py-1.5 px-2"
-                                                                onClick={() => handleServiceToggle(service)}
-                                                            >
-                                                                <div className="flex items-center justify-between w-full">
-                                                                    <span>{service.nombre}</span>
-                                                                    {selectedServices.has(service.id) && <Check className="w-4 h-4 text-primary-foreground" />}
-                                                                </div>
-                                                            </Button>
-                                                        ))}
-                                                         {selectedServices.size > 0 && (
-                                                            <Button size="sm" className="w-full mt-2" onClick={handleConfirmServiceSelection}>
-                                                                <Sparkles className="w-4 h-4 mr-2"/> Añadir {selectedServices.size} servicio(s)
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                )}
-                                                {presupuestoId && (
+                                                 {presupuestoId && (
                                                     <Button asChild variant="secondary" size="sm" className="mt-2">
                                                         <Link href={`/presupuestos/${presupuestoId}/ver`}>Ver Presupuesto <ArrowRight className="w-4 h-4 ml-2"/></Link>
                                                     </Button>
@@ -213,6 +257,23 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                         </ScrollArea>
                         
                         <footer className="p-3 border-t">
+                            {currentServices.length > 0 && (
+                                <div className="p-2 mb-2 border rounded-md text-sm bg-background">
+                                    <h4 className="font-semibold text-xs text-muted-foreground mb-1">Presupuesto Actual:</h4>
+                                    <ul className="space-y-0.5 max-h-24 overflow-y-auto">
+                                        {currentServices.map(s => <li key={s.id} className="flex justify-between items-center text-xs"><span>{s.quantity}x {s.name}</span> <span>{formatCurrency(s.unitPrice * s.quantity)}</span></li>)}
+                                    </ul>
+                                    <div className="flex justify-between font-bold border-t mt-1 pt-1">
+                                        <span>Total:</span>
+                                        <span>{formatCurrency(totalPresupuesto)}</span>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2 mb-2">
+                                <Button size="sm" variant="outline" className="flex-grow" onClick={() => setIsCatalogOpen(true)}>
+                                    <PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio
+                                </Button>
+                            </div>
                              <form onSubmit={handleSubmit} className="flex items-center gap-2">
                                 <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
                                 <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
@@ -229,3 +290,5 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
         </div>
     );
 }
+
+    
