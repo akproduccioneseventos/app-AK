@@ -6,7 +6,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { AssistantInputSchema, AssistantOutputSchema, type AssistantInput, type AssistantOutput } from '@/ai/types/assistant-types';
+import { AssistantInputSchema, type AssistantInput, AssistantOutputSchema, type AssistantOutput } from '@/ai/types/assistant-types';
 import { z } from 'genkit';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { savePresupuesto } from '@/app/actions/presupuestos';
