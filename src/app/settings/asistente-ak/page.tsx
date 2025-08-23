@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 'react';
@@ -125,12 +126,14 @@ export default function AsistenteAkConfigPage() {
     const handleAddTextOption = () => {
         if (newOptionText.trim() && currentStep) {
             const existingOptions = currentStep.opciones || [];
-            if(existingOptions.some(opt => opt.label.toLowerCase() === newOptionText.trim().toLowerCase())) {
+            const newId = `opt_${newOptionText.trim().toLowerCase().replace(/\s+/g, '-')}`;
+
+            if(existingOptions.some(opt => opt.id === newId)) {
                 toast({title: "Opción Duplicada", description: "Esta opción de texto ya existe.", variant: "default"});
                 return;
             }
             const newOption: DialogOption = {
-                id: `opt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+                id: newId,
                 type: 'text',
                 label: newOptionText.trim()
             };
@@ -311,3 +314,4 @@ export default function AsistenteAkConfigPage() {
     
 
     
+
