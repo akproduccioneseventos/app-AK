@@ -276,11 +276,11 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                 </div>
                             )}
                              <form onSubmit={handleSubmit} className="space-y-2">
+                                <Button variant="outline" size="sm" className="w-full" onClick={() => setIsCatalogOpen(true)} type="button"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
                                 <div className="flex items-center gap-2">
                                   <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
                                   <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
                                 </div>
-                                 <Button variant="outline" size="sm" className="w-full" onClick={() => setIsCatalogOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
                             </form>
                         </footer>
                     </motion.div>

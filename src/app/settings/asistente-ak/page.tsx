@@ -232,7 +232,7 @@ export default function AsistenteAkConfigPage() {
                             )}
                             <div className="flex gap-2">
                                 <Input value={newOption} onChange={e => setNewOption(e.target.value)} placeholder="Añadir nueva opción..." onKeyDown={(e) => {if(e.key === 'Enter'){ e.preventDefault(); handleAddOption();}}}/>
-                                <Button type="button" variant="outline" onClick={handleAddOption}>Añadir Opción</Button>
+                                <Button type="button" variant="outline" onClick={handleAddOption}>Añadir</Button>
                             </div>
                         </div>
                     </div>
