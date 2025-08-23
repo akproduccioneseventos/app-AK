@@ -1,11 +1,10 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical, BookOpen, Sparkles as SparklesIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep, type DialogOption } from '@/app/actions/assistant-config';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -23,7 +22,7 @@ import { Search } from 'lucide-react';
 
 
 const iconMap: Record<string, React.ElementType> = {
-  PartyPopper, Users, User, CalendarDays, Sparkles
+  PartyPopper, Users, User, CalendarDays, Sparkles: SparklesIcon
 };
 
 function SortableStep({ step, index, onEdit, onDelete }: { step: DialogStep, index: number, onEdit: (step: DialogStep, index: number) => void, onDelete: (index: number) => void }) {
@@ -125,6 +124,11 @@ export default function AsistenteAkConfigPage() {
 
     const handleAddTextOption = () => {
         if (newOptionText.trim() && currentStep) {
+            const existingOptions = currentStep.opciones || [];
+            if(existingOptions.some(opt => opt.label.toLowerCase() === newOptionText.trim().toLowerCase())) {
+                toast({title: "Opción Duplicada", description: "Esta opción de texto ya existe.", variant: "default"});
+                return;
+            }
             const newOption: DialogOption = {
                 id: `opt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
                 type: 'text',
@@ -137,6 +141,11 @@ export default function AsistenteAkConfigPage() {
 
     const handleAddServiceOption = (service: ServicioEmpresa) => {
          if (currentStep) {
+            const existingOptions = currentStep.opciones || [];
+            if(existingOptions.some(opt => opt.id === service.id)) {
+                toast({title: "Servicio Duplicado", description: "Este servicio ya ha sido añadido a las opciones.", variant: "default"});
+                return;
+            }
             const newOption: DialogOption = {
                 id: service.id,
                 type: 'service',
@@ -273,7 +282,7 @@ export default function AsistenteAkConfigPage() {
             </div>
              <Card className="border-blue-200 bg-blue-50/50">
                 <CardHeader className="flex-row items-center gap-4 space-y-0">
-                    <div className="p-2 bg-background rounded-md border border-blue-200"><Sparkles className="w-6 h-6 text-blue-600"/></div>
+                    <div className="p-2 bg-background rounded-md border border-blue-200"><SparklesIcon className="w-6 h-6 text-blue-600"/></div>
                     <div>
                         <CardTitle className="font-headline text-lg text-blue-800">Catálogo de Servicios del Asistente</CardTitle>
                         <CardDescription className="text-blue-700/80">Los servicios que el asistente puede ofrecer se gestionan en el catálogo general.</CardDescription>
