@@ -255,9 +255,12 @@ export async function assistant(
   
   if (toolCalls && toolCalls.length > 0) {
     let finalLlmResponse;
-    try {
-      for (const toolCall of toolCalls) {
+    const toolResults: any[] = [];
+
+    for (const toolCall of toolCalls) {
         const toolResult = (await toolCall.run()) as any;
+        toolResults.push(toolResult);
+
         if (toolCall.name === 'addServiceToQuote' && toolResult) {
             const serviceToAdd: ServiceInfo = {
               id: toolResult.serviceId,
@@ -269,24 +272,17 @@ export async function assistant(
               newSelectedServices.push(serviceToAdd);
             }
         }
-      }
-      
-      finalLlmResponse = await ai.generate({
-          model: 'googleai/gemini-1.5-flash',
-          prompt: `El usuario está creando un presupuesto. Ya has usado algunas herramientas para recopilar información o añadir servicios. El estado actual es: ${JSON.stringify({history, services: newSelectedServices})}. Ahora, formula una respuesta amigable y natural para continuar la conversación o finalizarla si corresponde. Si creaste un presupuesto, usa el mensaje del resultado de la herramienta 'createQuote'. Si añadiste un servicio, confirma que fue añadido y pregunta qué más desea hacer. Si obtuviste una lista de servicios, preséntala de forma atractiva.`,
-          tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
-          output: { schema: AssistantOutputSchema },
-      });
-
-    } catch (toolError: any) {
-        console.error("Error running tool:", toolError);
-        finalLlmResponse = await ai.generate({
-            model: 'googleai/gemini-1.5-flash',
-            prompt: `I tried to use a tool to help the user, but it failed with this error: ${toolError.message}. Please apologize to the user for the technical difficulty and ask them to rephrase their request or try again.`,
-            output: { schema: AssistantOutputSchema },
-        });
     }
+      
+    // Create a new history including the tool calls and their results for context
+    const followUpHistory = [...history, llmResponse.message, ...toolCalls.map((tc, i) => tc.toToolResponse(toolResults[i]))];
 
+    finalLlmResponse = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        history: followUpHistory, // Use the updated history
+        tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
+        output: { schema: AssistantOutputSchema },
+    });
 
     const output = finalLlmResponse.output;
     if (!output) {
@@ -295,23 +291,25 @@ export async function assistant(
       );
     }
     output.currentServices = newSelectedServices;
-
-    const createQuoteCall = toolCalls.find(tc => tc.name === 'createQuote');
-    if (createQuoteCall) {
-        const createQuoteResult = (await createQuoteCall.run()) as any;
-         if (createQuoteResult.success && createQuoteResult.presupuestoId) {
-            output.presupuestoId = createQuoteResult.presupuestoId;
-        }
-    }
-
+    
+    // Check if the getServices tool was called to populate selectableServices
     const getServicesCall = toolCalls.find(tc => tc.name === 'getServiciosDisponibles');
-     if (getServicesCall) {
-        const servicesResult = (await getServicesCall.run()) as any;
+    if (getServicesCall) {
+        const servicesResult = toolResults[toolCalls.indexOf(getServicesCall)];
         if(Array.isArray(servicesResult)){
             const parsedServices = z.array(SelectableServiceSchema).safeParse(servicesResult);
              if (parsedServices.success) {
                 output.selectableServices = parsedServices.data;
             }
+        }
+    }
+    
+    // Check if the createQuote tool was called to populate the budget ID
+    const createQuoteCall = toolCalls.find(tc => tc.name === 'createQuote');
+    if (createQuoteCall) {
+        const createQuoteResult = toolResults[toolCalls.indexOf(createQuoteCall)];
+        if (createQuoteResult.success && createQuoteResult.presupuestoId) {
+          output.presupuestoId = createQuoteResult.presupuestoId;
         }
     }
 

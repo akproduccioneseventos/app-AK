@@ -227,6 +227,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                     const messageContent = message.content[0].text;
                                     const presupuestoId = message.data?.presupuestoId;
                                     const suggestedReplies = extractOptions(messageContent);
+                                    const selectableServices = message.data?.selectableServices;
                                     
                                     const cleanMessageContent = messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '').trim();
 
@@ -244,6 +245,13 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                                     <div className="flex flex-wrap gap-2 mt-2">
                                                         {suggestedReplies.map((reply, i) => (
                                                             <Button key={i} size="sm" variant="outline" onClick={() => handleSubmit(undefined, reply)}>{reply}</Button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {isModel && selectableServices && selectableServices.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        {selectableServices.map((service) => (
+                                                            <Button key={service.id} size="sm" variant="outline" onClick={() => handleSubmit(undefined, `Añade el servicio "${service.nombre}"`)}>{service.nombre}</Button>
                                                         ))}
                                                     </div>
                                                 )}
