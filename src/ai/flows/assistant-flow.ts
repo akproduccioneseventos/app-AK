@@ -11,48 +11,54 @@ import {
   AssistantOutputSchema,
   type AssistantInput,
   type AssistantOutput,
+  SelectableServiceSchema,
 } from '@/ai/types/assistant-types';
 import {z} from 'genkit';
 import {getOcupiedDates} from '@/app/actions/agenda';
 import {savePresupuesto} from '@/app/actions/presupuestos';
 import type {Message} from 'genkit';
-import {getAssistantConfig, type DialogConfig} from '@/app/actions/assistant-config';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa } from '@/types/empresa';
+import {
+  getAssistantConfig,
+  type DialogConfig,
+} from '@/app/actions/assistant-config';
+import {getServiciosEmpresa} from '@/app/actions/servicios-empresa';
+import type {ServicioEmpresa} from '@/types/empresa';
 
 // Tool: Get available services from the catalog
 const getServiciosDisponibles = ai.defineTool(
   {
     name: 'getServiciosDisponibles',
-    description: 'Retrieves a list of all available services from the company\'s catalog that can be offered to a client.',
+    description:
+      "Retrieves a list of all available services from the company's catalog that can be offered to a client.",
     inputSchema: z.object({}),
-    outputSchema: z.array(z.object({
+    outputSchema: z.array(
+      z.object({
         id: z.string(),
         nombre: z.string(),
         categoria: z.string(),
         precioVenta: z.number().optional(),
         unidad: z.string().optional(),
-    }))
+      })
+    ),
   },
   async () => {
     try {
-        const services = await getServiciosEmpresa();
-        return services
-            .filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined)
-            .map(s => ({
-                id: s.id,
-                nombre: s.nombre,
-                categoria: s.categoria,
-                precioVenta: s.precioVenta,
-                unidad: s.unidad
-            }));
-    } catch(e) {
-        console.error("Error fetching services for tool", e);
-        return [];
+      const services = await getServiciosEmpresa();
+      return services
+        .filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined)
+        .map(s => ({
+          id: s.id,
+          nombre: s.nombre,
+          categoria: s.categoria,
+          precioVenta: s.precioVenta,
+          unidad: s.unidad,
+        }));
+    } catch (e) {
+      console.error('Error fetching services for tool', e);
+      return [];
     }
   }
 );
-
 
 // Tool: Create a new quote
 const createQuoteTool = ai.defineTool(
@@ -76,7 +82,10 @@ const createQuoteTool = ai.defineTool(
         .describe(
           'The estimated date of the event in YYYY-MM-DD format. Optional.'
         ),
-      serviceIds: z.array(z.string()).optional().describe("An array of IDs for the services the client has selected."),
+      serviceIds: z
+        .array(z.string())
+        .optional()
+        .describe('An array of IDs for the services the client has selected.'),
     }),
     outputSchema: z.object({
       success: z.boolean(),
@@ -85,7 +94,7 @@ const createQuoteTool = ai.defineTool(
       error: z.string().optional(),
     }),
   },
-  async (input) => {
+  async input => {
     try {
       if (input.eventoFecha) {
         const occupiedDates = await getOcupiedDates();
@@ -104,21 +113,23 @@ const createQuoteTool = ai.defineTool(
           };
         }
       }
-      
+
       const allServices = await getServiciosEmpresa();
       const itemsPresupuestados = (input.serviceIds || [])
         .map(id => allServices.find(s => s.id === id))
         .filter((s): s is ServicioEmpresa => !!s)
         .map(s => ({
-            idServicioCatalogo: s.id,
-            nombreServicio: s.nombre,
-            cantidad: s.unidad === 'Por persona' ? input.invitadosCantidad : 1,
-            unidad: s.unidad,
-            precioUnitario: s.precioVenta || 0,
-            costoTotalItem: (s.unidad === 'Por persona' ? input.invitadosCantidad : 1) * (s.precioVenta || 0),
-            categoriaServicio: s.categoria,
+          idServicioCatalogo: s.id,
+          nombreServicio: s.nombre,
+          cantidad: s.unidad === 'Por persona' ? input.invitadosCantidad : 1,
+          unidad: s.unidad,
+          precioUnitario: s.precioVenta || 0,
+          costoTotalItem:
+            (s.unidad === 'Por persona' ? input.invitadosCantidad : 1) *
+            (s.precioVenta || 0),
+          categoriaServicio: s.categoria,
         }));
-      
+
       const result = await savePresupuesto({
         clienteNombre: input.clienteNombre,
         eventoTipo: input.eventoTipo,
@@ -126,7 +137,7 @@ const createQuoteTool = ai.defineTool(
         eventoFecha: input.eventoFecha || new Date().toISOString(),
         itemsPresupuestados: itemsPresupuestados,
         costoTotalEstimado: 0, // This will be recalculated in savePresupuesto
-        salonFiestas: 'A definir', 
+        salonFiestas: 'A definir',
         timestamp: new Date().toISOString(),
       });
       if (result.success && result.id) {
@@ -166,7 +177,12 @@ export async function assistant(
   **Flujo de Diálogo a Seguir:**
   Tu conversación DEBE seguir esta secuencia de pasos. Analiza el historial para determinar en qué paso estás y qué preguntar a continuación.
   ${dialogConfig.pasos
-    .map((paso, index) => `${index + 1}. **${paso.title} (ID: ${paso.id})**: Pregunta: "${paso.pregunta}"`)
+    .map(
+      (paso, index) =>
+        `${index + 1}. **${paso.title} (ID: ${paso.id})**: Pregunta: "${
+          paso.pregunta
+        }"`
+    )
     .join('\n  ')}
 
   **Reglas de Interacción Estrictas:**
@@ -182,7 +198,9 @@ export async function assistant(
   10. **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
 
   const history: Message[] = input.history || [];
-  history.push({role: 'user', content: [{text: input.query}]});
+  if (input.query) {
+    history.push({role: 'user', content: [{text: input.query}]});
+  }
 
   const llmResponse = await ai.generate({
     model: 'googleai/gemini-1.5-flash',
@@ -200,11 +218,37 @@ export async function assistant(
   if (toolCall) {
     const toolResult = (await toolCall.run()) as any;
 
+    if (toolCall.name === 'getServiciosDisponibles' && Array.isArray(toolResult)) {
+      // If the tool returned the list of services, formulate a response and include the services in the output.
+      const serviceResponse = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        prompt: `El usuario está listo para elegir servicios. La herramienta 'getServiciosDisponibles' ha devuelto la siguiente lista de servicios disponibles: ${JSON.stringify(
+          toolResult
+        )}. Formula una respuesta amigable presentando estos servicios. Anima al usuario a seleccionar los que le interesen.`,
+        output: {
+          schema: z.object({
+            response: z.string(),
+          }),
+        },
+      });
+      const responseText =
+        serviceResponse.output?.response ||
+        'Aquí tienes los servicios que ofrecemos. ¡Elige los que más te gusten!';
+      
+      const parsedServices = z.array(SelectableServiceSchema).safeParse(toolResult);
+
+      return {
+        response: responseText,
+        selectableServices: parsedServices.success ? parsedServices.data : [],
+      };
+    }
+
+    // For other tools like createQuote
     const finalResponse = await ai.generate({
       model: 'googleai/gemini-1.5-flash',
       prompt: `El usuario pidió crear un presupuesto. Usaste una herramienta y este fue el resultado: ${JSON.stringify(
         toolResult
-      )}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado, si existe. Si la herramienta fue 'getServiciosDisponibles', presenta los servicios devueltos de forma atractiva y pregunta al usuario cuáles le gustaría añadir.`,
+      )}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado, si existe.`,
       output: {
         schema: AssistantOutputSchema,
       },
@@ -217,7 +261,11 @@ export async function assistant(
       );
     }
 
-    if (toolCall.name === 'createQuote' && toolResult.success && toolResult.presupuestoId) {
+    if (
+      toolCall.name === 'createQuote' &&
+      toolResult.success &&
+      toolResult.presupuestoId
+    ) {
       output.presupuestoId = toolResult.presupuestoId;
     }
 
