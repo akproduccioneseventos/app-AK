@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep } from '@/app/actions/assistant-config';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,7 +19,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, v
 import { CSS } from '@dnd-kit/utilities';
 
 const iconMap: Record<string, React.ElementType> = {
-  PartyPopper, Users, User, CalendarDays,
+  PartyPopper, Users, User, CalendarDays, Sparkles,
 };
 
 function SortableStep({ step, index, onEdit, onDelete }: { step: DialogStep, index: number, onEdit: (step: DialogStep, index: number) => void, onDelete: (index: number) => void }) {
@@ -219,7 +219,7 @@ export default function AsistenteAkConfigPage() {
                             <Textarea ref={questionTextareaRef} id="question-text" value={currentStep.pregunta || ''} onChange={e => handleModalInputChange('pregunta', e.target.value)} rows={3}/>
                         </div>
                         <div className="space-y-2">
-                            <Label>Opciones de Respuesta</Label>
+                            <Label>Opciones de Respuesta (Botones)</Label>
                             {(currentStep.opciones || []).length > 0 && (
                                 <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-muted/50">
                                 {currentStep.opciones?.map(opt => (
@@ -232,7 +232,7 @@ export default function AsistenteAkConfigPage() {
                             )}
                             <div className="flex gap-2">
                                 <Input value={newOption} onChange={e => setNewOption(e.target.value)} placeholder="Añadir nueva opción..." onKeyDown={(e) => {if(e.key === 'Enter'){ e.preventDefault(); handleAddOption();}}}/>
-                                <Button type="button" variant="outline" onClick={handleAddOption}>Añadir</Button>
+                                <Button type="button" variant="outline" onClick={handleAddOption}>Añadir Opción</Button>
                             </div>
                         </div>
                     </div>
@@ -256,6 +256,23 @@ export default function AsistenteAkConfigPage() {
                 </Link>
             </div>
             
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl">Catálogo de Servicios del Asistente</CardTitle>
+                    <CardDescription>
+                        Los servicios que el asistente ofrece se gestionan en el Catálogo General. Haz clic aquí para añadir, editar o eliminar los servicios que estarán disponibles para la IA.
+                    </CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <Link href="/empresa/servicios" passHref>
+                        <Button variant="outline">
+                            <Sparkles className="w-4 h-4 mr-2"/> Ir al Catálogo de Servicios
+                        </Button>
+                    </Link>
+                </CardFooter>
+            </Card>
+
+
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
