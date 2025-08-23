@@ -227,9 +227,6 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                     const presupuestoId = message.data?.presupuestoId;
                                     const suggestedReplies = extractOptions(messageContent);
                                     
-                                    // Check if the current step is the service selection step
-                                    const isServiceSelectionStep = messageContent.includes("algunos servicios que podrían interesarte");
-                                    
                                     const cleanMessageContent = messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '').trim();
 
                                     return (
@@ -249,11 +246,6 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                                         ))}
                                                     </div>
                                                 )}
-                                                 {isModel && isServiceSelectionStep && (
-                                                     <Button size="sm" variant="outline" className="mt-2" onClick={() => setIsCatalogOpen(true)}>
-                                                        <PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio
-                                                    </Button>
-                                                 )}
                                             </div>
                                             {!isModel && <Avatar className="h-6 w-6"><AvatarFallback><User className="h-4 w-4"/></AvatarFallback></Avatar>}
                                         </div>
@@ -283,9 +275,12 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                     </div>
                                 </div>
                             )}
-                             <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                                <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
-                                <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
+                             <form onSubmit={handleSubmit} className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
+                                  <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
+                                </div>
+                                 <Button variant="outline" size="sm" className="w-full" onClick={() => setIsCatalogOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
                             </form>
                         </footer>
                     </motion.div>
