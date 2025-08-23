@@ -137,7 +137,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
         setError('');
 
         try {
-            const history = messages.map(m => ({ role: m.role, content: m.content }));
+            const history: Message[] = messages.map(m => ({ role: m.role, content: m.content }));
             const response = await assistant({ 
                 query: userMessage, 
                 history,
