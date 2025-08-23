@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical, CornerDownLeft, RefreshCcw } from 'lucide-react';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { useToast } from '@/hooks/use-toast';
 import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep } from '@/app/actions/assistant-config';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -70,7 +69,6 @@ export default function AsistenteAkConfigPage() {
     const [currentStepIndex, setCurrentStepIndex] = useState<number | null>(null);
     
     const [newOption, setNewOption] = useState('');
-    const [simulatorKey, setSimulatorKey] = useState(0);
     const questionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
@@ -178,7 +176,6 @@ export default function AsistenteAkConfigPage() {
         try {
             await saveAssistantConfig(newConfig);
             setConfig(newConfig);
-            setSimulatorKey(prev => prev + 1);
             toast({ title: "¡Éxito!", description: message });
         } catch(e: any) {
              toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
@@ -201,7 +198,7 @@ export default function AsistenteAkConfigPage() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8">
              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-lg">
                     <DialogHeader>
@@ -259,50 +256,27 @@ export default function AsistenteAkConfigPage() {
                 </Link>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
-                            <CardDescription>
-                                Edita y reordena las preguntas que el asistente usará para conversar con los clientes.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                                <SortableContext items={config.pasos.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                                    <div className="space-y-4">
-                                        {config.pasos.map((step, index) => (
-                                           <SortableStep key={step.id} step={step} index={index} onEdit={openEditModal} onDelete={handleDeleteStep} />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DndContext>
-                             <Button variant="outline" className="w-full border-dashed" onClick={handleAddStep}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paso</Button>
-                        </CardContent>
-                    </Card>
-                </div>
-                
-                <div className="lg:col-span-1">
-                     <Card className="sticky top-20">
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle className="font-headline text-xl">Simulador de Chat</CardTitle>
-                                <Button variant="ghost" size="icon" onClick={() => setSimulatorKey(prev => prev + 1)} title="Reiniciar Chat">
-                                    <RefreshCcw className="w-4 h-4 text-muted-foreground"/>
-                                </Button>
-                            </div>
-                             <CardDescription>
-                                Prueba el flujo de conversación en tiempo real.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                           <div className="h-[450px] w-full">
-                             <AkAssistant key={simulatorKey} isPage />
-                           </div>
-                        </CardContent>
-                    </Card>
-                </div>
+            <div className="w-full space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
+                        <CardDescription>
+                            Edita y reordena las preguntas que el asistente usará para conversar con los clientes.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                            <SortableContext items={config.pasos.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                                <div className="space-y-4">
+                                    {config.pasos.map((step, index) => (
+                                       <SortableStep key={step.id} step={step} index={index} onEdit={openEditModal} onDelete={handleDeleteStep} />
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
+                         <Button variant="outline" className="w-full border-dashed" onClick={handleAddStep}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paso</Button>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
