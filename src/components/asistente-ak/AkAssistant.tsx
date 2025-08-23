@@ -39,7 +39,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
+export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean, assistantKey?: number }) {
     const [isOpen, setIsOpen] = useState(isPage);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -57,25 +57,30 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
     const [catalog, setCatalog] = useState<SelectableService[]>([]);
     const [selectedCatalogServiceId, setSelectedCatalogServiceId] = useState<string>('');
 
-
+    const startConversation = useCallback(() => {
+        setIsLoading(true);
+        setMessages([]);
+        setCurrentServices([]);
+        assistant({ query: '' }).then(response => {
+            setMessages(prev => [...prev, {
+                id: `ai-${Date.now()}`,
+                role: 'model',
+                content: [{text: response.response}],
+                data: response
+            }]);
+        }).catch(err => {
+            setError(err.message);
+            toast({ title: "Error del Asistente", description: err.message, variant: "destructive" });
+        }).finally(() => {
+            setIsLoading(false);
+        });
+    }, [toast]);
+    
     useEffect(() => {
-        if(isPage && messages.length === 0) {
-            setIsLoading(true);
-            assistant({ query: '' }).then(response => {
-                setMessages(prev => [...prev, {
-                    id: `ai-${Date.now()}`,
-                    role: 'model',
-                    content: [{text: response.response}],
-                    data: response
-                }]);
-            }).catch(err => {
-                setError(err.message);
-                toast({ title: "Error del Asistente", description: err.message, variant: "destructive" });
-            }).finally(() => {
-                setIsLoading(false);
-            });
+        if(isPage || assistantKey) {
+            startConversation();
         }
-    }, [isPage, toast, messages.length]);
+    }, [isPage, assistantKey, startConversation]);
     
     useEffect(() => {
         if (scrollAreaRef.current) {

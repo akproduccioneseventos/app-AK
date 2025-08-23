@@ -254,31 +254,41 @@ export async function assistant(
   let newSelectedServices = [...(input.currentServices || [])];
   
   if (toolCalls && toolCalls.length > 0) {
-    for (const toolCall of toolCalls) {
-       const toolResult = (await toolCall.run()) as any;
-       if (toolCall.name === 'addServiceToQuote' && toolResult) {
-          const serviceToAdd: ServiceInfo = {
-            id: toolResult.serviceId,
-            name: toolResult.nombre,
-            quantity: toolResult.cantidad,
-            unitPrice: toolResult.precioUnitario,
-          };
-          // Avoid duplicates
-          if (!newSelectedServices.some(s => s.id === serviceToAdd.id)) {
-            newSelectedServices.push(serviceToAdd);
-          }
-       }
-    }
-    
-    // After processing tools, generate a final response to the user
-    const finalResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-flash',
-        prompt: `El usuario está creando un presupuesto. Ya has usado algunas herramientas para recopilar información o añadir servicios. El estado actual es: ${JSON.stringify({history, services: newSelectedServices})}. Ahora, formula una respuesta amigable y natural para continuar la conversación o finalizarla si corresponde. Si creaste un presupuesto, usa el mensaje del resultado de la herramienta 'createQuote'. Si añadiste un servicio, confirma que fue añadido y pregunta qué más desea hacer. Si obtuviste una lista de servicios, preséntala de forma atractiva.`,
-        tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
-        output: { schema: AssistantOutputSchema },
-    });
+    let finalLlmResponse;
+    try {
+      for (const toolCall of toolCalls) {
+        const toolResult = (await toolCall.run()) as any;
+        if (toolCall.name === 'addServiceToQuote' && toolResult) {
+            const serviceToAdd: ServiceInfo = {
+              id: toolResult.serviceId,
+              name: toolResult.nombre,
+              quantity: toolResult.cantidad,
+              unitPrice: toolResult.precioUnitario,
+            };
+            if (!newSelectedServices.some(s => s.id === serviceToAdd.id)) {
+              newSelectedServices.push(serviceToAdd);
+            }
+        }
+      }
+      
+      finalLlmResponse = await ai.generate({
+          model: 'googleai/gemini-1.5-flash',
+          prompt: `El usuario está creando un presupuesto. Ya has usado algunas herramientas para recopilar información o añadir servicios. El estado actual es: ${JSON.stringify({history, services: newSelectedServices})}. Ahora, formula una respuesta amigable y natural para continuar la conversación o finalizarla si corresponde. Si creaste un presupuesto, usa el mensaje del resultado de la herramienta 'createQuote'. Si añadiste un servicio, confirma que fue añadido y pregunta qué más desea hacer. Si obtuviste una lista de servicios, preséntala de forma atractiva.`,
+          tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
+          output: { schema: AssistantOutputSchema },
+      });
 
-    const output = finalResponse.output;
+    } catch (toolError: any) {
+        console.error("Error running tool:", toolError);
+        finalLlmResponse = await ai.generate({
+            model: 'googleai/gemini-1.5-flash',
+            prompt: `I tried to use a tool to help the user, but it failed with this error: ${toolError.message}. Please apologize to the user for the technical difficulty and ask them to rephrase their request or try again.`,
+            output: { schema: AssistantOutputSchema },
+        });
+    }
+
+
+    const output = finalLlmResponse.output;
     if (!output) {
       throw new Error(
         'El asistente de IA no pudo generar una respuesta final después de usar una herramienta.'
@@ -286,7 +296,6 @@ export async function assistant(
     }
     output.currentServices = newSelectedServices;
 
-    // Check if createQuote was among the tools called and was successful
     const createQuoteCall = toolCalls.find(tc => tc.name === 'createQuote');
     if (createQuoteCall) {
         const createQuoteResult = (await createQuoteCall.run()) as any;
@@ -295,7 +304,6 @@ export async function assistant(
         }
     }
 
-    // Pass along selectable services if they were fetched
     const getServicesCall = toolCalls.find(tc => tc.name === 'getServiciosDisponibles');
      if (getServicesCall) {
         const servicesResult = (await getServicesCall.run()) as any;
@@ -320,5 +328,3 @@ export async function assistant(
   output.currentServices = newSelectedServices;
   return output;
 }
-
-    
