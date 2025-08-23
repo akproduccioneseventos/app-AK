@@ -72,7 +72,7 @@ const EditServicioIncluido = ({ service, onUpdate, onRemove }: { service: Servic
   }
 
   return (
-    <div className="p-3 border rounded-md bg-background space-y-3">
+    <div className="p-3 border-2 border-primary/20 rounded-md bg-background space-y-3 shadow-md">
         <p className="font-medium text-sm">{service.nombre}</p>
         <Select
             value={editedService.calculationMethod}
