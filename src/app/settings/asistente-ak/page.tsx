@@ -23,7 +23,7 @@ import { Search } from 'lucide-react';
 
 
 const iconMap: Record<string, React.ElementType> = {
-  PartyPopper, Users, User, CalendarDays,
+  PartyPopper, Users, User, CalendarDays, Sparkles
 };
 
 function SortableStep({ step, index, onEdit, onDelete }: { step: DialogStep, index: number, onEdit: (step: DialogStep, index: number) => void, onDelete: (index: number) => void }) {
@@ -126,7 +126,7 @@ export default function AsistenteAkConfigPage() {
     const handleAddTextOption = () => {
         if (newOptionText.trim() && currentStep) {
             const newOption: DialogOption = {
-                id: `opt_${Date.now()}`,
+                id: `opt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
                 type: 'text',
                 label: newOptionText.trim()
             };
