@@ -1,18 +1,19 @@
-
 {
   "pasos": [
     {
       "id": "tipoFiesta",
-      "title": "Tipo de Fiesta",
+      "title": "Presentacion",
       "icon": "PartyPopper",
-      "pregunta": "¿Qué tipo de evento estás planeando?",
+      "pregunta": "Soy  Nicolás el asistente virtual de AK producciones, un gusto atenderte te voy a ayudar a hacer un presupuesto para una fiesta, te parece bien?",
       "opciones": [
-        "Cumpleaños",
-        "Fiesta de 15",
-        "Boda",
-        "Evento empresarial",
-        "Otro"
+        "Comenzar ahora"
       ]
+    },
+    {
+      "id": "nombreCliente",
+      "title": "Nombre del Cliente",
+      "icon": "User",
+      "pregunta": "Me dirías tu nombre para hacer el presupuesto?"
     },
     {
       "id": "cantidadInvitados",
@@ -21,22 +22,16 @@
       "pregunta": "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"
     },
     {
-      "id": "nombreCliente",
-      "title": "Nombre del Cliente",
-      "icon": "User",
-      "pregunta": "Perfecto. Para ir creando el borrador, ¿a nombre de quién lo preparo?"
+      "id": "fechaEvento",
+      "title": "Fecha del Evento",
+      "icon": "CalendarDays",
+      "pregunta": "Por último, {{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
     },
     {
       "id": "seleccionServicios",
       "title": "Selección de Servicios",
       "icon": "Sparkles",
       "pregunta": "Basado en lo que me has contado, aquí tienes algunos servicios que podrían interesarte. Por favor, dime cuáles te gustaría incluir y podemos añadirlos al presupuesto."
-    },
-    {
-      "id": "fechaEvento",
-      "title": "Fecha del Evento",
-      "icon": "CalendarDays",
-      "pregunta": "Por último, {{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
     }
   ]
 }
