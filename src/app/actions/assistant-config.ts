@@ -4,12 +4,19 @@
 import fs from 'fs/promises';
 import path from 'path';
 
+export interface DialogOption {
+  id: string;
+  type: 'text' | 'service';
+  label: string;
+  serviceId?: string; // Only if type is 'service'
+}
+
 export interface DialogStep {
   id: string;
   title: string;
   icon?: string; // Icon name from lucide-react
   pregunta: string;
-  opciones?: string[]; 
+  opciones?: DialogOption[]; 
 }
 
 export interface DialogConfig {
@@ -23,10 +30,18 @@ const defaultConfig: DialogConfig = {
   pasos: [
     {
       id: "tipoFiesta",
-      title: "Tipo de Fiesta",
+      title: "Presentacion",
       icon: "PartyPopper",
-      pregunta: "¿Qué tipo de evento estás planeando?",
-      opciones: ["Cumpleaños", "Fiesta de 15", "Boda", "Evento empresarial", "Otro"]
+      pregunta: "Soy  Nicolás el asistente virtual de AK producciones, un gusto atenderte te voy a ayudar a hacer un presupuesto para una fiesta, te parece bien?",
+      opciones: [
+        { id: 'start_option', type: 'text', label: 'Comenzar ahora' }
+      ]
+    },
+    {
+      id: "nombreCliente",
+      title: "Nombre del Cliente",
+      icon: "User",
+      pregunta: "Me dirías tu nombre para hacer el presupuesto?"
     },
     {
       id: "cantidadInvitados",
@@ -35,16 +50,21 @@ const defaultConfig: DialogConfig = {
       pregunta: "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"
     },
     {
-      id: "nombreCliente",
-      title: "Nombre del Cliente",
-      icon: "User",
-      pregunta: "Perfecto. Para ir creando el borrador, ¿a nombre de quién lo preparo?"
+      id: "seleccionServicios",
+      title: "Selección de Servicios",
+      icon: "Sparkles",
+      pregunta: "Perfecto, {{{nombreCliente}}}. Ahora, ¿qué servicios te gustaría incluir en tu presupuesto? Puedes seleccionar varios.",
+      opciones: []
     },
     {
       id: "fechaEvento",
       title: "Fecha del Evento",
-      "icon": "CalendarDays",
-      pregunta: "Por último, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
+      icon: "CalendarDays",
+      pregunta: "Por último, {{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu fiesta? Si no, no te preocupes, podemos dejarla a confirmar.",
+      opciones: [
+        { id: 'date_select', type: 'text', label: 'Elegir fecha' },
+        { id: 'date_unknown', type: 'text', label: 'Aún no sé la fecha' }
+      ]
     }
   ]
 };
@@ -59,14 +79,12 @@ export async function getAssistantConfig(): Promise<DialogConfig> {
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
     const savedConfig = fileContent.trim() === '' ? {} : JSON.parse(fileContent);
-    // Simple merge to add new fields if default config changes
     const mergedConfig = { ...defaultConfig, ...savedConfig };
-    // Ensure `pasos` is an array and each step has an ID
     if (!Array.isArray(mergedConfig.pasos)) {
       mergedConfig.pasos = defaultConfig.pasos;
     }
     mergedConfig.pasos = mergedConfig.pasos.map((step, index) => ({
-      ...defaultConfig.pasos[index] || {}, // get defaults for icon/title
+      ...defaultConfig.pasos.find(ds => ds.id === step.id) || {},
       ...step,
       id: step.id || `step_${index}_${Date.now()}`
     }));
@@ -83,7 +101,6 @@ export async function saveAssistantConfig(
 ): Promise<{ success: boolean; error?: string }> {
   await ensureConfigFileExists();
   try {
-    // Basic validation to ensure we're not saving an empty config
     if (!config || !Array.isArray(config.pasos) || config.pasos.length === 0) {
         throw new Error("La configuración de los pasos no puede estar vacía.");
     }

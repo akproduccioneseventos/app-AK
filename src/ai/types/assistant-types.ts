@@ -1,4 +1,5 @@
 
+
 import type { Message } from 'genkit';
 import { z } from 'genkit';
 
@@ -10,14 +11,6 @@ export const ServiceInfoSchema = z.object({
 });
 export type ServiceInfo = z.infer<typeof ServiceInfoSchema>;
 
-export const AssistantInputSchema = z.object({
-  query: z.string(),
-  history: z.array(z.custom<Message>()).optional(),
-  currentServices: z.array(ServiceInfoSchema).optional().describe("A running list of services the user has already selected."),
-});
-export type AssistantInput = z.infer<typeof AssistantInputSchema>;
-
-
 export const SelectableServiceSchema = z.object({
     id: z.string(),
     nombre: z.string(),
@@ -26,13 +19,19 @@ export const SelectableServiceSchema = z.object({
 });
 export type SelectableService = z.infer<typeof SelectableServiceSchema>;
 
+export const AssistantInputSchema = z.object({
+  query: z.string(),
+  history: z.array(z.custom<Message>()).optional(),
+  currentServices: z.array(z.object({
+      id: z.string(),
+      name: z.string(),
+  })).optional().describe("A running list of service IDs the user has already selected."),
+});
+export type AssistantInput = z.infer<typeof AssistantInputSchema>;
 
 export const AssistantOutputSchema = z.object({
   response: z.string().describe("The natural language response from the assistant to the user."),
   presupuestoId: z.string().optional().nullable().describe("If a quote was successfully created, this will be its ID."),
   selectableServices: z.array(SelectableServiceSchema).optional().describe("A list of services the user can select from."),
-  currentServices: z.array(ServiceInfoSchema).optional().describe("The updated list of services after the current turn."),
 });
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
-
-    

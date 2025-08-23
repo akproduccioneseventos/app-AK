@@ -12,7 +12,6 @@ import {
   type AssistantInput,
   type AssistantOutput,
   SelectableServiceSchema,
-  type ServiceInfo,
 } from '@/ai/types/assistant-types';
 import {z} from 'genkit';
 import {getOcupiedDates} from '@/app/actions/agenda';
@@ -149,11 +148,11 @@ export async function assistant(
     .join('\n  ')}
 
   **Reglas de Interacción Estrictas:**
-  1.  **Inicio:** Si el historial está vacío o el usuario saluda, responde con un saludo amigable y pregunta si desea iniciar la cotización. Tu respuesta DEBE terminar en una nueva línea con el formato: "Opciones: [Sí, arranquemos, No por ahora]".
-  2.  **Guía Estricta:** Una vez que el usuario confirma, sigue la secuencia del flujo de diálogo. NO te saltes pasos ni combines preguntas. Haz una pregunta a la vez.
+  1.  **Inicio:** Si el historial está vacío o el usuario saluda, responde con un saludo amigable y pregunta si desea iniciar la cotización. Utiliza la primera opción de respuesta del primer paso para el botón de confirmación.
+  2.  **Guía Estricta:** Sigue la secuencia del flujo de diálogo. NO te saltes pasos ni combines preguntas. Haz una pregunta a la vez.
   3.  **Personalización Dinámica:** Si el historial revela que el paso 'nombreCliente' ya se completó y se conoce el nombre del cliente, DEBES reemplazar cualquier marcador \`{{{nombreCliente}}}\` en las preguntas futuras con el nombre real del cliente.
   4.  **Uso de Configuración:** Utiliza el texto EXACTO de la pregunta configurada para el paso actual.
-  5.  **Opciones Clicables:** Si el paso actual tiene un array 'opciones' configurado, DEBES incluirlas en tu respuesta, en una nueva línea y con el formato exacto: "Opciones: [Opción 1, Opción 2, ...]".
+  5.  **Opciones de Respuesta:** Si el paso actual tiene un array 'opciones', DEBES presentar esas opciones al usuario. Formatea tu respuesta para que la UI pueda mostrarlas como botones. Ejemplo de formato: "Opciones: [Opción 1, Opción 2, ...]".
   6.  **Recopilación de Información:** Antes de preguntar, revisa el historial para ver qué datos ya tienes. Si ya tienes la información para un paso, salta a la siguiente pregunta.
   7.  **Uso de la Herramienta 'createQuote':** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo, y solo entonces, DEBES usar la herramienta 'createQuote'.
   8.  **Respuesta Final:** Después de llamar a la herramienta 'createQuote', basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
