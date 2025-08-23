@@ -28,7 +28,6 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-
 interface ChatMessage extends Message {
   id: string;
   data?: AssistantOutput;
@@ -227,7 +226,9 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                     const messageContent = message.content[0].text;
                                     const presupuestoId = message.data?.presupuestoId;
                                     const suggestedReplies = extractOptions(messageContent);
-                                    const selectableServices = message.data?.selectableServices;
+                                    
+                                    // Check if the current step is the service selection step
+                                    const isServiceSelectionStep = messageContent.includes("algunos servicios que podrían interesarte");
                                     
                                     const cleanMessageContent = messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '').trim();
 
@@ -248,13 +249,11 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                                         ))}
                                                     </div>
                                                 )}
-                                                {isModel && selectableServices && selectableServices.length > 0 && (
-                                                    <div className="flex flex-wrap gap-2 mt-2">
-                                                        {selectableServices.map((service) => (
-                                                            <Button key={service.id} size="sm" variant="outline" onClick={() => handleSubmit(undefined, `Añade el servicio "${service.nombre}"`)}>{service.nombre}</Button>
-                                                        ))}
-                                                    </div>
-                                                )}
+                                                 {isModel && isServiceSelectionStep && (
+                                                     <Button size="sm" variant="outline" className="mt-2" onClick={() => setIsCatalogOpen(true)}>
+                                                        <PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio
+                                                    </Button>
+                                                 )}
                                             </div>
                                             {!isModel && <Avatar className="h-6 w-6"><AvatarFallback><User className="h-4 w-4"/></AvatarFallback></Avatar>}
                                         </div>
@@ -284,11 +283,6 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                     </div>
                                 </div>
                             )}
-                            <div className="flex items-center gap-2 mb-2">
-                                <Button size="sm" variant="outline" className="flex-grow" onClick={() => setIsCatalogOpen(true)}>
-                                    <PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio
-                                </Button>
-                            </div>
                              <form onSubmit={handleSubmit} className="flex items-center gap-2">
                                 <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
                                 <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>

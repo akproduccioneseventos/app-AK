@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical, CornerDownLeft, RefreshCcw } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep } from '@/app/actions/assistant-config';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,7 +17,6 @@ import { Input } from '@/components/ui/input';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 
 const iconMap: Record<string, React.ElementType> = {
   PartyPopper, Users, User, CalendarDays,
@@ -71,9 +70,6 @@ export default function AsistenteAkConfigPage() {
     
     const [newOption, setNewOption] = useState('');
     const questionTextareaRef = useRef<HTMLTextAreaElement>(null);
-
-    // State to force re-render of AkAssistant
-    const [assistantKey, setAssistantKey] = useState(Date.now());
 
     const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -180,7 +176,6 @@ export default function AsistenteAkConfigPage() {
         try {
             await saveAssistantConfig(newConfig);
             setConfig(newConfig);
-            setAssistantKey(Date.now()); // Force re-render of assistant
             toast({ title: "¡Éxito!", description: message });
         } catch(e: any) {
              toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
@@ -191,7 +186,7 @@ export default function AsistenteAkConfigPage() {
 
     if (isLoading || !config) {
         return (
-             <div className="max-w-4xl mx-auto space-y-8">
+             <div className="max-w-xl mx-auto space-y-8">
                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3"><BrainCircuit className="w-10 h-10 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Asistente AK</h1></div>
                     <Skeleton className="h-10 w-24" />
@@ -203,7 +198,7 @@ export default function AsistenteAkConfigPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-xl mx-auto space-y-8">
              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-lg">
                     <DialogHeader>
@@ -261,50 +256,26 @@ export default function AsistenteAkConfigPage() {
                 </Link>
             </div>
             
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <div className="w-full space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
-                            <CardDescription>
-                                Edita y reordena las preguntas que el asistente usará para conversar con los clientes.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                                <SortableContext items={config.pasos.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                                    <div className="space-y-4">
-                                        {config.pasos.map((step, index) => (
-                                        <SortableStep key={step.id} step={step} index={index} onEdit={openEditModal} onDelete={handleDeleteStep} />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DndContext>
-                            <Button variant="outline" className="w-full border-dashed" onClick={handleAddStep}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paso</Button>
-                        </CardContent>
-                    </Card>
-                </div>
-                 <div className="w-full space-y-6">
-                    <Card>
-                        <CardHeader className="flex flex-row justify-between items-center">
-                            <div>
-                                <CardTitle className="font-headline text-2xl">Simulador de Chat</CardTitle>
-                                <CardDescription>Prueba el flujo de conversación en tiempo real.</CardDescription>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
+                    <CardDescription>
+                        Edita y reordena las preguntas que el asistente usará para conversar con los clientes.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <SortableContext items={config.pasos.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                            <div className="space-y-4">
+                                {config.pasos.map((step, index) => (
+                                <SortableStep key={step.id} step={step} index={index} onEdit={openEditModal} onDelete={handleDeleteStep} />
+                                ))}
                             </div>
-                            <Button variant="ghost" size="icon" title="Reiniciar Chat" onClick={() => setAssistantKey(Date.now())}>
-                                <RefreshCcw className="w-5 h-5"/>
-                            </Button>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="w-full h-[36rem] flex flex-col">
-                               <AkAssistant key={assistantKey} isPage />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+                        </SortableContext>
+                    </DndContext>
+                    <Button variant="outline" className="w-full border-dashed" onClick={handleAddStep}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paso</Button>
+                </CardContent>
+            </Card>
         </div>
     );
 }
-
-    

@@ -183,9 +183,7 @@ const createQuoteTool = ai.defineTool(
           message: `¡Perfecto! He creado el presupuesto #${result.id.substring(
             0,
             6
-          )} para ${input.clienteNombre}. ${
-            input.eventoFecha ? '' : 'La fecha queda a confirmar.'
-          } Ya puedes revisarlo, descargarlo o compartirlo.`,
+          )} para ${input.clienteNombre}. Ya puedes revisarlo, descargarlo o compartirlo.`,
         };
       }
       return {
@@ -228,7 +226,7 @@ export async function assistant(
   4.  **Uso de Configuración:** Utiliza el texto EXACTO de la pregunta configurada para el paso actual.
   5.  **Opciones Clicables:** Si el paso actual tiene un array 'opciones' configurado, DEBES incluirlas en tu respuesta, en una nueva línea y con el formato exacto: "Opciones: [Opción 1, Opción 2, ...]".
   6.  **Recopilación de Información:** Antes de preguntar, revisa el historial para ver qué datos ya tienes. Si ya tienes la información para un paso, salta a la siguiente pregunta.
-  7.  **Sugerencia de Servicios:** Cuando llegues al paso con el id 'seleccionServicios', DEBES usar la herramienta 'getServiciosDisponibles' para obtener una lista de servicios y ofrecérselos al usuario. El usuario puede seleccionar varios.
+  7.  **Sugerencia de Servicios:** Cuando llegues al paso con el id 'seleccionServicios', DEBES usar la herramienta 'getServiciosDisponibles' para obtener una lista de servicios y ofrecérselos al usuario. En este punto, el usuario podrá seleccionar servicios de un catálogo. No insistas si el usuario no quiere añadir más servicios.
   8.  **Añadir Servicios Iterativamente**: Si el usuario pide añadir un servicio específico (ej: "añade el DJ"), usa la herramienta 'addServiceToQuote'.
   9.  **Uso de la Herramienta 'createQuote':** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo (incluyendo los servicios que el cliente haya elegido), y solo entonces, DEBES usar la herramienta 'createQuote'.
   10. **Respuesta Final:** Después de llamar a la herramienta 'createQuote', basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
@@ -279,6 +277,7 @@ export async function assistant(
 
     finalLlmResponse = await ai.generate({
         model: 'googleai/gemini-1.5-flash',
+        system: systemPrompt,
         history: followUpHistory, // Use the updated history
         tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
         output: { schema: AssistantOutputSchema },
