@@ -1,3 +1,4 @@
+
 {
   "pasos": [
     {
@@ -25,7 +26,11 @@
       "id": "fechaEvento",
       "title": "Fecha del Evento",
       "icon": "CalendarDays",
-      "pregunta": "Por último, {{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
+      "pregunta": "{{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu fiesta? Si no, no te preocupes, podemos dejarla a confirmar.",
+      "opciones": [
+        "Elegir fecha",
+        "Aún no sé la fecha"
+      ]
     },
     {
       "id": "seleccionServicios",
