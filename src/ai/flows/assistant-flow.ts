@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview The main AI assistant flow for conversational quoting.
@@ -15,17 +16,50 @@ import {z} from 'genkit';
 import {getOcupiedDates} from '@/app/actions/agenda';
 import {savePresupuesto} from '@/app/actions/presupuestos';
 import type {Message} from 'genkit';
-import {
-  getAssistantConfig,
-  type DialogConfig,
-} from '@/app/actions/assistant-config';
+import {getAssistantConfig, type DialogConfig} from '@/app/actions/assistant-config';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
+
+// Tool: Get available services from the catalog
+const getServiciosDisponibles = ai.defineTool(
+  {
+    name: 'getServiciosDisponibles',
+    description: 'Retrieves a list of all available services from the company\'s catalog that can be offered to a client.',
+    inputSchema: z.object({}),
+    outputSchema: z.array(z.object({
+        id: z.string(),
+        nombre: z.string(),
+        categoria: z.string(),
+        precioVenta: z.number().optional(),
+        unidad: z.string().optional(),
+    }))
+  },
+  async () => {
+    try {
+        const services = await getServiciosEmpresa();
+        return services
+            .filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined)
+            .map(s => ({
+                id: s.id,
+                nombre: s.nombre,
+                categoria: s.categoria,
+                precioVenta: s.precioVenta,
+                unidad: s.unidad
+            }));
+    } catch(e) {
+        console.error("Error fetching services for tool", e);
+        return [];
+    }
+  }
+);
+
 
 // Tool: Create a new quote
 const createQuoteTool = ai.defineTool(
   {
     name: 'createQuote',
     description:
-      'Creates a new budget/quote for a potential client once all necessary information has been gathered (event type, guest count, client name, and optionally the date).',
+      'Creates a new budget/quote for a potential client once all necessary information has been gathered (event type, guest count, client name, and selected services).',
     inputSchema: z.object({
       clienteNombre: z.string().describe('The name of the client or company.'),
       eventoTipo: z
@@ -42,6 +76,7 @@ const createQuoteTool = ai.defineTool(
         .describe(
           'The estimated date of the event in YYYY-MM-DD format. Optional.'
         ),
+      serviceIds: z.array(z.string()).optional().describe("An array of IDs for the services the client has selected."),
     }),
     outputSchema: z.object({
       success: z.boolean(),
@@ -69,14 +104,29 @@ const createQuoteTool = ai.defineTool(
           };
         }
       }
+      
+      const allServices = await getServiciosEmpresa();
+      const itemsPresupuestados = (input.serviceIds || [])
+        .map(id => allServices.find(s => s.id === id))
+        .filter((s): s is ServicioEmpresa => !!s)
+        .map(s => ({
+            idServicioCatalogo: s.id,
+            nombreServicio: s.nombre,
+            cantidad: s.unidad === 'Por persona' ? input.invitadosCantidad : 1,
+            unidad: s.unidad,
+            precioUnitario: s.precioVenta || 0,
+            costoTotalItem: (s.unidad === 'Por persona' ? input.invitadosCantidad : 1) * (s.precioVenta || 0),
+            categoriaServicio: s.categoria,
+        }));
+      
       const result = await savePresupuesto({
         clienteNombre: input.clienteNombre,
         eventoTipo: input.eventoTipo,
         invitadosCantidad: input.invitadosCantidad,
         eventoFecha: input.eventoFecha || new Date().toISOString(),
-        itemsPresupuestados: [],
-        costoTotalEstimado: 0,
-        salonFiestas: 'A definir',
+        itemsPresupuestados: itemsPresupuestados,
+        costoTotalEstimado: 0, // This will be recalculated in savePresupuesto
+        salonFiestas: 'A definir', 
         timestamp: new Date().toISOString(),
       });
       if (result.success && result.id) {
@@ -126,9 +176,10 @@ export async function assistant(
   4.  **Uso de Configuración:** Utiliza el texto EXACTO de la pregunta configurada para el paso actual.
   5.  **Opciones Clicables:** Si el paso actual tiene un array 'opciones' configurado, DEBES incluirlas en tu respuesta, en una nueva línea y con el formato exacto: "Opciones: [Opción 1, Opción 2, ...]".
   6.  **Recopilación de Información:** Antes de preguntar, revisa el historial para ver qué datos ya tienes. Si ya tienes la información para un paso, salta a la siguiente pregunta.
-  7.  **Uso de la Herramienta:** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo, y solo entonces, DEBES usar la herramienta 'createQuote'.
-  8.  **Respuesta Final:** Después de llamar a la herramienta, basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
-  9.  **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
+  7.  **Sugerencia de Servicios:** Cuando llegues al paso con el id 'seleccionServicios', DEBES usar la herramienta 'getServiciosDisponibles' para obtener una lista de servicios y ofrecérselos al usuario.
+  8.  **Uso de la Herramienta 'createQuote':** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo (incluyendo los servicios que el cliente haya elegido), y solo entonces, DEBES usar la herramienta 'createQuote'.
+  9.  **Respuesta Final:** Después de llamar a la herramienta 'createQuote', basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
+  10. **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
 
   const history: Message[] = input.history || [];
   history.push({role: 'user', content: [{text: input.query}]});
@@ -137,7 +188,7 @@ export async function assistant(
     model: 'googleai/gemini-1.5-flash',
     system: systemPrompt,
     history: history,
-    tools: [createQuoteTool],
+    tools: [createQuoteTool, getServiciosDisponibles],
     toolChoice: 'auto',
     output: {
       schema: AssistantOutputSchema,
@@ -153,7 +204,7 @@ export async function assistant(
       model: 'googleai/gemini-1.5-flash',
       prompt: `El usuario pidió crear un presupuesto. Usaste una herramienta y este fue el resultado: ${JSON.stringify(
         toolResult
-      )}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado.`,
+      )}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado, si existe. Si la herramienta fue 'getServiciosDisponibles', presenta los servicios devueltos de forma atractiva y pregunta al usuario cuáles le gustaría añadir.`,
       output: {
         schema: AssistantOutputSchema,
       },
@@ -166,7 +217,7 @@ export async function assistant(
       );
     }
 
-    if (toolResult.success && toolResult.presupuestoId) {
+    if (toolCall.name === 'createQuote' && toolResult.success && toolResult.presupuestoId) {
       output.presupuestoId = toolResult.presupuestoId;
     }
 

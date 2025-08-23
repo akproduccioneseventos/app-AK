@@ -1,3 +1,4 @@
+
 {
   "pasos": [
     {
@@ -26,10 +27,16 @@
       "pregunta": "Perfecto. Para ir creando el borrador, ¿a nombre de quién lo preparo?"
     },
     {
+      "id": "seleccionServicios",
+      "title": "Selección de Servicios",
+      "icon": "Sparkles",
+      "pregunta": "Basado en lo que me has contado, aquí tienes algunos servicios que podrían interesarte. Por favor, dime cuáles te gustaría incluir y podemos añadirlos al presupuesto."
+    },
+    {
       "id": "fechaEvento",
       "title": "Fecha del Evento",
       "icon": "CalendarDays",
-      "pregunta": "Por último, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
+      "pregunta": "Por último, {{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu evento? Si no, no te preocupes, podemos dejarla a confirmar."
     }
   ]
 }
