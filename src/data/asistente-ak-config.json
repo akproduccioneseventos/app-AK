@@ -36,7 +36,7 @@
       "id": "seleccionServicios",
       "title": "Selección de Servicios",
       "icon": "Sparkles",
-      "pregunta": "Basado en lo que me has contado, aquí tienes algunos servicios que podrían interesarte. Por favor, dime cuáles te gustaría incluir y podemos añadirlos al presupuesto."
+      "pregunta": "Perfecto, {{{nombreCliente}}}. Ahora comencemos a armar el presupuesto. Utiliza el botón 'Añadir Servicio' para empezar a seleccionar los ítems que desees."
     }
   ]
 }

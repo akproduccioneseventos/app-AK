@@ -30,7 +30,7 @@ const getServiciosDisponibles = ai.defineTool(
   {
     name: 'getServiciosDisponibles',
     description:
-      "Retrieves a list of all available services from the company's catalog that can be offered to a client.",
+      "Retrieves a list of all available services from the company's catalog that can be offered to a client. Call this to know what services can be suggested or added to a quote.",
     inputSchema: z.object({}),
     outputSchema: z.array(
       z.object({
@@ -226,9 +226,9 @@ export async function assistant(
   4.  **Uso de Configuración:** Utiliza el texto EXACTO de la pregunta configurada para el paso actual.
   5.  **Opciones Clicables:** Si el paso actual tiene un array 'opciones' configurado, DEBES incluirlas en tu respuesta, en una nueva línea y con el formato exacto: "Opciones: [Opción 1, Opción 2, ...]".
   6.  **Recopilación de Información:** Antes de preguntar, revisa el historial para ver qué datos ya tienes. Si ya tienes la información para un paso, salta a la siguiente pregunta.
-  7.  **Sugerencia de Servicios:** Cuando llegues al paso con el id 'seleccionServicios', DEBES usar la herramienta 'getServiciosDisponibles' para obtener una lista de servicios y ofrecérselos al usuario. En este punto, el usuario podrá seleccionar servicios de un catálogo. No insistas si el usuario no quiere añadir más servicios.
-  8.  **Añadir Servicios Iterativamente**: Si el usuario pide añadir un servicio específico (ej: "añade el DJ"), usa la herramienta 'addServiceToQuote'.
-  9.  **Uso de la Herramienta 'createQuote':** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo (incluyendo los servicios que el cliente haya elegido), y solo entonces, DEBES usar la herramienta 'createQuote'.
+  7.  **Sugerencia de Servicios:** Cuando llegues al paso con el id 'seleccionServicios', tu objetivo es informar al usuario que ahora puede añadir servicios usando el botón en la interfaz. Usa la pregunta definida para este paso. **No uses la herramienta getServiciosDisponibles para listar servicios en el chat.** Simplemente invita al usuario a usar el botón "Añadir Servicio".
+  8.  **Añadir Servicios Iterativamente**: Si el usuario pide añadir un servicio específico (ej: "añade el DJ" o selecciona uno del catálogo), usa la herramienta 'addServiceToQuote'.
+  9.  **Uso de la Herramienta 'createQuote':** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo, y solo entonces, DEBES usar la herramienta 'createQuote'.
   10. **Respuesta Final:** Después de llamar a la herramienta 'createQuote', basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
   11. **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
 
@@ -248,65 +248,52 @@ export async function assistant(
     },
   });
 
-  const toolCalls = llmResponse.toolCalls;
+  const toolCalls = llmResponse.toolCalls();
   let newSelectedServices = [...(input.currentServices || [])];
   
   if (toolCalls && toolCalls.length > 0) {
-    let finalLlmResponse;
-    const toolResults: any[] = [];
-
-    for (const toolCall of toolCalls) {
-        const toolResult = (await toolCall.run()) as any;
-        toolResults.push(toolResult);
-
-        if (toolCall.name === 'addServiceToQuote' && toolResult) {
-            const serviceToAdd: ServiceInfo = {
-              id: toolResult.serviceId,
-              name: toolResult.nombre,
-              quantity: toolResult.cantidad,
-              unitPrice: toolResult.precioUnitario,
-            };
-            if (!newSelectedServices.some(s => s.id === serviceToAdd.id)) {
-              newSelectedServices.push(serviceToAdd);
+    const toolResults = await Promise.all(toolCalls.map(async (toolCall) => {
+        try {
+            const toolResult = await toolCall.run();
+             if (toolCall.name === 'addServiceToQuote' && toolResult) {
+                const serviceToAdd: ServiceInfo = {
+                  id: (toolResult as any).serviceId,
+                  name: (toolResult as any).nombre,
+                  quantity: (toolResult as any).cantidad,
+                  unitPrice: (toolResult as any).precioUnitario,
+                };
+                if (!newSelectedServices.some(s => s.id === serviceToAdd.id)) {
+                  newSelectedServices.push(serviceToAdd);
+                }
             }
+            return toolResult;
+        } catch (e: any) {
+            console.error(`Error running tool ${toolCall.name}:`, e);
+            return { error: e.message || 'Error al ejecutar la herramienta.' };
         }
-    }
-      
-    // Create a new history including the tool calls and their results for context
+    }));
+
     const followUpHistory = [...history, llmResponse.message, ...toolCalls.map((tc, i) => tc.toToolResponse(toolResults[i]))];
 
-    finalLlmResponse = await ai.generate({
+    const finalLlmResponse = await ai.generate({
         model: 'googleai/gemini-1.5-flash',
         system: systemPrompt,
-        history: followUpHistory, // Use the updated history
+        history: followUpHistory,
         tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
         output: { schema: AssistantOutputSchema },
     });
 
-    const output = finalLlmResponse.output;
+    const output = finalLlmResponse.output();
     if (!output) {
-      throw new Error(
-        'El asistente de IA no pudo generar una respuesta final después de usar una herramienta.'
-      );
+      throw new Error('El asistente de IA no pudo generar una respuesta final después de usar una herramienta.');
     }
     output.currentServices = newSelectedServices;
-    
-    // Check if the getServices tool was called to populate selectableServices
-    const getServicesCall = toolCalls.find(tc => tc.name === 'getServiciosDisponibles');
-    if (getServicesCall) {
-        const servicesResult = toolResults[toolCalls.indexOf(getServicesCall)];
-        if(Array.isArray(servicesResult)){
-            const parsedServices = z.array(SelectableServiceSchema).safeParse(servicesResult);
-             if (parsedServices.success) {
-                output.selectableServices = parsedServices.data;
-            }
-        }
-    }
     
     // Check if the createQuote tool was called to populate the budget ID
     const createQuoteCall = toolCalls.find(tc => tc.name === 'createQuote');
     if (createQuoteCall) {
-        const createQuoteResult = toolResults[toolCalls.indexOf(createQuoteCall)];
+        const createQuoteResultIndex = toolCalls.indexOf(createQuoteCall);
+        const createQuoteResult = toolResults[createQuoteResultIndex] as any;
         if (createQuoteResult.success && createQuoteResult.presupuestoId) {
           output.presupuestoId = createQuoteResult.presupuestoId;
         }
@@ -315,12 +302,10 @@ export async function assistant(
     return output;
   }
 
-  const output = llmResponse.output;
+  const output = llmResponse.output();
   if (!output) {
     console.error('AI Fallback response was null/undefined.', llmResponse);
-    throw new Error(
-      'El asistente de IA no pudo generar una respuesta inicial. Por favor, reformula tu pregunta.'
-    );
+    throw new Error('El asistente de IA no pudo generar una respuesta inicial. Por favor, reformula tu pregunta.');
   }
   output.currentServices = newSelectedServices;
   return output;

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { Label } from '../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface ChatMessage extends Message {
   id: string;
@@ -48,10 +48,8 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // State for interactive service selection
     const [currentServices, setCurrentServices] = useState<ServiceInfo[]>([]);
     
-    // State for service catalog modal
     const [isCatalogOpen, setIsCatalogOpen] = useState(false);
     const [catalog, setCatalog] = useState<SelectableService[]>([]);
     const [selectedCatalogServiceId, setSelectedCatalogServiceId] = useState<string>('');
@@ -275,8 +273,8 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                                     </div>
                                 </div>
                             )}
-                             <form onSubmit={handleSubmit} className="space-y-2">
-                                <Button variant="outline" size="sm" className="w-full" onClick={() => setIsCatalogOpen(true)} type="button"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
+                             <Button variant="outline" size="sm" className="w-full mb-2" onClick={() => setIsCatalogOpen(true)} type="button"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio al Presupuesto</Button>
+                             <form onSubmit={handleSubmit}>
                                 <div className="flex items-center gap-2">
                                   <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
                                   <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
