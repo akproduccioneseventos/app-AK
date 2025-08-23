@@ -12,6 +12,7 @@ import {
   type AssistantInput,
   type AssistantOutput,
   SelectableServiceSchema,
+  type ServiceInfo,
 } from '@/ai/types/assistant-types';
 import {z} from 'genkit';
 import {getOcupiedDates} from '@/app/actions/agenda';
@@ -60,12 +61,47 @@ const getServiciosDisponibles = ai.defineTool(
   }
 );
 
-// Tool: Create a new quote
+
+// Tool: Add a specific service to the current quote draft
+const addServiceToQuote = ai.defineTool(
+  {
+    name: 'addServiceToQuote',
+    description: 'Adds a single, specific service selected by the user to the current budget draft. This tool is used iteratively as the user selects services.',
+    inputSchema: z.object({
+        serviceId: z.string().describe("The ID of the service to add."),
+        quantity: z.number().optional().describe("The quantity of the service. Defaults to 1.").default(1),
+    }),
+    outputSchema: z.object({
+        serviceId: z.string(),
+        nombre: z.string(),
+        cantidad: z.number(),
+        precioUnitario: z.number(),
+        unidad: z.string().optional(),
+    })
+  },
+  async (input) => {
+    const allServices = await getServiciosEmpresa();
+    const serviceToAdd = allServices.find(s => s.id === input.serviceId);
+    if (!serviceToAdd) {
+        throw new Error(`Servicio con ID ${input.serviceId} no encontrado.`);
+    }
+    return {
+        serviceId: serviceToAdd.id,
+        nombre: serviceToAdd.nombre,
+        cantidad: input.quantity,
+        precioUnitario: serviceToAdd.precioVenta || 0,
+        unidad: serviceToAdd.unidad,
+    };
+  }
+);
+
+
+// Tool: Create the final quote
 const createQuoteTool = ai.defineTool(
   {
     name: 'createQuote',
     description:
-      'Creates a new budget/quote for a potential client once all necessary information has been gathered (event type, guest count, client name, and selected services).',
+      'Creates a final budget/quote for a potential client once all necessary information has been gathered (event type, guest count, client name, and selected services).',
     inputSchema: z.object({
       clienteNombre: z.string().describe('The name of the client or company.'),
       eventoTipo: z
@@ -85,7 +121,7 @@ const createQuoteTool = ai.defineTool(
       serviceIds: z
         .array(z.string())
         .optional()
-        .describe('An array of IDs for the services the client has selected.'),
+        .describe('An array of IDs for all the services the client has selected during the conversation.'),
     }),
     outputSchema: z.object({
       success: z.boolean(),
@@ -149,7 +185,7 @@ const createQuoteTool = ai.defineTool(
             6
           )} para ${input.clienteNombre}. ${
             input.eventoFecha ? '' : 'La fecha queda a confirmar.'
-          } Un asesor se pondrá en contacto.`,
+          } Ya puedes revisarlo, descargarlo o compartirlo.`,
         };
       }
       return {
@@ -192,10 +228,11 @@ export async function assistant(
   4.  **Uso de Configuración:** Utiliza el texto EXACTO de la pregunta configurada para el paso actual.
   5.  **Opciones Clicables:** Si el paso actual tiene un array 'opciones' configurado, DEBES incluirlas en tu respuesta, en una nueva línea y con el formato exacto: "Opciones: [Opción 1, Opción 2, ...]".
   6.  **Recopilación de Información:** Antes de preguntar, revisa el historial para ver qué datos ya tienes. Si ya tienes la información para un paso, salta a la siguiente pregunta.
-  7.  **Sugerencia de Servicios:** Cuando llegues al paso con el id 'seleccionServicios', DEBES usar la herramienta 'getServiciosDisponibles' para obtener una lista de servicios y ofrecérselos al usuario.
-  8.  **Uso de la Herramienta 'createQuote':** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo (incluyendo los servicios que el cliente haya elegido), y solo entonces, DEBES usar la herramienta 'createQuote'.
-  9.  **Respuesta Final:** Después de llamar a la herramienta 'createQuote', basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
-  10. **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
+  7.  **Sugerencia de Servicios:** Cuando llegues al paso con el id 'seleccionServicios', DEBES usar la herramienta 'getServiciosDisponibles' para obtener una lista de servicios y ofrecérselos al usuario. El usuario puede seleccionar varios.
+  8.  **Añadir Servicios Iterativamente**: Si el usuario pide añadir un servicio específico (ej: "añade el DJ"), usa la herramienta 'addServiceToQuote'.
+  9.  **Uso de la Herramienta 'createQuote':** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo (incluyendo los servicios que el cliente haya elegido), y solo entonces, DEBES usar la herramienta 'createQuote'.
+  10. **Respuesta Final:** Después de llamar a la herramienta 'createQuote', basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
+  11. **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
 
   const history: Message[] = input.history || [];
   if (input.query) {
@@ -206,52 +243,39 @@ export async function assistant(
     model: 'googleai/gemini-1.5-flash',
     system: systemPrompt,
     history: history,
-    tools: [createQuoteTool, getServiciosDisponibles],
+    tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
     toolChoice: 'auto',
     output: {
       schema: AssistantOutputSchema,
     },
   });
 
-  const toolCall = llmResponse.toolCalls?.[0];
-
-  if (toolCall) {
-    const toolResult = (await toolCall.run()) as any;
-
-    if (toolCall.name === 'getServiciosDisponibles' && Array.isArray(toolResult)) {
-      // If the tool returned the list of services, formulate a response and include the services in the output.
-      const serviceResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-flash',
-        prompt: `El usuario está listo para elegir servicios. La herramienta 'getServiciosDisponibles' ha devuelto la siguiente lista de servicios disponibles: ${JSON.stringify(
-          toolResult
-        )}. Formula una respuesta amigable presentando estos servicios. Anima al usuario a seleccionar los que le interesen.`,
-        output: {
-          schema: z.object({
-            response: z.string(),
-          }),
-        },
-      });
-      const responseText =
-        serviceResponse.output?.response ||
-        'Aquí tienes los servicios que ofrecemos. ¡Elige los que más te gusten!';
-      
-      const parsedServices = z.array(SelectableServiceSchema).safeParse(toolResult);
-
-      return {
-        response: responseText,
-        selectableServices: parsedServices.success ? parsedServices.data : [],
-      };
+  const toolCalls = llmResponse.toolCalls;
+  let newSelectedServices = [...(input.currentServices || [])];
+  
+  if (toolCalls && toolCalls.length > 0) {
+    for (const toolCall of toolCalls) {
+       const toolResult = (await toolCall.run()) as any;
+       if (toolCall.name === 'addServiceToQuote' && toolResult) {
+          const serviceToAdd: ServiceInfo = {
+            id: toolResult.serviceId,
+            name: toolResult.nombre,
+            quantity: toolResult.cantidad,
+            unitPrice: toolResult.precioUnitario,
+          };
+          // Avoid duplicates
+          if (!newSelectedServices.some(s => s.id === serviceToAdd.id)) {
+            newSelectedServices.push(serviceToAdd);
+          }
+       }
     }
-
-    // For other tools like createQuote
+    
+    // After processing tools, generate a final response to the user
     const finalResponse = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
-      prompt: `El usuario pidió crear un presupuesto. Usaste una herramienta y este fue el resultado: ${JSON.stringify(
-        toolResult
-      )}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado, si existe.`,
-      output: {
-        schema: AssistantOutputSchema,
-      },
+        model: 'googleai/gemini-1.5-flash',
+        prompt: `El usuario está creando un presupuesto. Ya has usado algunas herramientas para recopilar información o añadir servicios. El estado actual es: ${JSON.stringify({history, services: newSelectedServices})}. Ahora, formula una respuesta amigable y natural para continuar la conversación o finalizarla si corresponde. Si creaste un presupuesto, usa el mensaje del resultado de la herramienta 'createQuote'. Si añadiste un servicio, confirma que fue añadido y pregunta qué más desea hacer. Si obtuviste una lista de servicios, preséntala de forma atractiva.`,
+        tools: [createQuoteTool, getServiciosDisponibles, addServiceToQuote],
+        output: { schema: AssistantOutputSchema },
     });
 
     const output = finalResponse.output;
@@ -260,13 +284,27 @@ export async function assistant(
         'El asistente de IA no pudo generar una respuesta final después de usar una herramienta.'
       );
     }
+    output.currentServices = newSelectedServices;
 
-    if (
-      toolCall.name === 'createQuote' &&
-      toolResult.success &&
-      toolResult.presupuestoId
-    ) {
-      output.presupuestoId = toolResult.presupuestoId;
+    // Check if createQuote was among the tools called and was successful
+    const createQuoteCall = toolCalls.find(tc => tc.name === 'createQuote');
+    if (createQuoteCall) {
+        const createQuoteResult = (await createQuoteCall.run()) as any;
+         if (createQuoteResult.success && createQuoteResult.presupuestoId) {
+            output.presupuestoId = createQuoteResult.presupuestoId;
+        }
+    }
+
+    // Pass along selectable services if they were fetched
+    const getServicesCall = toolCalls.find(tc => tc.name === 'getServiciosDisponibles');
+     if (getServicesCall) {
+        const servicesResult = (await getServicesCall.run()) as any;
+        if(Array.isArray(servicesResult)){
+            const parsedServices = z.array(SelectableServiceSchema).safeParse(servicesResult);
+             if (parsedServices.success) {
+                output.selectableServices = parsedServices.data;
+            }
+        }
     }
 
     return output;
@@ -279,5 +317,7 @@ export async function assistant(
       'El asistente de IA no pudo generar una respuesta inicial. Por favor, reformula tu pregunta.'
     );
   }
+  output.currentServices = newSelectedServices;
   return output;
 }
+
