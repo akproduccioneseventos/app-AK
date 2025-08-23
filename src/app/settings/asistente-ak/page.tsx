@@ -1,11 +1,12 @@
 
+      
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical, Sparkles } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, Bot, Edit, PartyPopper, User, CalendarDays, Users, Save, Loader2, Trash2, PlusCircle, X, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAssistantConfig, saveAssistantConfig, type DialogConfig, type DialogStep } from '@/app/actions/assistant-config';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,7 +20,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, v
 import { CSS } from '@dnd-kit/utilities';
 
 const iconMap: Record<string, React.ElementType> = {
-  PartyPopper, Users, User, CalendarDays, Sparkles,
+  PartyPopper, Users, User, CalendarDays,
 };
 
 function SortableStep({ step, index, onEdit, onDelete }: { step: DialogStep, index: number, onEdit: (step: DialogStep, index: number) => void, onDelete: (index: number) => void }) {
@@ -90,7 +91,7 @@ export default function AsistenteAkConfigPage() {
     }, [loadConfig]);
     
     const openEditModal = (step: DialogStep, index: number) => {
-        setCurrentStep(JSON.parse(JSON.stringify(step)));
+        setCurrentStep(JSON.parse(JSON.stringify(step))); // Deep copy
         setCurrentStepIndex(index);
         setIsModalOpen(true);
     };
@@ -121,6 +122,7 @@ export default function AsistenteAkConfigPage() {
             
             handleModalInputChange('pregunta', newText);
 
+            // Focus and set cursor position after placeholder
             setTimeout(() => {
                 textarea.focus();
                 textarea.selectionStart = textarea.selectionEnd = start + placeholder.length;
@@ -191,7 +193,6 @@ export default function AsistenteAkConfigPage() {
                     <div className="flex items-center gap-3"><BrainCircuit className="w-10 h-10 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Asistente AK</h1></div>
                     <Skeleton className="h-10 w-24" />
                 </div>
-                <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-20 w-full"/></CardContent></Card>
                  <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-40 w-full"/></CardContent></Card>
             </div>
         )
@@ -256,28 +257,11 @@ export default function AsistenteAkConfigPage() {
                 </Link>
             </div>
             
-             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-xl">Catálogo de Servicios del Asistente</CardTitle>
-                    <CardDescription>
-                        Los servicios que el asistente ofrece se gestionan en el Catálogo General. Haz clic aquí para añadir, editar o eliminar los servicios que estarán disponibles para la IA.
-                    </CardDescription>
-                </CardHeader>
-                <CardFooter>
-                    <Link href="/empresa/servicios" passHref>
-                        <Button variant="outline">
-                            <Sparkles className="w-4 h-4 mr-2"/> Ir al Catálogo de Servicios
-                        </Button>
-                    </Link>
-                </CardFooter>
-            </Card>
-
-
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">Flujo del Diálogo</CardTitle>
                     <CardDescription>
-                        Edita y reordena las preguntas que el asistente usará para conversar con los clientes.
+                        Edita y reordena las preguntas que el asistente usará para conversar con los clientes. Los servicios que ofrece se gestionan en el Catálogo General.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -296,3 +280,5 @@ export default function AsistenteAkConfigPage() {
         </div>
     );
 }
+      
+    
