@@ -293,7 +293,7 @@ export default function AsistenteAkConfigPage() {
                                 </Button>
                             </div>
                              <CardDescription>
-                                Prueba el flujo de conversación en tiempo real. El chat se reinicia al guardar cambios.
+                                Prueba el flujo de conversación en tiempo real.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
