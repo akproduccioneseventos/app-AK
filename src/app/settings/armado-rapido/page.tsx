@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,15 +11,114 @@ import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Tr
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluido, CalculationMethod, TierPrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
+
+
+// Component for editing a single service within a package
+const EditServicioIncluido = ({ service, onUpdate, onRemove }: { service: ServicioIncluido, onUpdate: (updatedService: ServicioIncluido) => void, onRemove: () => void }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedService, setEditedService] = useState(service);
+
+  const handleSave = () => {
+    onUpdate(editedService);
+    setIsEditing(false);
+  };
+
+  const handleTierChange = (tierId: string, field: 'hasta' | 'precio', value: number) => {
+    const newTiers = (editedService.tramosDePrecio || []).map(t =>
+      t.id === tierId ? { ...t, [field]: value } : t
+    );
+    setEditedService(prev => ({ ...prev!, tramosDePrecio: newTiers }));
+  };
+  
+  const handleAddTier = () => {
+    const newTier: TierPrecio = { id: `tier_${Date.now()}`, hasta: 0, precio: 0 };
+    setEditedService(prev => ({...prev!, tramosDePrecio: [...(prev!.tramosDePrecio || []), newTier]}));
+  };
+
+  const handleRemoveTier = (tierId: string) => {
+    setEditedService(prev => ({...prev!, tramosDePrecio: (prev!.tramosDePrecio || []).filter(t => t.id !== tierId)}));
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="flex justify-between items-center text-sm p-2 bg-muted/50 rounded">
+        <span>{service.nombre}</span>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditing(true)}><Edit className="w-4 h-4"/></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={onRemove}><Trash2 className="w-4 h-4"/></Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-3 border rounded-md bg-background space-y-3">
+        <p className="font-medium text-sm">{service.nombre}</p>
+        <Select
+            value={editedService.calculationMethod}
+            onValueChange={(value) => setEditedService(prev => ({ ...prev!, calculationMethod: value as CalculationMethod }))}
+        >
+            <SelectTrigger><SelectValue/></SelectTrigger>
+            <SelectContent>
+                <SelectItem value="fijo">Costo Fijo</SelectItem>
+                <SelectItem value="por_persona">Costo por Persona</SelectItem>
+                <SelectItem value="ratio">Ratio (Ej: 1 cada X invitados)</SelectItem>
+                <SelectItem value="escalonado">Tramos de Precio (Escalonado)</SelectItem>
+            </SelectContent>
+        </Select>
+
+        {editedService.calculationMethod === 'fijo' && (
+            <div className="space-y-1"><Label>Costo Fijo</Label><Input type="number" value={editedService.costoFijo || ''} onChange={e => setEditedService(p => ({...p!, costoFijo: Number(e.target.value)}))}/></div>
+        )}
+        {editedService.calculationMethod === 'por_persona' && (
+            <div className="space-y-1"><Label>Costo por Persona</Label><Input type="number" value={editedService.costoPorPersona || ''} onChange={e => setEditedService(p => ({...p!, costoPorPersona: Number(e.target.value)}))}/></div>
+        )}
+        {editedService.calculationMethod === 'ratio' && (
+            <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1"><Label>Costo por Unidad</Label><Input type="number" value={editedService.costoPorUnidad || ''} onChange={e => setEditedService(p => ({...p!, costoPorUnidad: Number(e.target.value)}))}/></div>
+                <div className="space-y-1"><Label>Invitados por Unidad</Label><Input type="number" value={editedService.invitadosPorUnidad || ''} onChange={e => setEditedService(p => ({...p!, invitadosPorUnidad: Number(e.target.value)}))}/></div>
+            </div>
+        )}
+         {editedService.calculationMethod === 'escalonado' && (
+            <div className="space-y-2">
+              {(editedService.tramosDePrecio || []).sort((a,b) => a.hasta - b.hasta).map(tier => (
+                <div key={tier.id} className="grid grid-cols-3 gap-2 items-center">
+                    <Label className="text-xs text-right">Hasta</Label>
+                    <Input type="number" value={tier.hasta} onChange={e => handleTierChange(tier.id, 'hasta', Number(e.target.value))} className="h-8"/>
+                    <Input type="number" value={tier.precio} onChange={e => handleTierChange(tier.id, 'precio', Number(e.target.value))} className="h-8"/>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 col-start-3" onClick={() => handleRemoveTier(tier.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                </div>
+              ))}
+              <Button type="button" size="sm" variant="outline" onClick={handleAddTier}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Tramo</Button>
+            </div>
+          )}
+
+        <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancelar</Button>
+            <Button size="sm" onClick={handleSave}>Guardar Servicio</Button>
+        </div>
+    </div>
+  );
 };
 
 
@@ -89,15 +188,28 @@ export default function ArmadoRapidoSettingsPage() {
     const newService: ServicioIncluido = {
       id: service.id,
       nombre: service.nombre,
-      precioBase: service.precioVenta,
-      precioPorPersona: 0,
+      calculationMethod: 'fijo', // Default calculation method
+      costoFijo: service.precioVenta,
     };
     const currentPackage = config?.paquetes.find(p => p.id === packageId);
     if(currentPackage) {
+        if(currentPackage.serviciosIncluidos.some(s => s.id === newService.id)) {
+            toast({description: "Este servicio ya está en el paquete.", variant: "default"});
+            return;
+        }
         handlePackageChange(packageId, {
             serviciosIncluidos: [...currentPackage.serviciosIncluidos, newService]
         });
     }
+  };
+  
+  const handleUpdateServiceInPackage = (packageId: string, updatedService: ServicioIncluido) => {
+      const currentPackage = config?.paquetes.find(p => p.id === packageId);
+      if(currentPackage) {
+          handlePackageChange(packageId, {
+              serviciosIncluidos: currentPackage.serviciosIncluidos.map(s => s.id === updatedService.id ? updatedService : s)
+          });
+      }
   };
   
   const handleRemoveServiceFromPackage = (packageId: string, serviceId: string) => {
@@ -184,13 +296,16 @@ export default function ArmadoRapidoSettingsPage() {
                               <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                   <h3 className="font-semibold text-foreground">Servicios Incluidos ({pkg.serviciosIncluidos.length})</h3>
-                                  <ScrollArea className="h-64 border rounded-lg p-2">
+                                  <ScrollArea className="h-64 border rounded-lg p-2 bg-muted/20">
                                       {pkg.serviciosIncluidos.length > 0 ? (
                                           <ul className="space-y-2">
                                               {pkg.serviciosIncluidos.map(s => (
-                                                  <li key={s.id} className="flex justify-between items-center text-sm p-2 bg-muted/50 rounded">
-                                                      <span>{s.nombre}</span>
-                                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveServiceFromPackage(pkg.id, s.id)}><Trash2 className="w-4 h-4" /></Button>
+                                                  <li key={s.id}>
+                                                      <EditServicioIncluido
+                                                          service={s}
+                                                          onUpdate={(updatedS) => handleUpdateServiceInPackage(pkg.id, updatedS)}
+                                                          onRemove={() => handleRemoveServiceFromPackage(pkg.id, s.id)}
+                                                      />
                                                   </li>
                                               ))}
                                           </ul>

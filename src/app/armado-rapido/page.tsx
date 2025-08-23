@@ -53,20 +53,49 @@ export default function ArmadoRapidoPage() {
 
     const calculos = useMemo(() => {
         if (!paqueteActual || cantidadInvitados <= 0) {
-            return { costoBase: 0, costoPorPersona: 0, costoTotal: 0, costoConDescuento: 0, montoDescuento: 0 };
+            return { costoTotal: 0, costoConDescuento: 0, montoDescuento: 0 };
         }
         
-        const costoBase = paqueteActual.serviciosIncluidos.reduce((total, s) => total + (s.precioBase || 0), 0);
-        const costoPorPersona = paqueteActual.serviciosIncluidos.reduce((total, s) => total + (s.precioPorPersona || 0), 0);
-        const costoTotal = costoBase + (costoPorPersona * cantidadInvitados);
+        let costoTotalPaquete = 0;
+        paqueteActual.serviciosIncluidos.forEach(servicio => {
+            switch(servicio.calculationMethod) {
+                case 'fijo':
+                    costoTotalPaquete += servicio.costoFijo || 0;
+                    break;
+                case 'por_persona':
+                    costoTotalPaquete += (servicio.costoPorPersona || 0) * cantidadInvitados;
+                    break;
+                case 'ratio':
+                    if (servicio.invitadosPorUnidad && servicio.costoPorUnidad) {
+                        const unidadesNecesarias = Math.ceil(cantidadInvitados / servicio.invitadosPorUnidad);
+                        costoTotalPaquete += unidadesNecesarias * servicio.costoPorUnidad;
+                    }
+                    break;
+                case 'escalonado':
+                    if(servicio.tramosDePrecio && servicio.tramosDePrecio.length > 0) {
+                        const tramosOrdenados = [...servicio.tramosDePrecio].sort((a,b) => a.hasta - b.hasta);
+                        let tramoAplicado = tramosOrdenados.find(t => cantidadInvitados <= t.hasta);
+                        if (!tramoAplicado) {
+                           tramoAplicado = tramosOrdenados[tramosOrdenados.length - 1];
+                        }
+                        costoTotalPaquete += tramoAplicado.precio || 0;
+                    }
+                    break;
+                default:
+                    // Fallback to old model for compatibility
+                    costoTotalPaquete += (servicio.precioBase || 0);
+                    costoTotalPaquete += (servicio.precioPorPersona || 0) * cantidadInvitados;
+                    break;
+            }
+        });
 
         let montoDescuento = 0;
         if (config?.descuentoGeneral && config.descuentoGeneral > 0) {
-            montoDescuento = (costoTotal * config.descuentoGeneral) / 100;
+            montoDescuento = (costoTotalPaquete * config.descuentoGeneral) / 100;
         }
-        const costoConDescuento = costoTotal - montoDescuento;
+        const costoConDescuento = costoTotalPaquete - montoDescuento;
 
-        return { costoBase, costoPorPersona, costoTotal, costoConDescuento, montoDescuento };
+        return { costoTotal: costoTotalPaquete, costoConDescuento, montoDescuento };
     }, [paqueteActual, cantidadInvitados, config?.descuentoGeneral]);
 
     const handleGenerarPresupuesto = async () => {
@@ -174,8 +203,6 @@ export default function ArmadoRapidoPage() {
                                 </ul>
                             </div>
                             <div className="space-y-2 pt-4 border-t">
-                                <div className="flex justify-between items-center text-lg"><span className="text-muted-foreground">Costo por Persona:</span> <span className="font-semibold">{formatCurrency(calculos.costoPorPersona)}</span></div>
-                                <div className="flex justify-between items-center text-lg"><span className="text-muted-foreground">Costo Base:</span> <span className="font-semibold">{formatCurrency(calculos.costoBase)}</span></div>
                                 {calculos.montoDescuento > 0 && <div className="flex justify-between items-center text-destructive"><span className="flex items-center gap-1"><Tag className="w-4 h-4"/> Descuento ({config?.descuentoGeneral}%)</span> <span className="font-semibold">-{formatCurrency(calculos.montoDescuento)}</span></div>}
                                 <div className="flex justify-between items-center text-2xl font-bold pt-2 border-t text-primary"><span >TOTAL ESTIMADO:</span> <span>{formatCurrency(calculos.costoConDescuento)}</span></div>
                             </div>
@@ -195,4 +222,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
