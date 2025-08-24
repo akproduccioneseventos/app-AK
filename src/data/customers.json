@@ -8,5 +8,15 @@
     "taxId": "",
     "estadoCliente": "Actual",
     "partyDate": "2025-08-30T03:00:00.000Z"
+  },
+  {
+    "id": "cust_1756185600000_ines",
+    "name": "Ines Salayeta",
+    "companyName": "",
+    "phone": "",
+    "taxId": "",
+    "estadoCliente": "Actual",
+    "partyDate": "2025-08-23T03:00:00.000Z"
   }
 ]
+

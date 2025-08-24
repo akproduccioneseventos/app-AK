@@ -1,22 +1,22 @@
 
 {
-  "id": "fiesta_1749928097473",
+  "id": "fiesta_1756185600000_ines",
   "configuracion": {
-    "nombreEvento": "BODA Ana Laura Manise Club Uruguay",
-    "tipoCelebracion": "Boda",
-    "fechaEvento": "2025-08-30T03:00:00.000Z",
-    "horaInicio": "20:27",
-    "horaFin": "02:00",
+    "nombreEvento": "Fiesta Ines Salayeta",
+    "tipoCelebracion": "Fiesta o Evento",
+    "fechaEvento": "2025-08-23T03:00:00.000Z",
+    "horaInicio": "21:00",
+    "horaFin": "05:00",
     "nombreLugar": "Club Uruguay",
-    "invitadosEstimados": 28,
-    "presupuestoEstimado": 57405,
-    "notasAdicionales": "Planificación inicial.",
-    "clienteId": "cust_1753896000000_1a2b3c"
+    "invitadosEstimados": 100,
+    "presupuestoEstimado": 202367,
+    "notasAdicionales": "Evento de Ines Salayeta.",
+    "clienteId": "cust_1756185600000_ines"
   },
   "personalAsignado": [],
-  "presupuestoId": "pres_1753896000000_1a2b3c",
+  "presupuestoId": "pres_1756185600000_ines",
   "invoiceIds": [
-    "inv_1753898460000_1089"
+    "inv_1756100400000_1055"
   ],
   "reuniones": [],
   "tareas": [
@@ -25,7 +25,8 @@
       "texto": "Definir lista de invitados",
       "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
       "completada": false,
-      "esPredeterminada": false
+      "esPredeterminada": false,
+      "asignadaA": "Organizador"
     }
   ],
   "decoracion": {
@@ -89,164 +90,7 @@
     "generalNotesDecoracion": "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
     "pdfNotasAdicionales": "",
     "salonPlanBackgroundImageUrl": "",
-    "salonElements": [
-      {
-        "id": "auto_table_1751395651570_0",
-        "name": "Mesa 1",
-        "quantity": 1,
-        "x": 50,
-        "y": 50,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_1",
-        "name": "Mesa 2",
-        "quantity": 1,
-        "x": 200,
-        "y": 50,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_2",
-        "name": "Mesa 3",
-        "quantity": 1,
-        "x": 350,
-        "y": 50,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_3",
-        "name": "Mesa 4",
-        "quantity": 1,
-        "x": 500,
-        "y": 50,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_4",
-        "name": "Mesa 5",
-        "quantity": 1,
-        "x": 50,
-        "y": 200,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_5",
-        "name": "Mesa 6",
-        "quantity": 1,
-        "x": 200,
-        "y": 200,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_6",
-        "name": "Mesa 7",
-        "quantity": 1,
-        "x": 350,
-        "y": 200,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_7",
-        "name": "Mesa 8",
-        "quantity": 1,
-        "x": 500,
-        "y": 200,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_8",
-        "name": "Mesa 9",
-        "quantity": 1,
-        "x": 50,
-        "y": 350,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_9",
-        "name": "Mesa 10",
-        "quantity": 1,
-        "x": 200,
-        "y": 350,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_10",
-        "name": "Mesa 11",
-        "quantity": 1,
-        "x": 350,
-        "y": 350,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_11",
-        "name": "Mesa 12",
-        "quantity": 1,
-        "x": 500,
-        "y": 350,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      },
-      {
-        "id": "auto_table_1751395651570_12",
-        "name": "Mesa 13",
-        "quantity": 1,
-        "x": 50,
-        "y": 500,
-        "width": 100,
-        "height": 100,
-        "rotation": 0,
-        "type": "predefined",
-        "category": "Mesa Redonda"
-      }
-    ],
+    "salonElements": [],
     "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
     "layoutMode": "asignado",
     "guestNameStyle": "full",
@@ -254,16 +98,7 @@
     "layoutTemplateName": "Club Uruguay",
     "generalNotes": "Decoración base, detalles por definir."
   },
-  "invitados": [
-    {
-      "id": "inv_1751395777894_ia5z1",
-      "nombre": "nico",
-      "rsvp": "Pendiente",
-      "partySize": 1,
-      "companionNames": [],
-      "checkedIn": false
-    }
-  ],
+  "invitados": [],
   "webPageSettings": {
     "pageTitle": "Mi Evento Especial",
     "heroSubtitle": "¡Una celebración inolvidable!",

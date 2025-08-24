@@ -63,5 +63,63 @@
         "notes": "Entrega 3"
       }
     ]
+  },
+  {
+    "id": "inv_1756100400000_1055",
+    "invoiceNumber": "1055",
+    "customer": {
+      "id": "cust_1756185600000_ines",
+      "name": "Ines Salayeta",
+      "companyName": "",
+      "phone": "",
+      "taxId": "",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-08-23T03:00:00.000Z"
+    },
+    "issueDate": "2025-01-24T03:00:00.000Z",
+    "dueDate": "2025-07-26T03:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1756100400000_1055_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 182217,
+        "total": 182217
+      },
+      {
+        "id": "item_inv_1756100400000_1055_2",
+        "description": "Cuadro de firmas",
+        "quantity": 1,
+        "unitPrice": 2900,
+        "total": 2900
+      },
+      {
+        "id": "item_inv_1756100400000_1055_3",
+        "description": "Salon de fiesta - Club Uruguay",
+        "quantity": 1,
+        "unitPrice": 17250,
+        "total": 17250
+      }
+    ],
+    "subtotal": 202367,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 202367,
+    "status": "Sent",
+    "notes": "Gracias por tu pago. INCLUYE AJUSTE 15% 2025",
+    "currency": "UYU",
+    "vendorName": "AK PRODUCCIONES",
+    "vendorAddress": "Salto",
+    "vendorTaxId": "RUT Ejemplo",
+    "payments": [
+      {
+        "id": "pay_inv_1756100400000_1055_1",
+        "paymentDate": "2024-12-30T03:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 1"
+      }
+    ]
   }
 ]
+

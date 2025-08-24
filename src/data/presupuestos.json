@@ -170,5 +170,48 @@
     "estado": "Facturado",
     "notas": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.",
     "invoiceId": "inv_1753898460000_1089"
+  },
+  {
+    "id": "pres_1756185600000_ines",
+    "clienteNombre": "Ines Salayeta",
+    "eventoTipo": "Fiesta o Evento",
+    "eventoFecha": "2025-08-23T03:00:00.000Z",
+    "invitadosCantidad": 100,
+    "salonFiestas": "Club Uruguay",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_fiestas_integral",
+        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
+        "cantidad": 1,
+        "precioUnitario": 182217,
+        "costoTotalItem": 182217,
+        "categoriaServicio": "Servicios Integrales"
+      },
+      {
+        "idServicioCatalogo": "serv_cuadro_firmas",
+        "nombreServicio": "Cuadro de firmas",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "costoTotalItem": 2465,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_salon_club_uruguay",
+        "nombreServicio": "Salon de fiesta - Club Uruguay",
+        "cantidad": 1,
+        "precioUnitario": 17250,
+        "costoTotalItem": 17250,
+        "categoriaServicio": "Salones"
+      }
+    ],
+    "costoTotalEstimado": 201932,
+    "nombrePromocion": "Ajuste 2025",
+    "descuentoTipo": "porcentaje",
+    "descuentoValor": 15,
+    "totalConDescuento": 171642.2,
+    "timestamp": "2025-01-24T03:00:00.000Z",
+    "estado": "Facturado",
+    "notas": "Incluye ajuste 15% 2025",
+    "invoiceId": "inv_1756100400000_1055"
   }
 ]
