@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
@@ -9,11 +10,16 @@ async function addFilesToZip(zip: JSZip, directoryPath: string, parentPath: stri
   const entries = await fs.readdir(directoryPath, { withFileTypes: true });
 
   for (const entry of entries) {
+    // Skip the backups directory itself to prevent recursive zipping
+    if (entry.name === 'backups' && parentPath === '') continue;
+
     const fullPath = path.join(directoryPath, entry.name);
     const zipPath = path.join(parentPath, entry.name);
     if (entry.isDirectory()) {
+      // For directories, create a folder in the zip and recurse
       await addFilesToZip(zip.folder(entry.name)!, fullPath, zipPath);
     } else {
+      // For files, read content and add to zip
       const fileContent = await fs.readFile(fullPath);
       zip.file(entry.name, fileContent);
     }
@@ -24,14 +30,28 @@ export async function GET() {
   try {
     const zip = new JSZip();
     
-    // Check if the data directory exists
     try {
       await fs.access(dataDirectory);
     } catch (e) {
       return new NextResponse(JSON.stringify({ error: 'Data directory not found.' }), { status: 404 });
     }
 
-    await addFilesToZip(zip, dataDirectory);
+    const entries = await fs.readdir(dataDirectory, { withFileTypes: true });
+
+    for (const entry of entries) {
+       // Exclude the 'backups' directory from the root of the zip
+      if (entry.name === 'backups') {
+        continue;
+      }
+      
+      const fullPath = path.join(dataDirectory, entry.name);
+      if (entry.isDirectory()) {
+        await addFilesToZip(zip.folder(entry.name)!, fullPath, entry.name);
+      } else {
+        const fileContent = await fs.readFile(fullPath);
+        zip.file(entry.name, fileContent);
+      }
+    }
 
     const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
     

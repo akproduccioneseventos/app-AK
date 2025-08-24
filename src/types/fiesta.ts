@@ -400,6 +400,16 @@ export interface FotografiaYFilmacionData {
     notasEntrega?: string;
 }
 
+export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_salon' | 'otro';
+export interface OtroDocumento {
+  id: string;
+  nombre: string;
+  tipo: DocumentoTipo;
+  fileName: string; // e.g., 'contrato-salon-fiesta123.pdf'
+  timestamp: string; // ISO String
+}
+
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -424,6 +434,11 @@ export interface FiestaEnPlanificacion {
   videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
+  
+  // Obsolete file names, prefer `otrosDocumentos`
   contratoSalonFileName?: string;
   contratoServicioFileName?: string;
+
+  // New flexible document storage
+  otrosDocumentos?: OtroDocumento[];
 }
