@@ -1,6 +1,193 @@
 
 [
   {
+    "id": "pres_1756534800000_1218",
+    "clienteNombre": "Bianca Martínez",
+    "eventoTipo": "Cumpleaños",
+    "eventoFecha": "2025-06-09T03:00:00.000Z",
+    "invitadosCantidad": 100,
+    "salonFiestas": "Salón Genérico",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozos",
+        "cantidad": 3,
+        "unidad": "Unidad",
+        "precioUnitario": 2800,
+        "costoTotalItem": 8400
+      },
+      {
+        "idServicioCatalogo": "serv_metre",
+        "nombreServicio": "Metre",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "serv_cocina",
+        "nombreServicio": "Personal de cocina",
+        "cantidad": 2,
+        "unidad": "Unidad",
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
+      },
+      {
+        "idServicioCatalogo": "serv_cheff",
+        "nombreServicio": "Cheff",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "serv_vajilla",
+        "nombreServicio": "Vajilla y mantelería completa",
+        "cantidad": 100,
+        "unidad": "Por persona",
+        "precioUnitario": 140,
+        "costoTotalItem": 14000
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_fiambres",
+        "nombreServicio": "Entrada 1: Picada de fiambres",
+        "cantidad": 100,
+        "unidad": "Por persona",
+        "precioUnitario": 120,
+        "costoTotalItem": 12000
+      },
+      {
+        "idServicioCatalogo": "serv_plato_principal_carne",
+        "nombreServicio": "Plato principal: Carne con guarnición",
+        "cantidad": 100,
+        "unidad": "Por persona",
+        "precioUnitario": 200,
+        "costoTotalItem": 20000
+      },
+      {
+        "idServicioCatalogo": "serv_discoteca",
+        "nombreServicio": "Discoteca",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8900,
+        "costoTotalItem": 8900
+      },
+      {
+        "idServicioCatalogo": "serv_fotografia",
+        "nombreServicio": "Fotografía",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 7500,
+        "costoTotalItem": 7500
+      },
+      {
+        "idServicioCatalogo": "serv_plataforma360",
+        "nombreServicio": "Plataforma 360",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3900,
+        "costoTotalItem": 3900
+      },
+      {
+        "idServicioCatalogo": "serv_album_digital",
+        "nombreServicio": "Album digital personalizado (Regalo exclusivo)",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_filmacion",
+        "nombreServicio": "Filmación",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 7500,
+        "costoTotalItem": 7500
+      },
+      {
+        "idServicioCatalogo": "serv_mesa_postres_varios",
+        "nombreServicio": "Mesa de postres (varios)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 14500
+      },
+      {
+        "idServicioCatalogo": "serv_mesa_postres_flan",
+        "nombreServicio": "Mesa de postres - Flan de coco",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 900,
+        "costoTotalItem": 900
+      },
+      {
+        "idServicioCatalogo": "serv_mesa_postres_tarta",
+        "nombreServicio": "Mesa de postres - Tarta frutal",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 1100,
+        "costoTotalItem": 1100
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_digitales",
+        "nombreServicio": "Invitaciones digitales (Regalo exclusivo)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_cofee_break",
+        "nombreServicio": "Cofee break (Regalo exclusivo)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_fuegos_frios",
+        "nombreServicio": "Fuegos fríos (Regalo exclusivo)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_lluvia_burbujas",
+        "nombreServicio": "Lluvia de burbujas (Regalo exclusivo)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_mobiliario",
+        "nombreServicio": "Mobiliario",
+        "cantidad": 29,
+        "unidad": "Unidad",
+        "precioUnitario": 70,
+        "costoTotalItem": 2030
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería completa",
+        "cantidad": 29,
+        "unidad": "Unidad",
+        "precioUnitario": 70,
+        "costoTotalItem": 2030
+      }
+    ],
+    "costoTotalEstimado": 150330,
+    "timestamp": "2025-06-09T03:00:00.000Z",
+    "estado": "Borrador",
+    "notas": ""
+  },
+  {
     "id": "pres_1082",
     "clienteNombre": "MARIA NUÑEZ",
     "eventoTipo": "XV años",
@@ -231,7 +418,7 @@
         "esRegalo": true
       }
     ],
-    "costoTotalEstimado": 232565,
+    "costoTotalEstimado": 202230,
     "timestamp": "2024-08-12T03:00:00.000Z",
     "estado": "Facturado",
     "notas": "Presupuesto basado en imagen, incluye ajuste 15% 2025.",
@@ -314,204 +501,7 @@
     "costoTotalEstimado": 79900,
     "timestamp": "2024-09-02T12:00:00.000Z",
     "estado": "Borrador",
-    "notas": "Presupuesto para el cumpleaños de 70 años de Nestor."
-  },
-  {
-    "id": "pres_1763781216503_def34",
-    "clienteNombre": "Luis Olivera",
-    "eventoTipo": "XV Años",
-    "eventoFecha": "2025-09-27T03:00:00.000Z",
-    "invitadosCantidad": 120,
-    "salonFiestas": "Villa España",
-    "itemsPresupuestados": [
-      {
-        "idServicioCatalogo": "serv_vajilla_completa",
-        "nombreServicio": "Vajilla completa",
-        "cantidad": 120,
-        "unidad": "Por persona",
-        "precioUnitario": 70,
-        "costoTotalItem": 8400
-      },
-      {
-        "idServicioCatalogo": "serv_manteleria_completa",
-        "nombreServicio": "Mantelería completa",
-        "cantidad": 120,
-        "unidad": "Por persona",
-        "precioUnitario": 70,
-        "costoTotalItem": 8400
-      },
-      {
-        "idServicioCatalogo": "serv_mozo_cocina",
-        "nombreServicio": "Mozo de cocina",
-        "cantidad": 5,
-        "unidad": "Unidad",
-        "precioUnitario": 2800,
-        "costoTotalItem": 14000
-      },
-      {
-        "idServicioCatalogo": "serv_mozos",
-        "nombreServicio": "Mozos",
-        "cantidad": 5,
-        "unidad": "Unidad",
-        "precioUnitario": 2800,
-        "costoTotalItem": 14000
-      },
-      {
-        "idServicioCatalogo": "serv_discoteca_intermedia",
-        "nombreServicio": "Discoteca Intermedia",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 14500,
-        "costoTotalItem": 14500
-      },
-      {
-        "idServicioCatalogo": "serv_deco_basica_xv",
-        "nombreServicio": "Decoracion Basica",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 14500,
-        "costoTotalItem": 14500
-      },
-      {
-        "idServicioCatalogo": "serv_barra_tragos_xv",
-        "nombreServicio": "Barra de Tragos",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 8900,
-        "costoTotalItem": 8900
-      },
-      {
-        "idServicioCatalogo": "serv_fotocabina_regalo",
-        "nombreServicio": "Fotocabina",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 2900,
-        "costoTotalItem": 0,
-        "esRegalo": true
-      },
-      {
-        "idServicioCatalogo": "serv_film_civil",
-        "nombreServicio": "Filmacion civil",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 3900,
-        "costoTotalItem": 3900
-      },
-      {
-        "idServicioCatalogo": "serv_film_iglesia",
-        "nombreServicio": "Filmacion Iglesia",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 3890,
-        "costoTotalItem": 3890
-      },
-      {
-        "idServicioCatalogo": "serv_film_fiesta",
-        "nombreServicio": "Filmacion fiesta",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 7500,
-        "costoTotalItem": 7500
-      },
-      {
-        "idServicioCatalogo": "serv_film_pintada",
-        "nombreServicio": "Filmacion pintada",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 3000,
-        "costoTotalItem": 3000
-      },
-      {
-        "idServicioCatalogo": "serv_foto_exteriores_xv",
-        "nombreServicio": "Fotografia de exteriores",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 3500,
-        "costoTotalItem": 3500
-      },
-      {
-        "idServicioCatalogo": "serv_foto_fiesta_xv",
-        "nombreServicio": "Fotografia de la fiesta",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 8500,
-        "costoTotalItem": 8500
-      },
-      {
-        "idServicioCatalogo": "serv_fuente_chocolate_xv",
-        "nombreServicio": "Fuente de chocolate con mesa de frutas",
-        "cantidad": 1,
-        "unidad": "Por persona",
-        "precioUnitario": 8900,
-        "costoTotalItem": 8900
-      },
-      {
-        "idServicioCatalogo": "serv_pantalla_proyector_regalo",
-        "nombreServicio": "Pantalla gigante y proyector",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 1500,
-        "costoTotalItem": 0,
-        "esRegalo": true
-      },
-      {
-        "idServicioCatalogo": "serv_video_vida_regalo",
-        "nombreServicio": "Video de vida",
-        "cantidad": 1,
-        "unidad": "Unidad",
-        "precioUnitario": 2500,
-        "costoTotalItem": 0,
-        "esRegalo": true
-      },
-      {
-        "idServicioCatalogo": "serv_entrada_picada_xv",
-        "nombreServicio": "Entrada 8: Picada de fiambres",
-        "cantidad": 120,
-        "unidad": "Por persona",
-        "precioUnitario": 120,
-        "costoTotalItem": 14400
-      },
-      {
-        "idServicioCatalogo": "serv_entrada_sandwiches_xv",
-        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
-        "cantidad": 120,
-        "unidad": "Por persona",
-        "precioUnitario": 200,
-        "costoTotalItem": 24000
-      },
-      {
-        "idServicioCatalogo": "serv_menu_ninos_panchos_xv",
-        "nombreServicio": "Menú niños- Panchos c/ fritas",
-        "cantidad": 13,
-        "unidad": "Por persona",
-        "precioUnitario": 165,
-        "costoTotalItem": 2145
-      },
-      {
-        "idServicioCatalogo": "serv_menu_ninos_hamburguesa_xv",
-        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
-        "cantidad": 40,
-        "unidad": "Por persona",
-        "precioUnitario": 200,
-        "costoTotalItem": 8000
-      },
-      {
-        "idServicioCatalogo": "serv_plato_principal_cerdo_xv",
-        "nombreServicio": "Plato principal 4: Cerdo relleno c/ guarnición",
-        "cantidad": 67,
-        "unidad": "Por persona",
-        "precioUnitario": 300,
-        "costoTotalItem": 20100
-      }
-    ],
-    "costoTotalEstimado": 176291.3,
-    "nombrePromocion": "AJUSTE 15% 2025",
-    "descuentoTipo": "porcentaje",
-    "descuentoValor": 15,
-    "totalConDescuento": 111784.775,
-    "timestamp": "2025-08-08T12:00:00.000Z",
-    "estado": "Facturado",
-    "invoiceId": "inv_1094"
+    "notas": "Cumpleaños de 70 de Nestor."
   },
   {
     "id": "pres_1761821817417_h4b3k",
@@ -844,3 +834,5 @@
     "totalConDescuento": 192116
   }
 ]
+
+    

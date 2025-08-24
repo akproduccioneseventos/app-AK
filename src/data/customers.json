@@ -6,6 +6,11 @@
     "estadoCliente": "Actual"
   },
   {
+    "id": "cust_1756534800000_1218a",
+    "name": "Bianca Martínez",
+    "estadoCliente": "Actual"
+  },
+  {
     "id": "cust_1753644316534_2qn2g",
     "name": "Prospecto de Boda: Ana García",
     "estadoCliente": "Actual"
@@ -17,9 +22,18 @@
     "partyDate": "2025-11-29T03:00:00.000Z"
   },
   {
+    "id": "cust_1763865600000_jkl78",
+    "name": "Luciana Bisio",
+    "estadoCliente": "Actual",
+    "partyDate": "2025-10-05T03:00:00.000Z",
+    "partyType": "Cumpleaños"
+  },
+  {
     "id": "cust_1764103200000_xyz45",
     "name": "MARIA NUÑEZ",
     "estadoCliente": "Actual",
     "partyDate": "2025-10-18T03:00:00.000Z"
   }
 ]
+
+    
