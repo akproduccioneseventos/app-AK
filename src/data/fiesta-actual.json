@@ -1,23 +1,21 @@
 
 {
-  "id": "fiesta_1756185600000_ines",
+  "id": "fiesta_1759497600000_manmos",
   "configuracion": {
-    "nombreEvento": "Fiesta Ines Salayeta",
+    "nombreEvento": "Fiesta Familia Manise-Moser",
     "tipoCelebracion": "Fiesta o Evento",
-    "fechaEvento": "2025-08-23T03:00:00.000Z",
+    "fechaEvento": "2025-11-29T03:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "05:00",
-    "nombreLugar": "Club Uruguay",
-    "invitadosEstimados": 100,
-    "presupuestoEstimado": 202367,
-    "notasAdicionales": "Evento de Ines Salayeta.",
-    "clienteId": "cust_1756185600000_ines"
+    "nombreLugar": "A definir",
+    "invitadosEstimados": 50,
+    "presupuestoEstimado": 0,
+    "notasAdicionales": "",
+    "clienteId": "cust_1759497600000_manmos"
   },
   "personalAsignado": [],
-  "presupuestoId": "pres_1756185600000_ines",
-  "invoiceIds": [
-    "inv_1756100400000_1055"
-  ],
+  "presupuestoId": "pres_1759497600000_manmos",
+  "invoiceIds": [],
   "reuniones": [],
   "tareas": [
     {
