@@ -72,7 +72,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
-  if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Seleccionar Menú para Modificar';
+  if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Catálogo de Platos';
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathSegments[0] === 'fiestas' && pathSegments[1] === 'nueva' && pathSegments[2] === 'catering' && pathSegments[3] === 'menu' && pathSegments[5] === 'editar') return `Editando Menú`;
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
@@ -195,7 +195,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
-
+  
   if (pathname === '/armado-rapido') return Wand2;
   if (pathname === '/asistente-ak') return Bot;
 

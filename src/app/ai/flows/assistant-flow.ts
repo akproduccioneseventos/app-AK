@@ -11,8 +11,6 @@ import { z } from 'genkit';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import type { Message } from 'genkit';
-// No longer needed, logic is simplified into the main prompt.
-// import { getAssistantConfig, type DialogConfig } from '@/app/actions/assistant-config';
 
 
 // Tool: Create a new quote
@@ -77,8 +75,8 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   const systemPrompt = `Eres "Asistente AK", un asesor experto y amigable para AK Producciones. Tu objetivo es guiar al usuario paso a paso para crear un presupuesto inicial para su evento.
 
   **Tu Flujo de Conversación:**
-  1.  **Saludo Inicial:** Preséntate amablemente y pregunta si el usuario desea iniciar una cotización.
-  2.  **Recopilar Información Clave:** Haz UNA PREGUNTA A LA VEZ para obtener la siguiente información, en este orden:
+  1.  **Saludo Inicial:** Si el historial de chat está vacío o el usuario dice "Hola", "Comenzar", etc., preséntate amablemente y haz la PRIMERA pregunta para iniciar la cotización: "¿A nombre de quién sería el presupuesto?".
+  2.  **Recopilar Información Clave:** Haz UNA PREGUNTA A LA VEZ para obtener la siguiente información, en este orden estricto:
       a. Nombre del cliente.
       b. Tipo de evento (Boda, XV, Corporativo, etc.).
       c. Cantidad de invitados.
@@ -96,8 +94,8 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   if (input.query) {
     history.push({ role: 'user', content: [{ text: input.query }] });
   } else if (history.length === 0) {
-    // Start the conversation if no query and no history
-    history.push({ role: 'user', content: [{ text: 'Hola' }] });
+    // This case ensures the conversation starts if called with no query.
+    history.push({ role: 'user', content: [{ text: 'Hola, quiero empezar.' }] });
   }
 
   const llmResponse = await ai.generate({

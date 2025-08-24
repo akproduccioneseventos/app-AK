@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef, type FormEvent, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User, X, Loader2, ArrowRight, CornerDownLeft, Check, Sparkles, PlusCircle } from 'lucide-react';
+import { Bot, User, X, Loader2, ArrowRight, CornerDownLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { assistant, type AssistantOutput } from '@/ai/flows/assistant-flow';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Message } from 'genkit';
-import { ScrollArea } from '../ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChatMessage extends Message {
   id: string;
@@ -21,7 +21,7 @@ interface ChatMessage extends Message {
 
 export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean, assistantKey?: number }) {
     const [isOpen, setIsOpen] = useState(isPage);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Start as true to show loading for initial message
     const [error, setError] = useState('');
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
@@ -48,10 +48,9 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
     }, [toast]);
     
     useEffect(() => {
-        if(isPage || assistantKey) {
-            startConversation();
-        }
-    }, [isPage, assistantKey, startConversation]);
+      // This will run on initial mount for the page, and when the key changes.
+      startConversation();
+    }, [assistantKey, startConversation]);
     
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -180,7 +179,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                 )}
             </AnimatePresence>
             {!isPage && !isOpen && (
-                 <Button onClick={() => setIsOpen(true)} className="rounded-full w-16 h-16 shadow-lg">
+                 <Button onClick={() => { setIsOpen(true); if(messages.length === 0) startConversation(); }} className="rounded-full w-16 h-16 shadow-lg">
                     <Bot className="h-8 w-8" />
                 </Button>
             )}

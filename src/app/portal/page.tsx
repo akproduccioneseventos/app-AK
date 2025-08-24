@@ -263,7 +263,7 @@ export default function ClientPortalPage() {
                     </Card>
                 )}
             </div>
-            <AkAssistant />
+            {/* The assistant is rendered but its functionality is disabled on this page by AppShell logic */}
         </div>
     );
 }
