@@ -1,6 +1,53 @@
 
 [
   {
+    "id": "inv_1067",
+    "invoiceNumber": "1067",
+    "customer": {
+      "id": "cust_7",
+      "name": "Aníbal De Los Santos",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-12-20T03:00:00.000Z",
+      "partyType": "ANIVERSARIO"
+    },
+    "issueDate": "2025-03-20T00:00:00.000Z",
+    "dueDate": "2025-12-13T00:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1067_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 108050,
+        "total": 108050
+      },
+      {
+        "id": "item_inv_1067_2",
+        "description": "Salon de fiesta - Club Uruguay",
+        "quantity": 1,
+        "unitPrice": 17500,
+        "total": 17500
+      }
+    ],
+    "subtotal": 125550,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 125550,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_inv_1067_1",
+        "paymentDate": "2025-02-14T00:00:00.000Z",
+        "amount": 50000,
+        "method": "Transferencia",
+        "notes": "Seña - Entrega 1"
+      }
+    ]
+  },
+  {
     "id": "inv_1080",
     "invoiceNumber": "1080",
     "customer": {

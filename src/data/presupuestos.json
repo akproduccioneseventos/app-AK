@@ -981,7 +981,7 @@
       },
       {
         "idServicioCatalogo": "serv_1752489600007_pollarr",
-        "nombreServicio": "Plato principal 9: Pollo a la crema c/ guarnición",
+        "nombreServicio": "Plato principal 9: Pollo arrollado c/ guarnición",
         "cantidad": 50,
         "precioUnitario": 350,
         "costoTotalItem": 17500
@@ -1015,20 +1015,20 @@
         "costoTotalItem": 14950
       },
       {
-        "idServicioCatalogo": "serv_fotografia_fiesta",
-        "nombreServicio": "Fotografía de fiestas",
+        "idServicioCatalogo": "serv_1752489600116_fotfie",
+        "nombreServicio": "Fotografía de la fiesta",
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 8500,
         "costoTotalItem": 8500
       },
       {
-        "idServicioCatalogo": "serv_mesa_postres_varios",
-        "nombreServicio": "Mesa de postres (varios)",
+        "idServicioCatalogo": "serv_1752489600072_cheesecake",
+        "nombreServicio": "Mesa de postres",
         "cantidad": 1,
         "unidad": "Evento",
-        "precioUnitario": 14500,
-        "costoTotalItem": 14500
+        "precioUnitario": 6000,
+        "costoTotalItem": 6000
       },
       {
         "idServicioCatalogo": "serv_torta_principal",
@@ -1043,7 +1043,7 @@
         "nombreServicio": "Invitaciones digitales (Regalo exclusivo)",
         "cantidad": 1,
         "unidad": "Evento",
-        "precioUnitario": 3500,
+        "precioUnitario": 2500,
         "costoTotalItem": 0,
         "esRegalo": true
       },
@@ -1199,6 +1199,7 @@
     "totalConDescuento": 108050,
     "timestamp": "2025-02-12T03:00:00.000Z",
     "estado": "Aceptado",
-    "notas": "15% de descuento en todos los ítems (excepto regalos). El total ya refleja este descuento."
+    "notas": "15% de descuento en todos los ítems (excepto regalos). El total ya refleja este descuento.",
+    "invoiceId": "inv_1067"
   }
 ]

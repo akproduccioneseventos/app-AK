@@ -2,22 +2,22 @@
 {
   "id": "fiesta_1",
   "configuracion": {
-    "nombreEvento": "Fiesta de 15 MARIA NUÑEZ",
-    "tipoCelebracion": "XV años",
-    "fechaEvento": "2025-10-18T03:00:00.000Z",
+    "nombreEvento": "Aniversario - Anibal De Los Santos",
+    "tipoCelebracion": "ANIVERSARIO",
+    "fechaEvento": "2025-12-20T03:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "05:00",
-    "nombreLugar": "A definir",
-    "invitadosEstimados": 120,
-    "presupuestoEstimado": 232565,
+    "nombreLugar": "Club Uruguay",
+    "invitadosEstimados": 50,
+    "presupuestoEstimado": 108050,
     "notasAdicionales": "Presupuesto basado en imagen, incluye ajuste 15% 2025.",
-    "clienteId": "cust_3"
+    "clienteId": "cust_7"
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
-  "presupuestoId": "pres_3",
+  "presupuestoId": "pres_1765910400000_qrstuv",
   "invoiceIds": [
-    "inv_1036"
+    "inv_1067"
   ],
   "reuniones": [],
   "tareas": [
