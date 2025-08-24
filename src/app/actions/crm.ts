@@ -7,6 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { saveCustomer } from '@/app/actions/customers'; // For client creation
 import type { Customer } from '@/types/customer'; // For client creation
+import { archivarFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual'; // For party creation
 
 const CRM_DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const LEADS_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-leads.json');
@@ -191,9 +192,8 @@ export async function convertToClientAndMoveProspect(
       return { success: false, error: "La etapa 'Firmó contrato' no está configurada."};
   }
 
-  // Prepare data for saveCustomer (it expects FormData)
   const customerFormData = new FormData();
-  customerFormData.append('name', prospectName); // Use prospect's name for the customer
+  customerFormData.append('name', prospectName); 
   if (email) customerFormData.append('email', email);
   if (phone) customerFormData.append('phone', phone);
   if (companyName) customerFormData.append('companyName', companyName);
@@ -202,22 +202,32 @@ export async function convertToClientAndMoveProspect(
   customerFormData.append('contract', contractFile);
 
   try {
-    // The type assertion Omit<Customer, 'id'> is technically incorrect as FormData is not the same.
-    // However, saveCustomer is designed to handle FormData. We use `any` to bypass strict checks here
-    // as we know the receiving function will correctly parse the FormData.
     const customerResult = await saveCustomer(customerFormData as any);
 
     if (!customerResult.success || !customerResult.id) {
       return { success: false, error: customerResult.error || "No se pudo crear el cliente." };
     }
 
-    // If customer created successfully, move the prospect
     const moveResult = await moveCrmLead(prospectId, firmStage.id);
     if (!moveResult.success) {
-      // Potentially rollback customer creation or log inconsistency
-      console.error(`Cliente ${customerResult.id} creado, pero no se pudo mover el prospecto ${prospectId}. Error: ${moveResult.error}`);
+      console.warn(`Cliente ${customerResult.id} creado, pero no se pudo mover el prospecto ${prospectId}. Error: ${moveResult.error}`);
       return { success: false, error: `Cliente creado, pero no se pudo actualizar el prospecto: ${moveResult.error}`, customerId: customerResult.id };
     }
+    
+    // START: Automate Party Creation
+    const archiveResult = await archivarFiestaActual();
+    if (!archiveResult.success || !archiveResult.nuevaFiesta) {
+        console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta: ${archiveResult.error}`);
+        // No devolvemos un error fatal aquí, ya que la parte principal (CRM) fue exitosa.
+        // Se podría añadir una notificación al usuario de que debe crear la fiesta manualmente.
+    } else {
+        // Link new party to the new customer
+        await updateConfiguracionFiestaActual({
+            clienteId: customerResult.id,
+            nombreEvento: `Evento de ${prospectName}`, // Default name
+        });
+    }
+    // END: Automate Party Creation
 
     return { success: true, customerId: customerResult.id, lead: moveResult.lead };
 
