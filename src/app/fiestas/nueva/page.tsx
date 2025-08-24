@@ -24,6 +24,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { getCustomerById } from '@/app/actions/customers';
+import { Alert, AlertDescription, AlertTitle as AlertTitleShadcn } from '@/components/ui/alert';
+
 
 interface PlanningModule {
   title: string;
@@ -100,6 +102,8 @@ export default function PlanificarFiestaHubPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [linkedClient, setLinkedClient] = useState<Customer | null>(null);
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
+  const [showContractReminder, setShowContractReminder] = useState(false);
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
@@ -109,9 +113,14 @@ export default function PlanificarFiestaHubPage() {
     setIsLoading(true);
     setError(null);
     setLinkedClient(null);
+    setShowContractReminder(false);
     try {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
+
+      if (fiesta?.configuracion.nombreLugar?.toLowerCase() === "club uruguay" && !fiesta.contratoSalonFileName) {
+        setShowContractReminder(true);
+      }
 
       if (fiesta?.configuracion.clienteId) {
         const clientDetails = await getCustomerById(fiesta.configuracion.clienteId);
@@ -172,6 +181,19 @@ export default function PlanificarFiestaHubPage() {
         </div>
       ) : (
         <>
+          {showContractReminder && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitleShadcn>Recordatorio Importante</AlertTitleShadcn>
+              <AlertDescription>
+                Falta subir el contrato del salón "Club Uruguay". Puedes hacerlo en la sección de{" "}
+                <Link href="/fiestas/nueva/gestion-documental" className="font-semibold underline">
+                  Gestión Documental
+                </Link>.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="font-headline text-xl">Resumen del Evento Actual</CardTitle>
@@ -211,3 +233,4 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
+
