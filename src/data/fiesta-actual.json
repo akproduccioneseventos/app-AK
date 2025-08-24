@@ -1,24 +1,22 @@
 
 {
-  "id": "fiesta_1763865600000_pqr34",
+  "id": "fiesta_1764103200000_stu67",
   "configuracion": {
-    "nombreEvento": "Cumpleaños 70 Nestor",
-    "tipoCelebracion": "Cumpleaños",
-    "fechaEvento": "2025-08-05T03:00:00.000Z",
-    "horaInicio": "19:00",
-    "horaFin": "02:00",
+    "nombreEvento": "Fiesta de 15 MARIA NUÑEZ",
+    "tipoCelebracion": "XV años",
+    "fechaEvento": "2025-10-18T03:00:00.000Z",
+    "horaInicio": "21:00",
+    "horaFin": "05:00",
     "nombreLugar": "A definir",
-    "invitadosEstimados": 100,
-    "presupuestoEstimado": 79900,
-    "notasAdicionales": "Planificación inicial.",
-    "clienteId": "cust_1763865600000_jkl78"
+    "invitadosEstimados": 120,
+    "presupuestoEstimado": 202230,
+    "notasAdicionales": "Presupuesto basado en imagen, requiere revisión de servicios.",
+    "clienteId": "cust_1764103200000_xyz45"
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
-  "presupuestoId": "pres_1763865600000_mno12",
-  "invoiceIds": [
-    "inv_1095"
-  ],
+  "presupuestoId": "pres_1082",
+  "invoiceIds": [],
   "reuniones": [],
   "tareas": [
     {

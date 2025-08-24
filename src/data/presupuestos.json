@@ -1,6 +1,172 @@
 
 [
   {
+    "id": "pres_1082",
+    "clienteNombre": "MARIA NUÑEZ",
+    "eventoTipo": "Cumpleaños",
+    "eventoFecha": "2025-10-18T03:00:00.000Z",
+    "invitadosCantidad": 120,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_pollo_arrollado",
+        "nombreServicio": "Plato principal 3: Pollo arrollado c/ guarnición",
+        "cantidad": 90,
+        "unidad": "Por persona",
+        "precioUnitario": 300,
+        "costoTotalItem": 27000
+      },
+      {
+        "idServicioCatalogo": "serv_mesa_buffets",
+        "nombreServicio": "Mesa buffets",
+        "cantidad": 90,
+        "unidad": "Por persona",
+        "precioUnitario": 75,
+        "costoTotalItem": 6750
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_hamburguesa",
+        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
+        "cantidad": 30,
+        "unidad": "Por persona",
+        "precioUnitario": 249,
+        "costoTotalItem": 7470
+      },
+      {
+        "idServicioCatalogo": "serv_decoracion_intermedia",
+        "nombreServicio": "Decoración intermedia",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 19500,
+        "costoTotalItem": 19500
+      },
+      {
+        "idServicioCatalogo": "serv_discoteca_intermedia",
+        "nombreServicio": "Discoteca intermedia",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14000,
+        "costoTotalItem": 14000
+      },
+      {
+        "idServicioCatalogo": "serv_fotografia_exteriores",
+        "nombreServicio": "Fotografía de exteriores",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "serv_fotografia_pintada",
+        "nombreServicio": "Fotografía de la pintada",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3000,
+        "costoTotalItem": 3000
+      },
+      {
+        "idServicioCatalogo": "serv_fotografia_fiesta",
+        "nombreServicio": "Fotografía de fiestas",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 7500,
+        "costoTotalItem": 7500
+      },
+      {
+        "idServicioCatalogo": "serv_postres",
+        "nombreServicio": "Postres",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 5000,
+        "costoTotalItem": 5000
+      }
+    ],
+    "costoTotalEstimado": 202230,
+    "timestamp": "2024-08-12T03:00:00.000Z",
+    "estado": "Aceptado",
+    "descuentoTipo": "porcentaje",
+    "descuentoValor": 15,
+    "totalConDescuento": 202230
+  },
+  {
+    "id": "pres_1228",
+    "clienteNombre": "Nestor",
+    "eventoTipo": "Cumpleaños",
+    "eventoFecha": "2025-10-05T03:00:00.000Z",
+    "invitadosCantidad": 70,
+    "salonFiestas": "Salon Ejemplo",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_mozos_xv",
+        "nombreServicio": "Mozos",
+        "cantidad": 3,
+        "unidad": "Evento",
+        "precioUnitario": 2800,
+        "costoTotalItem": 8400
+      },
+      {
+        "idServicioCatalogo": "serv_metre_xv",
+        "nombreServicio": "Metre",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "serv_cocina_xv",
+        "nombreServicio": "Personal de cocina",
+        "cantidad": 2,
+        "unidad": "Evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
+      },
+      {
+        "idServicioCatalogo": "serv_cheff_xv",
+        "nombreServicio": "Cheff",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "serv_vajilla_xv",
+        "nombreServicio": "Vajilla y mantelería completa",
+        "cantidad": 70,
+        "unidad": "Por persona",
+        "precioUnitario": 140,
+        "costoTotalItem": 9800
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_empanaditas",
+        "nombreServicio": "Entrada 2: Empanaditas y pizzetas",
+        "cantidad": 70,
+        "unidad": "Por persona",
+        "precioUnitario": 150,
+        "costoTotalItem": 10500
+      },
+      {
+        "idServicioCatalogo": "serv_plato_principal_carne",
+        "nombreServicio": "Plato principal 1: Carne c/ guarnición",
+        "cantidad": 70,
+        "unidad": "Por persona",
+        "precioUnitario": 200,
+        "costoTotalItem": 14000
+      },
+      {
+        "idServicioCatalogo": "serv_mesa_postres",
+        "nombreServicio": "Mesa de postres (con 15% de descuento)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 24400,
+        "costoTotalItem": 20740
+      }
+    ],
+    "costoTotalEstimado": 79900,
+    "timestamp": "2024-09-02T12:00:00.000Z",
+    "estado": "Borrador",
+    "notas": "Presupuesto para 70 años."
+  },
+  {
     "id": "pres_1763781216503_def34",
     "clienteNombre": "Luis Olivera",
     "eventoTipo": "XV Años",
@@ -398,7 +564,7 @@
         "nombreServicio": "Mozo de cocina",
         "cantidad": 2,
         "unidad": "Evento",
-        "precioUnitario": 2900,
+        "precioUnitario": 2800,
         "costoTotalItem": 5800
       },
       {
