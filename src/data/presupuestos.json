@@ -195,6 +195,28 @@
     "invoiceId": "inv_1094"
   },
   {
+    "id": "pres_1763865600000_mno12",
+    "clienteNombre": "Luciana Bisio",
+    "eventoTipo": "Evento General",
+    "eventoFecha": "2025-08-05T03:00:00.000Z",
+    "invitadosCantidad": 100,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_integral_temp",
+        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 79900,
+        "costoTotalItem": 79900
+      }
+    ],
+    "costoTotalEstimado": 79900,
+    "timestamp": "2025-08-21T18:00:00.000Z",
+    "estado": "Facturado",
+    "invoiceId": "inv_1095"
+  },
+  {
     "id": "pres_1761821817417_h4b3k",
     "clienteNombre": "Ines Salayeta",
     "eventoTipo": "Boda",
@@ -208,7 +230,7 @@
         "cantidad": 2,
         "unidad": "Evento",
         "precioUnitario": 2900,
-        "costoTotalItem": 4930,
+        "costoTotalItem": 5800,
         "categoriaServicio": "Personal",
         "esRegalo": false
       },
@@ -218,7 +240,7 @@
         "cantidad": 4,
         "unidad": "Evento",
         "precioUnitario": 2900,
-        "costoTotalItem": 9860,
+        "costoTotalItem": 11600,
         "categoriaServicio": "Personal",
         "esRegalo": false
       },
@@ -228,7 +250,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 210,
-        "costoTotalItem": 17850,
+        "costoTotalItem": 21000,
         "categoriaServicio": "Servicio de decoración",
         "esRegalo": false
       },
@@ -238,7 +260,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 150,
-        "costoTotalItem": 12750,
+        "costoTotalItem": 15000,
         "categoriaServicio": "Servicio de catering",
         "esRegalo": false
       },
@@ -248,7 +270,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 190,
-        "costoTotalItem": 16150,
+        "costoTotalItem": 19000,
         "categoriaServicio": "Servicio de catering",
         "esRegalo": false
       },
@@ -258,7 +280,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 350,
-        "costoTotalItem": 29750,
+        "costoTotalItem": 35000,
         "categoriaServicio": "Servicio de catering",
         "esRegalo": false
       },
@@ -288,7 +310,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 14500,
-        "costoTotalItem": 12325,
+        "costoTotalItem": 14500,
         "categoriaServicio": "Servicio de discoteca",
         "esRegalo": false
       },
@@ -298,7 +320,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 14500,
-        "costoTotalItem": 12325,
+        "costoTotalItem": 14500,
         "categoriaServicio": "Servicio de decoración",
         "esRegalo": false
       },
@@ -308,7 +330,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3900,
-        "costoTotalItem": 3315,
+        "costoTotalItem": 3900,
         "categoriaServicio": "Servicio de fotografía",
         "esRegalo": false
       },
@@ -318,7 +340,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3890,
-        "costoTotalItem": 3306.5,
+        "costoTotalItem": 3890,
         "categoriaServicio": "Servicio de fotografía",
         "esRegalo": false
       },
@@ -328,7 +350,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 8500,
-        "costoTotalItem": 7225,
+        "costoTotalItem": 8500,
         "categoriaServicio": "Servicio de fotografía",
         "esRegalo": false
       },
@@ -338,7 +360,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 7500,
-        "costoTotalItem": 6375,
+        "costoTotalItem": 7500,
         "categoriaServicio": "Servicio de filmación",
         "esRegalo": false
       },
@@ -348,7 +370,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3000,
-        "costoTotalItem": 2550,
+        "costoTotalItem": 3000,
         "categoriaServicio": "Servicio de filmación",
         "esRegalo": false
       }
@@ -465,8 +487,8 @@
         "nombreServicio": "Fotografía de exteriores",
         "cantidad": 1,
         "unidad": "Evento",
-        "precioUnitario": 3500,
-        "costoTotalItem": 3500,
+        "precioUnitario": 3800,
+        "costoTotalItem": 3800,
         "categoriaServicio": "Servicio de fotografía",
         "esRegalo": false
       },

@@ -1,8 +1,8 @@
 
 [
   {
-    "id": "cust_1761271249762_2qn2g",
-    "name": "Ana Laura Manise",
+    "id": "cust_1753644316534_2qn2g",
+    "name": "Prospecto de Boda: Ana García",
     "estadoCliente": "Actual"
   },
   {
@@ -12,15 +12,22 @@
     "partyDate": "2025-11-29T03:00:00.000Z"
   },
   {
+    "id": "cust_1763781216503_abc12",
+    "name": "Luis Olivera",
+    "estadoCliente": "Actual"
+  },
+  {
+    "id": "cust_1763865600000_jkl78",
+    "name": "Luciana Bisio",
+    "estadoCliente": "Actual",
+    "partyDate": "2025-08-05T03:00:00.000Z",
+    "partyType": "Evento General"
+  },
+  {
     "id": "cust_1762283995832_6p5u68",
     "name": "Silvia Cabral Y Adrian",
     "estadoCliente": "Actual",
     "partyDate": "2025-09-13T03:00:00.000Z",
     "partyType": "XV años"
-  },
-  {
-    "id": "cust_1763781216503_abc12",
-    "name": "Luis Olivera",
-    "estadoCliente": "Actual"
   }
 ]

@@ -1,23 +1,23 @@
 
 {
-  "id": "fiesta_1763781216503_ghi56",
+  "id": "fiesta_1763865600000_pqr34",
   "configuracion": {
-    "nombreEvento": "XV Años Luis Olivera",
-    "tipoCelebracion": "XV Años",
-    "fechaEvento": "2025-09-27T03:00:00.000Z",
-    "horaInicio": "21:00",
-    "horaFin": "05:00",
-    "nombreLugar": "Villa España",
+    "nombreEvento": "Evento para Luciana Bisio",
+    "tipoCelebracion": "Evento General",
+    "fechaEvento": "2025-08-05T03:00:00.000Z",
+    "horaInicio": "19:00",
+    "horaFin": "02:00",
+    "nombreLugar": "A definir",
     "invitadosEstimados": 100,
-    "presupuestoEstimado": 202735,
-    "notasAdicionales": "INCLUYE AJUSTE 15% 2025",
-    "clienteId": "cust_1763781216503_abc12"
+    "presupuestoEstimado": 79900,
+    "notasAdicionales": "Planificación inicial.",
+    "clienteId": "cust_1763865600000_jkl78"
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
-  "presupuestoId": "pres_1763781216503_def34",
+  "presupuestoId": "pres_1763865600000_mno12",
   "invoiceIds": [
-    "inv_1094"
+    "inv_1095"
   ],
   "reuniones": [],
   "tareas": [
