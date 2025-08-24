@@ -1072,6 +1072,69 @@
     "salonFiestas": "Club Uruguay",
     "itemsPresupuestados": [
       {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 2,
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozos",
+        "cantidad": 2,
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
+      },
+      {
+        "idServicioCatalogo": "serv_vajilla_manteleria_mobiliario",
+        "nombreServicio": "Vajilla, mantelería y moviliario",
+        "cantidad": 50,
+        "precioUnitario": 230,
+        "costoTotalItem": 11500
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_23",
+        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
+        "cantidad": 50,
+        "precioUnitario": 220,
+        "costoTotalItem": 11000
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_8",
+        "nombreServicio": "Entrada 8: Picada de fiambres",
+        "cantidad": 50,
+        "precioUnitario": 150,
+        "costoTotalItem": 7500
+      },
+      {
+        "idServicioCatalogo": "serv_plato_principal_9",
+        "nombreServicio": "Plato principal 9: Pollo a la crema c/ guarnición",
+        "cantidad": 50,
+        "precioUnitario": 350,
+        "costoTotalItem": 17500
+      },
+      {
+        "idServicioCatalogo": "serv_barra_tragos",
+        "nombreServicio": "Barra de tragos, canilla libre",
+        "cantidad": 50,
+        "precioUnitario": 299,
+        "costoTotalItem": 14950
+      },
+      {
+        "idServicioCatalogo": "serv_decoracion_basica",
+        "nombreServicio": "Decoración básica",
+        "cantidad": 1,
+        "precioUnitario": 8000,
+        "costoTotalItem": 8000
+      },
+      {
+        "idServicioCatalogo": "serv_discoteca_basica",
+        "nombreServicio": "Discoteca Básica",
+        "cantidad": 1,
+        "precioUnitario": 8000,
+        "costoTotalItem": 8000
+      },
+      {
         "idServicioCatalogo": "serv_1752489600116_fotfie",
         "nombreServicio": "Fotografía de la fiesta",
         "cantidad": 1,
@@ -1121,78 +1184,6 @@
         "precioUnitario": 2500,
         "costoTotalItem": 0,
         "esRegalo": true
-      },
-      {
-        "idServicioCatalogo": "serv_mozo_cocina",
-        "nombreServicio": "Mozo de cocina",
-        "cantidad": 2,
-        "unidad": "$",
-        "precioUnitario": 2900,
-        "costoTotalItem": 5800
-      },
-      {
-        "idServicioCatalogo": "serv_mozos",
-        "nombreServicio": "Mozos",
-        "cantidad": 2,
-        "unidad": "$",
-        "precioUnitario": 2900,
-        "costoTotalItem": 5800
-      },
-      {
-        "idServicioCatalogo": "serv_vajilla_manteleria_mobiliario",
-        "nombreServicio": "Vajilla, mantelería y moviliario",
-        "cantidad": 50,
-        "unidad": "$",
-        "precioUnitario": 230,
-        "costoTotalItem": 11500
-      },
-      {
-        "idServicioCatalogo": "serv_entrada_23",
-        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
-        "cantidad": 50,
-        "unidad": "$",
-        "precioUnitario": 220,
-        "costoTotalItem": 11000
-      },
-      {
-        "idServicioCatalogo": "serv_entrada_8",
-        "nombreServicio": "Entrada 8: Picada de fiambres",
-        "cantidad": 50,
-        "unidad": "$",
-        "precioUnitario": 150,
-        "costoTotalItem": 7500
-      },
-      {
-        "idServicioCatalogo": "serv_plato_principal_9",
-        "nombreServicio": "Plato principal 9: Pollo a la crema c/ guarnición",
-        "cantidad": 50,
-        "unidad": "$",
-        "precioUnitario": 350,
-        "costoTotalItem": 17500
-      },
-      {
-        "idServicioCatalogo": "serv_barra_tragos",
-        "nombreServicio": "Barra de tragos, canilla libre",
-        "cantidad": 50,
-        "unidad": "$",
-        "precioUnitario": 299,
-        "costoTotalItem": 14950
-      },
-      {
-        "idServicioCatalogo": "serv_decoracion_basica",
-        "nombreServicio": "Decoración básica",
-        "cantidad": 1,
-        "unidad": "$",
-        "precioUnitario": 8000,
-        "costoTotalItem": 8000
-      },
-      {
-        "idServicioCatalogo": "serv_discoteca_basica",
-        "nombreServicio": "Discoteca Básica",
-        "cantidad": 1,
-        "unidad": "$",
-        "precioUnitario": 8000,
-        "costoTotalItem": 8000
       }
     ],
     "costoTotalEstimado": 108050,
@@ -1201,5 +1192,121 @@
     "estado": "Aceptado",
     "notas": "15% de descuento en todos los ítems (excepto regalos). El total ya refleja este descuento.",
     "invoiceId": "inv_1067"
+  },
+  {
+    "id": "pres_1762181514757_l6y7a3_ana_severo",
+    "clienteNombre": "Ana Severo",
+    "eventoTipo": "Cumpleaños",
+    "eventoFecha": "2025-12-26T03:00:00.000Z",
+    "invitadosCantidad": 80,
+    "salonFiestas": "Chacra La Escondida",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_1752489600001_pmozo",
+        "nombreServicio": "Mozos",
+        "cantidad": 4,
+        "precioUnitario": 2900,
+        "costoTotalItem": 11600
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600002_pcoci",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 2,
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600004_pchef",
+        "nombreServicio": "Cheff",
+        "cantidad": 1,
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600069_vajcomp",
+        "nombreServicio": "Vajilla completa",
+        "cantidad": 80,
+        "precioUnitario": 70,
+        "costoTotalItem": 5600
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600007_pollarr",
+        "nombreServicio": "Plato principal: Pollo arrollado c/ guarnición",
+        "cantidad": 80,
+        "precioUnitario": 350,
+        "costoTotalItem": 28000
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600055_menninchiv",
+        "nombreServicio": "Menú niños- Chivitos c/ fritas",
+        "cantidad": 1,
+        "precioUnitario": 300,
+        "costoTotalItem": 300
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600044_sansal",
+        "nombreServicio": "Entrada: Sandwiches y Saladitos",
+        "cantidad": 80,
+        "precioUnitario": 220,
+        "costoTotalItem": 17600
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600105_disest",
+        "nombreServicio": "Discoteca Estándar",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8000,
+        "costoTotalItem": 8000
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600084_fuentchoc",
+        "nombreServicio": "Fuente de chocolate",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 6000,
+        "costoTotalItem": 6000
+      },
+      {
+        "idServicioCatalogo": "serv_torta_principal",
+        "nombreServicio": "Torta Principal",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2500,
+        "costoTotalItem": 2500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600072_cheesecake",
+        "nombreServicio": "Mesa de postres",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 6000,
+        "costoTotalItem": 6000
+      },
+      {
+        "idServicioCatalogo": "regalo_invitaciones_digitales",
+        "nombreServicio": "Invitaciones Digitales (Regalo)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 0,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_album_digital",
+        "nombreServicio": "Álbum Digital (Regalo)",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 0,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      }
+    ],
+    "costoTotalEstimado": 108760,
+    "timestamp": "2024-12-16T15:25:16.534Z",
+    "estado": "Aceptado",
+    "invoiceId": "inv_1039",
+    "notas": "Incluye ajuste 15% 2025"
   }
 ]
+
+    
