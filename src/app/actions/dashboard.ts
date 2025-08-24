@@ -5,6 +5,7 @@ import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getFiestaActual, getHistorialFiestas } from './fiesta-actual';
+import type { Customer } from '@/types/customer';
 
 export async function getDashboardKpiData() {
   try {
@@ -25,28 +26,27 @@ export async function getDashboardKpiData() {
     const now = new Date();
     now.setHours(0, 0, 0, 0); 
     
-    // Corrected logic for future parties.
+    // --- Lógica de Fiestas Futuras Corregida ---
+    // Contará cada cliente que tenga una fiesta en el futuro, sin duplicados.
     const clientesConFiestaFutura = new Set<string>();
 
-    // 1. Check the current event being planned
+    // 1. Considerar la fiesta actual en planificación
     if (fiestaActualData?.configuracion?.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= now) {
       if (fiestaActualData.configuracion.clienteId) {
         clientesConFiestaFutura.add(fiestaActualData.configuracion.clienteId);
-      } else {
-        // If no client is linked, it still counts as one future party.
-        // We use a placeholder to represent this unlinked party.
-        clientesConFiestaFutura.add('fiesta_actual_sin_cliente');
       }
     }
     
-    // 2. Count other customers with future parties, ensuring not to double-count
+    // 2. Iterar sobre todos los clientes activos y contar sus fiestas futuras
     customersData.forEach(customer => {
-      if (customer.partyDate && new Date(customer.partyDate) >= now) {
+      // Solo contar clientes activos que tengan una fecha de fiesta futura
+      if (customer.estadoCliente === 'Actual' && customer.partyDate && new Date(customer.partyDate) >= now) {
         clientesConFiestaFutura.add(customer.id);
       }
     });
 
     const fiestasFuturasCount = clientesConFiestaFutura.size;
+    // --- Fin de la Lógica Corregida ---
 
     const clientesActivos = customersData.filter(
       (c) => c.estadoCliente === 'Actual'
