@@ -14,15 +14,82 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 202735,
-        "costoTotalItem": 202735,
+        "costoTotalItem": 172324.75,
         "categoriaServicio": "Servicio Integral"
+      },
+      {
+        "idServicioCatalogo": "serv_discoteca_estandar",
+        "nombreServicio": "Discoteca estándar",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8000,
+        "costoTotalItem": 6800,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "serv_decoracion_estandar",
+        "nombreServicio": "Decoración Estándar",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 12325,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_barra_tragos",
+        "nombreServicio": "Barra de tragos, canilla libre",
+        "cantidad": 120,
+        "unidad": "Por persona",
+        "precioUnitario": 229,
+        "costoTotalItem": 23358,
+        "categoriaServicio": "Servicio de bebidas"
+      },
+      {
+        "idServicioCatalogo": "serv_foto_exteriores",
+        "nombreServicio": "Fotografía de exteriores",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 2975,
+        "categoriaServicio": "Servicio de fotografía"
+      },
+      {
+        "idServicioCatalogo": "serv_foto_fiesta",
+        "nombreServicio": "Fotografía de fiestas",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 9000,
+        "costoTotalItem": 7650,
+        "categoriaServicio": "Servicio de fotografía"
+      },
+      {
+        "idServicioCatalogo": "serv_fuente_chocolate",
+        "nombreServicio": "Fuente de chocolate con mesa de frutas",
+        "cantidad": 120,
+        "unidad": "Por persona",
+        "precioUnitario": 119,
+        "costoTotalItem": 12138,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_fotocabina",
+        "nombreServicio": "Fotocabina",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2490,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Servicio de entretenimiento",
+        "esRegalo": true
       }
     ],
-    "costoTotalEstimado": 202735,
+    "costoTotalEstimado": 278115,
     "timestamp": "2025-08-08T12:00:00.000Z",
     "estado": "Facturado",
     "notas": "INCLUYE AJUSTE 15% 2025",
-    "invoiceId": "inv_1094"
+    "invoiceId": "inv_1094",
+    "descuentoTipo": "porcentaje",
+    "descuentoValor": 15,
+    "totalConDescuento": 236397.75
   },
   {
     "id": "pres_1761821817417_h4b3k",
