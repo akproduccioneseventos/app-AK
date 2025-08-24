@@ -304,3 +304,20 @@ export async function syncCustomerFromFiestaConfig(
   
   return { success: true };
 }
+
+export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget', filename: string): Promise<{ success: boolean, error?: string}> {
+    const customers = await readCustomersFile();
+    const customerIndex = customers.findIndex(c => c.id === customerId);
+    if (customerIndex === -1) {
+        return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
+    }
+
+    if(documentType === 'contract') {
+        customers[customerIndex].contractFileName = filename;
+    } else if (documentType === 'budget') {
+        customers[customerIndex].budgetFileName = filename;
+    }
+
+    await writeCustomersFile(customers);
+    return { success: true };
+}
