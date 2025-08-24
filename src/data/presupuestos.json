@@ -941,5 +941,83 @@
     "timestamp": "2025-04-01T03:00:00.000Z",
     "estado": "Facturado",
     "invoiceId": "inv_1080"
+  },
+  {
+    "id": "pres_1765104000000_1a2b3c",
+    "clienteNombre": "Zulma Núñez",
+    "eventoTipo": "XV años",
+    "eventoFecha": "2025-11-22T03:00:00.000Z",
+    "invitadosCantidad": 50,
+    "salonFiestas": "CLUB URUGUAY",
+    "protagonista1Nombre": "Cyntia",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_1752489600001_pmozo",
+        "nombreServicio": "Mozos",
+        "cantidad": 2,
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600002_pcoci",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 2,
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600031_picfiam",
+        "nombreServicio": "Entrada 8: Picada de fiambres",
+        "cantidad": 50,
+        "precioUnitario": 150,
+        "costoTotalItem": 7500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600044_sansal",
+        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
+        "cantidad": 50,
+        "precioUnitario": 220,
+        "costoTotalItem": 11000
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600007_pollarr",
+        "nombreServicio": "Pollo arrollado con mesa buffet",
+        "cantidad": 25,
+        "precioUnitario": 450,
+        "costoTotalItem": 11250
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600069_vajcomp",
+        "nombreServicio": "Vajilla, mantelería y moviliario",
+        "cantidad": 50,
+        "precioUnitario": 230,
+        "costoTotalItem": 11500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600098_decbas",
+        "nombreServicio": "Decoración básica",
+        "cantidad": 1,
+        "precioUnitario": 8000,
+        "costoTotalItem": 8000
+      },
+      {
+        "idServicioCatalogo": "serv_candy_bar",
+        "nombreServicio": "Candy bar (mesa dulce)",
+        "cantidad": 1,
+        "precioUnitario": 6000,
+        "costoTotalItem": 6000
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600103_disbas",
+        "nombreServicio": "Discoteca Básica",
+        "cantidad": 1,
+        "precioUnitario": 8000,
+        "costoTotalItem": 8000
+      }
+    ],
+    "costoTotalEstimado": 74850,
+    "totalConDescuento": 111750,
+    "timestamp": "2025-02-04T03:00:00.000Z",
+    "estado": "Borrador"
   }
 ]
