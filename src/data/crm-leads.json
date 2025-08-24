@@ -1,56 +1,5 @@
+
 [
-  {
-    "id": "lead_1753644316534_3nuuv92",
-    "name": "Prospecto de Boda: Ana García",
-    "notes": "Generado desde Armado Rápido con paquete \"Paquete Premium\".\nTipo: Boda\nInvitados: 50\nPresupuesto Estimado: $ 54.600,00",
-    "currentStageId": "s1",
-    "createdAt": "2025-07-27T19:25:16.534Z",
-    "updatedAt": "2025-07-27T19:25:16.534Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2025-07-27T19:25:16.534Z"
-      }
-    ]
-  },
-  {
-    "id": "lead_1753643699280_qvcy2qs",
-    "name": "Prospecto de Boda: Ana García",
-    "notes": "Generado desde Armado Rápido con paquete \"Paquete Básico\".\nTipo: Boda\nInvitados: 50\nPresupuesto Estimado: $ 24.100,00",
-    "currentStageId": "s1",
-    "createdAt": "2025-07-27T19:14:59.280Z",
-    "updatedAt": "2025-07-27T19:14:59.280Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2025-07-27T19:14:59.280Z"
-      }
-    ]
-  },
-  {
-    "id": "lead_1753396021561_u4q7r3n",
-    "name": "Prospecto de Boda",
-    "notes": "Generado desde Armado Rápido.\nTipo: Boda\nInvitados: 50\nPresupuesto Estimado: $ 97.500,00",
-    "currentStageId": "s1",
-    "createdAt": "2025-07-24T22:27:01.561Z",
-    "updatedAt": "2025-07-24T22:27:01.561Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2025-07-24T22:27:01.561Z"
-      }
-    ]
-  },
-  {
-    "id": "lead_1750272855466_bl6udip",
-    "name": "juan",
-    "currentStageId": "s3",
-    "createdAt": "2025-06-18T18:54:15.466Z",
-    "updatedAt": "2025-06-18T18:54:29.065Z"
-  },
   {
     "id": "lead_1755299760787_k5kimy9",
     "name": "Prospecto de Evento corporativo: prueba",

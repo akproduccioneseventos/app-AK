@@ -1,1 +1,23 @@
-[]
+
+[
+  {
+    "id": "fiesta_1750272855466_bl6udip",
+    "configuracion": {
+      "nombreEvento": "Evento de Juan",
+      "tipoCelebracion": "Cumpleaños",
+      "fechaEvento": "2024-06-18T18:54:15.466Z",
+      "invitadosEstimados": 50,
+      "clienteId": "cust_1750272855466"
+    }
+  },
+  {
+    "id": "fiesta_1753644316534_3nuuv92",
+    "configuracion": {
+      "nombreEvento": "Prospecto de Boda: Ana García",
+      "tipoCelebracion": "Boda",
+      "fechaEvento": "2024-07-27T19:25:16.534Z",
+      "invitadosEstimados": 50,
+      "clienteId": "cust_1753644316534"
+    }
+  }
+]
