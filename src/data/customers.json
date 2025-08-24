@@ -21,7 +21,10 @@
     "id": "cust_3",
     "name": "MARIA NUÑEZ",
     "estadoCliente": "Actual",
-    "partyDate": "2025-10-18T03:00:00.000Z"
+    "partyDate": "2025-10-18T03:00:00.000Z",
+    "phone": "092705148",
+    "taxId": "36795330",
+    "venueName": "Club Uruguay"
   },
   {
     "id": "cust_4",

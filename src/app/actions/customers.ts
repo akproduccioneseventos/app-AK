@@ -135,6 +135,14 @@ export async function saveCustomer(
     };
     customerToSave = customers[index]; 
   } else { // Create
+     const existingCustomer = customers.find(
+      (c) =>
+        (c.name && c.name.trim().toLowerCase() === customerToSave.name?.trim().toLowerCase()) ||
+        (c.companyName && c.companyName.trim().toLowerCase() === customerToSave.companyName?.trim().toLowerCase())
+    );
+    if (existingCustomer) {
+      return { success: false, error: 'Ya existe un cliente con este nombre o nombre de empresa.' };
+    }
     customerId = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newCustomerBase: Omit<Customer, 'id'> = {
         ...(customerToSave as Omit<Customer, 'id'>), 

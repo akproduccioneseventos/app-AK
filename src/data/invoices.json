@@ -43,7 +43,15 @@
     },
     "issueDate": "2024-08-22T00:00:00.000Z",
     "dueDate": "2024-09-21T00:00:00.000Z",
-    "items": [],
+    "items": [
+      {
+        "id": "item_inv_1036_seña_1",
+        "description": "Seña por servicio de fiesta",
+        "quantity": 1,
+        "unitPrice": 5000,
+        "total": 5000
+      }
+    ],
     "subtotal": 232565,
     "taxRate": 0,
     "taxAmount": 0,
@@ -53,7 +61,15 @@
     "vendorName": "AK Producciones",
     "vendorAddress": "Montevideo, Uruguay",
     "vendorTaxId": "RUT Ejemplo 123456789012",
-    "payments": []
+    "payments": [
+      {
+        "id": "pay_inv_1036_1",
+        "paymentDate": "2024-08-20T03:00:00.000Z",
+        "amount": 5000,
+        "method": "Efectivo",
+        "notes": "Seña según contrato"
+      }
+    ]
   },
   {
     "id": "inv_1067",
