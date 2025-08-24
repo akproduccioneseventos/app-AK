@@ -30,15 +30,7 @@ export async function getDashboardKpiData() {
       (c) => c.estadoCliente === 'Actual'
     ).length;
 
-    // Corrected logic for "Fiestas Futuras"
-    // It now specifically checks if the "Fiesta Actual" is set for a future date.
-    let fiestasFuturasCount = 0;
-    if (fiestaActualData?.configuracion?.fechaEvento) {
-        const fechaEvento = new Date(fiestaActualData.configuracion.fechaEvento);
-        if (fechaEvento >= now) {
-            fiestasFuturasCount = 1;
-        }
-    }
+    const fiestasFuturasCount = clientesActivos;
 
     const prospectosActivos = presupuestosData.filter(
       (p) => p.estado === 'Borrador' || p.estado === 'Enviado'
