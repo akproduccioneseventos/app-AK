@@ -79,8 +79,16 @@ export async function GET(
     await fs.access(filePath);
     const fileBuffer = await fs.readFile(filePath);
 
+    // Determine content type from file extension if possible
+    let contentType = 'application/octet-stream'; // generic binary
+    const ext = path.extname(safeFilename).toLowerCase();
+    if (ext === '.pdf') contentType = 'application/pdf';
+    if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    if (ext === '.png') contentType = 'image/png';
+    if (ext === '.txt') contentType = 'text/plain';
+
     const headers = new Headers();
-    headers.set('Content-Type', 'application/octet-stream');
+    headers.set('Content-Type', contentType);
     headers.set('Content-Disposition', `inline; filename="${safeFilename}"`);
 
     return new NextResponse(fileBuffer, { status: 200, headers });

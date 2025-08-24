@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem, ClientTarea, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem, ClientTarea, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -111,6 +111,9 @@ async function writeFiestaActualFile(data: FiestaEnPlanificacion): Promise<void>
     }
     if (!dataToWrite.fotografiaYFilmacion) {
         dataToWrite.fotografiaYFilmacion = { ...defaultFotografiaYFilmacionData };
+    }
+    if (!dataToWrite.pagosProveedores) {
+        dataToWrite.pagosProveedores = [];
     }
 
 
@@ -375,6 +378,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     programa: validatedPrograma,
     fotografiaYFilmacion: validatedFotografiaYFilmacion,
     otrosDocumentos: data.otrosDocumentos || [],
+    pagosProveedores: data.pagosProveedores || [],
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -1248,4 +1252,17 @@ export async function deleteDocumentoFiesta(
         console.error(`Error deleting document ${docId}:`, error);
         return { success: false, error: error.message || "Error al eliminar el documento." };
     }
+}
+
+export async function updatePagosProveedores(
+  nuevosPagos: PagoProveedor[]
+): Promise<{ success: boolean, updatedData?: PagoProveedor[], error?: string}> {
+  try {
+    let fiestaActual = await getFiestaActual();
+    fiestaActual.pagosProveedores = nuevosPagos;
+    await writeFiestaActualFile(fiestaActual);
+    return { success: true, updatedData: nuevosPagos };
+  } catch(e: any) {
+    return { success: false, error: e.message || "Error al guardar los pagos a proveedores." };
+  }
 }
