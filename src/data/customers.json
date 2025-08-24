@@ -1,39 +1,44 @@
 
 [
   {
-    "id": "cust_1764835200000_1091a",
-    "name": "Angelina",
-    "estadoCliente": "Actual"
-  },
-  {
-    "id": "cust_1756534800000_1218a",
-    "name": "Bianca Martínez",
-    "estadoCliente": "Actual"
-  },
-  {
-    "id": "cust_1753644316534_2qn2g",
-    "name": "Prospecto de Boda: Ana García",
-    "estadoCliente": "Actual"
-  },
-  {
-    "id": "cust_1761821817417_h5r3t",
-    "name": "Ines Salayeta",
+    "id": "cust_1",
+    "name": "Silvia Cabral Y Adrian",
     "estadoCliente": "Actual",
-    "partyDate": "2025-11-29T03:00:00.000Z"
+    "partyDate": "2025-09-13T03:00:00.000Z",
+    "partyType": "XV años"
   },
   {
-    "id": "cust_1763865600000_jkl78",
+    "id": "cust_2",
     "name": "Luciana Bisio",
     "estadoCliente": "Actual",
     "partyDate": "2025-10-05T03:00:00.000Z",
     "partyType": "Cumpleaños"
   },
   {
-    "id": "cust_1764103200000_xyz45",
+    "id": "cust_3",
     "name": "MARIA NUÑEZ",
     "estadoCliente": "Actual",
     "partyDate": "2025-10-18T03:00:00.000Z"
+  },
+  {
+    "id": "cust_4",
+    "name": "Ines Salayeta",
+    "estadoCliente": "Actual",
+    "partyDate": "2025-11-29T03:00:00.000Z"
+  },
+  {
+    "id": "cust_5",
+    "name": "Bianca Martínez",
+    "estadoCliente": "Actual"
+  },
+  {
+    "id": "cust_6",
+    "name": "Angelina",
+    "estadoCliente": "Actual"
+  },
+  {
+    "id": "cust_7",
+    "name": "Prospecto de Boda: Ana García",
+    "estadoCliente": "Actual"
   }
 ]
-
-    

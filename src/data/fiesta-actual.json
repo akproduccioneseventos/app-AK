@@ -1,6 +1,6 @@
 
 {
-  "id": "fiesta_1764103200000_stu67",
+  "id": "fiesta_1",
   "configuracion": {
     "nombreEvento": "Fiesta de 15 MARIA NUÑEZ",
     "tipoCelebracion": "XV años",
@@ -11,14 +11,13 @@
     "invitadosEstimados": 120,
     "presupuestoEstimado": 232565,
     "notasAdicionales": "Presupuesto basado en imagen, incluye ajuste 15% 2025.",
-    "clienteId": "cust_1764103200000_xyz45"
+    "clienteId": "cust_3"
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
-  "presupuestoId": "pres_1082",
+  "presupuestoId": "pres_3",
   "invoiceIds": [
-    "inv_1036",
-    "inv_1086"
+    "inv_1036"
   ],
   "reuniones": [],
   "tareas": [
