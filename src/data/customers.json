@@ -38,8 +38,10 @@
   },
   {
     "id": "cust_7",
-    "name": "Prospecto de Boda: Ana García",
-    "estadoCliente": "Actual"
+    "name": "Aníbal De Los Santos",
+    "estadoCliente": "Actual",
+    "partyDate": "2025-12-20T03:00:00.000Z",
+    "partyType": "ANIVERSARIO"
   },
   {
     "id": "cust_1762181514757_q5kgyx",
