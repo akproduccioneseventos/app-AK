@@ -122,22 +122,46 @@
     "salonFiestas": "Club Uruguay",
     "itemsPresupuestados": [
       {
-        "idServicioCatalogo": "serv_salon_fiestas",
-        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
+        "idServicioCatalogo": "serv_discoteca_completa",
+        "nombreServicio": "Servicio de discoteca",
         "cantidad": 1,
-        "precioUnitario": 181516,
-        "costoTotalItem": 181516,
-        "categoriaServicio": "Otros servicios"
+        "precioUnitario": 18000,
+        "costoTotalItem": 18000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "serv_pantalla_proyector",
+        "nombreServicio": "Pantalla gigante y proyector",
+        "cantidad": 1,
+        "precioUnitario": 2000,
+        "costoTotalItem": 2000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "serv_fotocabina",
+        "nombreServicio": "Fotocabina",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de entretenimiento"
+      },
+      {
+        "idServicioCatalogo": "serv_fotografia_fiesta",
+        "nombreServicio": "Servicio de fotografía",
+        "cantidad": 1,
+        "precioUnitario": 10500,
+        "costoTotalItem": 10500,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de fotografía"
       }
     ],
-    "costoTotalEstimado": 181516,
+    "costoTotalEstimado": 33400,
     "timestamp": "2024-07-10T12:00:00.000Z",
     "estado": "Aceptado",
-    "invoiceId": "inv_1024",
-    "notas": "Incluye ajuste 15% 2025. Descuentos aplicados según documento.",
-    "descuentoTipo": "porcentaje",
-    "descuentoValor": 15,
-    "totalConDescuento": 154288.6
+    "notas": "Incluye ajuste 15% 2025. Descuentos aplicados según documento."
   },
   {
     "id": "pres_1082",
