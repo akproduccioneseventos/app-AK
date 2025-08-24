@@ -1,23 +1,23 @@
 
 {
-  "id": "fiesta_1",
+  "id": "fiesta_1758410145694",
   "configuracion": {
-    "nombreEvento": "XV Años - Silvia Cabral",
-    "tipoCelebracion": "XV años",
-    "fechaEvento": "2025-09-13T03:00:00.000Z",
+    "nombreEvento": "Fiesta Luis Olivera",
+    "tipoCelebracion": "Fiesta",
+    "fechaEvento": "2025-09-27T03:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "05:00",
-    "nombreLugar": "Club Uruguay",
-    "invitadosEstimados": 50,
-    "presupuestoEstimado": 108050,
-    "notasAdicionales": "Presupuesto basado en imagen, incluye ajuste 15% 2025.",
-    "clienteId": "cust_1"
+    "nombreLugar": "Villa Espinaca",
+    "invitadosEstimados": 100,
+    "presupuestoEstimado": 0,
+    "notasAdicionales": "",
+    "clienteId": "cust_1758410080649_r8t6p"
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
-  "presupuestoId": "pres_1024",
+  "presupuestoId": "pres_1758410145695_z6q9x",
   "invoiceIds": [
-    "inv_1024"
+    "inv_1758410145695_z6q9x"
   ],
   "reuniones": [],
   "tareas": [
@@ -27,7 +27,7 @@
       "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
       "esPredeterminada": false,
       "asignadaA": "Organizador",
-      "id": "task_1755996058746_kwzfutd"
+      "id": "task_1758410145695_kwzfutd"
     },
     {
       "texto": "Seleccionar catering y menú",
@@ -35,59 +35,10 @@
       "descripcion": "Contactar proveedores de catering, degustar opciones y definir el menú.",
       "esPredeterminada": false,
       "asignadaA": "Organizador",
-      "id": "task_1755996058746_7ml553e"
-    },
-    {
-      "texto": "Contratar DJ o música",
-      "completada": false,
-      "descripcion": "Buscar y contratar DJ, banda o sistema de sonido.",
-      "esPredeterminada": false,
-      "asignadaA": "Organizador",
-      "id": "task_1755996058746_iehwtei"
-    },
-    {
-      "texto": "Elegir decoración y temática",
-      "completada": false,
-      "descripcion": "Definir el estilo, colores y elementos decorativos principales.",
-      "esPredeterminada": false,
-      "asignadaA": "Organizador",
-      "id": "task_1755996058746_k89ayn6"
-    },
-    {
-      "texto": "Enviar invitaciones",
-      "completada": false,
-      "descripcion": "Diseñar, imprimir y enviar las invitaciones físicas o digitales.",
-      "esPredeterminada": false,
-      "asignadaA": "Cliente",
-      "id": "task_1755996058746_u4zhixh"
+      "id": "task_1758410145695_7ml553e"
     }
   ],
-  "clientChecklist": [
-    {
-      "texto": "Confirmar lista final de invitados",
-      "asignadaA": "Cliente",
-      "completada": false,
-      "id": "client_task_1755996058746_kz64m39"
-    },
-    {
-      "texto": "Elegir el diseño de la torta",
-      "asignadaA": "Cliente",
-      "completada": false,
-      "id": "client_task_1755996058746_bj058k0"
-    },
-    {
-      "texto": "Proporcionar lista de canciones especiales",
-      "asignadaA": "Cliente",
-      "completada": false,
-      "id": "client_task_1755996058746_oy12rn1"
-    },
-    {
-      "texto": "Revisar y aprobar el presupuesto final",
-      "asignadaA": "Organizador",
-      "completada": false,
-      "id": "client_task_1755996058746_sryyxyl"
-    }
-  ],
+  "clientChecklist": [],
   "clientNotes": "",
   "decoracion": {
     "tema": "Elegante y Moderno",
@@ -105,48 +56,7 @@
       "dataAiHint": "cake design"
     },
     "items": [],
-    "zonasContratadas": [
-      {
-        "id": "atras_torta",
-        "nombreDisplay": "Atrás de la torta",
-        "activada": false,
-        "descripcion": "",
-        "imagenReferenciaUrl": "",
-        "dataAiHint": "cake backdrop"
-      },
-      {
-        "id": "frente_salon",
-        "nombreDisplay": "Frente del salón / Entrada principal",
-        "activada": false,
-        "descripcion": "",
-        "imagenReferenciaUrl": "",
-        "dataAiHint": "event entrance"
-      },
-      {
-        "id": "zona_regalos",
-        "nombreDisplay": "Zona de regalos",
-        "activada": false,
-        "descripcion": "",
-        "imagenReferenciaUrl": "",
-        "dataAiHint": "gift table"
-      },
-      {
-        "id": "zona_fotografia",
-        "nombreDisplay": "Zona de fotografía / Photocall",
-        "activada": false,
-        "descripcion": "",
-        "imagenReferenciaUrl": "",
-        "dataAiHint": "photo booth"
-      },
-      {
-        "id": "centro_salon",
-        "nombreDisplay": "Centro del salón / Ambientación general",
-        "activada": false,
-        "descripcion": "",
-        "imagenReferenciaUrl": "",
-        "dataAiHint": "event hall center"
-      }
-    ],
+    "zonasContratadas": [],
     "generalNotesDecoracion": "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
     "pdfNotasAdicionales": "",
     "salonWidth": 800,
@@ -237,192 +147,11 @@
     "listaNoReproducir": ""
   },
   "reposteria": {
-    "categorias": [
-      {
-        "id": "tortas_personalizadas",
-        "nombreDisplay": "Tortas Personalizadas",
-        "activada": false,
-        "items": [],
-        "descripcion": "Diseño y sabores a medida.",
-        "cantidadEstimadaPersonas": 0
-      },
-      {
-        "id": "cupcakes_minitortas",
-        "nombreDisplay": "Cupcakes / Mini Tortas",
-        "activada": false,
-        "items": [],
-        "descripcion": "Pequeñas delicias individuales.",
-        "cantidadEstimadaPersonas": 0
-      },
-      {
-        "id": "candy_bar",
-        "nombreDisplay": "Candy Bar Temático",
-        "activada": false,
-        "items": [],
-        "descripcion": "Mesa de dulces y golosinas variadas.",
-        "cantidadEstimadaPersonas": 0
-      },
-      {
-        "id": "fuente_chocolate",
-        "nombreDisplay": "Fuente de Chocolate",
-        "activada": false,
-        "items": [],
-        "descripcion": "Con frutas, malvaviscos y más.",
-        "cantidadEstimadaPersonas": 0
-      },
-      {
-        "id": "mesa_dulce_tradicional",
-        "nombreDisplay": "Mesa Dulce Tradicional",
-        "activada": false,
-        "items": [],
-        "descripcion": "Variedad de postres clásicos.",
-        "cantidadEstimadaPersonas": 0
-      },
-      {
-        "id": "mesa_helada",
-        "nombreDisplay": "Mesa Helada",
-        "activada": false,
-        "items": [],
-        "descripcion": "Selección de helados y toppings.",
-        "cantidadEstimadaPersonas": 0
-      },
-      {
-        "id": "postres_individuales",
-        "nombreDisplay": "Postres Individuales",
-        "activada": false,
-        "items": [],
-        "descripcion": "Porciones individuales de postres variados.",
-        "cantidadEstimadaPersonas": 0
-      }
-    ],
-    "consumoConfig": {
-      "tortas_personalizadas": {
-        "adulto": 0.1,
-        "adolescente": 0.1,
-        "nino": 0.08
-      },
-      "cupcakes_minitortas": {
-        "adulto": 1.5,
-        "adolescente": 2,
-        "nino": 1
-      },
-      "candy_bar": {
-        "adulto": 1,
-        "adolescente": 1.5,
-        "nino": 2
-      },
-      "fuente_chocolate": {
-        "adulto": 1,
-        "adolescente": 1,
-        "nino": 1
-      },
-      "mesa_dulce_tradicional": {
-        "adulto": 2,
-        "adolescente": 2,
-        "nino": 1.5
-      },
-      "mesa_helada": {
-        "adulto": 1,
-        "adolescente": 1.5,
-        "nino": 1.5
-      },
-      "postres_individuales": {
-        "adulto": 1.5,
-        "adolescente": 1.5,
-        "nino": 1
-      }
-    },
+    "categorias": [],
     "notasGenerales": ""
   },
   "bebidas": {
-    "categorias": [
-      {
-        "id": "refrescos_gaseosas",
-        "nombreDisplay": "Refrescos / Gaseosas",
-        "activada": false,
-        "items": [],
-        "descripcion": "Variedad de bebidas carbonatadas."
-      },
-      {
-        "id": "jugos",
-        "nombreDisplay": "Jugos Naturales y Envasados",
-        "activada": false,
-        "items": [],
-        "descripcion": "Opciones frutales y refrescantes."
-      },
-      {
-        "id": "aguas_saborizadas",
-        "nombreDisplay": "Aguas Saborizadas y Minerales",
-        "activada": false,
-        "items": [],
-        "descripcion": "Con y sin gas, opciones saborizadas."
-      },
-      {
-        "id": "cervezas",
-        "nombreDisplay": "Cervezas",
-        "activada": false,
-        "items": [],
-        "descripcion": "Variedad de cervezas nacionales e importadas."
-      },
-      {
-        "id": "vinos_espumantes",
-        "nombreDisplay": "Vinos y Espumantes",
-        "activada": false,
-        "items": [],
-        "descripcion": "Selección de tintos, blancos, rosados y espumosos."
-      },
-      {
-        "id": "barra_tragos",
-        "nombreDisplay": "Barra de Tragos",
-        "activada": false,
-        "items": [],
-        "descripcion": "Cócteles con y sin alcohol preparados al momento."
-      },
-      {
-        "id": "cafeteria",
-        "nombreDisplay": "Servicio de Cafetería",
-        "activada": false,
-        "items": [],
-        "descripcion": "Café, té, infusiones."
-      }
-    ],
-    "consumoConfig": {
-      "refrescos_gaseosas": {
-        "adulto": 0.2,
-        "adolescente": 0.3,
-        "nino": 0.25
-      },
-      "jugos": {
-        "adulto": 0.1,
-        "adolescente": 0.15,
-        "nino": 0.15
-      },
-      "aguas_saborizadas": {
-        "adulto": 0.15,
-        "adolescente": 0.1,
-        "nino": 0.1
-      },
-      "cervezas": {
-        "adulto": 0.4,
-        "adolescente": 0,
-        "nino": 0
-      },
-      "vinos_espumantes": {
-        "adulto": 0.3,
-        "adolescente": 0,
-        "nino": 0
-      },
-      "barra_tragos": {
-        "adulto": 0.2,
-        "adolescente": 0,
-        "nino": 0
-      },
-      "cafeteria": {
-        "adulto": 0.05,
-        "adolescente": 0,
-        "nino": 0
-      }
-    },
+    "categorias": [],
     "notasGenerales": ""
   },
   "listaDeCargaOperativa": {
@@ -430,14 +159,7 @@
     "notasGenerales": ""
   },
   "gestionCostos": {
-    "costosItems": [
-      {
-        "id": "costo_1756534571981_z9u9f",
-        "nombre": "Costo de Alquiler de Salón Club Uruguay",
-        "categoria": "Servicio Proveedor",
-        "montoEstimado": 13000
-      }
-    ],
+    "costosItems": [],
     "ingresosTotalesEstimados": 0,
     "notasGeneralesCostos": ""
   },
@@ -447,43 +169,7 @@
     "songSuggestion": "",
     "customText": ""
   },
-  "programa": [
-    {
-      "id": "prog_1755996058746_uvhvfox",
-      "hora": "20:00",
-      "titulo": "Recepción de Invitados",
-      "descripcion": "Música suave y cóctel de bienvenida.",
-      "icono": "GlassWater"
-    },
-    {
-      "id": "prog_1755996058746_lvii1hk",
-      "hora": "21:00",
-      "titulo": "Entrada Principal",
-      "descripcion": "Entrada de los agasajados al salón.",
-      "icono": "Sparkles"
-    },
-    {
-      "id": "prog_1755996058746_ijqy0pu",
-      "hora": "21:30",
-      "titulo": "Cena",
-      "descripcion": "Servicio de plato principal.",
-      "icono": "Utensils"
-    },
-    {
-      "id": "prog_1755996058746_0jvd9nc",
-      "hora": "23:00",
-      "titulo": "¡A Bailar!",
-      "descripcion": "Se abre la pista de baile.",
-      "icono": "Music"
-    },
-    {
-      "id": "prog_1755996058746_z243k8v",
-      "hora": "00:30",
-      "titulo": "Corte de Torta y Brindis",
-      "descripcion": "Momento especial con la torta y el brindis.",
-      "icono": "CakeSlice"
-    }
-  ],
+  "programa": [],
   "fotografiaYFilmacion": {
     "estadoEntrega": "Pendiente",
     "recibidoPorCliente": false

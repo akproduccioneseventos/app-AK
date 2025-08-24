@@ -47,6 +47,12 @@
     "partyType": "ANIVERSARIO"
   },
   {
+    "id": "cust_1758410080649_r8t6p",
+    "name": "Luis Olivera",
+    "estadoCliente": "Actual",
+    "taxId": "3800503-0"
+  },
+  {
     "id": "cust_1762181514757_q5kgyx",
     "name": "Ana Salgado y Gilberto Coelho",
     "estadoCliente": "Actual",
