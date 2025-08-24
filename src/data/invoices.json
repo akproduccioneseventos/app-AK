@@ -379,5 +379,81 @@
         "notes": "Entrega 3"
       }
     ]
+  },
+  {
+    "id": "inv_1762181514757_xsnz8v",
+    "invoiceNumber": "1050",
+    "customer": {
+      "id": "cust_1762181514757_q5kgyx",
+      "name": "Ana Salgado y Gilberto Coelho",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-11-07T03:00:00.000Z",
+      "partyType": "XV Años"
+    },
+    "issueDate": "2025-01-08T00:00:00.000Z",
+    "dueDate": "2025-11-01T00:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1762181514757_xsnz8v_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 143279,
+        "total": 143279
+      },
+      {
+        "id": "item_inv_1762181514757_xsnz8v_2",
+        "description": "Salon de fiesta - Club Uruguay",
+        "quantity": 1,
+        "unitPrice": 17250,
+        "total": 17250
+      },
+      {
+        "id": "item_inv_1762181514757_xsnz8v_3",
+        "description": "Fuegos fríos",
+        "quantity": 1,
+        "unitPrice": 3000,
+        "total": 3000
+      },
+      {
+        "id": "item_inv_1762181514757_xsnz8v_4",
+        "description": "Lluvia de burbujas",
+        "quantity": 1,
+        "unitPrice": 1500,
+        "total": 1500
+      }
+    ],
+    "subtotal": 165029,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 165029,
+    "status": "Sent",
+    "notes": "INCLUYE AJUSTE 15 % 2025",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_1762181514757_4f4q4u",
+        "paymentDate": "2024-12-23T00:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 1 - Seña"
+      },
+      {
+        "id": "pay_1762181514757_76j4i8",
+        "paymentDate": "2025-03-09T00:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      },
+      {
+        "id": "pay_1762181514757_w5yq4o",
+        "paymentDate": "2025-08-01T00:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 3"
+      }
+    ]
   }
 ]

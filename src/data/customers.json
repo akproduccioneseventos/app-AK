@@ -40,5 +40,12 @@
     "id": "cust_7",
     "name": "Prospecto de Boda: Ana García",
     "estadoCliente": "Actual"
+  },
+  {
+    "id": "cust_1762181514757_q5kgyx",
+    "name": "Ana Salgado y Gilberto Coelho",
+    "estadoCliente": "Actual",
+    "partyDate": "2025-11-07T03:00:00.000Z",
+    "partyType": "XV Años"
   }
 ]
