@@ -21,7 +21,7 @@
     ],
     "subtotal": 176291.3,
     "taxRate": 15,
-    "taxAmount": 26443.695,
+    "taxAmount": 26443.7,
     "totalAmount": 202735,
     "status": "Sent",
     "currency": "UYU",
@@ -105,10 +105,10 @@
         "total": 111784.775
       }
     ],
-    "subtotal": 111784.775,
+    "subtotal": 131511.5,
     "taxRate": 0,
     "taxAmount": 0,
-    "totalAmount": 111784.775,
+    "totalAmount": 131511.5,
     "status": "Paid",
     "currency": "UYU",
     "vendorName": "AK Producciones",

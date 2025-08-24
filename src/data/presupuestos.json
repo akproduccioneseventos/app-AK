@@ -1,6 +1,108 @@
 
 [
   {
+    "id": "pres_1228",
+    "clienteNombre": "Nestor",
+    "eventoTipo": "Cumpleaños",
+    "eventoFecha": "2025-10-05T03:00:00.000Z",
+    "invitadosCantidad": 80,
+    "salonFiestas": "Chacra La Escondida",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_mozos_xv",
+        "nombreServicio": "Mozos",
+        "cantidad": 3,
+        "unidad": "Unidad",
+        "precioUnitario": 2800,
+        "costoTotalItem": 8400
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina_xv",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2800,
+        "costoTotalItem": 2800
+      },
+      {
+        "idServicioCatalogo": "serv_vajilla_xv",
+        "nombreServicio": "Vajilla y mantelería",
+        "cantidad": 80,
+        "unidad": "Por persona",
+        "precioUnitario": 210,
+        "costoTotalItem": 16800
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_empanadas_xv",
+        "nombreServicio": "Empanadas",
+        "cantidad": 80,
+        "unidad": "Por persona",
+        "precioUnitario": 120,
+        "costoTotalItem": 9600
+      },
+      {
+        "idServicioCatalogo": "serv_plato_principal_asado_xv",
+        "nombreServicio": "Asado completo",
+        "cantidad": 80,
+        "unidad": "Por persona",
+        "precioUnitario": 400,
+        "costoTotalItem": 32000
+      },
+      {
+        "idServicioCatalogo": "serv_postre_mesa_dulce_xv",
+        "nombreServicio": "Mesa de Postres",
+        "cantidad": 80,
+        "unidad": "Por persona",
+        "precioUnitario": 120,
+        "costoTotalItem": 9600
+      },
+      {
+        "idServicioCatalogo": "serv_descuento_postres_xv",
+        "nombreServicio": "Descuento 15% en postres",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": -1440,
+        "costoTotalItem": -1440
+      },
+      {
+        "idServicioCatalogo": "serv_discoteca_basica_xv",
+        "nombreServicio": "Discoteca Básica",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 5500,
+        "costoTotalItem": 5500
+      },
+      {
+        "idServicioCatalogo": "serv_deco_basica_xv",
+        "nombreServicio": "Decoración Básica",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 14500
+      },
+      {
+        "idServicioCatalogo": "serv_foto_fiesta_xv",
+        "nombreServicio": "Fotografía de la fiesta",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8500,
+        "costoTotalItem": 8500
+      },
+      {
+        "idServicioCatalogo": "serv_filmacion_fiesta_xv",
+        "nombreServicio": "Filmación de la fiesta",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 7500,
+        "costoTotalItem": 7500
+      }
+    ],
+    "costoTotalEstimado": 127300,
+    "timestamp": "2025-08-21T18:00:00.000Z",
+    "estado": "Borrador",
+    "notas": "Presupuesto para cumpleaños de 70 años."
+  },
+  {
     "id": "pres_1763781216503_def34",
     "clienteNombre": "Luis Olivera",
     "eventoTipo": "XV Años",
@@ -39,46 +141,6 @@
         "unidad": "Unidad",
         "precioUnitario": 2800,
         "costoTotalItem": 14000
-      },
-      {
-        "idServicioCatalogo": "serv_entrada_picada",
-        "nombreServicio": "Entrada 8: Picada de fiambres",
-        "cantidad": 120,
-        "unidad": "Por persona",
-        "precioUnitario": 120,
-        "costoTotalItem": 14400
-      },
-      {
-        "idServicioCatalogo": "serv_entrada_sandwiches",
-        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
-        "cantidad": 120,
-        "unidad": "Por persona",
-        "precioUnitario": 200,
-        "costoTotalItem": 24000
-      },
-      {
-        "idServicioCatalogo": "serv_menu_ninos_panchos",
-        "nombreServicio": "Menú niños- Panchos c/ fritas",
-        "cantidad": 13,
-        "unidad": "Por persona",
-        "precioUnitario": 165,
-        "costoTotalItem": 2145
-      },
-      {
-        "idServicioCatalogo": "serv_menu_ninos_hamburguesa",
-        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
-        "cantidad": 40,
-        "unidad": "Por persona",
-        "precioUnitario": 200,
-        "costoTotalItem": 8000
-      },
-      {
-        "idServicioCatalogo": "serv_plato_principal_cerdo",
-        "nombreServicio": "Plato principal 4: Cerdo relleno c/ guarnición",
-        "cantidad": 67,
-        "unidad": "Por persona",
-        "precioUnitario": 300,
-        "costoTotalItem": 20100
       },
       {
         "idServicioCatalogo": "serv_discoteca_intermedia",
@@ -186,6 +248,46 @@
         "precioUnitario": 2500,
         "costoTotalItem": 0,
         "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_picada_xv",
+        "nombreServicio": "Entrada 8: Picada de fiambres",
+        "cantidad": 120,
+        "unidad": "Por persona",
+        "precioUnitario": 120,
+        "costoTotalItem": 14400
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_sandwiches_xv",
+        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
+        "cantidad": 120,
+        "unidad": "Por persona",
+        "precioUnitario": 200,
+        "costoTotalItem": 24000
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_panchos_xv",
+        "nombreServicio": "Menú niños- Panchos c/ fritas",
+        "cantidad": 13,
+        "unidad": "Por persona",
+        "precioUnitario": 165,
+        "costoTotalItem": 2145
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_hamburguesa_xv",
+        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
+        "cantidad": 40,
+        "unidad": "Por persona",
+        "precioUnitario": 200,
+        "costoTotalItem": 8000
+      },
+      {
+        "idServicioCatalogo": "serv_plato_principal_cerdo_xv",
+        "nombreServicio": "Plato principal 4: Cerdo relleno c/ guarnición",
+        "cantidad": 67,
+        "unidad": "Por persona",
+        "precioUnitario": 300,
+        "costoTotalItem": 20100
       }
     ],
     "costoTotalEstimado": 176291.3,
@@ -230,9 +332,7 @@
         "cantidad": 2,
         "unidad": "Evento",
         "precioUnitario": 2900,
-        "costoTotalItem": 5800,
-        "categoriaServicio": "Personal",
-        "esRegalo": false
+        "costoTotalItem": 5800
       },
       {
         "idServicioCatalogo": "servicio_mozos",
@@ -240,9 +340,7 @@
         "cantidad": 4,
         "unidad": "Evento",
         "precioUnitario": 2900,
-        "costoTotalItem": 11600,
-        "categoriaServicio": "Personal",
-        "esRegalo": false
+        "costoTotalItem": 11600
       },
       {
         "idServicioCatalogo": "servicio_vajilla",
@@ -250,9 +348,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 210,
-        "costoTotalItem": 21000,
-        "categoriaServicio": "Servicio de decoración",
-        "esRegalo": false
+        "costoTotalItem": 21000
       },
       {
         "idServicioCatalogo": "entrada_picada",
@@ -260,9 +356,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 150,
-        "costoTotalItem": 15000,
-        "categoriaServicio": "Servicio de catering",
-        "esRegalo": false
+        "costoTotalItem": 15000
       },
       {
         "idServicioCatalogo": "entrada_brochetas",
@@ -270,9 +364,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 190,
-        "costoTotalItem": 19000,
-        "categoriaServicio": "Servicio de catering",
-        "esRegalo": false
+        "costoTotalItem": 19000
       },
       {
         "idServicioCatalogo": "plato_principal_pollo",
@@ -280,9 +372,7 @@
         "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 350,
-        "costoTotalItem": 35000,
-        "categoriaServicio": "Servicio de catering",
-        "esRegalo": false
+        "costoTotalItem": 35000
       },
       {
         "idServicioCatalogo": "regalo_album_digital",
@@ -291,7 +381,6 @@
         "unidad": "Unidad",
         "precioUnitario": 2500,
         "costoTotalItem": 0,
-        "categoriaServicio": "Regalo exclusivo",
         "esRegalo": true
       },
       {
@@ -301,7 +390,6 @@
         "unidad": "Unidad",
         "precioUnitario": 2500,
         "costoTotalItem": 0,
-        "categoriaServicio": "Regalo exclusivo",
         "esRegalo": true
       },
       {
@@ -310,9 +398,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 14500,
-        "costoTotalItem": 14500,
-        "categoriaServicio": "Servicio de discoteca",
-        "esRegalo": false
+        "costoTotalItem": 14500
       },
       {
         "idServicioCatalogo": "servicio_decoracion",
@@ -320,9 +406,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 14500,
-        "costoTotalItem": 14500,
-        "categoriaServicio": "Servicio de decoración",
-        "esRegalo": false
+        "costoTotalItem": 14500
       },
       {
         "idServicioCatalogo": "servicio_fotografia_civil",
@@ -330,9 +414,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3900,
-        "costoTotalItem": 3900,
-        "categoriaServicio": "Servicio de fotografía",
-        "esRegalo": false
+        "costoTotalItem": 3900
       },
       {
         "idServicioCatalogo": "servicio_fotografia_iglesia",
@@ -340,9 +422,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3890,
-        "costoTotalItem": 3890,
-        "categoriaServicio": "Servicio de fotografía",
-        "esRegalo": false
+        "costoTotalItem": 3890
       },
       {
         "idServicioCatalogo": "servicio_fotografia_fiesta",
@@ -350,9 +430,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 8500,
-        "costoTotalItem": 8500,
-        "categoriaServicio": "Servicio de fotografía",
-        "esRegalo": false
+        "costoTotalItem": 8500
       },
       {
         "idServicioCatalogo": "servicio_filmacion_fiesta",
@@ -360,9 +438,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 7500,
-        "costoTotalItem": 7500,
-        "categoriaServicio": "Servicio de filmación",
-        "esRegalo": false
+        "costoTotalItem": 7500
       },
       {
         "idServicioCatalogo": "servicio_filmacion_pintada",
@@ -370,16 +446,14 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3000,
-        "costoTotalItem": 3000,
-        "categoriaServicio": "Servicio de filmación",
-        "esRegalo": false
+        "costoTotalItem": 3000
       }
     ],
-    "costoTotalEstimado": 131511.5,
+    "costoTotalEstimado": 150790,
     "nombrePromocion": "AJUSTE 15% 2025",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
-    "totalConDescuento": 111784.775,
+    "totalConDescuento": 128171.5,
     "timestamp": "2025-08-16T15:25:21.921Z",
     "estado": "Facturado",
     "invoiceId": "inv_1089"
@@ -399,7 +473,6 @@
         "unidad": "Unidad",
         "precioUnitario": 1200,
         "costoTotalItem": 0,
-        "categoriaServicio": "Regalo exclusivo",
         "esRegalo": true
       },
       {
@@ -409,7 +482,6 @@
         "unidad": "Evento",
         "precioUnitario": 1500,
         "costoTotalItem": 0,
-        "categoriaServicio": "Regalo exclusivo",
         "esRegalo": true
       },
       {
@@ -419,18 +491,15 @@
         "unidad": "Unidad",
         "precioUnitario": 2500,
         "costoTotalItem": 0,
-        "categoriaServicio": "Regalo exclusivo",
         "esRegalo": true
       },
       {
         "idServicioCatalogo": "servicio_mozo_cocina_xv",
         "nombreServicio": "Mozo de cocina",
-        "cantidad": 8,
+        "cantidad": 2,
         "unidad": "Evento",
-        "precioUnitario": 2800,
-        "costoTotalItem": 22400,
-        "categoriaServicio": "Personal",
-        "esRegalo": false
+        "precioUnitario": 2900,
+        "costoTotalItem": 5800
       },
       {
         "idServicioCatalogo": "serv_fiestas_integral",
@@ -438,9 +507,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 80000,
-        "costoTotalItem": 80000,
-        "categoriaServicio": "Otros servicios",
-        "esRegalo": false
+        "costoTotalItem": 80000
       },
       {
         "idServicioCatalogo": "serv_mesa_postres",
@@ -448,9 +515,7 @@
         "cantidad": 1,
         "unidad": "Unidad",
         "precioUnitario": 8900,
-        "costoTotalItem": 8900,
-        "categoriaServicio": "Servicio de repostería",
-        "esRegalo": false
+        "costoTotalItem": 8900
       },
       {
         "idServicioCatalogo": "serv_barra_tragos",
@@ -458,9 +523,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 8900,
-        "costoTotalItem": 8900,
-        "categoriaServicio": "Servicio de bebidas",
-        "esRegalo": false
+        "costoTotalItem": 8900
       },
       {
         "idServicioCatalogo": "serv_foto_civil",
@@ -468,9 +531,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3900,
-        "costoTotalItem": 3900,
-        "categoriaServicio": "Servicio de fotografía",
-        "esRegalo": false
+        "costoTotalItem": 3900
       },
       {
         "idServicioCatalogo": "serv_foto_iglesia",
@@ -478,9 +539,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3890,
-        "costoTotalItem": 3890,
-        "categoriaServicio": "Servicio de fotografía",
-        "esRegalo": false
+        "costoTotalItem": 3890
       },
       {
         "idServicioCatalogo": "serv_foto_exteriores",
@@ -488,9 +547,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3800,
-        "costoTotalItem": 3800,
-        "categoriaServicio": "Servicio de fotografía",
-        "esRegalo": false
+        "costoTotalItem": 3800
       },
       {
         "idServicioCatalogo": "serv_foto_fiesta",
@@ -498,9 +555,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 8500,
-        "costoTotalItem": 8500,
-        "categoriaServicio": "Servicio de fotografía",
-        "esRegalo": false
+        "costoTotalItem": 8500
       },
       {
         "idServicioCatalogo": "serv_film_civil",
@@ -508,9 +563,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3900,
-        "costoTotalItem": 3900,
-        "categoriaServicio": "Servicio de filmación",
-        "esRegalo": false
+        "costoTotalItem": 3900
       },
       {
         "idServicioCatalogo": "serv_film_iglesia",
@@ -518,9 +571,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3890,
-        "costoTotalItem": 3890,
-        "categoriaServicio": "Servicio de filmación",
-        "esRegalo": false
+        "costoTotalItem": 3890
       },
       {
         "idServicioCatalogo": "serv_film_fiesta",
@@ -528,9 +579,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 7500,
-        "costoTotalItem": 7500,
-        "categoriaServicio": "Servicio de filmación",
-        "esRegalo": false
+        "costoTotalItem": 7500
       },
       {
         "idServicioCatalogo": "serv_film_pintada",
@@ -538,9 +587,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3000,
-        "costoTotalItem": 3000,
-        "categoriaServicio": "Servicio de filmación",
-        "esRegalo": false
+        "costoTotalItem": 3000
       },
       {
         "idServicioCatalogo": "serv_fotocabina",
@@ -548,9 +595,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 2900,
-        "costoTotalItem": 2900,
-        "categoriaServicio": "Servicio de entretenimiento",
-        "esRegalo": false
+        "costoTotalItem": 2900
       },
       {
         "idServicioCatalogo": "serv_plataforma360",
@@ -558,9 +603,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 3900,
-        "costoTotalItem": 3900,
-        "categoriaServicio": "Servicio de entretenimiento",
-        "esRegalo": false
+        "costoTotalItem": 3900
       },
       {
         "idServicioCatalogo": "serv_show_vivo",
@@ -568,9 +611,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 9000,
-        "costoTotalItem": 9000,
-        "categoriaServicio": "Servicio de entretenimiento",
-        "esRegalo": false
+        "costoTotalItem": 9000
       },
       {
         "idServicioCatalogo": "serv_deco_basica",
@@ -578,9 +619,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 14500,
-        "costoTotalItem": 14500,
-        "categoriaServicio": "Servicio de decoración",
-        "esRegalo": false
+        "costoTotalItem": 14500
       },
       {
         "idServicioCatalogo": "serv_disco_basica",
@@ -588,9 +627,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 5500,
-        "costoTotalItem": 5500,
-        "categoriaServicio": "Servicio de discoteca",
-        "esRegalo": false
+        "costoTotalItem": 5500
       },
       {
         "idServicioCatalogo": "serv_cuadro_firmas",
@@ -598,9 +635,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 2900,
-        "costoTotalItem": 2900,
-        "categoriaServicio": "Servicio de decoración",
-        "esRegalo": false
+        "costoTotalItem": 2900
       },
       {
         "idServicioCatalogo": "serv_banner",
@@ -608,9 +643,7 @@
         "cantidad": 1,
         "unidad": "Evento",
         "precioUnitario": 2900,
-        "costoTotalItem": 2900,
-        "categoriaServicio": "Servicio de decoración",
-        "esRegalo": false
+        "costoTotalItem": 2900
       }
     ],
     "costoTotalEstimado": 194130,
