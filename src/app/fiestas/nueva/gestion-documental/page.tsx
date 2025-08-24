@@ -8,25 +8,26 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input'; 
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Archive, FileText, Printer, Share2, DollarSign, CreditCard, CalendarCheck, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle, BarChart3, UploadCloud, Eye } from 'lucide-react';
+import { ArrowLeft, Archive, FileText, Printer, Share2, DollarSign, CreditCard, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle, BarChart3, UploadCloud, Eye, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import { StatusBadge as InvoiceStatusBadge } from '@/components/status-badge';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+
+import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
-import type { BudgetDisplaySettings } from '@/types/settings';
 
-import { getFiestaActual, updatePresupuestoAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updatePresupuestoAsignadoFiestaActual, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
-import { getBudgetDisplaySettings } from '@/app/actions/settings';
 
 const formatCurrency = (amount?: number, currency: string = 'UYU') => {
   if (amount === undefined || amount === null || isNaN(amount)) return "N/A";
@@ -40,6 +41,14 @@ const formatDate = (dateString?: string) => {
   } catch (e) { return "Fecha inválida"; }
 };
 
+const ALL_DOC_TYPES: {value: DocumentoTipo, label: string}[] = [
+    { value: 'contrato_servicio', label: 'Contrato de Servicio (con cliente)'},
+    { value: 'contrato_salon', label: 'Contrato del Salón'},
+    { value: 'presupuesto_firmado', label: 'Presupuesto Firmado'},
+    { value: 'recibo_pago', label: 'Recibo de Pago (de proveedor)'},
+    { value: 'otro', label: 'Otro Documento'},
+];
+
 export default function GestionDocumentalPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -47,13 +56,17 @@ export default function GestionDocumentalPage() {
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [facturas, setFacturas] = useState<Invoice[]>([]);
-  const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   
-  const [contratoSalonFile, setContratoSalonFile] = useState<File | null>(null);
-  const [contratoServicioFile, setContratoServicioFile] = useState<File | null>(null);
+  // Upload modal state
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [docType, setDocType] = useState<DocumentoTipo>('otro');
+  const [customName, setCustomName] = useState('');
   
   const [error, setError] = useState<string | null>(null);
 
@@ -85,9 +98,6 @@ export default function GestionDocumentalPage() {
         setFacturas([]);
       }
       
-      const settings = await getBudgetDisplaySettings();
-      setDisplaySettings(settings);
-
     } catch (err: any) {
       console.error("Error loading data for financial management:", err);
       setError("No se pudo cargar la información administrativa del evento.");
@@ -100,45 +110,74 @@ export default function GestionDocumentalPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-
-
-
-  const totalPagado = facturas.reduce((sum, inv) => {
-    const pagosFactura = inv.payments?.reduce((paySum, payment) => paySum + payment.amount, 0) || 0;
-    return sum + pagosFactura;
-  }, 0);
-
-  const totalPresupuestado = presupuesto?.costoTotalEstimado || 0;
-  const saldoPendiente = totalPresupuestado - totalPagado;
-  const porcentajePagado = totalPresupuestado > 0 ? (totalPagado / totalPresupuestado) * 100 : 0;
   
-  const handlePrintSummary = () => {
-    window.print();
-  };
-  
-  const handleToggleAssignPresupuesto = async () => {
-    if (!fiesta) return;
-    if (!presupuesto && (!cliente || !cliente.id)) {
-        toast({title: "Acción no disponible", description: "Primero asigna un cliente a la fiesta y luego busca o crea un presupuesto para asignarlo.", variant: "default"});
+  const handleFileUpload = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!fileToUpload) {
+        toast({ title: "Archivo requerido", description: "Por favor, selecciona un archivo para subir.", variant: "destructive"});
         return;
     }
-    if (fiesta.presupuestoId) {
-        setIsSaving(true);
-        const result = await updatePresupuestoAsignadoFiestaActual(undefined);
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', fileToUpload);
+    formData.append('docType', docType);
+    formData.append('customName', customName.trim());
+
+    try {
+        const result = await uploadDocumentoFiesta(formData);
         if (result.success) {
-            toast({title: "Presupuesto Desasignado", description: "El presupuesto ha sido desasignado de la fiesta actual."});
+            toast({ title: "¡Documento Subido!", description: "El archivo se ha guardado correctamente."});
+            setIsUploadModalOpen(false);
+            setFileToUpload(null);
+            setCustomName('');
             await loadData();
         } else {
-            toast({title: "Error", description: result.error || "No se pudo desasignar el presupuesto.", variant: "destructive"});
+            throw new Error(result.error || "No se pudo subir el archivo.");
         }
-        setIsSaving(false);
-    } else {
-        router.push("/presupuestos");
+    } catch (error: any) {
+        toast({ title: "Error al Subir", description: error.message, variant: "destructive"});
+    } finally {
+        setIsUploading(false);
     }
   };
 
-  const handleShare = () => toast({title: "Próximamente", description: "La función de compartir aún no está implementada."});
+  const handleDeleteDocument = async (docId: string) => {
+    setIsDeleting(docId);
+    try {
+        const result = await deleteDocumentoFiesta(docId);
+        if (result.success) {
+            toast({ title: "Documento Eliminado"});
+            await loadData();
+        } else {
+            throw new Error(result.error || "No se pudo eliminar el documento.");
+        }
+    } catch (error: any) {
+        toast({ title: "Error al Eliminar", description: error.message, variant: "destructive"});
+    } finally {
+        setIsDeleting(null);
+    }
+  };
+  
+  const handleDownloadAll = async () => {
+    if (!fiesta) return;
+    setIsDownloading(true);
+    toast({title: "Preparando descarga...", description: "Comprimiendo todos los documentos del evento."});
+    try {
+        const response = await fetch(`/api/documentos-fiesta/${fiesta.id}/download-all.zip`);
+        if(!response.ok) throw new Error("No se pudo generar el archivo ZIP.");
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `documentos-${fiesta.id.substring(0,6)}.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+        toast({title: "Error de Descarga", description: error.message, variant: "destructive"});
+    } finally {
+        setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -161,10 +200,36 @@ export default function GestionDocumentalPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 print:space-y-4">
+       <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Subir Nuevo Documento</DialogTitle>
+            <DialogDescription>Añade un nuevo archivo a la documentación de este evento.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleFileUpload} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="doc-type">Tipo de Documento</Label>
+                <Select value={docType} onValueChange={(v) => setDocType(v as DocumentoTipo)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{ALL_DOC_TYPES.map(t=><SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent></Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="doc-name">Nombre Personalizado (Opcional)</Label>
+                <Input id="doc-name" value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="Ej: Recibo seña Club Uruguay"/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="doc-file">Archivo</Label>
+                <Input id="doc-file" type="file" onChange={(e) => setFileToUpload(e.target.files?.[0] || null)} required/>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsUploadModalOpen(false)} disabled={isUploading}>Cancelar</Button>
+                <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : null} Subir Archivo</Button>
+              </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <Archive className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión Documental y Financiera</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión Documental</h1>
         </div>
         <Link href="/fiestas/nueva" passHref>
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button>
@@ -174,87 +239,62 @@ export default function GestionDocumentalPage() {
       <Card className="shadow-md print:shadow-none print:border-none">
         <CardHeader className="bg-muted/30 p-4 print:p-2">
           <CardTitle className="font-headline text-xl print:text-lg">{fiesta.configuracion.nombreEvento}</CardTitle>
-          <CardDescription className="print:text-sm">
-            Fecha: {formatDate(fiesta.configuracion.fechaEvento)} | Cliente: {cliente?.name || cliente?.companyName || "No asignado"}
-          </CardDescription>
+          <CardDescription className="print:text-sm">Cliente: {cliente?.name || cliente?.companyName || "No asignado"}</CardDescription>
         </CardHeader>
       </Card>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 print:gap-3">
-        <Card className="shadow-md print:break-inside-avoid">
-          <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Contrato del Salón</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {fiesta.contratoSalonFileName ? (
-              <a href={`/api/contracts/fiestas/${fiesta.contratoSalonFileName}`} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="w-full"><FileText className="w-4 h-4 mr-2"/>Ver Contrato de Salón</Button>
-              </a>
-            ) : <p className="text-sm text-muted-foreground italic">No hay un contrato de salón cargado.</p>}
-          </CardContent>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="shadow-md">
+            <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Documentos y Contratos</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+                <ul className="space-y-2 text-sm">
+                    {fiesta.otrosDocumentos?.length === 0 && <p className="text-muted-foreground text-center italic text-xs py-2">No hay documentos subidos.</p>}
+                    {fiesta.otrosDocumentos?.map(doc => (
+                        <li key={doc.id} className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/30">
+                           <a href={`/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 flex-grow truncate">
+                               <FileText className="w-4 h-4 text-primary flex-shrink-0"/>
+                               <span className="truncate" title={doc.nombre}>{doc.nombre}</span>
+                           </a>
+                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={()=>handleDeleteDocument(doc.id)} disabled={!!isDeleting}>
+                               {isDeleting === doc.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}
+                           </Button>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+            <CardFooter>
+                 <Button onClick={() => setIsUploadModalOpen(true)}><UploadCloud className="w-4 h-4 mr-2"/>Subir Documento</Button>
+            </CardFooter>
         </Card>
-
-        <Card className="shadow-md print:break-inside-avoid">
-          <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Contrato de Servicio</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {fiesta.contratoServicioFileName ? (
-              <a href={`/api/contracts/fiestas/${fiesta.contratoServicioFileName}`} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="w-full"><FileText className="w-4 h-4 mr-2"/>Ver Contrato de Servicio</Button>
-              </a>
-            ) : <p className="text-sm text-muted-foreground italic">No hay un contrato de servicio cargado.</p>}
-          </CardContent>
-        </Card>
-
-        <Card className="md:col-span-2 lg:col-span-1 print:break-inside-avoid">
-          <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2"><FileText className="w-5 h-5 text-primary"/>Presupuesto del Evento</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {presupuesto ? (
-              <>
-                <p className="text-sm">ID: <span className="font-medium">{presupuesto.id.split('_').pop()?.substring(0,5)}</span></p>
-                <PresupuestoStatusBadge status={presupuesto.estado} />
-                <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref><Button variant="outline" className="w-full">Ver Presupuesto Detallado</Button></Link>
-              </>
-            ) : (<p className="text-sm text-muted-foreground italic">No hay presupuesto asignado.</p>)}
-            <Button variant="default" className="w-full" onClick={handleToggleAssignPresupuesto} disabled={isSaving || !cliente}>
-              {fiesta.presupuestoId ? "Desvincular Presupuesto" : "Asignar/Crear Presupuesto"}
-            </Button>
-          </CardContent>
-        </Card>
+         <Card className="shadow-md">
+            <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><DollarSign className="w-5 h-5 text-primary"/>Presupuesto y Facturación</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+                 <div className="p-2 border rounded-md">
+                    <p className="text-xs font-semibold text-muted-foreground">PRESUPUESTO</p>
+                    {presupuesto ? (
+                        <div className="flex justify-between items-center">
+                            <p className="font-medium">Total: {formatCurrency(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado)}</p>
+                            <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref><Button variant="outline" size="sm">Ver</Button></Link>
+                        </div>
+                    ) : <p className="text-xs italic">No asignado</p>}
+                </div>
+                 <div className="p-2 border rounded-md">
+                    <p className="text-xs font-semibold text-muted-foreground">FACTURAS</p>
+                    {facturas.length > 0 ? (
+                        <ul className="text-sm space-y-1 mt-1">{facturas.map(f => (
+                           <li key={f.id} className="flex justify-between items-center"><span className="flex items-center gap-1.5">{f.invoiceNumber} <InvoiceStatusBadge status={f.status}/></span> <Link href={`/invoices/${f.id}`} passHref><Button variant="ghost" size="sm" className="h-7">Ver</Button></Link></li>
+                        ))}</ul>
+                    ) : <p className="text-xs italic">No hay facturas asignadas.</p>}
+                </div>
+            </CardContent>
+         </Card>
       </div>
       
-      <Card className="shadow-lg print:shadow-none print:border">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Resumen Financiero y Facturas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left">
-                <div className="p-3 border rounded-md bg-blue-50 border-blue-200"><p className="text-xs font-medium text-blue-700">TOTAL PRESUPUESTADO</p><p className="text-2xl font-bold text-blue-600">{formatCurrency(totalPresupuestado)}</p></div>
-                <div className="p-3 border rounded-md bg-green-50 border-green-200"><p className="text-xs font-medium text-green-700">TOTAL PAGADO</p><p className="text-2xl font-bold text-green-600">{formatCurrency(totalPagado)}</p></div>
-                <div className={`p-3 border rounded-md ${saldoPendiente > 0 ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}><p className={`text-xs font-medium ${saldoPendiente > 0 ? 'text-red-700' : 'text-green-700'}`}>SALDO PENDIENTE</p><p className={`text-2xl font-bold ${saldoPendiente > 0 ? 'text-red-600' : 'text-green-600'}`}>{formatCurrency(saldoPendiente)}</p></div>
-              </div>
-              <div><Label className="text-xs text-muted-foreground">Progreso de Pago</Label><Progress value={porcentajePagado} className="h-3 mt-1" /></div>
-              
-              <Separator className="my-4"/>
-              
-              <div className="space-y-2">
-                <h4 className="text-md font-medium">Facturas Asociadas ({facturas.length})</h4>
-                 {facturas.length > 0 ? (
-                  <ul className="space-y-2 text-sm">
-                    {facturas.map(fac => (<li key={fac.id} className="p-2 border rounded-md bg-muted/20 hover:bg-muted/30 flex justify-between items-center"><div className="flex items-center gap-2"><span className="font-semibold">{fac.invoiceNumber}</span> ({formatCurrency(fac.totalAmount, fac.currency)})<StatusBadge status={fac.status} /></div><Link href={`/invoices/${fac.id}`} passHref><Button variant="ghost" size="sm" className="h-7 text-xs">Ver</Button></Link></li>))}
-                  </ul>
-                ) : (<p className="text-sm text-muted-foreground italic">No hay facturas asignadas a esta fiesta.</p>)}
-                <Button variant="outline" className="w-full sm:w-auto" disabled={!presupuesto || presupuesto.estado === 'Facturado'} onClick={() => presupuesto && router.push(`/invoices/new?fromPresupuesto=${presupuesto.id}`)}><PlusCircle className="w-4 h-4 mr-2"/>Generar Factura desde Presupuesto</Button>
-              </div>
-          </CardContent>
-      </Card>
-      
-      <CardFooter className="mt-6 border-t pt-6 flex flex-col sm:flex-row justify-end items-center gap-3 print:hidden">
-         <Button variant="outline" onClick={handleShare} disabled><Share2 className="w-4 h-4 mr-2" /> Compartir Resumen</Button>
-         <Button onClick={handlePrintSummary} disabled><Printer className="w-4 h-4 mr-2" /> Imprimir Resumen</Button>
+       <CardFooter className="mt-6 border-t pt-4 flex flex-col sm:flex-row justify-end items-center gap-3 print:hidden">
+         <Button onClick={handleDownloadAll} disabled={isDownloading || (fiesta.otrosDocumentos?.length || 0) === 0}>
+           {isDownloading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Archive className="w-4 h-4 mr-2" />}
+           {isDownloading ? "Comprimiendo..." : "Descargar Todo (.zip)"}
+         </Button>
       </CardFooter>
     </div>
   );

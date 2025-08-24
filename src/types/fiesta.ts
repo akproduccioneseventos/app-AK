@@ -400,7 +400,7 @@ export interface FotografiaYFilmacionData {
     notasEntrega?: string;
 }
 
-export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_salon' | 'otro';
+export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_pago' | 'otro';
 export interface OtroDocumento {
   id: string;
   nombre: string;
@@ -435,10 +435,6 @@ export interface FiestaEnPlanificacion {
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
   
-  // Obsolete file names, prefer `otrosDocumentos`
-  contratoSalonFileName?: string;
-  contratoServicioFileName?: string;
-
   // New flexible document storage
   otrosDocumentos?: OtroDocumento[];
 }

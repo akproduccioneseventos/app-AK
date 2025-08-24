@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem, ClientTarea, FotografiaYFilmacionData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, PersonalAsignadoDetalleStorage, Reunion, LayoutElement, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ReposteriaData, BebidasData, ReposteriaCategoria, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, GiftItem, ProgramaEventoItem, ClientTarea, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
 import type { Invitado, NuevoInvitadoData, RsvpStatus } from '@/types/invitado';
 import fs from 'fs/promises';
 import path from 'path';
@@ -374,8 +374,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     videoVida: validatedVideoVida,
     programa: validatedPrograma,
     fotografiaYFilmacion: validatedFotografiaYFilmacion,
-    contratoSalonFileName: data.contratoSalonFileName,
-    contratoServicioFileName: data.contratoServicioFileName,
+    otrosDocumentos: data.otrosDocumentos || [],
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -1174,49 +1173,79 @@ export async function claimGift(
   }
 }
 
-// Function to handle contract uploads
-const CONTRACTS_DIR = path.join(process.cwd(), 'src', 'data', 'contracts', 'fiestas');
-async function ensureContractsDirExists() {
-  try { await fs.access(CONTRACTS_DIR); } catch { await fs.mkdir(CONTRACTS_DIR, { recursive: true }); }
+const DOCUMENTOS_DIR = path.join(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
+async function ensureDocsDirExists() {
+  try { await fs.access(DOCUMENTOS_DIR); } catch { await fs.mkdir(DOCUMENTOS_DIR, { recursive: true }); }
 }
 
-export async function uploadContratoFiesta(
+export async function uploadDocumentoFiesta(
   formData: FormData
-): Promise<{ success: boolean; filePath?: string; error?: string }> {
-  const file = formData.get('contractFile') as File;
-  const contractType = formData.get('contractType') as 'salon' | 'servicio';
-  
-  if (!file || !contractType) {
-    return { success: false, error: "Faltan datos del archivo o tipo de contrato." };
-  }
-  
-  const fiestaActual = await getFiestaActual();
-  const eventDir = path.join(CONTRACTS_DIR, fiestaActual.id);
-  
-  try {
-    await ensureContractsDirExists();
-    await fs.mkdir(eventDir, { recursive: true });
+): Promise<{ success: boolean; documento?: OtroDocumento; error?: string }> {
+  const file = formData.get('file') as File;
+  const docType = formData.get('docType') as DocumentoTipo;
+  const customName = formData.get('customName') as string;
 
+  if (!file || !docType) {
+    return { success: false, error: "Faltan datos del archivo o tipo de documento." };
+  }
+
+  const fiestaActual = await getFiestaActual();
+  const eventDir = path.join(DOCUMENTOS_DIR, fiestaActual.id);
+
+  try {
+    await ensureDocsDirExists();
+    await fs.mkdir(eventDir, { recursive: true });
+    
+    const docId = `doc_${Date.now()}_${Math.random().toString(36).substring(2,9)}`;
     const fileExtension = path.extname(file.name);
-    const newFilename = `${contractType}${fileExtension}`;
+    const newFilename = `${docType}-${docId}${fileExtension}`;
     const filePath = path.join(eventDir, newFilename);
 
     const bytes = await file.arrayBuffer();
     await fs.writeFile(filePath, Buffer.from(bytes));
+
+    const newDocumento: OtroDocumento = {
+        id: docId,
+        nombre: customName || file.name,
+        tipo: docType,
+        fileName: newFilename,
+        timestamp: new Date().toISOString()
+    };
     
-    // Update the fiesta data with the new filename
-    if (contractType === 'salon') {
-      fiestaActual.contratoSalonFileName = `${fiestaActual.id}/${newFilename}`;
-    } else {
-      fiestaActual.contratoServicioFileName = `${fiestaActual.id}/${newFilename}`;
+    if (!fiestaActual.otrosDocumentos) {
+      fiestaActual.otrosDocumentos = [];
     }
+    fiestaActual.otrosDocumentos.push(newDocumento);
+    
     await writeFiestaActualFile(fiestaActual);
 
-    return { success: true, filePath: `/api/contracts/fiestas/${fiestaActual.id}/${newFilename}` };
+    return { success: true, documento: newDocumento };
   } catch (error: any) {
-    console.error("Error uploading contract file:", error);
+    console.error("Error uploading document file:", error);
     return { success: false, error: error.message || "Error desconocido al subir el archivo." };
   }
 }
 
+export async function deleteDocumentoFiesta(
+    docId: string
+): Promise<{ success: boolean; error?: string }> {
+    const fiestaActual = await getFiestaActual();
+    const docToDelete = fiestaActual.otrosDocumentos?.find(d => d.id === docId);
 
+    if (!docToDelete) {
+        return { success: false, error: "Documento no encontrado para eliminar." };
+    }
+
+    try {
+        const filePath = path.join(DOCUMENTOS_DIR, fiestaActual.id, docToDelete.fileName);
+        await fs.unlink(filePath).catch(err => console.warn(`Could not delete file, may already be gone: ${filePath}`, err));
+
+        fiestaActual.otrosDocumentos = (fiestaActual.otrosDocumentos || []).filter(d => d.id !== docId);
+        await writeFiestaActualFile(fiestaActual);
+        
+        return { success: true };
+    } catch (error: any) {
+        console.error(`Error deleting document ${docId}:`, error);
+        return { success: false, error: error.message || "Error al eliminar el documento." };
+    }
+}

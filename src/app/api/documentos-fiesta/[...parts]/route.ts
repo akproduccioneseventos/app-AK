@@ -2,12 +2,61 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import JSZip from 'jszip';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
+
+const DOCS_DIR = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
+
+// Helper to add a file to the zip if it exists
+async function addFileToZip(zip: JSZip, filePath: string, zipPath: string) {
+  try {
+    await fs.access(filePath);
+    const fileContent = await fs.readFile(filePath);
+    zip.file(zipPath, fileContent);
+  } catch (error) {
+    console.warn(`File not found, skipping: ${filePath}`);
+  }
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { parts: string[] } }
 ) {
   const [fiestaId, filename] = params.parts;
+
+  // Handle the special 'download-all' command
+  if (filename === 'download-all.zip') {
+    try {
+      const fiesta = await getFiestaActual();
+      if (fiesta.id !== fiestaId) {
+        return NextResponse.json({ error: 'Fiesta ID mismatch' }, { status: 400 });
+      }
+
+      const zip = new JSZip();
+      
+      // Add all documents from 'otrosDocumentos'
+      if (fiesta.otrosDocumentos && fiesta.otrosDocumentos.length > 0) {
+        const docsDir = path.join(DOCS_DIR, fiestaId);
+        for (const doc of fiesta.otrosDocumentos) {
+          const filePath = path.join(docsDir, doc.fileName);
+          await addFileToZip(zip, filePath, doc.fileName);
+        }
+      }
+
+      const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
+      const zipFilename = `documentos-${fiestaId.substring(0, 6)}.zip`;
+
+      const headers = new Headers();
+      headers.set('Content-Type', 'application/zip');
+      headers.set('Content-Disposition', `attachment; filename="${zipFilename}"`);
+      return new NextResponse(zipContent, { status: 200, headers });
+
+    } catch (error: any) {
+      console.error('Error creating all-documents zip:', error);
+      return NextResponse.json({ error: 'Failed to create zip file.', details: error.message }, { status: 500 });
+    }
+  }
+
 
   if (!fiestaId || !filename) {
     return new NextResponse('Fiesta ID and Filename are required', { status: 400 });
@@ -20,21 +69,17 @@ export async function GET(
     return new NextResponse('Invalid path segments', { status: 400 });
   }
 
-  const docsDirectory = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
-  const filePath = path.join(docsDirectory, safeFiestaId, safeFilename);
+  const filePath = path.join(DOCS_DIR, safeFiestaId, safeFilename);
 
-  // Final check to ensure the resolved path is within the intended directory
-  if (!filePath.startsWith(docsDirectory)) {
+  if (!filePath.startsWith(DOCS_DIR)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
   try {
-    await fs.access(filePath); // Check if file exists
+    await fs.access(filePath);
     const fileBuffer = await fs.readFile(filePath);
 
     const headers = new Headers();
-    // For simplicity, we'll serve everything as a generic stream, letting the browser decide.
-    // A more robust solution might inspect the file extension to set the correct MIME type.
     headers.set('Content-Type', 'application/octet-stream');
     headers.set('Content-Disposition', `inline; filename="${safeFilename}"`);
 

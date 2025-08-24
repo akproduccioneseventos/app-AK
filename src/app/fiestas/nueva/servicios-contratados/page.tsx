@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -110,105 +111,64 @@ export default function ServiciosContratadosPage() {
             {item.proveedor && <p className="text-xs text-muted-foreground">Proveedor: {item.proveedor}</p>}
             {item.modalidad && <p className="text-xs text-muted-foreground">Modalidad: {item.modalidad}</p>}
             {item.comentarios && <p className="text-xs text-muted-foreground mt-1"><i>Notas: {item.comentarios}</i></p>}
-            {/* Placeholder para acciones */}
-            {/* <div className="flex gap-1 mt-1.5">
-              <Button size="xs" variant="ghost" disabled className="text-xs">Ver Contrato</Button>
-              <Button size="xs" variant="ghost" disabled className="text-xs">Modificar</Button>
-            </div> */}
           </li>
         ))}
       </ul>
     );
   };
 
-  // Preparar datos para las categorías
-  const cateringItems: SubServicioItem[] = [];
-  if (menu) {
-    menu.items.forEach(plato => cateringItems.push({
-      id: `plato-${plato.id}`,
-      nombre: `${plato.type}: ${plato.name}`,
-      estado: 'Confirmado',
-      modalidad: 'Incluido en menú'
-    }));
-  }
-  personalConRol.forEach(p => cateringItems.push({
-    id: `personal-${p.empleado.id}`,
-    nombre: `Personal: ${p.empleado.nombre} (${p.rol?.nombre || 'Sin rol'})`,
-    estado: 'Confirmado',
-    modalidad: 'Por evento'
-  }));
-  presupuesto?.serviciosAdicionales?.forEach(s => {
-    if (s.nombreServicio.toLowerCase().includes('catering') || s.nombreServicio.toLowerCase().includes('vajilla') || s.nombreServicio.toLowerCase().includes('mantelería') || s.nombreServicio.toLowerCase().includes('mobiliario')) {
-      cateringItems.push({
-        id: `sa-cat-${s.idServicio}`,
-        nombre: s.nombreServicio,
+  const allItems = useMemo(() => {
+      const allServices: Record<string, SubServicioItem[]> = {
+          catering: [],
+          decoracion: [],
+          fotografia: [],
+          musica: [],
+          seguridad: []
+      };
+
+      if (menu) {
+        menu.items.forEach(plato => allServices.catering.push({
+          id: `plato-${plato.id}`,
+          nombre: `${plato.type}: ${plato.name}`,
+          estado: 'Confirmado',
+          modalidad: 'Incluido en menú'
+        }));
+      }
+      personalConRol.forEach(p => allServices.catering.push({
+        id: `personal-${p.empleado.id}`,
+        nombre: `Personal: ${p.empleado.nombre} (${p.rol?.nombre || 'Sin rol'})`,
         estado: 'Confirmado',
-        modalidad: 'Según presupuesto'
+        modalidad: 'Por evento'
+      }));
+      presupuesto?.itemsPresupuestados?.forEach(s => {
+        const item: SubServicioItem = { id: `sa-${s.idServicioCatalogo}`, nombre: s.nombreServicio, estado: 'Confirmado', modalidad: 'Según presupuesto' };
+        if (s.categoriaServicio?.toLowerCase().includes('catering') || s.categoriaServicio?.toLowerCase().includes('vajilla') || s.categoriaServicio?.toLowerCase().includes('mantelería') || s.categoriaServicio?.toLowerCase().includes('mobiliario')) {
+          allServices.catering.push(item);
+        } else if (s.categoriaServicio?.toLowerCase().includes('decoraci')) {
+          allServices.decoracion.push(item);
+        } else if (s.categoriaServicio?.toLowerCase().includes('foto') || s.categoriaServicio?.toLowerCase().includes('video')) {
+          allServices.fotografia.push(item);
+        } else if (s.categoriaServicio?.toLowerCase().includes('dj') || s.categoriaServicio?.toLowerCase().includes('música') || s.categoriaServicio?.toLowerCase().includes('discoteca')) {
+          allServices.musica.push(item);
+        } else if (s.categoriaServicio?.toLowerCase().includes('seguridad') || s.categoriaServicio?.toLowerCase().includes('portero')) {
+          allServices.seguridad.push(item);
+        }
       });
-    }
-  });
 
+      if (fiestaActual?.decoracion) {
+        if (fiestaActual.decoracion.tema) {
+          allServices.decoracion.push({ id: 'deco-tema', nombre: `Tema: ${fiestaActual.decoracion.tema}`, estado: 'Confirmado' });
+        }
+        fiestaActual.decoracion.zonasContratadas?.filter(z => z.activada).forEach(zona => {
+          allServices.decoracion.push({ id: `zona-${zona.id}`, nombre: `Zona: ${zona.nombreDisplay}`, comentarios: zona.descripcion, estado: 'Confirmado' });
+        });
+        if (fiestaActual.decoracion.colorGlobos) {
+          allServices.decoracion.push({ id: 'deco-globos', nombre: `Globos: ${fiestaActual.decoracion.colorGlobos}`, estado: 'Confirmado' });
+        }
+      }
 
-  const decoracionItems: SubServicioItem[] = [];
-  if (fiestaActual?.decoracion) {
-    if (fiestaActual.decoracion.tema) {
-      decoracionItems.push({ id: 'deco-tema', nombre: `Tema: ${fiestaActual.decoracion.tema}`, estado: 'Confirmado' });
-    }
-    fiestaActual.decoracion.zonasContratadas?.filter(z => z.activada).forEach(zona => {
-      decoracionItems.push({ id: `zona-${zona.id}`, nombre: `Zona: ${zona.nombreDisplay}`, comentarios: zona.descripcion, estado: 'Confirmado' });
-    });
-     if (fiestaActual.decoracion.colorGlobos) {
-      decoracionItems.push({ id: 'deco-globos', nombre: `Globos: ${fiestaActual.decoracion.colorGlobos}`, estado: 'Confirmado' });
-    }
-  }
-   presupuesto?.serviciosAdicionales?.forEach(s => {
-    if (s.nombreServicio.toLowerCase().includes('decoraci')) {
-      decoracionItems.push({
-        id: `sa-deco-${s.idServicio}`,
-        nombre: s.nombreServicio,
-        estado: 'Confirmado',
-        modalidad: 'Según presupuesto'
-      });
-    }
-  });
-
-
-  const fotografiaItems: SubServicioItem[] = [];
-  presupuesto?.serviciosAdicionales?.forEach(s => {
-    if (s.nombreServicio.toLowerCase().includes('foto') || s.nombreServicio.toLowerCase().includes('video')) {
-      fotografiaItems.push({
-        id: `sa-foto-${s.idServicio}`,
-        nombre: s.nombreServicio,
-        estado: 'Confirmado', // Asumimos confirmado si está en presupuesto
-        modalidad: 'Según presupuesto'
-      });
-    }
-  });
-
-  const musicaItems: SubServicioItem[] = [];
-  presupuesto?.serviciosAdicionales?.forEach(s => {
-    if (s.nombreServicio.toLowerCase().includes('dj') || s.nombreServicio.toLowerCase().includes('música') || s.nombreServicio.toLowerCase().includes('discoteca')) {
-      musicaItems.push({
-        id: `sa-music-${s.idServicio}`,
-        nombre: s.nombreServicio,
-        estado: 'Confirmado',
-        modalidad: 'Según presupuesto'
-      });
-    }
-  });
-
-  const seguridadItems: SubServicioItem[] = [];
-   presupuesto?.serviciosAdicionales?.forEach(s => {
-    if (s.nombreServicio.toLowerCase().includes('seguridad') || s.nombreServicio.toLowerCase().includes('portero')) {
-      seguridadItems.push({
-        id: `sa-seg-${s.idServicio}`,
-        nombre: s.nombreServicio,
-        estado: 'Confirmado',
-        modalidad: 'Según presupuesto'
-      });
-    }
-  });
-
+      return allServices;
+  }, [menu, personalConRol, presupuesto, fiestaActual]);
 
   if (isLoading) {
     return (
@@ -261,7 +221,7 @@ export default function ServiciosContratadosPage() {
             <div className="flex items-center gap-2"><ChefHat className="w-5 h-5"/>Catering</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border-t">
-            {renderSubServicios(cateringItems)}
+            {renderSubServicios(allItems.catering)}
           </AccordionContent>
         </AccordionItem>
 
@@ -270,7 +230,7 @@ export default function ServiciosContratadosPage() {
             <div className="flex items-center gap-2"><Palette className="w-5 h-5"/>Decoración</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border-t">
-            {renderSubServicios(decoracionItems)}
+            {renderSubServicios(allItems.decoracion)}
           </AccordionContent>
         </AccordionItem>
         
@@ -279,8 +239,8 @@ export default function ServiciosContratadosPage() {
             <div className="flex items-center gap-2"><Camera className="w-5 h-5"/>Fotografía y Video</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border-t">
-            {renderSubServicios(fotografiaItems)}
-             {fotografiaItems.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de fotografía/video en el presupuesto.</p>}
+            {renderSubServicios(allItems.fotografia)}
+             {allItems.fotografia.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de fotografía/video en el presupuesto.</p>}
           </AccordionContent>
         </AccordionItem>
 
@@ -289,8 +249,8 @@ export default function ServiciosContratadosPage() {
             <div className="flex items-center gap-2"><Music2 className="w-5 h-5"/>Música y DJ</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border-t">
-            {renderSubServicios(musicaItems)}
-             {musicaItems.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de música/DJ en el presupuesto.</p>}
+            {renderSubServicios(allItems.musica)}
+             {allItems.musica.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de música/DJ en el presupuesto.</p>}
           </AccordionContent>
         </AccordionItem>
         
@@ -299,8 +259,8 @@ export default function ServiciosContratadosPage() {
             <div className="flex items-center gap-2"><Shield className="w-5 h-5"/>Seguridad</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border-t">
-            {renderSubServicios(seguridadItems)}
-             {seguridadItems.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de seguridad en el presupuesto.</p>}
+            {renderSubServicios(allItems.seguridad)}
+             {allItems.seguridad.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de seguridad en el presupuesto.</p>}
           </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -313,4 +273,3 @@ export default function ServiciosContratadosPage() {
     </div>
   );
 }
-
