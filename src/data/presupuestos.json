@@ -161,5 +161,19 @@
     "timestamp": "2025-08-30T17:55:45.695Z",
     "estado": "Aceptado",
     "invoiceId": "inv_1758410145695_z6q9x"
+  },
+  {
+    "id": "pres_1762181514757_xyz789",
+    "clienteNombre": "Ana Salgado y Gilberto Coelho",
+    "eventoTipo": "XV Años",
+    "eventoFecha": "2025-11-07T03:00:00.000Z",
+    "invitadosCantidad": 150,
+    "salonFiestas": "Club Uruguay",
+    "itemsPresupuestados": [],
+    "costoTotalEstimado": 165029,
+    "timestamp": "2024-12-23T00:00:00.000Z",
+    "estado": "Facturado",
+    "invoiceId": "inv_1762181514757_xsnz8v",
+    "notas": "Incluye ajuste 15% 2025."
   }
 ]
