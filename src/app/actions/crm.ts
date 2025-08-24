@@ -77,6 +77,13 @@ export async function addCrmLead(
   const stages = await getCrmStages();
   const now = new Date().toISOString();
 
+  // Check for duplicates
+  const existingLead = leads.find(l => l.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
+  if (existingLead) {
+    return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
+  }
+
+
   const stageId = leadData.currentStageId || stages[0]?.id || 's1';
   const stageName = stages.find(s => s.id === stageId)?.name || 'Etapa desconocida';
 

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI agent for analyzing a codebase against a specification.
@@ -37,10 +38,10 @@ export async function analyzeCodebase(input: AnalyzeCodebaseInput): Promise<Anal
 // I will manually create a summary of the codebase here. This is a simulation of reading the file system.
 // This part will be updated as the app grows.
 const codebaseSnapshot = `
-- /src/app/actions/crm.ts: Manages CRM leads and stages in a **fully functional Kanban board system**. Includes functions: getCrmStages, getCrmLeads, addCrmLead, moveCrmLead, deleteCrmLead, updateCrmStageName, and convertToClientAndMoveProspect. The logic includes **robust validation** for lead names and file system operations for data persistence in JSON files. Handles **seamless conversion** of a lead to a full customer, linking with the Customers module.
+- /src/app/actions/crm.ts: Manages CRM leads and stages in a **fully functional Kanban board system**. Includes functions: getCrmStages, getCrmLeads, addCrmLead, moveCrmLead, deleteCrmLead, updateCrmStageName, and convertToClientAndMoveProspect. The logic includes **robust validation** for lead names and file system operations for data persistence in JSON files. Handles **seamless conversion** of a lead to a full customer, linking with the Customers module. The \`addCrmLead\` function now checks for duplicate lead names.
 - /src/app/actions/customers.ts: Manages customer data. **Full CRUD operations are implemented**, including handling of file uploads for contracts and budgets. Includes robust validation to ensure name or company name is present.
-- /src/app/actions/empleados.ts: Manages employee data with **full CRUD functionality**. Functions: getEmpleados, getEmpleadoById, saveEmpleado, deleteEmpleado. Handles creation and updates.
-- /src/app/actions/proveedores.ts: Manages supplier data with **full CRUD functionality** and validation on company name and service. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor.
+- /src/app/actions/empleados.ts: Manages employee data with **full CRUD functionality**. Functions: getEmpleados, getEmpleadoById, saveEmpleado, deleteEmpleado. Handles creation and updates. The \`saveEmpleado\` function now checks for duplicate employee names.
+- /src/app/actions/proveedores.ts: Manages supplier data with **full CRUD functionality** and validation on company name and service. Functions: getProveedores, getProveedorById, saveProveedor, deleteProveedor. The \`saveProveedor\` function now checks for duplicate company names.
 - /src/app/actions/invoices.ts: Manages invoices. **Full CRUD operations are implemented**, including payment tracking and status updates. The \`saveInvoice\` function handles both creation and updates, automatically recalculating totals. The \`addPaymentToInvoice\` function updates the invoice status based on the total paid amount. It's fully integrated with \`presupuestos\` when an invoice is generated from a quote.
 - /src/app/actions/presupuestos.ts: A **multi-step creation process for quotes/budgets is fully implemented**, with complete CRUD operations. Includes logic to synchronize with linked invoices and marks budgets as 'Facturado' upon conversion. **The PDF generation feature is complete and intentionally handled via the browser's print-to-PDF functionality on the /ver page; this should not be flagged as a deficiency.**
 - /src/app/actions/fiesta-actual.ts: A large and **fully implemented** complex module that serves as the central hub for event planning. It orchestrates data from nearly all other modules and provides **complete CRUD operations** for all its sub-modules, including: Task List (Tareas y Checklist del Cliente), Guest Management (Invitados con RSVP & QR Code Check-in), a comprehensive Decoration system (con Layout del Salón y asignación de mesas), full Catering management, Staff Assignment, and the configuration for the Public Event Page, Client Portal, Social Wall, Itinerario, and Gift Registry. **This module is feature-complete.**
@@ -48,6 +49,7 @@ const codebaseSnapshot = `
 - /src/app/actions/servicios-empresa.ts: Manages the **general inventory of services and assets** for the company.
 - /src/app/actions/social-media.ts & /src/app/actions/social-gallery.ts: Manages social media posts and the live social wall content. **This module is fully functional.**
 - /src/app/actions/feedback.ts: Manages the **post-event feedback and testimonial generation system**. **This module is fully functional.**
+- /src/app/actions/agenda.ts: **New Module.** Contains the \`getOcupiedDates\` function, which gathers all dates from current and past events to create a unified calendar, preventing double-booking.
 - /src/app/evento/actual/page.tsx: Implements the **public-facing event page**. It is highly configurable from the planner and can show a countdown timer, event details, the couple's story, a photo gallery, an interactive gift list, and a **fully functional RSVP form** that updates the guest list.
 - /src/app/portal/page.tsx: Implements the **private client portal**. This page is **intentionally protected by an event-specific password** managed by the administrator, which is the complete and intended security model for this module. It allows the client to view the status of different aspects of their event, such as el presupuesto, pagos, y un checklist compartido de tareas.
 - /src/app/evento/social/[fiestaId]/page.tsx: A **live social wall** where event guests can upload photos and comments in real-time. Includes a projection mode for on-site display and moderation tools for the administrator.
@@ -56,14 +58,14 @@ const codebaseSnapshot = `
 - /src/types/*.ts: TypeScript type definitions for all major entities (Customer, Invoice, CrmLead, Empleado, Proveedor, Fiesta, etc.), ensuring type safety across the application.
 - /src/components/ui/*.tsx: Reusable UI components from ShadCN (Button, Card, Input, etc.).
 - /src/components/*: Custom components for specific features (CRM columns, Invoice templates, etc.).
-- /src/ai/flows/*.ts: Genkit AI flows for specific tasks like analyzing the codebase, generating social posts, suggesting color palettes, and extracting receipt data.
+- /src/ai/flows/*.ts: Genkit AI flows for specific tasks like analyzing the codebase, generating social posts, suggesting color palettes, and extracting receipt data. The assistant flow (\`assistant-flow.ts\`) now uses the new Agenda action to check for date availability before creating a quote.
 - Key Modules Implemented:
-  - CRM (Leads, Stages): Fully functional with Kanban view.
+  - CRM (Leads, Stages): Fully functional with Kanban view. **Duplicate lead check implemented.**
   - Customers: Full CRUD operations implemented, including file uploads for contracts/budgets.
   - Invoices: Full CRUD operations implemented, including payment tracking.
   - Presupuestos (Quotes): Multi-step creation process, CRUD, and conversion to invoice. **The PDF generation feature is complete and implemented using the browser's print functionality on the /ver page.**
-  - Empleados (Staff) & Roles: Full CRUD for employees and roles. **This is complete.**
-  - Proveedores (Suppliers): Full CRUD.
+  - Empleados (Staff) & Roles: Full CRUD for employees and roles. **Duplicate employee check implemented.**
+  - Proveedores (Suppliers): Full CRUD. **Duplicate supplier check implemented.**
   - Inventario General (Servicios de la Empresa): Full CRUD for company assets and services. **This is complete.**
   - Planificador de Fiesta: The central hub for a single event. It is a large, complex module that orchestrates many other parts of the application. **All its key sub-modules are fully implemented and functional**:
     - **Tareas y Checklist Cliente:** A full-featured task management system for both the planner and the client, with CRUD operations, completion tracking, due dates, and assignments.
@@ -76,6 +78,7 @@ const codebaseSnapshot = `
     - **Lista de Regalos:** Fully functional gift registry management.
   - Redes Sociales: Módulo para planificar y generar contenido para redes sociales. **This is complete.**
   - Feedback y Testimonios: Sistema completo para encuestas y generación de testimonios con IA. **This is complete.**
+  - **Agenda de Eventos**: **New Module.** Prevents double-booking by checking all event dates.
 - /src/app/settings/*: Pages for general app configuration, including templates, company info, and social connections.
 - /src/app/settings/backup/page.tsx: **New Page** that provides a user interface for downloading and uploading the complete data backup.
 `;
