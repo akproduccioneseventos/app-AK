@@ -1,126 +1,76 @@
 
 {
-  "id": "fiesta_1758410145694",
+  "id": "fiesta_1762181514757",
   "configuracion": {
-    "nombreEvento": "Fiesta Luis Olivera",
-    "tipoCelebracion": "Fiesta",
-    "fechaEvento": "2025-09-27T03:00:00.000Z",
+    "nombreEvento": "XV Años de Guillermina",
+    "tipoCelebracion": "XV Años",
+    "fechaEvento": "2025-11-07T03:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "05:00",
-    "nombreLugar": "Villa Espinaca",
-    "invitadosEstimados": 100,
-    "presupuestoEstimado": 0,
-    "notasAdicionales": "",
-    "clienteId": "cust_1758410080649_r8t6p"
+    "nombreLugar": "Club Uruguay",
+    "invitadosEstimados": 150,
+    "presupuestoEstimado": 165029,
+    "notasAdicionales": "Ajuste del 15% para 2025 incluido.",
+    "clienteId": "cust_1762181514757_q5kgyx"
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
-  "presupuestoId": "pres_1758410145695_z6q9x",
+  "presupuestoId": "pres_1762181514757_xyz789",
   "invoiceIds": [
-    "inv_1758410145695_z6q9x"
+    "inv_1762181514757_xsnz8v"
   ],
   "reuniones": [],
-  "tareas": [
-    {
-      "texto": "Definir lista de invitados",
-      "completada": false,
-      "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
-      "esPredeterminada": false,
-      "asignadaA": "Organizador",
-      "id": "task_1758410145695_kwzfutd"
-    },
-    {
-      "texto": "Seleccionar catering y menú",
-      "completada": false,
-      "descripcion": "Contactar proveedores de catering, degustar opciones y definir el menú.",
-      "esPredeterminada": false,
-      "asignadaA": "Organizador",
-      "id": "task_1758410145695_7ml553e"
-    }
-  ],
+  "tareas": [],
   "clientChecklist": [],
   "clientNotes": "",
   "decoracion": {
-    "tema": "Elegante y Moderno",
+    "tema": "Gala Elegante",
     "paletaColores": {
       "primary": "#D9B8FF",
       "secondary": "#FCD3DE",
       "accent": "#F0E6CC"
     },
-    "moodboardImageUrl": "",
-    "colorCubremantel": "",
-    "colorGlobos": "",
-    "decoracionTorta": {
-      "descripcion": "",
-      "imageUrl": "",
-      "dataAiHint": "cake design"
-    },
-    "items": [],
     "zonasContratadas": [],
-    "generalNotesDecoracion": "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
-    "pdfNotasAdicionales": "",
-    "salonWidth": 800,
-    "salonHeight": 600,
-    "salonPlanBackgroundImageUrl": "",
     "salonElements": [],
-    "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
-    "layoutMode": "libre",
-    "guestNameStyle": "full",
-    "guestIconStyle": "color",
-    "layoutTemplateName": ""
+    "items": []
   },
   "invitados": [],
   "webPageSettings": {
-    "pageTitle": "Mi Evento Especial",
-    "heroSubtitle": "¡Una celebración inolvidable!",
-    "welcomeMessage": "¡Bienvenidos a la celebración de nuestro evento!",
-    "coverImageUrl": "",
-    "galleryImageUrls": [],
+    "pageTitle": "Mis XV - Guillermina",
+    "welcomeMessage": "¡Te espero para celebrar mis 15 años!",
     "showCountdown": true,
-    "ourStoryTitle": "Nuestra Historia",
-    "ourStoryText": "Un breve relato de cómo llegamos hasta aquí...",
-    "ourStoryImageUrl": "",
     "showOurStory": false,
-    "eventDetailsTitle": "Detalles del Evento",
-    "eventDetailsText": "Fecha, hora, lugar y más información importante.",
     "showEventDetails": true,
-    "dressCodeText": "Elegante Sport",
-    "showDressCode": false,
-    "giftRegistryTitle": "Lista de Regalos",
-    "giftRegistryText": "Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...",
     "showGiftRegistry": false,
-    "giftRegistry": [],
     "showRsvp": true,
-    "showPrograma": false,
-    "musicaEspecialText": "",
     "showGallery": false
   },
   "clientPortalSettings": {
-    "enabled": false,
-    "accessKey": "",
+    "enabled": true,
+    "accessKey": "guille15",
     "checklist": {
-      "visible": false,
-      "editable": false
+      "visible": true,
+      "editable": true
     },
     "itinerario": {
-      "visible": false
+      "visible": true
     },
     "musica": {
-      "visible": false,
-      "editable": false
+      "visible": true,
+      "editable": true
     },
     "videoVida": {
-      "visible": false,
+      "visible": true,
       "editable": true
     },
     "listaRegalos": {
-      "visible": false
+      "visible": true
     },
     "documentos": {
       "visible": true
     },
     "notasCliente": {
-      "visible": false,
+      "visible": true,
       "editable": true
     },
     "invitados": {
@@ -134,44 +84,57 @@
     }
   },
   "socialGallerySettings": {
-    "enabled": false,
+    "enabled": true,
     "allowLikes": true,
     "allowComments": true,
     "uploadsActive": true
   },
   "musica": {
-    "cancionEntrada": "",
-    "cancionVals": "",
-    "cancionesTortaBrindis": [],
-    "playlistFiesta": "",
-    "listaNoReproducir": ""
+    "cancionesTortaBrindis": []
   },
   "reposteria": {
-    "categorias": [],
-    "notasGenerales": ""
+    "categorias": []
   },
   "bebidas": {
-    "categorias": [],
-    "notasGenerales": ""
+    "categorias": []
   },
   "listaDeCargaOperativa": {
-    "categorias": [],
-    "notasGenerales": ""
+    "categorias": []
   },
   "gestionCostos": {
     "costosItems": [],
-    "ingresosTotalesEstimados": 0,
-    "notasGeneralesCostos": ""
+    "ingresosTotalesEstimados": 0
   },
   "videoVida": {
     "galleryEnabled": false,
-    "photosUploaded": false,
-    "songSuggestion": "",
-    "customText": ""
+    "photosUploaded": false
   },
   "programa": [],
   "fotografiaYFilmacion": {
     "estadoEntrega": "Pendiente",
     "recibidoPorCliente": false
-  }
+  },
+  "otrosDocumentos": [
+    {
+      "id": "doc_1762181514757_contrato_club_uruguay",
+      "nombre": "Contrato Salón Club Uruguay (Página 1)",
+      "tipo": "contrato_salon",
+      "fileName": "contrato_club_uruguay_p1.pdf",
+      "timestamp": "2025-09-01T12:00:00.000Z"
+    },
+    {
+      "id": "doc_1762181514758_contrato_club_uruguay_p2",
+      "nombre": "Contrato Salón Club Uruguay (Página 2)",
+      "tipo": "contrato_salon",
+      "fileName": "contrato_club_uruguay_p2.pdf",
+      "timestamp": "2025-09-01T12:01:00.000Z"
+    },
+    {
+      "id": "doc_1762181514759_contrato_club_uruguay_p3",
+      "nombre": "Contrato Salón Club Uruguay (Firmas)",
+      "tipo": "contrato_salon",
+      "fileName": "contrato_club_uruguay_p3_firmas.pdf",
+      "timestamp": "2025-09-01T12:02:00.000Z"
+    }
+  ]
 }
