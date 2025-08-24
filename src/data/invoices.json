@@ -1,6 +1,51 @@
 
 [
   {
+    "id": "inv_1091",
+    "invoiceNumber": "1091",
+    "customer": {
+      "id": "cust_1764835200000_1091a",
+      "name": "Angelina",
+      "estadoCliente": "Actual"
+    },
+    "issueDate": "2025-06-28T00:00:00.000Z",
+    "dueDate": "2025-07-28T00:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1091_1",
+        "description": "Show de pizzas + minichivitos",
+        "quantity": 25,
+        "unitPrice": 439,
+        "total": 10975
+      },
+      {
+        "id": "item_inv_1091_2",
+        "description": "Discoteca Básica",
+        "quantity": 1,
+        "unitPrice": 7000,
+        "total": 7000
+      }
+    ],
+    "subtotal": 17975,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 17975,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_inv_1091_1",
+        "paymentDate": "2025-06-28T00:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 1 - Seña"
+      }
+    ]
+  },
+  {
     "id": "inv_1036",
     "invoiceNumber": "1036",
     "customer": {

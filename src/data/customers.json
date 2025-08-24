@@ -1,6 +1,11 @@
 
 [
   {
+    "id": "cust_1764835200000_1091a",
+    "name": "Angelina",
+    "estadoCliente": "Actual"
+  },
+  {
     "id": "cust_1753644316534_2qn2g",
     "name": "Prospecto de Boda: Ana García",
     "estadoCliente": "Actual"
