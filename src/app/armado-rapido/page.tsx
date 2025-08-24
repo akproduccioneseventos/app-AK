@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Wand2, Users, FileText, Download, MessageSquare, Tag } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Users, FileText, MessageSquare, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', {
@@ -87,7 +87,7 @@ export default function ArmadoRapidoPage() {
                     }
                     break;
                 default:
-                    // Fallback to old model for compatibility
+                    // Fallback for old model
                     costoTotalPaquete += (servicio.precioBase || 0);
                     costoTotalPaquete += (servicio.precioPorPersona || 0) * cantidadInvitados;
                     break;
@@ -113,7 +113,7 @@ export default function ArmadoRapidoPage() {
 
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual.nombre,
-            tipoEvento: 'Boda', // Placeholder, could be a form field
+            tipoEvento: 'Evento desde Armado Rápido',
             cantidadInvitados: cantidadInvitados,
             costoEstimado: calculos.costoConDescuento,
             clienteNombre: `Prospecto de ${paqueteActual.nombre}`,
