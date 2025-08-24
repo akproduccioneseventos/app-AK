@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
@@ -102,7 +102,8 @@ export default function PlanificarFiestaHubPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [linkedClient, setLinkedClient] = useState<Customer | null>(null);
   const [taskSummary, setTaskSummary] = useState<TaskSummary | null>(null);
-  const [showContractReminder, setShowContractReminder] = useState(false);
+  const [showSalonContractReminder, setShowSalonContractReminder] = useState(false);
+  const [showServiceContractReminder, setShowServiceContractReminder] = useState(false);
 
 
   const [isLoading, setIsLoading] = useState(true);
@@ -113,13 +114,19 @@ export default function PlanificarFiestaHubPage() {
     setIsLoading(true);
     setError(null);
     setLinkedClient(null);
-    setShowContractReminder(false);
+    setShowSalonContractReminder(false);
+    setShowServiceContractReminder(false);
     try {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
 
       if (fiesta?.configuracion.nombreLugar?.toLowerCase() === "club uruguay" && !fiesta.contratoSalonFileName) {
-        setShowContractReminder(true);
+        setShowSalonContractReminder(true);
+      }
+      
+      // New check for service contract
+      if (fiesta && !fiesta.contratoServicioFileName) {
+        setShowServiceContractReminder(true);
       }
 
       if (fiesta?.configuracion.clienteId) {
@@ -181,13 +188,26 @@ export default function PlanificarFiestaHubPage() {
         </div>
       ) : (
         <>
-          {showContractReminder && (
+          {showSalonContractReminder && (
             <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
+              <FileSignature className="h-4 w-4" />
               <AlertTitleShadcn>Recordatorio Importante</AlertTitleShadcn>
               <AlertDescription>
                 Falta subir el contrato del salón "Club Uruguay". Puedes hacerlo en la sección de{" "}
                 <Link href="/fiestas/nueva/gestion-documental" className="font-semibold underline">
+                  Gestión Documental
+                </Link>.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {showServiceContractReminder && (
+             <Alert>
+              <FileSignature className="h-4 w-4" />
+              <AlertTitleShadcn>Recordatorio de Documentación</AlertTitleShadcn>
+              <AlertDescription>
+                Recuerda subir el contrato de servicio firmado con el cliente. Puedes hacerlo en la sección de{" "}
+                <Link href="/fiestas/nueva/gestion-documental" className="font-semibold underline text-primary">
                   Gestión Documental
                 </Link>.
               </AlertDescription>
@@ -233,4 +253,3 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
-
