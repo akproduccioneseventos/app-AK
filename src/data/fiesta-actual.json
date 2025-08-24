@@ -17,7 +17,8 @@
   "menuAsignadoId": null,
   "presupuestoId": "pres_1082",
   "invoiceIds": [
-    "inv_1036"
+    "inv_1036",
+    "inv_1086"
   ],
   "reuniones": [],
   "tareas": [

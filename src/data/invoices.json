@@ -1,6 +1,65 @@
 
 [
   {
+    "id": "inv_1086",
+    "invoiceNumber": "1086",
+    "customer": {
+      "id": "cust_1756534800000_1218a",
+      "name": "Bianca Martínez",
+      "estadoCliente": "Actual"
+    },
+    "issueDate": "2025-06-24T00:00:00.000Z",
+    "dueDate": "2025-07-24T00:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1086_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 150330,
+        "total": 150330
+      },
+      {
+        "id": "item_inv_1086_2",
+        "description": "Salon de fiesta - Club Uruguay",
+        "quantity": 1,
+        "unitPrice": 17500,
+        "total": 17500
+      }
+    ],
+    "subtotal": 167830,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 167830,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_inv_1086_1",
+        "paymentDate": "2025-06-09T00:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 1 - Seña"
+      },
+      {
+        "id": "pay_inv_1086_2",
+        "paymentDate": "2025-06-10T00:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      },
+      {
+        "id": "pay_inv_1086_3",
+        "paymentDate": "2025-07-07T00:00:00.000Z",
+        "amount": 130000,
+        "method": "Transferencia",
+        "notes": "Entrega 3"
+      }
+    ]
+  },
+  {
     "id": "inv_1091",
     "invoiceNumber": "1091",
     "customer": {
