@@ -1,6 +1,47 @@
 
 [
   {
+    "id": "pres_1014",
+    "clienteNombre": "Luis XV Años",
+    "eventoTipo": "XV Años",
+    "eventoFecha": "2025-09-27T03:00:00.000Z",
+    "invitadosCantidad": 150,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_video_vida",
+        "nombreServicio": "Video de vida",
+        "cantidad": 1,
+        "precioUnitario": 1900,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Servicio de filmación"
+      },
+      {
+        "idServicioCatalogo": "serv_pantalla_proyector",
+        "nombreServicio": "Pantalla gigante y proyector",
+        "cantidad": 1,
+        "precioUnitario": 2000,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_digitales",
+        "nombreServicio": "Invitaciones digitales",
+        "cantidad": 1,
+        "precioUnitario": 1500,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Otros servicios"
+      }
+    ],
+    "costoTotalEstimado": 156060,
+    "timestamp": "2024-04-13T12:00:00.000Z",
+    "estado": "Borrador",
+    "notas": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña."
+  },
+  {
     "id": "pres_1024",
     "clienteNombre": "Silvia Cabral",
     "eventoTipo": "XV años",
