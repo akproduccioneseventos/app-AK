@@ -13,7 +13,7 @@
         "nombreServicio": "Servicio de discoteca",
         "cantidad": 1,
         "precioUnitario": 18000,
-        "costoTotalItem": 18000,
+        "costoTotalItem": 15300,
         "esRegalo": false,
         "categoriaServicio": "Servicio de discoteca"
       },
@@ -22,7 +22,7 @@
         "nombreServicio": "Pantalla gigante y proyector",
         "cantidad": 1,
         "precioUnitario": 2000,
-        "costoTotalItem": 2000,
+        "costoTotalItem": 1700,
         "esRegalo": false,
         "categoriaServicio": "Servicio de discoteca"
       },
@@ -31,7 +31,7 @@
         "nombreServicio": "Fotocabina",
         "cantidad": 1,
         "precioUnitario": 2900,
-        "costoTotalItem": 2900,
+        "costoTotalItem": 2465,
         "esRegalo": false,
         "categoriaServicio": "Servicio de entretenimiento"
       },
@@ -40,48 +40,48 @@
         "nombreServicio": "Servicio de fotografía",
         "cantidad": 1,
         "precioUnitario": 10500,
-        "costoTotalItem": 10500,
+        "costoTotalItem": 8925,
         "esRegalo": false,
         "categoriaServicio": "Servicio de fotografía"
       },
       {
         "idServicioCatalogo": "serv_mesa_postres",
-        "nombreServicio": "Mesa de postres (4)",
+        "nombreServicio": "Postres",
         "cantidad": 4,
         "precioUnitario": 1100,
-        "costoTotalItem": 4400,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de repostería"
+        "costoTotalItem": 3740,
+        "categoriaServicio": "Servicio de repostería",
+        "esRegalo": false
       },
       {
         "idServicioCatalogo": "serv_torta_principal",
-        "nombreServicio": "Torta principal (80 personas)",
+        "nombreServicio": "Torta principal",
         "cantidad": 1,
         "precioUnitario": 3500,
-        "costoTotalItem": 3500,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de repostería"
+        "costoTotalItem": 2975,
+        "categoriaServicio": "Servicio de repostería",
+        "esRegalo": false
       },
       {
         "idServicioCatalogo": "serv_cuadro_firmas",
         "nombreServicio": "Cuadro de firmas",
         "cantidad": 1,
         "precioUnitario": 2900,
-        "costoTotalItem": 2900,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de decoración"
+        "costoTotalItem": 2465,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false
       },
       {
         "idServicioCatalogo": "serv_cafe_te",
         "nombreServicio": "Servicio de café y te",
         "cantidad": 80,
         "precioUnitario": 35,
-        "costoTotalItem": 2800,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de catering"
+        "costoTotalItem": 2380,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
       }
     ],
-    "costoTotalEstimado": 58000,
+    "costoTotalEstimado": 46166,
     "timestamp": "2024-07-10T12:00:00.000Z",
     "estado": "Aceptado",
     "notas": "Incluye ajuste 15% 2025. Descuentos aplicados según documento."
@@ -94,6 +94,87 @@
     "invitadosCantidad": 150,
     "salonFiestas": "A definir",
     "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_vajilla_completa",
+        "nombreServicio": "Vajilla completa",
+        "cantidad": 100,
+        "precioUnitario": 70,
+        "costoTotalItem": 5950,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería completa",
+        "cantidad": 100,
+        "precioUnitario": 70,
+        "costoTotalItem": 5950,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 4,
+        "precioUnitario": 2800,
+        "costoTotalItem": 9520,
+        "categoriaServicio": "Personal",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozos",
+        "cantidad": 4,
+        "precioUnitario": 2800,
+        "costoTotalItem": 9520,
+        "categoriaServicio": "Personal",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_picada_fiambres",
+        "nombreServicio": "Entrada 8: Picada de fiambres",
+        "cantidad": 100,
+        "precioUnitario": 120,
+        "costoTotalItem": 10200,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_sandwiches_saladitos",
+        "nombreServicio": "Entrada 23: Sándwiches y Saladitos",
+        "cantidad": 100,
+        "precioUnitario": 200,
+        "costoTotalItem": 17000,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_panchos",
+        "nombreServicio": "Menú niños- Panchos c/ fritas",
+        "cantidad": 10,
+        "precioUnitario": 165,
+        "costoTotalItem": 1402.5,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_hamburguesa",
+        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
+        "cantidad": 30,
+        "precioUnitario": 200,
+        "costoTotalItem": 5100,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_cerdo_relleno",
+        "nombreServicio": "Plato principal 4: Cerdo relleno c/ guarnición",
+        "cantidad": 60,
+        "precioUnitario": 300,
+        "costoTotalItem": 15300,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
+      },
       {
         "idServicioCatalogo": "serv_video_vida",
         "nombreServicio": "Video de vida",
@@ -120,81 +201,9 @@
         "costoTotalItem": 0,
         "esRegalo": true,
         "categoriaServicio": "Otros servicios"
-      },
-      {
-        "idServicioCatalogo": "serv_vajilla_completa",
-        "nombreServicio": "Vajilla completa (15% de descuento)",
-        "cantidad": 100,
-        "precioUnitario": 70,
-        "costoTotalItem": 7000,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_manteleria_completa",
-        "nombreServicio": "Mantelería completa (15% de descuento)",
-        "cantidad": 100,
-        "precioUnitario": 70,
-        "costoTotalItem": 7000,
-        "categoriaServicio": "Servicio de decoración"
-      },
-      {
-        "idServicioCatalogo": "serv_mozo_cocina",
-        "nombreServicio": "Mozo de cocina (15% de descuento)",
-        "cantidad": 4,
-        "precioUnitario": 2800,
-        "costoTotalItem": 11200,
-        "categoriaServicio": "Personal"
-      },
-      {
-        "idServicioCatalogo": "serv_mozos",
-        "nombreServicio": "Mozos (15% de descuento)",
-        "cantidad": 4,
-        "precioUnitario": 2800,
-        "costoTotalItem": 11200,
-        "categoriaServicio": "Personal"
-      },
-      {
-        "idServicioCatalogo": "serv_picada_fiambres",
-        "nombreServicio": "Entrada 8: Picada de fiambres (15% de descuento)",
-        "cantidad": 100,
-        "precioUnitario": 120,
-        "costoTotalItem": 12000,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_sandwiches_saladitos",
-        "nombreServicio": "Entrada 23: Sándwiches y Saladitos (15% de descuento)",
-        "cantidad": 100,
-        "precioUnitario": 200,
-        "costoTotalItem": 20000,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_menu_ninos_panchos",
-        "nombreServicio": "Menú niños- Panchos c/ fritas (15% de descuento)",
-        "cantidad": 10,
-        "precioUnitario": 165,
-        "costoTotalItem": 1650,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_menu_ninos_hamburguesa",
-        "nombreServicio": "Menú niños- Hamburguesa c/ fritas (15% de descuento)",
-        "cantidad": 30,
-        "precioUnitario": 200,
-        "costoTotalItem": 6000,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_cerdo_relleno",
-        "nombreServicio": "Plato principal 4: Cerdo relleno c/ guarnición",
-        "cantidad": 60,
-        "precioUnitario": 300,
-        "costoTotalItem": 18000,
-        "categoriaServicio": "Servicio de catering"
       }
     ],
-    "costoTotalEstimado": 94050,
+    "costoTotalEstimado": 156060,
     "timestamp": "2024-04-13T12:00:00.000Z",
     "estado": "Aceptado",
     "notas": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña."
