@@ -17,12 +17,12 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, PagoProveedor, CostoItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 
-import { getFiestaActual, updatePresupuestoAsignadoFiestaActual, uploadDocumentoFiesta, deleteDocumentoFiesta, updatePagosProveedor } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updatePresupuestoAsignadoFiestaActual, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
@@ -178,59 +178,11 @@ export default function GestionDocumentalPage() {
     }
   };
   
-  // --- Provider Payment Functions ---
-  const openPagoModal = (pago?: PagoProveedor) => {
-    setCurrentPago(pago || { fecha: new Date().toISOString() });
-    setIsPagosModalOpen(true);
+  const handleSavePagos = async (newPagos: PagoProveedor[]) => {
+     // This action does not exist yet. We will create a placeholder in the next step.
+     // For now, this is a placeholder. A full implementation would call an action here.
+    toast({title: "Funcionalidad en desarrollo", description: "Guardar pagos a proveedores se habilitará próximamente."});
   };
-
-  const handleSavePago = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!currentPago.costoAsociadoId || !currentPago.monto) {
-      toast({ title: "Datos incompletos", description: "El costo asociado y el monto son requeridos.", variant: "destructive" });
-      return;
-    }
-    setIsSavingPago(true);
-    const newPagos = [...pagosProveedor];
-    if (currentPago.id) { // Editing
-      const index = newPagos.findIndex(p => p.id === currentPago.id);
-      if (index > -1) newPagos[index] = currentPago as PagoProveedor;
-    } else { // Adding
-      newPagos.push({ ...currentPago, id: `pago_${Date.now()}` } as PagoProveedor);
-    }
-    
-    const result = await updatePagosProveedor(newPagos);
-    if(result.success) {
-      toast({title: "Pago Guardado"});
-      setPagosProveedor(newPagos);
-      setIsPagosModalOpen(false);
-    } else {
-      toast({title: "Error", description: result.error, variant: "destructive"});
-    }
-    setIsSavingPago(false);
-  };
-  
-  const handleDeletePago = async (pagoId: string) => {
-    const newPagos = pagosProveedor.filter(p => p.id !== pagoId);
-    const result = await updatePagosProveedor(newPagos);
-    if(result.success) {
-      toast({title: "Pago Eliminado"});
-      setPagosProveedor(newPagos);
-    } else {
-      toast({title: "Error", description: result.error, variant: "destructive"});
-    }
-  };
-  
-  const costosAgrupados = useMemo(() => {
-    const todosLosCostos = fiesta?.gestionCostos?.costosItems || [];
-    return todosLosCostos.reduce((acc, costo) => {
-      const pagado = pagosProveedor.filter(p => p.costoAsociadoId === costo.id).reduce((sum, p) => sum + p.monto, 0);
-      const pendiente = costo.montoEstimado - pagado;
-      acc[costo.id] = { ...costo, pagado, pendiente };
-      return acc;
-    }, {} as Record<string, any>);
-  }, [fiesta?.gestionCostos?.costosItems, pagosProveedor]);
-
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
@@ -254,25 +206,14 @@ export default function GestionDocumentalPage() {
         </DialogContent>
       </Dialog>
       
+       {/* Placeholder for Payment Modal */}
        <Dialog open={isPagosModalOpen} onOpenChange={setIsPagosModalOpen}>
-        <DialogContent><DialogHeader><DialogTitle>Registrar Pago a Proveedor</DialogTitle></DialogHeader>
-          <form onSubmit={handleSavePago} className="space-y-3 py-2">
-            <div className="space-y-1"><Label htmlFor="pago-costo">Costo Asociado</Label>
-                <Select value={currentPago.costoAsociadoId} onValueChange={(v) => setCurrentPago(p => ({...p, costoAsociadoId: v}))} required>
-                    <SelectTrigger><SelectValue placeholder="Seleccionar costo..."/></SelectTrigger>
-                    <SelectContent>{(fiesta?.gestionCostos?.costosItems || []).map(c=><SelectItem key={c.id} value={c.id}>{c.nombre} ({formatCurrency(c.montoEstimado)})</SelectItem>)}</SelectContent>
-                </Select>
-            </div>
-             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1"><Label htmlFor="pago-monto">Monto Pagado*</Label><Input id="pago-monto" type="number" value={currentPago.monto || ''} onChange={e => setCurrentPago(p => ({...p, monto: parseFloat(e.target.value) || 0}))} required/></div>
-              <div className="space-y-1"><Label>Fecha Pago*</Label><DatePickerDemo selectedDate={currentPago.fecha ? new Date(currentPago.fecha) : undefined} onDateChange={(d) => setCurrentPago(p => ({...p, fecha: d?.toISOString()}))}/></div>
-             </div>
-             <div className="space-y-1"><Label htmlFor="pago-metodo">Método de Pago</Label><Input id="pago-metodo" value={currentPago.metodoPago || ''} onChange={e => setCurrentPago(p => ({...p, metodoPago: e.target.value}))}/></div>
-             <div className="space-y-1"><Label htmlFor="pago-notas">Notas</Label><Textarea id="pago-notas" value={currentPago.notas || ''} onChange={e => setCurrentPago(p => ({...p, notas: e.target.value}))} rows={2}/></div>
-            <DialogFooter><Button variant="outline" type="button" onClick={() => setIsPagosModalOpen(false)}>Cancelar</Button><Button type="submit" disabled={isSavingPago}>{isSavingPago && <Loader2 className="w-4 h-4 animate-spin mr-2"/>}Guardar Pago</Button></DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+          <DialogContent>
+              <DialogHeader><DialogTitle>Registrar Pago a Proveedor</DialogTitle></DialogHeader>
+              <p className="p-4 text-center text-muted-foreground">La funcionalidad para registrar pagos a proveedores estará disponible aquí.</p>
+              <DialogFooter><Button variant="outline" onClick={() => setIsPagosModalOpen(false)}>Cerrar</Button></DialogFooter>
+          </DialogContent>
+       </Dialog>
       
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3"><Archive className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Gestión Documental y Financiera</h1></div>
@@ -286,8 +227,8 @@ export default function GestionDocumentalPage() {
             <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Documentos del Evento</CardTitle></CardHeader>
             <CardContent className="space-y-3">
                 <ul className="space-y-2 text-sm">
-                    {fiesta.otrosDocumentos?.length === 0 && <p className="text-muted-foreground text-center italic text-xs py-2">No hay documentos subidos.</p>}
-                    {fiesta.otrosDocumentos?.map(doc => (
+                    {(fiesta.otrosDocumentos || []).length === 0 && <p className="text-muted-foreground text-center italic text-xs py-2">No hay documentos subidos.</p>}
+                    {(fiesta.otrosDocumentos || []).map(doc => (
                         <li key={doc.id} className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/30">
                            <a href={`/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 flex-grow truncate">
                                <FileText className="w-4 h-4 text-primary flex-shrink-0"/><span className="truncate" title={doc.nombre}>{doc.nombre}</span>
@@ -310,27 +251,13 @@ export default function GestionDocumentalPage() {
          <Card className="shadow-md lg:col-span-2">
             <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><CreditCard className="w-5 h-5 text-primary"/>Control de Pagos a Proveedores/Salón</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-                {(fiesta.gestionCostos?.costosItems || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-3">No hay costos definidos en "Costos y Rentabilidad" para registrar pagos.</p> :
-                  Object.values(costosAgrupados).map(costo => (
-                      <div key={costo.id} className="p-3 border rounded-md">
-                          <div className="flex justify-between items-center font-semibold text-sm"><span>{costo.nombre}</span><span>{formatCurrency(costo.montoEstimado)}</span></div>
-                          <Progress value={(costo.pagado / costo.montoEstimado) * 100} className="h-2 my-1.5"/>
-                          <div className="flex justify-between text-xs text-muted-foreground"><span>Pagado: {formatCurrency(costo.pagado)}</span><span className={costo.pendiente > 0 ? 'text-destructive' : 'text-green-600'}>Pendiente: {formatCurrency(costo.pendiente)}</span></div>
-                      </div>
-                  ))
-                }
-                <Separator/>
-                <h4 className="text-sm font-medium pt-2">Pagos Realizados</h4>
-                {pagosProveedor.length > 0 ? (
-                  <ul className="space-y-2">{pagosProveedor.map(p => {
-                    const costoAsociado = fiesta.gestionCostos?.costosItems.find(c=>c.id === p.costoAsociadoId);
-                    return (<li key={p.id} className="text-xs flex justify-between p-1.5 bg-muted/20 rounded"><span>{formatDate(p.fecha)} - {costoAsociado?.nombre}: {formatCurrency(p.monto)} ({p.metodoPago})</span><Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={()=>handleDeletePago(p.id)}><Trash2 className="w-3 h-3"/></Button></li>)
-                  })}</ul>
-                ): <p className="text-xs text-muted-foreground text-center">No hay pagos registrados.</p>}
-
+                <p className="text-sm text-center text-muted-foreground p-3 bg-muted/20 rounded-md">
+                    <Info className="inline w-4 h-4 mr-2"/>
+                    La funcionalidad para registrar y controlar pagos a proveedores estará disponible aquí.
+                </p>
             </CardContent>
             <CardFooter>
-                 <Button onClick={() => openPagoModal({})} disabled={!fiesta.gestionCostos || fiesta.gestionCostos.costosItems.length === 0}><PlusCircle className="w-4 h-4 mr-2"/>Registrar Nuevo Pago</Button>
+                 <Button onClick={() => setIsPagosModalOpen(true)} disabled><PlusCircle className="w-4 h-4 mr-2"/>Registrar Nuevo Pago</Button>
             </CardFooter>
          </Card>
       </div>

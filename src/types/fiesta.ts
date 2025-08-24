@@ -361,7 +361,8 @@ export type CostoCategoria =
   | 'Gastronomía (Reposteria)'
   | 'Gastronomía (Bebidas)'
   | 'Imprevistos'
-  | 'Otro Costo Directo';
+  | 'Otro Costo Directo'
+  | 'Pago de Salón';
 
 export interface CostoItem {
   id: string;
