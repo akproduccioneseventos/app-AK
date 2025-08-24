@@ -106,14 +106,14 @@
       {
         "id": "costo_1762181514757_seña_salon",
         "nombre": "Seña Salón Club Uruguay",
-        "categoria": "Servicio Proveedor",
+        "categoria": "Pago de Salón",
         "montoEstimado": 3000,
         "notas": "Pago en USD"
       },
       {
         "id": "costo_1762181514757_saldo_salon",
         "nombre": "Saldo alquiler Salón Club Uruguay",
-        "categoria": "Servicio Proveedor",
+        "categoria": "Pago de Salón",
         "montoEstimado": 12000,
         "notas": "Pago realizado el 23/07/2024"
       }
@@ -165,5 +165,6 @@
       "fileName": "recibo_saldo_club_uruguay.pdf",
       "timestamp": "2025-09-01T12:04:00.000Z"
     }
-  ]
+  ],
+  "pagosProveedores": []
 }
