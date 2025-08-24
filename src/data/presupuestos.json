@@ -5,91 +5,99 @@
     "clienteNombre": "Luis Olivera",
     "eventoTipo": "XV Años",
     "eventoFecha": "2025-09-27T03:00:00.000Z",
-    "invitadosCantidad": 100,
+    "invitadosCantidad": 120,
     "salonFiestas": "Villa España",
     "itemsPresupuestados": [
       {
-        "idServicioCatalogo": "serv_integral_xv",
-        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 202735,
-        "costoTotalItem": 172324.75,
-        "categoriaServicio": "Servicio Integral"
-      },
-      {
-        "idServicioCatalogo": "serv_discoteca_estandar",
-        "nombreServicio": "Discoteca estándar",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 8000,
-        "costoTotalItem": 6800,
-        "categoriaServicio": "Servicio de discoteca"
-      },
-      {
-        "idServicioCatalogo": "serv_decoracion_estandar",
-        "nombreServicio": "Decoración Estándar",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 14500,
-        "costoTotalItem": 12325,
-        "categoriaServicio": "Servicio de decoración"
-      },
-      {
-        "idServicioCatalogo": "serv_barra_tragos",
-        "nombreServicio": "Barra de tragos, canilla libre",
+        "idServicioCatalogo": "serv_vajilla_completa",
+        "nombreServicio": "Vajilla completa",
         "cantidad": 120,
         "unidad": "Por persona",
-        "precioUnitario": 229,
-        "costoTotalItem": 23358,
-        "categoriaServicio": "Servicio de bebidas"
-      },
-      {
-        "idServicioCatalogo": "serv_foto_exteriores",
-        "nombreServicio": "Fotografía de exteriores",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 3500,
-        "costoTotalItem": 2975,
-        "categoriaServicio": "Servicio de fotografía"
-      },
-      {
-        "idServicioCatalogo": "serv_foto_fiesta",
-        "nombreServicio": "Fotografía de fiestas",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 9000,
-        "costoTotalItem": 7650,
-        "categoriaServicio": "Servicio de fotografía"
-      },
-      {
-        "idServicioCatalogo": "serv_fuente_chocolate",
-        "nombreServicio": "Fuente de chocolate con mesa de frutas",
-        "cantidad": 120,
-        "unidad": "Por persona",
-        "precioUnitario": 119,
-        "costoTotalItem": 12138,
+        "precioUnitario": 70,
+        "costoTotalItem": 7140,
         "categoriaServicio": "Servicio de catering"
       },
       {
-        "idServicioCatalogo": "serv_fotocabina",
-        "nombreServicio": "Fotocabina",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 2490,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de entretenimiento",
-        "esRegalo": true
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería completa",
+        "cantidad": 120,
+        "unidad": "Por persona",
+        "precioUnitario": 70,
+        "costoTotalItem": 7140,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 5,
+        "unidad": "Unidad",
+        "precioUnitario": 2800,
+        "costoTotalItem": 11900,
+        "categoriaServicio": "Personal"
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozos",
+        "cantidad": 5,
+        "unidad": "Unidad",
+        "precioUnitario": 2800,
+        "costoTotalItem": 11900,
+        "categoriaServicio": "Personal"
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_picada",
+        "nombreServicio": "Entrada 8: Picada de fiambres",
+        "cantidad": 120,
+        "unidad": "Por persona",
+        "precioUnitario": 120,
+        "costoTotalItem": 12240,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_entrada_sandwiches",
+        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
+        "cantidad": 120,
+        "unidad": "Por persona",
+        "precioUnitario": 200,
+        "costoTotalItem": 20400,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_panchos",
+        "nombreServicio": "Menú niños- Panchos c/ fritas",
+        "cantidad": 13,
+        "unidad": "Por persona",
+        "precioUnitario": 165,
+        "costoTotalItem": 1823.25,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_hamburguesa",
+        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
+        "cantidad": 40,
+        "unidad": "Por persona",
+        "precioUnitario": 200,
+        "costoTotalItem": 6800,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_plato_principal_cerdo",
+        "nombreServicio": "Plato principal 4: Cerdo relleno c/ guarnición",
+        "cantidad": 67,
+        "unidad": "Por persona",
+        "precioUnitario": 300,
+        "costoTotalItem": 20100,
+        "categoriaServicio": "Servicio de catering"
       }
     ],
-    "costoTotalEstimado": 278115,
+    "costoTotalEstimado": 202735,
     "timestamp": "2025-08-08T12:00:00.000Z",
     "estado": "Facturado",
     "notas": "INCLUYE AJUSTE 15% 2025",
     "invoiceId": "inv_1094",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
-    "totalConDescuento": 236397.75
+    "totalConDescuento": 100043.25
   },
   {
     "id": "pres_1761821817417_h4b3k",
