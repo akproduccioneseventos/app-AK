@@ -16,7 +16,8 @@
   "personalAsignado": [],
   "presupuestoId": "pres_1761271249762_c4z63",
   "invoiceIds": [
-    "inv_1761271249762_w5h2s"
+    "inv_1761271249762_w5h2s",
+    "inv_1761821817417_7q2y1"
   ],
   "reuniones": [],
   "tareas": [
@@ -342,3 +343,5 @@
     }
   ]
 }
+
+    

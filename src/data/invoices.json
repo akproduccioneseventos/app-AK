@@ -1,2 +1,105 @@
 
-[]
+[
+  {
+    "id": "inv_1761271249762_w5h2s",
+    "invoiceNumber": "1089",
+    "customer": {
+      "id": "cust_1761271249762_2qn2g",
+      "name": "Ana Laura Manise",
+      "estadoCliente": "Actual"
+    },
+    "issueDate": "2024-12-30T12:00:00.000Z",
+    "dueDate": "2025-01-29T12:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1761271249762_w5h2s_0",
+        "description": "Servicios según presupuesto",
+        "quantity": 1,
+        "unitPrice": 131511.5,
+        "total": 131511.5
+      }
+    ],
+    "subtotal": 131511.5,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 131511.5,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_1",
+        "paymentDate": "2024-04-10T12:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia"
+      },
+      {
+        "id": "pay_2",
+        "paymentDate": "2024-06-12T12:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia"
+      },
+      {
+        "id": "pay_3",
+        "paymentDate": "2024-08-15T12:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia"
+      }
+    ]
+  },
+  {
+    "id": "inv_1761821817417_7q2y1",
+    "invoiceNumber": "1055",
+    "customer": {
+      "id": "cust_1761271249762_2qn2g",
+      "name": "Ines Salayeta",
+      "estadoCliente": "Actual"
+    },
+    "issueDate": "2024-12-30T12:00:00.000Z",
+    "dueDate": "2025-01-29T12:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1761821817417_7q2y1_0",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 80000,
+        "total": 80000
+      },
+      {
+        "id": "item_inv_1761821817417_7q2y1_1",
+        "description": "Cuadro de firmas",
+        "quantity": 1,
+        "unitPrice": 2900,
+        "total": 2900
+      },
+      {
+        "id": "item_inv_1761821817417_7q2y1_2",
+        "description": "Salon de fiesta - Club Uruguay",
+        "quantity": 1,
+        "unitPrice": 25000,
+        "total": 25000
+      }
+    ],
+    "subtotal": 107900,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 107900,
+    "status": "Draft",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_1",
+        "paymentDate": "2024-12-30T12:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia"
+      }
+    ]
+  }
+]
+
+    

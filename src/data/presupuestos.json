@@ -11,66 +11,206 @@
       {
         "idServicioCatalogo": "servicio_mozo_cocina",
         "nombreServicio": "Mozo de cocina",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 2900,
-        "costoTotalItem": 2465,
-        "categoriaServicio": "Personal"
-      },
-      {
-        "idServicioCatalogo": "servicio_mozos",
-        "nombreServicio": "Mozos",
         "cantidad": 2,
         "unidad": "Evento",
         "precioUnitario": 2900,
         "costoTotalItem": 4930,
-        "categoriaServicio": "Personal"
+        "categoriaServicio": "Personal",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "servicio_mozos",
+        "nombreServicio": "Mozos",
+        "cantidad": 4,
+        "unidad": "Evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 9860,
+        "categoriaServicio": "Personal",
+        "esRegalo": false
       },
       {
         "idServicioCatalogo": "servicio_vajilla",
         "nombreServicio": "Vajilla, mantelería y moviliario",
-        "cantidad": 50,
+        "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 210,
-        "costoTotalItem": 8925,
-        "categoriaServicio": "Servicio de decoración"
+        "costoTotalItem": 17850,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false
       },
       {
         "idServicioCatalogo": "entrada_picada",
         "nombreServicio": "Entrada 8: Picada de fiambres",
-        "cantidad": 50,
+        "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 150,
-        "costoTotalItem": 6375,
-        "categoriaServicio": "Servicio de catering"
+        "costoTotalItem": 12750,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
       },
       {
         "idServicioCatalogo": "entrada_brochetas",
         "nombreServicio": "Entrada 18 - Mini brochetas",
-        "cantidad": 50,
+        "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 190,
-        "costoTotalItem": 8075,
-        "categoriaServicio": "Servicio de catering"
+        "costoTotalItem": 16150,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
       },
       {
         "idServicioCatalogo": "plato_principal_pollo",
         "nombreServicio": "Plato principal 3: Pollo arrollado c/ guarnición",
-        "cantidad": 50,
+        "cantidad": 100,
         "unidad": "Por persona",
         "precioUnitario": 350,
-        "costoTotalItem": 14875,
-        "categoriaServicio": "Servicio de catering"
+        "costoTotalItem": 29750,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "regalo_album_digital",
+        "nombreServicio": "Álbum digital",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_video_vida",
+        "nombreServicio": "Video de vida",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "servicio_discoteca",
+        "nombreServicio": "Discoteca",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 12325,
+        "categoriaServicio": "Servicio de discoteca",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "servicio_decoracion",
+        "nombreServicio": "Decoración",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 12325,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "servicio_fotografia_civil",
+        "nombreServicio": "FOTOGRAFIA CIVIL",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3900,
+        "costoTotalItem": 3315,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "servicio_fotografia_iglesia",
+        "nombreServicio": "FOTOGRAFIA IGLESIA",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3890,
+        "costoTotalItem": 3306.5,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "servicio_fotografia_fiesta",
+        "nombreServicio": "Fotografía de la fiesta",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8500,
+        "costoTotalItem": 7225,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "servicio_filmacion_fiesta",
+        "nombreServicio": "Filmación de la fiesta",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 7500,
+        "costoTotalItem": 6375,
+        "categoriaServicio": "Servicio de filmación",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "servicio_filmacion_pintada",
+        "nombreServicio": "Filmación de pintada",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3000,
+        "costoTotalItem": 2550,
+        "categoriaServicio": "Servicio de filmación",
+        "esRegalo": false
       }
     ],
-    "costoTotalEstimado": 45645,
+    "costoTotalEstimado": 131511.5,
     "nombrePromocion": "AJUSTE 15% 2025",
     "timestamp": "2024-12-30T12:00:00.000Z",
     "estado": "Facturado",
     "notas": "Este presupuesto incluye un ajuste del 15% para eventos en 2025. Los servicios y costos detallados provienen del documento de 3 páginas.",
     "invoiceId": "inv_1761271249762_w5h2s",
-    "totalConDescuento": 38798.25,
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15
+  },
+  {
+    "id": "pres_1761821817417_z6b2g",
+    "clienteNombre": "Ines Salayeta",
+    "eventoTipo": "Fiesta o Evento",
+    "eventoFecha": "2025-08-23T03:00:00.000Z",
+    "invitadosCantidad": 1,
+    "salonFiestas": "Club Uruguay",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "servicio_integral",
+        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 80000,
+        "costoTotalItem": 80000,
+        "categoriaServicio": "Otros servicios"
+      },
+      {
+        "idServicioCatalogo": "cuadro_firmas",
+        "nombreServicio": "Cuadro de firmas",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "salon_fiesta",
+        "nombreServicio": "Salon de fiesta - Club Uruguay",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 25000,
+        "costoTotalItem": 25000,
+        "categoriaServicio": "Otros servicios"
+      }
+    ],
+    "costoTotalEstimado": 107900,
+    "nombrePromocion": "AJUSTE 15% 2025",
+    "timestamp": "2024-12-30T12:00:00.000Z",
+    "estado": "Facturado",
+    "notas": "Presupuesto basado en el documento de 3 páginas.",
+    "invoiceId": "inv_1761821817417_7q2y1"
   }
 ]
+
+    
