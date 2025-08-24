@@ -1,187 +1,135 @@
-'use client';
 
-import { useState, useEffect, useRef, type FormEvent, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User, X, Loader2, ArrowRight, CornerDownLeft, Check, Sparkles, PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { assistant, type AssistantOutput } from '@/ai/flows/assistant-flow';
-import ReactMarkdown from 'react-markdown';
-import Link from 'next/link';
-import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Message } from 'genkit';
-import { ScrollArea } from '../ui/scroll-area';
+'use server';
 
-interface ChatMessage extends Message {
+import fs from 'fs/promises';
+import path from 'path';
+
+export interface DialogOption {
   id: string;
-  data?: AssistantOutput;
+  type: 'text' | 'service';
+  label: string;
+  serviceId?: string; // Links to a service from the main catalog
 }
 
-export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean, assistantKey?: number }) {
-    const [isOpen, setIsOpen] = useState(isPage);
-    const [isLoading, setIsLoading] = useState(true); // Start as true to show loading for initial message
-    const [error, setError] = useState('');
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [input, setInput] = useState('');
-    const { toast } = useToast();
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
-    
-    const startConversation = useCallback(() => {
-        setIsLoading(true);
-        setMessages([]);
-        assistant({ query: '' }).then(response => {
-            setMessages(prev => [...prev, {
-                id: `ai-${Date.now()}`,
-                role: 'model',
-                content: [{text: response.response}],
-                data: response
-            }]);
-        }).catch(err => {
-            setError(err.message);
-            toast({ title: "Error del Asistente", description: err.message, variant: "destructive" });
-        }).finally(() => {
-            setIsLoading(false);
-        });
-    }, [toast]);
-    
-    useEffect(() => {
-      // This will run on initial mount for the page, and when the key changes.
-      startConversation();
-    }, [assistantKey, startConversation]); // Removed isPage dependency to avoid double-call on page load
-    
-    useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+
+export interface DialogStep {
+  id: string;
+  title: string;
+  icon: string;
+  pregunta: string;
+  opciones?: DialogOption[];
+}
+
+export interface DialogConfig {
+  pasos: DialogStep[];
+}
+
+const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+const CONFIG_FILE_PATH = path.join(DATA_DIR, 'asistente-ak-config.json');
+
+const defaultConfig: DialogConfig = {
+  pasos: [
+    {
+      id: "tipoFiesta",
+      title: "Presentacion",
+      icon: "PartyPopper",
+      pregunta: "Soy  Nicolás el asistente virtual de AK producciones, un gusto atenderte te voy a ayudar a hacer un presupuesto para una fiesta, te parece bien?",
+      opciones: [
+        {
+          id: "start_now",
+          type: "text",
+          label: "Comenzar ahora"
         }
-    }, [messages]);
+      ]
+    },
+    {
+      id: "nombreCliente",
+      title: "Nombre del Cliente",
+      icon: "User",
+      pregunta: "Me dirías tu nombre para hacer el presupuesto?"
+    },
+    {
+      id: "cantidadInvitados",
+      title: "Cantidad de Invitados",
+      icon: "Users",
+      pregunta: "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"
+    },
+    {
+      id: "fechaEvento",
+      title: "Fecha del Evento",
+      icon: "CalendarDays",
+      pregunta: "{{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu fiesta? Si no, no te preocupes, podemos dejarla a confirmar.",
+      opciones: [
+        {id: "choose_date", type: 'text', label: "Elegir fecha"},
+        {id: "no_date_yet", type: 'text', label: "Aún no sé la fecha"}
+      ]
+    },
+    {
+      id: "seleccionServicios",
+      title: "Comenzamos a hacer el presupuesto",
+      icon: "Sparkles",
+      pregunta: "{{{nombreCliente}}} ahora vamos a elegir los menú para el catering. primero elegiremos la primer entrada."
+    },
+    {
+      id: "step_1755976920250",
+      title: "Elegir entrada 2",
+      icon: "Users",
+      pregunta: "Ahora debes elegir la segunda entrada"
+    },
+    {
+      id: "step_1755976978146",
+      title: "Elegir Plato principal",
+      icon: "Users",
+      pregunta: "{{{nombreCliente}}}¿Que plato principal te gustaria?"
+    },
+    {
+      id: "step_1755977112686",
+      title: "Plato principal para niños y adolescente",
+      icon: "Users",
+      pregunta: "¿Qué plato plato principal te gustaría para niños y adolescente?"
+    }
+  ]
+};
 
-    const handleSubmit = async (e?: FormEvent<HTMLFormElement>, prompt?: string) => {
-        if(e) e.preventDefault();
-        const userMessage = prompt || input;
-        if (!userMessage.trim()) return;
+async function ensureDataFileExists() {
+  try {
+    await fs.access(DATA_DIR);
+  } catch {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+  }
+  try {
+    await fs.access(CONFIG_FILE_PATH);
+  } catch {
+    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8');
+  }
+}
 
-        const newUserMessage: ChatMessage = {
-            id: `user-${Date.now()}`,
-            role: 'user',
-            content: [{ text: userMessage }]
-        };
-        setMessages(prev => [...prev, newUserMessage]);
-        setInput('');
-        setIsLoading(true);
-        setError('');
 
-        try {
-            const history: Message[] = messages.map(m => ({ role: m.role, content: m.content }));
-            const response = await assistant({ query: userMessage, history });
-            
-            setMessages(prev => [...prev, {
-                id: `ai-${Date.now()}`,
-                role: 'model',
-                content: [{ text: response.response }],
-                data: response,
-            }]);
-        } catch (err: any) {
-            setError(err.message || "Ocurrió un error.");
-            toast({ title: "Error", description: err.message, variant: 'destructive' });
-        } finally {
-            setIsLoading(false);
-            inputRef.current?.focus();
-        }
-    };
-    
-    const containerClasses = isPage 
-        ? "relative w-full h-full flex flex-col bg-card border rounded-lg" 
-        : "fixed bottom-5 right-5 z-50";
+export async function getAssistantConfig(): Promise<DialogConfig> {
+  await ensureDataFileExists();
+  try {
+    const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
+    return fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
+  } catch (error) {
+    console.error("Error reading asistente-ak-config.json, returning default.", error);
+    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8');
+    return defaultConfig;
+  }
+}
 
-    const extractOptions = (text: string): string[] => {
-      const regex = /Opciones:\s*\[([^\]]+)\]/i;
-      const match = text.match(regex);
-      if (match && match[1]) {
-        return match[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
-      }
-      return [];
-    };
-
-    return (
-        <div className={containerClasses}>
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
-                        className={isPage ? "w-full h-full flex flex-col" : "w-96 h-[32rem] flex flex-col bg-card rounded-xl shadow-2xl border"}
-                    >
-                        <header className="flex items-center justify-between p-3 border-b bg-muted/50 rounded-t-xl">
-                            <div className="flex items-center gap-2">
-                                <Avatar className="h-8 w-8"><AvatarImage src="https://placehold.co/40x40/EF4444/FFFFFF.png?text=AK" alt="AK Assistant"/><AvatarFallback>AK</AvatarFallback></Avatar>
-                                <h3 className="font-semibold text-sm">Asistente AK</h3>
-                            </div>
-                            {!isPage && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}><X className="h-4 w-4" /></Button>}
-                        </header>
-                        
-                        <ScrollArea className="flex-1" ref={scrollAreaRef}>
-                            <div className="p-4 space-y-4">
-                                {messages.map((message) => {
-                                    const isModel = message.role === 'model';
-                                    const messageContent = message.content[0].text;
-                                    const presupuestoId = message.data?.presupuestoId;
-                                    const suggestedReplies = extractOptions(messageContent);
-                                    
-                                    const cleanMessageContent = messageContent.replace(/Opciones:\s*\[[^\]]+\]/, '').trim();
-
-                                    return (
-                                        <div key={message.id} className={`flex items-start gap-3 ${isModel ? '' : 'justify-end'}`}>
-                                            {isModel && <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>}
-                                            <div className={`max-w-xs rounded-lg px-3 py-2 text-sm ${isModel ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
-                                                <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">{cleanMessageContent}</ReactMarkdown>
-                                                 {presupuestoId && (
-                                                    <Button asChild variant="secondary" size="sm" className="mt-2">
-                                                        <Link href={`/presupuestos/${presupuestoId}/ver`}>Ver Presupuesto <ArrowRight className="w-4 h-4 ml-2"/></Link>
-                                                    </Button>
-                                                )}
-                                                {isModel && suggestedReplies.length > 0 && (
-                                                    <div className="flex flex-wrap gap-2 mt-2">
-                                                        {suggestedReplies.map((reply, i) => (
-                                                            <Button key={i} size="sm" variant="outline" onClick={() => handleSubmit(undefined, reply)}>{reply}</Button>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {!isModel && <Avatar className="h-6 w-6"><AvatarFallback><User className="h-4 w-4"/></AvatarFallback></Avatar>}
-                                        </div>
-                                    );
-                                })}
-                                {isLoading && (
-                                    <div className="flex items-start gap-3">
-                                        <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>
-                                        <div className="max-w-xs rounded-lg px-3 py-2 text-sm bg-muted flex items-center">
-                                            <Loader2 className="h-4 w-4 animate-spin text-primary"/>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </ScrollArea>
-                        
-                        <footer className="p-3 border-t">
-                            <form onSubmit={handleSubmit}>
-                                <div className="flex items-center gap-2">
-                                  <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder="Escribe tu mensaje..." className="flex-1" disabled={isLoading} />
-                                  <Button type="submit" disabled={isLoading || !input.trim()}><CornerDownLeft className="h-4 w-4" /></Button>
-                                </div>
-                            </form>
-                        </footer>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-            {!isPage && !isOpen && (
-                 <Button onClick={() => { setIsOpen(true); if(messages.length === 0) startConversation(); }} className="rounded-full w-16 h-16 shadow-lg">
-                    <Bot className="h-8 w-8" />
-                </Button>
-            )}
-        </div>
-    );
+export async function saveAssistantConfig(
+  config: DialogConfig
+): Promise<{ success: boolean; error?: string }> {
+  await ensureDataFileExists();
+  try {
+    // Basic validation
+    if (!config || !Array.isArray(config.pasos) || config.pasos.length === 0) {
+        throw new Error("La configuración de pasos es inválida o está vacía.");
+    }
+    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(config, null, 2), 'utf-8');
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error saving asistente-ak-config.json", error);
+    return { success: false, error: error.message || "Unknown error saving config." };
+  }
 }
