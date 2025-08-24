@@ -9,14 +9,16 @@
     "horaFin": "05:00",
     "nombreLugar": "A definir",
     "invitadosEstimados": 120,
-    "presupuestoEstimado": 202230,
-    "notasAdicionales": "Presupuesto basado en imagen, requiere revisión de servicios.",
+    "presupuestoEstimado": 232565,
+    "notasAdicionales": "Presupuesto basado en imagen, incluye ajuste 15% 2025.",
     "clienteId": "cust_1764103200000_xyz45"
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
   "presupuestoId": "pres_1082",
-  "invoiceIds": [],
+  "invoiceIds": [
+    "inv_1036"
+  ],
   "reuniones": [],
   "tareas": [
     {

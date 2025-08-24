@@ -1,6 +1,73 @@
 
 [
   {
+    "id": "inv_1036",
+    "invoiceNumber": "1036",
+    "customer": {
+      "id": "cust_1764103200000_xyz45",
+      "name": "MARIA NUÑEZ",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-10-18T03:00:00.000Z"
+    },
+    "issueDate": "2024-08-22T00:00:00.000Z",
+    "dueDate": "2024-09-21T00:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1036_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL - XV años (Incluye ajuste 15% 2025)",
+        "quantity": 1,
+        "unitPrice": 232565,
+        "total": 232565
+      }
+    ],
+    "subtotal": 232565,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 232565,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_inv_1036_1",
+        "paymentDate": "2024-08-19T00:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 1 - SEÑA"
+      },
+      {
+        "id": "pay_inv_1036_2",
+        "paymentDate": "2024-09-16T00:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      },
+      {
+        "id": "pay_inv_1036_3",
+        "paymentDate": "2025-01-04T00:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 3"
+      },
+      {
+        "id": "pay_inv_1036_4",
+        "paymentDate": "2025-01-10T00:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 4"
+      },
+      {
+        "id": "pay_inv_1036_5",
+        "paymentDate": "2025-03-25T00:00:00.000Z",
+        "amount": 15000,
+        "method": "Transferencia",
+        "notes": "Entrega 5"
+      }
+    ]
+  },
+  {
     "id": "inv_1094",
     "invoiceNumber": "1094",
     "customer": {
@@ -101,14 +168,14 @@
         "id": "item_inv_1089_1",
         "description": "Servicios según Presupuesto #h4b3k",
         "quantity": 1,
-        "unitPrice": 111784.775,
-        "total": 111784.775
+        "unitPrice": 166490,
+        "total": 166490
       }
     ],
-    "subtotal": 111784.775,
+    "subtotal": 166490,
     "taxRate": 0,
     "taxAmount": 0,
-    "totalAmount": 111784.775,
+    "totalAmount": 166490,
     "status": "Paid",
     "currency": "UYU",
     "vendorName": "AK Producciones",

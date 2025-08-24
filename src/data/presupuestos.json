@@ -231,11 +231,12 @@
         "esRegalo": true
       }
     ],
-    "costoTotalEstimado": 202230,
+    "costoTotalEstimado": 232565,
     "timestamp": "2024-08-12T03:00:00.000Z",
-    "estado": "Aceptado",
-    "notas": "Presupuesto basado en imagen, requiere revisión de servicios.",
-    "totalConDescuento": 202230
+    "estado": "Facturado",
+    "notas": "Presupuesto basado en imagen, incluye ajuste 15% 2025.",
+    "totalConDescuento": 232565,
+    "invoiceId": "inv_1036"
   },
   {
     "id": "pres_1228",
@@ -513,29 +514,6 @@
     "invoiceId": "inv_1094"
   },
   {
-    "id": "pres_1763865600000_mno12",
-    "clienteNombre": "Luciana Bisio",
-    "eventoTipo": "Cumpleaños",
-    "eventoFecha": "2025-10-05T03:00:00.000Z",
-    "invitadosCantidad": 70,
-    "salonFiestas": "Salon Ejemplo",
-    "itemsPresupuestados": [
-      {
-        "idServicioCatalogo": "serv_integral_temp",
-        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 79900,
-        "costoTotalItem": 79900
-      }
-    ],
-    "costoTotalEstimado": 79900,
-    "timestamp": "2025-08-21T18:00:00.000Z",
-    "estado": "Facturado",
-    "invoiceId": "inv_1095",
-    "notas": "Cumpleaños de 70 años de Nestor."
-  },
-  {
     "id": "pres_1761821817417_h4b3k",
     "clienteNombre": "Ines Salayeta",
     "eventoTipo": "Boda",
@@ -666,11 +644,7 @@
         "costoTotalItem": 3000
       }
     ],
-    "costoTotalEstimado": 131511.5,
-    "nombrePromocion": "AJUSTE 15% 2025",
-    "descuentoTipo": "porcentaje",
-    "descuentoValor": 15,
-    "totalConDescuento": 111784.775,
+    "costoTotalEstimado": 166490,
     "timestamp": "2025-08-16T15:25:21.921Z",
     "estado": "Facturado",
     "invoiceId": "inv_1089"
@@ -870,5 +844,3 @@
     "totalConDescuento": 192116
   }
 ]
-
-    
