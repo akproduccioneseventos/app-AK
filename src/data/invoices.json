@@ -46,7 +46,7 @@
     "taxRate": 0,
     "taxAmount": 0,
     "totalAmount": 192116,
-    "status": "Sent",
+    "status": "Paid",
     "currency": "UYU",
     "vendorName": "AK Producciones",
     "vendorAddress": "Montevideo, Uruguay",
@@ -86,56 +86,34 @@
         "amount": 20000,
         "method": "Transferencia",
         "notes": "Entrega 5"
-      }
-    ]
-  },
-  {
-    "id": "inv_1761271249762_w5h2s",
-    "invoiceNumber": "1089",
-    "customer": {
-      "id": "cust_1761821817417_h5r3t",
-      "name": "Ines Salayeta",
-      "estadoCliente": "Actual",
-      "partyDate": "2025-11-29T03:00:00.000Z"
-    },
-    "issueDate": "2024-12-30T12:00:00.000Z",
-    "dueDate": "2025-01-29T12:00:00.000Z",
-    "items": [
-      {
-        "id": "item_inv_1761271249762_w5h2s_0",
-        "description": "Servicios según presupuesto",
-        "quantity": 1,
-        "unitPrice": 131511.5,
-        "total": 131511.5
-      }
-    ],
-    "subtotal": 131511.5,
-    "taxRate": 0,
-    "taxAmount": 0,
-    "totalAmount": 131511.5,
-    "status": "Sent",
-    "currency": "UYU",
-    "vendorName": "AK Producciones",
-    "vendorAddress": "Montevideo, Uruguay",
-    "vendorTaxId": "RUT Ejemplo 123456789012",
-    "payments": [
-      {
-        "id": "pay_1",
-        "paymentDate": "2024-04-10T12:00:00.000Z",
-        "amount": 5000,
-        "method": "Transferencia"
       },
       {
-        "id": "pay_2",
-        "paymentDate": "2024-06-12T12:00:00.000Z",
-        "amount": 5000,
-        "method": "Transferencia"
+        "id": "pay_6",
+        "paymentDate": "2025-06-02T12:00:00.000Z",
+        "amount": 24000,
+        "method": "Transferencia",
+        "notes": "Entrega 6"
       },
       {
-        "id": "pay_3",
-        "paymentDate": "2024-08-15T12:00:00.000Z",
-        "amount": 5000,
-        "method": "Transferencia"
+        "id": "pay_7",
+        "paymentDate": "2025-06-24T12:00:00.000Z",
+        "amount": 20000,
+        "method": "Transferencia",
+        "notes": "Entrega 7"
+      },
+      {
+        "id": "pay_8",
+        "paymentDate": "2025-07-02T12:00:00.000Z",
+        "amount": 24800,
+        "method": "Transferencia",
+        "notes": "Entrega 8"
+      },
+      {
+        "id": "pay_9",
+        "paymentDate": "2025-07-15T12:00:00.000Z",
+        "amount": 54316,
+        "method": "Transferencia",
+        "notes": "Entrega final"
       }
     ]
   },

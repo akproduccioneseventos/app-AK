@@ -1,30 +1,88 @@
-
 {
-  "id": "fiesta_1762283995832_v8x5s",
+  "id": "fiesta_1755996058746",
   "configuracion": {
-    "nombreEvento": "XV Años de Silvia Cabral Y Adrian",
-    "tipoCelebracion": "XV años",
-    "fechaEvento": "2025-09-13T03:00:00.000Z",
-    "invitadosEstimados": 100,
-    "clienteId": "cust_1762283995832_6p5u68",
-    "salonFiestas": "CHACRA LEFRAC"
+    "nombreEvento": "Mi Próximo Evento Increíble",
+    "tipoCelebracion": "Cumpleaños",
+    "fechaEvento": "2026-08-24T00:00:00.000Z",
+    "horaInicio": "19:00",
+    "horaFin": "02:00",
+    "nombreLugar": "Salón de Ensueño",
+    "invitadosEstimados": 50,
+    "presupuestoEstimado": 100000,
+    "notasAdicionales": "Planificación inicial."
   },
   "personalAsignado": [],
-  "presupuestoId": "pres_1762283995832_6p5u68",
-  "invoiceIds": [
-    "inv_1762289658392_g2h5f"
-  ],
+  "invoiceIds": [],
   "reuniones": [],
   "tareas": [
     {
-      "id": "task_1750298271695_fub3snb",
       "texto": "Definir lista de invitados",
-      "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
       "completada": false,
+      "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
       "esPredeterminada": false,
-      "asignadaA": "Organizador"
+      "asignadaA": "Organizador",
+      "id": "task_1755996058746_kwzfutd"
+    },
+    {
+      "texto": "Seleccionar catering y menú",
+      "completada": false,
+      "descripcion": "Contactar proveedores de catering, degustar opciones y definir el menú.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1755996058746_7ml553e"
+    },
+    {
+      "texto": "Contratar DJ o música",
+      "completada": false,
+      "descripcion": "Buscar y contratar DJ, banda o sistema de sonido.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1755996058746_iehwtei"
+    },
+    {
+      "texto": "Elegir decoración y temática",
+      "completada": false,
+      "descripcion": "Definir el estilo, colores y elementos decorativos principales.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1755996058746_k89ayn6"
+    },
+    {
+      "texto": "Enviar invitaciones",
+      "completada": false,
+      "descripcion": "Diseñar, imprimir y enviar las invitaciones físicas o digitales.",
+      "esPredeterminada": false,
+      "asignadaA": "Cliente",
+      "id": "task_1755996058746_u4zhixh"
     }
   ],
+  "clientChecklist": [
+    {
+      "texto": "Confirmar lista final de invitados",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1755996058746_kz64m39"
+    },
+    {
+      "texto": "Elegir el diseño de la torta",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1755996058746_bj058k0"
+    },
+    {
+      "texto": "Proporcionar lista de canciones especiales",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1755996058746_oy12rn1"
+    },
+    {
+      "texto": "Revisar y aprobar el presupuesto final",
+      "asignadaA": "Organizador",
+      "completada": false,
+      "id": "client_task_1755996058746_sryyxyl"
+    }
+  ],
+  "clientNotes": "",
   "decoracion": {
     "tema": "Elegante y Moderno",
     "paletaColores": {
@@ -231,6 +289,43 @@
         "cantidadEstimadaPersonas": 0
       }
     ],
+    "consumoConfig": {
+      "tortas_personalizadas": {
+        "adulto": 0.1,
+        "adolescente": 0.1,
+        "nino": 0.08
+      },
+      "cupcakes_minitortas": {
+        "adulto": 1.5,
+        "adolescente": 2,
+        "nino": 1
+      },
+      "candy_bar": {
+        "adulto": 1,
+        "adolescente": 1.5,
+        "nino": 2
+      },
+      "fuente_chocolate": {
+        "adulto": 1,
+        "adolescente": 1,
+        "nino": 1
+      },
+      "mesa_dulce_tradicional": {
+        "adulto": 2,
+        "adolescente": 2,
+        "nino": 1.5
+      },
+      "mesa_helada": {
+        "adulto": 1,
+        "adolescente": 1.5,
+        "nino": 1.5
+      },
+      "postres_individuales": {
+        "adulto": 1.5,
+        "adolescente": 1.5,
+        "nino": 1
+      }
+    },
     "notasGenerales": ""
   },
   "bebidas": {
@@ -285,6 +380,43 @@
         "descripcion": "Café, té, infusiones."
       }
     ],
+    "consumoConfig": {
+      "refrescos_gaseosas": {
+        "adulto": 0.2,
+        "adolescente": 0.3,
+        "nino": 0.25
+      },
+      "jugos": {
+        "adulto": 0.1,
+        "adolescente": 0.15,
+        "nino": 0.15
+      },
+      "aguas_saborizadas": {
+        "adulto": 0.15,
+        "adolescente": 0.1,
+        "nino": 0.1
+      },
+      "cervezas": {
+        "adulto": 0.4,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "vinos_espumantes": {
+        "adulto": 0.3,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "barra_tragos": {
+        "adulto": 0.2,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "cafeteria": {
+        "adulto": 0.05,
+        "adolescente": 0,
+        "nino": 0
+      }
+    },
     "notasGenerales": ""
   },
   "listaDeCargaOperativa": {
@@ -304,35 +436,35 @@
   },
   "programa": [
     {
-      "id": "prog_1",
+      "id": "prog_1755996058746_uvhvfox",
       "hora": "20:00",
       "titulo": "Recepción de Invitados",
       "descripcion": "Música suave y cóctel de bienvenida.",
       "icono": "GlassWater"
     },
     {
-      "id": "prog_2",
+      "id": "prog_1755996058746_lvii1hk",
       "hora": "21:00",
       "titulo": "Entrada Principal",
       "descripcion": "Entrada de los agasajados al salón.",
       "icono": "Sparkles"
     },
     {
-      "id": "prog_3",
+      "id": "prog_1755996058746_ijqy0pu",
       "hora": "21:30",
       "titulo": "Cena",
       "descripcion": "Servicio de plato principal.",
       "icono": "Utensils"
     },
     {
-      "id": "prog_4",
+      "id": "prog_1755996058746_0jvd9nc",
       "hora": "23:00",
       "titulo": "¡A Bailar!",
       "descripcion": "Se abre la pista de baile.",
       "icono": "Music"
     },
     {
-      "id": "prog_5",
+      "id": "prog_1755996058746_z243k8v",
       "hora": "00:30",
       "titulo": "Corte de Torta y Brindis",
       "descripcion": "Momento especial con la torta y el brindis.",
@@ -342,6 +474,5 @@
   "fotografiaYFilmacion": {
     "estadoEntrega": "Pendiente",
     "recibidoPorCliente": false
-  },
-  "menuAsignadoId": undefined
+  }
 }
