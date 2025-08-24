@@ -9,36 +9,84 @@
     "salonFiestas": "A definir",
     "itemsPresupuestados": [
       {
-        "idServicioCatalogo": "serv_fiestas_integral",
-        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 143279,
-        "costoTotalItem": 143279
+        "idServicioCatalogo": "servicio_mozo_cocina",
+        "nombreServicio": "Personal de cocina",
+        "cantidad": 4,
+        "unidad": "Unidad",
+        "precioUnitario": 2900,
+        "costoTotalItem": 11600
       },
       {
-        "idServicioCatalogo": "serv_salon_club_uruguay",
-        "nombreServicio": "Salon de fiesta - Club Uruguay",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 17250,
-        "costoTotalItem": 17250
+        "idServicioCatalogo": "servicio_mozos",
+        "nombreServicio": "Mozos",
+        "cantidad": 5,
+        "unidad": "Unidad",
+        "precioUnitario": 2900,
+        "costoTotalItem": 14500
       },
       {
-        "idServicioCatalogo": "serv_fuegos_frios",
-        "nombreServicio": "Fuegos fríos",
+        "idServicioCatalogo": "servicio_metre",
+        "nombreServicio": "Metre",
         "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 3000,
-        "costoTotalItem": 3000
+        "unidad": "Unidad",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
       },
       {
-        "idServicioCatalogo": "serv_lluvia_burbujas",
-        "nombreServicio": "Lluvia de burbujas",
+        "idServicioCatalogo": "servicio_cheff",
+        "nombreServicio": "Cheff",
         "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 1500,
-        "costoTotalItem": 1500
+        "unidad": "Unidad",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "servicio_asador",
+        "nombreServicio": "Asador",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900
+      },
+      {
+        "idServicioCatalogo": "servicio_vajilla",
+        "nombreServicio": "Vajilla completa",
+        "cantidad": 130,
+        "unidad": "Por persona",
+        "precioUnitario": 69,
+        "costoTotalItem": 8970
+      },
+      {
+        "idServicioCatalogo": "servicio_manteleria",
+        "nombreServicio": "Mantelería",
+        "cantidad": 130,
+        "unidad": "Por persona",
+        "precioUnitario": 69,
+        "costoTotalItem": 8970
+      },
+      {
+        "idServicioCatalogo": "servicio_mobiliario",
+        "nombreServicio": "Mobiliario",
+        "cantidad": 130,
+        "unidad": "Por persona",
+        "precioUnitario": 69,
+        "costoTotalItem": 8970
+      },
+      {
+        "idServicioCatalogo": "entrada_picada_caliente",
+        "nombreServicio": "Entrada: Picada Caliente",
+        "cantidad": 130,
+        "unidad": "Por persona",
+        "precioUnitario": 190,
+        "costoTotalItem": 24700
+      },
+      {
+        "idServicioCatalogo": "plato_principal_asado",
+        "nombreServicio": "Plato Principal: Asado completo con guarnición",
+        "cantidad": 130,
+        "unidad": "Por persona",
+        "precioUnitario": 400,
+        "costoTotalItem": 52000
       },
       {
         "idServicioCatalogo": "serv_discoteca_intermedia",
@@ -65,6 +113,15 @@
         "costoTotalItem": 2800
       },
       {
+        "idServicioCatalogo": "serv_portero",
+        "nombreServicio": "Portero",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
         "idServicioCatalogo": "serv_video_vida",
         "nombreServicio": "Video de vida",
         "cantidad": 1,
@@ -83,15 +140,6 @@
         "esRegalo": true
       },
       {
-        "idServicioCatalogo": "serv_portero",
-        "nombreServicio": "Portero",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 2500,
-        "costoTotalItem": 0,
-        "esRegalo": true
-      },
-      {
         "idServicioCatalogo": "serv_plataforma_360",
         "nombreServicio": "Plataforma 360",
         "cantidad": 1,
@@ -101,7 +149,7 @@
         "esRegalo": true
       }
     ],
-    "costoTotalEstimado": 184319,
+    "costoTotalEstimado": 129440,
     "timestamp": "2025-09-12T03:00:00.000Z",
     "estado": "Aceptado",
     "totalConDescuento": 124590,
@@ -418,8 +466,8 @@
     "costoTotalEstimado": 79900,
     "timestamp": "2024-09-02T12:00:00.000Z",
     "estado": "Aceptado",
-    "notas": "Cumpleaños de 70 de Nestor.",
-    "invoiceId": "inv_1095"
+    "invoiceId": "inv_1095",
+    "notas": "Cumpleaños de 70 de Nestor."
   },
   {
     "id": "pres_1762262400000_def45",
@@ -770,6 +818,9 @@
     ],
     "costoTotalEstimado": 150330,
     "timestamp": "2025-06-09T03:00:00.000Z",
-    "estado": "Aceptado"
+    "estado": "Aceptado",
+    "invoiceId": "inv_1086"
   }
 ]
+
+    
