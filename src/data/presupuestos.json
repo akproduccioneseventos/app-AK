@@ -1,159 +1,140 @@
 
 [
   {
-    "id": "pres_1762181514757_l6y7a3",
-    "clienteNombre": "Ana Salgado y Gilberto Coelho",
-    "eventoTipo": "XV Años",
-    "eventoFecha": "2025-11-07T03:00:00.000Z",
-    "invitadosCantidad": 130,
-    "salonFiestas": "A definir",
+    "id": "pres_1024",
+    "clienteNombre": "Silvia Cabral",
+    "eventoTipo": "XV años",
+    "eventoFecha": "2025-09-13T03:00:00.000Z",
+    "invitadosCantidad": 150,
+    "salonFiestas": "Club Uruguay",
     "itemsPresupuestados": [
       {
-        "idServicioCatalogo": "servicio_mozo_cocina",
-        "nombreServicio": "Personal de cocina",
-        "cantidad": 4,
-        "unidad": "Unidad",
-        "precioUnitario": 2900,
-        "costoTotalItem": 11600
-      },
-      {
-        "idServicioCatalogo": "servicio_mozos",
+        "idServicioCatalogo": "serv_1752489600001_pmozo",
         "nombreServicio": "Mozos",
         "cantidad": 5,
-        "unidad": "Unidad",
-        "precioUnitario": 2900,
-        "costoTotalItem": 14500
-      },
-      {
-        "idServicioCatalogo": "servicio_metre",
-        "nombreServicio": "Metre",
-        "cantidad": 1,
-        "unidad": "Unidad",
-        "precioUnitario": 3500,
-        "costoTotalItem": 3500
-      },
-      {
-        "idServicioCatalogo": "servicio_cheff",
-        "nombreServicio": "Cheff",
-        "cantidad": 1,
-        "unidad": "Unidad",
-        "precioUnitario": 3500,
-        "costoTotalItem": 3500
-      },
-      {
-        "idServicioCatalogo": "servicio_asador",
-        "nombreServicio": "Asador",
-        "cantidad": 1,
-        "unidad": "Unidad",
-        "precioUnitario": 2900,
-        "costoTotalItem": 2900
-      },
-      {
-        "idServicioCatalogo": "servicio_vajilla",
-        "nombreServicio": "Vajilla completa",
-        "cantidad": 130,
-        "unidad": "Por persona",
-        "precioUnitario": 69,
-        "costoTotalItem": 8970
-      },
-      {
-        "idServicioCatalogo": "servicio_manteleria",
-        "nombreServicio": "Mantelería",
-        "cantidad": 130,
-        "unidad": "Por persona",
-        "precioUnitario": 69,
-        "costoTotalItem": 8970
-      },
-      {
-        "idServicioCatalogo": "servicio_mobiliario",
-        "nombreServicio": "Mobiliario",
-        "cantidad": 130,
-        "unidad": "Por persona",
-        "precioUnitario": 69,
-        "costoTotalItem": 8970
-      },
-      {
-        "idServicioCatalogo": "entrada_picada_caliente",
-        "nombreServicio": "Entrada: Picada Caliente",
-        "cantidad": 130,
-        "unidad": "Por persona",
-        "precioUnitario": 190,
-        "costoTotalItem": 24700
-      },
-      {
-        "idServicioCatalogo": "plato_principal_asado",
-        "nombreServicio": "Plato Principal: Asado completo con guarnición",
-        "cantidad": 130,
-        "unidad": "Por persona",
-        "precioUnitario": 400,
-        "costoTotalItem": 52000
-      },
-      {
-        "idServicioCatalogo": "serv_discoteca_intermedia",
-        "nombreServicio": "Discoteca intermedia",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 14000,
+        "precioUnitario": 2800,
         "costoTotalItem": 14000
       },
       {
-        "idServicioCatalogo": "serv_fotocabina",
-        "nombreServicio": "Fotocabina",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 2490,
-        "costoTotalItem": 2490
-      },
-      {
-        "idServicioCatalogo": "serv_cuadro_firmas",
-        "nombreServicio": "Cuadro de firmas",
-        "cantidad": 1,
-        "unidad": "Evento",
+        "idServicioCatalogo": "serv_1752489600002_pcoci",
+        "nombreServicio": "Personal de cocina",
+        "cantidad": 4,
         "precioUnitario": 2800,
-        "costoTotalItem": 2800
+        "costoTotalItem": 11200
       },
       {
-        "idServicioCatalogo": "serv_portero",
-        "nombreServicio": "Portero",
+        "idServicioCatalogo": "serv_1752489600004_pchef",
+        "nombreServicio": "Cheff",
         "cantidad": 1,
-        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600069_vajcomp",
+        "nombreServicio": "Vajilla completa",
+        "cantidad": 150,
+        "precioUnitario": 69,
+        "costoTotalItem": 10350
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600070_mantcomp",
+        "nombreServicio": "Mantelería completa",
+        "cantidad": 150,
+        "precioUnitario": 69,
+        "costoTotalItem": 10350
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600071_mobil",
+        "nombreServicio": "Mobiliario",
+        "cantidad": 150,
+        "precioUnitario": 69,
+        "costoTotalItem": 10350
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600023_asadocom",
+        "nombreServicio": "Plato principal: Asado completo c/ guarnición",
+        "cantidad": 150,
+        "precioUnitario": 400,
+        "costoTotalItem": 60000
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600105_disest",
+        "nombreServicio": "Discoteca Estándar",
+        "cantidad": 1,
+        "precioUnitario": 8000,
+        "costoTotalItem": 8000
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600116_fotfie",
+        "nombreServicio": "Fotografía de la fiesta",
+        "cantidad": 1,
+        "precioUnitario": 8500,
+        "costoTotalItem": 8500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600112_filfie",
+        "nombreServicio": "Filmación de la fiesta",
+        "cantidad": 1,
+        "precioUnitario": 7500,
+        "costoTotalItem": 7500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600084_fuentchoc",
+        "nombreServicio": "Fuente de chocolate con mesa de frutas",
+        "cantidad": 1,
+        "precioUnitario": 6000,
+        "costoTotalItem": 6000
+      },
+      {
+        "idServicioCatalogo": "serv_torta_principal",
+        "nombreServicio": "Torta Principal",
+        "cantidad": 1,
+        "precioUnitario": 2500,
+        "costoTotalItem": 2500
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600072_cheesecake",
+        "nombreServicio": "Mesa de postres (Cheesecake)",
+        "cantidad": 1,
+        "precioUnitario": 1200,
+        "costoTotalItem": 1200
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600077_mouschoc",
+        "nombreServicio": "Mesa de postres (Mousse de chocolate)",
+        "cantidad": 1,
+        "precioUnitario": 1000,
+        "costoTotalItem": 1000
+      },
+      {
+        "idServicioCatalogo": "serv_1752489600118_albdig",
+        "nombreServicio": "Álbum digital",
+        "cantidad": 1,
         "precioUnitario": 2500,
         "costoTotalItem": 0,
         "esRegalo": true
       },
       {
-        "idServicioCatalogo": "serv_video_vida",
+        "idServicioCatalogo": "serv_1752489600119_vidvid",
         "nombreServicio": "Video de vida",
         "cantidad": 1,
-        "unidad": "Evento",
         "precioUnitario": 2500,
         "costoTotalItem": 0,
         "esRegalo": true
       },
       {
-        "idServicioCatalogo": "serv_pantalla_proyector",
-        "nombreServicio": "Pantalla gigante y proyector",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 290,
-        "costoTotalItem": 0,
-        "esRegalo": true
-      },
-      {
-        "idServicioCatalogo": "serv_plataforma_360",
+        "idServicioCatalogo": "serv_1752489600109_plat360",
         "nombreServicio": "Plataforma 360",
         "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 3500,
-        "costoTotalItem": 0,
-        "esRegalo": true
+        "precioUnitario": 3900,
+        "costoTotalItem": 3900
       }
     ],
-    "costoTotalEstimado": 143930,
-    "timestamp": "2025-09-12T03:00:00.000Z",
+    "costoTotalEstimado": 157250,
+    "timestamp": "2024-07-10T12:00:00.000Z",
     "estado": "Aceptado",
-    "totalConDescuento": 124590,
-    "notas": "INCLUYE AJUSTE 15 % 2025"
+    "invoiceId": "inv_1024",
+    "notas": "Incluye ajuste 15% 2025."
   },
   {
     "id": "pres_1082",
@@ -1060,7 +1041,7 @@
     "costoTotalEstimado": 111750,
     "totalConDescuento": 111750,
     "timestamp": "2025-02-04T03:00:00.000Z",
-    "estado": "Aceptado",
+    "estado": "Facturado",
     "invoiceId": "inv_1068"
   },
   {
@@ -1303,10 +1284,8 @@
     ],
     "costoTotalEstimado": 108760,
     "timestamp": "2024-12-16T15:25:16.534Z",
-    "estado": "Aceptado",
+    "estado": "Facturado",
     "invoiceId": "inv_1039",
     "notas": "Incluye ajuste 15% 2025"
   }
 ]
-
-    

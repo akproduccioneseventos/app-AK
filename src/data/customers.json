@@ -2,10 +2,13 @@
 [
   {
     "id": "cust_1",
-    "name": "Silvia Cabral Y Adrian",
+    "name": "Silvia Cabral",
     "estadoCliente": "Actual",
     "partyDate": "2025-09-13T03:00:00.000Z",
-    "partyType": "XV años"
+    "partyType": "XV años",
+    "phone": "092634827",
+    "taxId": "42790356",
+    "venueName": "Club Uruguay"
   },
   {
     "id": "cust_2",
