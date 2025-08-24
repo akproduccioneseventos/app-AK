@@ -373,6 +373,15 @@ export interface CostoItem {
   proveedorSugerido?: string; 
 }
 
+export interface PagoProveedor {
+  id: string;
+  costoAsociadoId: string; // ID del CostoItem al que pertenece este pago
+  fecha: string; // ISO date string
+  monto: number;
+  metodoPago?: string; // Ej: 'Transferencia', 'Efectivo'
+  notas?: string;
+}
+
 export interface GestionCostosData {
   costosItems: CostoItem[];
   ingresosTotalesEstimados: number; 
@@ -437,4 +446,6 @@ export interface FiestaEnPlanificacion {
   
   // New flexible document storage
   otrosDocumentos?: OtroDocumento[];
+  // New provider payment tracking
+  pagosProveedores?: PagoProveedor[];
 }

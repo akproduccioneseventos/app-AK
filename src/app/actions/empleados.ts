@@ -66,13 +66,19 @@ export async function saveEmpleado(
   let empleadoId: string;
 
   const trimmedName = empleadoData.nombre.trim().toLowerCase();
-  const existingEmployee = empleados.find(e => e.nombre.trim().toLowerCase() === trimmedName);
+  
+  // Enhanced duplicate check
+  const existingEmployee = empleados.find(e => 
+    e.nombre.trim().toLowerCase() === trimmedName && 
+    ('id' in empleadoData ? e.id !== empleadoData.id : true)
+  );
+
+  if (existingEmployee) {
+    return { success: false, error: `Ya existe un empleado con el nombre "${empleadoData.nombre.trim()}".` };
+  }
 
   if ('id' in empleadoData && empleadoData.id) {
     // Update
-    if (existingEmployee && existingEmployee.id !== empleadoData.id) {
-        return { success: false, error: `Ya existe otro empleado con el nombre "${empleadoData.nombre.trim()}".` };
-    }
     empleadoId = empleadoData.id;
     const index = empleados.findIndex(e => e.id === empleadoId);
     if (index === -1) {
@@ -88,9 +94,6 @@ export async function saveEmpleado(
     finalEmpleadoData = empleados[index];
   } else {
     // Create
-    if (existingEmployee) {
-        return { success: false, error: `Ya existe un empleado con el nombre "${empleadoData.nombre.trim()}".` };
-    }
     empleadoId = `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newEmpleadoData = empleadoData as NuevoEmpleadoFormData;
     finalEmpleadoData = {

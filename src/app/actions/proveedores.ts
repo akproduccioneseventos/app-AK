@@ -69,14 +69,19 @@ export async function saveProveedor(
   }
   
   const trimmedName = proveedorData.nombreEmpresa.trim().toLowerCase();
-  const existingProveedor = proveedores.find(p => p.nombreEmpresa?.trim().toLowerCase() === trimmedName);
+  
+  // Enhanced duplicate check
+  const existingProveedor = proveedores.find(p => 
+    p.nombreEmpresa?.trim().toLowerCase() === trimmedName &&
+    ('id' in proveedorData ? p.id !== proveedorData.id : true)
+  );
 
+  if (existingProveedor) {
+    return { success: false, error: `Ya existe un proveedor con el nombre de empresa "${proveedorData.nombreEmpresa.trim()}".` };
+  }
 
   if ('id' in proveedorData && proveedorData.id) {
     // Update
-    if (existingProveedor && existingProveedor.id !== proveedorData.id) {
-        return { success: false, error: `Ya existe un proveedor con el nombre de empresa "${proveedorData.nombreEmpresa.trim()}".` };
-    }
     proveedorId = proveedorData.id;
     const index = proveedores.findIndex(p => p.id === proveedorId);
     if (index === -1) {
@@ -86,9 +91,6 @@ export async function saveProveedor(
     finalProveedorData = proveedores[index];
   } else {
     // Create
-    if (existingProveedor) {
-        return { success: false, error: `Ya existe un proveedor con el nombre de empresa "${proveedorData.nombreEmpresa.trim()}".` };
-    }
     proveedorId = `prov_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalProveedorData = {
       ...proveedorData,

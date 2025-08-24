@@ -120,12 +120,13 @@ export default function PlanificarFiestaHubPage() {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
 
-      if (fiesta?.configuracion.nombreLugar?.toLowerCase() === "club uruguay" && !fiesta.contratoSalonFileName) {
+      const hasContratoSalon = fiesta.otrosDocumentos?.some(doc => doc.tipo === 'contrato_salon');
+      if (fiesta?.configuracion.nombreLugar?.toLowerCase().includes("club uruguay") && !hasContratoSalon) {
         setShowSalonContractReminder(true);
       }
       
-      // New check for service contract
-      if (fiesta && !fiesta.contratoServicioFileName) {
+      const hasContratoServicio = fiesta.otrosDocumentos?.some(doc => doc.tipo === 'contrato_servicio');
+      if (fiesta && !hasContratoServicio) {
         setShowServiceContractReminder(true);
       }
 

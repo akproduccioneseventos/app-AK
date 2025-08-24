@@ -113,9 +113,24 @@ export async function saveCustomer(
     customerToSave = { ...customerData };
   }
 
-  // Server-side validation: name OR companyName is required.
   if (!customerToSave.name?.trim() && !customerToSave.companyName?.trim()) {
     return { success: false, error: 'El nombre del cliente o de la empresa es obligatorio.' };
+  }
+
+  // Enhanced duplicate check for both create and update
+  const nameToCheck = customerToSave.name?.trim().toLowerCase();
+  const companyNameToCheck = customerToSave.companyName?.trim().toLowerCase();
+  
+  const existingCustomer = customers.find(c => 
+    (c.id !== customerToSave.id) && // Exclude the customer itself when updating
+    (
+      (nameToCheck && c.name?.trim().toLowerCase() === nameToCheck) ||
+      (companyNameToCheck && c.companyName?.trim().toLowerCase() === companyNameToCheck)
+    )
+  );
+
+  if (existingCustomer) {
+      return { success: false, error: 'Ya existe otro cliente con este nombre o nombre de empresa.' };
   }
   
   if (customerToSave.id) { // Update
@@ -135,14 +150,6 @@ export async function saveCustomer(
     };
     customerToSave = customers[index]; 
   } else { // Create
-     const existingCustomer = customers.find(
-      (c) =>
-        (c.name && c.name.trim().toLowerCase() === customerToSave.name?.trim().toLowerCase()) ||
-        (c.companyName && c.companyName.trim().toLowerCase() === customerToSave.companyName?.trim().toLowerCase())
-    );
-    if (existingCustomer) {
-      return { success: false, error: 'Ya existe un cliente con este nombre o nombre de empresa.' };
-    }
     customerId = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newCustomerBase: Omit<Customer, 'id'> = {
         ...(customerToSave as Omit<Customer, 'id'>), 
@@ -288,7 +295,6 @@ export async function syncCustomerFromFiestaConfig(
     updated = true;
   }
 
-  // Only save if there were actual changes to avoid unnecessary writes.
   if (updated) {
     const saveResult = await saveCustomer(customerToUpdate);
     if (!saveResult.success) {

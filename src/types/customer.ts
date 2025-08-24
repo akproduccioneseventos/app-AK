@@ -1,4 +1,5 @@
 
+
 export type CustomerStatus = 'Actual' | 'Antiguo';
 export const ALL_CUSTOMER_STATES: CustomerStatus[] = ['Actual', 'Antiguo'];
 
