@@ -5,7 +5,7 @@
     "clienteNombre": "Ana Salgado y Gilberto Coelho",
     "eventoTipo": "XV Años",
     "eventoFecha": "2025-11-07T03:00:00.000Z",
-    "invitadosCantidad": 1,
+    "invitadosCantidad": 130,
     "salonFiestas": "A definir",
     "itemsPresupuestados": [
       {
@@ -135,7 +135,7 @@
         "nombreServicio": "Pantalla gigante y proyector",
         "cantidad": 1,
         "unidad": "Evento",
-        "precioUnitario": 2500,
+        "precioUnitario": 290,
         "costoTotalItem": 0,
         "esRegalo": true
       },
@@ -149,7 +149,7 @@
         "esRegalo": true
       }
     ],
-    "costoTotalEstimado": 129440,
+    "costoTotalEstimado": 143930,
     "timestamp": "2025-09-12T03:00:00.000Z",
     "estado": "Aceptado",
     "totalConDescuento": 124590,
@@ -385,7 +385,7 @@
         "esRegalo": true
       }
     ],
-    "costoTotalEstimado": 202230,
+    "costoTotalEstimado": 232565,
     "timestamp": "2024-08-12T03:00:00.000Z",
     "estado": "Facturado",
     "invoiceId": "inv_1036",
@@ -466,8 +466,7 @@
     "costoTotalEstimado": 79900,
     "timestamp": "2024-09-02T12:00:00.000Z",
     "estado": "Aceptado",
-    "invoiceId": "inv_1095",
-    "notas": "Cumpleaños de 70 de Nestor."
+    "invoiceId": "inv_1095"
   },
   {
     "id": "pres_1762262400000_def45",
@@ -820,7 +819,127 @@
     "timestamp": "2025-06-09T03:00:00.000Z",
     "estado": "Aceptado",
     "invoiceId": "inv_1086"
+  },
+  {
+    "id": "pres_1764654959451_2abcde",
+    "clienteNombre": "Romina Morencio",
+    "eventoTipo": "XV Años",
+    "eventoFecha": "2025-11-15T03:00:00.000Z",
+    "invitadosCantidad": 150,
+    "salonFiestas": "Club Uruguay",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "servicio_vajilla",
+        "nombreServicio": "Vajilla completa",
+        "cantidad": 150,
+        "unidad": "Por persona",
+        "precioUnitario": 69,
+        "costoTotalItem": 10350
+      },
+      {
+        "idServicioCatalogo": "servicio_entrada",
+        "nombreServicio": "Entrada",
+        "cantidad": 150,
+        "unidad": "Por persona",
+        "precioUnitario": 190,
+        "costoTotalItem": 28500
+      },
+      {
+        "idServicioCatalogo": "servicio_personal",
+        "nombreServicio": "Personal",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 29800,
+        "costoTotalItem": 29800
+      },
+      {
+        "idServicioCatalogo": "servicio_decoracion",
+        "nombreServicio": "Decoración",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 14500
+      },
+      {
+        "idServicioCatalogo": "servicio_fotografia",
+        "nombreServicio": "Fotografía",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8500,
+        "costoTotalItem": 8500
+      },
+      {
+        "idServicioCatalogo": "servicio_discoteca",
+        "nombreServicio": "Discoteca",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 14500
+      },
+      {
+        "idServicioCatalogo": "servicio_fotocabina",
+        "nombreServicio": "Fotocabina",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900
+      },
+      {
+        "idServicioCatalogo": "servicio_barratragos",
+        "nombreServicio": "Barra de tragos",
+        "cantidad": 150,
+        "unidad": "Por persona",
+        "precioUnitario": 249,
+        "costoTotalItem": 37350
+      },
+      {
+        "idServicioCatalogo": "servicio_tortaprincipal",
+        "nombreServicio": "Torta Principal",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2490,
+        "costoTotalItem": 2490
+      },
+      {
+        "idServicioCatalogo": "regalo_invitaciones_digitales",
+        "nombreServicio": "Invitaciones digitales",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_lluvia_burbujas",
+        "nombreServicio": "Lluvia de burbujas",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 1500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_album_digital",
+        "nombreServicio": "Álbum digital",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_fuegos_frios",
+        "nombreServicio": "Fuegos fríos",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 1500,
+        "costoTotalItem": 0,
+        "esRegalo": true
+      }
+    ],
+    "costoTotalEstimado": 142940,
+    "timestamp": "2025-04-01T03:00:00.000Z",
+    "estado": "Aceptado"
   }
 ]
 
-    
