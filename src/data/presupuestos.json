@@ -34,9 +34,81 @@
         "costoTotalItem": 0,
         "esRegalo": true,
         "categoriaServicio": "Otros servicios"
+      },
+      {
+        "idServicioCatalogo": "serv_vajilla_completa",
+        "nombreServicio": "Vajilla completa (15% de descuento)",
+        "cantidad": 100,
+        "precioUnitario": 70,
+        "costoTotalItem": 7000,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería completa (15% de descuento)",
+        "cantidad": 100,
+        "precioUnitario": 70,
+        "costoTotalItem": 7000,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de cocina (15% de descuento)",
+        "cantidad": 4,
+        "precioUnitario": 2800,
+        "costoTotalItem": 11200,
+        "categoriaServicio": "Personal"
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozos (15% de descuento)",
+        "cantidad": 4,
+        "precioUnitario": 2800,
+        "costoTotalItem": 11200,
+        "categoriaServicio": "Personal"
+      },
+      {
+        "idServicioCatalogo": "serv_picada_fiambres",
+        "nombreServicio": "Entrada 8: Picada de fiambres (15% de descuento)",
+        "cantidad": 100,
+        "precioUnitario": 120,
+        "costoTotalItem": 12000,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_sandwiches_saladitos",
+        "nombreServicio": "Entrada 23: Sándwiches y Saladitos (15% de descuento)",
+        "cantidad": 100,
+        "precioUnitario": 200,
+        "costoTotalItem": 20000,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_panchos",
+        "nombreServicio": "Menú niños- Panchos c/ fritas (15% de descuento)",
+        "cantidad": 10,
+        "precioUnitario": 165,
+        "costoTotalItem": 1650,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos_hamburguesa",
+        "nombreServicio": "Menú niños- Hamburguesa c/ fritas (15% de descuento)",
+        "cantidad": 30,
+        "precioUnitario": 200,
+        "costoTotalItem": 6000,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_cerdo_relleno",
+        "nombreServicio": "Plato principal 4: Cerdo relleno c/ guarnición",
+        "cantidad": 60,
+        "precioUnitario": 300,
+        "costoTotalItem": 18000,
+        "categoriaServicio": "Servicio de catering"
       }
     ],
-    "costoTotalEstimado": 156060,
+    "costoTotalEstimado": 94050,
     "timestamp": "2024-04-13T12:00:00.000Z",
     "estado": "Aceptado",
     "notas": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña."
