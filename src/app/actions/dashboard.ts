@@ -26,36 +26,15 @@ export async function getDashboardKpiData() {
     const now = new Date();
     now.setHours(0, 0, 0, 0); 
     
-    // --- Lógica de Fiestas Futuras Corregida ---
-    // Contará cada cliente que tenga una fiesta en el futuro, sin duplicados.
-    const clientesConFiestaFutura = new Set<string>();
-
-    // 1. Iterar sobre todos los clientes activos y contar sus fiestas futuras
-    customersData.forEach(customer => {
-      // Solo contar clientes activos que tengan una fecha de fiesta futura
-      if (customer.estadoCliente === 'Actual' && customer.partyDate && new Date(customer.partyDate) >= now) {
-        clientesConFiestaFutura.add(customer.id);
-      }
-    });
-
-    // 2. Considerar la fiesta actual en planificación, solo si su cliente no ha sido contado ya
-    if (fiestaActualData?.configuracion?.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= now) {
-      if (fiestaActualData.configuracion.clienteId) {
-        // Añadir solo si no estaba ya en el set (evita doble conteo)
-        clientesConFiestaFutura.add(fiestaActualData.configuracion.clienteId);
-      }
-      // Si la fiesta actual no tiene clienteId, no se puede añadir al set de clientes,
-      // pero podría considerarse una fiesta futura si la lógica de negocio lo permite.
-      // Por ahora, solo contamos las vinculadas a un cliente para ser consistentes.
-    }
-    
-
-    const fiestasFuturasCount = clientesConFiestaFutura.size;
-    // --- Fin de la Lógica Corregida ---
-
+    // --- Lógica de Clientes Activos y Fiestas Futuras Corregida ---
     const clientesActivos = customersData.filter(
       (c) => c.estadoCliente === 'Actual'
     ).length;
+
+    // Se asume que cada cliente activo representa una fiesta futura.
+    const fiestasFuturasCount = clientesActivos;
+    // --- Fin de la Lógica Corregida ---
+
 
     const prospectosActivos = presupuestosData.filter(
       (p) => p.estado === 'Borrador' || p.estado === 'Enviado'
