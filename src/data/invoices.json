@@ -1,2 +1,67 @@
 
-[]
+[
+  {
+    "id": "inv_1753898460000_1089",
+    "invoiceNumber": "1089",
+    "customer": {
+      "id": "cust_1753896000000_1a2b3c",
+      "name": "Ana Laura Manise",
+      "companyName": "",
+      "phone": "",
+      "taxId": "",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-08-30T03:00:00.000Z"
+    },
+    "issueDate": "2025-06-24T03:00:00.000Z",
+    "dueDate": "2025-07-24T03:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1753898460000_1089_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 103735,
+        "total": 103735
+      },
+      {
+        "id": "item_inv_1753898460000_1089_2",
+        "description": "Salon de fiesta - Club Uruguay",
+        "quantity": 1,
+        "unitPrice": 9000,
+        "total": 9000
+      }
+    ],
+    "subtotal": 112735,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 112735,
+    "status": "Sent",
+    "notes": "Gracias por tu pago",
+    "currency": "UYU",
+    "vendorName": "AK PRODUCCIONES",
+    "vendorAddress": "Salto",
+    "vendorTaxId": "RUT Ejemplo",
+    "payments": [
+      {
+        "id": "pay_inv_1753898460000_1089_1",
+        "paymentDate": "2025-06-06T03:00:00.000Z",
+        "amount": 9000,
+        "method": "Transferencia",
+        "notes": "Entrega 1 - Seña"
+      },
+      {
+        "id": "pay_inv_1753898460000_1089_2",
+        "paymentDate": "2025-06-30T03:00:00.000Z",
+        "amount": 50000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      },
+      {
+        "id": "pay_inv_1753898460000_1089_3",
+        "paymentDate": "2025-07-26T03:00:00.000Z",
+        "amount": 38000,
+        "method": "Transferencia",
+        "notes": "Entrega 3"
+      }
+    ]
+  }
+]

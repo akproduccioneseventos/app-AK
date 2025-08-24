@@ -167,7 +167,8 @@
     "totalConDescuento": 48794.25,
     "vigenciaPromocion": "10/07/2025",
     "timestamp": "2025-06-10T03:00:00.000Z",
-    "estado": "Borrador",
-    "notas": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña."
+    "estado": "Facturado",
+    "notas": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.",
+    "invoiceId": "inv_1753898460000_1089"
   }
 ]
