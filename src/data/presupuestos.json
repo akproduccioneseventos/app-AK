@@ -63,44 +63,13 @@
         "unidad": "Unidad",
         "precioUnitario": -1440,
         "costoTotalItem": -1440
-      },
-      {
-        "idServicioCatalogo": "serv_discoteca_basica_xv",
-        "nombreServicio": "Discoteca Básica",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 5500,
-        "costoTotalItem": 5500
-      },
-      {
-        "idServicioCatalogo": "serv_deco_basica_xv",
-        "nombreServicio": "Decoración Básica",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 14500,
-        "costoTotalItem": 14500
-      },
-      {
-        "idServicioCatalogo": "serv_foto_fiesta_xv",
-        "nombreServicio": "Fotografía de la fiesta",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 8500,
-        "costoTotalItem": 8500
-      },
-      {
-        "idServicioCatalogo": "serv_filmacion_fiesta_xv",
-        "nombreServicio": "Filmación de la fiesta",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 7500,
-        "costoTotalItem": 7500
       }
     ],
-    "costoTotalEstimado": 127300,
+    "costoTotalEstimado": 77760,
     "timestamp": "2025-08-21T18:00:00.000Z",
     "estado": "Borrador",
-    "notas": "Presupuesto para cumpleaños de 70 años."
+    "notas": "Presupuesto para cumpleaños de 70 años.",
+    "totalConDescuento": 77760
   },
   {
     "id": "pres_1763781216503_def34",
@@ -290,7 +259,7 @@
         "costoTotalItem": 20100
       }
     ],
-    "costoTotalEstimado": 176291.3,
+    "costoTotalEstimado": 176235,
     "timestamp": "2025-08-08T12:00:00.000Z",
     "estado": "Facturado",
     "notas": "INCLUYE AJUSTE 15% 2025",
@@ -449,11 +418,11 @@
         "costoTotalItem": 3000
       }
     ],
-    "costoTotalEstimado": 150790,
+    "costoTotalEstimado": 131511.5,
     "nombrePromocion": "AJUSTE 15% 2025",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
-    "totalConDescuento": 128171.5,
+    "totalConDescuento": 111784.775,
     "timestamp": "2025-08-16T15:25:21.921Z",
     "estado": "Facturado",
     "invoiceId": "inv_1089"
@@ -646,7 +615,7 @@
         "costoTotalItem": 2900
       }
     ],
-    "costoTotalEstimado": 194130,
+    "costoTotalEstimado": 192116,
     "timestamp": "2025-08-16T16:19:55.832Z",
     "estado": "Facturado",
     "invoiceId": "inv_1024"
