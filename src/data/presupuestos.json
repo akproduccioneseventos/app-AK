@@ -939,7 +939,7 @@
     ],
     "costoTotalEstimado": 142940,
     "timestamp": "2025-04-01T03:00:00.000Z",
-    "estado": "Aceptado"
+    "estado": "Facturado",
+    "invoiceId": "inv_1080"
   }
 ]
-

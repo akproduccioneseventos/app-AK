@@ -1,6 +1,60 @@
 
 [
   {
+    "id": "inv_1080",
+    "invoiceNumber": "1080",
+    "customer": {
+      "id": "cust_1764654959451_1ab2c3",
+      "name": "Romina Morencio",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-11-15T03:00:00.000Z",
+      "partyType": "XV Años"
+    },
+    "issueDate": "2025-05-15T00:00:00.000Z",
+    "dueDate": "2025-06-14T00:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1080_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 142940,
+        "total": 142940
+      },
+      {
+        "id": "item_inv_1080_2",
+        "description": "Salon de fiesta - Club Uruguay",
+        "quantity": 1,
+        "unitPrice": 17500,
+        "total": 17500
+      }
+    ],
+    "subtotal": 160440,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 160440,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_inv_1080_1",
+        "paymentDate": "2025-04-01T00:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 1 - Seña"
+      },
+      {
+        "id": "pay_inv_1080_2",
+        "paymentDate": "2025-05-15T00:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      }
+    ]
+  },
+  {
     "id": "inv_1024",
     "invoiceNumber": "1024",
     "customer": {
