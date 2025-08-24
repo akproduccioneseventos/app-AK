@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { getHistorialFiestas, archivarFiestaActual, getFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
-import { getCustomerById } from '@/app/actions/customers';
+import { getCustomerById, getCustomers } from '@/app/actions/customers';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -38,6 +38,7 @@ export default function GestorFiestasPage() {
   const [historialFiestas, setHistorialFiestas] = useState<FiestaEnPlanificacion[]>([]);
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [clienteActual, setClienteActual] = useState<Customer | null>(null);
+  const [clientesActivos, setClientesActivos] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isArchiving, setIsArchiving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +48,15 @@ export default function GestorFiestasPage() {
     setError(null);
     setClienteActual(null);
     try {
-      const [historial, actual] = await Promise.all([
+      const [historial, actual, allCustomers] = await Promise.all([
         getHistorialFiestas(),
-        getFiestaActual()
+        getFiestaActual(),
+        getCustomers()
       ]);
       setHistorialFiestas(historial);
       setFiestaActual(actual);
+      setClientesActivos(allCustomers.filter(c => c.estadoCliente === 'Actual').length);
+
       if (actual && actual.configuracion.clienteId) {
         const cliente = await getCustomerById(actual.configuracion.clienteId);
         setClienteActual(cliente);
@@ -116,12 +120,6 @@ export default function GestorFiestasPage() {
   };
 
   const fiestasPasadasCount = historialFiestas.length;
-  let fiestasFuturasCount = 0;
-  if (fiestaActual && fiestaActual.configuracion.fechaEvento) {
-    if (new Date(fiestaActual.configuracion.fechaEvento) >= new Date()) {
-      fiestasFuturasCount = 1;
-    }
-  }
   const isFiestaActualConfigured = fiestaActual && fiestaActual.configuracion.nombreEvento && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble";
 
 
@@ -173,11 +171,11 @@ export default function GestorFiestasPage() {
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
           <p className="ml-3 text-muted-foreground">Cargando información de fiestas...</p>
         </div>
-      ) : error ? (
+      ) : error || !fiestaActual ? (
         <Card className="text-destructive bg-destructive/10 p-6 text-center">
           <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
           <p className="font-semibold text-lg">Error al Cargar Información</p>
-          <p className="text-sm">{error}</p>
+          <p className="text-sm">{error || "No se pudo cargar la información de la fiesta."}</p>
         </Card>
       ) : (
         <>
@@ -251,8 +249,8 @@ export default function GestorFiestasPage() {
                 <CalendarClock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{fiestasFuturasCount}</div>
-                <p className="text-xs text-muted-foreground">Eventos actualmente en planificación.</p>
+                <div className="text-2xl font-bold">{clientesActivos}</div>
+                <p className="text-xs text-muted-foreground">Eventos en planificación actual.</p>
               </CardContent>
             </Card>
           </div>
