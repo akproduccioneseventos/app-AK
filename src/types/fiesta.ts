@@ -357,9 +357,6 @@ export type CostoCategoria =
   | 'Personal Evento' 
   | 'Compra General' 
   | 'Marketing y Publicidad'
-  | 'Gastronomía (Catering)'
-  | 'Gastronomía (Reposteria)'
-  | 'Gastronomía (Bebidas)'
   | 'Imprevistos'
   | 'Otro Costo Directo'
   | 'Pago de Salón';

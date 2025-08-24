@@ -163,10 +163,10 @@ export async function saveCustomer(
     customerToSave = customers[customers.length - 1];
   }
   
-  if (contractFile) {
+  if (contractFile && contractFile.size > 0) {
     try {
-      if (contractFile.size === 0 || contractFile.type !== 'application/pdf') {
-        throw new Error('El contrato debe ser un archivo PDF y no puede estar vacío.');
+      if (contractFile.type !== 'application/pdf') {
+        throw new Error('El contrato debe ser un archivo PDF.');
       }
       await ensureSubdirectoryExists(contractsDirectoryPath);
       const bytes = await contractFile.arrayBuffer();
@@ -180,10 +180,10 @@ export async function saveCustomer(
     }
   }
 
-  if (budgetFile) {
+  if (budgetFile && budgetFile.size > 0) {
     try {
-       if (budgetFile.size === 0 || budgetFile.type !== 'application/pdf') {
-        throw new Error('El presupuesto debe ser un archivo PDF y no puede estar vacío.');
+       if (budgetFile.type !== 'application/pdf') {
+        throw new Error('El presupuesto debe ser un archivo PDF.');
       }
       await ensureSubdirectoryExists(budgetsDirectoryPath);
       const bytes = await budgetFile.arrayBuffer();

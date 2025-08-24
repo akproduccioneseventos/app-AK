@@ -20,7 +20,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const COST_CATEGORIES: CostoCategoria[] = [
-  'Servicio Proveedor', 
+  'Servicio Proveedor',
+  'Pago de Salón',
   'Personal Evento', 
   'Compra General', 
   'Marketing y Publicidad',
@@ -241,7 +242,7 @@ export default function GestionCostosRentabilidadPage() {
                 <div className="flex justify-between items-center p-2 border-b"><span>Costo Catering (Menú Principal):</span><span className="font-semibold">{formatCurrency(costoTotalMenu)}</span></div>
                 <div className="flex justify-between items-center p-2 border-b"><span>Costo Repostería:</span><span className="font-semibold">{formatCurrency(costoTotalReposteria)}</span></div>
                 <div className="flex justify-between items-center p-2"><span>Costo Bebidas:</span><span className="font-semibold">{formatCurrency(costoTotalBebidas)}</span></div>
-                <p className="text-xs text-muted-foreground">Estos costos se calculan y gestionan en los módulos de <Link href="/planner-costo-fiesta" className="underline">Planificador Gastronómico</Link>, <Link href="/fiestas/nueva/catering" className="underline">Catering</Link>, <Link href="/planner-costo-fiesta/reposteria" className="underline">Repostería</Link> y <Link href="/planner-costo-fiesta/bebidas" className="underline">Bebidas</Link>.</p>
+                <p className="text-xs text-muted-foreground">Estos costos se calculan y gestionan en los módulos de <Link href="/planner-costo-fiesta" className="underline">Planificador Gastronómico</Link>, <Link href="/fiestas/nueva/catering" className="underline">Catering</Link>, <Link href="/fiestas/nueva/planner-costo-fiesta/reposteria" className="underline">Repostería</Link> y <Link href="/fiestas/nueva/planner-costo-fiesta/bebidas" className="underline">Bebidas</Link>.</p>
             </AccordionContent>
         </AccordionItem>
         
