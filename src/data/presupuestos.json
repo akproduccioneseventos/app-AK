@@ -1,6 +1,92 @@
 
 [
   {
+    "id": "pres_1024",
+    "clienteNombre": "Silvia Cabral",
+    "eventoTipo": "XV años",
+    "eventoFecha": "2025-09-13T03:00:00.000Z",
+    "invitadosCantidad": 150,
+    "salonFiestas": "Club Uruguay",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_discoteca_completa",
+        "nombreServicio": "Servicio de discoteca",
+        "cantidad": 1,
+        "precioUnitario": 18000,
+        "costoTotalItem": 18000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "serv_pantalla_proyector",
+        "nombreServicio": "Pantalla gigante y proyector",
+        "cantidad": 1,
+        "precioUnitario": 2000,
+        "costoTotalItem": 2000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "serv_fotocabina",
+        "nombreServicio": "Fotocabina",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de entretenimiento"
+      },
+      {
+        "idServicioCatalogo": "serv_fotografia_fiesta",
+        "nombreServicio": "Servicio de fotografía",
+        "cantidad": 1,
+        "precioUnitario": 10500,
+        "costoTotalItem": 10500,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de fotografía"
+      },
+      {
+        "idServicioCatalogo": "serv_mesa_postres",
+        "nombreServicio": "Mesa de postres (4)",
+        "cantidad": 4,
+        "precioUnitario": 1100,
+        "costoTotalItem": 4400,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de repostería"
+      },
+      {
+        "idServicioCatalogo": "serv_torta_principal",
+        "nombreServicio": "Torta principal (80 personas)",
+        "cantidad": 1,
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de repostería"
+      },
+      {
+        "idServicioCatalogo": "serv_cuadro_firmas",
+        "nombreServicio": "Cuadro de firmas",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_cafe_te",
+        "nombreServicio": "Servicio de café y te",
+        "cantidad": 80,
+        "precioUnitario": 35,
+        "costoTotalItem": 2800,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering"
+      }
+    ],
+    "costoTotalEstimado": 58000,
+    "timestamp": "2024-07-10T12:00:00.000Z",
+    "estado": "Aceptado",
+    "notas": "Incluye ajuste 15% 2025. Descuentos aplicados según documento."
+  },
+  {
     "id": "pres_1014",
     "clienteNombre": "Luis XV Años",
     "eventoTipo": "XV Años",
@@ -112,56 +198,6 @@
     "timestamp": "2024-04-13T12:00:00.000Z",
     "estado": "Aceptado",
     "notas": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña."
-  },
-  {
-    "id": "pres_1024",
-    "clienteNombre": "Silvia Cabral",
-    "eventoTipo": "XV años",
-    "eventoFecha": "2025-09-13T03:00:00.000Z",
-    "invitadosCantidad": 150,
-    "salonFiestas": "Club Uruguay",
-    "itemsPresupuestados": [
-      {
-        "idServicioCatalogo": "serv_discoteca_completa",
-        "nombreServicio": "Servicio de discoteca",
-        "cantidad": 1,
-        "precioUnitario": 18000,
-        "costoTotalItem": 18000,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de discoteca"
-      },
-      {
-        "idServicioCatalogo": "serv_pantalla_proyector",
-        "nombreServicio": "Pantalla gigante y proyector",
-        "cantidad": 1,
-        "precioUnitario": 2000,
-        "costoTotalItem": 2000,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de discoteca"
-      },
-      {
-        "idServicioCatalogo": "serv_fotocabina",
-        "nombreServicio": "Fotocabina",
-        "cantidad": 1,
-        "precioUnitario": 2900,
-        "costoTotalItem": 2900,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de entretenimiento"
-      },
-      {
-        "idServicioCatalogo": "serv_fotografia_fiesta",
-        "nombreServicio": "Servicio de fotografía",
-        "cantidad": 1,
-        "precioUnitario": 10500,
-        "costoTotalItem": 10500,
-        "esRegalo": false,
-        "categoriaServicio": "Servicio de fotografía"
-      }
-    ],
-    "costoTotalEstimado": 33400,
-    "timestamp": "2024-07-10T12:00:00.000Z",
-    "estado": "Aceptado",
-    "notas": "Incluye ajuste 15% 2025. Descuentos aplicados según documento."
   },
   {
     "id": "pres_1082",
@@ -280,8 +316,7 @@
     "costoTotalEstimado": 108760,
     "timestamp": "2024-12-16T15:25:16.534Z",
     "estado": "Facturado",
-    "invoiceId": "inv_1039",
-    "notas": "Incluye ajuste 15% 2025"
+    "invoiceId": "inv_1039"
   },
   {
     "id": "pres_1758410145695_z6q9x",
