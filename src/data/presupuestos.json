@@ -1,4 +1,5 @@
 
+      
 [
   {
     "id": "pres_1024",
@@ -9,25 +10,86 @@
     "salonFiestas": "Club Uruguay",
     "itemsPresupuestados": [
       {
-        "idServicioCatalogo": "serv_1752489600001_pmozo",
-        "nombreServicio": "Mozos",
-        "cantidad": 5,
-        "precioUnitario": 2800,
-        "costoTotalItem": 14000
+        "idServicioCatalogo": "serv_salon_fiestas",
+        "nombreServicio": "Salón de fiestas",
+        "cantidad": 1,
+        "precioUnitario": 1,
+        "costoTotalItem": 1,
+        "categoriaServicio": "Otros servicios"
       },
       {
-        "idServicioCatalogo": "serv_1752489600002_pcoci",
-        "nombreServicio": "Personal de cocina",
-        "cantidad": 4,
-        "precioUnitario": 2800,
-        "costoTotalItem": 11200
+        "idServicioCatalogo": "serv_vajilla_manteleria",
+        "nombreServicio": "Vajilla, mantelería y moviliario",
+        "cantidad": 80,
+        "precioUnitario": 1,
+        "costoTotalItem": 80,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_sandwiches_saladitos",
+        "nombreServicio": "Entrada 23: Sándwiches y Saladitos",
+        "cantidad": 80,
+        "precioUnitario": 1,
+        "costoTotalItem": 80,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_picada_fiambres",
+        "nombreServicio": "Entrada 8: Picada de fiambres",
+        "cantidad": 80,
+        "precioUnitario": 1,
+        "costoTotalItem": 80,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_pollo_arrollado",
+        "nombreServicio": "Plato principal 3: Pollo arrollado c/ guarnición",
+        "cantidad": 50,
+        "precioUnitario": 1,
+        "costoTotalItem": 50,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_ensaladas_buffet",
+        "nombreServicio": "Mesa de ensaladas buffet extra",
+        "cantidad": 50,
+        "precioUnitario": 1,
+        "costoTotalItem": 50,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_menu_ninos",
+        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
+        "cantidad": 30,
+        "precioUnitario": 1,
+        "costoTotalItem": 30,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "serv_decoracion_estandar",
+        "nombreServicio": "Decoración Estándar",
+        "cantidad": 1,
+        "precioUnitario": 1,
+        "costoTotalItem": 1,
+        "categoriaServicio": "Servicio de decoración"
+      },
+      {
+        "idServicioCatalogo": "serv_discoteca_intermedia",
+        "nombreServicio": "Discoteca intermedia",
+        "cantidad": 1,
+        "precioUnitario": 1,
+        "costoTotalItem": 1,
+        "categoriaServicio": "Servicio de discoteca"
       }
     ],
-    "costoTotalEstimado": 157250,
+    "costoTotalEstimado": 373,
     "timestamp": "2024-07-10T12:00:00.000Z",
     "estado": "Aceptado",
     "invoiceId": "inv_1024",
-    "notas": "Incluye ajuste 15% 2025."
+    "notas": "Incluye ajuste 15% 2025. Descuentos aplicados según documento.",
+    "descuentoTipo": "porcentaje",
+    "descuentoValor": 15,
+    "totalConDescuento": 317.05
   },
   {
     "id": "pres_1082",
@@ -177,3 +239,5 @@
     "notas": "Incluye ajuste 15% 2025."
   }
 ]
+
+    
