@@ -30,6 +30,7 @@ export async function getDashboardKpiData() {
       (c) => c.estadoCliente === 'Actual'
     ).length;
 
+    // Correctamente contar todos los clientes activos como fiestas futuras.
     const fiestasFuturasCount = clientesActivos;
 
     const prospectosActivos = presupuestosData.filter(
