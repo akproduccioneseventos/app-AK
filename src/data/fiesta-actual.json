@@ -1,21 +1,23 @@
 
 {
-  "id": "fiesta_1759497600000_manmos",
+  "id": "fiesta_1761271249762_u9qj1",
   "configuracion": {
-    "nombreEvento": "Fiesta Familia Manise-Moser",
+    "nombreEvento": "Fiesta para Ines Salayeta",
     "tipoCelebracion": "Fiesta o Evento",
     "fechaEvento": "2025-11-29T03:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "05:00",
-    "nombreLugar": "A definir",
-    "invitadosEstimados": 50,
+    "nombreLugar": "Club Uruguay",
+    "invitadosEstimados": 100,
     "presupuestoEstimado": 0,
-    "notasAdicionales": "",
-    "clienteId": "cust_1759497600000_manmos"
+    "notasAdicionales": "Presupuesto basado en el documento de 3 páginas.",
+    "clienteId": "cust_1761271249762_2qn2g"
   },
   "personalAsignado": [],
-  "presupuestoId": "pres_1759497600000_manmos",
-  "invoiceIds": [],
+  "presupuestoId": "pres_1761271249762_c4z63",
+  "invoiceIds": [
+    "inv_1761271249762_w5h2s"
+  ],
   "reuniones": [],
   "tareas": [
     {
@@ -90,11 +92,10 @@
     "salonPlanBackgroundImageUrl": "",
     "salonElements": [],
     "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
-    "layoutMode": "asignado",
+    "layoutMode": "libre",
     "guestNameStyle": "full",
     "guestIconStyle": "color",
-    "layoutTemplateName": "Club Uruguay",
-    "generalNotes": "Decoración base, detalles por definir."
+    "layoutTemplateName": ""
   },
   "invitados": [],
   "webPageSettings": {
@@ -123,14 +124,42 @@
     "showGallery": false
   },
   "clientPortalSettings": {
-    "enabled": true,
+    "enabled": false,
     "accessKey": "",
-    "showPresupuesto": true,
-    "showPagos": true,
-    "showContrato": true,
-    "showInvitados": true,
-    "showMusica": true,
-    "showMenu": false
+    "checklist": {
+      "visible": false,
+      "editable": false
+    },
+    "itinerario": {
+      "visible": false
+    },
+    "musica": {
+      "visible": false,
+      "editable": false
+    },
+    "videoVida": {
+      "visible": false,
+      "editable": true
+    },
+    "listaRegalos": {
+      "visible": false
+    },
+    "documentos": {
+      "visible": true
+    },
+    "notasCliente": {
+      "visible": false,
+      "editable": true
+    },
+    "invitados": {
+      "visible": true
+    },
+    "paginaPublica": {
+      "visible": true
+    },
+    "fotografiaYFilmacion": {
+      "visible": true
+    }
   },
   "socialGallerySettings": {
     "enabled": false,
@@ -258,7 +287,6 @@
         "descripcion": "Café, té, infusiones."
       }
     ],
-    "tipoEventoAjuste": "mixto_estandar",
     "notasGenerales": ""
   },
   "listaDeCargaOperativa": {
@@ -271,9 +299,46 @@
     "notasGeneralesCostos": ""
   },
   "videoVida": {
-    "galleryEnabled": true,
+    "galleryEnabled": false,
     "photosUploaded": false,
     "songSuggestion": "",
     "customText": ""
-  }
+  },
+  "programa": [
+    {
+      "id": "prog_1",
+      "hora": "20:00",
+      "titulo": "Recepción de Invitados",
+      "descripcion": "Música suave y cóctel de bienvenida.",
+      "icono": "GlassWater"
+    },
+    {
+      "id": "prog_2",
+      "hora": "21:00",
+      "titulo": "Entrada Principal",
+      "descripcion": "Entrada de los agasajados al salón.",
+      "icono": "Sparkles"
+    },
+    {
+      "id": "prog_3",
+      "hora": "21:30",
+      "titulo": "Cena",
+      "descripcion": "Servicio de plato principal.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_4",
+      "hora": "23:00",
+      "titulo": "¡A Bailar!",
+      "descripcion": "Se abre la pista de baile.",
+      "icono": "Music"
+    },
+    {
+      "id": "prog_5",
+      "hora": "00:30",
+      "titulo": "Corte de Torta y Brindis",
+      "descripcion": "Momento especial con la torta y el brindis.",
+      "icono": "CakeSlice"
+    }
+  ]
 }

@@ -1,12 +1,12 @@
 
 [
   {
-    "id": "pres_1759497600000_manmos",
-    "clienteNombre": "Familia Manise-Moser",
+    "id": "pres_1761271249762_c4z63",
+    "clienteNombre": "Ines Salayeta",
     "eventoTipo": "Fiesta o Evento",
     "eventoFecha": "2025-11-29T03:00:00.000Z",
-    "invitadosCantidad": 50,
-    "salonFiestas": "A definir",
+    "invitadosCantidad": 100,
+    "salonFiestas": "Club Uruguay",
     "itemsPresupuestados": [
       {
         "idServicioCatalogo": "servicio_mozo_cocina",
@@ -64,12 +64,13 @@
       }
     ],
     "costoTotalEstimado": 45645,
-    "nombrePromocion": "Descuento General",
+    "nombrePromocion": "AJUSTE 15% 2025",
+    "timestamp": "2024-12-30T12:00:00.000Z",
+    "estado": "Facturado",
+    "notas": "Este presupuesto incluye un ajuste del 15% para eventos en 2025. Los servicios y costos detallados provienen del documento de 3 páginas.",
+    "invoiceId": "inv_1761271249762_w5h2s",
+    "totalConDescuento": 38798.25,
     "descuentoTipo": "porcentaje",
-    "descuentoValor": 15,
-    "totalConDescuento": 45645,
-    "timestamp": "2025-08-20T12:00:00.000Z",
-    "estado": "Borrador",
-    "notas": "Presupuesto inicial basado en la primera página."
+    "descuentoValor": 15
   }
 ]
