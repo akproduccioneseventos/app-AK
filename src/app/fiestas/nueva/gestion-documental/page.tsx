@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Archive, FileText, Printer, Share2, DollarSign, CreditCard, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle, BarChart3, UploadCloud, Eye, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import { StatusBadge as InvoiceStatusBadge } from '@/components/status-badge';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +21,7 @@ import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 
-import { getFiestaActual, updatePresupuestoAsignadoFiestaActual, uploadDocumentoFiesta, deleteDocumentoFiesta, updatePagosProveedores } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updatePagosProveedores, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
@@ -230,6 +229,19 @@ export default function GestionDocumentalPage() {
   }
   
   const costosParaPagos = fiesta?.gestionCostos?.costosItems?.filter(c => c.categoria === 'Servicio Proveedor' || c.categoria === 'Pago de Salón');
+  
+  const groupedDocuments = useMemo(() => {
+    if (!fiesta?.otrosDocumentos) return {};
+    return fiesta.otrosDocumentos.reduce((acc, doc) => {
+        const typeLabel = ALL_DOC_TYPES.find(t => t.value === doc.tipo)?.label || 'Otros Documentos';
+        if (!acc[typeLabel]) {
+            acc[typeLabel] = [];
+        }
+        acc[typeLabel].push(doc);
+        return acc;
+    }, {} as Record<string, OtroDocumento[]>);
+  }, [fiesta?.otrosDocumentos]);
+
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
@@ -285,18 +297,24 @@ export default function GestionDocumentalPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-md">
             <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Documentos del Evento</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-                <ul className="space-y-2 text-sm">
-                    {(fiesta.otrosDocumentos || []).length === 0 && <p className="text-muted-foreground text-center italic text-xs py-2">No hay documentos subidos.</p>}
-                    {(fiesta.otrosDocumentos || []).map(doc => (
-                        <li key={doc.id} className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/30">
-                           <a href={`/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 flex-grow truncate">
-                               <FileText className="w-4 h-4 text-primary flex-shrink-0"/><span className="truncate" title={doc.nombre}>{doc.nombre}</span>
-                           </a>
-                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={()=>handleDeleteDocument(doc.id)} disabled={!!isDeleting}>{isDeleting === doc.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}</Button>
-                        </li>
-                    ))}
-                </ul>
+            <CardContent className="space-y-4">
+                {Object.entries(groupedDocuments).length === 0 ? <p className="text-muted-foreground text-center italic text-xs py-2">No hay documentos subidos.</p> :
+                  Object.entries(groupedDocuments).map(([tipo, docs]) => (
+                    <div key={tipo}>
+                      <h4 className="font-semibold text-sm mb-1.5">{tipo}</h4>
+                      <ul className="space-y-2 text-sm">
+                        {docs.map(doc => (
+                          <li key={doc.id} className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/30">
+                            <a href={`/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 flex-grow truncate">
+                                <FileText className="w-4 h-4 text-primary flex-shrink-0"/><span className="truncate" title={doc.nombre}>{doc.nombre}</span>
+                            </a>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={()=>handleDeleteDocument(doc.id)} disabled={!!isDeleting}>{isDeleting === doc.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}</Button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))
+                }
             </CardContent>
             <CardFooter className="flex-col items-start gap-3"><Button onClick={() => setIsUploadModalOpen(true)}><UploadCloud className="w-4 h-4 mr-2"/>Subir Documento</Button>
             <Button onClick={handleDownloadAll} variant="secondary" size="sm" disabled={isDownloading || (fiesta.otrosDocumentos?.length || 0) === 0}>{isDownloading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Archive className="w-4 h-4 mr-2" />}Descargar Todo (.zip)</Button></CardFooter>
