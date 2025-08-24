@@ -26,15 +26,19 @@ export async function getDashboardKpiData() {
     const now = new Date();
     now.setHours(0, 0, 0, 0); 
     
-    // --- Lógica de Clientes Activos y Fiestas Futuras Corregida ---
     const clientesActivos = customersData.filter(
       (c) => c.estadoCliente === 'Actual'
     ).length;
 
-    // Se asume que cada cliente activo representa una fiesta futura.
-    const fiestasFuturasCount = clientesActivos;
-    // --- Fin de la Lógica Corregida ---
-
+    // Corrected logic for "Fiestas Futuras"
+    // It now specifically checks if the "Fiesta Actual" is set for a future date.
+    let fiestasFuturasCount = 0;
+    if (fiestaActualData?.configuracion?.fechaEvento) {
+        const fechaEvento = new Date(fiestaActualData.configuracion.fechaEvento);
+        if (fechaEvento >= now) {
+            fiestasFuturasCount = 1;
+        }
+    }
 
     const prospectosActivos = presupuestosData.filter(
       (p) => p.estado === 'Borrador' || p.estado === 'Enviado'
