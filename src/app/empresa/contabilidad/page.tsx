@@ -7,14 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta-actual';
-import { getCustomers } from '@/app/actions/customers';
-import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getInvoices } from '@/app/actions/invoices';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Customer } from '@/types/customer';
-import type { Presupuesto } from '@/types/presupuesto';
-import type { Invoice, Payment } from '@/types/invoice';
+import type { Invoice } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -23,6 +17,8 @@ import dynamic from 'next/dynamic';
 import type { MonthlyChartData } from '@/components/charts/MonthlySalesChart';
 import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
 import { KpiCard } from '@/components/dashboard/kpi-card';
+import { getDashboardKpiData } from '@/app/actions/dashboard';
+
 
 const MonthlySalesChart = dynamic(() => 
   import('@/components/charts/MonthlySalesChart').then(mod => mod.MonthlySalesChart), 
@@ -104,18 +100,7 @@ export default function ContabilidadDashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   // KPIs States
-  const [fiestasPasadas, setFiestasPasadas] = useState(0);
-  const [fiestasFuturas, setFiestasFuturas] = useState(0);
-  const [clientesActivos, setClientesActivos] = useState(0);
-  const [prospectos, setProspectos] = useState(0);
-  const [ventasTotales, setVentasTotales] = useState(0);
-  const [montoPagado, setMontoPagado] = useState(0);
-  const [montoPorPagar, setMontoPorPagar] = useState(0);
-  const [ventasProyectadas, setVentasProyectadas] = useState(0);
-
-  // Smart Indicators
-  const [ventasPromedioCliente, setVentasPromedioCliente] = useState(0);
-  const [tasaConversionProspectos, setTasaConversionProspectos] = useState(0);
+  const [kpiData, setKpiData] = useState<any>(null);
 
   // Chart Data
   const [monthlyChartData, setMonthlyChartData] = useState<MonthlyChartData[]>([]);
@@ -127,59 +112,18 @@ export default function ContabilidadDashboardPage() {
     setError(null);
     try {
       const [
-        historialFiestasData,
-        fiestaActualData,
-        customersData,
-        presupuestosData,
-        invoicesData,
+        kpiResult,
+        invoicesData
       ] = await Promise.all([
-        getHistorialFiestas(),
-        getFiestaActual(),
-        getCustomers(),
-        getPresupuestos(),
+        getDashboardKpiData(),
         getInvoices(),
       ]);
 
-      // Calculate KPIs
-      setFiestasPasadas(historialFiestasData.length);
-      const esFiestaFutura = fiestaActualData?.configuracion?.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= new Date();
-      setFiestasFuturas(esFiestaFutura ? 1 : 0);
-      setClientesActivos(customersData.filter(c => c.estadoCliente === 'Actual').length);
+      if (!kpiResult.success) {
+        throw new Error(kpiResult.error || 'Failed to get KPI data');
+      }
+      setKpiData(kpiResult.data);
       
-      const prospectosActivos = presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length;
-      setProspectos(prospectosActivos);
-      
-      const ventasConfirmadas = presupuestosData
-        .filter(p => p.estado === 'Aceptado' || p.estado === 'Facturado')
-        .reduce((sum, p) => sum + p.costoTotalEstimado, 0);
-      setVentasTotales(ventasConfirmadas);
-      
-      const totalPaidFromInvoices = invoicesData.reduce(
-        (total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0
-      );
-      setMontoPagado(totalPaidFromInvoices);
-
-      const totalDueFromInvoices = invoicesData.reduce((total, inv) => {
-        const paidOnThisInvoice = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
-        const dueOnThisInvoice = inv.totalAmount - paidOnThisInvoice;
-        return total + (dueOnThisInvoice > 0 ? dueOnThisInvoice : 0);
-      }, 0);
-      setMontoPorPagar(totalDueFromInvoices);
-      
-      setVentasProyectadas(
-        presupuestosData
-          .filter(p => p.estado === 'Aceptado') 
-          .reduce((sum, p) => sum + p.costoTotalEstimado, 0)
-      );
-
-      // Calculate Smart Indicators
-      const presupuestosAceptadosFacturados = presupuestosData.filter(p => p.estado === 'Aceptado' || p.estado === 'Facturado');
-      const clientesUnicos = new Set(presupuestosAceptadosFacturados.map(p => p.clienteNombre)).size;
-      setVentasPromedioCliente(clientesUnicos > 0 ? ventasConfirmadas / clientesUnicos : 0);
-
-      const totalPresupuestosNoBorrador = presupuestosData.filter(p => p.estado !== 'Borrador').length;
-      setTasaConversionProspectos(totalPresupuestosNoBorrador > 0 ? (presupuestosAceptadosFacturados.length / totalPresupuestosNoBorrador) * 100 : 0);
-
       // Prepare data for MonthlySalesChart
       const salesByMonth: { [key: string]: { sales: number, payments: number } } = {};
       const today = new Date();
@@ -212,10 +156,10 @@ export default function ContabilidadDashboardPage() {
       setMonthlyChartData(formattedMonthlyData);
 
       // Prepare data for PaymentStatusPieChart
-      if (ventasConfirmadas > 0) {
+      if (kpiResult.data.ventasTotales > 0) {
         setPaymentPieChartData([
-          { name: 'Pagado', value: totalPaidFromInvoices, fill: 'hsl(var(--chart-2))' },
-          { name: 'Pendiente', value: totalDueFromInvoices > 0 ? totalDueFromInvoices : 0, fill: 'hsl(var(--chart-5))' },
+          { name: 'Pagado', value: kpiResult.data.montoPagado, fill: 'hsl(var(--chart-2))' },
+          { name: 'Pendiente', value: kpiResult.data.totalPendiente > 0 ? kpiResult.data.totalPendiente : 0, fill: 'hsl(var(--chart-5))' },
         ]);
       } else {
          setPaymentPieChartData([]);
@@ -265,17 +209,10 @@ export default function ContabilidadDashboardPage() {
 
       {/* KPIs Section */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Fiestas Pasadas" value={fiestasPasadas} icon={CalendarClock} isLoading={isLoading} description="Eventos completados y archivados." />
-        <KpiCard title="Fiestas Futuras" value={fiestasFuturas} icon={CheckCircle} isLoading={isLoading} description="Eventos en planificación actual." />
-        <KpiCard title="Clientes Activos" value={clientesActivos} icon={Users} isLoading={isLoading} description="Clientes con estado 'Actual'." />
-        <KpiCard title="Prospectos Activos" value={prospectos} icon={Briefcase} isLoading={isLoading} description="Presupuestos enviados o en borrador." />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Ventas Totales Acumuladas" value={formatCurrency(ventasTotales)} icon={TrendingUp} isLoading={isLoading} description="Suma de presupuestos aceptados/facturados."/>
-        <KpiCard title="Monto Total Pagado" value={formatCurrency(montoPagado)} icon={Banknote} isLoading={isLoading} description="Total de pagos recibidos."/>
-        <KpiCard title="Saldo Pendiente General" value={formatCurrency(montoPorPagar)} icon={CircleDollarSign} isLoading={isLoading} description="De todas las facturas no saldadas."/>
-        <KpiCard title="Ventas Proyectadas" value={formatCurrency(ventasProyectadas)} icon={TrendingUp} isLoading={isLoading} description="Suma de presupuestos aceptados." />
+        <KpiCard title="Ventas Totales Acumuladas" value={formatCurrency(kpiData?.ventasTotales)} icon={TrendingUp} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
+        <KpiCard title="Monto Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={Banknote} isLoading={isLoading} description="Total de pagos recibidos."/>
+        <KpiCard title="Saldo Pendiente General" value={formatCurrency(kpiData?.totalPendiente)} icon={CircleDollarSign} isLoading={isLoading} description="De todas las facturas no saldadas."/>
+        <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos} icon={Briefcase} isLoading={isLoading} description="Presupuestos enviados o en borrador." />
       </div>
       
       <Separator className="my-6" />
@@ -292,22 +229,6 @@ export default function ContabilidadDashboardPage() {
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
            <Info className="w-4 h-4 mr-2"/> Gráficos basados en los últimos 12 meses y estado actual de pagos. Filtros se añadirán.
-        </CardFooter>
-      </Card>
-
-      {/* Indicadores Inteligentes */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Indicadores Inteligentes</CardTitle>
-          <CardDescription>Métricas clave para la toma de decisiones estratégicas.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <KpiCard title="Venta Promedio / Cliente" value={formatCurrency(ventasPromedioCliente)} icon={CircleDollarSign} isLoading={isLoading} description="Valor medio por cliente con eventos confirmados." className="bg-amber-50 dark:bg-amber-900/20"/>
-            <KpiCard title="Tasa Conversión Prospectos" value={`${tasaConversionProspectos.toFixed(1)}%`} icon={CheckCircle} isLoading={isLoading} description="Presupuestos aceptados/facturados vs. total no borrador." className="bg-emerald-50 dark:bg-emerald-900/20"/>
-            <KpiCard title="Margen Promedio / Evento" value="N/A" icon={TrendingUp} isLoading={isLoading} description="Requiere costos detallados." className="bg-rose-50 dark:bg-rose-900/20"/>
-        </CardContent>
-         <CardFooter className="text-sm text-muted-foreground">
-           <Info className="w-4 h-4 mr-2"/> Indicadores basados en datos disponibles. "Margen" requiere seguimiento detallado de costos internos.
         </CardFooter>
       </Card>
       
