@@ -22,15 +22,34 @@ export async function getDashboardKpiData() {
       getHistorialFiestas(),
     ]);
 
-    // Corrected logic for future parties:
-    // Count all customers with a future party date.
     const now = new Date();
-    // Set time to 00:00:00 to include today as a future date
     now.setHours(0, 0, 0, 0); 
     
-    const fiestasFuturasCount = customersData.filter(customer => 
-      customer.partyDate && new Date(customer.partyDate) >= now
-    ).length;
+    // Corrected logic for future parties.
+    // Includes the current event if its date is in the future,
+    // plus any other customers with a future date.
+    let fiestasFuturasCount = 0;
+    const clientesConFiestaFutura = new Set<string>();
+
+    // 1. Check the current event being planned
+    if (fiestaActualData?.configuracion?.fechaEvento && new Date(fiestaActualData.configuracion.fechaEvento) >= now) {
+      fiestasFuturasCount = 1;
+      if (fiestaActualData.configuracion.clienteId) {
+        clientesConFiestaFutura.add(fiestaActualData.configuracion.clienteId);
+      }
+    }
+    
+    // 2. Count other customers with future parties, ensuring not to double-count
+    customersData.forEach(customer => {
+      if (
+        customer.partyDate && 
+        new Date(customer.partyDate) >= now &&
+        !clientesConFiestaFutura.has(customer.id) // Avoid double counting if they are also the "current" party
+      ) {
+        fiestasFuturasCount++;
+        clientesConFiestaFutura.add(customer.id);
+      }
+    });
 
     const clientesActivos = customersData.filter(
       (c) => c.estadoCliente === 'Actual'
