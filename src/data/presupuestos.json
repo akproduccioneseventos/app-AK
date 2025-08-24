@@ -1,7 +1,7 @@
 
 [
   {
-    "id": "pres_1761271249762_c4z63",
+    "id": "pres_1761821817417_h4b3k",
     "clienteNombre": "Ines Salayeta",
     "eventoTipo": "Fiesta o Evento",
     "eventoFecha": "2025-11-29T03:00:00.000Z",
@@ -167,49 +167,6 @@
     "invoiceId": "inv_1761271249762_w5h2s",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15
-  },
-  {
-    "id": "pres_1761821817417_z6b2g",
-    "clienteNombre": "Ines Salayeta",
-    "eventoTipo": "Fiesta o Evento",
-    "eventoFecha": "2025-08-23T03:00:00.000Z",
-    "invitadosCantidad": 1,
-    "salonFiestas": "Club Uruguay",
-    "itemsPresupuestados": [
-      {
-        "idServicioCatalogo": "servicio_integral",
-        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 80000,
-        "costoTotalItem": 80000,
-        "categoriaServicio": "Otros servicios"
-      },
-      {
-        "idServicioCatalogo": "cuadro_firmas",
-        "nombreServicio": "Cuadro de firmas",
-        "cantidad": 1,
-        "unidad": "Unidad",
-        "precioUnitario": 2900,
-        "costoTotalItem": 2900,
-        "categoriaServicio": "Servicio de decoración"
-      },
-      {
-        "idServicioCatalogo": "salon_fiesta",
-        "nombreServicio": "Salon de fiesta - Club Uruguay",
-        "cantidad": 1,
-        "unidad": "Evento",
-        "precioUnitario": 25000,
-        "costoTotalItem": 25000,
-        "categoriaServicio": "Otros servicios"
-      }
-    ],
-    "costoTotalEstimado": 107900,
-    "nombrePromocion": "AJUSTE 15% 2025",
-    "timestamp": "2024-12-30T12:00:00.000Z",
-    "estado": "Facturado",
-    "notas": "Presupuesto basado en el documento de 3 páginas.",
-    "invoiceId": "inv_1761821817417_7q2y1"
   },
   {
     "id": "pres_1762283995832_6p5u68",
@@ -445,9 +402,8 @@
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
     "timestamp": "2025-08-16T16:19:55.832Z",
-    "estado": "Borrador",
-    "totalConDescuento": 179252.25
+    "estado": "Facturado",
+    "totalConDescuento": 179252.25,
+    "invoiceId": "inv_1762289658392_g2h5f"
   }
 ]
-
-    

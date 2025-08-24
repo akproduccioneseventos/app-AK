@@ -1,12 +1,102 @@
 
 [
   {
+    "id": "inv_1762289658392_g2h5f",
+    "invoiceNumber": "1024",
+    "customer": {
+      "id": "cust_1762283995832_6p5u68",
+      "name": "Silvia Cabral Y Adrian",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-09-13T03:00:00.000Z",
+      "partyType": "XV años"
+    },
+    "issueDate": "2024-07-10T12:00:00.000Z",
+    "dueDate": "2025-09-01T12:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1762289658392_g2h5f_0",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 181516,
+        "total": 181516
+      },
+      {
+        "id": "item_inv_1762289658392_g2h5f_1",
+        "description": "Coptel 50 litros",
+        "quantity": 1,
+        "unitPrice": 5000,
+        "total": 5000
+      },
+      {
+        "id": "item_inv_1762289658392_g2h5f_2",
+        "description": "Hielo",
+        "quantity": 1,
+        "unitPrice": 1800,
+        "total": 1800
+      },
+      {
+        "id": "item_inv_1762289658392_g2h5f_3",
+        "description": "Fotografía de exteriores",
+        "quantity": 1,
+        "unitPrice": 3800,
+        "total": 3800
+      }
+    ],
+    "subtotal": 192116,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 192116,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_1",
+        "paymentDate": "2024-06-28T12:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 1: Seña"
+      },
+      {
+        "id": "pay_2",
+        "paymentDate": "2024-09-02T12:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      },
+      {
+        "id": "pay_3",
+        "paymentDate": "2025-03-03T12:00:00.000Z",
+        "amount": 16000,
+        "method": "Transferencia",
+        "notes": "Entrega 3"
+      },
+      {
+        "id": "pay_4",
+        "paymentDate": "2025-04-08T12:00:00.000Z",
+        "amount": 18000,
+        "method": "Transferencia",
+        "notes": "Entrega 4"
+      },
+      {
+        "id": "pay_5",
+        "paymentDate": "2025-05-03T12:00:00.000Z",
+        "amount": 20000,
+        "method": "Transferencia",
+        "notes": "Entrega 5"
+      }
+    ]
+  },
+  {
     "id": "inv_1761271249762_w5h2s",
     "invoiceNumber": "1089",
     "customer": {
-      "id": "cust_1761271249762_2qn2g",
-      "name": "Ana Laura Manise",
-      "estadoCliente": "Actual"
+      "id": "cust_1761821817417_h5r3t",
+      "name": "Ines Salayeta",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-11-29T03:00:00.000Z"
     },
     "issueDate": "2024-12-30T12:00:00.000Z",
     "dueDate": "2025-01-29T12:00:00.000Z",
@@ -53,9 +143,10 @@
     "id": "inv_1761821817417_7q2y1",
     "invoiceNumber": "1055",
     "customer": {
-      "id": "cust_1761271249762_2qn2g",
+      "id": "cust_1761821817417_h5r3t",
       "name": "Ines Salayeta",
-      "estadoCliente": "Actual"
+      "estadoCliente": "Actual",
+      "partyDate": "2025-11-29T03:00:00.000Z"
     },
     "issueDate": "2024-12-30T12:00:00.000Z",
     "dueDate": "2025-01-29T12:00:00.000Z",
@@ -101,5 +192,3 @@
     ]
   }
 ]
-
-    

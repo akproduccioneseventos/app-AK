@@ -1,23 +1,18 @@
 
 {
-  "id": "fiesta_1761271249762_u9qj1",
+  "id": "fiesta_1762283995832_v8x5s",
   "configuracion": {
-    "nombreEvento": "Fiesta para Ines Salayeta",
-    "tipoCelebracion": "Fiesta o Evento",
-    "fechaEvento": "2025-11-29T03:00:00.000Z",
-    "horaInicio": "21:00",
-    "horaFin": "05:00",
-    "nombreLugar": "Club Uruguay",
+    "nombreEvento": "XV Años de Silvia Cabral Y Adrian",
+    "tipoCelebracion": "XV años",
+    "fechaEvento": "2025-09-13T03:00:00.000Z",
     "invitadosEstimados": 100,
-    "presupuestoEstimado": 0,
-    "notasAdicionales": "Presupuesto basado en el documento de 3 páginas.",
-    "clienteId": "cust_1761271249762_2qn2g"
+    "clienteId": "cust_1762283995832_6p5u68",
+    "salonFiestas": "CHACRA LEFRAC"
   },
   "personalAsignado": [],
-  "presupuestoId": "pres_1761271249762_c4z63",
+  "presupuestoId": "pres_1762283995832_6p5u68",
   "invoiceIds": [
-    "inv_1761271249762_w5h2s",
-    "inv_1761821817417_7q2y1"
+    "inv_1762289658392_g2h5f"
   ],
   "reuniones": [],
   "tareas": [
@@ -33,9 +28,9 @@
   "decoracion": {
     "tema": "Elegante y Moderno",
     "paletaColores": {
-      "primary": "#007bff",
-      "secondary": "#6c757d",
-      "accent": "#28a745"
+      "primary": "#D9B8FF",
+      "secondary": "#FCD3DE",
+      "accent": "#F0E6CC"
     },
     "moodboardImageUrl": "",
     "colorCubremantel": "",
@@ -90,6 +85,8 @@
     ],
     "generalNotesDecoracion": "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
     "pdfNotasAdicionales": "",
+    "salonWidth": 800,
+    "salonHeight": 600,
     "salonPlanBackgroundImageUrl": "",
     "salonElements": [],
     "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
@@ -341,7 +338,10 @@
       "descripcion": "Momento especial con la torta y el brindis.",
       "icono": "CakeSlice"
     }
-  ]
+  ],
+  "fotografiaYFilmacion": {
+    "estadoEntrega": "Pendiente",
+    "recibidoPorCliente": false
+  },
+  "menuAsignadoId": undefined
 }
-
-    
