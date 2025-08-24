@@ -80,6 +80,20 @@
         "paymentDate": "2024-12-30T12:00:00.000Z",
         "amount": 5000,
         "method": "Transferencia"
+      },
+      {
+        "id": "pay_inv_1089_1722477364654_u0p1z",
+        "paymentDate": "2025-03-30T12:00:00.000Z",
+        "amount": 10000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      },
+      {
+        "id": "pay_inv_1089_1722477364654_b3nfk",
+        "paymentDate": "2025-06-25T12:00:00.000Z",
+        "amount": 20000,
+        "method": "Transferencia",
+        "notes": "Entrega 3"
       }
     ]
   },
