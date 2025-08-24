@@ -1,7 +1,90 @@
 
 [
   {
-    "id": "inv_1762289658392_g2h5f",
+    "id": "inv_1094",
+    "invoiceNumber": "1094",
+    "customer": {
+      "id": "cust_1763781216503_abc12",
+      "name": "Luis Olivera",
+      "estadoCliente": "Actual"
+    },
+    "issueDate": "2025-08-08T12:00:00.000Z",
+    "dueDate": "2025-09-07T12:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1094_0",
+        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "quantity": 1,
+        "unitPrice": 202735,
+        "total": 202735
+      }
+    ],
+    "subtotal": 202735,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 202735,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_inv_1094_1",
+        "paymentDate": "2024-04-22T12:00:00.000Z",
+        "amount": 60000,
+        "method": "Transferencia",
+        "notes": "Entrega 2 - Seña"
+      },
+      {
+        "id": "pay_inv_1094_2",
+        "paymentDate": "2025-03-22T12:00:00.000Z",
+        "amount": 35000,
+        "method": "Transferencia",
+        "notes": "Entrega 2"
+      }
+    ]
+  },
+  {
+    "id": "inv_1089",
+    "invoiceNumber": "1089",
+    "customer": {
+      "id": "cust_1761821817417_h5r3t",
+      "name": "Ines Salayeta",
+      "estadoCliente": "Actual",
+      "partyDate": "2025-11-29T03:00:00.000Z"
+    },
+    "issueDate": "2025-08-16T15:25:21.921Z",
+    "dueDate": "2025-11-01T12:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1089_1",
+        "description": "SERVICIO DE FIESTAS INTEGRAL (Presupuesto #18218)",
+        "quantity": 1,
+        "unitPrice": 111784.775,
+        "total": 111784.775
+      }
+    ],
+    "subtotal": 111784.775,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 111784.775,
+    "status": "Paid",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "vendorAddress": "Montevideo, Uruguay",
+    "vendorTaxId": "RUT Ejemplo 123456789012",
+    "payments": [
+      {
+        "id": "pay_1",
+        "paymentDate": "2024-12-30T12:00:00.000Z",
+        "amount": 5000,
+        "method": "Transferencia"
+      }
+    ]
+  },
+  {
+    "id": "inv_1024",
     "invoiceNumber": "1024",
     "customer": {
       "id": "cust_1762283995832_6p5u68",
@@ -14,28 +97,28 @@
     "dueDate": "2025-09-01T12:00:00.000Z",
     "items": [
       {
-        "id": "item_inv_1762289658392_g2h5f_0",
+        "id": "item_inv_1024_0",
         "description": "SERVICIO DE FIESTAS INTEGRAL",
         "quantity": 1,
         "unitPrice": 181516,
         "total": 181516
       },
       {
-        "id": "item_inv_1762289658392_g2h5f_1",
+        "id": "item_inv_1024_1",
         "description": "Coptel 50 litros",
         "quantity": 1,
         "unitPrice": 5000,
         "total": 5000
       },
       {
-        "id": "item_inv_1762289658392_g2h5f_2",
+        "id": "item_inv_1024_2",
         "description": "Hielo",
         "quantity": 1,
         "unitPrice": 1800,
         "total": 1800
       },
       {
-        "id": "item_inv_1762289658392_g2h5f_3",
+        "id": "item_inv_1024_3",
         "description": "Fotografía de exteriores",
         "quantity": 1,
         "unitPrice": 3800,
@@ -114,58 +197,6 @@
         "amount": 54316,
         "method": "Transferencia",
         "notes": "Entrega final"
-      }
-    ]
-  },
-  {
-    "id": "inv_1761821817417_7q2y1",
-    "invoiceNumber": "1055",
-    "customer": {
-      "id": "cust_1761821817417_h5r3t",
-      "name": "Ines Salayeta",
-      "estadoCliente": "Actual",
-      "partyDate": "2025-11-29T03:00:00.000Z"
-    },
-    "issueDate": "2024-12-30T12:00:00.000Z",
-    "dueDate": "2025-01-29T12:00:00.000Z",
-    "items": [
-      {
-        "id": "item_inv_1761821817417_7q2y1_0",
-        "description": "SERVICIO DE FIESTAS INTEGRAL",
-        "quantity": 1,
-        "unitPrice": 80000,
-        "total": 80000
-      },
-      {
-        "id": "item_inv_1761821817417_7q2y1_1",
-        "description": "Cuadro de firmas",
-        "quantity": 1,
-        "unitPrice": 2900,
-        "total": 2900
-      },
-      {
-        "id": "item_inv_1761821817417_7q2y1_2",
-        "description": "Salon de fiesta - Club Uruguay",
-        "quantity": 1,
-        "unitPrice": 25000,
-        "total": 25000
-      }
-    ],
-    "subtotal": 107900,
-    "taxRate": 0,
-    "taxAmount": 0,
-    "totalAmount": 107900,
-    "status": "Draft",
-    "currency": "UYU",
-    "vendorName": "AK Producciones",
-    "vendorAddress": "Montevideo, Uruguay",
-    "vendorTaxId": "RUT Ejemplo 123456789012",
-    "payments": [
-      {
-        "id": "pay_1",
-        "paymentDate": "2024-12-30T12:00:00.000Z",
-        "amount": 5000,
-        "method": "Transferencia"
       }
     ]
   }

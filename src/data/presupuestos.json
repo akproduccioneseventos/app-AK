@@ -1,9 +1,33 @@
 
 [
   {
+    "id": "pres_1763781216503_def34",
+    "clienteNombre": "Luis Olivera",
+    "eventoTipo": "XV Años",
+    "eventoFecha": "2025-09-27T03:00:00.000Z",
+    "invitadosCantidad": 100,
+    "salonFiestas": "Villa España",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_integral_xv",
+        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 202735,
+        "costoTotalItem": 202735,
+        "categoriaServicio": "Servicio Integral"
+      }
+    ],
+    "costoTotalEstimado": 202735,
+    "timestamp": "2025-08-08T12:00:00.000Z",
+    "estado": "Facturado",
+    "notas": "INCLUYE AJUSTE 15% 2025",
+    "invoiceId": "inv_1094"
+  },
+  {
     "id": "pres_1761821817417_h4b3k",
     "clienteNombre": "Ines Salayeta",
-    "eventoTipo": "Fiesta o Evento",
+    "eventoTipo": "Boda",
     "eventoFecha": "2025-11-29T03:00:00.000Z",
     "invitadosCantidad": 100,
     "salonFiestas": "Club Uruguay",
@@ -161,12 +185,12 @@
     ],
     "costoTotalEstimado": 131511.5,
     "nombrePromocion": "AJUSTE 15% 2025",
-    "timestamp": "2024-12-30T12:00:00.000Z",
-    "estado": "Facturado",
-    "notas": "Este presupuesto incluye un ajuste del 15% para eventos en 2025. Los servicios y costos detallados provienen del documento de 3 páginas.",
-    "invoiceId": "inv_1761271249762_w5h2s",
     "descuentoTipo": "porcentaje",
-    "descuentoValor": 15
+    "descuentoValor": 15,
+    "totalConDescuento": 111784.775,
+    "timestamp": "2025-08-16T15:25:21.921Z",
+    "estado": "Facturado",
+    "invoiceId": "inv_1089"
   },
   {
     "id": "pres_1762283995832_6p5u68",
@@ -397,13 +421,13 @@
         "esRegalo": false
       }
     ],
-    "costoTotalEstimado": 210885,
-    "nombrePromocion": "AJUSTE 15% 2025",
+    "costoTotalEstimado": 194130,
+    "nombrePromocion": "Descuento aplicado",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
     "timestamp": "2025-08-16T16:19:55.832Z",
     "estado": "Facturado",
-    "totalConDescuento": 179252.25,
-    "invoiceId": "inv_1762289658392_g2h5f"
+    "totalConDescuento": 165010.5,
+    "invoiceId": "inv_1024"
   }
 ]
