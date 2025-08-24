@@ -21,13 +21,7 @@
     "name": "Luciana Bisio",
     "estadoCliente": "Actual",
     "partyDate": "2025-08-05T03:00:00.000Z",
-    "partyType": "Evento General"
-  },
-  {
-    "id": "cust_1762283995832_6p5u68",
-    "name": "Silvia Cabral Y Adrian",
-    "estadoCliente": "Actual",
-    "partyDate": "2025-09-13T03:00:00.000Z",
-    "partyType": "XV años"
+    "partyType": "Cumpleaños",
+    "partyForWhom": "Cumpleaños 70 Nestor"
   }
 ]

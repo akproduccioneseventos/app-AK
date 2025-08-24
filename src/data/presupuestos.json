@@ -1,77 +1,6 @@
 
 [
   {
-    "id": "pres_1228",
-    "clienteNombre": "Nestor",
-    "eventoTipo": "Cumpleaños",
-    "eventoFecha": "2025-10-05T03:00:00.000Z",
-    "invitadosCantidad": 80,
-    "salonFiestas": "Chacra La Escondida",
-    "itemsPresupuestados": [
-      {
-        "idServicioCatalogo": "serv_mozos_xv",
-        "nombreServicio": "Mozos",
-        "cantidad": 3,
-        "unidad": "Unidad",
-        "precioUnitario": 2800,
-        "costoTotalItem": 8400
-      },
-      {
-        "idServicioCatalogo": "serv_mozo_cocina_xv",
-        "nombreServicio": "Mozo de cocina",
-        "cantidad": 1,
-        "unidad": "Unidad",
-        "precioUnitario": 2800,
-        "costoTotalItem": 2800
-      },
-      {
-        "idServicioCatalogo": "serv_vajilla_xv",
-        "nombreServicio": "Vajilla y mantelería",
-        "cantidad": 80,
-        "unidad": "Por persona",
-        "precioUnitario": 210,
-        "costoTotalItem": 16800
-      },
-      {
-        "idServicioCatalogo": "serv_entrada_empanadas_xv",
-        "nombreServicio": "Empanadas",
-        "cantidad": 80,
-        "unidad": "Por persona",
-        "precioUnitario": 120,
-        "costoTotalItem": 9600
-      },
-      {
-        "idServicioCatalogo": "serv_plato_principal_asado_xv",
-        "nombreServicio": "Asado completo",
-        "cantidad": 80,
-        "unidad": "Por persona",
-        "precioUnitario": 400,
-        "costoTotalItem": 32000
-      },
-      {
-        "idServicioCatalogo": "serv_postre_mesa_dulce_xv",
-        "nombreServicio": "Mesa de Postres",
-        "cantidad": 80,
-        "unidad": "Por persona",
-        "precioUnitario": 120,
-        "costoTotalItem": 9600
-      },
-      {
-        "idServicioCatalogo": "serv_descuento_postres_xv",
-        "nombreServicio": "Descuento 15% en postres",
-        "cantidad": 1,
-        "unidad": "Unidad",
-        "precioUnitario": -1440,
-        "costoTotalItem": -1440
-      }
-    ],
-    "costoTotalEstimado": 77760,
-    "timestamp": "2025-08-21T18:00:00.000Z",
-    "estado": "Borrador",
-    "notas": "Presupuesto para cumpleaños de 70 años.",
-    "totalConDescuento": 77760
-  },
-  {
     "id": "pres_1763781216503_def34",
     "clienteNombre": "Luis Olivera",
     "eventoTipo": "XV Años",
@@ -263,12 +192,13 @@
     "timestamp": "2025-08-08T12:00:00.000Z",
     "estado": "Facturado",
     "notas": "INCLUYE AJUSTE 15% 2025",
-    "invoiceId": "inv_1094"
+    "invoiceId": "inv_1094",
+    "totalConDescuento": 202735
   },
   {
     "id": "pres_1763865600000_mno12",
     "clienteNombre": "Luciana Bisio",
-    "eventoTipo": "Evento General",
+    "eventoTipo": "Cumpleaños",
     "eventoFecha": "2025-08-05T03:00:00.000Z",
     "invitadosCantidad": 100,
     "salonFiestas": "A definir",
@@ -285,7 +215,8 @@
     "costoTotalEstimado": 79900,
     "timestamp": "2025-08-21T18:00:00.000Z",
     "estado": "Facturado",
-    "invoiceId": "inv_1095"
+    "invoiceId": "inv_1095",
+    "notas": "Cumpleaños 70 de Nestor"
   },
   {
     "id": "pres_1761821817417_h4b3k",
@@ -615,9 +546,10 @@
         "costoTotalItem": 2900
       }
     ],
-    "costoTotalEstimado": 192116,
+    "costoTotalEstimado": 194130,
     "timestamp": "2025-08-16T16:19:55.832Z",
     "estado": "Facturado",
-    "invoiceId": "inv_1024"
+    "invoiceId": "inv_1024",
+    "totalConDescuento": 192116
   }
 ]
