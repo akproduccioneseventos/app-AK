@@ -424,4 +424,6 @@ export interface FiestaEnPlanificacion {
   videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
+  contratoSalonFileName?: string;
+  contratoServicioFileName?: string;
 }
