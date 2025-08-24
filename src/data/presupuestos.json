@@ -10,158 +10,21 @@
     "itemsPresupuestados": [
       {
         "idServicioCatalogo": "serv_salon_fiestas",
-        "nombreServicio": "Salón de fiestas",
+        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
         "cantidad": 1,
         "precioUnitario": 181516,
-        "costoTotalItem": 154288.6,
+        "costoTotalItem": 181516,
         "categoriaServicio": "Otros servicios"
-      },
-      {
-        "idServicioCatalogo": "serv_vajilla_manteleria",
-        "nombreServicio": "Vajilla, mantelería y moviliario",
-        "cantidad": 80,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de decoración"
-      },
-      {
-        "idServicioCatalogo": "serv_sandwiches_saladitos",
-        "nombreServicio": "Entrada 23: Sándwiches y Saladitos",
-        "cantidad": 80,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_picada_fiambres",
-        "nombreServicio": "Entrada 8: Picada de fiambres",
-        "cantidad": 80,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_pollo_arrollado",
-        "nombreServicio": "Plato principal 3: Pollo arrollado c/ guarnición",
-        "cantidad": 50,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_ensaladas_buffet",
-        "nombreServicio": "Mesa de ensaladas buffet extra",
-        "cantidad": 50,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_menu_ninos",
-        "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
-        "cantidad": 30,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de catering"
-      },
-      {
-        "idServicioCatalogo": "serv_decoracion_estandar",
-        "nombreServicio": "Decoración Estándar",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de decoración"
-      },
-      {
-        "idServicioCatalogo": "serv_discoteca_intermedia",
-        "nombreServicio": "Discoteca intermedia",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de discoteca"
-      },
-      {
-        "idServicioCatalogo": "serv_fotografia_fiestas",
-        "nombreServicio": "Fotografía de fiestas",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de fotografía"
-      },
-      {
-        "idServicioCatalogo": "serv_postres_1",
-        "nombreServicio": "Postres",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de repostería"
-      },
-      {
-        "idServicioCatalogo": "serv_postres_2",
-        "nombreServicio": "Postres",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de repostería"
-      },
-      {
-        "idServicioCatalogo": "serv_postres_3",
-        "nombreServicio": "Postres",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de repostería"
-      },
-      {
-        "idServicioCatalogo": "serv_postres_4",
-        "nombreServicio": "Postres",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de repostería"
-      },
-      {
-        "idServicioCatalogo": "serv_torta_principal",
-        "nombreServicio": "Torta principal",
-        "cantidad": 80,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de repostería"
-      },
-      {
-        "idServicioCatalogo": "serv_cuadro_firmas",
-        "nombreServicio": "Cuadro de firmas",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de decoración"
-      },
-      {
-        "idServicioCatalogo": "serv_fotocabina",
-        "nombreServicio": "Fotocabina",
-        "cantidad": 1,
-        "precioUnitario": 0,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de entretenimiento"
-      },
-      {
-        "idServicioCatalogo": "serv_cafe_te",
-        "nombreServicio": "Café y te",
-        "cantidad": 80,
-        "precioUnitario": 60,
-        "costoTotalItem": 0,
-        "categoriaServicio": "Servicio de catering",
-        "esRegalo": true
       }
     ],
-    "costoTotalEstimado": 154288.6,
+    "costoTotalEstimado": 181516,
     "timestamp": "2024-07-10T12:00:00.000Z",
     "estado": "Aceptado",
     "invoiceId": "inv_1024",
     "notas": "Incluye ajuste 15% 2025. Descuentos aplicados según documento.",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
-    "totalConDescuento": 131145.31
+    "totalConDescuento": 154288.6
   },
   {
     "id": "pres_1082",

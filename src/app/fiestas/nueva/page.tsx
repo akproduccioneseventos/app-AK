@@ -120,6 +120,7 @@ export default function PlanificarFiestaHubPage() {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
 
+      // Check for specific salon contract
       const hasContratoSalon = fiesta.otrosDocumentos?.some(doc => doc.tipo === 'contrato_salon');
       if (fiesta?.configuracion.nombreLugar?.toLowerCase().includes("club uruguay") && !hasContratoSalon) {
         setShowSalonContractReminder(true);
