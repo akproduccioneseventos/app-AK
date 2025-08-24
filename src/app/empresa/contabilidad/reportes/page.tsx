@@ -9,7 +9,7 @@ import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Filter, BarChart3, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
     
-const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 
 export default function GananciasYPerdidasPage() {
   const [startDate, setStartDate] = useState<Date | undefined>(new Date(new Date().setMonth(new Date().getMonth() - 1)));

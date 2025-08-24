@@ -24,7 +24,12 @@ import type { InvoiceTemplateSettings } from '@/types/settings';
 
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
   if (isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(amount);
+  return new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
 const formatDate = (dateString?: string) => {

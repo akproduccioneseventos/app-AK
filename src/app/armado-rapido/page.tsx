@@ -14,7 +14,12 @@ import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/action
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluido } from '@/types/armado-rapido';
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: 'UYU',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
 export default function ArmadoRapidoPage() {
