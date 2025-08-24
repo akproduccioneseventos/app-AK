@@ -13,15 +13,15 @@
     "items": [
       {
         "id": "item_inv_1094_0",
-        "description": "SERVICIO DE FIESTAS INTEGRAL",
+        "description": "SERVICIO DE FIESTAS INTEGRAL (Presupuesto #def34 ajustado 15%)",
         "quantity": 1,
-        "unitPrice": 176291.3,
-        "total": 176291.3
+        "unitPrice": 202735,
+        "total": 202735
       }
     ],
-    "subtotal": 176291.3,
-    "taxRate": 15,
-    "taxAmount": 26443.7,
+    "subtotal": 202735,
+    "taxRate": 0,
+    "taxAmount": 0,
     "totalAmount": 202735,
     "status": "Sent",
     "currency": "UYU",
@@ -99,16 +99,16 @@
     "items": [
       {
         "id": "item_inv_1089_1",
-        "description": "Servicios según Presupuesto #18218",
+        "description": "Servicios según Presupuesto #h4b3k",
         "quantity": 1,
         "unitPrice": 111784.775,
         "total": 111784.775
       }
     ],
-    "subtotal": 131511.5,
+    "subtotal": 111784.775,
     "taxRate": 0,
     "taxAmount": 0,
-    "totalAmount": 131511.5,
+    "totalAmount": 111784.775,
     "status": "Paid",
     "currency": "UYU",
     "vendorName": "AK Producciones",
