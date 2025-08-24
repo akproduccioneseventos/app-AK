@@ -157,9 +157,9 @@
     "invitadosCantidad": 100,
     "salonFiestas": "Villa Espinaca",
     "itemsPresupuestados": [],
-    "costoTotalEstimado": 0,
+    "costoTotalEstimado": 60000,
     "timestamp": "2025-08-30T17:55:45.695Z",
-    "estado": "Borrador",
-    "invoiceId": null
+    "estado": "Aceptado",
+    "invoiceId": "inv_1758410145695_z6q9x"
   }
 ]
