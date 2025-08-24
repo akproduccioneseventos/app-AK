@@ -210,6 +210,243 @@
     "estado": "Facturado",
     "notas": "Presupuesto basado en el documento de 3 páginas.",
     "invoiceId": "inv_1761821817417_7q2y1"
+  },
+  {
+    "id": "pres_1762283995832_6p5u68",
+    "clienteNombre": "Silvia Cabral Y Adrian",
+    "eventoTipo": "XV años",
+    "eventoFecha": "2025-09-13T03:00:00.000Z",
+    "invitadosCantidad": 100,
+    "salonFiestas": "CHACRA LEFRAC",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "regalo_invitacion_digital",
+        "nombreServicio": "Invitación digital",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 1200,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_pantalla_proyector",
+        "nombreServicio": "Pantalla gigante y proyector",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 1500,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_video_vida_xv",
+        "nombreServicio": "Video de vida",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "servicio_mozo_cocina_xv",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 8,
+        "unidad": "Evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 19720,
+        "categoriaServicio": "Personal",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_fiestas_integral",
+        "nombreServicio": "SERVICIO DE FIESTAS INTEGRAL",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 80000,
+        "costoTotalItem": 80000,
+        "categoriaServicio": "Otros servicios",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_mesa_postres",
+        "nombreServicio": "MESA DE POSTRES",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 8900,
+        "costoTotalItem": 8900,
+        "categoriaServicio": "Servicio de repostería",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_barra_tragos",
+        "nombreServicio": "BARRA DE TRAGOS",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8900,
+        "costoTotalItem": 8900,
+        "categoriaServicio": "Servicio de bebidas",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_foto_civil",
+        "nombreServicio": "FOTOGRAFIA CIVIL",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3900,
+        "costoTotalItem": 3900,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_foto_iglesia",
+        "nombreServicio": "FOTOGRAFIA IGLESIA",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3890,
+        "costoTotalItem": 3890,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_foto_exteriores",
+        "nombreServicio": "Fotografía de exteriores",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 3500,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_foto_fiesta",
+        "nombreServicio": "Fotografía de la fiesta",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 8500,
+        "costoTotalItem": 8500,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_film_civil",
+        "nombreServicio": "Filmación CIVIL",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3900,
+        "costoTotalItem": 3900,
+        "categoriaServicio": "Servicio de filmación",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_film_iglesia",
+        "nombreServicio": "Filmación IGLESIA",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3890,
+        "costoTotalItem": 3890,
+        "categoriaServicio": "Servicio de filmación",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_film_fiesta",
+        "nombreServicio": "Filmación de la fiesta",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 7500,
+        "costoTotalItem": 7500,
+        "categoriaServicio": "Servicio de filmación",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_film_pintada",
+        "nombreServicio": "Filmación de pintada",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3000,
+        "costoTotalItem": 3000,
+        "categoriaServicio": "Servicio de filmación",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_fotocabina",
+        "nombreServicio": "FOTOCABINA",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "categoriaServicio": "Servicio de entretenimiento",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_plataforma360",
+        "nombreServicio": "Plataforma 360",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3900,
+        "costoTotalItem": 3900,
+        "categoriaServicio": "Servicio de entretenimiento",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_show_vivo",
+        "nombreServicio": "SHOW EN VIVO",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 9000,
+        "costoTotalItem": 9000,
+        "categoriaServicio": "Servicio de entretenimiento",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_deco_basica",
+        "nombreServicio": "DECORACION BASICA",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 14500,
+        "costoTotalItem": 14500,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_disco_basica",
+        "nombreServicio": "Discoteca Básica",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 5500,
+        "costoTotalItem": 5500,
+        "categoriaServicio": "Servicio de discoteca",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_cuadro_firmas",
+        "nombreServicio": "CUADRO DE FIRMAS",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false
+      },
+      {
+        "idServicioCatalogo": "serv_banner",
+        "nombreServicio": "BANNER GIGANTOGRAFIA",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 2900,
+        "costoTotalItem": 2900,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false
+      }
+    ],
+    "costoTotalEstimado": 210885,
+    "nombrePromocion": "AJUSTE 15% 2025",
+    "descuentoTipo": "porcentaje",
+    "descuentoValor": 15,
+    "timestamp": "2025-08-16T16:19:55.832Z",
+    "estado": "Borrador",
+    "totalConDescuento": 179252.25
   }
 ]
 
