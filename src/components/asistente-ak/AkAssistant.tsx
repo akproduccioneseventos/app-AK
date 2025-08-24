@@ -13,42 +13,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Message } from 'genkit';
 import { ScrollArea } from '../ui/scroll-area';
-import type { SelectableService, ServiceInfo } from '@/ai/types/assistant-types';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { Label } from '../ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 interface ChatMessage extends Message {
   id: string;
   data?: AssistantOutput;
 }
 
-const formatCurrency = (amount?: number) => {
-  if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-};
-
-export function AkAssistant({ 
-    isPage = false, 
-    assistantKey,
-    currentServices,
-    setCurrentServices
-}: { 
-    isPage?: boolean, 
-    assistantKey?: number,
-    currentServices: ServiceInfo[],
-    setCurrentServices: React.Dispatch<React.SetStateAction<ServiceInfo[]>>
-}) {
+export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean, assistantKey?: number }) {
     const [isOpen, setIsOpen] = useState(isPage);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -58,14 +29,9 @@ export function AkAssistant({
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     
-    const [isCatalogOpen, setIsCatalogOpen] = useState(false);
-    const [catalog, setCatalog] = useState<SelectableService[]>([]);
-    const [selectedCatalogServiceId, setSelectedCatalogServiceId] = useState<string>('');
-
     const startConversation = useCallback(() => {
         setIsLoading(true);
         setMessages([]);
-        setCurrentServices([]);
         assistant({ query: '' }).then(response => {
             setMessages(prev => [...prev, {
                 id: `ai-${Date.now()}`,
@@ -79,7 +45,7 @@ export function AkAssistant({
         }).finally(() => {
             setIsLoading(false);
         });
-    }, [toast, setCurrentServices]);
+    }, [toast]);
     
     useEffect(() => {
         if(isPage || assistantKey) {
@@ -92,48 +58,6 @@ export function AkAssistant({
             scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
         }
     }, [messages]);
-    
-    useEffect(() => {
-        async function fetchCatalog() {
-            try {
-                const services = await getServiciosEmpresa();
-                const selectableServices = services
-                    .filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined)
-                    .map(s => ({
-                        id: s.id,
-                        nombre: s.nombre,
-                        precioVenta: s.precioVenta,
-                        unidad: s.unidad
-                    }));
-                setCatalog(selectableServices);
-            } catch (e) {
-                toast({title: "Error", description: "No se pudo cargar el catálogo de servicios."});
-            }
-        }
-        if(isOpen) {
-            fetchCatalog();
-        }
-    }, [isOpen, toast]);
-
-    const handleAddServiceFromCatalog = () => {
-        if (!selectedCatalogServiceId) return;
-        const service = catalog.find(s => s.id === selectedCatalogServiceId);
-        if (!service) return;
-
-        const serviceToAdd: ServiceInfo = {
-            id: service.id,
-            name: service.nombre,
-            quantity: 1,
-            unitPrice: service.precioVenta || 0,
-        };
-
-        if (!currentServices.some(s => s.id === serviceToAdd.id)) {
-            setCurrentServices(prev => [...prev, serviceToAdd]);
-        }
-        
-        setIsCatalogOpen(false);
-        setSelectedCatalogServiceId('');
-    };
 
     const handleSubmit = async (e?: FormEvent<HTMLFormElement>, prompt?: string) => {
         if(e) e.preventDefault();
@@ -152,12 +76,7 @@ export function AkAssistant({
 
         try {
             const history: Message[] = messages.map(m => ({ role: m.role, content: m.content }));
-            const serviceIds = currentServices.map(s => s.id);
-            const response = await assistant({ 
-                query: userMessage, 
-                history,
-                currentServices: serviceIds.length > 0 ? currentServices : undefined
-            });
+            const response = await assistant({ query: userMessage, history });
             
             setMessages(prev => [...prev, {
                 id: `ai-${Date.now()}`,
@@ -189,28 +108,6 @@ export function AkAssistant({
 
     return (
         <div className={containerClasses}>
-             <Dialog open={isCatalogOpen} onOpenChange={setIsCatalogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Añadir Servicio al Presupuesto</DialogTitle>
-                        <DialogDescription>Selecciona un servicio del catálogo para añadirlo a la cotización actual.</DialogDescription>
-                    </DialogHeader>
-                    <div className="py-2">
-                        <Label htmlFor="service-catalog-select">Servicio</Label>
-                        <Select value={selectedCatalogServiceId} onValueChange={setSelectedCatalogServiceId}>
-                            <SelectTrigger id="service-catalog-select"><SelectValue placeholder="Seleccionar servicio..."/></SelectTrigger>
-                            <SelectContent><ScrollArea className="h-64">
-                                {catalog.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre} - {formatCurrency(s.precioVenta)}</SelectItem>)}
-                            </ScrollArea></SelectContent>
-                        </Select>
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose>
-                        <Button onClick={handleAddServiceFromCatalog} disabled={!selectedCatalogServiceId}>Añadir</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
             <AnimatePresence>
                 {isOpen && (
                     <motion.div

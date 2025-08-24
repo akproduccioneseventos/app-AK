@@ -4,19 +4,14 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-export interface DialogOption {
-  id: string;
-  type: 'text' | 'service';
-  label: string;
-  serviceId?: string; // Only if type is 'service'
-}
+// Note: The structure of DialogConfig is now simplified as the assistant's
+// logic is primarily driven by the system prompt in assistant-flow.ts.
+// This file is kept for potential future use with more complex, configurable flows.
 
 export interface DialogStep {
   id: string;
   title: string;
-  icon?: string; // Icon name from lucide-react
   pregunta: string;
-  opciones?: DialogOption[]; 
 }
 
 export interface DialogConfig {
@@ -26,45 +21,33 @@ export interface DialogConfig {
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const CONFIG_FILE_PATH = path.join(DATA_DIR, 'asistente-ak-config.json');
 
+// Default config is now much simpler.
 const defaultConfig: DialogConfig = {
   pasos: [
     {
-      id: "tipoFiesta",
-      title: "Presentacion",
-      icon: "PartyPopper",
-      pregunta: "Soy  Nicolás el asistente virtual de AK producciones, un gusto atenderte te voy a ayudar a hacer un presupuesto para una fiesta, te parece bien?",
-      opciones: [
-        { id: 'start_option', type: 'text', label: 'Comenzar ahora' }
-      ]
+      id: "saludo",
+      title: "Saludo",
+      pregunta: "¡Hola! Soy Asistente AK. ¿Te gustaría que te ayude a crear un presupuesto para tu evento?",
     },
     {
       id: "nombreCliente",
       title: "Nombre del Cliente",
-      icon: "User",
-      pregunta: "Me dirías tu nombre para hacer el presupuesto?"
+      pregunta: "¡Genial! Para empezar, ¿a nombre de quién sería el presupuesto?"
+    },
+    {
+      id: "tipoEvento",
+      title: "Tipo de Evento",
+      pregunta: "Perfecto. ¿Qué tipo de evento estás planeando?"
     },
     {
       id: "cantidadInvitados",
       title: "Cantidad de Invitados",
-      icon: "Users",
-      pregunta: "¡Genial! ¿Y para cuántas personas sería el evento aproximadamente?"
-    },
-    {
-      id: "seleccionServicios",
-      title: "Selección de Servicios",
-      icon: "Sparkles",
-      pregunta: "Perfecto, {{{nombreCliente}}}. Ahora, ¿qué servicios te gustaría incluir en tu presupuesto? Puedes seleccionar varios.",
-      opciones: []
+      pregunta: "Entendido. ¿Para cuántas personas sería el evento, aproximadamente?"
     },
     {
       id: "fechaEvento",
       title: "Fecha del Evento",
-      icon: "CalendarDays",
-      pregunta: "Por último, {{{nombreCliente}}}, ¿tienes alguna fecha en mente para tu fiesta? Si no, no te preocupes, podemos dejarla a confirmar.",
-      opciones: [
-        { id: 'date_select', type: 'text', label: 'Elegir fecha' },
-        { id: 'date_unknown', type: 'text', label: 'Aún no sé la fecha' }
-      ]
+      pregunta: "¡Ya casi terminamos! ¿Tienes alguna fecha en mente? Si no, no hay problema."
     }
   ]
 };
@@ -78,17 +61,12 @@ export async function getAssistantConfig(): Promise<DialogConfig> {
   await ensureConfigFileExists();
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
+    // Basic validation to ensure it returns a valid structure.
     const savedConfig = fileContent.trim() === '' ? {} : JSON.parse(fileContent);
-    const mergedConfig = { ...defaultConfig, ...savedConfig };
-    if (!Array.isArray(mergedConfig.pasos)) {
-      mergedConfig.pasos = defaultConfig.pasos;
+    if (!savedConfig.pasos || !Array.isArray(savedConfig.pasos)) {
+        return defaultConfig;
     }
-    mergedConfig.pasos = mergedConfig.pasos.map((step, index) => ({
-      ...defaultConfig.pasos.find(ds => ds.id === step.id) || {},
-      ...step,
-      id: step.id || `step_${index}_${Date.now()}`
-    }));
-    return mergedConfig;
+    return savedConfig;
   } catch (error) {
     console.error("Error reading asistente-ak-config.json, returning default.", error);
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8');
@@ -101,8 +79,8 @@ export async function saveAssistantConfig(
 ): Promise<{ success: boolean; error?: string }> {
   await ensureConfigFileExists();
   try {
-    if (!config || !Array.isArray(config.pasos) || config.pasos.length === 0) {
-        throw new Error("La configuración de los pasos no puede estar vacía.");
+    if (!config || !Array.isArray(config.pasos)) {
+        throw new Error("La configuración de los pasos no es válida.");
     }
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(config, null, 2), 'utf-8');
     return { success: true };
