@@ -1,3 +1,4 @@
+
 'use server';
 
 import { getCustomers } from './customers';
@@ -21,9 +22,15 @@ export async function getDashboardKpiData() {
       getHistorialFiestas(),
     ]);
 
-    const esFiestaFutura =
-      fiestaActualData?.configuracion?.fechaEvento &&
-      new Date(fiestaActualData.configuracion.fechaEvento) >= new Date();
+    // Corrected logic for future parties:
+    // Count all customers with a future party date.
+    const now = new Date();
+    // Set time to 00:00:00 to include today as a future date
+    now.setHours(0, 0, 0, 0); 
+    
+    const fiestasFuturasCount = customersData.filter(customer => 
+      customer.partyDate && new Date(customer.partyDate) >= now
+    ).length;
 
     const clientesActivos = customersData.filter(
       (c) => c.estadoCliente === 'Actual'
@@ -44,7 +51,7 @@ export async function getDashboardKpiData() {
       success: true,
       data: {
         fiestasPasadas: historialFiestasData.length,
-        fiestasFuturas: esFiestaFutura ? 1 : 0,
+        fiestasFuturas: fiestasFuturasCount,
         clientesActivos,
         prospectosActivos,
         totalPendiente,
