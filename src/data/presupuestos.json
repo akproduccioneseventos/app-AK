@@ -93,13 +93,78 @@
         "costoTotalItem": 0,
         "categoriaServicio": "Regalo exclusivo",
         "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "servicio_discoteca_basica",
+        "nombreServicio": "Discoteca Básica",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 5500,
+        "costoTotalItem": 4675,
+        "categoriaServicio": "Servicio de discoteca"
+      },
+      {
+        "idServicioCatalogo": "servicio_cheff",
+        "nombreServicio": "Cheff",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 2975,
+        "categoriaServicio": "Personal"
+      },
+      {
+        "idServicioCatalogo": "servicio_metre",
+        "nombreServicio": "Metre",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 2975,
+        "categoriaServicio": "Personal"
+      },
+      {
+        "idServicioCatalogo": "regalo_album_digital",
+        "nombreServicio": "Álbum digital",
+        "cantidad": 1,
+        "unidad": "Regalo",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "regalo_video_vida",
+        "nombreServicio": "Video de vida",
+        "cantidad": 1,
+        "unidad": "Regalo",
+        "precioUnitario": 2500,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "servicio_fotografia_civil",
+        "nombreServicio": "Fotografía del civil",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 3500,
+        "costoTotalItem": 2975,
+        "categoriaServicio": "Servicio de fotografía"
+      },
+      {
+        "idServicioCatalogo": "servicio_filmacion_fiesta",
+        "nombreServicio": "Filmación de la fiesta",
+        "cantidad": 1,
+        "unidad": "Evento",
+        "precioUnitario": 9000,
+        "costoTotalItem": 7650,
+        "categoriaServicio": "Servicio de filmación"
       }
     ],
-    "costoTotalEstimado": 45110,
+    "costoTotalEstimado": 57405,
     "nombrePromocion": "Descuento General",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
-    "totalConDescuento": 38343.5,
+    "totalConDescuento": 48794.25,
     "vigenciaPromocion": "10/07/2025",
     "timestamp": "2025-06-10T03:00:00.000Z",
     "estado": "Borrador",
