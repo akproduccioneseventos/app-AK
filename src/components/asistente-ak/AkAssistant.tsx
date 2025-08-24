@@ -32,7 +32,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
     const startConversation = useCallback(() => {
         setIsLoading(true);
         setMessages([]);
-        assistant({ query: '' }).then(response => {
+        assistant({ query: 'Hola' }).then(response => {
             setMessages(prev => [...prev, {
                 id: `ai-${Date.now()}`,
                 role: 'model',

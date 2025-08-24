@@ -11,19 +11,18 @@ import { z } from 'genkit';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import type { Message } from 'genkit';
-import { getAssistantConfig, type DialogConfig } from '@/app/actions/assistant-config';
 
 
 // Tool: Create a new quote
 const createQuoteTool = ai.defineTool(
   {
     name: 'createQuote',
-    description: 'Creates a new budget/quote for a potential client once all necessary information has been gathered (event type, guest count, client name, and optionally the date).',
+    description: 'Creates a new budget/quote for a potential client once all necessary information has been gathered (event type, guest count, and client name). The event date is optional and should only be passed if the user has provided it explicitly.',
     inputSchema: z.object({
       clienteNombre: z.string().describe("The name of the client or company."),
       eventoTipo: z.string().describe("The type of event (e.g., 'Boda', 'Cumpleaños de 15', 'Corporativo')."),
       invitadosCantidad: z.number().describe("The estimated number of guests."),
-      eventoFecha: z.string().optional().describe("The estimated date of the event in YYYY-MM-DD format. Optional."),
+      eventoFecha: z.string().optional().describe("The estimated date of the event in YYYY-MM-DD format. This is optional."),
     }),
     outputSchema: z.object({
       success: z.boolean(),
@@ -36,25 +35,29 @@ const createQuoteTool = ai.defineTool(
     try {
         if (input.eventoFecha) {
             const occupiedDates = await getOcupiedDates();
+            // Ensure date is in YYYY-MM-DD format for comparison
             const requestedDate = new Date(input.eventoFecha).toISOString().split('T')[0];
             if (occupiedDates.includes(requestedDate)) {
                 return { 
                     success: false, 
-                    message: `La fecha ${new Date(input.eventoFecha).toLocaleDateString('es-ES')} no está disponible. Por favor, sugiere al cliente otra fecha.`,
+                    message: `La fecha ${new Date(input.eventoFecha).toLocaleDateString('es-ES', {timeZone: 'UTC'})} no está disponible. Por favor, sugiere al cliente otra fecha.`,
                     error: 'Date not available' 
                 };
             }
         }
+        
         const result = await savePresupuesto({
             clienteNombre: input.clienteNombre,
             eventoTipo: input.eventoTipo,
             invitadosCantidad: input.invitadosCantidad,
+            // If no date, it will be handled by savePresupuesto.
             eventoFecha: input.eventoFecha || new Date().toISOString(),
             itemsPresupuestados: [],
             costoTotalEstimado: 0, 
             salonFiestas: 'A definir', 
             timestamp: new Date().toISOString(),
         });
+        
         if (result.success && result.id) {
             return { 
                 success: true, 
@@ -62,7 +65,7 @@ const createQuoteTool = ai.defineTool(
                 message: `¡Perfecto! He creado el presupuesto #${result.id.substring(0,6)} para ${input.clienteNombre}. ${input.eventoFecha ? '' : 'La fecha queda a confirmar.'} Un asesor se pondrá en contacto.`
             };
         }
-        return { success: false, message: "Hubo un problema al guardar el presupuesto.", error: result.error || 'Unknown error saving budget.' };
+        return { success: false, message: result.error || "Hubo un problema al guardar el presupuesto.", error: result.error || 'Unknown error saving budget.' };
     } catch (e: any) {
         return { success: false, message: "Hubo una excepción al intentar guardar el presupuesto.", error: e.message };
     }
@@ -71,26 +74,28 @@ const createQuoteTool = ai.defineTool(
 
 
 export async function assistant(input: AssistantInput): Promise<AssistantOutput> {
-  const dialogConfig: DialogConfig = await getAssistantConfig();
-  
-  const systemPrompt = `Eres "Asistente AK", un asesor experto y amigable para AK Producciones. Tu objetivo es guiar al usuario paso a paso para crear un presupuesto inicial para su evento, siguiendo un flujo de diálogo dinámico definido.
+  const systemPrompt = `Eres "Asistente AK", un asesor experto y amigable para AK Producciones. Tu objetivo es guiar al usuario paso a paso para crear un presupuesto inicial para su evento.
 
-  **Flujo de Diálogo a Seguir:**
-  Tu conversación DEBE seguir esta secuencia de pasos. Analiza el historial para determinar en qué paso estás y qué preguntar a continuación.
-  ${dialogConfig.pasos.map((paso, index) => `${index + 1}. **${paso.title} (ID: ${paso.id})**: Pregunta: "${paso.pregunta}"`).join('\n  ')}
+  **Tu Flujo de Conversación:**
+  1.  **Saludo Inicial:** Si el historial de chat está vacío o el usuario dice "Hola", "Comenzar", etc., preséntate amablemente y haz la PRIMERA pregunta para iniciar la cotización: "¿A nombre de quién sería el presupuesto?".
+  2.  **Recopilar Información Clave:** Haz UNA PREGUNTA A LA VEZ para obtener la siguiente información, en este orden estricto:
+      a. Nombre del cliente.
+      b. Tipo de evento (Boda, XV, Corporativo, etc.).
+      c. Cantidad de invitados.
+      d. Fecha estimada del evento (deja claro que es opcional).
+  3.  **Confirmación y Creación:** Una vez que tengas al menos el nombre, tipo de evento y cantidad de invitados, confirma la información con el usuario. Si está de acuerdo, DEBES usar la herramienta 'createQuote'.
+  4.  **Respuesta Final:** Después de llamar a la herramienta, basa tu respuesta final únicamente en el campo "message" del resultado. No inventes información adicional.
+  5.  **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.
 
   **Reglas de Interacción Estrictas:**
-  1.  **Inicio:** Si el historial está vacío o el usuario saluda, responde con un saludo amigable y pregunta si desea iniciar la cotización. Tu respuesta DEBE terminar en una nueva línea con el formato: "Opciones: [Sí, arranquemos, No por ahora]".
-  2.  **Guía Estricta:** Una vez que el usuario confirma, sigue la secuencia del flujo de diálogo. NO te saltes pasos ni combines preguntas. Haz una pregunta a la vez.
-  3.  **Uso de Configuración:** Utiliza el texto EXACTO de la pregunta configurada para el paso actual.
-  4.  **Opciones Clicables:** Si el paso actual tiene un array 'opciones' configurado, DEBES incluirlas en tu respuesta, en una nueva línea y con el formato exacto: "Opciones: [Opción 1, Opción 2, ...]".
-  5.  **Recopilación de Información:** Antes de preguntar, revisa el historial para ver qué datos ya tienes. Si ya tienes la información para un paso, salta a la siguiente pregunta.
-  6.  **Uso de la Herramienta:** Una vez que hayas recopilado TODA la información requerida por los pasos del flujo, y solo entonces, DEBES usar la herramienta 'createQuote'.
-  7.  **Respuesta Final:** Después de llamar a la herramienta, basa tu respuesta final únicamente en el campo "message" del resultado de la herramienta. No inventes información adicional.
-  8.  **Manejo de Desvíos:** Si el usuario pregunta algo fuera del flujo de cotización, responde amablemente que tu única función es ayudar a crear presupuestos y luego repite la última pregunta que hiciste para reanudar el flujo.`;
+  - **Una pregunta a la vez:** No combines preguntas.
+  - **Sé conversacional:** Mantén un tono amigable y servicial, no robótico.
+  - **Usa la herramienta:** Solo usa 'createQuote' cuando tengas la información mínima necesaria (nombre, tipo de evento, cantidad de invitados).`;
   
   const history: Message[] = input.history || [];
-  history.push({ role: 'user', content: [{ text: input.query }] });
+  if (input.query) {
+    history.push({ role: 'user', content: [{ text: input.query }] });
+  }
 
   const llmResponse = await ai.generate({
     model: 'googleai/gemini-1.5-flash',
@@ -108,8 +113,9 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   if (toolCall) {
     const toolResult = await toolCall.run() as any;
     
+    // Generate a final, friendly response based on the tool's output message.
     const finalResponse = await ai.generate({
-        prompt: `El usuario pidió crear un presupuesto. Usaste una herramienta y este fue el resultado: ${JSON.stringify(toolResult)}. Ahora, formula una respuesta final y amigable para el usuario basada en el campo "message" de este resultado.`,
+        prompt: `Basado en el resultado de la creación del presupuesto, que fue: ${JSON.stringify(toolResult)}, formula una respuesta final y amigable para el usuario. Usa únicamente el campo "message" como base para tu respuesta.`,
         model: 'googleai/gemini-1.5-flash',
         output: {
             schema: AssistantOutputSchema,
@@ -118,7 +124,7 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
 
     const output = finalResponse.output;
     if(!output) {
-      throw new Error("El asistente de IA no pudo generar una respuesta final después de usar una herramienta.");
+      throw new Error("El asistente de IA no pudo generar una respuesta final después de usar la herramienta.");
     }
     
     if (toolResult.success && toolResult.presupuestoId) {
