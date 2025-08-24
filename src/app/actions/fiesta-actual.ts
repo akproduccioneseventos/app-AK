@@ -374,6 +374,8 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     videoVida: validatedVideoVida,
     programa: validatedPrograma,
     fotografiaYFilmacion: validatedFotografiaYFilmacion,
+    contratoSalonFileName: data.contratoSalonFileName,
+    contratoServicioFileName: data.contratoServicioFileName,
   };
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
@@ -1172,5 +1174,49 @@ export async function claimGift(
   }
 }
 
+// Function to handle contract uploads
+const CONTRACTS_DIR = path.join(process.cwd(), 'src', 'data', 'contracts', 'fiestas');
+async function ensureContractsDirExists() {
+  try { await fs.access(CONTRACTS_DIR); } catch { await fs.mkdir(CONTRACTS_DIR, { recursive: true }); }
+}
+
+export async function uploadContratoFiesta(
+  formData: FormData
+): Promise<{ success: boolean; filePath?: string; error?: string }> {
+  const file = formData.get('contractFile') as File;
+  const contractType = formData.get('contractType') as 'salon' | 'servicio';
+  
+  if (!file || !contractType) {
+    return { success: false, error: "Faltan datos del archivo o tipo de contrato." };
+  }
+  
+  const fiestaActual = await getFiestaActual();
+  const eventDir = path.join(CONTRACTS_DIR, fiestaActual.id);
+  
+  try {
+    await ensureContractsDirExists();
+    await fs.mkdir(eventDir, { recursive: true });
+
+    const fileExtension = path.extname(file.name);
+    const newFilename = `${contractType}${fileExtension}`;
+    const filePath = path.join(eventDir, newFilename);
+
+    const bytes = await file.arrayBuffer();
+    await fs.writeFile(filePath, Buffer.from(bytes));
+    
+    // Update the fiesta data with the new filename
+    if (contractType === 'salon') {
+      fiestaActual.contratoSalonFileName = `${fiestaActual.id}/${newFilename}`;
+    } else {
+      fiestaActual.contratoServicioFileName = `${fiestaActual.id}/${newFilename}`;
+    }
+    await writeFiestaActualFile(fiestaActual);
+
+    return { success: true, filePath: `/api/contracts/fiestas/${fiestaActual.id}/${newFilename}` };
+  } catch (error: any) {
+    console.error("Error uploading contract file:", error);
+    return { success: false, error: error.message || "Error desconocido al subir el archivo." };
+  }
+}
 
 

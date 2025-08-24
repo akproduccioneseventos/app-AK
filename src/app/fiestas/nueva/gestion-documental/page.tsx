@@ -22,7 +22,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import type { BudgetDisplaySettings } from '@/types/settings';
 
-import { getFiestaActual, updatePresupuestoAsignadoFiestaActual, uploadContratoFiesta } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updatePresupuestoAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
@@ -101,32 +101,7 @@ export default function GestionDocumentalPage() {
     loadData();
   }, [loadData]);
 
-  const handleFileUpload = async (file: File | null, contractType: 'salon' | 'servicio') => {
-      if (!file) {
-          toast({title: "No hay archivo", description: "Por favor, selecciona un archivo PDF.", variant: "destructive"});
-          return;
-      }
-      setIsSaving(true);
-      const formData = new FormData();
-      formData.append('contractFile', file);
-      formData.append('contractType', contractType);
-      
-      try {
-          const result = await uploadContratoFiesta(formData);
-          if (result.success) {
-              toast({title: "Contrato Subido", description: `El contrato de ${contractType === 'salon' ? 'salón' : 'servicio'} se ha guardado.`});
-              await loadData();
-              if (contractType === 'salon') setContratoSalonFile(null);
-              else setContratoServicioFile(null);
-          } else {
-              throw new Error(result.error || "No se pudo subir el archivo.");
-          }
-      } catch (err: any) {
-          toast({title: "Error al Subir", description: err.message, variant: "destructive"});
-      } finally {
-          setIsSaving(false);
-      }
-  };
+
 
 
   const totalPagado = facturas.reduce((sum, inv) => {
@@ -216,14 +191,6 @@ export default function GestionDocumentalPage() {
                 <Button variant="outline" className="w-full"><FileText className="w-4 h-4 mr-2"/>Ver Contrato de Salón</Button>
               </a>
             ) : <p className="text-sm text-muted-foreground italic">No hay un contrato de salón cargado.</p>}
-            <div className="space-y-2 pt-2 border-t">
-              <Label htmlFor="salon-contract-upload" className="text-xs text-muted-foreground">Subir o Reemplazar (PDF):</Label>
-              <Input id="salon-contract-upload" type="file" accept="application/pdf" onChange={e => setContratoSalonFile(e.target.files?.[0] || null)} disabled={isSaving}/>
-              <Button type="button" onClick={() => handleFileUpload(contratoSalonFile, 'salon')} disabled={!contratoSalonFile || isSaving} className="w-full mt-1" size="sm">
-                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UploadCloud className="w-4 h-4 mr-2"/>}
-                  {isSaving ? "Subiendo..." : "Subir Contrato Salón"}
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
@@ -237,14 +204,6 @@ export default function GestionDocumentalPage() {
                 <Button variant="outline" className="w-full"><FileText className="w-4 h-4 mr-2"/>Ver Contrato de Servicio</Button>
               </a>
             ) : <p className="text-sm text-muted-foreground italic">No hay un contrato de servicio cargado.</p>}
-             <div className="space-y-2 pt-2 border-t">
-              <Label htmlFor="service-contract-upload" className="text-xs text-muted-foreground">Subir o Reemplazar (PDF):</Label>
-              <Input id="service-contract-upload" type="file" accept="application/pdf" onChange={e => setContratoServicioFile(e.target.files?.[0] || null)} disabled={isSaving} />
-              <Button type="button" onClick={() => handleFileUpload(contratoServicioFile, 'servicio')} disabled={!contratoServicioFile || isSaving} className="w-full mt-1" size="sm">
-                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UploadCloud className="w-4 h-4 mr-2"/>}
-                  {isSaving ? "Subiendo..." : "Subir Contrato Servicio"}
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
