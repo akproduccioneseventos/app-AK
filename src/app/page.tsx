@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -144,6 +143,11 @@ export default function DashboardPage() {
             </div>
              <div className="flex gap-2">
               <Link href={armadoRapidoLink} passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
+               <Link href="/settings/armado-rapido" passHref>
+                  <Button variant="outline" size="icon" title="Configurar Armado Rápido">
+                    <Settings className="w-4 h-4"/>
+                  </Button>
+                </Link>
               <ShareLinkDialog
                   link={armadoRapidoLink}
                   title="Compartir Armado Rápido"
