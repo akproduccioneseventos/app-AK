@@ -174,7 +174,6 @@ export default function DashboardPage() {
               </ShareLinkDialog>
             </div>
           </Card>
-
         </CardContent>
       </Card>
       

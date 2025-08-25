@@ -2,7 +2,7 @@
 'use client';
 
 import type { PresupuestoFormData } from '@/types/presupuesto';
-import type { ServicioEmpresa, CategoriaServicio, UnidadServicio } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -19,27 +19,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Link from 'next/link';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { saveServicioEmpresa } from '@/app/actions/servicios-empresa';
-import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
   serviciosCatalogo: ServicioEmpresa[];
-  setServiciosCatalogo: Dispatch<SetStateAction<ServicioEmpresa[]>>; // To update the catalog state
 }
 
 const formatCurrency = (amount?: number) => {
@@ -47,68 +31,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-// New Service Modal Component
-const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: ServicioEmpresa) => void }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [newServiceData, setNewServiceData] = useState<Partial<Omit<ServicioEmpresa, 'id'>>>({
-        tipoItem: 'Servicio',
-        nombre: '',
-        categoria: 'Otros servicios',
-        unidad: 'Por evento',
-        precioVenta: 0,
-        notas: '',
-    });
-    const { toast } = useToast();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newServiceData.nombre || !newServiceData.categoria || !newServiceData.unidad || (newServiceData.precioVenta ?? -1) < 0) {
-            toast({ title: "Datos incompletos", description: "Nombre, categoría, unidad y precio son requeridos.", variant: "destructive" });
-            return;
-        }
-        setIsSaving(true);
-        try {
-            const result = await saveServicioEmpresa(newServiceData as Omit<ServicioEmpresa, 'id'>);
-            if (result.success && result.servicio) {
-                toast({ title: "Servicio Creado", description: `"${result.servicio.nombre}" ha sido añadido al catálogo.` });
-                onServiceCreated(result.servicio);
-                setIsOpen(false);
-                setNewServiceData({ tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '' });
-            } else {
-                throw new Error(result.error || "No se pudo crear el servicio.");
-            }
-        } catch (error: any) {
-            toast({ title: "Error", description: error.message, variant: "destructive" });
-        } finally {
-            setIsSaving(false);
-        }
-    };
-    
-    return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-                <Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Servicio</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader><DialogTitle>Crear Nuevo Servicio en Catálogo</DialogTitle><DialogDescription>Este servicio se guardará y se añadirá a este presupuesto.</DialogDescription></DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-3 py-2">
-                    <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
-                    <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
-                        <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Venta *</Label><Input id="new-serv-price" type="number" value={newServiceData.precioVenta || ''} onChange={e => setNewServiceData(p => ({...p, precioVenta: parseFloat(e.target.value) || 0}))} required/></div>
-                    </div>
-                     <div className="space-y-1"><Label htmlFor="new-serv-notes">Descripción (Opcional)</Label><Textarea id="new-serv-notes" value={newServiceData.notas} onChange={e => setNewServiceData(p => ({...p, notas: e.target.value}))} rows={2}/></div>
-                    <DialogFooter><DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose><Button type="submit" disabled={isSaving}>{isSaving ? 'Guardando...' : 'Crear y Añadir'}</Button></DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
-};
-
-
-export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, setServiciosCatalogo }: Paso2ServiciosProps) {
+export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo }: Paso2ServiciosProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Set<CategoriaServicio>>(new Set());
 
@@ -125,20 +48,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           nombreServicio: servicio.nombre,
           unidad: servicio.unidad,
           categoriaServicio: servicio.categoria,
-          esRegalo: false,
+          esRegalo: false, // Default value for new item
         });
       }
       return { ...prev, serviciosSeleccionados: newSelected };
     });
   };
-
-  const handleServiceCreated = (newService: ServicioEmpresa) => {
-    // Add to general catalog in the UI
-    setServiciosCatalogo(prev => [newService, ...prev]);
-    // Add to the selected services for this budget
-    handleServicioToggle(newService);
-  };
-
 
   const handleServicioDetailChange = (
     servicioId: string,
@@ -154,6 +69,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             newSelected.set(servicioId, {
               ...currentServicio,
               esRegalo,
+              // Si es regalo, el precio del presupuesto es 0, si no, se restaura al original.
               precioUnitarioPresupuesto: esRegalo ? 0 : currentServicio.precioUnitarioOriginal,
             });
         } else {
@@ -166,7 +82,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             newSelected.set(servicioId, {
               ...currentServicio,
               [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-               esRegalo: false, 
+               esRegalo: false, // Desmarcar como regalo si se edita el precio manualmente
             });
         }
       }
@@ -233,27 +149,46 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       <div className="text-center py-10">
         <PackageSearch className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
         <p className="text-muted-foreground text-lg">No hay servicios definidos en el catálogo.</p>
-        <div className="mt-4">
-            <NewServiceModal onServiceCreated={handleServiceCreated} />
-        </div>
+        <p className="text-sm text-muted-foreground">
+          Ve a <Link href="/empresa/todos-los-servicios" className="underline text-primary">Inventario General</Link> para añadir servicios.
+        </p>
       </div>
     );
   }
   
   return (
     <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-            <div className="flex-grow space-y-2">
-                <Label htmlFor="search-servicios" className="text-base">Buscar Servicio</Label>
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input id="search-servicios" type="text" placeholder="Nombre, categoría o subcategoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base p-3"/>
-                </div>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-grow space-y-2">
+            <Label htmlFor="search-servicios" className="text-base">Buscar Servicio</Label>
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="search-servicios" type="text" placeholder="Nombre, categoría o subcategoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base p-3"/>
             </div>
-             <NewServiceModal onServiceCreated={handleServiceCreated} />
         </div>
-        <Separator/>
-        <p className="text-sm text-muted-foreground">Selecciona servicios del catálogo. Puedes ajustar cantidad y precio para este presupuesto.</p>
+        <div className="space-y-2 sm:w-1/3">
+            <Label className="text-base block mb-1.5">Filtrar por Categoría</Label>
+            <Accordion type="single" collapsible className="w-full border rounded-md">
+              <AccordionItem value="filter-category" className="border-b-0">
+                <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline h-auto [&[data-state=open]>svg]:text-primary">
+                  {selectedCategories.size === 0 ? "Todas las Categorías" : `${selectedCategories.size} Seleccionada(s)`}
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                  <ScrollArea className="h-auto max-h-48 p-2 border-t">
+                  {uniqueCategoriesFromCatalog.length > 0 ? uniqueCategoriesFromCatalog.map(cat => (
+                    <div key={cat} className="flex items-center space-x-2 py-1.5 px-1 hover:bg-muted/50 rounded-sm">
+                      <Checkbox id={`cat-filter-${cat}`} checked={selectedCategories.has(cat)} onCheckedChange={() => handleCategoryFilterToggle(cat)} />
+                      <Label htmlFor={`cat-filter-${cat}`} className="text-sm font-normal cursor-pointer flex-grow">{cat}</Label>
+                    </div>
+                  )) : <p className="text-xs text-muted-foreground p-2 text-center">No hay categorías con servicios costeables.</p>}
+                  </ScrollArea>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+        </div>
+      </div>
+      <Separator/>
+      <p className="text-sm text-muted-foreground">Selecciona servicios del catálogo. Puedes ajustar cantidad y precio para este presupuesto.</p>
       
       <ScrollArea className="h-[450px] pr-1">
         {categoriasOrdenadas.length > 0 ? (
@@ -291,7 +226,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                                     <div className="grid grid-cols-2 gap-3 items-center">
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`qty-${servicio.id}`} className="text-xs">Cant.</Label>
-                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm" required />
+                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm"/>
                                       </div>
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>

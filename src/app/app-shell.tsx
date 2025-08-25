@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
+import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -290,7 +291,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
-      {/* {pathname !== '/portal' && <AkAssistant />} */}
+      
     </div>
   );
 }

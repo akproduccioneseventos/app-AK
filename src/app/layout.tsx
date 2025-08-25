@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AppShell } from '@/app/app-shell';
 import { Toaster } from "@/components/ui/toaster";
-import { Poppins } from 'next/font/google';
+import { Poppins, Belleza } from 'next/font/google';
 import { AuthGuard } from '@/components/auth-guard';
 
 const poppins = Poppins({
@@ -11,6 +11,14 @@ const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-poppins',
 });
+
+const belleza = Belleza({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400'],
+  variable: '--font-belleza',
+});
+
 
 export const metadata: Metadata = {
   title: 'AK Producciones',
@@ -23,10 +31,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${poppins.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${poppins.variable} ${belleza.variable}`}>
       <head>
       </head>
-      <body className={`${poppins.className} font-body antialiased`}>
+      <body className={`font-body antialiased`}>
         <AuthGuard>
           <AppShell>{children}</AppShell>
         </AuthGuard>

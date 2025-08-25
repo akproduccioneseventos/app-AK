@@ -85,10 +85,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Poppins', sans-serif;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
   }
 }
 
@@ -108,7 +104,6 @@
     background-color: white !important; 
     color: black !important; 
     font-size: 10pt !important; 
-    font-family: 'Poppins', sans-serif !important;
   }
   .print\:hidden { display: none !important; }
   .print\:block { display: block !important; }
