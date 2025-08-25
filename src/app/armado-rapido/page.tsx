@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', {
@@ -55,15 +56,21 @@ export default function ArmadoRapidoPage() {
     }, [loadData]);
     
     const menuActual = useMemo((): MenuArmadoRapido | undefined => {
-      return config?.menus.find(m => m.id === menuSeleccionadoId);
+      if (!config) return undefined;
+      return config.menus.find(m => m.id === menuSeleccionadoId);
     }, [config, menuSeleccionadoId]);
     
     const paqueteActual = useMemo((): PaqueteArmadoRapido | undefined => {
-      return config?.paquetes.find(p => p.id === paqueteSeleccionadoId);
+      if (!config) return undefined;
+      return config.paquetes.find(p => p.id === paqueteSeleccionadoId);
     }, [config, paqueteSeleccionadoId]);
 
+    const costoMenuPorPersona = useMemo(() => {
+        if (!menuActual) return 0;
+        return menuActual.serviciosIncluidos.reduce((sum, s) => sum + (s.precioFijo || 0), 0);
+    }, [menuActual]);
+
     const calculos = useMemo(() => {
-      const costoMenuPorPersona = menuActual?.serviciosIncluidos.reduce((sum, s) => sum + (s.precioFijo || 0), 0) || 0;
       const costoTotalMenu = costoMenuPorPersona * cantidadInvitados;
       const costoTotalPaquete = paqueteActual?.serviciosIncluidos.reduce((sum, s) => sum + (s.precioFijo || 0), 0) || 0;
       const costoTotal = costoTotalMenu + costoTotalPaquete;
@@ -71,15 +78,18 @@ export default function ArmadoRapidoPage() {
       const costoConDescuento = costoTotal - montoDescuento;
 
       return { costoTotalMenu, costoTotalPaquete, costoTotal, montoDescuento, costoConDescuento };
-    }, [menuActual, paqueteActual, cantidadInvitados, config?.descuentoGeneral]);
+    }, [menuActual, paqueteActual, cantidadInvitados, config?.descuentoGeneral, costoMenuPorPersona]);
 
     const handleGenerarPresupuesto = async () => {
-        if (!menuActual || !paqueteActual) return;
+        if (!paqueteActual) return;
         setIsGeneratingLead(true);
         toast({ title: "Generando tu presupuesto...", description: "Espera un momento." });
+        
+        const nombreMenuSeleccionado = menuActual ? menuActual.nombre : "Sin menú de catering";
+
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual.nombre,
-            nombreMenu: menuActual.nombre,
+            nombreMenu: nombreMenuSeleccionado,
             tipoEvento: 'Evento desde Armado Rápido',
             cantidadInvitados: cantidadInvitados,
             costoEstimado: calculos.costoConDescuento,
@@ -111,26 +121,8 @@ export default function ArmadoRapidoPage() {
             case 2:
                  return (
                     <motion.div key="paso2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Elige tu Menú</CardTitle><CardDescription>Selecciona una opción gastronómica.</CardDescription></CardHeader>
+                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Elige tu Paquete de Servicios</CardTitle><CardDescription>Selecciona un combo de servicios básicos.</CardDescription></CardHeader>
                        <CardContent className="space-y-4">
-                            {config?.menus.map(menu => (
-                                <Card key={menu.id} onClick={() => setMenuSeleccionadoId(menu.id)} className={`cursor-pointer transition-all ${menuSeleccionadoId === menu.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
-                                    <CardHeader className="flex-row items-center gap-4 space-y-0">
-                                        <ChefHat className="w-8 h-8 text-primary"/>
-                                        <div><CardTitle>{menu.nombre}</CardTitle><CardDescription>{menu.descripcion}</CardDescription></div>
-                                        {menuSeleccionadoId === menu.id && <Check className="w-6 h-6 text-primary ml-auto"/>}
-                                    </CardHeader>
-                                </Card>
-                            ))}
-                       </CardContent>
-                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(1)}>Anterior</Button><Button onClick={() => setPaso(3)} disabled={!menuSeleccionadoId}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
-                    </motion.div>
-                );
-            case 3:
-                return (
-                    <motion.div key="paso3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Elige tu Combo de Servicios</CardTitle><CardDescription>Selecciona un paquete de servicios adicionales.</CardDescription></CardHeader>
-                        <CardContent className="space-y-4">
                             {config?.paquetes.map(pkg => (
                                 <Card key={pkg.id} onClick={() => setPaqueteSeleccionadoId(pkg.id)} className={`cursor-pointer transition-all ${paqueteSeleccionadoId === pkg.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
                                     <CardHeader className="flex-row items-center gap-4 space-y-0">
@@ -141,7 +133,28 @@ export default function ArmadoRapidoPage() {
                                 </Card>
                             ))}
                        </CardContent>
-                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={handleGenerarPresupuesto} disabled={!paqueteSeleccionadoId || isGeneratingLead}>{isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null} Finalizar y Cotizar</Button></CardFooter>
+                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(1)}>Anterior</Button><Button onClick={() => setPaso(3)} disabled={!paqueteSeleccionadoId}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
+                    </motion.div>
+                );
+            case 3:
+                return (
+                    <motion.div key="paso3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Elige tu Menú</CardTitle><CardDescription>Selecciona una opción gastronómica.</CardDescription></CardHeader>
+                        <CardContent className="space-y-4">
+                            {config?.menus.map(menu => (
+                                <Card key={menu.id} onClick={() => setMenuSeleccionadoId(menu.id)} className={`cursor-pointer transition-all ${menuSeleccionadoId === menu.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
+                                    <CardHeader className="flex-row items-center gap-4 space-y-0">
+                                        <ChefHat className="w-8 h-8 text-primary"/>
+                                        <div>
+                                            <CardTitle>{menu.nombre}</CardTitle>
+                                            <CardDescription>{(menu.serviciosIncluidos || []).map(s => s.nombre).join(', ')}</CardDescription>
+                                        </div>
+                                        {menuSeleccionadoId === menu.id && <Check className="w-6 h-6 text-primary ml-auto"/>}
+                                    </CardHeader>
+                                </Card>
+                            ))}
+                       </CardContent>
+                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={handleGenerarPresupuesto} disabled={!menuSeleccionadoId || isGeneratingLead}>{isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null} Finalizar y Cotizar</Button></CardFooter>
                     </motion.div>
                 );
             case 4:
@@ -174,10 +187,11 @@ export default function ArmadoRapidoPage() {
                         <div className="flex justify-between items-center text-lg"><span>Invitados:</span><span className="font-bold">{cantidadInvitados}</span></div>
                         <Separator/>
                         <div className="space-y-2">
-                           <h4 className="font-semibold">Menú:</h4>
-                           {menuActual ? <div className="flex justify-between items-center"><span>{menuActual.nombre}</span><span>{formatCurrency(calculos.costoTotalMenu)}</span></div> : <p className="text-sm text-muted-foreground">Selecciona un menú...</p>}
-                           <h4 className="font-semibold mt-2">Paquete de Servicios:</h4>
+                           <h4 className="font-semibold">Paquete de Servicios:</h4>
                            {paqueteActual ? <div className="flex justify-between items-center"><span>{paqueteActual.nombre}</span><span>{formatCurrency(calculos.costoTotalPaquete)}</span></div> : <p className="text-sm text-muted-foreground">Selecciona un paquete...</p>}
+
+                           <h4 className="font-semibold mt-2">Menú de Catering:</h4>
+                           {menuActual ? <div className="flex justify-between items-center"><span>{menuActual.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(costoMenuPorPersona)} p/p)</span></span><span>{formatCurrency(calculos.costoTotalMenu)}</span></div> : <p className="text-sm text-muted-foreground">Selecciona un menú...</p>}
                         </div>
                         <Separator/>
                         <div className="space-y-2 pt-2">
@@ -191,3 +205,4 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
