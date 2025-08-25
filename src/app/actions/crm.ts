@@ -7,7 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { saveCustomer } from '@/app/actions/customers'; // For client creation
 import type { Customer } from '@/types/customer'; // For client creation
-import { archivarFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual'; // For party creation
+import { createNewFiestaForCustomer } from '@/app/actions/fiesta-actual';
 
 const CRM_DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const LEADS_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-leads.json');
@@ -214,18 +214,10 @@ export async function convertToClientAndMoveProspect(
       return { success: false, error: `Cliente creado, pero no se pudo actualizar el prospecto: ${moveResult.error}`, customerId: customerResult.id };
     }
     
-    // START: Automate Party Creation
-    const archiveResult = await archivarFiestaActual();
-    if (!archiveResult.success || !archiveResult.nuevaFiesta) {
-        console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta: ${archiveResult.error}`);
-        // No devolvemos un error fatal aquí, ya que la parte principal (CRM) fue exitosa.
-        // Se podría añadir una notificación al usuario de que debe crear la fiesta manualmente.
-    } else {
-        // Link new party to the new customer
-        await updateConfiguracionFiestaActual({
-            clienteId: customerResult.id,
-            nombreEvento: `Evento de ${prospectName}`, // Default name
-        });
+    // START: Automate Party Creation for new customer
+    const newFiestaResult = await createNewFiestaForCustomer(customerResult.customer as Customer);
+     if (!newFiestaResult.success) {
+        console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta para el cliente ${customerResult.id}: ${newFiestaResult.error}`);
     }
     // END: Automate Party Creation
 

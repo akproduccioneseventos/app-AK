@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -5,11 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestaActual, archivarFiestaActual } from '@/app/actions/fiesta-actual';
-import { getDashboardKpiData } from '@/app/actions/dashboard'; // Importar la función centralizada
+import { getFiestas, archiveFiesta } from '@/app/actions/fiesta-actual';
+import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Customer } from '@/types/customer';
-import { getCustomerById } from '@/app/actions/customers';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -35,8 +34,7 @@ const formatDate = (dateString?: string) => {
 
 export default function GestorFiestasPage() {
   const { toast } = useToast();
-  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-  const [clienteActual, setClienteActual] = useState<Customer | null>(null);
+  const [fiestasActivas, setFiestasActivas] = useState<FiestaEnPlanificacion[]>([]);
   
   const [kpiData, setKpiData] = useState({
     fiestasPasadas: 0,
@@ -44,17 +42,16 @@ export default function GestorFiestasPage() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-  const [isArchiving, setIsArchiving] = useState(false);
+  const [isArchiving, setIsArchiving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    setClienteActual(null);
     try {
-      const [kpiResult, actual] = await Promise.all([
+      const [kpiResult, activas] = await Promise.all([
         getDashboardKpiData(),
-        getFiestaActual(),
+        getFiestas(false), // Solo fiestas activas
       ]);
 
       if (kpiResult.success && kpiResult.data) {
@@ -63,12 +60,8 @@ export default function GestorFiestasPage() {
         throw new Error(kpiResult.error || "No se pudieron cargar los datos del panel.");
       }
       
-      setFiestaActual(actual);
+      setFiestasActivas(activas);
 
-      if (actual && actual.configuracion.clienteId) {
-        const cliente = await getCustomerById(actual.configuracion.clienteId);
-        setClienteActual(cliente);
-      }
     } catch (e: any) {
       console.error("Error loading fiestas data:", e);
       setError("No se pudo cargar la información de las fiestas.");
@@ -82,23 +75,20 @@ export default function GestorFiestasPage() {
     loadData();
   }, [loadData]);
 
-  const handleArchivarYCrearNueva = async () => {
-    setIsArchiving(true);
+  const handleArchivar = async (fiestaId: string) => {
+    setIsArchiving(fiestaId);
     try {
-      const result = await archivarFiestaActual();
+      const result = await archiveFiesta(fiestaId);
       if (result.success) {
-        toast({
-          title: "¡Operación Exitosa!",
-          description: `"${result.archivada?.configuracion.nombreEvento}" ha sido archivada. Ahora puedes planificar una nueva fiesta.`,
-        });
+        toast({ title: "¡Evento Archivado!" });
         await loadData(); 
       } else {
-        throw new Error(result.error || "No se pudo archivar la fiesta actual.");
+        throw new Error(result.error || "No se pudo archivar la fiesta.");
       }
     } catch (e: any) {
       toast({ title: "Error al Archivar", description: e.message, variant: "destructive" });
     } finally {
-      setIsArchiving(false);
+      setIsArchiving(null);
     }
   };
 
@@ -127,121 +117,35 @@ export default function GestorFiestasPage() {
     }
   };
 
-  const isFiestaActualConfigured = fiestaActual && fiestaActual.configuracion.nombreEvento && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble";
-
   return (
     <div className="max-w-5xl mx-auto space-y-8 print:space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <CalendarClock className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestor de Fiestas y Eventos General
+            Gestor de Eventos
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-           <Button variant="outline" onClick={handlePrintSummary} disabled={isLoading}>
+           <Button variant="outline" onClick={handlePrint} disabled={isLoading}>
               <Printer className="w-4 h-4 mr-2" />
               Imprimir
             </Button>
             <Button variant="outline" onClick={handleShare} disabled={isLoading}>
               <Share2 className="w-4 h-4 mr-2"/>Compartir
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="default" size="lg" disabled={isArchiving || isLoading}>
-                  {isArchiving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Archive className="w-5 h-5 mr-2" />}
-                  {isArchiving ? "Archivando..." : "Archivar Fiesta Actual y Crear Nueva"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Confirmar Acción?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esto moverá la fiesta actual "{fiestaActual?.configuracion.nombreEvento || 'Evento Actual'}" al historial y reiniciará el planificador para una nueva. ¿Estás seguro?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isArchiving}>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleArchivarYCrearNueva} disabled={isArchiving} className="bg-primary hover:bg-primary/90">
-                    {isArchiving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                    Sí, Archivar y Crear Nueva
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Link href="/customers/new" passHref>
+              <Button>
+                  <PlusCircle className="w-4 h-4 mr-2"/> Nuevo Cliente/Evento
+              </Button>
+            </Link>
         </div>
       </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-10 print:hidden">
-          <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="ml-3 text-muted-foreground">Cargando información de fiestas...</p>
-        </div>
-      ) : error || !fiestaActual ? (
-        <Card className="text-destructive bg-destructive/10 p-6 text-center">
-          <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
-          <p className="font-semibold text-lg">Error al Cargar Información</p>
-          <p className="text-sm">{error || "No se pudo cargar la información de la fiesta."}</p>
-        </Card>
-      ) : (
-        <>
-          <Card className="shadow-xl border-t-4 border-primary print:shadow-none print:border-2 print:border-primary/50 print:break-inside-avoid">
-            <CardHeader className="pb-4 print:pb-2">
-              <CardTitle className="font-headline text-xl md:text-2xl text-primary flex items-center gap-2 print:text-lg">
-                <PartyPopper className="w-7 h-7 print:w-5 print:h-5"/> Fiesta Actual en Planificación
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {isFiestaActualConfigured && fiestaActual ? (
-                <>
-                  <h3 className="text-lg font-semibold text-foreground print:text-base">{fiestaActual.configuracion.nombreEvento}</h3>
-                  <p className="text-sm text-muted-foreground print:text-xs">
-                    {fiestaActual.configuracion.tipoCelebracion} - {formatDate(fiestaActual.configuracion.fechaEvento)}
-                  </p>
-                  {clienteActual && (
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium">Cliente:</span> {clienteActual.name || clienteActual.companyName}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-2 pt-2 print:hidden">
-                    <Link href="/fiestas/nueva" passHref>
-                      <Button variant="default" size="sm">
-                        <Edit className="w-4 h-4 mr-2"/>Gestionar Fiesta Actual
-                      </Button>
-                    </Link>
-                     {clienteActual?.contractFileName && (
-                        <a href={`/api/contracts/${clienteActual.contractFileName}`} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline" size="sm">
-                                <FileText className="w-4 h-4 mr-2"/> Ver Contrato
-                            </Button>
-                        </a>
-                    )}
-                    {clienteActual?.budgetFileName && (
-                        <a href={`/api/budgets/${clienteActual.budgetFileName}`} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline" size="sm">
-                                <FileText className="w-4 h-4 mr-2"/> Ver Presupuesto
-                            </Button>
-                        </a>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                  <Info className="w-8 h-8 mx-auto mb-2 opacity-60"/>
-                  <p>No hay una fiesta configurada o está con datos por defecto.</p>
-                  <p className="text-xs">Usa el botón "Archivar y Crear Nueva" o configura la actual en el planificador.</p>
-                   <Link href="/fiestas/nueva/configuracion" passHref className="print:hidden">
-                      <Button variant="link" size="sm" className="mt-2">Configurar Fiesta Actual</Button>
-                    </Link>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 print:hidden">
+      
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
             <Card className="shadow-md">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Fiestas Pasadas</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Eventos Pasados</CardTitle>
                 <Archive className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -251,47 +155,74 @@ export default function GestorFiestasPage() {
             </Card>
             <Card className="shadow-md">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Fiestas Futuras</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Eventos Futuros</CardTitle>
                 <CalendarClock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{kpiData.fiestasFuturas}</div>
-                <p className="text-xs text-muted-foreground">Eventos en planificación actual.</p>
+                <p className="text-xs text-muted-foreground">Eventos en planificación activa.</p>
               </CardContent>
             </Card>
-          </div>
-          
-          <Separator className="my-6 print:my-3"/>
+       </div>
+       
+       <Separator className="my-6 print:my-3"/>
 
-          <div className="print:break-before-page">
-            <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">Historial de Fiestas Archivadas</h2>
-            {fiestaActual.historialFiestas && fiestaActual.historialFiestas.length > 0 ? (
-              <div className="space-y-4">
-                {fiestaActual.historialFiestas.map((fiesta) => (
-                  <Card key={fiesta.id} className="bg-muted/30 hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid">
+        <div className="print:break-before-page">
+            <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">Eventos Activos en Planificación</h2>
+            {isLoading ? (
+                <div className="flex items-center justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+            ) : error ? (
+                 <Card className="text-destructive bg-destructive/10 p-6 text-center">
+                    <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
+                    <p className="font-semibold text-lg">Error al Cargar Eventos</p>
+                    <p className="text-sm">{error}</p>
+                </Card>
+            ) : fiestasActivas.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {fiestasActivas.map((fiesta) => (
+                  <Card key={fiesta.id} className="bg-card hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid flex flex-col">
                     <CardHeader className="pb-3 pt-4 px-4 print:pb-1 print:pt-1 print:px-2">
-                      <CardTitle className="text-md font-semibold text-foreground print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
+                      <CardTitle className="text-md font-semibold text-primary/90 print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
                       <CardDescription className="text-xs print:text-[10px]">
                         {fiesta.configuracion.tipoCelebracion} - {formatDate(fiesta.configuracion.fechaEvento)}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="px-4 pb-4 grid grid-cols-2 gap-x-4 gap-y-1 text-xs print:px-2 print:pb-2 print:text-[10px]">
+                    <CardContent className="px-4 pb-4 grid grid-cols-2 gap-x-4 gap-y-1 text-xs print:px-2 print:pb-2 print:text-[10px] flex-grow">
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Users className="w-3 h-3"/> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
                       </div>
                     </CardContent>
+                     <CardFooter className="p-2 border-t flex justify-end gap-2 print:hidden">
+                        <Link href={`/fiestas/nueva/configuracion?fiestaId=${fiesta.id}`} passHref>
+                          <Button variant="default" size="sm" className="w-full">
+                            <Edit className="w-4 h-4 mr-2"/>Planificar
+                          </Button>
+                        </Link>
+                         <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" disabled={isArchiving === fiesta.id}>
+                                {isArchiving === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4"/>}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader><AlertDialogTitle>¿Archivar Evento?</AlertDialogTitle><AlertDialogDescription>El evento "{fiesta.configuracion.nombreEvento}" se moverá al historial. Podrás verlo pero no editarlo.</AlertDialogDescription></AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleArchivar(fiesta.id)}>Archivar</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                    </CardFooter>
                   </Card>
                 ))}
               </div>
             ) : (
               <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
                 <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>No hay fiestas archivadas todavía.</p>
+                <p>No hay fiestas activas. Crea un nuevo cliente para empezar a planificar.</p>
               </div>
             )}
           </div>
-        </>
-      )}
     </div>
   );
 }

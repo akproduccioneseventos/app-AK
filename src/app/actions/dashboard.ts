@@ -4,7 +4,7 @@
 import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
-import { getFiestaActual, getHistorialFiestas } from './fiesta-actual';
+import { getFiestas } from './fiesta-actual';
 
 export async function getDashboardKpiData() {
   try {
@@ -12,42 +12,29 @@ export async function getDashboardKpiData() {
       customersData,
       presupuestosData,
       invoicesData,
-      fiestaActualData,
+      fiestasData,
     ] = await Promise.all([
       getCustomers(),
       getPresupuestos(),
       getInvoices(),
-      getFiestaActual(),
+      getFiestas(),
     ]);
     
-    // Total de ventas basado en el monto total de TODAS las facturas generadas.
     const ventasTotales = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
-
-    // Total pagado basado en la suma de todos los pagos en todas las facturas.
-    const montoPagado = invoicesData.reduce(
-        (total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0
-    );
-
-    // El saldo pendiente es la diferencia.
+    const montoPagado = invoicesData.reduce((total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
     const totalPendiente = ventasTotales - montoPagado;
-
-    // Conteo de prospectos basado en presupuestos no aceptados/facturados.
-    const prospectosActivos = presupuestosData.filter(
-      (p) => p.estado === 'Borrador' || p.estado === 'Enviado'
-    ).length;
-
-    // Conteo de fiestas futuras basado en clientes activos.
+    const prospectosActivos = presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length;
     const clientesActivos = customersData.filter(c => c.estadoCliente === 'Actual').length;
+    const fiestasPasadas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < new Date()).length;
     
-    // Conteo de fiestas pasadas.
-    const historialFiestas = await getHistorialFiestas();
-    const fiestasPasadas = historialFiestas.length;
+    // Fiestas futuras se basa en la cantidad de clientes activos
+    const fiestasFuturas = clientesActivos;
 
     return {
       success: true,
       data: {
         fiestasPasadas,
-        fiestasFuturas: clientesActivos,
+        fiestasFuturas,
         clientesActivos,
         prospectosActivos,
         ventasTotales,
