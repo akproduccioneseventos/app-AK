@@ -71,7 +71,7 @@ export default function ArmadoRapidoPage() {
                     costoTotalPaquete += (servicio.costoPorPersona || 0) * cantidadInvitados;
                     break;
                 case 'ratio':
-                    if (servicio.invitadosPorUnidad && servicio.costoPorUnidad) {
+                    if (servicio.invitadosPorUnidad && servicio.costoPorUnidad && servicio.invitadosPorUnidad > 0) {
                         const unidadesNecesarias = Math.ceil(cantidadInvitados / servicio.invitadosPorUnidad);
                         costoTotalPaquete += unidadesNecesarias * servicio.costoPorUnidad;
                     }

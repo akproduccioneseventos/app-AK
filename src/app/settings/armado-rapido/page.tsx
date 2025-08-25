@@ -92,12 +92,15 @@ const EditServicioIncluido = ({ service, onUpdate, onRemove }: { service: Servic
         )}
          {editedService.calculationMethod === 'escalonado' && (
             <div className="space-y-2">
+              <div className="grid grid-cols-3 gap-2 items-center">
+                <Label className="text-xs text-center col-start-2">Hasta (invitados)</Label>
+                <Label className="text-xs text-center">Precio Fijo</Label>
+              </div>
               {(editedService.tramosDePrecio || []).sort((a,b) => a.hasta - b.hasta).map(tier => (
                 <div key={tier.id} className="grid grid-cols-3 gap-2 items-center">
-                    <Label className="text-xs text-right">Hasta</Label>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveTier(tier.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                     <Input type="number" value={tier.hasta} onChange={e => handleTierChange(tier.id, 'hasta', Number(e.target.value))} className="h-8"/>
                     <Input type="number" value={tier.precio} onChange={e => handleTierChange(tier.id, 'precio', Number(e.target.value))} className="h-8"/>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 col-start-3" onClick={() => handleRemoveTier(tier.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                 </div>
               ))}
               <Button type="button" size="sm" variant="outline" onClick={handleAddTier}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Tramo</Button>
