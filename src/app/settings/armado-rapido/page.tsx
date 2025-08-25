@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Settings } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Settings, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
@@ -20,6 +20,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -73,7 +77,6 @@ const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: 
 };
 
 
-// Component for editing a single service within a package
 const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { service: ServicioIncluido, baseService?: ServicioEmpresa, onUpdate: (updatedService: ServicioIncluido) => void, onRemove: () => void }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedService, setEditedService] = useState(service);
@@ -111,13 +114,12 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
 
   if (!isEditing) {
     return (
-      <div className="flex justify-between items-center text-sm p-2 bg-muted/50 rounded">
-        <span>{service.nombre}</span>
-        <div className="flex items-center gap-1">
-          <Button variant="outline" size="sm" className="h-8" onClick={() => setIsEditing(true)}><Settings className="w-4 h-4 mr-2"/>Configurar</Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={onRemove}><Trash2 className="w-4 h-4"/></Button>
+        <div className="flex justify-between items-center text-sm p-2 bg-muted/50 rounded">
+            <span>{service.nombre}</span>
+            <Button variant="outline" size="sm" className="h-8" onClick={() => setIsEditing(true)}>
+                <Settings className="w-4 h-4 mr-2"/>Configurar
+            </Button>
         </div>
-      </div>
     );
   }
 
@@ -160,7 +162,7 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
               <h5 className="text-sm font-medium">Tramos de Precio por Rango de Invitados</h5>
               <div className="grid grid-cols-4 gap-2 items-center">
                 <div></div>
-                <Label className="text-xs text-center col-start-2">Desde (inv.)</Label>
+                <Label className="text-xs text-center">Desde (inv.)</Label>
                 <Label className="text-xs text-center">Hasta (inv.)</Label>
                 <Label className="text-xs text-center">Precio Fijo</Label>
               </div>
@@ -185,6 +187,37 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
 };
 
 
+function SortableServicioItem({ service, baseService, onUpdate, onRemove }: { service: ServicioIncluido, baseService?: ServicioEmpresa, onUpdate: (updatedService: ServicioIncluido) => void, onRemove: () => void }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id: service.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} className="flex items-center gap-2">
+            <div {...attributes} {...listeners} className="cursor-grab p-1 text-muted-foreground">
+                <GripVertical />
+            </div>
+            <div className="flex-grow">
+                 <EditServicioIncluido 
+                    service={service} 
+                    baseService={baseService} 
+                    onUpdate={onUpdate} 
+                    onRemove={onRemove}
+                 />
+            </div>
+        </div>
+    );
+}
+
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
@@ -193,6 +226,8 @@ export default function ArmadoRapidoSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -284,6 +319,19 @@ export default function ArmadoRapidoSettingsPage() {
       }
   };
 
+  const handleDragEnd = (event: DragEndEvent, packageId: string) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+        const currentPackage = config?.paquetes.find(p => p.id === packageId);
+        if(currentPackage) {
+            const oldIndex = currentPackage.serviciosIncluidos.findIndex(s => s.id === active.id);
+            const newIndex = currentPackage.serviciosIncluidos.findIndex(s => s.id === over.id);
+            const reorderedServices = arrayMove(currentPackage.serviciosIncluidos, oldIndex, newIndex);
+            handlePackageChange(packageId, { serviciosIncluidos: reorderedServices });
+        }
+    }
+  };
+
   const handleSaveChanges = async () => {
     if (!config) return;
     setIsSaving(true);
@@ -328,6 +376,10 @@ export default function ArmadoRapidoSettingsPage() {
           <CardDescription>Crea y edita los paquetes que tus clientes podrán seleccionar.</CardDescription>
         </CardHeader>
         <CardContent>
+            <div className="flex flex-col sm:flex-row gap-2 mb-4">
+                <Button variant="default" onClick={handleAddPackage}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paquete</Button>
+                <NewServiceModal onServiceCreated={(newService) => { setVendibleServices(prev => [newService, ...prev]) }} />
+             </div>
             <Accordion type="multiple" className="w-full space-y-4">
                 {config.paquetes.map(pkg => {
                     const includedServiceIds = new Set(pkg.serviciosIncluidos.map(s => s.id));
@@ -361,18 +413,21 @@ export default function ArmadoRapidoSettingsPage() {
                                   <h3 className="font-semibold text-foreground">Servicios Incluidos ({pkg.serviciosIncluidos.length})</h3>
                                   <ScrollArea className="h-64 border rounded-lg p-2 bg-muted/20">
                                       {pkg.serviciosIncluidos.length > 0 ? (
-                                          <ul className="space-y-2">
-                                              {pkg.serviciosIncluidos.map(s => (
-                                                  <li key={s.id}>
-                                                      <EditServicioIncluido
-                                                          service={s}
-                                                          baseService={vendibleServices.find(vs => vs.id === s.id)}
-                                                          onUpdate={(updatedS) => handleUpdateServiceInPackage(pkg.id, updatedS)}
-                                                          onRemove={() => handleRemoveServiceFromPackage(pkg.id, s.id)}
-                                                      />
-                                                  </li>
-                                              ))}
-                                          </ul>
+                                           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, pkg.id)}>
+                                                <SortableContext items={pkg.serviciosIncluidos.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                                                    <div className="space-y-2">
+                                                        {pkg.serviciosIncluidos.map(s => (
+                                                            <SortableServicioItem
+                                                                key={s.id}
+                                                                service={s}
+                                                                baseService={vendibleServices.find(vs => vs.id === s.id)}
+                                                                onUpdate={(updatedS) => handleUpdateServiceInPackage(pkg.id, updatedS)}
+                                                                onRemove={() => handleRemoveServiceFromPackage(pkg.id, s.id)}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </SortableContext>
+                                           </DndContext>
                                       ) : <p className="text-center text-muted-foreground p-4">No hay servicios en este paquete.</p>}
                                   </ScrollArea>
                                 </div>
@@ -399,7 +454,7 @@ export default function ArmadoRapidoSettingsPage() {
                                                     </li>
                                                 ))}
                                             </ul>
-                                        ) : <p className="text-center text-muted-foreground p-4">No hay más servicios disponibles para añadir.</p>}
+                                        ) : <p className="text-center text-muted-foreground p-4">No hay más servicios disponibles.</p>}
                                     </ScrollArea>
                                 </div>
                               </div>
@@ -408,10 +463,6 @@ export default function ArmadoRapidoSettingsPage() {
                     )
                 })}
             </Accordion>
-             <div className="flex flex-col sm:flex-row gap-2 mt-4">
-                <Button variant="outline" onClick={handleAddPackage}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paquete</Button>
-                <NewServiceModal onServiceCreated={(newService) => { setVendibleServices(prev => [newService, ...prev]) }} />
-             </div>
         </CardContent>
       </Card>
       <CardFooter className="border-t pt-6">
