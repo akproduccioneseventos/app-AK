@@ -1,8 +1,8 @@
-
 export type CalculationMethod = 'fijo' | 'por_persona' | 'ratio' | 'escalonado';
 
 export interface TierPrecio {
   id: string;
+  desde: number; // desde este número de invitados
   hasta: number; // hasta este número de invitados
   precio: number;
 }

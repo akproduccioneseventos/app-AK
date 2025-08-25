@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -34,7 +33,7 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
     setIsEditing(false);
   };
 
-  const handleTierChange = (tierId: string, field: 'hasta' | 'precio', value: number) => {
+  const handleTierChange = (tierId: string, field: 'desde' | 'hasta' | 'precio', value: number) => {
     const newTiers = (editedService.tramosDePrecio || []).map(t =>
       t.id === tierId ? { ...t, [field]: value } : t
     );
@@ -42,7 +41,13 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
   };
   
   const handleAddTier = () => {
-    const newTier: TierPrecio = { id: `tier_${Date.now()}`, hasta: 0, precio: 0 };
+    const lastTier = (editedService.tramosDePrecio || []).slice(-1)[0];
+    const newTier: TierPrecio = { 
+        id: `tier_${Date.now()}`, 
+        desde: (lastTier?.hasta || 0) + 1, 
+        hasta: (lastTier?.hasta || 0) + 50, 
+        precio: 0 
+    };
     setEditedService(prev => ({...prev!, tramosDePrecio: [...(prev!.tramosDePrecio || []), newTier]}));
   };
 
@@ -98,13 +103,17 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
         )}
          {editedService.calculationMethod === 'escalonado' && (
             <div className="space-y-2">
-              <div className="grid grid-cols-3 gap-2 items-center">
-                <Label className="text-xs text-center col-start-2">Hasta (invitados)</Label>
+              <h5 className="text-sm font-medium">Tramos de Precio por Rango de Invitados</h5>
+              <div className="grid grid-cols-4 gap-2 items-center">
+                <div></div>
+                <Label className="text-xs text-center">Desde (inv.)</Label>
+                <Label className="text-xs text-center">Hasta (inv.)</Label>
                 <Label className="text-xs text-center">Precio Fijo</Label>
               </div>
-              {(editedService.tramosDePrecio || []).sort((a,b) => a.hasta - b.hasta).map(tier => (
-                <div key={tier.id} className="grid grid-cols-3 gap-2 items-center">
+              {(editedService.tramosDePrecio || []).sort((a,b) => a.desde - b.desde).map(tier => (
+                <div key={tier.id} className="grid grid-cols-4 gap-2 items-center">
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveTier(tier.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                    <Input type="number" value={tier.desde} onChange={e => handleTierChange(tier.id, 'desde', Number(e.target.value))} className="h-8" placeholder="1"/>
                     <Input type="number" value={tier.hasta} onChange={e => handleTierChange(tier.id, 'hasta', Number(e.target.value))} className="h-8" placeholder="80"/>
                     <Input type="number" value={tier.precio} onChange={e => handleTierChange(tier.id, 'precio', Number(e.target.value))} className="h-8" placeholder="10000"/>
                 </div>
