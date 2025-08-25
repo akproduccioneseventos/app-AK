@@ -36,7 +36,15 @@ export async function saveArmadoRapidoConfig(
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
-    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(config, null, 2), 'utf-8');
+    // Ensure `incluyeSeleccionMenu` is not undefined
+    const configToSave = {
+        ...config,
+        paquetes: config.paquetes.map(p => ({
+            ...p,
+            incluyeSeleccionMenu: p.incluyeSeleccionMenu || false
+        }))
+    };
+    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
     return { success: true };
   } catch (error: any) {
     console.error("Error saving armado-rapido-config.json", error);
@@ -48,7 +56,11 @@ export async function generateLeadFromQuickBudget(
   data: LeadGenerationData
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
-    const notes = `Generado desde Armado Rápido con paquete "${data.nombrePaquete}".\nTipo: ${data.tipoEvento}\nInvitados: ${data.cantidadInvitados}\nSalón: ${data.salon}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
+    let notes = `Generado desde Armado Rápido.\nPaquete: "${data.nombrePaquete}"`;
+    if (data.nombreMenu) {
+        notes += `\nMenú de Catering: "${data.nombreMenu}"`;
+    }
+    notes += `\nTipo: ${data.tipoEvento}\nInvitados: ${data.cantidadInvitados}\nSalón: ${data.salon}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
     
     const leadResult = await addCrmLead({
       name: data.clienteNombre,

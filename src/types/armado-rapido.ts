@@ -1,3 +1,4 @@
+
 export type CalculationMethod = 'fijo' | 'por_persona' | 'ratio' | 'escalonado';
 
 export interface TierPrecio {
@@ -24,6 +25,7 @@ export interface PaqueteArmadoRapido {
   id: string; // ej: 'basico', 'premium'
   nombre: string;
   serviciosIncluidos: ServicioIncluido[];
+  incluyeSeleccionMenu?: boolean; // New field to enable menu selection
 }
 
 export interface ArmadoRapidoConfig {
@@ -33,6 +35,7 @@ export interface ArmadoRapidoConfig {
 
 export interface LeadGenerationData {
   nombrePaquete: string;
+  nombreMenu?: string; // Optional menu name
   tipoEvento: string;
   cantidadInvitados: number;
   costoEstimado: number;

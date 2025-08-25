@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Wand2, Users, FileText, MessageSquare, Tag } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Users, FileText, MessageSquare, Tag, ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
-import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getMenus } from '@/app/actions/menus-catering';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
+import type { FullMenu } from '@/types/catering';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', {
@@ -28,22 +30,26 @@ export default function ArmadoRapidoPage() {
     const { toast } = useToast();
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [catalogoServicios, setCatalogoServicios] = useState<ServicioEmpresa[]>([]);
+    const [menusDisponibles, setMenusDisponibles] = useState<FullMenu[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const [cantidadInvitados, setCantidadInvitados] = useState<number>(50);
     const [paqueteSeleccionadoId, setPaqueteSeleccionadoId] = useState<string>('');
+    const [menuSeleccionadoId, setMenuSeleccionadoId] = useState<string>('');
 
-    const loadConfig = useCallback(async () => {
+    const loadData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const [fetchedConfig, fetchedServicios] = await Promise.all([
+            const [fetchedConfig, fetchedServicios, fetchedMenus] = await Promise.all([
                 getArmadoRapidoConfig(),
-                getServiciosEmpresa()
+                getServiciosEmpresa(),
+                getMenus(),
             ]);
             setConfig(fetchedConfig);
             setCatalogoServicios(fetchedServicios);
+            setMenusDisponibles(fetchedMenus);
 
             if (fetchedConfig.paquetes.length > 0) {
                 setPaqueteSeleccionadoId(fetchedConfig.paquetes[0].id);
@@ -57,47 +63,67 @@ export default function ArmadoRapidoPage() {
     }, [toast]);
 
     useEffect(() => {
-        loadConfig();
-    }, [loadConfig]);
+        loadData();
+    }, [loadData]);
 
-    const paqueteActual = useMemo(() => {
+    const paqueteActual = useMemo((): PaqueteArmadoRapido | undefined => {
         return config?.paquetes.find(p => p.id === paqueteSeleccionadoId);
     }, [config, paqueteSeleccionadoId]);
+    
+    // Reset menu selection when package changes
+    useEffect(() => {
+        setMenuSeleccionadoId('');
+    }, [paqueteSeleccionadoId]);
 
     const calculos = useMemo(() => {
         if (!paqueteActual || cantidadInvitados <= 0) {
-            return { costoTotal: 0, costoConDescuento: 0, montoDescuento: 0 };
+            return { costoTotal: 0, costoConDescuento: 0, montoDescuento: 0, desglose: [] };
         }
         
-        let costoTotalPaquete = 0;
+        let costoServicios = 0;
+        let desglose: {nombre: string, costo: number}[] = [];
+
         paqueteActual.serviciosIncluidos.forEach(servicio => {
+            let costoServicio = 0;
             switch(servicio.calculationMethod) {
                 case 'fijo':
-                    costoTotalPaquete += servicio.costoFijo || 0;
+                    costoServicio = servicio.costoFijo || 0;
                     break;
                 case 'por_persona':
-                    costoTotalPaquete += (servicio.costoPorPersona || 0) * cantidadInvitados;
+                    costoServicio = (servicio.costoPorPersona || 0) * cantidadInvitados;
                     break;
                 case 'ratio':
                     const servicioCompleto = catalogoServicios.find(s => s.id === servicio.id);
                     const costoPorUnidad = servicioCompleto?.precioVenta || 0;
                     if (servicio.invitadosPorUnidad && costoPorUnidad && servicio.invitadosPorUnidad > 0) {
                         const unidadesNecesarias = Math.ceil(cantidadInvitados / servicio.invitadosPorUnidad);
-                        costoTotalPaquete += unidadesNecesarias * costoPorUnidad;
+                        costoServicio = unidadesNecesarias * costoPorUnidad;
                     }
                     break;
                 case 'escalonado':
                     if(servicio.tramosDePrecio && servicio.tramosDePrecio.length > 0) {
                         const tramosOrdenados = [...servicio.tramosDePrecio].sort((a,b) => a.hasta - b.hasta);
                         let tramoAplicado = tramosOrdenados.find(t => cantidadInvitados <= t.hasta);
-                        if (!tramoAplicado) {
-                           tramoAplicado = tramosOrdenados[tramosOrdenados.length - 1];
-                        }
-                        costoTotalPaquete += tramoAplicado.precio || 0;
+                        if (!tramoAplicado) tramoAplicado = tramosOrdenados[tramosOrdenados.length - 1];
+                        costoServicio = tramoAplicado.precio || 0;
                     }
                     break;
             }
+            costoServicios += costoServicio;
+            desglose.push({nombre: servicio.nombre, costo: costoServicio});
         });
+
+        let costoMenu = 0;
+        if (paqueteActual.incluyeSeleccionMenu && menuSeleccionadoId) {
+            const menu = menusDisponibles.find(m => m.id === menuSeleccionadoId);
+            if (menu) {
+                const costoPorPersona = menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
+                costoMenu = costoPorPersona * cantidadInvitados;
+                desglose.push({nombre: `Menú: ${menu.name}`, costo: costoMenu});
+            }
+        }
+
+        const costoTotalPaquete = costoServicios + costoMenu;
 
         let montoDescuento = 0;
         if (config?.descuentoGeneral && config.descuentoGeneral > 0) {
@@ -105,11 +131,12 @@ export default function ArmadoRapidoPage() {
         }
         const costoConDescuento = costoTotalPaquete - montoDescuento;
 
-        return { costoTotal: costoTotalPaquete, costoConDescuento, montoDescuento };
-    }, [paqueteActual, cantidadInvitados, config?.descuentoGeneral, catalogoServicios]);
+        return { costoTotal: costoTotalPaquete, costoConDescuento, montoDescuento, desglose };
+    }, [paqueteActual, cantidadInvitados, menuSeleccionadoId, config?.descuentoGeneral, catalogoServicios, menusDisponibles]);
 
     const handleGenerarPresupuesto = async () => {
         if (!paqueteActual) return;
+        const menuSeleccionado = menusDisponibles.find(m => m.id === menuSeleccionadoId);
         
         toast({
             title: "Generando tu presupuesto...",
@@ -118,6 +145,7 @@ export default function ArmadoRapidoPage() {
 
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual.nombre,
+            nombreMenu: menuSeleccionado?.name,
             tipoEvento: 'Evento desde Armado Rápido',
             cantidadInvitados: cantidadInvitados,
             costoEstimado: calculos.costoConDescuento,
@@ -165,8 +193,8 @@ export default function ArmadoRapidoPage() {
                 {/* Columna de Configuración */}
                 <Card className="shadow-xl">
                     <CardHeader>
-                        <CardTitle className="font-headline text-2xl">Armá tu presupuesto en 2 pasos</CardTitle>
-                        <CardDescription>Ajusta los invitados y elige un paquete para ver una cotización al instante.</CardDescription>
+                        <CardTitle className="font-headline text-2xl">Arma tu presupuesto al instante</CardTitle>
+                        <CardDescription>Ajusta los invitados, elige un paquete y selecciona un menú para ver una cotización.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="space-y-2">
@@ -177,7 +205,7 @@ export default function ArmadoRapidoPage() {
                                 id="invitados" 
                                 type="number" 
                                 value={cantidadInvitados} 
-                                onChange={(e) => setCantidadInvitados(Number(e.target.value))} 
+                                onChange={(e) => setCantidadInvitados(Number(e.target.value) || 0)} 
                                 placeholder="Ej: 50" 
                                 className="h-12 text-xl text-center"
                             />
@@ -195,6 +223,21 @@ export default function ArmadoRapidoPage() {
                                 </SelectContent>
                             </Select>
                         </div>
+                         {paqueteActual?.incluyeSeleccionMenu && (
+                            <div className="space-y-2">
+                                <Label htmlFor="menu" className="text-lg flex items-center gap-2">
+                                    <ChefHat className="text-primary"/> 3. Selecciona un Menú
+                                </Label>
+                                <Select value={menuSeleccionadoId} onValueChange={setMenuSeleccionadoId}>
+                                    <SelectTrigger className="h-12 text-xl"><SelectValue placeholder="Elige un menú..." /></SelectTrigger>
+                                    <SelectContent>
+                                        {menusDisponibles.map(menu => (
+                                            <SelectItem key={menu.id} value={menu.id} className="text-lg">{menu.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                         )}
                     </CardContent>
                 </Card>
 
@@ -207,9 +250,14 @@ export default function ArmadoRapidoPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <h4 className="font-semibold mb-2">Servicios Incluidos:</h4>
-                                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                    {paqueteActual.serviciosIncluidos.map(s => <li key={s.id}>{s.nombre}</li>)}
+                                <h4 className="font-semibold mb-2">Desglose del Costo:</h4>
+                                <ul className="text-muted-foreground space-y-1 text-sm">
+                                    {calculos.desglose.map((item, index) => (
+                                        <li key={index} className="flex justify-between">
+                                            <span>{item.nombre}</span>
+                                            <span>{formatCurrency(item.costo)}</span>
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                             <div className="space-y-2 pt-4 border-t">
@@ -218,7 +266,7 @@ export default function ArmadoRapidoPage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button size="lg" className="w-full" onClick={handleGenerarPresupuesto}>
+                            <Button size="lg" className="w-full" onClick={handleGenerarPresupuesto} disabled={!!(paqueteActual.incluyeSeleccionMenu && !menuSeleccionadoId)}>
                                 <MessageSquare className="mr-2"/>¡Contactar a un Asesor!
                             </Button>
                         </CardFooter>
