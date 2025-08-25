@@ -56,12 +56,12 @@ export default function ArmadoRapidoPage() {
     }, [loadData]);
     
     const menuActual = useMemo((): MenuArmadoRapido | undefined => {
-      if (!config) return undefined;
+      if (!config || !config.menus) return undefined;
       return config.menus.find(m => m.id === menuSeleccionadoId);
     }, [config, menuSeleccionadoId]);
     
     const paqueteActual = useMemo((): PaqueteArmadoRapido | undefined => {
-      if (!config) return undefined;
+      if (!config || !config.paquetes) return undefined;
       return config.paquetes.find(p => p.id === paqueteSeleccionadoId);
     }, [config, paqueteSeleccionadoId]);
 
@@ -123,7 +123,7 @@ export default function ArmadoRapidoPage() {
                     <motion.div key="paso2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Elige tu Paquete de Servicios</CardTitle><CardDescription>Selecciona un combo de servicios básicos.</CardDescription></CardHeader>
                        <CardContent className="space-y-4">
-                            {config?.paquetes.map(pkg => (
+                            {config?.paquetes?.map(pkg => (
                                 <Card key={pkg.id} onClick={() => setPaqueteSeleccionadoId(pkg.id)} className={`cursor-pointer transition-all ${paqueteSeleccionadoId === pkg.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
                                     <CardHeader className="flex-row items-center gap-4 space-y-0">
                                         <Package className="w-8 h-8 text-primary"/>
@@ -141,7 +141,7 @@ export default function ArmadoRapidoPage() {
                     <motion.div key="paso3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Elige tu Menú</CardTitle><CardDescription>Selecciona una opción gastronómica.</CardDescription></CardHeader>
                         <CardContent className="space-y-4">
-                            {config?.menus.map(menu => (
+                            {config?.menus?.map(menu => (
                                 <Card key={menu.id} onClick={() => setMenuSeleccionadoId(menu.id)} className={`cursor-pointer transition-all ${menuSeleccionadoId === menu.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
                                     <CardHeader className="flex-row items-center gap-4 space-y-0">
                                         <ChefHat className="w-8 h-8 text-primary"/>
@@ -160,7 +160,7 @@ export default function ArmadoRapidoPage() {
             case 4:
                 return (
                     <motion.div key="paso4" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}>
-                        <CardHeader className="text-center"><Check className="w-16 h-16 mx-auto bg-green-100 text-green-600 rounded-full p-2"/><CardTitle className="font-headline text-2xl mt-4">¡Listo!</CardTitle><CardDescription>Hemos recibido tu solicitud. Un asesor se pondrá en contacto contigo a la brevedad para confirmar los detalles.</CardDescription></CardHeader>
+                        <CardHeader className="text-center"><Check className="w-16 h-16 mx-auto bg-green-100 text-green-600 rounded-full p-2"/><CardTitle className="font-headline text-2xl mt-4">¡Listo!</CardTitle><CardDescription>Hemos recibido tu solicitud. Un asesor se pondrá en contacto contigo a la brevedad.</CardDescription></CardHeader>
                         <CardContent><Button onClick={() => {setPaso(1); setMenuSeleccionadoId(''); setPaqueteSeleccionadoId('');}} className="w-full">Crear otro presupuesto</Button></CardContent>
                     </motion.div>
                 )

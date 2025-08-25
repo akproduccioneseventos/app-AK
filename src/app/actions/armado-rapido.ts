@@ -12,6 +12,7 @@ const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
 const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 0,
   paquetes: [],
+  menus: [], // Ensure menus array is always present
 };
 
 async function ensureDataFileExists() {
@@ -23,7 +24,11 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   await ensureDataFileExists();
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
-    return fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
+    const parsedConfig = fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
+    // Ensure menus and paquetes are always arrays
+    parsedConfig.menus = parsedConfig.menus || [];
+    parsedConfig.paquetes = parsedConfig.paquetes || [];
+    return parsedConfig;
   } catch (error) {
     console.error("Error reading armado-rapido-config.json, returning default.", error);
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8');
@@ -39,6 +44,7 @@ export async function saveArmadoRapidoConfig(
     // Ensure `incluyeSeleccionMenu` is not undefined
     const configToSave = {
         ...config,
+        menus: config.menus || [], // Ensure menus array exists
         paquetes: config.paquetes.map(p => ({
             ...p,
             incluyeSeleccionMenu: p.incluyeSeleccionMenu || false
