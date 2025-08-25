@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -54,8 +55,8 @@ const EditServicioIncluido = ({ service, onUpdate, onRemove }: { service: Servic
       <div className="flex justify-between items-center text-sm p-2 bg-muted/50 rounded">
         <span>{service.nombre}</span>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditing(true)}><Edit className="w-4 h-4"/></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={onRemove}><Trash2 className="w-4 h-4"/></Button>
+          <Button variant="outline" size="sm" className="h-8" onClick={() => setIsEditing(true)}><Settings className="w-4 h-4 mr-2"/>Configurar</Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={onRemove}><Trash2 className="w-4 h-4"/></Button>
         </div>
       </div>
     );
