@@ -1,16 +1,16 @@
-
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Bot } from 'lucide-react';
+import { ArrowLeft, Bot, RefreshCcw } from 'lucide-react';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 
 
 export default function AsistentePage() {
     const [assistantKey, setAssistantKey] = useState(Date.now());
 
+    // This function will now be called to force a re-mount of the assistant component
     const handleRestart = useCallback(() => {
         setAssistantKey(Date.now());
     }, []);
@@ -30,16 +30,16 @@ export default function AsistentePage() {
                     </Link>
                 </div>
             </header>
-            <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-4xl mx-auto w-full">
-                <div className="lg:col-span-3 h-full flex flex-col">
+            <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+                <div className="flex-1 h-full flex flex-col">
                     <AkAssistant 
                         isPage 
-                        assistantKey={assistantKey}
+                        key={assistantKey} // Use key to force re-mount
                     />
                 </div>
-                <div className="lg:col-span-3 h-full flex flex-col space-y-6">
-                    <Button onClick={handleRestart} variant="secondary" className="w-full">
-                        Reiniciar Conversación y Presupuesto
+                 <div className="mt-4">
+                    <Button onClick={handleRestart} variant="secondary" className="w-full sm:w-auto">
+                       <RefreshCcw className="w-4 h-4 mr-2"/> Reiniciar Conversación
                     </Button>
                 </div>
             </main>

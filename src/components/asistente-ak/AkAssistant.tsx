@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, type FormEvent, useCallback } from 'react';
@@ -19,7 +18,7 @@ interface ChatMessage extends Message {
   data?: AssistantOutput;
 }
 
-export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean, assistantKey?: number }) {
+export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
     const [isOpen, setIsOpen] = useState(isPage);
     const [isLoading, setIsLoading] = useState(true); // Start as true to show loading for initial message
     const [error, setError] = useState('');
@@ -29,31 +28,29 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     
-    const startConversation = useCallback(() => {
-        setIsLoading(true);
-        setMessages([]);
-        assistant({ query: 'Hola' }).then(response => {
-             if (!response || !response.response) {
-                throw new Error("El asistente no pudo iniciar la conversación.");
-            }
-            setMessages(prev => [...prev, {
-                id: `ai-${Date.now()}`,
-                role: 'model',
-                content: [{text: response.response}],
-                data: response
-            }]);
-        }).catch(err => {
-            setError(err.message);
-            toast({ title: "Error del Asistente", description: err.message, variant: "destructive" });
-        }).finally(() => {
-            setIsLoading(false);
-        });
-    }, [toast]);
-    
+    // Start the conversation as soon as the component mounts
     useEffect(() => {
-      // This will run on initial mount for the page, and when the key changes.
-      startConversation();
-    }, [assistantKey, startConversation]);
+        const startConversation = () => {
+            setIsLoading(true);
+            assistant({ query: 'Hola, quiero empezar.' }).then(response => {
+                if (!response || !response.response) {
+                    throw new Error("El asistente no pudo iniciar la conversación.");
+                }
+                setMessages(prev => [...prev, {
+                    id: `ai-${Date.now()}`,
+                    role: 'model',
+                    content: [{text: response.response}],
+                    data: response
+                }]);
+            }).catch(err => {
+                setError(err.message);
+                toast({ title: "Error del Asistente", description: err.message, variant: "destructive" });
+            }).finally(() => {
+                setIsLoading(false);
+            });
+        };
+        startConversation();
+    }, [toast]); // Empty dependency array ensures this runs only once on mount
     
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -77,7 +74,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
         setError('');
 
         try {
-            const history: Message[] = messages.map(m => ({ role: m.role, content: m.content }));
+            const history: Message[] = [...messages, newUserMessage].map(m => ({ role: m.role, content: m.content }));
             const response = await assistant({ query: userMessage, history });
             
             if (!response || !response.response) {
@@ -186,7 +183,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                 )}
             </AnimatePresence>
             {!isPage && !isOpen && (
-                 <Button onClick={() => { setIsOpen(true); if(messages.length === 0) startConversation(); }} className="rounded-full w-16 h-16 shadow-lg">
+                 <Button onClick={() => setIsOpen(true)} className="rounded-full w-16 h-16 shadow-lg">
                     <Bot className="h-8 w-8" />
                 </Button>
             )}

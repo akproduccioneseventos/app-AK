@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview The main AI assistant flow for conversational quoting.
@@ -95,6 +94,9 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   const history: Message[] = input.history || [];
   if (input.query) {
     history.push({ role: 'user', content: [{ text: input.query }] });
+  } else if (history.length === 0) {
+    // This case ensures the conversation starts if called with no query.
+    history.push({ role: 'user', content: [{ text: 'Hola, quiero empezar.' }] });
   }
 
   const llmResponse = await ai.generate({
