@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -39,7 +40,6 @@ export default function GestorFiestasPage() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [clienteActual, setClienteActual] = useState<Customer | null>(null);
   
-  // State for KPIs from the centralized function
   const [kpiData, setKpiData] = useState({
     fiestasPasadas: 0,
     fiestasFuturas: 0,
@@ -93,7 +93,7 @@ export default function GestorFiestasPage() {
           title: "¡Operación Exitosa!",
           description: `"${result.archivada?.configuracion.nombreEvento}" ha sido archivada. Ahora puedes planificar una nueva fiesta.`,
         });
-        await loadData(); // Recargar todos los datos
+        await loadData(); 
       } else {
         throw new Error(result.error || "No se pudo archivar la fiesta actual.");
       }
@@ -297,4 +297,3 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
-

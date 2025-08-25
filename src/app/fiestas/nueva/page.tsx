@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -170,7 +171,7 @@ export default function PlanificarFiestaHubPage() {
             <Link href="/eventos" passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver al Gestor de Fiestas
+                Volver al Gestor de Eventos
               </Button>
             </Link>
         </div>
