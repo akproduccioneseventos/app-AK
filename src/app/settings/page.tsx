@@ -35,12 +35,19 @@ const settingsCards = [
     icon: Star,
     buttonLabel: "Gestionar Feedback"
   },
-  {
-    title: "Asistente AK (IA)",
-    description: "Accede a herramientas de análisis y entiende cómo funciona la IA.",
-    href: "/settings/asistente-ak",
+   {
+    title: "Análisis de Código (IA)",
+    description: "Deja que la IA revise tu código y te dé sugerencias de mejora.",
+    href: "/admin/aaiff",
     icon: BrainCircuit,
-    buttonLabel: "Configurar IA"
+    buttonLabel: "Analizar Código"
+  },
+  {
+    title: "Análisis de Evento (IA)",
+    description: "Obtén un reporte del estado de la planificación de tu evento actual.",
+    href: "/admin/aaiff-fiesta",
+    icon: PartyPopper,
+    buttonLabel: "Analizar Evento"
   },
   {
     title: "Notificaciones",
