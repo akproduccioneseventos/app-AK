@@ -166,7 +166,7 @@ const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: 
     
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild><Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Crear Servicio Rápido</Button></DialogTrigger>
+            <DialogTrigger asChild><Button variant="secondary" className="mt-2 w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Servicio Rápido</Button></DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader><DialogTitle>Crear Nuevo Servicio</DialogTitle><DialogDescription>Este servicio se guardará en tu catálogo general.</DialogDescription></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-3 py-2">
