@@ -15,7 +15,6 @@ import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto, TipoEvento } from '@/types/presupuesto';
 import { savePresupuesto } from '@/app/actions/presupuestos';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCrmLeads } from '@/app/actions/crm';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -56,67 +55,13 @@ function NuevoPresupuestoContent() {
 
         // Dinámicamente importar la acción del servidor para servicios
         const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
-        const [fetchedServiciosCatalogo, fiestaActualData, crmLeads] = await Promise.all([
-          getServiciosEmpresa(),
-          getFiestaActual(),
-          getCrmLeads()
-        ]);
+        const fetchedServiciosCatalogo = await getServiciosEmpresa();
         setServiciosCatalogo(fetchedServiciosCatalogo);
-
-        setFormData(prev => {
-          let newClienteNombre = prev.clienteNombre;
-          
-          if (leadNameParam) {
-            newClienteNombre = leadNameParam;
-          }
-
-          let newEventoTipo = prev.eventoTipo;
-          let newEventoFecha = prev.eventoFecha;
-          let newInvitadosCantidad = prev.invitadosCantidad;
-          let newSalonFiestas = prev.salonFiestas;
-          let newProtagonista1 = prev.protagonista1Nombre;
-          let newProtagonista2 = prev.protagonista2Nombre;
-          let newNombreEmpresa = prev.nombreEmpresa;
-
-          if (fiestaActualData?.configuracion) {
-            const config = fiestaActualData.configuracion;
-            if (!newClienteNombre && config.clienteId && config.nombreEvento && config.nombreEvento !== "Mi Próximo Evento Increíble") {
-                newClienteNombre = config.nombreEvento;
-            }
-            if (config.tipoCelebracion) {
-              if (ALL_TIPOS_EVENTO.includes(config.tipoCelebracion as TipoEvento)) {
-                newEventoTipo = config.tipoCelebracion as TipoEvento;
-              } else {
-                newEventoTipo = config.tipoCelebracion;
-              }
-              newProtagonista1 = ''; newProtagonista2 = ''; newNombreEmpresa = '';
-              if (newEventoTipo === 'Evento corporativo' && config.nombreEvento) {
-                 newNombreEmpresa = config.nombreEvento;
-              }
-            }
-            if (!prev.eventoFecha && config.fechaEvento) {
-              try { newEventoFecha = new Date(config.fechaEvento); } catch (e) { /* ignora */ }
-            }
-            const invitadosEst = typeof config.invitadosEstimados === 'string' ? parseInt(config.invitadosEstimados, 10) : config.invitadosEstimados;
-            if (prev.invitadosCantidad === null && typeof invitadosEst === 'number' && invitadosEst > 0) {
-              newInvitadosCantidad = invitadosEst;
-            }
-            if (!prev.salonFiestas && config.nombreLugar) {
-                newSalonFiestas = config.nombreLugar;
-            }
-          }
-          return {
-            ...prev,
-            clienteNombre: newClienteNombre,
-            eventoTipo: newEventoTipo,
-            eventoFecha: newEventoFecha,
-            invitadosCantidad: newInvitadosCantidad,
-            salonFiestas: newSalonFiestas,
-            nombreEmpresa: newNombreEmpresa,
-            protagonista1Nombre: newProtagonista1,
-            protagonista2Nombre: newProtagonista2,
-          };
-        });
+        
+        if (leadNameParam) {
+           setFormData(prev => ({...prev, clienteNombre: leadNameParam}));
+        }
+       
       } catch (error) {
         console.error("Error al cargar datos iniciales:", error);
         toast({ title: "Error", description: "No se pudieron cargar datos iniciales.", variant: "destructive" });

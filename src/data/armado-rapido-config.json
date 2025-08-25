@@ -9,25 +9,25 @@
           "id": "serv_1752489600001_pmozo",
           "nombre": "Mozo",
           "precioBase": 2900,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+          "calculationMethod": "ratio",
+          "tramosDePrecio": [
+            {
+              "id": "tier_1756160277709",
+              "desde": 1,
+              "hasta": 50,
+              "precio": 0
+            }
+          ],
+          "invitadosPorUnidad": 25
         },
         {
           "id": "serv_1752489600002_pcoci",
           "nombre": "Mozo de cocina",
           "precioBase": 2900,
-          "precioPorPersona": 0
-        },
-        {
-          "id": "serv_1752489600103_disbas",
-          "nombre": "Discoteca Básica",
-          "precioBase": 5500,
-          "precioPorPersona": 0
-        },
-        {
-          "id": "serv_1752489600004_pchef",
-          "nombre": "Cheff",
-          "precioBase": 3500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+          "calculationMethod": "ratio",
+          "invitadosPorUnidad": 25
         }
       ]
     },
