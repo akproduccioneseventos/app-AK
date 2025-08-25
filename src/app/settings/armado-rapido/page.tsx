@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Settings, GripVertical } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Settings, GripVertical, ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
@@ -23,6 +23,7 @@ import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Switch } from '@/components/ui/switch';
 
 
 const formatCurrency = (amount?: number) => {
@@ -30,11 +31,17 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
+// New Service Modal Component, now implemented directly in this file
 const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: ServicioEmpresa) => void }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [newServiceData, setNewServiceData] = useState<Partial<Omit<ServicioEmpresa, 'id'>>>({
-        tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '',
+        tipoItem: 'Servicio',
+        nombre: '',
+        categoria: 'Otros servicios',
+        unidad: 'Por evento',
+        precioVenta: 0,
+        notas: '',
     });
     const { toast } = useToast();
 
@@ -52,17 +59,25 @@ const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: 
                 onServiceCreated(result.servicio);
                 setIsOpen(false);
                 setNewServiceData({ tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '' });
-            } else { throw new Error(result.error || "No se pudo crear el servicio."); }
-        } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); } finally { setIsSaving(false); }
+            } else {
+                throw new Error(result.error || "No se pudo crear el servicio.");
+            }
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setIsSaving(false);
+        }
     };
     
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild><Button variant="secondary" className="mt-4"><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Servicio</Button></DialogTrigger>
+            <DialogTrigger asChild>
+                <Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Servicio</Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-md">
-                <DialogHeader><DialogTitle>Crear Nuevo Servicio en Catálogo</DialogTitle><DialogDescription>Este servicio se guardará en tu catálogo general.</DialogDescription></DialogHeader>
+                <DialogHeader><DialogTitle>Crear Nuevo Servicio en Catálogo</DialogTitle><DialogDescription>Este servicio se guardará y se añadirá a este presupuesto.</DialogDescription></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-3 py-2">
-                    <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
+                    <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
                     <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
@@ -273,6 +288,7 @@ export default function ArmadoRapidoSettingsPage() {
       id: `paquete_${Date.now()}`,
       nombre: `Nuevo Paquete #${(config?.paquetes.length || 0) + 1}`,
       serviciosIncluidos: [],
+      incluyeSeleccionMenu: false, // Default to false
     };
     setConfig(prev => prev ? ({ ...prev, paquetes: [...prev.paquetes, newPackage] }) : null);
   };
@@ -394,7 +410,7 @@ export default function ArmadoRapidoSettingsPage() {
                                 {pkg.nombre}
                             </AccordionTrigger>
                             <AccordionContent className="p-4 border-t">
-                              <div className="flex items-end gap-2 mb-4">
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                                 <div className="space-y-2 flex-grow">
                                   <Label htmlFor={`pkg-name-${pkg.id}`}>Nombre del Paquete</Label>
                                   <Input
@@ -407,6 +423,18 @@ export default function ArmadoRapidoSettingsPage() {
                                     <Trash2 className="w-4 h-4"/>
                                 </Button>
                               </div>
+                               <div className="flex items-center space-x-2 my-4 p-3 border rounded-md">
+                                <Switch
+                                    id={`incluye-menu-${pkg.id}`}
+                                    checked={pkg.incluyeSeleccionMenu}
+                                    onCheckedChange={(checked) => handlePackageChange(pkg.id, { incluyeSeleccionMenu: checked })}
+                                />
+                                <Label htmlFor={`incluye-menu-${pkg.id}`} className="flex flex-col">
+                                    <span>Incluir Selección de Menú de Catering</span>
+                                    <span className="text-xs text-muted-foreground">Permite al cliente elegir un menú de tu catálogo al cotizar.</span>
+                                </Label>
+                              </div>
+
                               <Separator className="my-4"/>
                               <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
