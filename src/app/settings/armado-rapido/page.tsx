@@ -54,9 +54,9 @@ const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: 
     
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild><Button variant="secondary" className="mt-2 w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Servicio Rápido</Button></DialogTrigger>
+            <DialogTrigger asChild><Button variant="secondary" className="mt-4"><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Servicio</Button></DialogTrigger>
             <DialogContent className="sm:max-w-md">
-                <DialogHeader><DialogTitle>Crear Nuevo Servicio</DialogTitle><DialogDescription>Este servicio se guardará en tu catálogo general.</DialogDescription></DialogHeader>
+                <DialogHeader><DialogTitle>Crear Nuevo Servicio en Catálogo</DialogTitle><DialogDescription>Este servicio se guardará en tu catálogo general.</DialogDescription></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-3 py-2">
                     <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
                     <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
@@ -401,7 +401,6 @@ export default function ArmadoRapidoSettingsPage() {
                                             </ul>
                                         ) : <p className="text-center text-muted-foreground p-4">No hay más servicios disponibles para añadir.</p>}
                                     </ScrollArea>
-                                     <NewServiceModal onServiceCreated={(newService) => { setVendibleServices(prev => [newService, ...prev]) }} />
                                 </div>
                               </div>
                             </AccordionContent>
@@ -409,7 +408,10 @@ export default function ArmadoRapidoSettingsPage() {
                     )
                 })}
             </Accordion>
-             <Button variant="outline" onClick={handleAddPackage} className="mt-4"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paquete</Button>
+             <div className="flex flex-col sm:flex-row gap-2 mt-4">
+                <Button variant="outline" onClick={handleAddPackage}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Paquete</Button>
+                <NewServiceModal onServiceCreated={(newService) => { setVendibleServices(prev => [newService, ...prev]) }} />
+             </div>
         </CardContent>
       </Card>
       <CardFooter className="border-t pt-6">
