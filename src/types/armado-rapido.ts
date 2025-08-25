@@ -20,10 +20,6 @@ export interface ServicioIncluido {
   costoPorUnidad?: number;            // For 'ratio' (e.g., cost of one waiter)
   invitadosPorUnidad?: number;        // For 'ratio' (e.g., 25 guests per waiter)
   tramosDePrecio?: TierPrecio[];      // For 'escalonado'
-
-  // Old fields are deprecated but kept for potential data migration
-  precioBase?: number;
-  precioPorPersona?: number;
 }
 
 export interface PaqueteArmadoRapido {
