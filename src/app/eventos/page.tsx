@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -175,7 +173,7 @@ export default function GestorFiestasPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-10">
+        <div className="flex items-center justify-center py-10 print:hidden">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
           <p className="ml-3 text-muted-foreground">Cargando información de fiestas...</p>
         </div>
