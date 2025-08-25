@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Trash2, ChevronDown, Wand2, Settings, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Wand2, Trash2, ChevronDown, Settings, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria, ReposteriaItem, ReposteriaConsumoConfig } from '@/types/fiesta';
 import { getFiestaActual, updateReposteriaFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultReposteriaCategorias, defaultReposteriaConsumoConfig } from '@/lib/fiesta-defaults';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,7 @@ export default function GestionReposteriaPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Modal State
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<ReposteriaItem> | null>(null);
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function GestionReposteriaPage() {
       setNumAdultos(Number(config.invitadosEstimados) || 0);
       
       const fetchedReposteriaData = fiestaData.reposteria || { categorias: [], notasGenerales: '' };
-      const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
+       const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
         const savedCat = fetchedReposteriaData.categorias?.find(sc => sc.id === defaultCat.id);
         const mergedCat = savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
         mergedCat.items = mergedCat.items || [];
@@ -304,7 +305,7 @@ export default function GestionReposteriaPage() {
                       <Badge variant="secondary" className="ml-2">Est: {totalPorcionesNecesarias.toFixed(1)} porciones</Badge>
                       <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
                     </AccordionPrimitive.Trigger>
-                    <Switch
+                    <Checkbox
                       checked={cat.activada}
                       onCheckedChange={(checked) => handleCategoryChange(cat.id, 'activada', !!checked)}
                       onClick={(e) => e.stopPropagation()}
