@@ -18,7 +18,6 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -191,10 +190,10 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/settings/asistente-ak') return BrainCircuit;
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/settings/asistente-ak') return BrainCircuit;
   
   if (pathname === '/armado-rapido') return Wand2;
   if (pathname === '/asistente-ak') return Bot;
@@ -291,7 +290,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
-      {pathname !== '/portal' && <AkAssistant />}
+      {/* {pathname !== '/portal' && <AkAssistant />} */}
     </div>
   );
 }

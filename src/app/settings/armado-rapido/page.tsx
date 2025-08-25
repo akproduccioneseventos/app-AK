@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,12 +18,58 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
+
+const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: ServicioEmpresa) => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [newServiceData, setNewServiceData] = useState<Partial<Omit<ServicioEmpresa, 'id'>>>({
+        tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '',
+    });
+    const { toast } = useToast();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newServiceData.nombre || !newServiceData.categoria || !newServiceData.unidad || (newServiceData.precioVenta ?? -1) < 0) {
+            toast({ title: "Datos incompletos", description: "Nombre, categoría, unidad y precio son requeridos.", variant: "destructive" });
+            return;
+        }
+        setIsSaving(true);
+        try {
+            const result = await saveServicioEmpresa(newServiceData as Omit<ServicioEmpresa, 'id'>);
+            if (result.success && result.servicio) {
+                toast({ title: "Servicio Creado", description: `"${result.servicio.nombre}" ha sido añadido al catálogo.` });
+                onServiceCreated(result.servicio);
+                setIsOpen(false);
+                setNewServiceData({ tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '' });
+            } else { throw new Error(result.error || "No se pudo crear el servicio."); }
+        } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); } finally { setIsSaving(false); }
+    };
+    
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild><Button variant="secondary" className="mt-2 w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Servicio Rápido</Button></DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader><DialogTitle>Crear Nuevo Servicio</DialogTitle><DialogDescription>Este servicio se guardará en tu catálogo general.</DialogDescription></DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-3 py-2">
+                    <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
+                    <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
+                        <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Venta *</Label><Input id="new-serv-price" type="number" value={newServiceData.precioVenta || ''} onChange={e => setNewServiceData(p => ({...p, precioVenta: parseFloat(e.target.value) || 0}))} required/></div>
+                    </div>
+                     <div className="space-y-1"><Label htmlFor="new-serv-notes">Descripción (Opcional)</Label><Textarea id="new-serv-notes" value={newServiceData.notas} onChange={e => setNewServiceData(p => ({...p, notas: e.target.value}))} rows={2}/></div>
+                    <DialogFooter><DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose><Button type="submit" disabled={isSaving}>{isSaving ? 'Guardando...' : 'Crear y Añadir'}</Button></DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 };
 
 
@@ -41,7 +87,7 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
     setIsEditing(false);
   };
 
-  const handleTierChange = (tierId: string, field: 'desde' | 'hasta' | 'precio', value: number) => {
+  const handleTierChange = (tierId: string, field: keyof TierPrecio, value: number) => {
     const newTiers = (editedService.tramosDePrecio || []).map(t =>
       t.id === tierId ? { ...t, [field]: value } : t
     );
@@ -136,52 +182,6 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
         </div>
     </div>
   );
-};
-
-const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: ServicioEmpresa) => void }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [newServiceData, setNewServiceData] = useState<Partial<Omit<ServicioEmpresa, 'id'>>>({
-        tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '',
-    });
-    const { toast } = useToast();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newServiceData.nombre || !newServiceData.categoria || !newServiceData.unidad || (newServiceData.precioVenta ?? -1) < 0) {
-            toast({ title: "Datos incompletos", description: "Nombre, categoría, unidad y precio son requeridos.", variant: "destructive" });
-            return;
-        }
-        setIsSaving(true);
-        try {
-            const result = await saveServicioEmpresa(newServiceData as Omit<ServicioEmpresa, 'id'>);
-            if (result.success && result.servicio) {
-                toast({ title: "Servicio Creado", description: `"${result.servicio.nombre}" ha sido añadido al catálogo.` });
-                onServiceCreated(result.servicio);
-                setIsOpen(false);
-                setNewServiceData({ tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '' });
-            } else { throw new Error(result.error || "No se pudo crear el servicio."); }
-        } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); } finally { setIsSaving(false); }
-    };
-    
-    return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild><Button variant="secondary" className="mt-2 w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Servicio Rápido</Button></DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader><DialogTitle>Crear Nuevo Servicio</DialogTitle><DialogDescription>Este servicio se guardará en tu catálogo general.</DialogDescription></DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-3 py-2">
-                    <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
-                    <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
-                        <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Venta *</Label><Input id="new-serv-price" type="number" value={newServiceData.precioVenta || ''} onChange={e => setNewServiceData(p => ({...p, precioVenta: parseFloat(e.target.value) || 0}))} required/></div>
-                    </div>
-                     <div className="space-y-1"><Label htmlFor="new-serv-notes">Descripción (Opcional)</Label><Textarea id="new-serv-notes" value={newServiceData.notas} onChange={e => setNewServiceData(p => ({...p, notas: e.target.value}))} rows={2}/></div>
-                    <DialogFooter><DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose><Button type="submit" disabled={isSaving}>{isSaving ? 'Guardando...' : 'Crear y Añadir'}</Button></DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
 };
 
 
