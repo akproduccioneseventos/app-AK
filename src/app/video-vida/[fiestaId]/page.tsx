@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { saveLifeStoryVideoPhotos } from '@/app/actions/video-vida';
 import NextImage from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 
 const MAX_PHOTOS = 50;
 const MAX_FILE_SIZE_MB = 5;
@@ -90,6 +91,27 @@ export default function PhotoUploadPage({ params: paramsProp }: { params: Promis
   const [customText, setCustomText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function checkAccess() {
+      try {
+        const fiestaData = await getFiestaById(params.fiestaId);
+        if (!fiestaData) {
+          throw new Error("No se encontró el evento.");
+        }
+        if (!fiestaData.videoVida?.galleryEnabled) {
+          throw new Error("La carga de fotos para este evento no está activada.");
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    checkAccess();
+  }, [params.fiestaId]);
   
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = event.target.files?.[0];
@@ -136,7 +158,7 @@ export default function PhotoUploadPage({ params: paramsProp }: { params: Promis
     // Append files in order of the array, ensuring correct naming on the backend
     photos.forEach(file => {
       // The backend will process the array sequentially. We send empty placeholders for nulls
-      // to maintain order, or simply filter and rely on array order. Let's filter.
+      // to maintain order, or simply filter. Let's filter.
       if (file) {
           formData.append('photos', file);
       }
@@ -155,6 +177,20 @@ export default function PhotoUploadPage({ params: paramsProp }: { params: Promis
     }
     setIsSubmitting(false);
   };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+  }
+  
+  if (error) {
+     return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+        <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
+        <h1 className="text-2xl font-bold">Acceso no disponible</h1>
+        <p className="text-muted-foreground mt-2">{error}</p>
+      </div>
+    );
+  }
   
   if (isSubmitted) {
       return (

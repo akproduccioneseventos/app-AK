@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, type FormEvent, useRef, type C
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
-import { getFiestaActual } from '@/app/actions/fiesta-actual'; // To get event name
+import { getFiestaById } from '@/app/actions/fiesta-actual'; // Corrected import
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -123,7 +123,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: Prom
     try {
       const [fetchedPosts, fiestaData] = await Promise.all([
           getSocialPosts(params.fiestaId),
-          getFiestaActual()
+          getFiestaById(params.fiestaId) // Corrected function call
       ]);
       setPosts(fetchedPosts);
       setFiesta(fiestaData);

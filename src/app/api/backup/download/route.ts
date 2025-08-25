@@ -6,22 +6,28 @@ import JSZip from 'jszip';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 
-async function addFilesToZip(zip: JSZip, directoryPath: string, parentPath: string = '') {
-  const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+async function addFilesToZip(zip: JSZip, directoryPath: string, parentPath: string) {
+  try {
+    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
 
-  for (const entry of entries) {
-    // Skip the backups directory itself to prevent recursive zipping
-    if (entry.name === 'backups' && parentPath === '') continue;
-
-    const fullPath = path.join(directoryPath, entry.name);
-    const zipPath = path.join(parentPath, entry.name);
-    if (entry.isDirectory()) {
-      // For directories, create a folder in the zip and recurse
-      await addFilesToZip(zip.folder(entry.name)!, fullPath, zipPath);
-    } else {
-      // For files, read content and add to zip
-      const fileContent = await fs.readFile(fullPath);
-      zip.file(entry.name, fileContent);
+    for (const entry of entries) {
+      const fullPath = path.join(directoryPath, entry.name);
+      if (entry.isDirectory()) {
+        const folder = zip.folder(entry.name);
+        if (folder) {
+          await addFilesToZip(folder, fullPath, path.join(parentPath, entry.name));
+        }
+      } else {
+        const fileContent = await fs.readFile(fullPath);
+        zip.file(entry.name, fileContent);
+      }
+    }
+  } catch (error) {
+    // If a directory doesn't exist, we can just skip it.
+    // This can happen if a feature is enabled but no data has been created yet.
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      console.error(`Error processing directory ${directoryPath}:`, error);
+      throw error; // Re-throw other errors
     }
   }
 }
@@ -30,6 +36,7 @@ export async function GET() {
   try {
     const zip = new JSZip();
     
+    // Check if the main data directory exists
     try {
       await fs.access(dataDirectory);
     } catch (e) {
@@ -46,7 +53,10 @@ export async function GET() {
       
       const fullPath = path.join(dataDirectory, entry.name);
       if (entry.isDirectory()) {
-        await addFilesToZip(zip.folder(entry.name)!, fullPath, entry.name);
+        const folder = zip.folder(entry.name);
+        if(folder) {
+            await addFilesToZip(folder, fullPath, entry.name);
+        }
       } else {
         const fileContent = await fs.readFile(fullPath);
         zip.file(entry.name, fileContent);

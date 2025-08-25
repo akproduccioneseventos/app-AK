@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ElementType }> = {
@@ -34,11 +34,10 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: Pro
       if (!fetchedAcceso) {
         throw new Error("El enlace de acceso no es válido, ha expirado o ha sido revocado.");
       }
-      // Assuming the link is for the *current* party for simplicity.
-      // A more robust system would check if fetchedAcceso.fiestaId matches a specific historical party if needed.
-      const fiestaData = await getFiestaActual();
-      if(fiestaData.id !== fetchedAcceso.fiestaId) {
-         throw new Error("Este enlace de acceso es para un evento que no es el que está actualmente en planificación.");
+      
+      const fiestaData = await getFiestaById(fetchedAcceso.fiestaId);
+      if(!fiestaData) {
+         throw new Error("Este enlace de acceso es para un evento que no se ha encontrado.");
       }
       setAcceso(fetchedAcceso);
       setFiesta(fiestaData);
@@ -95,8 +94,9 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: Pro
                         const modulo = MODULO_DETAILS[permisoId];
                         if (!modulo) return null;
                         const Icon = modulo.icon;
+                        const linkHref = `${modulo.href}?fiestaId=${fiesta.id}`;
                         return (
-                            <Link href={modulo.href} key={permisoId} passHref>
+                            <Link href={linkHref} key={permisoId} passHref>
                                 <Button variant="outline" className="w-full h-auto justify-start p-4 text-left">
                                     <Icon className="w-6 h-6 mr-4 text-primary"/>
                                     <div className="flex-grow">
