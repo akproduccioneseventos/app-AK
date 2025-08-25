@@ -35,7 +35,9 @@ const createQuoteTool = ai.defineTool(
     try {
         if (input.eventoFecha) {
             const occupiedDates = await getOcupiedDates();
-            if (occupiedDates.includes(input.eventoFecha)) {
+            // Ensure date is in YYYY-MM-DD format for comparison
+            const requestedDate = new Date(input.eventoFecha).toISOString().split('T')[0];
+            if (occupiedDates.includes(requestedDate)) {
                 return { 
                     success: false, 
                     message: `La fecha ${new Date(input.eventoFecha).toLocaleDateString('es-ES', {timeZone: 'UTC'})} no está disponible. Por favor, sugiere al cliente otra fecha.`,

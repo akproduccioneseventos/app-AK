@@ -195,10 +195,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/asistente-ak') return BrainCircuit;
-
-  if (pathname === '/asistente-ak') return Bot;
+  
   if (pathname === '/armado-rapido') return Wand2;
-
+  if (pathname === '/asistente-ak') return Bot;
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
@@ -224,7 +223,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
-  const isClientFacingTool = pathname === '/asistente-ak' || pathname === '/armado-rapido';
+  const isClientFacingTool = pathname === '/armado-rapido' || pathname === '/asistente-ak';
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
