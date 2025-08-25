@@ -12,6 +12,8 @@ import { ArrowLeft, Loader2, Wand2, Users, FileText, MessageSquare, Tag } from '
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', {
@@ -25,6 +27,7 @@ const formatCurrency = (amount: number) => {
 export default function ArmadoRapidoPage() {
     const { toast } = useToast();
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
+    const [catalogoServicios, setCatalogoServicios] = useState<ServicioEmpresa[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -35,8 +38,13 @@ export default function ArmadoRapidoPage() {
         setIsLoading(true);
         setError(null);
         try {
-            const fetchedConfig = await getArmadoRapidoConfig();
+            const [fetchedConfig, fetchedServicios] = await Promise.all([
+                getArmadoRapidoConfig(),
+                getServiciosEmpresa()
+            ]);
             setConfig(fetchedConfig);
+            setCatalogoServicios(fetchedServicios);
+
             if (fetchedConfig.paquetes.length > 0) {
                 setPaqueteSeleccionadoId(fetchedConfig.paquetes[0].id);
             }
@@ -71,9 +79,11 @@ export default function ArmadoRapidoPage() {
                     costoTotalPaquete += (servicio.costoPorPersona || 0) * cantidadInvitados;
                     break;
                 case 'ratio':
-                    if (servicio.invitadosPorUnidad && servicio.costoPorUnidad && servicio.invitadosPorUnidad > 0) {
+                    const servicioCompleto = catalogoServicios.find(s => s.id === servicio.id);
+                    const costoPorUnidad = servicioCompleto?.precioVenta || 0;
+                    if (servicio.invitadosPorUnidad && costoPorUnidad && servicio.invitadosPorUnidad > 0) {
                         const unidadesNecesarias = Math.ceil(cantidadInvitados / servicio.invitadosPorUnidad);
-                        costoTotalPaquete += unidadesNecesarias * servicio.costoPorUnidad;
+                        costoTotalPaquete += unidadesNecesarias * costoPorUnidad;
                     }
                     break;
                 case 'escalonado':
@@ -86,11 +96,6 @@ export default function ArmadoRapidoPage() {
                         costoTotalPaquete += tramoAplicado.precio || 0;
                     }
                     break;
-                default:
-                    // Fallback for old model
-                    costoTotalPaquete += (servicio.precioBase || 0);
-                    costoTotalPaquete += (servicio.precioPorPersona || 0) * cantidadInvitados;
-                    break;
             }
         });
 
@@ -101,7 +106,7 @@ export default function ArmadoRapidoPage() {
         const costoConDescuento = costoTotalPaquete - montoDescuento;
 
         return { costoTotal: costoTotalPaquete, costoConDescuento, montoDescuento };
-    }, [paqueteActual, cantidadInvitados, config?.descuentoGeneral]);
+    }, [paqueteActual, cantidadInvitados, config?.descuentoGeneral, catalogoServicios]);
 
     const handleGenerarPresupuesto = async () => {
         if (!paqueteActual) return;

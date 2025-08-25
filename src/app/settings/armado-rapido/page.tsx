@@ -25,7 +25,7 @@ const formatCurrency = (amount?: number) => {
 
 
 // Component for editing a single service within a package
-const EditServicioIncluido = ({ service, onUpdate, onRemove }: { service: ServicioIncluido, onUpdate: (updatedService: ServicioIncluido) => void, onRemove: () => void }) => {
+const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { service: ServicioIncluido, baseService?: ServicioEmpresa, onUpdate: (updatedService: ServicioIncluido) => void, onRemove: () => void }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedService, setEditedService] = useState(service);
 
@@ -85,9 +85,15 @@ const EditServicioIncluido = ({ service, onUpdate, onRemove }: { service: Servic
             <div className="space-y-1"><Label>Costo por Persona</Label><Input type="number" value={editedService.costoPorPersona || ''} onChange={e => setEditedService(p => ({...p!, costoPorPersona: Number(e.target.value)}))}/></div>
         )}
         {editedService.calculationMethod === 'ratio' && (
-            <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1"><Label>Costo por Unidad</Label><Input type="number" value={editedService.costoPorUnidad || ''} onChange={e => setEditedService(p => ({...p!, costoPorUnidad: Number(e.target.value)}))}/></div>
-                <div className="space-y-1"><Label>Invitados por Unidad</Label><Input type="number" value={editedService.invitadosPorUnidad || ''} onChange={e => setEditedService(p => ({...p!, invitadosPorUnidad: Number(e.target.value)}))}/></div>
+             <div className="space-y-2 p-2 border rounded-md bg-blue-50/50 border-blue-200">
+                <div className="space-y-1">
+                    <Label className="text-xs">Costo por Unidad (del Catálogo)</Label>
+                    <Input type="text" value={formatCurrency(baseService?.precioVenta || 0)} disabled className="font-semibold bg-white/50"/>
+                </div>
+                <div className="space-y-1">
+                    <Label>Invitados por Unidad</Label>
+                    <Input type="number" placeholder="Ej: 25" value={editedService.invitadosPorUnidad || ''} onChange={e => setEditedService(p => ({...p!, invitadosPorUnidad: Number(e.target.value)}))}/>
+                </div>
             </div>
         )}
          {editedService.calculationMethod === 'escalonado' && (
@@ -99,8 +105,8 @@ const EditServicioIncluido = ({ service, onUpdate, onRemove }: { service: Servic
               {(editedService.tramosDePrecio || []).sort((a,b) => a.hasta - b.hasta).map(tier => (
                 <div key={tier.id} className="grid grid-cols-3 gap-2 items-center">
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveTier(tier.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                    <Input type="number" value={tier.hasta} onChange={e => handleTierChange(tier.id, 'hasta', Number(e.target.value))} className="h-8"/>
-                    <Input type="number" value={tier.precio} onChange={e => handleTierChange(tier.id, 'precio', Number(e.target.value))} className="h-8"/>
+                    <Input type="number" value={tier.hasta} onChange={e => handleTierChange(tier.id, 'hasta', Number(e.target.value))} className="h-8" placeholder="80"/>
+                    <Input type="number" value={tier.precio} onChange={e => handleTierChange(tier.id, 'precio', Number(e.target.value))} className="h-8" placeholder="10000"/>
                 </div>
               ))}
               <Button type="button" size="sm" variant="outline" onClick={handleAddTier}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Tramo</Button>
@@ -297,6 +303,7 @@ export default function ArmadoRapidoSettingsPage() {
                                                   <li key={s.id}>
                                                       <EditServicioIncluido
                                                           service={s}
+                                                          baseService={vendibleServices.find(vs => vs.id === s.id)}
                                                           onUpdate={(updatedS) => handleUpdateServiceInPackage(pkg.id, updatedS)}
                                                           onRemove={() => handleRemoveServiceFromPackage(pkg.id, s.id)}
                                                       />

@@ -11,13 +11,11 @@ export interface ServicioIncluido {
   id: string; // Corresponds to ServicioEmpresa id
   nombre: string;
   
-  // New flexible calculation system
   calculationMethod: CalculationMethod;
   
-  // Fields for different methods
+  // Fields for different methods. The cost is now implicit for ratio.
   costoFijo?: number;                 // For 'fijo'
   costoPorPersona?: number;           // For 'por_persona'
-  costoPorUnidad?: number;            // For 'ratio' (e.g., cost of one waiter)
   invitadosPorUnidad?: number;        // For 'ratio' (e.g., 25 guests per waiter)
   tramosDePrecio?: TierPrecio[];      // For 'escalonado'
 }
