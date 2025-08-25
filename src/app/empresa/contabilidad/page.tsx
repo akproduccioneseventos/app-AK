@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getInvoices } from '@/app/actions/invoices';
 import type { Invoice } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
@@ -18,6 +17,7 @@ import type { MonthlyChartData } from '@/components/charts/MonthlySalesChart';
 import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieChart';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
+import { getInvoices } from '@/app/actions/invoices';
 
 
 const MonthlySalesChart = dynamic(() => 
@@ -116,7 +116,7 @@ export default function ContabilidadDashboardPage() {
         invoicesData
       ] = await Promise.all([
         getDashboardKpiData(),
-        getInvoices(),
+        getInvoices(), // Still need this for the monthly chart
       ]);
 
       if (!kpiResult.success) {
@@ -155,7 +155,7 @@ export default function ContabilidadDashboardPage() {
       }));
       setMonthlyChartData(formattedMonthlyData);
 
-      // Prepare data for PaymentStatusPieChart
+      // Prepare data for PaymentStatusPieChart using the reliable KPI data
       if (kpiResult.data.ventasTotales > 0) {
         setPaymentPieChartData([
           { name: 'Pagado', value: kpiResult.data.montoPagado, fill: 'hsl(var(--chart-2))' },
