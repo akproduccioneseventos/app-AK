@@ -33,6 +33,9 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
         setIsLoading(true);
         setMessages([]);
         assistant({ query: 'Hola' }).then(response => {
+             if (!response || !response.response) {
+                throw new Error("El asistente no pudo iniciar la conversación.");
+            }
             setMessages(prev => [...prev, {
                 id: `ai-${Date.now()}`,
                 role: 'model',
@@ -77,6 +80,10 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
             const history: Message[] = messages.map(m => ({ role: m.role, content: m.content }));
             const response = await assistant({ query: userMessage, history });
             
+            if (!response || !response.response) {
+                throw new Error("El asistente no pudo generar una respuesta válida.");
+            }
+
             setMessages(prev => [...prev, {
                 id: `ai-${Date.now()}`,
                 role: 'model',
@@ -128,7 +135,7 @@ export function AkAssistant({ isPage = false, assistantKey }: { isPage?: boolean
                             <div className="p-4 space-y-4">
                                 {messages.map((message) => {
                                     const isModel = message.role === 'model';
-                                    const messageContent = message.content[0].text;
+                                    const messageContent = message.content[0]?.text ?? "No se pudo obtener una respuesta.";
                                     const presupuestoId = message.data?.presupuestoId;
                                     const suggestedReplies = extractOptions(messageContent);
                                     
