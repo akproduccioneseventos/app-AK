@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { getHistorialFiestas, archivarFiestaActual, getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, archivarFiestaActual } from '@/app/actions/fiesta-actual';
+import { getDashboardKpiData } from '@/app/actions/dashboard'; // Importar la función centralizada
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
-import { getCustomerById, getCustomers } from '@/app/actions/customers';
+import { getCustomerById } from '@/app/actions/customers';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -35,10 +36,15 @@ const formatDate = (dateString?: string) => {
 
 export default function GestorFiestasPage() {
   const { toast } = useToast();
-  const [historialFiestas, setHistorialFiestas] = useState<FiestaEnPlanificacion[]>([]);
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [clienteActual, setClienteActual] = useState<Customer | null>(null);
-  const [clientesActivos, setClientesActivos] = useState<number>(0);
+  
+  // State for KPIs from the centralized function
+  const [kpiData, setKpiData] = useState({
+    fiestasPasadas: 0,
+    fiestasFuturas: 0,
+  });
+
   const [isLoading, setIsLoading] = useState(true);
   const [isArchiving, setIsArchiving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,14 +54,18 @@ export default function GestorFiestasPage() {
     setError(null);
     setClienteActual(null);
     try {
-      const [historial, actual, allCustomers] = await Promise.all([
-        getHistorialFiestas(),
+      const [kpiResult, actual] = await Promise.all([
+        getDashboardKpiData(),
         getFiestaActual(),
-        getCustomers()
       ]);
-      setHistorialFiestas(historial);
+
+      if (kpiResult.success && kpiResult.data) {
+        setKpiData(kpiResult.data);
+      } else {
+        throw new Error(kpiResult.error || "No se pudieron cargar los datos del panel.");
+      }
+      
       setFiestaActual(actual);
-      setClientesActivos(allCustomers.filter(c => c.estadoCliente === 'Actual').length);
 
       if (actual && actual.configuracion.clienteId) {
         const cliente = await getCustomerById(actual.configuracion.clienteId);
@@ -119,9 +129,7 @@ export default function GestorFiestasPage() {
     }
   };
 
-  const fiestasPasadasCount = historialFiestas.length;
   const isFiestaActualConfigured = fiestaActual && fiestaActual.configuracion.nombreEvento && fiestaActual.configuracion.nombreEvento !== "Mi Próximo Evento Increíble";
-
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 print:space-y-4">
@@ -239,7 +247,7 @@ export default function GestorFiestasPage() {
                 <Archive className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{fiestasPasadasCount}</div>
+                <div className="text-2xl font-bold">{kpiData.fiestasPasadas}</div>
                 <p className="text-xs text-muted-foreground">Total de eventos archivados.</p>
               </CardContent>
             </Card>
@@ -249,7 +257,7 @@ export default function GestorFiestasPage() {
                 <CalendarClock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{clientesActivos}</div>
+                <div className="text-2xl font-bold">{kpiData.fiestasFuturas}</div>
                 <p className="text-xs text-muted-foreground">Eventos en planificación actual.</p>
               </CardContent>
             </Card>
@@ -259,9 +267,9 @@ export default function GestorFiestasPage() {
 
           <div className="print:break-before-page">
             <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">Historial de Fiestas Archivadas</h2>
-            {historialFiestas.length > 0 ? (
+            {fiestaActual.historialFiestas && fiestaActual.historialFiestas.length > 0 ? (
               <div className="space-y-4">
-                {historialFiestas.map((fiesta) => (
+                {fiestaActual.historialFiestas.map((fiesta) => (
                   <Card key={fiesta.id} className="bg-muted/30 hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid">
                     <CardHeader className="pb-3 pt-4 px-4 print:pb-1 print:pt-1 print:px-2">
                       <CardTitle className="text-md font-semibold text-foreground print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
@@ -273,9 +281,6 @@ export default function GestorFiestasPage() {
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Users className="w-3 h-3"/> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
                       </div>
-                       {/* <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <DollarSign className="w-3 h-3"/> Presupuesto: <span className="font-medium text-foreground">{formatCurrency(fiesta.configuracion.presupuestoEstimado)}</span>
-                      </div> */}
                     </CardContent>
                   </Card>
                 ))}
@@ -292,3 +297,4 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
+

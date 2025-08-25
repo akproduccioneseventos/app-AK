@@ -135,6 +135,12 @@ async function writeHistorialFile(data: FiestaEnPlanificacion[]): Promise<void> 
   }
 }
 
+// Extend the return type of getFiestaActual to include the history directly
+// This avoids a separate file read on the page
+export type FiestaActualConHistorial = FiestaEnPlanificacion & {
+  historialFiestas?: FiestaEnPlanificacion[];
+}
+
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   try {
     await ensureDataDirectoryExists();
@@ -148,7 +154,7 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
 }
 
 
-export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
+export async function getFiestaActual(): Promise<FiestaActualConHistorial> {
   let fileContent: string;
   let fileExists = false;
   try {
@@ -159,13 +165,15 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   } catch (error) {
     const cleanInitialData = { ...initialFiestaActualData };
     await writeFiestaActualFile(cleanInitialData);
-    return cleanInitialData;
+    const historial = await getHistorialFiestas();
+    return { ...cleanInitialData, historialFiestas: historial };
   }
   
   if (fileContent.trim() === '') {
     const cleanInitialData = { ...initialFiestaActualData };
     await writeFiestaActualFile(cleanInitialData);
-    return cleanInitialData;
+    const historial = await getHistorialFiestas();
+    return { ...cleanInitialData, historialFiestas: historial };
   }
   
   let data: FiestaEnPlanificacion;
@@ -175,7 +183,8 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     console.error("Error parsing fiesta-actual.json, resetting to default.", parseError);
     const cleanInitialData = { ...initialFiestaActualData };
     await writeFiestaActualFile(cleanInitialData);
-    return cleanInitialData;
+    const historial = await getHistorialFiestas();
+    return { ...cleanInitialData, historialFiestas: historial };
   }
 
    const validatedConfig: ConfigEventoDataStorage = {
@@ -383,7 +392,8 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
   if ((validatedData as any).salonLayout) {
     delete (validatedData as any).salonLayout;
   }
-  return validatedData;
+  const historial = await getHistorialFiestas();
+  return { ...validatedData, historialFiestas: historial };
 }
 
 
@@ -632,7 +642,7 @@ export async function updateDecoracionFiestaActual(
             imageUrl: item.imageUrl || undefined,
             dataAiHint: item.dataAiHint || undefined,
         })),
-        zonasContratadas: decoracionDataInput.zonasContratadas || currentDecoracion.zonasContratadas || defaultDecoracion.zonasContratadas,
+        zonasContratadas: decoracionDataInput.zonasContratadas || currentDecoracion.zonasContratadas || defaultZonasContratadas,
         salonElements: (decoracionDataInput.salonElements || currentDecoracion.salonElements || []).map(el => ({
             id: el.id || `elem_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
             name: el.name || 'Elemento sin nombre',
@@ -1095,7 +1105,10 @@ export async function archivarFiestaActual(): Promise<{ success: boolean; error?
     const fiestaParaArchivar = await getFiestaActual();
     let historial = await getHistorialFiestas();
 
-    const archivada = { ...fiestaParaArchivar, id: fiestaParaArchivar.id || `hist_${Date.now()}` };
+    // Remove the added 'historialFiestas' property before archiving
+    const { historialFiestas, ...archivadaSinHistorial } = fiestaParaArchivar;
+    const archivada = { ...archivadaSinHistorial, id: fiestaParaArchivar.id || `hist_${Date.now()}` };
+    
     historial.push(archivada);
     await writeHistorialFile(historial);
 
