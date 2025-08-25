@@ -9,9 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot, FileText } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getPresupuestos } from '@/app/actions/presupuestos';
-import { getFiestaActual, updatePresupuestoAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
@@ -27,9 +25,7 @@ const ALL_PRESUPUESTO_ESTADOS: Presupuesto['estado'][] = ['Borrador', 'Enviado',
 export default function PresupuestosPage() {
   const [allPresupuestos, setAllPresupuestos] = useState<Presupuesto[]>([]);
   const [filteredPresupuestos, setFilteredPresupuestos] = useState<Presupuesto[]>([]);
-  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [assigningPresupuestoId, setAssigningPresupuestoId] = useState<string | null>(null);
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -42,12 +38,8 @@ export default function PresupuestosPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [presupuestosData, fiestaData] = await Promise.all([
-        getPresupuestos(),
-        getFiestaActual()
-      ]);
+      const presupuestosData = await getPresupuestos();
       setAllPresupuestos(presupuestosData);
-      setFiestaActual(fiestaData);
     } catch (err: any) {
       console.error("Error cargando datos:", err);
       setError("No se pudieron cargar los datos. Intente de nuevo.");
@@ -76,31 +68,6 @@ export default function PresupuestosPage() {
   };
 
   const anyStatusFilterActive = ALL_PRESUPUESTO_ESTADOS.some(status => !statusFilter[status]);
-
-
-  const handleToggleAssignPresupuesto = async (presupuestoId: string) => {
-    if (!fiestaActual) return;
-    setAssigningPresupuestoId(presupuestoId);
-    const isCurrentlyAssigned = fiestaActual.presupuestoId === presupuestoId;
-    const newPresupuestoId = isCurrentlyAssigned ? null : presupuestoId;
-
-    try {
-      const result = await updatePresupuestoAsignadoFiestaActual(newPresupuestoId);
-      if (result.success) {
-        toast({
-          title: isCurrentlyAssigned ? "Presupuesto Desasignado" : "Presupuesto Asignado",
-          description: `El presupuesto ha sido ${isCurrentlyAssigned ? 'desasignado de' : 'asignado a'} la fiesta actual.`,
-        });
-        await fetchData(); 
-      } else {
-        throw new Error(result.error || "Error al actualizar la asignación del presupuesto.");
-      }
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setAssigningPresupuestoId(null);
-    }
-  };
   
   return (
     <div className="space-y-8">
@@ -207,9 +174,6 @@ export default function PresupuestosPage() {
                   <PresupuestoCard 
                     key={presupuesto.id} 
                     presupuesto={presupuesto}
-                    isAssignedToCurrentFiesta={fiestaActual?.presupuestoId === presupuesto.id}
-                    onToggleAssign={() => handleToggleAssignPresupuesto(presupuesto.id)}
-                    isAssigning={assigningPresupuestoId === presupuesto.id}
                   />
                 ))}
               </div>

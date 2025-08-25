@@ -2,7 +2,7 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon } from 'lucide-react'; // Added FileTextIcon
+import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon } from 'lucide-react'; 
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 
@@ -53,7 +53,9 @@ export default function PresupuestoCard({
           </p>
         )}
         {presupuesto.estado === 'Facturado' && presupuesto.invoiceId && (
-          <p className="text-xs text-blue-600">Factura Nº: {presupuesto.invoiceId.split('_').pop()?.substring(0,8)}</p>
+          <Link href={`/invoices/${presupuesto.invoiceId}`} passHref>
+            <p className="text-xs text-blue-600 hover:underline">Factura Nº: {presupuesto.invoiceId.split('_').pop()?.substring(0,8)}</p>
+          </Link>
         )}
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-2 pt-4">
