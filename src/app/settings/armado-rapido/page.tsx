@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,13 +10,16 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, AlertTriangle, Package, Trash2, Edit, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluido, CalculationMethod, TierPrecio } from '@/types/armado-rapido';
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio, UnidadServicio } from '@/types/empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -27,6 +31,10 @@ const formatCurrency = (amount?: number) => {
 const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { service: ServicioIncluido, baseService?: ServicioEmpresa, onUpdate: (updatedService: ServicioIncluido) => void, onRemove: () => void }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedService, setEditedService] = useState(service);
+
+  useEffect(() => {
+    setEditedService(service);
+  }, [service]);
 
   const handleSave = () => {
     onUpdate(editedService);
@@ -89,7 +97,7 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
         {editedService.calculationMethod === 'por_persona' && (
             <div className="space-y-1"><Label>Costo por Persona</Label><Input type="number" value={editedService.costoPorPersona || ''} onChange={e => setEditedService(p => ({...p!, costoPorPersona: Number(e.target.value)}))}/></div>
         )}
-        {editedService.calculationMethod === 'ratio' && (
+         {editedService.calculationMethod === 'ratio' && (
              <div className="space-y-2 p-2 border rounded-md bg-blue-50/50 border-blue-200">
                 <div className="space-y-1">
                     <Label className="text-xs">Costo por Unidad (del Catálogo)</Label>
@@ -106,7 +114,7 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
               <h5 className="text-sm font-medium">Tramos de Precio por Rango de Invitados</h5>
               <div className="grid grid-cols-4 gap-2 items-center">
                 <div></div>
-                <Label className="text-xs text-center">Desde (inv.)</Label>
+                <Label className="text-xs text-center col-start-2">Desde (inv.)</Label>
                 <Label className="text-xs text-center">Hasta (inv.)</Label>
                 <Label className="text-xs text-center">Precio Fijo</Label>
               </div>
@@ -128,6 +136,52 @@ const EditServicioIncluido = ({ service, baseService, onUpdate, onRemove }: { se
         </div>
     </div>
   );
+};
+
+const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: ServicioEmpresa) => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [newServiceData, setNewServiceData] = useState<Partial<Omit<ServicioEmpresa, 'id'>>>({
+        tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '',
+    });
+    const { toast } = useToast();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newServiceData.nombre || !newServiceData.categoria || !newServiceData.unidad || (newServiceData.precioVenta ?? -1) < 0) {
+            toast({ title: "Datos incompletos", description: "Nombre, categoría, unidad y precio son requeridos.", variant: "destructive" });
+            return;
+        }
+        setIsSaving(true);
+        try {
+            const result = await saveServicioEmpresa(newServiceData as Omit<ServicioEmpresa, 'id'>);
+            if (result.success && result.servicio) {
+                toast({ title: "Servicio Creado", description: `"${result.servicio.nombre}" ha sido añadido al catálogo.` });
+                onServiceCreated(result.servicio);
+                setIsOpen(false);
+                setNewServiceData({ tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '' });
+            } else { throw new Error(result.error || "No se pudo crear el servicio."); }
+        } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); } finally { setIsSaving(false); }
+    };
+    
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild><Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Crear Servicio Rápido</Button></DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader><DialogTitle>Crear Nuevo Servicio</DialogTitle><DialogDescription>Este servicio se guardará en tu catálogo general.</DialogDescription></DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-3 py-2">
+                    <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
+                    <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
+                        <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Venta *</Label><Input id="new-serv-price" type="number" value={newServiceData.precioVenta || ''} onChange={e => setNewServiceData(p => ({...p, precioVenta: parseFloat(e.target.value) || 0}))} required/></div>
+                    </div>
+                    <div className="space-y-1"><Label htmlFor="new-serv-notes">Descripción</Label><Textarea id="new-serv-notes" value={newServiceData.notas} onChange={e => setNewServiceData(p => ({...p, notas: e.target.value}))} rows={2}/></div>
+                    <DialogFooter><DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose><Button type="submit" disabled={isSaving}>{isSaving ? 'Guardando...' : 'Crear y Añadir'}</Button></DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 };
 
 
@@ -347,6 +401,7 @@ export default function ArmadoRapidoSettingsPage() {
                                             </ul>
                                         ) : <p className="text-center text-muted-foreground p-4">No hay más servicios disponibles para añadir.</p>}
                                     </ScrollArea>
+                                     <NewServiceModal onServiceCreated={(newService) => { setVendibleServices(prev => [newService, ...prev]) }} />
                                 </div>
                               </div>
                             </AccordionContent>

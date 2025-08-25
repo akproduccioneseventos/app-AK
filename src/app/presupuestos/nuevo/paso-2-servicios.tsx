@@ -291,7 +291,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                                     <div className="grid grid-cols-2 gap-3 items-center">
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`qty-${servicio.id}`} className="text-xs">Cant.</Label>
-                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm"/>
+                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm" required />
                                       </div>
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
@@ -317,7 +317,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             ))}
           </Accordion>
         ) : (
-          <div className="text-center py-10 text-muted-foreground"><Search className="w-12 h-12 mx-auto mb-3 opacity-50"/>No hay servicios que coincidan.</div>
+          <div className="text-center py-10 text-muted-foreground"><Search className="w-12 h-12 mx-auto mb-3 opacity-50"/>No hay servicios que coincidan o con precio de venta para mostrar.</div>
         )}
       </ScrollArea>
       <div className="mt-6 pt-4 border-t">
@@ -326,4 +326,3 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
-
