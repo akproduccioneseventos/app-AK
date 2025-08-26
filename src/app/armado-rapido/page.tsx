@@ -14,6 +14,8 @@ import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/action
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
+
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -34,13 +36,11 @@ export default function ArmadoRapidoPage() {
 
     const [paso, setPaso] = useState(1);
     const [numAdultos, setNumAdultos] = useState(50);
-    const [numAdolescentes, setNumAdolescentes] = useState(0);
-    const [numNinos, setNumNinos] = useState(0);
+    const [numJovenes, setNumJovenes] = useState(0); // Adolescentes y Niños combinados
 
     const [entradasSeleccionadas, setEntradasSeleccionadas] = useState<Set<string>>(new Set());
     const [platosPrincipales, setPlatosPrincipales] = useState<CantidadPlato[]>([]);
-    const [menuAdolescentes, setMenuAdolescentes] = useState<CantidadPlato[]>([]);
-    const [menuNinos, setMenuNinos] = useState<CantidadPlato[]>([]);
+    const [menuJovenes, setMenuJovenes] = useState<CantidadPlato[]>([]);
     const [paqueteServiciosId, setPaqueteServiciosId] = useState<string>('');
     
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
@@ -60,17 +60,30 @@ export default function ArmadoRapidoPage() {
 
     useEffect(() => { loadData(); }, [loadData]);
 
-    const totalInvitados = numAdultos + numAdolescentes + numNinos;
+    const totalInvitados = numAdultos + numJovenes;
     
     // Filtros de servicios
     const entradasDisponibles = useMemo(() => config?.paquetes.flatMap(p => p.serviciosIncluidos).filter(s => s.categoria === 'Entrada') || [], [config]);
     const platosPrincipalesDisponibles = useMemo(() => config?.paquetes.flatMap(p => p.serviciosIncluidos).filter(s => s.categoria === 'Plato Principal') || [], [config]);
-    const menusAdolescentesDisponibles = useMemo(() => config?.paquetes.flatMap(p => p.serviciosIncluidos).filter(s => s.categoria === 'Menú Adolescente') || [], [config]);
-    const menusNinosDisponibles = useMemo(() => config?.paquetes.flatMap(p => p.serviciosIncluidos).filter(s => s.categoria === 'Menú Niño') || [], [config]);
+    const menusJovenesDisponibles = useMemo(() => config?.paquetes.flatMap(p => p.serviciosIncluidos).filter(s => s.categoria === 'Menú Adolescente' || s.categoria === 'Menú Niño') || [], [config]);
     const paquetesDeServicios = useMemo(() => config?.paquetes.filter(p => p.serviciosIncluidos.some(s => s.categoria === 'Servicio Adicional')) || [], [config]);
-
+    
     const handlePlatoPrincipalChange = (servicio: ServicioIncluidoArmadoRapido, change: number) => {
         setPlatosPrincipales(prev => {
+            const existing = prev.find(p => p.servicioId === servicio.id);
+            if (existing) {
+                const newQty = existing.cantidad + change;
+                if (newQty <= 0) return prev.filter(p => p.servicioId !== servicio.id);
+                return prev.map(p => p.servicioId === servicio.id ? {...p, cantidad: newQty} : p);
+            } else if (change > 0) {
+                return [...prev, { servicioId: servicio.id, nombre: servicio.nombre, cantidad: 1, precioUnitario: servicio.precioFijo }];
+            }
+            return prev;
+        });
+    };
+    
+    const handleMenuJovenesChange = (servicio: ServicioIncluidoArmadoRapido, change: number) => {
+        setMenuJovenes(prev => {
             const existing = prev.find(p => p.servicioId === servicio.id);
             if (existing) {
                 const newQty = existing.cantidad + change;
@@ -86,11 +99,10 @@ export default function ArmadoRapidoPage() {
     // Calculos
     const costoEntradas = useMemo(() => Array.from(entradasSeleccionadas).reduce((sum, id) => sum + (entradasDisponibles.find(e=>e.id===id)?.precioFijo || 0), 0) * totalInvitados, [entradasSeleccionadas, entradasDisponibles, totalInvitados]);
     const costoPlatosPrincipales = useMemo(() => platosPrincipales.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [platosPrincipales]);
-    const costoMenuAdolescentes = useMemo(() => menuAdolescentes.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [menuAdolescentes]);
-    const costoMenuNinos = useMemo(() => menuNinos.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [menuNinos]);
+    const costoMenuJovenes = useMemo(() => menuJovenes.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [menuJovenes]);
     const costoPaqueteServicios = useMemo(() => paquetesDeServicios.find(p=>p.id === paqueteServiciosId)?.serviciosIncluidos.reduce((sum, s) => sum + s.precioFijo, 0) || 0, [paqueteServiciosId, paquetesDeServicios]);
     
-    const costoTotal = useMemo(() => costoEntradas + costoPlatosPrincipales + costoMenuAdolescentes + costoMenuNinos + costoPaqueteServicios, [costoEntradas, costoPlatosPrincipales, costoMenuAdolescentes, costoMenuNinos, costoPaqueteServicios]);
+    const costoTotal = useMemo(() => costoEntradas + costoPlatosPrincipales + costoMenuJovenes + costoPaqueteServicios, [costoEntradas, costoPlatosPrincipales, costoMenuJovenes, costoPaqueteServicios]);
     const montoDescuento = config?.descuentoGeneral ? (costoTotal * config.descuentoGeneral) / 100 : 0;
     const costoConDescuento = costoTotal - montoDescuento;
 
@@ -98,9 +110,10 @@ export default function ArmadoRapidoPage() {
         setIsGeneratingLead(true);
         toast({ title: "Generando tu presupuesto...", description: "Espera un momento." });
 
-        let notes = `Generado desde Armado Rápido.\nInvitados: ${totalInvitados} (A:${numAdultos}, T:${numAdolescentes}, C:${numNinos})\n`;
+        let notes = `Generado desde Armado Rápido.\nInvitados: ${totalInvitados} (A:${numAdultos}, J:${numJovenes})\n`;
         if (entradasSeleccionadas.size > 0) notes += `Entradas: ${Array.from(entradasSeleccionadas).map(id => entradasDisponibles.find(e=>e.id===id)?.nombre).join(', ')}\n`;
         if (platosPrincipales.length > 0) notes += `Platos Principales: ${platosPrincipales.map(p => `${p.cantidad}x ${p.nombre}`).join(', ')}\n`;
+        if (menuJovenes.length > 0) notes += `Menú Jóvenes: ${menuJovenes.map(p => `${p.cantidad}x ${p.nombre}`).join(', ')}\n`;
         if (paqueteServiciosId) notes += `Paquete Servicios: ${paquetesDeServicios.find(p=>p.id===paqueteServiciosId)?.nombre}\n`;
         notes += `Presupuesto Estimado: ${formatCurrency(costoConDescuento)}`;
         
@@ -127,12 +140,11 @@ export default function ArmadoRapidoPage() {
             case 1:
                 return (
                   <motion.div key="paso1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                     <CardHeader><CardTitle className="font-headline text-2xl">Paso 1: Cantidad de Invitados</CardTitle><CardDescription>¿Cuántos adultos, adolescentes y niños asistirán?</CardDescription></CardHeader>
+                     <CardHeader><CardTitle className="font-headline text-2xl">Paso 1: Cantidad de Invitados</CardTitle><CardDescription>¿Cuántos adultos y cuántos jóvenes (adolescentes/niños) asistirán?</CardDescription></CardHeader>
                      <CardContent className="space-y-3">
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-2 gap-4">
                             <div><Label htmlFor="adultos" className="flex items-center gap-1"><User/> Adultos</Label><Input id="adultos" type="number" value={numAdultos} onChange={(e) => setNumAdultos(Number(e.target.value) || 0)} min="0"/></div>
-                            <div><Label htmlFor="adolescentes" className="flex items-center gap-1"><UserSquare2/> Adolescentes</Label><Input id="adolescentes" type="number" value={numAdolescentes} onChange={(e) => setNumAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
-                            <div><Label htmlFor="ninos" className="flex items-center gap-1"><UserSquare2/> Niños</Label><Input id="ninos" type="number" value={numNinos} onChange={(e) => setNumNinos(Number(e.target.value) || 0)} min="0"/></div>
+                            <div><Label htmlFor="jovenes" className="flex items-center gap-1"><UserSquare2/> Adolescentes y Niños</Label><Input id="jovenes" type="number" value={numJovenes} onChange={(e) => setNumJovenes(Number(e.target.value) || 0)} min="0"/></div>
                           </div>
                      </CardContent>
                      <CardFooter><Button onClick={() => setPaso(2)} disabled={totalInvitados <= 0} className="w-full">Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
@@ -141,7 +153,7 @@ export default function ArmadoRapidoPage() {
             case 2:
                  return (
                     <motion.div key="paso2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Arma tu Menú</CardTitle><CardDescription>Selecciona las entradas y los platos principales.</CardDescription></CardHeader>
+                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Arma tu Menú</CardTitle><CardDescription>Selecciona las entradas y los platos principales para los invitados.</CardDescription></CardHeader>
                        <CardContent className="space-y-4">
                             <div>
                                 <h4 className="font-semibold mb-2">Entradas (para todos los invitados)</h4>
@@ -156,7 +168,7 @@ export default function ArmadoRapidoPage() {
                             </div>
                             <Separator/>
                             <div>
-                               <h4 className="font-semibold mb-2">Platos Principales (distribuye entre los adultos)</h4>
+                               <h4 className="font-semibold mb-2">Platos Principales (distribuye entre los {numAdultos} adultos)</h4>
                                 <div className="space-y-2">
                                   {platosPrincipalesDisponibles.map(p => {
                                       const cantidad = platosPrincipales.find(pl => pl.servicioId === p.id)?.cantidad || 0;
@@ -173,6 +185,25 @@ export default function ArmadoRapidoPage() {
                                   })}
                                 </div>
                             </div>
+                             {numJovenes > 0 && <Separator/>}
+                             {numJovenes > 0 && <div>
+                               <h4 className="font-semibold mb-2">Menú Jóvenes (distribuye entre los {numJovenes} adolescentes/niños)</h4>
+                                <div className="space-y-2">
+                                  {menusJovenesDisponibles.map(p => {
+                                      const cantidad = menuJovenes.find(pl => pl.servicioId === p.id)?.cantidad || 0;
+                                      return (
+                                        <div key={p.id} className="flex items-center justify-between">
+                                            <Label>{p.nombre} ({formatCurrency(p.precioFijo)})</Label>
+                                            <div className="flex items-center gap-1">
+                                                <Button type="button" size="icon" variant="outline" className="h-6 w-6" onClick={() => handleMenuJovenesChange(p, -1)}><MinusCircle className="w-4 h-4"/></Button>
+                                                <Input type="number" value={cantidad} readOnly className="h-6 w-12 text-center p-0"/>
+                                                <Button type="button" size="icon" variant="outline" className="h-6 w-6" onClick={() => handleMenuJovenesChange(p, 1)}><PlusCircle className="w-4 h-4"/></Button>
+                                            </div>
+                                        </div>
+                                      )
+                                  })}
+                                </div>
+                            </div>}
                        </CardContent>
                        <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(1)}>Anterior</Button><Button onClick={() => setPaso(3)}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                     </motion.div>
@@ -180,7 +211,7 @@ export default function ArmadoRapidoPage() {
             case 3:
                 return (
                     <motion.div key="paso3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Elige tu Paquete de Servicios</CardTitle><CardDescription>Selecciona un combo de servicios adicionales.</CardDescription></CardHeader>
+                       <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Elige tu Paquete de Servicios Adicionales</CardTitle><CardDescription>Selecciona un combo de servicios como discoteca, decoración, etc.</CardDescription></CardHeader>
                         <CardContent className="space-y-4">
                             {paquetesDeServicios.map(pkg => (
                                 <Card key={pkg.id} onClick={() => setPaqueteServiciosId(pkg.id)} className={`cursor-pointer transition-all ${paqueteServiciosId === pkg.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
@@ -228,6 +259,7 @@ export default function ArmadoRapidoPage() {
                            <h4 className="font-semibold">Catering:</h4>
                            <div className="flex justify-between"><span>Entradas</span><span>{formatCurrency(costoEntradas)}</span></div>
                            <div className="flex justify-between"><span>Platos Principales</span><span>{formatCurrency(costoPlatosPrincipales)}</span></div>
+                           <div className="flex justify-between"><span>Menú Jóvenes</span><span>{formatCurrency(costoMenuJovenes)}</span></div>
                            <h4 className="font-semibold mt-2">Paquete de Servicios:</h4>
                            <div className="flex justify-between"><span>{paquetesDeServicios.find(p=>p.id===paqueteServiciosId)?.nombre || 'No seleccionado'}</span><span>{formatCurrency(costoPaqueteServicios)}</span></div>
                         </div>
