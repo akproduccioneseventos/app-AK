@@ -18,6 +18,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent, closestCenter } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -27,7 +33,8 @@ const formatCurrency = (amount?: number) => {
 const CATEGORIAS_PRESUPUESTO: { value: ServicioCategoriaArmadoRapido, label: string }[] = [
     { value: 'Entrada', label: 'Entrada' },
     { value: 'Plato Principal', label: 'Plato Principal' },
-    { value: 'Menú Niño y Adolescente', label: 'Menú Niño/Adolescente' },
+    { value: 'Menú Adolescente', label: 'Menú Adolescente' },
+    { value: 'Menú Niño', label: 'Menú Niño' },
     { value: 'Servicio Adicional', label: 'Servicio Adicional' },
 ];
 
@@ -210,7 +217,7 @@ export default function ArmadoRapidoSettingsPage() {
         const listKey = itemType === 'paquete' ? 'paquetes' : 'menus';
         const list = prevConfig[listKey] || [];
         
-        if ('id' in itemData) { // Editing
+        if ('id' in itemData && itemData.id) { // Editing
             const index = list.findIndex((p: any) => p.id === itemData.id);
             if (index > -1) (list[index] as any) = itemData;
         } else { // Adding
@@ -245,8 +252,8 @@ export default function ArmadoRapidoSettingsPage() {
         {/* MENUS COLUMN */}
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Configurar Menús para Paso 2</CardTitle>
-            <CardDescription>Crea los menús de catering que el cliente podrá elegir en el segundo paso del cotizador.</CardDescription>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering para el Paso 2</CardTitle>
+            <CardDescription>Crea los menús base. El cliente elegirá uno de estos y luego los platos específicos de las categorías que hayas definido (Entrada, Plato Principal, etc.).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
               <Button onClick={() => handleOpenDialog('menu')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú Nuevo</Button>
@@ -259,7 +266,7 @@ export default function ArmadoRapidoSettingsPage() {
                         <div className="flex gap-2"><Button variant="outline" size="icon" onClick={() => handleOpenDialog('menu', menu)}><Settings className="w-4 h-4"/></Button><Button variant="destructive" size="icon" onClick={() => handleDeleteItem('menu', menu.id)}><Trash2 className="w-4 h-4"/></Button></div>
                     </CardHeader>
                     <CardContent className="p-3 border-t">
-                      {menu.serviciosIncluidos.length > 0 ? (<ul className="space-y-1 text-sm">{menu.serviciosIncluidos.map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <span className="text-muted-foreground">{s.categoria}</span></li>)}</ul>) : <p className="text-sm text-muted-foreground">Este menú no tiene servicios.</p>}
+                      {menu.serviciosIncluidos.length > 0 ? (<ul className="space-y-1 text-sm">{menu.serviciosIncluidos.map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <Badge variant="outline">{s.categoria}</Badge></li>)}</ul>) : <p className="text-sm text-muted-foreground">Este menú no tiene platos.</p>}
                     </CardContent>
                   </Card>
                 ))}
@@ -270,7 +277,7 @@ export default function ArmadoRapidoSettingsPage() {
         {/* PAQUETES COLUMN */}
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Configurar Paquetes para Paso 3</CardTitle>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios para el Paso 3</CardTitle>
             <CardDescription>Crea los paquetes de servicios adicionales (DJ, foto, etc.) para el tercer paso del cotizador.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
