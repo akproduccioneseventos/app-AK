@@ -12,7 +12,7 @@ const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
 const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 0,
   paquetes: [],
-  menus: [], // Ensure menus array is always present
+  menus: [],
 };
 
 async function ensureDataFileExists() {
@@ -41,14 +41,10 @@ export async function saveArmadoRapidoConfig(
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
-    // Ensure `incluyeSeleccionMenu` is not undefined
     const configToSave = {
         ...config,
-        menus: config.menus || [], // Ensure menus array exists
-        paquetes: config.paquetes.map(p => ({
-            ...p,
-            incluyeSeleccionMenu: p.incluyeSeleccionMenu || false
-        }))
+        menus: config.menus || [],
+        paquetes: config.paquetes || [],
     };
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
     return { success: true };
@@ -62,10 +58,7 @@ export async function generateLeadFromQuickBudget(
   data: LeadGenerationData
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
-    let notes = `Generado desde Armado Rápido.\nPaquete: "${data.nombrePaquete}"`;
-    if (data.nombreMenu) {
-        notes += `\nMenú de Catering: "${data.nombreMenu}"`;
-    }
+    let notes = `Generado desde Armado Rápido.\nMenú: "${data.nombreMenu}"\nPaquete de Servicios: "${data.nombrePaquete}"`;
     notes += `\nTipo: ${data.tipoEvento}\nInvitados: ${data.cantidadInvitados}\nSalón: ${data.salon}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
     
     const leadResult = await addCrmLead({

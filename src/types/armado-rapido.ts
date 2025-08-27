@@ -1,4 +1,3 @@
-
 export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Menú Adolescente' | 'Menú Niño' | 'Servicio Adicional';
 
 export interface ServicioIncluidoArmadoRapido {
