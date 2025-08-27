@@ -22,7 +22,6 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -77,9 +76,9 @@ const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: 
                 <DialogHeader><DialogTitle>Crear Nuevo Servicio en Catálogo</DialogTitle><DialogDescription>Este servicio se guardará y estará disponible para añadir a cualquier paquete.</DialogDescription></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-3 py-2">
                     <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
-                    <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicio}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{['Servicio de catering', 'Servicio de filmación', 'Servicio de fotografía', 'Servicio de decoración', 'Servicio de entretenimiento', 'Servicio de bebidas', 'Servicio de discoteca', 'Servicio de repostería', 'Regalo exclusivo', 'Personal', 'Otros servicios'].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
+                        <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
                         <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Venta *</Label><Input id="new-serv-price" type="number" value={newServiceData.precioVenta || ''} onChange={e => setNewServiceData(p => ({...p, precioVenta: parseFloat(e.target.value) || 0}))} required/></div>
                     </div>
                      <div className="space-y-1"><Label htmlFor="new-serv-notes">Descripción (Opcional)</Label><Textarea id="new-serv-notes" value={newServiceData.notas} onChange={e => setNewServiceData(p => ({...p, notas: e.target.value}))} rows={2}/></div>
@@ -89,7 +88,6 @@ const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: 
         </Dialog>
     );
 };
-
 
 const DraggableServiceItem = ({ item, onRemove }: { item: ServicioIncluidoArmadoRapido, onRemove: () => void }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
@@ -146,7 +144,6 @@ const AddOrEditPackageDialog = ({
     </Dialog>
   );
 };
-
 
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
@@ -313,14 +310,21 @@ export default function ArmadoRapidoSettingsPage() {
                   {config.paquetes.map(pkg => (
                     <Accordion key={pkg.id} type="single" collapsible>
                       <AccordionItem value="item-1" className="border rounded-md">
-                        <AccordionTrigger className="p-3 hover:no-underline">
-                           <div className="flex-grow text-left">
-                                <p className="font-semibold">{pkg.nombre}</p>
-                                <p className="text-xs text-muted-foreground">{pkg.descripcion}</p>
-                           </div>
+                        <div className="flex items-center justify-between p-3 hover:bg-muted/30 rounded-t-md">
+                            <AccordionTrigger className="p-0 hover:no-underline flex-grow">
+                               <div className="text-left">
+                                    <p className="font-semibold">{pkg.nombre}</p>
+                                    <p className="text-xs text-muted-foreground">{pkg.descripcion}</p>
+                               </div>
+                            </AccordionTrigger>
                            <AddOrEditPackageDialog pkg={pkg} onSave={(data) => handleSavePackage(pkg.id, data)} onDelete={() => handleDeletePackage(pkg.id)} trigger={<Button variant="ghost" size="icon"><Settings className="w-4 h-4"/></Button>} />
-                        </AccordionTrigger>
+                        </div>
                         <AccordionContent className="p-3 border-t">
+                            <div className="flex items-center space-x-2 mb-3">
+                              <Switch id={`incluye-menu-${pkg.id}`} checked={pkg.incluyeSeleccionMenu} onCheckedChange={(checked) => handlePackageChange(pkg.id, { incluyeSeleccionMenu: checked })} />
+                              <Label htmlFor={`incluye-menu-${pkg.id}`} className="font-medium text-sm">Incluir Selección de Menú de Catering</Label>
+                            </div>
+
                             <h4 className="text-sm font-medium mb-2">Servicios Incluidos</h4>
                              <Dialog>
                                 <DialogTrigger asChild><Button variant="outline" size="sm">Añadir/Quitar Servicios</Button></DialogTrigger>
