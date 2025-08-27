@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, GripVertical, Check, Utensils, BookOpen, Search } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, GripVertical, BookOpen, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio as CategoriaServicioEmpresa, UnidadServicio } from '@/types/empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,8 +20,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { ServicioCategoriaArmadoRapido } from '@/types/armado-rapido';
+import { Badge } from '@/components/ui/badge';
 
 
 const formatCurrency = (amount?: number) => {
@@ -30,64 +31,153 @@ const formatCurrency = (amount?: number) => {
 };
 
 
-const NewServiceModal = ({ onServiceCreated }: { onServiceCreated: (newService: ServicioEmpresa) => void }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [newServiceData, setNewServiceData] = useState<Partial<Omit<ServicioEmpresa, 'id'>>>({
-        tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: ''
-    });
-    const { toast } = useToast();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newServiceData.nombre || !newServiceData.categoria || !newServiceData.unidad || (newServiceData.precioVenta ?? -1) < 0) {
-            toast({ title: "Datos incompletos", description: "Nombre, categoría, unidad y precio son requeridos.", variant: "destructive" });
-            return;
-        }
-        setIsSaving(true);
-        try {
-            const result = await saveServicioEmpresa(newServiceData as Omit<ServicioEmpresa, 'id'>);
-            if (result.success && result.servicio) {
-                toast({ title: "Servicio Creado", description: `"${result.servicio.nombre}" ha sido añadido al catálogo.` });
-                onServiceCreated(result.servicio);
-                setIsOpen(false);
-                setNewServiceData({ tipoItem: 'Servicio', nombre: '', categoria: 'Otros servicios', unidad: 'Por evento', precioVenta: 0, notas: '' });
-            } else { throw new Error(result.error || "No se pudo crear el servicio."); }
-        } catch (error: any) {
-            toast({ title: "Error", description: error.message, variant: "destructive" });
-        } finally { setIsSaving(false); }
-    };
-    
-    return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-                <Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Servicio</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader><DialogTitle>Crear Nuevo Servicio en Catálogo</DialogTitle><DialogDescription>Este servicio se guardará y estará disponible para añadir a cualquier paquete.</DialogDescription></DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-3 py-2">
-                    <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio *</Label><Input id="new-serv-name" value={newServiceData.nombre} onChange={e => setNewServiceData(p => ({...p, nombre: e.target.value}))} required/></div>
-                    <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría *</Label><Select value={newServiceData.categoria} onValueChange={(val) => setNewServiceData(p => ({...p, categoria: val as CategoriaServicioEmpresa}))}><SelectTrigger id="new-serv-cat"><SelectValue/></SelectTrigger><SelectContent>{['Servicio de catering', 'Servicio de filmación', 'Servicio de fotografía', 'Servicio de decoración', 'Servicio de entretenimiento', 'Servicio de bebidas', 'Servicio de discoteca', 'Servicio de repostería', 'Regalo exclusivo', 'Personal', 'Otros servicios'].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1"><Label htmlFor="new-serv-unidad">Unidad *</Label><Select value={newServiceData.unidad} onValueChange={val => setNewServiceData(p => ({...p, unidad: val as UnidadServicio}))}><SelectTrigger id="new-serv-unidad"><SelectValue/></SelectTrigger><SelectContent>{['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
-                        <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Venta *</Label><Input id="new-serv-price" type="number" value={newServiceData.precioVenta || ''} onChange={e => setNewServiceData(p => ({...p, precioVenta: parseFloat(e.target.value) || 0}))} required/></div>
-                    </div>
-                     <div className="space-y-1"><Label htmlFor="new-serv-notes">Descripción (Opcional)</Label><Input id="new-serv-notes" value={newServiceData.notas} onChange={e => setNewServiceData(p => ({...p, notas: e.target.value}))}/></div>
-                    <DialogFooter><DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose><Button type="submit" disabled={isSaving}>{isSaving ? 'Guardando...' : 'Crear y Añadir'}</Button></DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
-};
-
-
 const CATEGORIAS_PRESUPUESTO: { value: ServicioCategoriaArmadoRapido, label: string }[] = [
     { value: 'Entrada', label: 'Entrada' },
     { value: 'Plato Principal', label: 'Plato Principal' },
-    { value: 'Menú Adolescente', label: 'Menú Adolescente' },
-    { value: 'Menú Niño', label: 'Menú Niño' },
+    { value: 'Menú Niño y Adolescente', label: 'Menú Niño y Adolescente' },
     { value: 'Servicio Adicional', label: 'Servicio Adicional' },
 ];
+
+
+function SortableServiceItem({ service, onRemove }: { service: ServicioIncluidoArmadoRapido, onRemove: () => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: service.id });
+    const style = { transform: CSS.Transform.toString(transform), transition };
+    return (
+        <div ref={setNodeRef} style={style} className="p-2 border rounded-md bg-background flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" {...listeners} {...attributes} className="cursor-grab h-7 w-7"><GripVertical className="w-4 h-4"/></Button>
+                <div>
+                  <p className="text-sm font-medium">{service.nombre}</p>
+                  <Badge variant="secondary" className="text-xs">{service.categoria}</Badge>
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold">{formatCurrency(service.precioFijo)}</p>
+                <Button variant="ghost" size="icon" onClick={onRemove} className="h-7 w-7 text-destructive"><Trash2 className="w-4 h-4"/></Button>
+            </div>
+        </div>
+    );
+}
+
+function AddOrEditPackageDialog({
+  isOpen, onOpenChange, onSave, pkg, vendibleServices
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (pkgData: Omit<PaqueteArmadoRapido, 'id'> | PaqueteArmadoRapido) => void;
+  pkg: Partial<PaqueteArmadoRapido> | null;
+  vendibleServices: ServicioEmpresa[];
+}) {
+  const [localPkg, setLocalPkg] = useState<Partial<PaqueteArmadoRapido> | null>(pkg);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
+
+  useEffect(() => { setLocalPkg(pkg); }, [pkg]);
+
+  const handleToggleService = (service: ServicioEmpresa) => {
+    setLocalPkg(prev => {
+      if (!prev) return null;
+      const servicios = prev.serviciosIncluidos || [];
+      const isIncluded = servicios.some(s => s.id === service.id);
+      let newServicios;
+      if (isIncluded) {
+        newServicios = servicios.filter(s => s.id !== service.id);
+      } else {
+        const newService: ServicioIncluidoArmadoRapido = {
+          id: service.id,
+          nombre: service.nombre,
+          precioFijo: service.precioVenta || 0,
+          categoria: 'Servicio Adicional' // Default, can be changed
+        };
+        newServicios = [...servicios, newService];
+      }
+      return { ...prev, serviciosIncluidos: newServicios };
+    });
+  };
+  
+  const handleCategoryChange = (serviceId: string, newCategory: ServicioCategoriaArmadoRapido) => {
+     setLocalPkg(prev => {
+        if (!prev || !prev.serviciosIncluidos) return prev;
+        const newServicios = prev.serviciosIncluidos.map(s => 
+            s.id === serviceId ? {...s, categoria: newCategory} : s
+        );
+        return {...prev, serviciosIncluidos: newServicios};
+     });
+  };
+
+  const handlePriceChange = (serviceId: string, newPrice: string) => {
+    const priceNum = parseFloat(newPrice) || 0;
+     setLocalPkg(prev => {
+        if (!prev || !prev.serviciosIncluidos) return prev;
+        const newServicios = prev.serviciosIncluidos.map(s => 
+            s.id === serviceId ? {...s, precioFijo: priceNum} : s
+        );
+        return {...prev, serviciosIncluidos: newServicios};
+     });
+  };
+  
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!localPkg || !localPkg.nombre?.trim()) {
+      toast({ title: "Nombre requerido", variant: "destructive" }); return;
+    }
+    onSave(localPkg as PaqueteArmadoRapido);
+  };
+  
+  const filteredServices = vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  if (!localPkg) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogHeader><DialogTitle>{localPkg.id ? 'Editar' : 'Crear'} Paquete</DialogTitle><DialogDescription>Define un paquete de servicios para el cotizador rápido.</DialogDescription></DialogHeader>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow min-h-0">
+          {/* Left Column: Package Details */}
+          <div className="space-y-4 flex flex-col">
+              <div className="space-y-1"><Label htmlFor="pkg-name">Nombre del Paquete*</Label><Input id="pkg-name" value={localPkg.nombre || ''} onChange={e => setLocalPkg(p => p ? {...p, nombre: e.target.value} : null)} required /></div>
+              <div className="space-y-1"><Label htmlFor="pkg-desc">Descripción</Label><Input id="pkg-desc" value={localPkg.descripcion || ''} onChange={e => setLocalPkg(p => p ? {...p, descripcion: e.target.value} : null)}/></div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="incluye-menu" checked={localPkg.incluyeSeleccionMenu} onCheckedChange={(checked) => setLocalPkg(p => p ? {...p, incluyeSeleccionMenu: !!checked} : null)}/>
+                <Label htmlFor="incluye-menu">Este paquete es un Menú de Catering (para Paso 2)</Label>
+              </div>
+              <Separator />
+              <Label>Servicios Incluidos en el Paquete</Label>
+               <div className="flex-grow min-h-0">
+                <ScrollArea className="h-full border rounded-md p-2">
+                  {(localPkg.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
+                   <div className="space-y-2">
+                     {(localPkg.serviciosIncluidos || []).map(s => (
+                       <Card key={s.id} className="p-2">
+                          <div className="grid grid-cols-2 gap-2">
+                              <div className="col-span-2"><p className="font-medium text-sm">{s.nombre}</p></div>
+                              <div className="space-y-1"><Label className="text-xs">Categoría</Label><Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}><SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger><SelectContent>{CATEGORIAS_PRESUPUESTO.map(c=><SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select></div>
+                              <div className="space-y-1"><Label className="text-xs">Precio Fijo</Label><Input type="number" value={s.precioFijo} onChange={e=>handlePriceChange(s.id, e.target.value)} className="h-8 text-xs"/></div>
+                          </div>
+                       </Card>
+                     ))}
+                   </div>
+                  }
+                </ScrollArea>
+              </div>
+          </div>
+          {/* Right Column: Service Catalog */}
+          <div className="space-y-2 flex flex-col">
+              <Label htmlFor="service-search">Catálogo de Servicios Vendibles</Label>
+              <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input id="service-search" placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
+              <div className="flex-grow min-h-0">
+                <ScrollArea className="h-full border rounded-md p-2">
+                    {filteredServices.map(s => (<div key={s.id} className="flex items-center gap-2 my-1"><Checkbox id={`serv-${s.id}`} checked={localPkg.serviciosIncluidos?.some(inc => inc.id === s.id)} onCheckedChange={() => handleToggleService(s)}/><Label htmlFor={`serv-${s.id}`}>{s.nombre} - {formatCurrency(s.precioVenta)}</Label></div>))}
+                </ScrollArea>
+              </div>
+          </div>
+        </form>
+        <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSubmit}>Guardar Paquete</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
@@ -97,6 +187,9 @@ export default function ArmadoRapidoSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPkg, setCurrentPkg] = useState<Partial<PaqueteArmadoRapido> | null>(null);
+
   const sensors = useSensors(useSensor(PointerSensor));
 
   const loadData = useCallback(async () => {
@@ -104,7 +197,11 @@ export default function ArmadoRapidoSettingsPage() {
     setError(null);
     try {
       const [fetchedConfig, fetchedServices] = await Promise.all([ getArmadoRapidoConfig(), getServiciosEmpresa() ]);
-      setConfig(fetchedConfig);
+      setConfig({
+        ...fetchedConfig,
+        paquetes: fetchedConfig.paquetes || [],
+        menus: fetchedConfig.menus || [],
+      });
       setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined));
     } catch (err: any) {
       setError("No se pudo cargar la configuración.");
@@ -139,11 +236,31 @@ export default function ArmadoRapidoSettingsPage() {
   };
 
   const handleAddOrEditPackage = (pkg?: PaqueteArmadoRapido) => {
-    // Logic for adding/editing a package will go here
+    setCurrentPkg(pkg || { nombre: '', descripcion: '', serviciosIncluidos: [], incluyeSeleccionMenu: false });
+    setIsModalOpen(true);
   };
   
-  const handleToggleService = (packageId: string, service: ServicioEmpresa) => {
-    // Logic to add/remove a service from a package
+  const handleSavePackage = (pkgData: Omit<PaqueteArmadoRapido, 'id'> | PaqueteArmadoRapido) => {
+    setConfig(prevConfig => {
+        if (!prevConfig) return null;
+        const paquetes = prevConfig.paquetes || [];
+        if ('id' in pkgData) { // Editing
+            const index = paquetes.findIndex(p => p.id === pkgData.id);
+            if (index > -1) paquetes[index] = pkgData;
+        } else { // Adding
+            const newPkg = { ...pkgData, id: `pkg_${Date.now()}`};
+            paquetes.push(newPkg);
+        }
+        return { ...prevConfig, paquetes: [...paquetes] };
+    });
+    setIsModalOpen(false);
+  };
+  
+  const handleDeletePackage = (pkgId: string) => {
+    setConfig(prev => {
+        if (!prev) return null;
+        return { ...prev, paquetes: (prev.paquetes || []).filter(p => p.id !== pkgId) };
+    });
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -151,6 +268,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {currentPkg && <AddOrEditPackageDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} onSave={handleSavePackage} pkg={currentPkg} vendibleServices={vendibleServices}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de Armado Rápido</h1></div>
         <Link href="/settings/budget-display" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
@@ -185,7 +303,10 @@ export default function ArmadoRapidoSettingsPage() {
                           <CardTitle className="text-lg">{pkg.nombre}</CardTitle>
                           <CardDescription className="text-xs">{pkg.descripcion}</CardDescription>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => handleAddOrEditPackage(pkg)}><Settings className="w-4 h-4"/></Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="icon" onClick={() => handleAddOrEditPackage(pkg)}><Settings className="w-4 h-4"/></Button>
+                        <Button variant="destructive" size="icon" onClick={() => handleDeletePackage(pkg.id)}><Trash2 className="w-4 h-4"/></Button>
+                      </div>
                   </CardHeader>
                   <CardContent className="p-3 border-t">
                       {pkg.serviciosIncluidos.length > 0 ? (
