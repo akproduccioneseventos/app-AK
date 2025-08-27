@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, GripVertical, BookOpen, Search, ChefHat } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -68,6 +68,16 @@ function AddOrEditDialog({
       return { ...prev, serviciosIncluidos: newServicios };
     });
   };
+  
+   const handleServiceCategoryChange = (serviceId: string, newCategory: ServicioCategoriaArmadoRapido) => {
+    setLocalItem(prev => {
+      if (!prev) return null;
+      const updatedServicios = (prev.serviciosIncluidos || []).map(s => 
+        s.id === serviceId ? { ...s, categoria: newCategory } : s
+      );
+      return { ...prev, serviciosIncluidos: updatedServicios };
+    });
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -101,6 +111,17 @@ function AddOrEditDialog({
                      {(localItem.serviciosIncluidos || []).map(s => (
                        <Card key={s.id} className="p-2 bg-background">
                           <p className="font-medium text-sm">{s.nombre}</p>
+                           {itemType === 'menu' && (
+                                <div className="mt-2">
+                                <Label className="text-xs">Categoría en Presupuesto</Label>
+                                <Select value={s.categoria} onValueChange={(val) => handleServiceCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
+                                    <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        {CATEGORIAS_PRESUPUESTO.map(cat => <SelectItem key={cat.value} value={cat.value} className="text-xs">{cat.label}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                </div>
+                            )}
                        </Card>
                      ))}
                    </div>
@@ -224,7 +245,7 @@ export default function ArmadoRapidoSettingsPage() {
         {/* MENUS COLUMN */}
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Configurar Menús (Paso 2)</CardTitle>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Configurar Menús para Paso 2</CardTitle>
             <CardDescription>Crea los menús de catering que el cliente podrá elegir en el segundo paso del cotizador.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -238,7 +259,7 @@ export default function ArmadoRapidoSettingsPage() {
                         <div className="flex gap-2"><Button variant="outline" size="icon" onClick={() => handleOpenDialog('menu', menu)}><Settings className="w-4 h-4"/></Button><Button variant="destructive" size="icon" onClick={() => handleDeleteItem('menu', menu.id)}><Trash2 className="w-4 h-4"/></Button></div>
                     </CardHeader>
                     <CardContent className="p-3 border-t">
-                      {menu.serviciosIncluidos.length > 0 ? (<ul className="space-y-1 text-sm">{menu.serviciosIncluidos.map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <span>{formatCurrency(s.precioFijo)}</span></li>)}</ul>) : <p className="text-sm text-muted-foreground">Este menú no tiene servicios.</p>}
+                      {menu.serviciosIncluidos.length > 0 ? (<ul className="space-y-1 text-sm">{menu.serviciosIncluidos.map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <span className="text-muted-foreground">{s.categoria}</span></li>)}</ul>) : <p className="text-sm text-muted-foreground">Este menú no tiene servicios.</p>}
                     </CardContent>
                   </Card>
                 ))}
@@ -249,7 +270,7 @@ export default function ArmadoRapidoSettingsPage() {
         {/* PAQUETES COLUMN */}
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Configurar Paquetes de Servicios (Paso 3)</CardTitle>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Configurar Paquetes para Paso 3</CardTitle>
             <CardDescription>Crea los paquetes de servicios adicionales (DJ, foto, etc.) para el tercer paso del cotizador.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
