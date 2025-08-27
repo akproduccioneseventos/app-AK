@@ -24,6 +24,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -320,10 +321,6 @@ export default function ArmadoRapidoSettingsPage() {
                            <AddOrEditPackageDialog pkg={pkg} onSave={(data) => handleSavePackage(pkg.id, data)} onDelete={() => handleDeletePackage(pkg.id)} trigger={<Button variant="ghost" size="icon"><Settings className="w-4 h-4"/></Button>} />
                         </AccordionTrigger>
                         <AccordionContent className="p-3 border-t">
-                            <div className="flex items-center space-x-2 mb-3">
-                                <Switch id={`menu-switch-${pkg.id}`} checked={pkg.incluyeSeleccionMenu || false} onCheckedChange={(checked) => handlePackageChange(pkg.id, { incluyeSeleccionMenu: checked })} />
-                                <Label htmlFor={`menu-switch-${pkg.id}`}>Incluir Selección de Menú de Catering</Label>
-                            </div>
                             <h4 className="text-sm font-medium mb-2">Servicios Incluidos</h4>
                              <Dialog>
                                 <DialogTrigger asChild><Button variant="outline" size="sm">Añadir/Quitar Servicios</Button></DialogTrigger>
