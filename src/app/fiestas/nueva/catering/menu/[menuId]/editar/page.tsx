@@ -47,8 +47,8 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { styl
 
 
 export default function EditarMenuEspecificoPage({ params: paramsProp }: { params: Promise<{ menuId: string }> }) {
-  const resolvedParams = React.use(paramsProp);
-  const menuIdFromParams = resolvedParams.menuId;
+  const params = React.use(paramsProp);
+  const menuIdFromParams = params.menuId;
 
   const { toast } = useToast();
   const router = useRouter();
