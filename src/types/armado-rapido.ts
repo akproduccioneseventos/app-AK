@@ -1,6 +1,5 @@
 
-
-export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Postre' | 'Menú Adolescente' | 'Menú Niño' | 'Servicio Adicional';
+export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Menú Adolescente' | 'Menú Niño' | 'Servicio Adicional';
 
 export interface ServicioIncluidoArmadoRapido {
   id: string; // Corresponds to ServicioEmpresa id
@@ -9,16 +8,22 @@ export interface ServicioIncluidoArmadoRapido {
   categoria: ServicioCategoriaArmadoRapido;
 }
 
-// "Paquete" es ahora el único contenedor para todos los servicios
+export interface MenuArmadoRapido {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  serviciosIncluidos: ServicioIncluidoArmadoRapido[];
+}
+
 export interface PaqueteArmadoRapido {
   id: string; 
   nombre: string;
   descripcion?: string;
-  // Los servicios dentro del paquete definen lo que se puede elegir
-  serviciosIncluidos: ServicioIncluidoArmadoRapido[]; 
+  serviciosIncluidos: ServicioIncluidoArmadoRapido[];
 }
 
 export interface ArmadoRapidoConfig {
+  menus: MenuArmadoRapido[];
   paquetes: PaqueteArmadoRapido[];
   descuentoGeneral?: number; 
 }
@@ -26,7 +31,7 @@ export interface ArmadoRapidoConfig {
 
 export interface LeadGenerationData {
   nombrePaquete: string;
-  nombreMenu: string; // Se puede construir a partir de las selecciones del cliente
+  nombreMenu: string;
   tipoEvento: string;
   cantidadInvitados: number;
   costoEstimado: number;
