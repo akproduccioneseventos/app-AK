@@ -130,23 +130,48 @@ export default function ArmadoRapidoPage() {
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Arma tu Menú</CardTitle><CardDescription>Elige las opciones para tu evento.</CardDescription></CardHeader>
                        <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label className="font-semibold">1. Elige un Menú Base</Label>
+                                <Label className="font-semibold text-lg">1. Elige un Menú Base</Label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {config?.menus.map(menu => (
                                     <Card key={menu.id} onClick={() => setMenuBaseId(menu.id)} className={`cursor-pointer transition-all ${menuBaseId === menu.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
                                         <CardHeader className="flex-row items-center gap-4 space-y-0 p-3"><ChefHat className="w-6 h-6 text-primary"/><div className="flex-grow"><CardTitle className="text-base">{menu.nombre}</CardTitle></div>{menuBaseId === menu.id && <Check className="w-5 h-5 text-primary ml-auto"/>}</CardHeader>
                                     </Card>
                                 ))}
+                                </div>
                             </div>
                             {menuBaseId && menuActual && (
                             <div className="space-y-4 pt-4 border-t">
-                                <div className="space-y-2"><Label className="font-semibold">2. Entradas (selecciona las que desees)</Label>
-                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(<div key={s.id} className="flex items-center gap-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n;})}}/><Label htmlFor={`e-${s.id}`}>{s.nombre}</Label></div>))}
+                                
+                                {/* SECCIÓN DE ENTRADAS */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-lg">2. Entradas (selecciona las que desees)</Label>
+                                    <p className="text-sm text-muted-foreground">Cada opción seleccionada se calculará por el total de adultos ({totalAdultos}).</p>
+                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
+                                    <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
+                                        <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n;})}}/>
+                                        <Label htmlFor={`e-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
+                                        <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
+                                    </div>))}
                                 </div>
-                                <div className="space-y-2"><Label className="font-semibold">3. Platos Principales (asigna las {totalAdultos} porciones)</Label>
-                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=>{ const item=platosPrincipales.find(p=>p.servicioId===s.id); return (<div key={s.id} className="flex items-center gap-2 p-2 border rounded-md"><Label className="flex-grow">{s.nombre}</Label><Input type="number" min="0" value={item?.cantidad || 0} onChange={e=>{const v=Number(e.target.value)||0; setPlatosPrincipales(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-20 h-8"/></div>)})}
+                                
+                                {/* SECCIÓN PLATOS PRINCIPALES */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-lg">3. Platos Principales (asigna las {totalAdultos} porciones)</Label>
+                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=>{ const item=platosPrincipales.find(p=>p.servicioId===s.id); return (
+                                    <div key={s.id} className="flex items-center gap-2 p-2 border rounded-md">
+                                        <Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label>
+                                        <Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setPlatosPrincipales(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/>
+                                    </div>)})}
                                 </div>
-                                <div className="space-y-2"><Label className="font-semibold">4. Menú Niños/Adolescentes (asigna las {totalJovenes} porciones)</Label>
-                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Menú Niño' || s.categoria === 'Menú Adolescente').map(s=>{ const item=menusInfantiles.find(p=>p.servicioId===s.id); return (<div key={s.id} className="flex items-center gap-2 p-2 border rounded-md"><Label className="flex-grow">{s.nombre}</Label><Input type="number" min="0" value={item?.cantidad || 0} onChange={e=>{const v=Number(e.target.value)||0; setMenusInfantiles(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-20 h-8"/></div>)})}
+                                
+                                {/* SECCIÓN MENÚS NIÑOS/ADOLESCENTES */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-lg">4. Menú Niños/Adolescentes (asigna las {totalJovenes} porciones)</Label>
+                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Menú Niño' || s.categoria === 'Menú Adolescente').map(s=>{ const item=menusInfantiles.find(p=>p.servicioId===s.id); return (
+                                    <div key={s.id} className="flex items-center gap-2 p-2 border rounded-md">
+                                        <Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label>
+                                        <Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setMenusInfantiles(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/>
+                                    </div>)})}
                                 </div>
                             </div>
                             )}
