@@ -3,7 +3,8 @@ export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Men
 export interface ServicioIncluidoArmadoRapido {
   id: string; // Corresponds to ServicioEmpresa id
   nombre: string;
-  precioFijo: number;
+  // Este es el precio POR PERSONA para items de menú, o precio fijo para servicios de paquete.
+  precioFijo: number; 
   categoria: ServicioCategoriaArmadoRapido;
 }
 

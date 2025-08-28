@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Check } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -18,11 +19,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { cn } from "@/lib/utils";
 
 
 const formatCurrency = (amount?: number) => {
@@ -73,6 +69,7 @@ function AddOrEditDialog({
                 newServices = [...currentServices, {
                     id: service.id,
                     nombre: service.nombre,
+                    // Usar precioVenta como precioFijo, que ahora es por persona para menús
                     precioFijo: service.precioVenta || 0,
                     categoria: mode === 'menu' ? 'Entrada' : 'Servicio Adicional',
                 }];
@@ -138,11 +135,6 @@ function AddOrEditDialog({
                     <div className="flex flex-col gap-2">
                         <Label>Catálogo de Servicios</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
-                         {/* Botones movidos aquí */}
-                        <div className="flex justify-end gap-2 pt-2">
-                          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                          <Button onClick={() => onSave(localItem)}>Añadir Seleccionados</Button>
-                        </div>
                         <ScrollArea className="h-96 border rounded-md p-2">
                           {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
                             <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
@@ -153,39 +145,14 @@ function AddOrEditDialog({
                         </ScrollArea>
                     </div>
                 </div>
+                 <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                    <Button onClick={() => onSave(localItem)}>Guardar</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
 }
-
-
-function SortableServiceItem({ id, service, onCategoryChange, onDelete }: {
-  id: string,
-  service: ServicioIncluidoArmadoRapido,
-  onCategoryChange: (id: string, category: ServicioCategoriaArmadoRapido) => void,
-  onDelete: (id: string) => void
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-  const style = { transform: CSS.Transform.toString(transform), transition };
-
-  return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-2 text-sm p-2 border rounded-md bg-background touch-none">
-      <Button variant="ghost" size="icon" className="h-7 w-7 cursor-grab" {...listeners} {...attributes}><GripVertical className="w-4 h-4"/></Button>
-      <div className="flex-grow">
-        <p className="font-medium">{service.nombre}</p>
-        <p className="text-xs text-muted-foreground">{formatCurrency(service.precioFijo)}</p>
-      </div>
-      <Select value={service.categoria} onValueChange={(val) => onCategoryChange(service.id, val as ServicioCategoriaArmadoRapido)}>
-        <SelectTrigger className="h-8 text-xs w-40"><SelectValue/></SelectTrigger>
-        <SelectContent>
-          {CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-        </SelectContent>
-      </Select>
-      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(service.id)}><Trash2 className="w-4 h-4"/></Button>
-    </div>
-  );
-}
-
 
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
@@ -193,7 +160,6 @@ export default function ArmadoRapidoSettingsPage() {
   const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const sensors = useSensors(useSensor(PointerSensor));
   
   const [currentItem, setCurrentItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -243,7 +209,7 @@ export default function ArmadoRapidoSettingsPage() {
   }
   
   const handleSaveItem = (item: MenuArmadoRapido | PaqueteArmadoRapido) => {
-      const listKey = item.id.includes('menu') ? 'menus' : 'paquetes';
+      const listKey = item.id.includes('menu') || modalMode === 'menu' ? 'menus' : 'paquetes';
       setConfig(prev => {
           if (!prev) return null;
           const list = prev[listKey] || [];
@@ -281,7 +247,7 @@ export default function ArmadoRapidoSettingsPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering (Paso 2)</CardTitle>
-            <CardDescription>Crea y edita los menús que el cliente podrá elegir.</CardDescription>
+            <CardDescription>Crea los "menús" que agruparán las opciones de platos para el cliente. Luego, añade los servicios desde el catálogo y clasifícalos como entrada, plato principal, etc. El precio del servicio debe ser por persona.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
              <Button onClick={() => openDialog('menu')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú Nuevo</Button>
@@ -315,7 +281,7 @@ export default function ArmadoRapidoSettingsPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios (Paso 3)</CardTitle>
-            <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, decoración, etc).</CardDescription>
+            <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, decoración, etc). El precio del servicio aquí es un costo fijo por paquete.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
              <Button onClick={() => openDialog('paquete')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete Nuevo</Button>
