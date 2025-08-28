@@ -242,3 +242,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    
