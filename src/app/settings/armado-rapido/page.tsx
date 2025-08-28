@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -69,7 +68,6 @@ function AddOrEditDialog({
                 newServices = [...currentServices, {
                     id: service.id,
                     nombre: service.nombre,
-                    // Usar precioVenta como precioFijo, que ahora es por persona para menús
                     precioFijo: service.precioVenta || 0,
                     categoria: mode === 'menu' ? 'Entrada' : 'Servicio Adicional',
                 }];
