@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -19,6 +18,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
+import { cn } from "@/lib/utils";
 
 
 const formatCurrency = (amount?: number) => {
@@ -26,46 +30,162 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-const CATEGORIAS_PRESUPUESTO: { value: ServicioCategoriaArmadoRapido, label: string }[] = [
+const CATEGORIAS_MENU: { value: ServicioCategoriaArmadoRapido, label: string }[] = [
     { value: 'Entrada', label: 'Entrada' },
     { value: 'Plato Principal', label: 'Plato Principal' },
     { value: 'Menú Adolescente', label: 'Menú Adolescente' },
     { value: 'Menú Niño', label: 'Menú Niño' },
-    { value: 'Servicio Adicional', label: 'Servicio Adicional' },
 ];
 
-// Simplified component for displaying a list of services in a category
-const ServiceList = ({ title, items, onAdd, onDelete, onEdit, itemType }: { 
-    title: string;
-    items: (ServicioIncluidoArmadoRapido)[];
-    onAdd: () => void;
-    onDelete: (itemId: string) => void;
-    onEdit: (item: ServicioIncluidoArmadoRapido) => void;
-    itemType: 'menu' | 'paquete';
-}) => (
-    <Card className="bg-muted/30 h-full flex flex-col">
-        <CardHeader>
-            <CardTitle className="text-lg">{title}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-grow">
-            <Button onClick={onAdd} size="sm" className="w-full mb-3"><PlusCircle className="w-4 h-4 mr-2"/>Añadir desde Catálogo</Button>
-            {items.length > 0 ? (
-                <div className="space-y-2">
-                    {items.map(item => (
-                        <div key={item.id} className="flex justify-between items-center text-sm p-2 border rounded-md bg-background">
-                            <span>{item.nombre}</span>
-                            <div className="flex items-center gap-1">
-                                <Badge variant="outline">{item.categoria}</Badge>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(item)}><Settings className="w-4 h-4"/></Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(item.id)}><Trash2 className="w-4 h-4"/></Button>
-                            </div>
+function AddOrEditDialog({
+    isOpen,
+    onOpenChange,
+    onSave,
+    item,
+    vendibleServices,
+    mode,
+}: {
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSave: (item: MenuArmadoRapido | PaqueteArmadoRapido) => void;
+    item: MenuArmadoRapido | PaqueteArmadoRapido | null;
+    vendibleServices: ServicioEmpresa[];
+    mode: 'menu' | 'paquete';
+}) {
+    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(item);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        setLocalItem(item);
+    }, [item]);
+
+    if (!localItem) return null;
+
+    const handleToggleService = (service: ServicioEmpresa) => {
+        setLocalItem(prev => {
+            if (!prev) return null;
+            const currentServices = prev.serviciosIncluidos || [];
+            const isSelected = currentServices.some(s => s.id === service.id);
+            let newServices;
+            if (isSelected) {
+                newServices = currentServices.filter(s => s.id !== service.id);
+            } else {
+                newServices = [...currentServices, {
+                    id: service.id,
+                    nombre: service.nombre,
+                    precioFijo: service.precioVenta || 0,
+                    categoria: mode === 'menu' ? 'Entrada' : 'Servicio Adicional',
+                }];
+            }
+            return { ...prev, serviciosIncluidos: newServices };
+        });
+    };
+    
+    const handleCategoryChange = (serviceId: string, newCategory: ServicioCategoriaArmadoRapido) => {
+        setLocalItem(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? {...s, categoria: newCategory} : s)
+            }
+        })
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+                <DialogHeader>
+                    <DialogTitle>{localItem.id ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú' : 'Paquete'}</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-2 flex-grow min-h-0">
+                    {/* Columna Izquierda: Configuración del Item */}
+                    <div className="flex flex-col gap-4">
+                      <div className="space-y-1">
+                          <Label>Nombre</Label>
+                          <Input value={localItem.nombre} onChange={e => setLocalItem(p => p ? { ...p, nombre: e.target.value } : null)} />
+                      </div>
+                      <div className="space-y-1">
+                          <Label>Descripción</Label>
+                          <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
+                      </div>
+                      <div className="space-y-1 flex-grow flex flex-col min-h-0">
+                        <Label>Servicios Incluidos</Label>
+                         <ScrollArea className="h-full border rounded-md p-2">
+                           {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
+                            <div className="space-y-2">
+                              {(localItem.serviciosIncluidos || []).map(s => (
+                                <div key={s.id} className="flex flex-col gap-2 text-sm p-2 border rounded-md bg-background">
+                                   <div className="flex justify-between items-center">
+                                      <Label htmlFor={`current-${s.id}`} className="cursor-pointer flex-grow">{s.nombre}</Label>
+                                      <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                   </div>
+                                    {mode === 'menu' && (
+                                        <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
+                                            <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                            <SelectContent>
+                                                {CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                </div>
+                              ))}
+                             </div>
+                           }
+                         </ScrollArea>
+                      </div>
+                    </div>
+                    {/* Columna Derecha: Catálogo de Servicios */}
+                    <div className="flex flex-col gap-2">
+                        <Label>Catálogo de Servicios</Label>
+                        <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
+                         {/* Botones movidos aquí */}
+                        <div className="flex justify-end gap-2 pt-2">
+                          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                          <Button onClick={() => onSave(localItem)}>Añadir Seleccionados</Button>
                         </div>
-                    ))}
+                        <ScrollArea className="h-96 border rounded-md p-2">
+                          {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
+                            <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
+                               <Checkbox id={`cat-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(s)}/>
+                               <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
+                            </div>
+                          ))}
+                        </ScrollArea>
+                    </div>
                 </div>
-            ) : <p className="text-xs text-center text-muted-foreground py-4">No hay servicios en esta lista.</p>}
-        </CardContent>
-    </Card>
-);
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+
+function SortableServiceItem({ id, service, onCategoryChange, onDelete }: {
+  id: string,
+  service: ServicioIncluidoArmadoRapido,
+  onCategoryChange: (id: string, category: ServicioCategoriaArmadoRapido) => void,
+  onDelete: (id: string) => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-2 text-sm p-2 border rounded-md bg-background touch-none">
+      <Button variant="ghost" size="icon" className="h-7 w-7 cursor-grab" {...listeners} {...attributes}><GripVertical className="w-4 h-4"/></Button>
+      <div className="flex-grow">
+        <p className="font-medium">{service.nombre}</p>
+        <p className="text-xs text-muted-foreground">{formatCurrency(service.precioFijo)}</p>
+      </div>
+      <Select value={service.categoria} onValueChange={(val) => onCategoryChange(service.id, val as ServicioCategoriaArmadoRapido)}>
+        <SelectTrigger className="h-8 text-xs w-40"><SelectValue/></SelectTrigger>
+        <SelectContent>
+          {CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(service.id)}><Trash2 className="w-4 h-4"/></Button>
+    </div>
+  );
+}
+
 
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
@@ -73,12 +193,11 @@ export default function ArmadoRapidoSettingsPage() {
   const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const sensors = useSensors(useSensor(PointerSensor));
   
+  const [currentItem, setCurrentItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'menu' | 'paquete'>('menu');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedServices, setSelectedServices] = useState<Map<string, {categoria: ServicioCategoriaArmadoRapido}>>(new Map());
-  
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -116,162 +235,117 @@ export default function ArmadoRapidoSettingsPage() {
       setIsSaving(false);
     }
   };
-
-  const openServiceSelectorModal = (type: 'menu' | 'paquete') => {
-      setModalMode(type);
-      const listKey = type === 'menu' ? 'menus' : 'paquetes';
-      // For menus, we assume a single menu config. For packages, we'd need to know which one.
-      // Let's simplify: there's ONE menu list and ONE package list to add to.
-      const currentList = config?.[listKey]?.[0]?.serviciosIncluidos || [];
-      const initialSelection = new Map(currentList.map(s => [s.id, { categoria: s.categoria }]));
-      setSelectedServices(initialSelection);
-      setSearchTerm('');
-      setIsModalOpen(true);
+  
+  const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
+    setModalMode(mode);
+    setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo ${mode === 'menu' ? 'Menú' : 'Paquete'}`, serviciosIncluidos: [] });
+    setIsModalOpen(true);
   }
-
-  const handleToggleServiceSelection = (service: ServicioEmpresa) => {
-    setSelectedServices(prev => {
-        const newMap = new Map(prev);
-        if (newMap.has(service.id)) {
-            newMap.delete(service.id);
-        } else {
-            const defaultCategory = modalMode === 'menu' ? 'Entrada' : 'Servicio Adicional';
-            newMap.set(service.id, { categoria: defaultCategory });
-        }
-        return newMap;
-    });
-  };
-
-  const handleSaveSelection = () => {
-    const listKey = modalMode === 'menu' ? 'menus' : 'paquetes';
-    const newServiciosIncluidos = Array.from(selectedServices.entries()).map(([serviceId, data]) => {
-        const serviceData = vendibleServices.find(s => s.id === serviceId);
-        return {
-            id: serviceId,
-            nombre: serviceData?.nombre || 'Servicio Desconocido',
-            precioFijo: serviceData?.precioVenta || 0,
-            categoria: data.categoria
-        };
-    });
-
-    setConfig(prevConfig => {
-      if (!prevConfig) return null;
-      // We are simplifying to have only ONE menu and ONE package for configuration ease.
-      // This can be expanded later if multiple package/menu options are needed.
-      const updatedList = prevConfig[listKey] || [];
-      if (updatedList.length === 0) {
-        updatedList.push({ id: `${modalMode}_0`, nombre: modalMode === 'menu' ? 'Oferta Gastronómica' : 'Servicios Adicionales', serviciosIncluidos: newServiciosIncluidos });
-      } else {
-        updatedList[0].serviciosIncluidos = newServiciosIncluidos;
-      }
-      return { ...prevConfig, [listKey]: [...updatedList] };
-    });
-    
-    setIsModalOpen(false);
-    toast({title: "Lista actualizada", description: "No olvides guardar los cambios generales."});
-  };
-
-  const handleDeleteFromList = (type: 'menu' | 'paquete', serviceId: string) => {
-    setConfig(prev => {
-        if (!prev) return null;
-        const listKey = type === 'menu' ? 'menus' : 'paquetes';
-        const list = prev[listKey] || [];
-        if (list.length > 0) {
-            list[0].serviciosIncluidos = list[0].serviciosIncluidos.filter(s => s.id !== serviceId);
-        }
-        return { ...prev, [listKey]: [...list] };
-    });
-  };
+  
+  const handleSaveItem = (item: MenuArmadoRapido | PaqueteArmadoRapido) => {
+      const listKey = item.id.includes('menu') ? 'menus' : 'paquetes';
+      setConfig(prev => {
+          if (!prev) return null;
+          const list = prev[listKey] || [];
+          const existingIndex = list.findIndex(i => i.id === item.id);
+          if (existingIndex > -1) {
+              list[existingIndex] = item as any;
+          } else {
+              list.push(item as any);
+          }
+          return {...prev, [listKey]: [...list]};
+      });
+      setIsModalOpen(false);
+  }
+  
+  const handleDeleteItem = (type: 'menu' | 'paquete', id: string) => {
+      const listKey = type === 'menu' ? 'menus' : 'paquetes';
+      setConfig(prev => {
+          if (!prev) return null;
+          return { ...prev, [listKey]: prev[listKey].filter(i => i.id !== id) }
+      });
+  }
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
-  const getServicesByCategory = (type: 'menu' | 'paquete', category: ServicioCategoriaArmadoRapido): ServicioIncluidoArmadoRapido[] => {
-      const listKey = type === 'menu' ? 'menus' : 'paquetes';
-      if (!config?.[listKey]?.[0]) return [];
-      return config[listKey][0].serviciosIncluidos.filter(s => s.categoria === category);
-  }
-
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-xl max-h-[80vh] flex flex-col">
-            <DialogHeader><DialogTitle>Seleccionar Servicios del Catálogo</DialogTitle><DialogDescription>Elige los servicios que quieres ofrecer en esta lista.</DialogDescription></DialogHeader>
-            <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
-            <div className="flex-grow min-h-0">
-                <ScrollArea className="h-full border rounded-md p-2">
-                    {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
-                        <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
-                            <Checkbox id={`sel-${s.id}`} checked={selectedServices.has(s.id)} onCheckedChange={() => handleToggleServiceSelection(s)}/>
-                            <Label htmlFor={`sel-${s.id}`} className="cursor-pointer flex-grow">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
-                        </div>
-                    ))}
-                </ScrollArea>
-            </div>
-            <DialogFooter><Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveSelection}>Añadir Seleccionados</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de Armado Rápido</h1></div>
         <Link href="/settings" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
       </div>
-
-       <div className="space-y-6">
+      
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Columna Menús de Catering */}
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Oferta Gastronómica (Paso 2)</CardTitle>
-            <CardDescription>Aquí defines todas las opciones de comida que aparecerán en el cotizador. Agrúpalas por categoría para que el cliente pueda elegir.</CardDescription>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering (Paso 2)</CardTitle>
+            <CardDescription>Crea y edita los menús que el cliente podrá elegir.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <ServiceList 
-                title="Lista de Entradas" 
-                items={getServicesByCategory('menu', 'Entrada')}
-                onAdd={() => openServiceSelectorModal('menu')}
-                onDelete={(id) => handleDeleteFromList('menu', id)}
-                onEdit={() => {}} // Simplified: edit is done via the full selector
-                itemType="menu"
-            />
-             <ServiceList 
-                title="Lista de Platos Principales" 
-                items={getServicesByCategory('menu', 'Plato Principal')}
-                onAdd={() => openServiceSelectorModal('menu')}
-                onDelete={(id) => handleDeleteFromList('menu', id)}
-                onEdit={() => {}}
-                itemType="menu"
-            />
-             <ServiceList 
-                title="Lista Menú Niños/Adolescentes" 
-                items={[...getServicesByCategory('menu', 'Menú Niño'), ...getServicesByCategory('menu', 'Menú Adolescente')]}
-                onAdd={() => openServiceSelectorModal('menu')}
-                onDelete={(id) => handleDeleteFromList('menu', id)}
-                onEdit={() => {}}
-                itemType="menu"
-            />
+          <CardContent className="space-y-4">
+             <Button onClick={() => openDialog('menu')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú Nuevo</Button>
+             <Separator/>
+             <div className="space-y-3">
+              {(config.menus || []).map(menu => (
+                 <Card key={menu.id} className="bg-muted/40">
+                   <CardHeader className="flex-row items-center justify-between p-3">
+                     <CardTitle className="text-base">{menu.nombre}</CardTitle>
+                     <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog('menu', menu)}><Settings className="w-4 h-4"/></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem('menu', menu.id)}><Trash2 className="w-4 h-4"/></Button>
+                     </div>
+                   </CardHeader>
+                   <CardContent className="px-3 pb-3">
+                      <p className="text-xs text-muted-foreground italic mb-2">{menu.descripcion || 'Sin descripción'}</p>
+                      {menu.serviciosIncluidos.length > 0 ? (
+                          <ul className="space-y-1 text-sm">
+                              {menu.serviciosIncluidos.slice(0, 3).map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre} <Badge variant="outline" className="text-xs">{s.categoria}</Badge></span> <span>{formatCurrency(s.precioFijo)}</span></li>)}
+                              {menu.serviciosIncluidos.length > 3 && <li className="text-xs text-muted-foreground">...y {menu.serviciosIncluidos.length - 3} más.</li>}
+                          </ul>
+                      ) : <p className="text-sm text-muted-foreground">Este menú no tiene servicios.</p>}
+                   </CardContent>
+                 </Card>
+              ))}
+             </div>
           </CardContent>
         </Card>
-        
+
+        {/* Columna Paquetes de Servicios */}
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios Adicionales (Paso 3)</CardTitle>
-            <CardDescription>Crea los paquetes con servicios como DJ, decoración, fotografía, etc. El cliente elegirá uno de estos paquetes.</CardDescription>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios (Paso 3)</CardTitle>
+            <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, decoración, etc).</CardDescription>
           </CardHeader>
-           <CardContent className="space-y-4">
-               <Button onClick={() => openServiceSelectorModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Configurar Servicios del Paquete</Button>
-               <Separator/>
-                {(config.paquetes[0]?.serviciosIncluidos || []).length > 0 ? (
-                    <ul className="space-y-1 text-sm">
-                        {(config.paquetes[0].serviciosIncluidos).map(s => (
-                            <li key={s.id} className="flex justify-between items-center p-2 border rounded-md">
-                                <span>{s.nombre}</span>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteFromList('paquete', s.id)}><Trash2 className="w-4 h-4"/></Button>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="text-sm text-muted-foreground py-4 text-center">No hay servicios en el paquete adicional.</p>
-                )}
-           </CardContent>
+          <CardContent className="space-y-4">
+             <Button onClick={() => openDialog('paquete')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete Nuevo</Button>
+             <Separator/>
+             <div className="space-y-3">
+              {(config.paquetes || []).map(pkg => (
+                 <Card key={pkg.id} className="bg-muted/40">
+                    <CardHeader className="flex-row items-center justify-between p-3">
+                     <CardTitle className="text-base">{pkg.nombre}</CardTitle>
+                     <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog('paquete', pkg)}><Settings className="w-4 h-4"/></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem('paquete', pkg.id)}><Trash2 className="w-4 h-4"/></Button>
+                     </div>
+                   </CardHeader>
+                   <CardContent className="px-3 pb-3">
+                      <p className="text-xs text-muted-foreground italic mb-2">{pkg.descripcion || 'Sin descripción'}</p>
+                      {pkg.serviciosIncluidos.length > 0 ? (
+                          <ul className="space-y-1 text-sm">
+                              {pkg.serviciosIncluidos.slice(0, 3).map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <span>{formatCurrency(s.precioFijo)}</span></li>)}
+                              {pkg.serviciosIncluidos.length > 3 && <li className="text-xs text-muted-foreground">...y {pkg.serviciosIncluidos.length - 3} más.</li>}
+                          </ul>
+                      ) : <p className="text-sm text-muted-foreground">Este paquete no tiene servicios.</p>}
+                   </CardContent>
+                 </Card>
+              ))}
+             </div>
+          </CardContent>
         </Card>
-       </div>
+
+      </div>
 
       <CardFooter className="border-t pt-6">
         <Button size="lg" onClick={handleSaveChanges} disabled={isSaving}>
