@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles, Server } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles, Server, PlusCircle } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -35,6 +35,13 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/contabilidad',
     icon: CircleDollarSign,
     actionLabel: 'Ir a Contabilidad',
+  },
+  {
+    title: 'Añadir Nuevo Servicio al Catálogo',
+    description: 'Crea un nuevo servicio (plato, decoración, etc.) para usar en tus presupuestos.',
+    href: '/empresa/todos-los-servicios/nuevo?type=servicio',
+    icon: PlusCircle,
+    actionLabel: 'Añadir Servicio',
   },
   {
     title: 'Catálogo de Servicios para Venta',
