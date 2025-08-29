@@ -1,5 +1,4 @@
 
-
 export type CategoriaServicio =
   | 'Servicio de catering'
   | 'Servicio de filmación'
@@ -34,8 +33,8 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
 export type UnidadServicio = 'Unidad' | 'Set' | 'Metro' | 'Kg' | 'Litro' | 'Caja' | 'Rollo' | 'Docena' | 'Por persona' | 'Por evento' | 'Gramos' | 'Cc' | 'Pack';
 export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'];
 
-export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Bebida (Insumo)' | 'Activo Fijo' | 'Servicio';
-export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)', 'Activo Fijo', 'Servicio'];
+export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Bebida (Insumo)' | 'Activo Fijo' | 'Servicio' | 'Menú';
+export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)', 'Activo Fijo', 'Servicio', 'Menú'];
 
 export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de Inventario (Activo/Insumo) o un Servicio
   id: string;
