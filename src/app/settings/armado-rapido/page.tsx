@@ -92,7 +92,8 @@ function AddOrEditDialog({
                 <DialogHeader>
                     <DialogTitle>{localItem.id ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú' : 'Paquete'}</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-2 flex-grow min-h-0">
+                {/* Main content area with scroll */}
+                <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 py-2 min-h-0 overflow-y-auto pr-2">
                     {/* Columna Izquierda: Configuración del Item */}
                     <div className="flex flex-col gap-4">
                       <div className="space-y-1">
@@ -143,7 +144,8 @@ function AddOrEditDialog({
                         </ScrollArea>
                     </div>
                 </div>
-                 <DialogFooter>
+                {/* Footer outside the scrollable area */}
+                 <DialogFooter className="flex-shrink-0 pt-4 border-t">
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
                     <Button onClick={() => onSave(localItem)}>Guardar</Button>
                 </DialogFooter>
