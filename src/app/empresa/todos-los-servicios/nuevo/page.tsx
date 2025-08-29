@@ -90,7 +90,14 @@ function NuevoItemInventarioContent() {
   const handleTipoItemChange = (value: TipoItemEmpresa | '') => {
     setTipoItem(value);
     setUnidad(''); // Reset unit when type changes
-    if (value === 'Servicio') {
+    setSubcategoria('');
+    
+    // Auto-select category if a menu item type is chosen
+    if (['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes'].includes(value)) {
+      setCategoria('Servicio de catering');
+      setSubcategoria(value as CategoriaServicio);
+      setTipoItem('Servicio'); // These are all services
+    } else if (value === 'Servicio') {
         setUnidad('Por evento');
         setCategoria('Otros servicios');
     } else {
