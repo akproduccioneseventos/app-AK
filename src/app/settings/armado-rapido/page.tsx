@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -92,9 +93,7 @@ function AddOrEditDialog({
                 <DialogHeader>
                     <DialogTitle>{localItem.id ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú' : 'Paquete'}</DialogTitle>
                 </DialogHeader>
-                {/* Main content area with scroll */}
                 <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 py-2 min-h-0 overflow-y-auto pr-2">
-                    {/* Columna Izquierda: Configuración del Item */}
                     <div className="flex flex-col gap-4">
                       <div className="space-y-1">
                           <Label>Nombre</Label>
@@ -130,7 +129,6 @@ function AddOrEditDialog({
                          </ScrollArea>
                       </div>
                     </div>
-                    {/* Columna Derecha: Catálogo de Servicios */}
                     <div className="flex flex-col gap-2">
                         <Label>Catálogo de Servicios</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
@@ -144,7 +142,6 @@ function AddOrEditDialog({
                         </ScrollArea>
                     </div>
                 </div>
-                {/* Footer outside the scrollable area */}
                  <DialogFooter className="flex-shrink-0 pt-4 border-t">
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
                     <Button onClick={() => onSave(localItem)}>Guardar</Button>
@@ -239,11 +236,15 @@ export default function ArmadoRapidoSettingsPage() {
       {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de Armado Rápido</h1></div>
-        <Link href="/settings" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        <div className="flex gap-2">
+            <Link href="/empresa/todos-los-servicios/nuevo?type=servicio" passHref>
+                <Button variant="outline"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio al Catálogo</Button>
+            </Link>
+            <Link href="/settings" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        </div>
       </div>
       
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Columna Menús de Catering */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering (Paso 2)</CardTitle>
@@ -277,7 +278,6 @@ export default function ArmadoRapidoSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Columna Paquetes de Servicios */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios (Paso 3)</CardTitle>
