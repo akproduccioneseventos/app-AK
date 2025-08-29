@@ -1,4 +1,4 @@
-export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Menú Adolescente' | 'Menú Niño' | 'Servicio Adicional';
+export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Menú Adolescente / Niño' | 'Servicio Adicional';
 
 export interface ServicioIncluidoArmadoRapido {
   id: string; // Corresponds to ServicioEmpresa id

@@ -29,8 +29,7 @@ const formatCurrency = (amount?: number) => {
 const CATEGORIAS_MENU: { value: ServicioCategoriaArmadoRapido, label: string }[] = [
     { value: 'Entrada', label: 'Entrada' },
     { value: 'Plato Principal', label: 'Plato Principal' },
-    { value: 'Menú Adolescente', label: 'Menú Adolescente' },
-    { value: 'Menú Niño', label: 'Menú Niño' },
+    { value: 'Menú Adolescente / Niño', label: 'Menú Adolescente / Niño' },
 ];
 
 function AddOrEditDialog({
@@ -93,8 +92,9 @@ function AddOrEditDialog({
                 <DialogHeader>
                     <DialogTitle>{localItem.id ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú' : 'Paquete'}</DialogTitle>
                 </DialogHeader>
-                <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 py-2 min-h-0 overflow-y-auto pr-2">
-                    <div className="flex flex-col gap-4">
+                <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 py-2 min-h-0">
+                    {/* Columna Izquierda: Detalles y Servicios Incluidos */}
+                    <div className="flex flex-col gap-4 min-h-0">
                       <div className="space-y-1">
                           <Label>Nombre</Label>
                           <Input value={localItem.nombre} onChange={e => setLocalItem(p => p ? { ...p, nombre: e.target.value } : null)} />
@@ -129,10 +129,11 @@ function AddOrEditDialog({
                          </ScrollArea>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    {/* Columna Derecha: Catálogo de Servicios */}
+                    <div className="flex flex-col gap-2 min-h-0">
                         <Label>Catálogo de Servicios</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
-                        <ScrollArea className="h-96 border rounded-md p-2">
+                        <ScrollArea className="h-full border rounded-md p-2">
                           {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
                             <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
                                <Checkbox id={`cat-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(s)}/>
