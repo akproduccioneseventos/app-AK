@@ -65,6 +65,7 @@ export default function ArmadoRapidoPage() {
 
     const totalAdultos = numAdultos;
     const totalJovenes = numJovenes;
+    const totalInvitados = totalAdultos + totalJovenes;
     
     const menuActual = useMemo(() => config?.menus.find(m => m.id === menuBaseId), [config, menuBaseId]);
     const paqueteActual = useMemo(() => config?.paquetes.find(p => p.id === paqueteServiciosId), [config, paqueteServiciosId]);
@@ -81,7 +82,36 @@ export default function ArmadoRapidoPage() {
 
     const costoPlatosPrincipales = useMemo(() => platosPrincipales.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [platosPrincipales]);
     const costoMenusInfantiles = useMemo(() => menusInfantiles.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [menusInfantiles]);
-    const costoPaqueteServicios = useMemo(() => paqueteActual?.serviciosIncluidos.reduce((sum, s) => sum + s.precioFijo, 0) || 0, [paqueteActual]);
+    
+    const costoPaqueteServicios = useMemo(() => {
+        if (!paqueteActual) return 0;
+        return paqueteActual.serviciosIncluidos.reduce((total, servicio) => {
+            let costoServicio = 0;
+            switch(servicio.calculationMethod) {
+                case 'fijo':
+                    costoServicio = servicio.precioBase || 0;
+                    break;
+                case 'porPersona':
+                    costoServicio = (servicio.precioPorPersona || 0) * totalInvitados;
+                    break;
+                case 'ratio':
+                    if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) {
+                        const unidadesNecesarias = Math.ceil(totalInvitados / servicio.invitadosPorUnidad);
+                        costoServicio = unidadesNecesarias * (servicio.precioBase || 0);
+                    }
+                    break;
+                case 'tramos':
+                     const tramoAplicable = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+                     if (tramoAplicable) {
+                         costoServicio = tramoAplicable.precio;
+                     }
+                    break;
+                default: // Fallback a precioFijo si existe o 0
+                    costoServicio = servicio.precioFijo || servicio.precioBase || 0;
+            }
+            return total + costoServicio;
+        }, 0);
+    }, [paqueteActual, totalInvitados]);
     
     const costoTotal = costoEntradas + costoPlatosPrincipales + costoMenusInfantiles + costoPaqueteServicios;
     const montoDescuento = config?.descuentoGeneral ? (costoTotal * config.descuentoGeneral) / 100 : 0;
