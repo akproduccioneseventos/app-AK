@@ -297,7 +297,9 @@ export default function ArmadoRapidoPage() {
                             <CardDescription className="text-base text-muted-foreground">
                                 Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad.
                                 <br/>
-                                <span className="font-semibold mt-2 block">El precio y la promoción de este presupuesto son válidos por 30 días.</span>
+                                <span className="font-semibold mt-2 block">
+                                    ¡No pierdas esta oportunidad! Puedes señar y congelar el precio de todos los servicios por solo $5,000. El precio y la promoción de este presupuesto son válidos por 30 días.
+                                </span>
                             </CardDescription>
                         </CardHeader>
                         <CardFooter className="flex flex-col gap-2">
