@@ -11,7 +11,6 @@ import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, Ar
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
-import { getSocialConnections } from '@/app/actions/social-connections';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -34,7 +33,7 @@ export default function ArmadoRapidoPage() {
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [whatsappLink, setWhatsappLink] = useState('');
+    const whatsappLink = "https://wa.me/59898355530"; // Hardcoded WhatsApp link
 
     const [paso, setPaso] = useState(1);
     
@@ -74,7 +73,7 @@ export default function ArmadoRapidoPage() {
         if (!isPaso3Valid) {
             let errorMsg = "Por favor, completa la selección: ";
             const errors = [];
-            if (entradasSeleccionadas.size !== 2) errors.push("debes elegir 2 entradas");
+            if (entradasSeleccionadas.size !== 2) errors.push("debes elegir exactamente 2 entradas");
             if (!platoPrincipalId) errors.push("debes elegir 1 plato principal");
             if (numJovenesYNinos > 0 && !menuInfantilId) errors.push("debes elegir 1 menú infantil");
             
@@ -92,15 +91,8 @@ export default function ArmadoRapidoPage() {
     const loadData = useCallback(async () => {
         setIsLoading(true); setError(null);
         try {
-            const [fetchedConfig, socialConnections] = await Promise.all([
-                getArmadoRapidoConfig(),
-                getSocialConnections()
-            ]);
+            const fetchedConfig = await getArmadoRapidoConfig();
             setConfig(fetchedConfig);
-            const waConnection = socialConnections.find(c => c.platform === 'WhatsApp');
-            if (waConnection && waConnection.profileUrl) {
-                setWhatsappLink(waConnection.profileUrl);
-            }
         } catch (err: any) {
             setError('No se pudo cargar la configuración de presupuestos rápidos.');
             toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -363,23 +355,33 @@ export default function ArmadoRapidoPage() {
             </header>
             
             <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24">
-                <Card className={`shadow-xl ${paso === 5 ? 'hidden' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
+                <Card className={`shadow-xl ${paso === 5 ? 'hidden md:block' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
                 <div className="hidden print:block"><PrintableContent/></div>
-                <div className="block"><PrintableContent/></div>
+                <div className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
             </main>
         </div>
         <style jsx global>{`
           @media print {
             body > * {
-              display: none !important;
+              visibility: hidden;
             }
             .printable-content, .printable-content * {
-              display: block !important;
-              visibility: visible !important;
+              visibility: visible;
+            }
+            .printable-content {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
             }
           }
           .printable-content {
             display: none;
+          }
+           @media print {
+            .printable-content {
+              display: block;
+            }
           }
         `}</style>
         <div className="printable-content">
@@ -388,3 +390,4 @@ export default function ArmadoRapidoPage() {
       </>
     );
 }
+
