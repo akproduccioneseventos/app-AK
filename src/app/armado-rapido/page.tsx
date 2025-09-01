@@ -190,18 +190,8 @@ export default function ArmadoRapidoPage() {
         }
     };
     
-     const handlePrint = () => {
-        const printableContent = document.getElementById('printable-summary');
-        if (!printableContent) return;
-
-        const originalContents = document.body.innerHTML;
-        const printContents = printableContent.innerHTML;
-
-        document.body.innerHTML = printContents;
+    const handlePrint = () => {
         window.print();
-        document.body.innerHTML = originalContents;
-        // The page will need to be reloaded to restore event listeners, etc.
-        window.location.reload();
     };
 
     const handleShare = () => {
@@ -403,4 +393,3 @@ export default function ArmadoRapidoPage() {
       </>
     );
 }
-
