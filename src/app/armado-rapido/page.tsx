@@ -7,10 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, ArrowRight, MinusCircle, PlusCircle, User, UserSquare2, Phone, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, ArrowRight, MinusCircle, PlusCircle, User, UserSquare2, Phone, Download, Share2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
+import { getSocialConnections } from '@/app/actions/social-connections';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -32,6 +33,7 @@ export default function ArmadoRapidoPage() {
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [whatsappLink, setWhatsappLink] = useState('');
 
     const [paso, setPaso] = useState(1);
     
@@ -56,8 +58,15 @@ export default function ArmadoRapidoPage() {
     const loadData = useCallback(async () => {
         setIsLoading(true); setError(null);
         try {
-            const fetchedConfig = await getArmadoRapidoConfig();
+            const [fetchedConfig, socialConnections] = await Promise.all([
+                getArmadoRapidoConfig(),
+                getSocialConnections()
+            ]);
             setConfig(fetchedConfig);
+            const waConnection = socialConnections.find(c => c.platform === 'WhatsApp');
+            if (waConnection && waConnection.profileUrl) {
+                setWhatsappLink(waConnection.profileUrl);
+            }
         } catch (err: any) {
             setError('No se pudo cargar la configuración de presupuestos rápidos.');
             toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -261,12 +270,23 @@ export default function ArmadoRapidoPage() {
                         <CardHeader className="text-center">
                             <FileText className="w-16 h-16 mx-auto text-primary" />
                             <CardTitle className="font-headline text-2xl mt-4">¡Listo! Tu Presupuesto está en Camino</CardTitle>
-                            <CardDescription>Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad. Mientras tanto, puedes descargar o compartir un resumen.</CardDescription>
+                            <CardDescription className="text-base text-muted-foreground">
+                                Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad.
+                                <br/>
+                                <span className="font-semibold mt-2 block">El precio y la promoción de este presupuesto son válidos por 30 días.</span>
+                            </CardDescription>
                         </CardHeader>
                         <CardFooter className="flex flex-col gap-2">
                            <Button onClick={handlePrint} variant="outline" className="w-full"><Download className="mr-2"/>Descargar Resumen (PDF)</Button>
                            <Button onClick={handleShare} variant="outline" className="w-full"><Share2 className="mr-2"/>Compartir Resumen</Button>
-                           <Button onClick={() => window.location.reload()} className="w-full mt-4">Generar un Nuevo Presupuesto</Button>
+                           {whatsappLink && (
+                             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                                <Button className="w-full bg-green-500 hover:bg-green-600">
+                                    <MessageSquare className="mr-2"/>Comunicarse por WhatsApp
+                                </Button>
+                             </a>
+                           )}
+                           <Button onClick={() => window.location.reload()} variant="secondary" className="w-full mt-4">Generar un Nuevo Presupuesto</Button>
                         </CardFooter>
                     </motion.div>
                 );
