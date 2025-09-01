@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, ArrowRight, MinusCircle, PlusCircle, User, UserSquare2, Phone, Download } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, ArrowRight, MinusCircle, PlusCircle, User, UserSquare2, Phone, Download, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
@@ -159,6 +159,16 @@ export default function ArmadoRapidoPage() {
         }
     };
     
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleShare = () => {
+        const resumenText = `Resumen del Presupuesto para ${clienteNombre}:\n- Invitados: ${totalInvitados}\n- Catering: ${formatCurrency(costoEntradas + costoPlatosPrincipales + costoMenusInfantiles)}\n- Servicios: ${formatCurrency(costoPaqueteServicios)}\n- Total Estimado: ${formatCurrency(costoConDescuento)}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(resumenText)}`;
+        window.open(whatsappUrl, '_blank');
+    };
+
     const renderPaso = () => {
         switch(paso) {
             case 1: // Datos del Cliente
@@ -251,10 +261,12 @@ export default function ArmadoRapidoPage() {
                         <CardHeader className="text-center">
                             <FileText className="w-16 h-16 mx-auto text-primary" />
                             <CardTitle className="font-headline text-2xl mt-4">¡Listo! Tu Presupuesto está en Camino</CardTitle>
-                            <CardDescription>Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad para confirmar los detalles y enviarte el presupuesto formal.</CardDescription>
+                            <CardDescription>Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad. Mientras tanto, puedes descargar o compartir un resumen.</CardDescription>
                         </CardHeader>
                         <CardFooter className="flex flex-col gap-2">
-                           <Button onClick={() => window.location.reload()} className="w-full">Generar un Nuevo Presupuesto</Button>
+                           <Button onClick={handlePrint} variant="outline" className="w-full"><Download className="mr-2"/>Descargar Resumen (PDF)</Button>
+                           <Button onClick={handleShare} variant="outline" className="w-full"><Share2 className="mr-2"/>Compartir Resumen</Button>
+                           <Button onClick={() => window.location.reload()} className="w-full mt-4">Generar un Nuevo Presupuesto</Button>
                         </CardFooter>
                     </motion.div>
                 );
@@ -274,7 +286,7 @@ export default function ArmadoRapidoPage() {
             </header>
             
             <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24 print:grid-cols-1 print:pt-4">
-                <Card className="shadow-xl print:shadow-none print:border-none"><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
+                <Card className={`shadow-xl print:shadow-none print:border-none ${paso === 5 ? 'print:hidden' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
                 <Card className="shadow-xl border-t-4 border-primary">
                     <CardHeader><CardTitle className="font-headline text-2xl text-primary">Resumen de tu Selección</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
