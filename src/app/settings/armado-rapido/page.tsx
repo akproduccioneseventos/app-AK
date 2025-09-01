@@ -90,21 +90,30 @@ function AddOrEditDialog({
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>{localItem.id ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú' : 'Paquete'}</DialogTitle>
+                    <DialogTitle>{localItem.id ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú de Catering' : 'Paquete de Servicios'}</DialogTitle>
+                     <DialogDescription>
+                        {mode === 'menu' 
+                          ? "Gestiona todas las opciones de catering que tus clientes podrán elegir en el Armado Rápido."
+                          : "Define los paquetes de servicios adicionales como discoteca, fotografía, etc."}
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 py-2 min-h-0">
                     {/* Columna Izquierda: Detalles y Servicios Incluidos */}
                     <div className="flex flex-col gap-4 min-h-0">
-                      <div className="space-y-1">
-                          <Label>Nombre</Label>
-                          <Input value={localItem.nombre} onChange={e => setLocalItem(p => p ? { ...p, nombre: e.target.value } : null)} />
-                      </div>
-                      <div className="space-y-1">
-                          <Label>Descripción</Label>
-                          <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
-                      </div>
+                      {mode === 'paquete' && (
+                        <>
+                          <div className="space-y-1">
+                              <Label>Nombre del Paquete</Label>
+                              <Input value={localItem.nombre} onChange={e => setLocalItem(p => p ? { ...p, nombre: e.target.value } : null)} />
+                          </div>
+                          <div className="space-y-1">
+                              <Label>Descripción</Label>
+                              <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
+                          </div>
+                        </>
+                      )}
                       <div className="space-y-1 flex-grow flex flex-col min-h-0">
-                        <Label>Servicios Incluidos</Label>
+                        <Label>Servicios Incluidos en este {mode === 'menu' ? 'Menú' : 'Paquete'}</Label>
                          <ScrollArea className="h-full border rounded-md p-2">
                            {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
                             <div className="space-y-2">
@@ -131,7 +140,7 @@ function AddOrEditDialog({
                     </div>
                     {/* Columna Derecha: Catálogo de Servicios */}
                     <div className="flex flex-col gap-2 min-h-0">
-                        <Label>Catálogo de Servicios</Label>
+                        <Label>Catálogo de Servicios Vendibles</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
                         <ScrollArea className="h-full border rounded-md p-2">
                           {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
@@ -202,14 +211,22 @@ export default function ArmadoRapidoSettingsPage() {
   
   const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
     setModalMode(mode);
-    setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo ${mode === 'menu' ? 'Menú' : 'Paquete'}`, serviciosIncluidos: [] });
+    if(mode === 'menu'){
+        const menuToEdit = config?.menus[0] || { id: 'menu_catering', nombre: 'Menú de Catering', descripcion: 'Opciones de catering para el armado rápido', serviciosIncluidos: [] };
+        setCurrentItem(menuToEdit);
+    } else {
+        setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo Paquete`, serviciosIncluidos: [] });
+    }
     setIsModalOpen(true);
   }
   
   const handleSaveItem = (item: MenuArmadoRapido | PaqueteArmadoRapido) => {
-      const listKey = item.id.includes('menu') || modalMode === 'menu' ? 'menus' : 'paquetes';
+      const listKey = modalMode === 'menu' ? 'menus' : 'paquetes';
       setConfig(prev => {
           if (!prev) return null;
+          if(listKey === 'menus'){
+            return {...prev, menus: [item as MenuArmadoRapido]};
+          }
           const list = prev[listKey] || [];
           const existingIndex = list.findIndex(i => i.id === item.id);
           if (existingIndex > -1) {
@@ -222,11 +239,10 @@ export default function ArmadoRapidoSettingsPage() {
       setIsModalOpen(false);
   }
   
-  const handleDeleteItem = (type: 'menu' | 'paquete', id: string) => {
-      const listKey = type === 'menu' ? 'menus' : 'paquetes';
+  const handleDeleteItem = (type: 'paquete', id: string) => {
       setConfig(prev => {
           if (!prev) return null;
-          return { ...prev, [listKey]: prev[listKey].filter(i => i.id !== id) }
+          return { ...prev, paquetes: prev.paquetes.filter(i => i.id !== id) }
       });
   }
 
@@ -248,40 +264,17 @@ export default function ArmadoRapidoSettingsPage() {
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering (Paso 2)</CardTitle>
-            <CardDescription>Crea los "menús" que agruparán las opciones de platos para el cliente. Luego, añade los servicios desde el catálogo y clasifícalos como entrada, plato principal, etc. El precio del servicio debe ser por persona.</CardDescription>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Opciones de Catering (Para Paso 3)</CardTitle>
+            <CardDescription>Gestiona la lista única de servicios de catering que los clientes podrán elegir. Define el precio por persona de cada opción y clasifícala correctamente.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-             <Button onClick={() => openDialog('menu')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú Nuevo</Button>
-             <Separator/>
-             <div className="space-y-3">
-              {(config.menus || []).map(menu => (
-                 <Card key={menu.id} className="bg-muted/40">
-                   <CardHeader className="flex-row items-center justify-between p-3">
-                     <CardTitle className="text-base">{menu.nombre}</CardTitle>
-                     <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog('menu', menu)}><Settings className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem('menu', menu.id)}><Trash2 className="w-4 h-4"/></Button>
-                     </div>
-                   </CardHeader>
-                   <CardContent className="px-3 pb-3">
-                      <p className="text-xs text-muted-foreground italic mb-2">{menu.descripcion || 'Sin descripción'}</p>
-                      {menu.serviciosIncluidos.length > 0 ? (
-                          <ul className="space-y-1 text-sm">
-                              {menu.serviciosIncluidos.slice(0, 3).map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre} <Badge variant="outline" className="text-xs">{s.categoria}</Badge></span> <span>{formatCurrency(s.precioFijo)}</span></li>)}
-                              {menu.serviciosIncluidos.length > 3 && <li className="text-xs text-muted-foreground">...y {menu.serviciosIncluidos.length - 3} más.</li>}
-                          </ul>
-                      ) : <p className="text-sm text-muted-foreground">Este menú no tiene servicios.</p>}
-                   </CardContent>
-                 </Card>
-              ))}
-             </div>
+             <Button onClick={() => openDialog('menu')} className="w-full"><Settings className="w-4 h-4 mr-2"/>Administrar Opciones de Catering</Button>
           </CardContent>
         </Card>
 
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios (Paso 3)</CardTitle>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios (Para Paso 4)</CardTitle>
             <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, decoración, etc). El precio del servicio aquí es un costo fijo por paquete.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

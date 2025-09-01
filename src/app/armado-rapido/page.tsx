@@ -73,6 +73,7 @@ export default function ArmadoRapidoPage() {
     const totalJovenesYNinos = numJovenes + numNinos;
     const totalInvitados = totalAdultos + totalJovenesYNinos;
     
+    // Ahora solo hay un menú de catering
     const opcionesMenu = useMemo(() => config?.menus?.[0], [config]);
     const paqueteActual = useMemo(() => config?.paquetes.find(p => p.id === paqueteServiciosId), [config, paqueteServiciosId]);
     
