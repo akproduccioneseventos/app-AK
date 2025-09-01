@@ -23,7 +23,6 @@ export interface ServicioIncluidoArmadoRapido {
 }
 
 // Un "Menu" ahora es solo una lista de servicios de catering categorizados.
-// Ya no existen "Menu Clasico", "Menu Economico" como entidades separadas.
 export interface MenuArmadoRapido {
   id: string; // Puede ser un ID fijo como 'catering_options'
   nombre: string; // ej: "Opciones de Catering"
