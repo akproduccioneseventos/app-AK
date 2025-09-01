@@ -192,14 +192,16 @@ export default function ArmadoRapidoPage() {
     
      const handlePrint = () => {
         const printableContent = document.getElementById('printable-summary');
-        const mainContent = document.getElementById('main-content');
-        if (printableContent && mainContent) {
-            mainContent.classList.add('temp-hidden-for-print');
-            printableContent.classList.add('printable-content-only');
-            window.print();
-            mainContent.classList.remove('temp-hidden-for-print');
-            printableContent.classList.remove('printable-content-only');
-        }
+        if (!printableContent) return;
+
+        const originalContents = document.body.innerHTML;
+        const printContents = printableContent.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        // The page will need to be reloaded to restore event listeners, etc.
+        window.location.reload();
     };
 
     const handleShare = () => {
@@ -322,12 +324,11 @@ export default function ArmadoRapidoPage() {
                             <FileText className="w-16 h-16 mx-auto text-primary" />
                             <CardTitle className="font-headline text-2xl mt-4">¡Listo! Tu Presupuesto está en Camino</CardTitle>
                              <CardDescription className="text-base text-muted-foreground">
-                                Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad.
-                                <br/>
-                                <span className="font-semibold mt-2 block">
-                                    ¡No pierdas esta oportunidad! Puedes señar y congelar el precio de todos los servicios por solo $5,000. El precio y la promoción de este presupuesto son válidos por 30 días.
-                                </span>
-                            </CardDescription>
+                                 Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad.
+                                 <span className="font-semibold mt-2 block">
+                                    ¡No pierdas esta oportunidad! PODÉS SEÑAR todos los servicios por SOLO $5,000 y acceder a la promoción especial y regalos exclusivos. Este presupuesto es válido por 30 días.
+                                 </span>
+                             </CardDescription>
                         </CardHeader>
                         <CardFooter className="flex flex-col gap-2">
                            <Button onClick={handlePrint} variant="outline" className="w-full"><Download className="mr-2"/>Descargar Presupuesto</Button>
@@ -375,7 +376,7 @@ export default function ArmadoRapidoPage() {
 
     return (
       <>
-        <div id="main-content">
+        <div id="main-content" className="non-printable">
           <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
               <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm">
                   <div className="flex justify-between items-center max-w-5xl mx-auto">
@@ -390,34 +391,13 @@ export default function ArmadoRapidoPage() {
               </main>
           </div>
         </div>
-        <div id="printable-summary" className="hidden print:block"><PrintableContent/></div>
+        <div id="printable-summary" className="hidden printable-content">
+          <PrintableContent/>
+        </div>
          <style jsx global>{`
           @media print {
-            .non-printable {
-              display: none;
-            }
-            .printable-content-only {
-              visibility: visible;
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-            }
-             body * {
-              visibility: hidden;
-            }
-            #printable-summary, #printable-summary * {
-              visibility: visible;
-            }
-            #printable-summary {
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-            }
-          }
-           .temp-hidden-for-print {
-            display: none !important;
+            .non-printable { display: none !important; }
+            .printable-content { display: block !important; }
           }
         `}</style>
       </>
