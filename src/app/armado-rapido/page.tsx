@@ -15,6 +15,7 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
 const formatCurrency = (amount: number) => {
@@ -47,8 +48,9 @@ export default function ArmadoRapidoPage() {
 
     // Paso 3 State
     const [entradasSeleccionadas, setEntradasSeleccionadas] = useState<Set<string>>(new Set());
-    const [platosPrincipalesIds, setPlatosPrincipalesIds] = useState<Set<string>>(new Set());
-    const [menusInfantilesIds, setMenusInfantilesIds] = useState<Set<string>>(new Set());
+    const [platoPrincipalId, setPlatoPrincipalId] = useState<string | undefined>(undefined);
+    const [menuInfantilId, setMenuInfantilId] = useState<string | undefined>(undefined);
+
 
     // Paso 4 State
     const [paqueteServiciosId, setPaqueteServiciosId] = useState<string>('');
@@ -60,21 +62,21 @@ export default function ArmadoRapidoPage() {
         const celularValido = /^\d{8,15}$/.test(clienteCelular.replace(/\s/g, ''));
         return nombreValido && celularValido;
     }, [clienteNombre, clienteCelular]);
-
+    
     const isPaso3Valid = useMemo(() => {
         const entradasOk = entradasSeleccionadas.size === 2;
-        const platosPrincipalesOk = platosPrincipalesIds.size >= 1;
-        const menusInfantilesOk = numJovenesYNinos > 0 ? menusInfantilesIds.size >= 1 : true; // Only required if kids are present
-        return entradasOk && platosPrincipalesOk && menusInfantilesOk;
-    }, [entradasSeleccionadas, platosPrincipalesIds, menusInfantilesIds, numJovenesYNinos]);
+        const platoPrincipalOk = !!platoPrincipalId;
+        const menuInfantilOk = numJovenesYNinos > 0 ? !!menuInfantilId : true;
+        return entradasOk && platoPrincipalOk && menuInfantilOk;
+    }, [entradasSeleccionadas.size, platoPrincipalId, menuInfantilId, numJovenesYNinos]);
 
     const handlePaso3Next = () => {
         if (!isPaso3Valid) {
             let errorMsg = "Por favor, completa la selección: ";
             const errors = [];
             if (entradasSeleccionadas.size !== 2) errors.push("debes elegir 2 entradas");
-            if (platosPrincipalesIds.size < 1) errors.push("debes elegir al menos 1 plato principal");
-            if (numJovenesYNinos > 0 && menusInfantilesIds.size < 1) errors.push("debes elegir al menos 1 menú infantil");
+            if (!platoPrincipalId) errors.push("debes elegir 1 plato principal");
+            if (numJovenesYNinos > 0 && !menuInfantilId) errors.push("debes elegir 1 menú infantil");
             
             toast({
                 title: "Selección Incompleta",
@@ -125,24 +127,18 @@ export default function ArmadoRapidoPage() {
         return total;
     }, [opcionesMenu, entradasSeleccionadas, totalAdultos]);
     
-    const platosPrincipalesSeleccionados = useMemo(() => {
-      return Array.from(platosPrincipalesIds).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id)).filter(Boolean) as ServicioIncluidoArmadoRapido[];
-    }, [platosPrincipalesIds, opcionesMenu]);
-    
-    const menusInfantilesSeleccionados = useMemo(() => {
-      return Array.from(menusInfantilesIds).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id)).filter(Boolean) as ServicioIncluidoArmadoRapido[];
-    }, [menusInfantilesIds, opcionesMenu]);
+    const costoPlatoPrincipal = useMemo(() => {
+        if (!platoPrincipalId) return 0;
+        const plato = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
+        return plato ? plato.precioFijo * numAdultos : 0;
+    }, [platoPrincipalId, opcionesMenu, numAdultos]);
 
-
-    const costoPlatosPrincipales = useMemo(() => {
-        if (platosPrincipalesSeleccionados.length === 0) return 0;
-        return platosPrincipalesSeleccionados.reduce((sum, plato) => sum + (plato.precioFijo * numAdultos), 0) / platosPrincipalesSeleccionados.length;
-    }, [platosPrincipalesSeleccionados, numAdultos]);
-
-    const costoMenusInfantiles = useMemo(() => {
-        if (menusInfantilesSeleccionados.length === 0) return 0;
-        return menusInfantilesSeleccionados.reduce((sum, menu) => sum + (menu.precioFijo * numJovenesYNinos), 0) / menusInfantilesSeleccionados.length;
-    }, [menusInfantilesSeleccionados, numJovenesYNinos]);
+    const costoMenuInfantil = useMemo(() => {
+        if (numJovenesYNinos === 0) return 0;
+        if (!menuInfantilId) return 0;
+        const menu = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
+        return menu ? menu.precioFijo * numJovenesYNinos : 0;
+    }, [menuInfantilId, opcionesMenu, numJovenesYNinos]);
     
     const costoPaqueteServicios = useMemo(() => {
         if (!paqueteActual) return 0;
@@ -174,7 +170,7 @@ export default function ArmadoRapidoPage() {
         }, 0);
     }, [paqueteActual, totalInvitados]);
     
-    const costoTotal = costoEntradas + costoPlatosPrincipales + costoMenusInfantiles + costoPaqueteServicios;
+    const costoTotal = costoEntradas + costoPlatoPrincipal + costoMenuInfantil + costoPaqueteServicios;
     const montoDescuento = config?.descuentoGeneral ? (costoTotal * config.descuentoGeneral) / 100 : 0;
     const costoConDescuento = costoTotal - montoDescuento;
 
@@ -205,7 +201,7 @@ export default function ArmadoRapidoPage() {
     };
 
     const handleShare = () => {
-        const resumenText = `Resumen del Presupuesto para ${clienteNombre}:\n- Invitados: ${totalInvitados}\n- Catering: ${formatCurrency(costoEntradas + costoPlatosPrincipales + costoMenusInfantiles)}\n- Servicios: ${formatCurrency(costoPaqueteServicios)}\n- Total Estimado: ${formatCurrency(costoConDescuento)}`;
+        const resumenText = `Resumen del Presupuesto para ${clienteNombre}:\n- Invitados: ${totalInvitados}\n- Catering: ${formatCurrency(costoEntradas + costoPlatoPrincipal + costoMenuInfantil)}\n- Servicios: ${formatCurrency(costoPaqueteServicios)}\n- Total Estimado: ${formatCurrency(costoConDescuento)}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(resumenText)}`;
         window.open(whatsappUrl, '_blank');
     };
@@ -254,27 +250,29 @@ export default function ArmadoRapidoPage() {
                            </div>
                            
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">2. Platos Principales (para {totalAdultos} adultos, elige al menos 1)</Label>
-                                <p className="text-sm text-muted-foreground">El costo se promediará entre las selecciones.</p>
-                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
-                                    <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
-                                        <Checkbox id={`pp-${s.id}`} checked={platosPrincipalesIds.has(s.id)} onCheckedChange={() => setPlatosPrincipalesIds(p => { const n = new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })} />
-                                        <Label htmlFor={`pp-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
-                                        <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
-                                    </div>
-                                ))}
+                                <Label className="font-semibold text-lg">2. Plato Principal (para {totalAdultos} adultos, elige 1)</Label>
+                                <RadioGroup value={platoPrincipalId} onValueChange={setPlatoPrincipalId}>
+                                  {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
+                                      <Label key={s.id} htmlFor={`pp-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                                          <RadioGroupItem value={s.id} id={`pp-${s.id}`} />
+                                          <span className="flex-grow font-normal">{s.nombre}</span>
+                                          <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
+                                      </Label>
+                                  ))}
+                                </RadioGroup>
                             </div>
                            {numJovenesYNinos > 0 && (
                              <div className="space-y-2">
-                                <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (para {numJovenesYNinos}, elige al menos 1)</Label>
-                                <p className="text-sm text-muted-foreground">El costo se promediará entre las selecciones.</p>
-                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=> (
-                                    <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
-                                         <Checkbox id={`pi-${s.id}`} checked={menusInfantilesIds.has(s.id)} onCheckedChange={() => setMenusInfantilesIds(p => { const n = new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })} />
-                                        <Label htmlFor={`pi-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
-                                        <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
-                                    </div>
-                                ))}
+                                <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (para {numJovenesYNinos}, elige 1)</Label>
+                                 <RadioGroup value={menuInfantilId} onValueChange={setMenuInfantilId}>
+                                    {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=> (
+                                        <Label key={s.id} htmlFor={`pi-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+                                            <RadioGroupItem value={s.id} id={`pi-${s.id}`} />
+                                            <span className="flex-grow font-normal">{s.nombre}</span>
+                                            <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
+                                        </Label>
+                                    ))}
+                                 </RadioGroup>
                             </div>
                            )}
                        </CardContent>
@@ -349,8 +347,8 @@ export default function ArmadoRapidoPage() {
                         <div className="space-y-2 text-sm">
                            <h4 className="font-semibold">Catering:</h4>
                            <div className="flex justify-between"><span>Entradas seleccionadas</span><span>{formatCurrency(costoEntradas)}</span></div>
-                           <div className="flex justify-between"><span>Platos principales</span><span>{formatCurrency(costoPlatosPrincipales)}</span></div>
-                           <div className="flex justify-between"><span>Menú niños/adolescentes</span><span>{formatCurrency(costoMenusInfantiles)}</span></div>
+                           <div className="flex justify-between"><span>Plato principal</span><span>{formatCurrency(costoPlatoPrincipal)}</span></div>
+                           <div className="flex justify-between"><span>Menú niños/adolescentes</span><span>{formatCurrency(costoMenuInfantil)}</span></div>
                            <h4 className="font-semibold mt-2">Paquete de Servicios:</h4>
                            <div className="flex justify-between"><span>{paqueteActual?.nombre || 'No seleccionado'}</span><span>{formatCurrency(costoPaqueteServicios)}</span></div>
                         </div>
