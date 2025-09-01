@@ -45,8 +45,8 @@ export default function ArmadoRapidoPage() {
 
     // Paso 3 State
     const [entradasSeleccionadas, setEntradasSeleccionadas] = useState<Set<string>>(new Set());
-    const [platosPrincipales, setPlatosPrincipales] = useState<CantidadPlato[]>([]);
-    const [menusInfantiles, setMenusInfantiles] = useState<CantidadPlato[]>([]);
+    const [platosPrincipalesIds, setPlatosPrincipalesIds] = useState<Set<string>>(new Set());
+    const [menusInfantilesIds, setMenusInfantilesIds] = useState<Set<string>>(new Set());
 
     // Paso 4 State
     const [paqueteServiciosId, setPaqueteServiciosId] = useState<string>('');
@@ -83,9 +83,25 @@ export default function ArmadoRapidoPage() {
         });
         return total;
     }, [opcionesMenu, entradasSeleccionadas, totalAdultos]);
+    
+    const platosPrincipalesSeleccionados = useMemo(() => {
+      return Array.from(platosPrincipalesIds).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id)).filter(Boolean) as ServicioIncluidoArmadoRapido[];
+    }, [platosPrincipalesIds, opcionesMenu]);
+    
+    const menusInfantilesSeleccionados = useMemo(() => {
+      return Array.from(menusInfantilesIds).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id)).filter(Boolean) as ServicioIncluidoArmadoRapido[];
+    }, [menusInfantilesIds, opcionesMenu]);
 
-    const costoPlatosPrincipales = useMemo(() => platosPrincipales.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [platosPrincipales]);
-    const costoMenusInfantiles = useMemo(() => menusInfantiles.reduce((sum, p) => sum + (p.cantidad * p.precioUnitario), 0), [menusInfantiles]);
+
+    const costoPlatosPrincipales = useMemo(() => {
+        if (platosPrincipalesSeleccionados.length === 0) return 0;
+        return platosPrincipalesSeleccionados.reduce((sum, plato) => sum + (plato.precioFijo * numAdultos), 0) / platosPrincipalesSeleccionados.length;
+    }, [platosPrincipalesSeleccionados, numAdultos]);
+
+    const costoMenusInfantiles = useMemo(() => {
+        if (menusInfantilesSeleccionados.length === 0) return 0;
+        return menusInfantilesSeleccionados.reduce((sum, menu) => sum + (menu.precioFijo * numJovenesYNinos), 0) / menusInfantilesSeleccionados.length;
+    }, [menusInfantilesSeleccionados, numJovenesYNinos]);
     
     const costoPaqueteServicios = useMemo(() => {
         if (!paqueteActual) return 0;
@@ -175,8 +191,8 @@ export default function ArmadoRapidoPage() {
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Arma tu Menú</CardTitle><CardDescription>Elige las opciones para tu evento.</CardDescription></CardHeader>
                        <CardContent className="space-y-6">
                            <div className="space-y-2">
-                                <Label className="font-semibold text-lg">1. Entradas (selecciona 2 opciones)</Label>
-                                <p className="text-sm text-muted-foreground">Cada opción seleccionada se calculará por el total de adultos ({totalAdultos}).</p>
+                                <Label className="font-semibold text-lg">1. Entradas (selecciona hasta 2 opciones)</Label>
+                                <p className="text-sm text-muted-foreground">Cada opción seleccionada se calculará para el total de adultos ({totalAdultos}).</p>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                         <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); while(n.size > 2) { n.delete(n.values().next().value); } return n;})}}/>
@@ -185,23 +201,28 @@ export default function ArmadoRapidoPage() {
                                     </div>
                                 ))}
                            </div>
+                           
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">2. Platos Principales (asigna las {totalAdultos} porciones)</Label>
-                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=>{ const item=platosPrincipales.find(p=>p.servicioId===s.id); return (
-                                    <div key={s.id} className="flex items-center gap-2 p-2 border rounded-md">
-                                        <Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label>
-                                        <Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setPlatosPrincipales(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/>
+                                <Label className="font-semibold text-lg">2. Platos Principales (para {totalAdultos} adultos)</Label>
+                                <p className="text-sm text-muted-foreground">Elige las opciones que se servirán. El costo se promediará entre las selecciones.</p>
+                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
+                                    <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
+                                        <Checkbox id={`pp-${s.id}`} checked={platosPrincipalesIds.has(s.id)} onCheckedChange={() => setPlatosPrincipalesIds(p => { const n = new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })} />
+                                        <Label htmlFor={`pp-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
+                                        <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
                                     </div>
-                                )})}
+                                ))}
                             </div>
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">3. Menú Adolescentes/Niños (asigna las {numJovenesYNinos} porciones)</Label>
-                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=>{ const item=menusInfantiles.find(p=>p.servicioId===s.id); return (
-                                    <div key={s.id} className="flex items-center gap-2 p-2 border rounded-md">
-                                        <Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label>
-                                        <Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setMenusInfantiles(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/>
+                                <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (para {numJovenesYNinos})</Label>
+                                <p className="text-sm text-muted-foreground">Elige las opciones para los más jóvenes. El costo se promediará entre las selecciones.</p>
+                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=> (
+                                    <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
+                                         <Checkbox id={`pi-${s.id}`} checked={menusInfantilesIds.has(s.id)} onCheckedChange={() => setMenusInfantilesIds(p => { const n = new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })} />
+                                        <Label htmlFor={`pi-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
+                                        <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
                                     </div>
-                                )})}
+                                ))}
                             </div>
                        </CardContent>
                        <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={() => setPaso(4)}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
