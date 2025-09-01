@@ -54,6 +54,13 @@ export default function ArmadoRapidoPage() {
     const [paqueteServiciosId, setPaqueteServiciosId] = useState<string>('');
     
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
+    
+    const isPaso1Valid = useMemo(() => {
+        const nombreValido = clienteNombre.trim().length >= 3;
+        const celularValido = /^\d{8,15}$/.test(clienteCelular.replace(/\s/g, ''));
+        return nombreValido && celularValido;
+    }, [clienteNombre, clienteCelular]);
+
 
     const loadData = useCallback(async () => {
         setIsLoading(true); setError(null);
@@ -185,10 +192,10 @@ export default function ArmadoRapidoPage() {
                   <motion.div key="paso1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                      <CardHeader><CardTitle className="font-headline text-2xl">Paso 1: Tus Datos</CardTitle><CardDescription>Ingresa tu nombre y celular para contactarte.</CardDescription></CardHeader>
                      <CardContent className="space-y-4">
-                          <div><Label htmlFor="cliente-nombre" className="flex items-center gap-1"><User/> Nombre Completo</Label><Input id="cliente-nombre" type="text" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} placeholder="Ej: Maria Gonzalez"/></div>
-                          <div><Label htmlFor="cliente-celular" className="flex items-center gap-1"><Phone/> Celular</Label><Input id="cliente-celular" type="tel" value={clienteCelular} onChange={(e) => setClienteCelular(e.target.value)} placeholder="Ej: 099123456"/></div>
+                          <div><Label htmlFor="cliente-nombre" className="flex items-center gap-1"><User/> Nombre Completo (mín. 3 letras)</Label><Input id="cliente-nombre" type="text" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} placeholder="Ej: Maria Gonzalez"/></div>
+                          <div><Label htmlFor="cliente-celular" className="flex items-center gap-1"><Phone/> Celular (solo números, 8-15 dígitos)</Label><Input id="cliente-celular" type="tel" value={clienteCelular} onChange={(e) => setClienteCelular(e.target.value)} placeholder="Ej: 099123456"/></div>
                      </CardContent>
-                     <CardFooter><Button onClick={() => setPaso(2)} disabled={!clienteNombre || !clienteCelular} className="w-full">Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
+                     <CardFooter><Button onClick={() => setPaso(2)} disabled={!isPaso1Valid} className="w-full">Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                   </motion.div>
                 );
             case 2: // Cantidad de Invitados
