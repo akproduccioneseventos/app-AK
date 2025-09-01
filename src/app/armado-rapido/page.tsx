@@ -188,7 +188,7 @@ export default function ArmadoRapidoPage() {
         }
     };
     
-    const handlePrint = () => {
+     const handlePrint = () => {
         window.print();
     };
 
@@ -348,7 +348,7 @@ export default function ArmadoRapidoPage() {
 
     return (
       <>
-        <div className="non-printable">
+        <div id="main-content" className="non-printable">
           <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
               <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm">
                   <div className="flex justify-between items-center max-w-5xl mx-auto">
@@ -359,24 +359,25 @@ export default function ArmadoRapidoPage() {
               
               <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24">
                   <Card className={`shadow-xl ${paso === 5 ? 'hidden md:block' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
-                  <div className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
+                  <div id="printable-summary" className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
               </main>
           </div>
         </div>
-        <div className="printable-content">
-            <PrintableContent />
-        </div>
+        
          <style jsx global>{`
           @media print {
-            .non-printable {
-              display: none;
+            body * {
+              visibility: hidden;
             }
-            .printable-content {
-              display: block;
+            #printable-summary, #printable-summary * {
+              visibility: visible;
             }
-          }
-          .printable-content {
-            display: none;
+            #printable-summary {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
           }
         `}</style>
       </>
