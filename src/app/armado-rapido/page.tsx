@@ -277,7 +277,7 @@ export default function ArmadoRapidoPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardFooter className="flex flex-col gap-2">
-                           <Button onClick={handlePrint} variant="outline" className="w-full"><Download className="mr-2"/>Descargar Resumen (PDF)</Button>
+                           <Button onClick={handlePrint} variant="outline" className="w-full"><Download className="mr-2"/>Descargar Presupuesto</Button>
                            <Button onClick={handleShare} variant="outline" className="w-full"><Share2 className="mr-2"/>Compartir Resumen</Button>
                            {whatsappLink && (
                              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-full">
