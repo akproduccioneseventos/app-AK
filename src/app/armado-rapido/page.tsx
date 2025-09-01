@@ -33,7 +33,7 @@ export default function ArmadoRapidoPage() {
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const whatsappLink = "https://wa.me/59898355530"; // Hardcoded WhatsApp link
+    const whatsappLink = "https://wa.me/59898355530"; 
 
     const [paso, setPaso] = useState(1);
     
@@ -346,48 +346,37 @@ export default function ArmadoRapidoPage() {
 
     return (
       <>
-        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:hidden">
-             <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm print:hidden">
-                <div className="flex justify-between items-center max-w-5xl mx-auto">
-                    <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Armado Rápido de Presupuesto</h1></div>
-                     <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
-                </div>
-            </header>
-            
-            <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24">
-                <Card className={`shadow-xl ${paso === 5 ? 'hidden md:block' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
-                <div className="hidden print:block"><PrintableContent/></div>
-                <div className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
-            </main>
+        <div className="non-printable">
+          <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
+              <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm">
+                  <div className="flex justify-between items-center max-w-5xl mx-auto">
+                      <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Armado Rápido de Presupuesto</h1></div>
+                      <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
+                  </div>
+              </header>
+              
+              <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24">
+                  <Card className={`shadow-xl ${paso === 5 ? 'hidden md:block' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
+                  <div className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
+              </main>
+          </div>
         </div>
-        <style jsx global>{`
+        <div className="printable-content">
+            <PrintableContent />
+        </div>
+         <style jsx global>{`
           @media print {
-            body > * {
-              visibility: hidden;
-            }
-            .printable-content, .printable-content * {
-              visibility: visible;
+            .non-printable {
+              display: none;
             }
             .printable-content {
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
+              display: block;
             }
           }
           .printable-content {
             display: none;
           }
-           @media print {
-            .printable-content {
-              display: block;
-            }
-          }
         `}</style>
-        <div className="printable-content">
-            <PrintableContent />
-        </div>
       </>
     );
 }
-
