@@ -41,8 +41,7 @@ export default function ArmadoRapidoPage() {
 
     // Paso 2 State
     const [numAdultos, setNumAdultos] = useState(50);
-    const [numJovenes, setNumJovenes] = useState(0);
-    const [numNinos, setNumNinos] = useState(0);
+    const [numJovenesYNinos, setNumJovenesYNinos] = useState(0);
 
     // Paso 3 State
     const [entradasSeleccionadas, setEntradasSeleccionadas] = useState<Set<string>>(new Set());
@@ -70,10 +69,8 @@ export default function ArmadoRapidoPage() {
     useEffect(() => { loadData(); }, [loadData]);
 
     const totalAdultos = numAdultos;
-    const totalJovenesYNinos = numJovenes + numNinos;
-    const totalInvitados = totalAdultos + totalJovenesYNinos;
+    const totalInvitados = totalAdultos + numJovenesYNinos;
     
-    // Ahora solo hay un menú de catering
     const opcionesMenu = useMemo(() => config?.menus?.[0], [config]);
     const paqueteActual = useMemo(() => config?.paquetes.find(p => p.id === paqueteServiciosId), [config, paqueteServiciosId]);
     
@@ -162,15 +159,14 @@ export default function ArmadoRapidoPage() {
             case 2: // Cantidad de Invitados
                 return (
                   <motion.div key="paso2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                     <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Cantidad de Invitados</CardTitle><CardDescription>¿Cuántos adultos, cuántos jóvenes y cuántos niños asistirán?</CardDescription></CardHeader>
+                     <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Cantidad de Invitados</CardTitle><CardDescription>¿Cuántos adultos y cuántos adolescentes/niños asistirán?</CardDescription></CardHeader>
                      <CardContent className="space-y-3">
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-2 gap-4">
                             <div><Label htmlFor="adultos" className="flex items-center gap-1"><User/> Adultos</Label><Input id="adultos" type="number" value={numAdultos} onChange={(e) => setNumAdultos(Number(e.target.value) || 0)} min="0"/></div>
-                            <div><Label htmlFor="jovenes" className="flex items-center gap-1"><UserSquare2/> Adolescentes</Label><Input id="jovenes" type="number" value={numJovenes} onChange={(e) => setNumJovenes(Number(e.target.value) || 0)} min="0"/></div>
-                             <div><Label htmlFor="ninos" className="flex items-center gap-1"><UserSquare2/> Niños</Label><Input id="ninos" type="number" value={numNinos} onChange={(e) => setNumNinos(Number(e.target.value) || 0)} min="0"/></div>
+                            <div><Label htmlFor="jovenes_ninos" className="flex items-center gap-1"><UserSquare2/> Adolescentes y Niños</Label><Input id="jovenes_ninos" type="number" value={numJovenesYNinos} onChange={(e) => setNumJovenesYNinos(Number(e.target.value) || 0)} min="0"/></div>
                           </div>
                      </CardContent>
-                     <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(1)}>Anterior</Button><Button onClick={() => setPaso(3)} disabled={(numAdultos + numJovenes + numNinos) <= 0}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
+                     <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(1)}>Anterior</Button><Button onClick={() => setPaso(3)} disabled={(numAdultos + numJovenesYNinos) <= 0}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                   </motion.div>
                 );
             case 3: // Selección de Menú
@@ -199,7 +195,7 @@ export default function ArmadoRapidoPage() {
                                 )})}
                             </div>
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">3. Menú Niños/Adolescentes (asigna las {totalJovenesYNinos} porciones)</Label>
+                                <Label className="font-semibold text-lg">3. Menú Adolescentes/Niños (asigna las {numJovenesYNinos} porciones)</Label>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=>{ const item=menusInfantiles.find(p=>p.servicioId===s.id); return (
                                     <div key={s.id} className="flex items-center gap-2 p-2 border rounded-md">
                                         <Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label>
@@ -261,7 +257,7 @@ export default function ArmadoRapidoPage() {
                 <Card className="shadow-xl border-t-4 border-primary">
                     <CardHeader><CardTitle className="font-headline text-2xl text-primary">Resumen de tu Selección</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex justify-between items-center text-lg"><span>Invitados:</span><span className="font-bold">{totalAdultos} A / {totalJovenesYNinos} J-N</span></div>
+                        <div className="flex justify-between items-center text-lg"><span>Invitados:</span><span className="font-bold">{totalAdultos} A / {numJovenesYNinos} J-N</span></div>
                         <Separator/>
                         <div className="space-y-2 text-sm">
                            <h4 className="font-semibold">Catering:</h4>
