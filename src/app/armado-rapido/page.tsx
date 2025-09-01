@@ -197,7 +197,14 @@ export default function ArmadoRapidoPage() {
     };
     
     const handlePrint = () => {
-        window.print();
+      const printContents = document.getElementById('printable-area')?.innerHTML;
+      const originalContents = document.body.innerHTML;
+      if (printContents) {
+          document.body.innerHTML = printContents;
+          window.print();
+          document.body.innerHTML = originalContents;
+          window.location.reload(); // Recargar para restaurar los event handlers
+      }
     };
 
     const handleShare = () => {
@@ -328,39 +335,63 @@ export default function ArmadoRapidoPage() {
     if (isLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     if (error) return <div className="flex items-center justify-center min-h-screen text-center text-destructive">{error}</div>;
 
+    const PrintableContent = () => (
+      <Card className="shadow-xl border-t-4 border-primary">
+          <CardHeader><CardTitle className="font-headline text-2xl text-primary">Resumen de tu Selección</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+              <div className="flex justify-between items-center text-lg"><span>Invitados:</span><span className="font-bold">{totalAdultos} A / {numJovenesYNinos} J-N</span></div>
+              <Separator/>
+              <div className="space-y-2 text-sm">
+                 <h4 className="font-semibold">Catering:</h4>
+                 <div className="flex justify-between"><span>Entradas seleccionadas</span><span>{formatCurrency(costoEntradas)}</span></div>
+                 <div className="flex justify-between"><span>Plato principal</span><span>{formatCurrency(costoPlatoPrincipal)}</span></div>
+                 <div className="flex justify-between"><span>Menú niños/adolescentes</span><span>{formatCurrency(costoMenuInfantil)}</span></div>
+                 <h4 className="font-semibold mt-2">Paquete de Servicios:</h4>
+                 <div className="flex justify-between"><span>{paqueteActual?.nombre || 'No seleccionado'}</span><span>{formatCurrency(costoPaqueteServicios)}</span></div>
+              </div>
+              <Separator/>
+              <div className="space-y-2 pt-2">
+                  {config?.descuentoGeneral && config.descuentoGeneral > 0 && montoDescuento > 0 && <div className="flex justify-between items-center text-destructive"><span className="flex items-center gap-1">Descuento ({config?.descuentoGeneral}%)</span> <span className="font-semibold">-{formatCurrency(montoDescuento)}</span></div>}
+                  <div className="flex justify-between items-center text-2xl font-bold pt-2 border-t text-primary"><span>TOTAL ESTIMADO:</span><span>{formatCurrency(costoConDescuento)}</span></div>
+              </div>
+          </CardContent>
+          <CardFooter><p className="text-xs text-muted-foreground">Este es un costo estimado. Un asesor confirmará el precio final.</p></CardFooter>
+      </Card>
+    );
+
     return (
-        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0">
-             <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm print:hidden">
+      <>
+        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print-main-content">
+             <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm print-hidden">
                 <div className="flex justify-between items-center max-w-5xl mx-auto">
                     <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Armado Rápido de Presupuesto</h1></div>
                      <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
                 </div>
             </header>
             
-            <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24 print:grid-cols-1 print:pt-4">
-                <Card className={`shadow-xl print:shadow-none print:border-none ${paso === 5 ? 'print:hidden' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
-                <Card className="shadow-xl border-t-4 border-primary">
-                    <CardHeader><CardTitle className="font-headline text-2xl text-primary">Resumen de tu Selección</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex justify-between items-center text-lg"><span>Invitados:</span><span className="font-bold">{totalAdultos} A / {numJovenesYNinos} J-N</span></div>
-                        <Separator/>
-                        <div className="space-y-2 text-sm">
-                           <h4 className="font-semibold">Catering:</h4>
-                           <div className="flex justify-between"><span>Entradas seleccionadas</span><span>{formatCurrency(costoEntradas)}</span></div>
-                           <div className="flex justify-between"><span>Plato principal</span><span>{formatCurrency(costoPlatoPrincipal)}</span></div>
-                           <div className="flex justify-between"><span>Menú niños/adolescentes</span><span>{formatCurrency(costoMenuInfantil)}</span></div>
-                           <h4 className="font-semibold mt-2">Paquete de Servicios:</h4>
-                           <div className="flex justify-between"><span>{paqueteActual?.nombre || 'No seleccionado'}</span><span>{formatCurrency(costoPaqueteServicios)}</span></div>
-                        </div>
-                        <Separator/>
-                        <div className="space-y-2 pt-2">
-                            {config?.descuentoGeneral && config.descuentoGeneral > 0 && montoDescuento > 0 && <div className="flex justify-between items-center text-destructive"><span className="flex items-center gap-1">Descuento ({config?.descuentoGeneral}%)</span> <span className="font-semibold">-{formatCurrency(montoDescuento)}</span></div>}
-                            <div className="flex justify-between items-center text-2xl font-bold pt-2 border-t text-primary"><span>TOTAL ESTIMADO:</span><span>{formatCurrency(costoConDescuento)}</span></div>
-                        </div>
-                    </CardContent>
-                    <CardFooter><p className="text-xs text-muted-foreground">Este es un costo estimado. Un asesor confirmará el precio final.</p></CardFooter>
-                </Card>
+            <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24 print-main-content">
+                <Card className={`shadow-xl print-hidden ${paso === 5 ? 'print:hidden' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
+                <div id="printable-area"><PrintableContent/></div>
             </main>
         </div>
+        <div className="temp-hidden-for-print"><PrintableContent /></div>
+        <style jsx global>{`
+          @media print {
+            body > * {
+              display: none !important;
+            }
+            body > .print-main-content, body > .print-main-content * {
+              display: block !important;
+            }
+            .temp-hidden-for-print {
+                display: block !important;
+            }
+          }
+          .temp-hidden-for-print {
+              display: none;
+          }
+        `}</style>
+      </>
     );
 }
+
