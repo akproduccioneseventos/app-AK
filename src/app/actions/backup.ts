@@ -92,7 +92,7 @@ export async function restoreFromPoint(backupFolderName: string): Promise<{ succ
   
   const backupFolderPath = path.resolve(BACKUPS_DIR, safeFolderName);
 
-  // Final security check
+  // Final security check to ensure the resolved path is within the intended directory
   if (!backupFolderPath.startsWith(BACKUPS_DIR)) {
     return { success: false, error: 'Access denied.' };
   }
@@ -132,7 +132,7 @@ export async function deleteRestorePoint(backupFolderName: string): Promise<{ su
   
   const backupFolderPath = path.resolve(BACKUPS_DIR, safeFolderName);
 
-  if (!backupFolderPath.startsWith(BACKUPS_DIR)) {
+  if (!backupFolderPath.startsWith(path.resolve(BACKUPS_DIR))) {
     return { success: false, error: 'Access denied.' };
   }
 
