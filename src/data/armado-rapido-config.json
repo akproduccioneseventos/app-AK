@@ -1,9 +1,11 @@
+
 {
   "descuentoGeneral": 10,
   "paquetes": [
     {
       "id": "paquete_basico",
       "nombre": "Paquete Básico",
+      "descripcion": "Servicios esenciales para tu evento.",
       "serviciosIncluidos": [
         {
           "id": "serv_1752489600001_pmozo",
@@ -11,14 +13,6 @@
           "precioBase": 2900,
           "precioPorPersona": 0,
           "calculationMethod": "ratio",
-          "tramosDePrecio": [
-            {
-              "id": "tier_1756160277709",
-              "desde": 1,
-              "hasta": 50,
-              "precio": 0
-            }
-          ],
           "invitadosPorUnidad": 25
         },
         {
@@ -34,104 +28,150 @@
     {
       "id": "paquete_premium",
       "nombre": "Paquete Premium",
+       "descripcion": "Una selección completa para una gran experiencia.",
       "serviciosIncluidos": [
         {
           "id": "serv_1752489600001_pmozo",
           "nombre": "Mozo",
           "precioBase": 2900,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+          "calculationMethod": "ratio",
+          "invitadosPorUnidad": 25
         },
         {
           "id": "serv_1752489600002_pcoci",
           "nombre": "Mozo de cocina",
           "precioBase": 2900,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "ratio",
+          "invitadosPorUnidad": 25
         },
         {
           "id": "serv_1752489600103_disbas",
           "nombre": "Discoteca Básica",
           "precioBase": 5500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600004_pchef",
           "nombre": "Cheff",
           "precioBase": 3500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600003_pmetr",
           "nombre": "Metre",
           "precioBase": 3500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600098_decbas",
           "nombre": "DECORACION BASICA",
           "precioBase": 14500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600116_fotfie",
           "nombre": "Fotografía de la fiesta",
           "precioBase": 8500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         }
       ]
     },
     {
       "id": "paquete_completo",
       "nombre": "Paquete Completo",
+      "descripcion": "Todo incluido para que no te preocupes por nada.",
       "serviciosIncluidos": [
         {
           "id": "serv_1752489600001_pmozo",
           "nombre": "Mozo",
           "precioBase": 2900,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "ratio",
+          "invitadosPorUnidad": 25
         },
         {
           "id": "serv_1752489600002_pcoci",
           "nombre": "Mozo de cocina",
           "precioBase": 2900,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "ratio",
+          "invitadosPorUnidad": 25
         },
         {
           "id": "serv_1752489600103_disbas",
           "nombre": "Discoteca Básica",
           "precioBase": 5500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600004_pchef",
           "nombre": "Cheff",
           "precioBase": 3500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600003_pmetr",
           "nombre": "Metre",
           "precioBase": 3500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600098_decbas",
           "nombre": "DECORACION BASICA",
           "precioBase": 14500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600116_fotfie",
           "nombre": "Fotografía de la fiesta",
           "precioBase": 8500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         },
         {
           "id": "serv_1752489600112_filfie",
           "nombre": "Filmación de la fiesta",
           "precioBase": 7500,
-          "precioPorPersona": 0
+          "precioPorPersona": 0,
+           "calculationMethod": "fijo"
         }
       ]
+    }
+  ],
+  "menus": [
+    {
+      "id": "menu_clasico",
+      "nombre": "Menú Clásico",
+      "descripcion": "Opciones tradicionales para todos los gustos.",
+      "serviciosIncluidos": [
+        { "id": "serv_1752489600024_bunalga", "nombre": "Buñuelo de algas", "precioFijo": 120, "categoria": "Entrada"},
+        { "id": "serv_1752489600027_arrprim", "nombre": "Arrolladitos primavera", "precioFijo": 100, "categoria": "Entrada"},
+        { "id": "serv_1752489600023_asadocom", "nombre": "Asado completo c/ guarnición", "precioFijo": 645, "categoria": "Plato Principal"},
+        { "id": "serv_1752489600007_pollarr", "nombre": "Pollo arrollado c/ guarnición", "precioFijo": 350, "categoria": "Plato Principal"},
+        { "id": "serv_1752489600053_menninpan", "nombre": "Menú niños - Panchos c/ fritas", "precioFijo": 165, "categoria": "Menú Adolescente / Niño"}
+      ]
+    },
+    {
+        "id": "menu_eco",
+        "nombre": "Menú Económico",
+        "descripcion": "Opciones deliciosas y económicas.",
+        "serviciosIncluidos": [
+            { "id": "serv_1752489600031_picfiam", "nombre": "Picada de fiambres", "precioFijo": 150, "categoria": "Entrada" },
+            { "id": "serv_1752489600028_picsna", "nombre": "Picada Snack", "precioFijo": 120, "categoria": "Entrada" },
+            { "id": "serv_1752489600010_raviol", "nombre": "Ravioles a la crema", "precioFijo": 350, "categoria": "Plato Principal" },
+            { "id": "serv_1752489600052_menninham", "nombre": "Menú niños - Hamburguesa completa c/ fritas", "precioFijo": 250, "categoria": "Menú Adolescente / Niño" }
+        ]
     }
   ]
 }
