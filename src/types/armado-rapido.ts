@@ -22,9 +22,11 @@ export interface ServicioIncluidoArmadoRapido {
   tramosDePrecio?: TramoDePrecio[];
 }
 
+// Un "Menu" ahora es solo una lista de servicios de catering categorizados.
+// Ya no existen "Menu Clasico", "Menu Economico" como entidades separadas.
 export interface MenuArmadoRapido {
-  id: string;
-  nombre: string;
+  id: string; // Puede ser un ID fijo como 'catering_options'
+  nombre: string; // ej: "Opciones de Catering"
   descripcion?: string;
   serviciosIncluidos: ServicioIncluidoArmadoRapido[];
 }
@@ -37,7 +39,7 @@ export interface PaqueteArmadoRapido {
 }
 
 export interface ArmadoRapidoConfig {
-  menus: MenuArmadoRapido[];
+  menus: MenuArmadoRapido[]; // Será un array con un solo elemento que contiene todos los servicios de catering.
   paquetes: PaqueteArmadoRapido[];
   descuentoGeneral?: number; 
 }
@@ -52,5 +54,3 @@ export interface LeadGenerationData {
   clienteNombre: string;
   salon: string;
 }
-
-    
