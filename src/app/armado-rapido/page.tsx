@@ -188,9 +188,36 @@ export default function ArmadoRapidoPage() {
                             </div>
                             {menuBaseId && menuActual && (
                             <div className="space-y-4 pt-4 border-t">
-                                <div className="space-y-2"><Label className="font-semibold text-lg">2. Entradas (selecciona las que desees)</Label><p className="text-sm text-muted-foreground">Cada opción seleccionada se calculará por el total de adultos ({totalAdultos}).</p>{menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(<div key={s.id} className="flex items-center gap-3 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n;})}}/><Label htmlFor={`e-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label><span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span></div>))}</div>
-                                <div className="space-y-2"><Label className="font-semibold text-lg">3. Platos Principales (asigna las {totalAdultos} porciones)</Label>{menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=>{ const item=platosPrincipales.find(p=>p.servicioId===s.id); return (<div key={s.id} className="flex items-center gap-2 p-2 border rounded-md"><Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label><Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setPlatosPrincipales(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/></div>)})}</div>
-                                <div className="space-y-2"><Label className="font-semibold text-lg">4. Menú Niños/Adolescentes (asigna las {totalJovenes} porciones)</Label>{menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=>{ const item=menusInfantiles.find(p=>p.servicioId===s.id); return (<div key={s.id} className="flex items-center gap-2 p-2 border rounded-md"><Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label><Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setMenusInfantiles(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/></div>)})}</div>
+                                <div className="space-y-2">
+                                  <Label className="font-semibold text-lg">2. Entradas (selecciona las que desees)</Label>
+                                  <p className="text-sm text-muted-foreground">Cada opción seleccionada se calculará por el total de adultos ({totalAdultos}).</p>
+                                  {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
+                                    <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
+                                        <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n;})}}/>
+                                        <Label htmlFor={`e-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
+                                        <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-lg">3. Platos Principales (asigna las {totalAdultos} porciones)</Label>
+                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=>{ const item=platosPrincipales.find(p=>p.servicioId===s.id); return (
+                                        <div key={s.id} className="flex items-center gap-2 p-2 border rounded-md">
+                                            <Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label>
+                                            <Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setPlatosPrincipales(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/>
+                                        </div>
+                                    )})}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-lg">4. Menú Niños/Adolescentes (asigna las {totalJovenes} porciones)</Label>
+                                    {menuActual.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=>{ const item=menusInfantiles.find(p=>p.servicioId===s.id); return (
+                                        <div key={s.id} className="flex items-center gap-2 p-2 border rounded-md">
+                                            <Label className="flex-grow">{s.nombre} - {formatCurrency(s.precioFijo)}</Label>
+                                            <Input type="number" min="0" value={item?.cantidad || ''} onChange={e=>{const v=Number(e.target.value)||0; setMenusInfantiles(p=>{const n=p.filter(i=>i.servicioId!==s.id); if(v>0) n.push({servicioId:s.id, nombre:s.nombre, cantidad:v, precioUnitario:s.precioFijo}); return n;})}} className="w-24 h-8" placeholder="0"/>
+                                        </div>
+                                    )})}
+                                </div>
                             </div>
                             )}
                        </CardContent>
@@ -208,14 +235,24 @@ export default function ArmadoRapidoPage() {
                                 </Card>
                             ))}
                        </CardContent>
-                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(3)}>Anterior</Button><Button onClick={handleGenerarPresupuesto} disabled={!paqueteServiciosId || isGeneratingLead}>{isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null} Finalizar y Cotizar</Button></CardFooter>
+                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(3)}>Anterior</Button><Button onClick={() => setPaso(5)} disabled={!paqueteServiciosId}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                     </motion.div>
                 );
             case 5: // Finalizado
                 return (
                     <motion.div key="paso5" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}>
-                        <CardHeader className="text-center"><Check className="w-16 h-16 mx-auto bg-green-100 text-green-600 rounded-full p-2"/><CardTitle className="font-headline text-2xl mt-4">¡Listo!</CardTitle><CardDescription>Hemos recibido tu solicitud. Un asesor se pondrá en contacto contigo a la brevedad.</CardDescription></CardHeader>
-                        <CardContent className="flex flex-col gap-2"><Button onClick={() => window.print()} variant="secondary"><Download className="mr-2"/> Descargar Resumen (PDF)</Button><Button onClick={() => {setPaso(1); setMenuBaseId(''); setPaqueteServiciosId('')}} className="w-full">Crear otro presupuesto</Button></CardContent>
+                        <CardHeader className="text-center">
+                            <FileText className="w-16 h-16 mx-auto text-primary" />
+                            <CardTitle className="font-headline text-2xl mt-4">Paso 5: Resumen y Envío</CardTitle>
+                            <CardDescription>Revisa tu selección. Si todo es correcto, genera tu presupuesto para que un asesor te contacte.</CardDescription>
+                        </CardHeader>
+                        <CardFooter className="flex flex-col gap-2">
+                           <Button onClick={handleGenerarPresupuesto} disabled={isGeneratingLead} className="w-full">
+                                {isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null} 
+                                {isGeneratingLead ? 'Generando...' : 'Finalizar y Solicitar Presupuesto'}
+                            </Button>
+                            <Button variant="outline" onClick={() => setPaso(4)} className="w-full">Anterior</Button>
+                        </CardFooter>
                     </motion.div>
                 );
         }
@@ -260,7 +297,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
-
-    
