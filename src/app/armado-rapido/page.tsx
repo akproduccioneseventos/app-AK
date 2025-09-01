@@ -302,7 +302,7 @@ export default function ArmadoRapidoPage() {
                         </CardHeader>
                         <CardFooter className="flex flex-col gap-2">
                            <Button onClick={handlePrint} variant="outline" className="w-full"><Download className="mr-2"/>Descargar Presupuesto</Button>
-                           <Button onClick={handleShare} variant="outline" className="w-full"><Share2 className="mr-2"/>Compartir Resumen</Button>
+                           <Button onClick={handleShare} variant="outline" className="w-full"><Share2 className="mr-2"/>Compartir Presupuesto</Button>
                            {whatsappLink && (
                              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-full">
                                 <Button className="w-full bg-green-500 hover:bg-green-600">
@@ -380,3 +380,4 @@ export default function ArmadoRapidoPage() {
       </>
     );
 }
+
