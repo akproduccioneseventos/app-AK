@@ -61,6 +61,31 @@ export default function ArmadoRapidoPage() {
         return nombreValido && celularValido;
     }, [clienteNombre, clienteCelular]);
 
+    const isPaso3Valid = useMemo(() => {
+        const entradasOk = entradasSeleccionadas.size === 2;
+        const platosPrincipalesOk = platosPrincipalesIds.size >= 1;
+        const menusInfantilesOk = numJovenesYNinos > 0 ? menusInfantilesIds.size >= 1 : true; // Only required if kids are present
+        return entradasOk && platosPrincipalesOk && menusInfantilesOk;
+    }, [entradasSeleccionadas, platosPrincipalesIds, menusInfantilesIds, numJovenesYNinos]);
+
+    const handlePaso3Next = () => {
+        if (!isPaso3Valid) {
+            let errorMsg = "Por favor, completa la selección: ";
+            const errors = [];
+            if (entradasSeleccionadas.size !== 2) errors.push("debes elegir 2 entradas");
+            if (platosPrincipalesIds.size < 1) errors.push("debes elegir al menos 1 plato principal");
+            if (numJovenesYNinos > 0 && menusInfantilesIds.size < 1) errors.push("debes elegir al menos 1 menú infantil");
+            
+            toast({
+                title: "Selección Incompleta",
+                description: errorMsg + errors.join(', ') + ".",
+                variant: "destructive"
+            });
+            return;
+        }
+        setPaso(4);
+    };
+
 
     const loadData = useCallback(async () => {
         setIsLoading(true); setError(null);
@@ -217,7 +242,7 @@ export default function ArmadoRapidoPage() {
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Arma tu Menú</CardTitle><CardDescription>Elige las opciones para tu evento.</CardDescription></CardHeader>
                        <CardContent className="space-y-6">
                            <div className="space-y-2">
-                                <Label className="font-semibold text-lg">1. Entradas (selecciona hasta 2 opciones)</Label>
+                                <Label className="font-semibold text-lg">1. Entradas (selecciona exactamente 2 opciones)</Label>
                                 <p className="text-sm text-muted-foreground">Cada opción seleccionada se calculará para el total de adultos ({totalAdultos}).</p>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
@@ -229,8 +254,8 @@ export default function ArmadoRapidoPage() {
                            </div>
                            
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">2. Platos Principales (para {totalAdultos} adultos)</Label>
-                                <p className="text-sm text-muted-foreground">Elige las opciones que se servirán. El costo se promediará entre las selecciones.</p>
+                                <Label className="font-semibold text-lg">2. Platos Principales (para {totalAdultos} adultos, elige al menos 1)</Label>
+                                <p className="text-sm text-muted-foreground">El costo se promediará entre las selecciones.</p>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                         <Checkbox id={`pp-${s.id}`} checked={platosPrincipalesIds.has(s.id)} onCheckedChange={() => setPlatosPrincipalesIds(p => { const n = new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })} />
@@ -239,9 +264,10 @@ export default function ArmadoRapidoPage() {
                                     </div>
                                 ))}
                             </div>
-                            <div className="space-y-2">
-                                <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (para {numJovenesYNinos})</Label>
-                                <p className="text-sm text-muted-foreground">Elige las opciones para los más jóvenes. El costo se promediará entre las selecciones.</p>
+                           {numJovenesYNinos > 0 && (
+                             <div className="space-y-2">
+                                <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (para {numJovenesYNinos}, elige al menos 1)</Label>
+                                <p className="text-sm text-muted-foreground">El costo se promediará entre las selecciones.</p>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=> (
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                          <Checkbox id={`pi-${s.id}`} checked={menusInfantilesIds.has(s.id)} onCheckedChange={() => setMenusInfantilesIds(p => { const n = new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })} />
@@ -250,8 +276,9 @@ export default function ArmadoRapidoPage() {
                                     </div>
                                 ))}
                             </div>
+                           )}
                        </CardContent>
-                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={() => setPaso(4)}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
+                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={handlePaso3Next} disabled={!isPaso3Valid}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                     </motion.div>
                 );
             case 4: // Paquete de Servicios
@@ -339,3 +366,4 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
