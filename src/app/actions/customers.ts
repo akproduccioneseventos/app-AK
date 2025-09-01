@@ -116,22 +116,6 @@ export async function saveCustomer(
   if (!customerToSave.name?.trim() && !customerToSave.companyName?.trim()) {
     return { success: false, error: 'El nombre del cliente o de la empresa es obligatorio.' };
   }
-
-  // Enhanced duplicate check for both create and update
-  const nameToCheck = customerToSave.name?.trim().toLowerCase();
-  const companyNameToCheck = customerToSave.companyName?.trim().toLowerCase();
-  
-  const existingCustomer = customers.find(c => 
-    (c.id !== customerToSave.id) && // Exclude the customer itself when updating
-    (
-      (nameToCheck && c.name?.trim().toLowerCase() === nameToCheck) ||
-      (companyNameToCheck && c.companyName?.trim().toLowerCase() === companyNameToCheck)
-    )
-  );
-
-  if (existingCustomer) {
-      return { success: false, error: 'Ya existe otro cliente con este nombre o nombre de empresa.' };
-  }
   
   if (customerToSave.id) { // Update
     customerId = customerToSave.id;

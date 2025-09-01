@@ -67,18 +67,6 @@ export async function saveProveedor(
   if (!proveedorData.servicioPrincipal.trim()) {
       return { success: false, error: 'El servicio principal/categoría es obligatorio.' };
   }
-  
-  const trimmedName = proveedorData.nombreEmpresa.trim().toLowerCase();
-  
-  // Enhanced duplicate check
-  const existingProveedor = proveedores.find(p => 
-    p.nombreEmpresa?.trim().toLowerCase() === trimmedName &&
-    ('id' in proveedorData ? p.id !== proveedorData.id : true)
-  );
-
-  if (existingProveedor) {
-    return { success: false, error: `Ya existe un proveedor con el nombre de empresa "${proveedorData.nombreEmpresa.trim()}".` };
-  }
 
   if ('id' in proveedorData && proveedorData.id) {
     // Update

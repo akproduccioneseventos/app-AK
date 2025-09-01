@@ -65,18 +65,6 @@ export async function saveEmpleado(
   let finalEmpleadoData: Empleado;
   let empleadoId: string;
 
-  const trimmedName = empleadoData.nombre.trim().toLowerCase();
-  
-  // Enhanced duplicate check
-  const existingEmployee = empleados.find(e => 
-    e.nombre.trim().toLowerCase() === trimmedName && 
-    ('id' in empleadoData ? e.id !== empleadoData.id : true)
-  );
-
-  if (existingEmployee) {
-    return { success: false, error: `Ya existe un empleado con el nombre "${empleadoData.nombre.trim()}".` };
-  }
-
   if ('id' in empleadoData && empleadoData.id) {
     // Update
     empleadoId = empleadoData.id;
