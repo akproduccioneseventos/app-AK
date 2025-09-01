@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -386,8 +385,16 @@ export default function ArmadoRapidoPage() {
         </div>
          <style jsx global>{`
           @media print {
-            .non-printable { display: none !important; }
-            .printable-content { display: block !important; }
+            body > *:not(.printable-content) {
+              display: none !important;
+            }
+            .printable-content {
+              display: block !important;
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
           }
         `}</style>
       </>
