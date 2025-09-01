@@ -278,7 +278,7 @@ export default function ArmadoRapidoPage() {
                             </div>
                            )}
                        </CardContent>
-                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={handlePaso3Next} disabled={!isPaso3Valid}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
+                       <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={handlePaso3Next} >Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                     </motion.div>
                 );
             case 4: // Paquete de Servicios
@@ -366,4 +366,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
