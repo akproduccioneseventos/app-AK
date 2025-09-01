@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, ArrowRight, MinusCircle, PlusCircle, User, UserSquare2, Phone, Download, Share2, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, ArrowRight, MinusCircle, PlusCircle, User, UserSquare2, Phone, Download, Share2, MessageSquare, List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
@@ -15,6 +15,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { cn } from '@/lib/utils';
 
 
 const formatCurrency = (amount: number) => {
@@ -189,7 +191,15 @@ export default function ArmadoRapidoPage() {
     };
     
      const handlePrint = () => {
-        window.print();
+        const printableContent = document.getElementById('printable-summary');
+        const mainContent = document.getElementById('main-content');
+        if (printableContent && mainContent) {
+            mainContent.classList.add('temp-hidden-for-print');
+            printableContent.classList.add('printable-content-only');
+            window.print();
+            mainContent.classList.remove('temp-hidden-for-print');
+            printableContent.classList.remove('printable-content-only');
+        }
     };
 
     const handleShare = () => {
@@ -242,7 +252,7 @@ export default function ArmadoRapidoPage() {
                            </div>
                            
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">2. Platos Principales (para {totalAdultos} adultos, elige 1)</Label>
+                                <Label className="font-semibold text-lg">2. Platos Principales (para {numAdultos} adultos, elige 1)</Label>
                                 <RadioGroup value={platoPrincipalId} onValueChange={setPlatoPrincipalId}>
                                   {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
                                       <Label key={s.id} htmlFor={`pp-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
@@ -276,11 +286,28 @@ export default function ArmadoRapidoPage() {
                     <motion.div key="paso4" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 4: Elige tu Combo de Servicios</CardTitle><CardDescription>Selecciona un combo de servicios adicionales (DJ, foto, etc.).</CardDescription></CardHeader>
                         <CardContent className="space-y-4">
-                            {config?.paquetes.map(pkg => (
-                                <Card key={pkg.id} onClick={() => setPaqueteServiciosId(pkg.id)} className={`cursor-pointer transition-all ${paqueteServiciosId === pkg.id ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'}`}>
-                                    <CardHeader className="flex-row items-center gap-4 space-y-0 p-3"><Package className="w-8 h-8 text-primary"/><div><CardTitle className="text-base">{pkg.nombre}</CardTitle><CardDescription className="text-sm">{pkg.descripcion}</CardDescription></div>{paqueteServiciosId === pkg.id && <Check className="w-6 h-6 text-primary ml-auto"/>}</CardHeader>
-                                </Card>
-                            ))}
+                             <Accordion type="single" collapsible value={paqueteServiciosId} onValueChange={setPaqueteServiciosId}>
+                                {config?.paquetes.map(pkg => (
+                                    <AccordionItem value={pkg.id} key={pkg.id}>
+                                        <AccordionTrigger className={cn("p-3 rounded-md hover:no-underline hover:bg-muted/50", paqueteServiciosId === pkg.id && 'bg-primary/10 border border-primary')}>
+                                            <div className="flex items-center gap-4">
+                                                <Package className="w-8 h-8 text-primary"/>
+                                                <div>
+                                                    <p className="text-base font-semibold text-left">{pkg.nombre}</p>
+                                                    <p className="text-sm text-muted-foreground text-left">{pkg.descripcion}</p>
+                                                </div>
+                                                {paqueteServiciosId === pkg.id && <Check className="w-6 h-6 text-primary ml-auto"/>}
+                                            </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-3">
+                                            <p className="font-semibold text-sm mb-2">Incluye:</p>
+                                            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
+                                                {pkg.serviciosIncluidos.map(s => <li key={s.id}>{s.nombre}</li>)}
+                                            </ul>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
                        </CardContent>
                        <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(3)}>Anterior</Button><Button onClick={handleGenerarPresupuesto} disabled={!paqueteServiciosId || isGeneratingLead}>
                            {isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null} 
@@ -294,7 +321,7 @@ export default function ArmadoRapidoPage() {
                         <CardHeader className="text-center">
                             <FileText className="w-16 h-16 mx-auto text-primary" />
                             <CardTitle className="font-headline text-2xl mt-4">¡Listo! Tu Presupuesto está en Camino</CardTitle>
-                            <CardDescription className="text-base text-muted-foreground">
+                             <CardDescription className="text-base text-muted-foreground">
                                 Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad.
                                 <br/>
                                 <span className="font-semibold mt-2 block">
@@ -348,7 +375,7 @@ export default function ArmadoRapidoPage() {
 
     return (
       <>
-        <div id="main-content" className="non-printable">
+        <div id="main-content">
           <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
               <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm">
                   <div className="flex justify-between items-center max-w-5xl mx-auto">
@@ -359,14 +386,24 @@ export default function ArmadoRapidoPage() {
               
               <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24">
                   <Card className={`shadow-xl ${paso === 5 ? 'hidden md:block' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
-                  <div id="printable-summary" className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
+                  <div className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
               </main>
           </div>
         </div>
-        
+        <div id="printable-summary" className="hidden print:block"><PrintableContent/></div>
          <style jsx global>{`
           @media print {
-            body * {
+            .non-printable {
+              display: none;
+            }
+            .printable-content-only {
+              visibility: visible;
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+             body * {
               visibility: hidden;
             }
             #printable-summary, #printable-summary * {
@@ -378,6 +415,9 @@ export default function ArmadoRapidoPage() {
               top: 0;
               width: 100%;
             }
+          }
+           .temp-hidden-for-print {
+            display: none !important;
           }
         `}</style>
       </>
