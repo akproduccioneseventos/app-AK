@@ -1,5 +1,35 @@
 [
   {
+    "id": "lead_1756768634719_ents0k2",
+    "name": "nico",
+    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 100\nSalón: A confirmar\nPresupuesto Estimado: $ 67.230,00",
+    "currentStageId": "s1",
+    "createdAt": "2025-09-01T23:17:14.719Z",
+    "updatedAt": "2025-09-01T23:17:14.719Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-09-01T23:17:14.719Z"
+      }
+    ]
+  },
+  {
+    "id": "lead_1756768352380_jquscan",
+    "name": "nico",
+    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 100\nSalón: A confirmar\nPresupuesto Estimado: $ 53.955,00",
+    "currentStageId": "s1",
+    "createdAt": "2025-09-01T23:12:32.380Z",
+    "updatedAt": "2025-09-01T23:12:32.380Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-09-01T23:12:32.380Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1756755607712_h7m1blk",
     "name": "nicio",
     "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 100\nSalón: A confirmar\nPresupuesto Estimado: $ 67.230,00",
@@ -45,17 +75,17 @@
     ]
   },
   {
-    "id": "lead_1756768352380_jquscan",
+    "id": "lead_1756768684957_amq9ctb",
     "name": "nico",
-    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 100\nSalón: A confirmar\nPresupuesto Estimado: $ 53.955,00",
+    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 50.715,00",
     "currentStageId": "s1",
-    "createdAt": "2025-09-01T23:12:32.380Z",
-    "updatedAt": "2025-09-01T23:12:32.380Z",
+    "createdAt": "2025-09-01T23:18:04.957Z",
+    "updatedAt": "2025-09-01T23:18:04.957Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
-        "timestamp": "2025-09-01T23:12:32.380Z"
+        "timestamp": "2025-09-01T23:18:04.957Z"
       }
     ]
   }

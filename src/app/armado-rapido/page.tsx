@@ -197,14 +197,7 @@ export default function ArmadoRapidoPage() {
     };
     
     const handlePrint = () => {
-      const printContents = document.getElementById('printable-area')?.innerHTML;
-      const originalContents = document.body.innerHTML;
-      if (printContents) {
-          document.body.innerHTML = printContents;
-          window.print();
-          document.body.innerHTML = originalContents;
-          window.location.reload(); // Recargar para restaurar los event handlers
-      }
+        window.print();
     };
 
     const handleShare = () => {
@@ -257,7 +250,7 @@ export default function ArmadoRapidoPage() {
                            </div>
                            
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">2. Plato Principal (para {totalAdultos} adultos, elige 1)</Label>
+                                <Label className="font-semibold text-lg">2. Platos Principales (para {totalAdultos} adultos, elige 1)</Label>
                                 <RadioGroup value={platoPrincipalId} onValueChange={setPlatoPrincipalId}>
                                   {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
                                       <Label key={s.id} htmlFor={`pp-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
@@ -361,37 +354,37 @@ export default function ArmadoRapidoPage() {
 
     return (
       <>
-        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print-main-content">
-             <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm print-hidden">
+        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:hidden">
+             <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm print:hidden">
                 <div className="flex justify-between items-center max-w-5xl mx-auto">
                     <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Armado Rápido de Presupuesto</h1></div>
                      <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
                 </div>
             </header>
             
-            <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24 print-main-content">
-                <Card className={`shadow-xl print-hidden ${paso === 5 ? 'print:hidden' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
-                <div id="printable-area"><PrintableContent/></div>
+            <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24">
+                <Card className={`shadow-xl ${paso === 5 ? 'hidden' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
+                <div className="hidden print:block"><PrintableContent/></div>
+                <div className="block"><PrintableContent/></div>
             </main>
         </div>
-        <div className="temp-hidden-for-print"><PrintableContent /></div>
         <style jsx global>{`
           @media print {
             body > * {
               display: none !important;
             }
-            body > .print-main-content, body > .print-main-content * {
+            .printable-content, .printable-content * {
               display: block !important;
-            }
-            .temp-hidden-for-print {
-                display: block !important;
+              visibility: visible !important;
             }
           }
-          .temp-hidden-for-print {
-              display: none;
+          .printable-content {
+            display: none;
           }
         `}</style>
+        <div className="printable-content">
+            <PrintableContent />
+        </div>
       </>
     );
 }
-
