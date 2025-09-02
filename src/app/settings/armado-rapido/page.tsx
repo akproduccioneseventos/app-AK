@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -111,7 +111,10 @@ function AddOrEditDialog({
             }
              if (field === 'esRegalo') {
                 const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-                updatedService.precioBase = value ? 0 : (catalogService?.precioVenta || 0);
+                const precioOriginal = catalogService?.precioVenta || 0;
+                updatedService.precioBase = value ? 0 : precioOriginal;
+                updatedService.precioFijo = value ? 0 : precioOriginal;
+                updatedService.precioPorPersona = value ? 0 : updatedService.precioPorPersona;
              }
             return updatedService;
           })
@@ -154,17 +157,6 @@ function AddOrEditDialog({
                               <Label>Descripción</Label>
                               <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
                           </div>
-                           <div className="flex items-center space-x-2 pt-1">
-                            <Checkbox 
-                                id={`es-regalo-${localItem.id}`} 
-                                checked={(localItem as PaqueteArmadoRapido).esRegalo || false}
-                                onCheckedChange={(checked) => setLocalItem(p => p ? {...p, esRegalo: !!checked} : null)}
-                            />
-                            <Label htmlFor={`es-regalo-${localItem.id}`} className="text-sm font-normal flex items-center gap-1">
-                                <Gift className="w-4 h-4"/>
-                                Marcar todo el paquete como un regalo (se muestra un descuento por el total)
-                            </Label>
-                          </div>
                         </>
                       )}
                       <div className="space-y-1 flex-grow flex flex-col min-h-0">
@@ -192,7 +184,12 @@ function AddOrEditDialog({
                                           </Select>
                                       ) : (
                                           <div className="space-y-2">
-                                              <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)}>
+                                            <div className="flex items-center space-x-2 pt-1">
+                                                <Checkbox id={`es-regalo-serv-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
+                                                <Label htmlFor={`es-regalo-serv-${s.id}`} className="text-xs font-normal flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
+                                            </div>
+                                            <Separator/>
+                                              <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)} disabled={s.esRegalo}>
                                                 <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
                                                 <SelectContent>
                                                   <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
@@ -201,12 +198,12 @@ function AddOrEditDialog({
                                                   <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                 </SelectContent>
                                               </Select>
-                                              {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>}
-                                              {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs"/>}
+                                              {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                              {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                               {s.calculationMethod === 'ratio' && (
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>
-                                                    <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/>
+                                                    <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>
+                                                    <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>
                                                 </div>
                                               )}
                                           </div>
