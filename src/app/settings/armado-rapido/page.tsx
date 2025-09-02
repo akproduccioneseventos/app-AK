@@ -20,12 +20,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from '@/lib/utils';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 
 const formatCurrency = (amount?: number) => {
@@ -153,10 +160,6 @@ function AddOrEditDialog({
                               <Label>Nombre del Paquete</Label>
                               <Input value={localItem.nombre} onChange={e => setLocalItem(p => p ? { ...p, nombre: e.target.value } : null)} />
                           </div>
-                          <div className="space-y-1">
-                              <Label>Descripción</Label>
-                              <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
-                          </div>
                         </>
                       )}
                       <div className="space-y-1 flex-grow flex flex-col min-h-0">
@@ -167,14 +170,16 @@ function AddOrEditDialog({
                               {(localItem.serviciosIncluidos || []).map(s => (
                                 <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2">
                                   <div className="flex items-center gap-2 py-1">
-                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
-                                    <Label htmlFor={`current-${s.id}`} className="flex-grow cursor-pointer text-sm py-2 hover:no-underline font-medium">{s.nombre}</Label>
-                                    <CollapsibleTrigger asChild>
-                                      <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
-                                        Configurar Precio
-                                        <ChevronDown className={cn("h-4 w-4 transition-transform", openCollapsibleId === s.id && "rotate-180")} />
-                                      </Button>
-                                    </CollapsibleTrigger>
+                                      <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                      <CollapsibleTrigger asChild>
+                                        <button type="button" className="flex flex-1 items-center justify-between font-medium transition-all [&[data-state=open]>svg]:rotate-180 text-sm py-0 hover:no-underline flex-grow text-left">
+                                          <span>{s.nombre}</span>
+                                          <div className="flex items-center">
+                                            <span className="text-xs text-muted-foreground mr-1">Configurar</span>
+                                            <ChevronDown className={cn("h-4 w-4 transition-transform", openCollapsibleId === s.id && "rotate-180")} />
+                                          </div>
+                                        </button>
+                                      </CollapsibleTrigger>
                                   </div>
                                   <CollapsibleContent className="pt-3 mt-2 border-t space-y-3 px-1 pb-2">
                                       {mode === 'menu' ? (
@@ -369,7 +374,6 @@ export default function ArmadoRapidoSettingsPage() {
                      </div>
                    </CardHeader>
                    <CardContent className="px-3 pb-3">
-                      <p className="text-xs text-muted-foreground italic mb-2">{pkg.descripcion || 'Sin descripción'}</p>
                       {pkg.serviciosIncluidos.length > 0 ? (
                           <ul className="space-y-1 text-sm">
                               {pkg.serviciosIncluidos.slice(0, 3).map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <Badge variant="outline">{s.calculationMethod}</Badge></li>)}

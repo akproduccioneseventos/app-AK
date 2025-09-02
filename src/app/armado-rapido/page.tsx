@@ -266,7 +266,6 @@ export default function ArmadoRapidoPage() {
                                                 <Package className="w-8 h-8 text-primary"/>
                                                 <div>
                                                     <p className="text-base font-semibold text-left">{pkg.nombre}</p>
-                                                    <p className="text-sm text-muted-foreground text-left">{pkg.descripcion}</p>
                                                 </div>
                                                 {paqueteServiciosId === pkg.id && <Check className="w-6 h-6 text-primary ml-auto"/>}
                                             </div>
