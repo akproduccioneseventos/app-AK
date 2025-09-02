@@ -161,52 +161,50 @@ function AddOrEditDialog({
                            {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
                             <div className="space-y-2">
                               {(localItem.serviciosIncluidos || []).map(s => (
-                                <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)}>
-                                  <div className="border rounded-md bg-background p-2">
-                                    <div className="flex items-center gap-2">
-                                        <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
-                                        <Label htmlFor={`current-${s.id}`} className="flex-grow cursor-pointer">{s.nombre}</Label>
-                                        <CollapsibleTrigger asChild>
-                                          <Button variant="ghost" size="sm">
-                                            Configurar Precio
-                                            <ChevronDown className={cn("h-4 w-4 transition-transform", openCollapsibleId === s.id && "rotate-180")} />
-                                          </Button>
-                                        </CollapsibleTrigger>
-                                    </div>
-                                    <CollapsibleContent className="pt-3 mt-2 border-t space-y-3">
-                                        {mode === 'menu' ? (
-                                            <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
-                                                <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                                <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
-                                            </Select>
-                                        ) : (
-                                            <div className="space-y-2">
-                                                <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)}>
-                                                  <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                                  <SelectContent>
-                                                    <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
-                                                    <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
-                                                    <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
-                                                    <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
-                                                  </SelectContent>
-                                                </Select>
-                                                {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>}
-                                                {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs"/>}
-                                                {s.calculationMethod === 'ratio' && (
-                                                  <div className="grid grid-cols-2 gap-2">
-                                                      <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>
-                                                      <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/>
-                                                  </div>
-                                                )}
-                                                {/* Tramo editor is complex, skipping for now */}
-                                                <div className="flex items-center space-x-2 pt-1">
-                                                    <Checkbox id={`serv-regalo-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
-                                                    <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal">Marcar como regalo</Label>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </CollapsibleContent>
+                                <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background p-2">
+                                  <div className="flex items-center gap-3">
+                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                    <Label htmlFor={`current-${s.id}`} className="flex-grow cursor-pointer">{s.nombre}</Label>
+                                    <CollapsibleTrigger asChild>
+                                      <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
+                                        Configurar Precio
+                                        <ChevronDown className={cn("h-4 w-4 transition-transform", openCollapsibleId === s.id && "rotate-180")} />
+                                      </Button>
+                                    </CollapsibleTrigger>
                                   </div>
+                                  <CollapsibleContent className="pt-3 mt-2 border-t space-y-3">
+                                      {mode === 'menu' ? (
+                                          <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
+                                              <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                              <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
+                                          </Select>
+                                      ) : (
+                                          <div className="space-y-2">
+                                              <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)}>
+                                                <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
+                                                  <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
+                                                  <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
+                                                  <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                              {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>}
+                                              {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs"/>}
+                                              {s.calculationMethod === 'ratio' && (
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>
+                                                    <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/>
+                                                </div>
+                                              )}
+                                              {/* Tramo editor is complex, skipping for now */}
+                                              <div className="flex items-center space-x-2 pt-1">
+                                                  <Checkbox id={`serv-regalo-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
+                                                  <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal flex items-center gap-1"><Gift className="w-3 h-3"/>Es Regalo</Label>
+                                              </div>
+                                          </div>
+                                      )}
+                                  </CollapsibleContent>
                                 </Collapsible>
                               ))}
                              </div>
