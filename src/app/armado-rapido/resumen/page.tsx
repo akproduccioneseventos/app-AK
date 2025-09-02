@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,8 +74,7 @@ function ResumenContent() {
   const { toast } = useToast();
   const [summaryData, setSummaryData] = useState<any | null>(null);
   
-  // Ref para el contenido que se imprimirá
-  const printRef = React.useRef<HTMLDivElement>(null);
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const data = searchParams.get('data');
@@ -91,7 +90,17 @@ function ResumenContent() {
     }
   }, [searchParams, router, toast]);
 
-  const whatsappLink = "https://wa.me/59898355530"; 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!summaryData) return;
+    const link = window.location.href;
+    const message = `¡Hola! Te comparto el presupuesto que generé para el evento de ${summaryData.cliente}:\n\n${link}\n\nPodrás verlo en detalle y descargarlo en PDF desde allí.`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
   if (!summaryData) {
     return <div>Cargando resumen...</div>;
@@ -99,21 +108,17 @@ function ResumenContent() {
 
   return (
     <div className="min-h-screen bg-gray-100 print:bg-white flex flex-col items-center py-8">
-      <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between">
+      <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
+         <div className="flex gap-2">
+            <Button variant="outline" onClick={handleShareWhatsApp}><MessageSquare className="mr-2"/>Compartir por WhatsApp</Button>
+            <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
+         </div>
       </div>
       
       <div className="print-only-container">
         <BudgetPrintView summaryData={summaryData} ref={printRef} />
       </div>
-
-       <div className="w-full max-w-3xl mx-auto mt-6 flex justify-center print:hidden">
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <Button className="bg-green-500 hover:bg-green-600">
-                  <MessageSquare className="mr-2"/>Contactar por WhatsApp
-              </Button>
-          </a>
-       </div>
       
       <style jsx global>{`
         @media print {
