@@ -147,7 +147,7 @@ function ResumenContent() {
       <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Resumen</Button>
+            <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Presupuesto</Button>
             <Button onClick={handleContactWhatsApp} className="bg-green-500 hover:bg-green-600"><MessageSquare className="mr-2"/>Contactar por WhatsApp</Button>
             <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
          </div>
