@@ -11,7 +11,7 @@ import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings,
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
@@ -70,12 +70,45 @@ function AddOrEditDialog({
                     nombre: service.nombre,
                     precioFijo: service.precioVenta || 0,
                     categoria: mode === 'menu' ? 'Entrada' : 'Servicio Adicional',
+                    // Default package item to 'fijo'
+                    calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
+                    precioBase: mode === 'paquete' ? service.precioVenta || 0 : undefined,
                 }];
             }
             return { ...prev, serviciosIncluidos: newServices };
         });
     };
     
+    const handleServiceDetailChange = (
+      serviceId: string, 
+      field: keyof ServicioIncluidoArmadoRapido, 
+      value: string | number | boolean
+    ) => {
+      setLocalItem(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          serviciosIncluidos: prev.serviciosIncluidos.map(s => {
+            if (s.id !== serviceId) return s;
+            const updatedService = { ...s, [field]: value };
+            // Reset fields if calculation method changes
+            if (field === 'calculationMethod') {
+              updatedService.precioBase = undefined;
+              updatedService.precioPorPersona = undefined;
+              updatedService.invitadosPorUnidad = undefined;
+              updatedService.tramosDePrecio = undefined;
+              if (value === 'fijo' || value === 'ratio') {
+                const catalogService = vendibleServices.find(vs => vs.id === serviceId);
+                updatedService.precioBase = catalogService?.precioVenta || 0;
+              }
+            }
+            return updatedService;
+          })
+        }
+      })
+    };
+
+
     const handleCategoryChange = (serviceId: string, newCategory: ServicioCategoriaArmadoRapido) => {
         setLocalItem(prev => {
             if (!prev) return null;
@@ -110,30 +143,61 @@ function AddOrEditDialog({
                               <Label>Descripción</Label>
                               <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
                           </div>
+                           <div className="flex items-center space-x-2">
+                                <Checkbox id={`es-regalo-${localItem.id}`} checked={(localItem as PaqueteArmadoRapido).esRegalo} onCheckedChange={(checked) => setLocalItem(p => p ? {...p, esRegalo: !!checked} : null)}/>
+                                <Label htmlFor={`es-regalo-${localItem.id}`}>Marcar todo el paquete como un regalo (no se suma al total)</Label>
+                            </div>
                         </>
                       )}
                       <div className="space-y-1 flex-grow flex flex-col min-h-0">
                         <Label>Servicios Incluidos en este {mode === 'menu' ? 'Menú' : 'Paquete'}</Label>
                          <ScrollArea className="h-full border rounded-md p-2">
                            {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
-                            <div className="space-y-2">
+                            <Accordion type="multiple" className="space-y-2">
                               {(localItem.serviciosIncluidos || []).map(s => (
-                                <div key={s.id} className="flex flex-col gap-2 text-sm p-2 border rounded-md bg-background">
-                                   <div className="flex justify-between items-center">
-                                      <Label htmlFor={`current-${s.id}`} className="cursor-pointer flex-grow">{s.nombre}</Label>
-                                      <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
-                                   </div>
-                                    {mode === 'menu' && (
+                                <AccordionItem value={s.id} key={s.id} className="border rounded-md bg-background px-2">
+                                  <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                                    <div className="flex justify-between items-center w-full">
+                                      <Label htmlFor={`current-${s.id}`} className="cursor-pointer flex-grow text-left">{s.nombre}</Label>
+                                      <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()}/>
+                                    </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="pt-2 pb-3 space-y-2">
+                                    {mode === 'menu' ? (
                                         <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
                                             <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                            <SelectContent>
-                                                {CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}
-                                            </SelectContent>
+                                            <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
                                         </Select>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)}>
+                                              <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
+                                                <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
+                                                <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
+                                                <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                            {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>}
+                                            {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs"/>}
+                                            {s.calculationMethod === 'ratio' && (
+                                              <div className="grid grid-cols-2 gap-2">
+                                                  <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>
+                                                  <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/>
+                                              </div>
+                                            )}
+                                            {/* Tramo editor is complex, skipping for now */}
+                                            <div className="flex items-center space-x-2 pt-1">
+                                                <Checkbox id={`serv-regalo-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
+                                                <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal">Marcar como regalo (sin costo)</Label>
+                                            </div>
+                                        </div>
                                     )}
-                                </div>
+                                  </AccordionContent>
+                                </AccordionItem>
                               ))}
-                             </div>
+                             </Accordion>
                            }
                          </ScrollArea>
                       </div>
@@ -252,7 +316,7 @@ export default function ArmadoRapidoSettingsPage() {
     <div className="max-w-6xl mx-auto space-y-8">
       {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de Armado Rápido</h1></div>
+        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de "Mi Presupuesto al Instante"</h1></div>
         <div className="flex gap-2">
             <Link href="/empresa/todos-los-servicios/nuevo?type=servicio" passHref>
                 <Button variant="outline"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio al Catálogo</Button>
@@ -275,7 +339,7 @@ export default function ArmadoRapidoSettingsPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios (Para Paso 4)</CardTitle>
-            <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, decoración, etc). El precio del servicio aquí es un costo fijo por paquete.</CardDescription>
+            <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, decoración, etc). Define precios fijos, por persona o por ratios.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
              <Button onClick={() => openDialog('paquete')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete Nuevo</Button>
@@ -294,7 +358,7 @@ export default function ArmadoRapidoSettingsPage() {
                       <p className="text-xs text-muted-foreground italic mb-2">{pkg.descripcion || 'Sin descripción'}</p>
                       {pkg.serviciosIncluidos.length > 0 ? (
                           <ul className="space-y-1 text-sm">
-                              {pkg.serviciosIncluidos.slice(0, 3).map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <span>{formatCurrency(s.precioFijo)}</span></li>)}
+                              {pkg.serviciosIncluidos.slice(0, 3).map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <Badge variant="outline">{s.calculationMethod}</Badge></li>)}
                               {pkg.serviciosIncluidos.length > 3 && <li className="text-xs text-muted-foreground">...y {pkg.serviciosIncluidos.length - 3} más.</li>}
                           </ul>
                       ) : <p className="text-sm text-muted-foreground">Este paquete no tiene servicios.</p>}
@@ -316,3 +380,4 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
+
