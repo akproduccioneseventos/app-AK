@@ -21,7 +21,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
   const realTotal = summaryData.total || 0;
 
   // Lógica de "descuento falso"
-  const subtotalInflado = realTotal / (1 - descuentoValor / 100);
+  const subtotalInflado = descuentoValor > 0 && descuentoValor < 100 ? realTotal / (1 - descuentoValor / 100) : realTotal;
   const montoDescuento = subtotalInflado - realTotal;
 
   return (
@@ -67,7 +67,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
             
             <div className="mt-6 flex justify-end">
                 <div className="w-full max-w-xs space-y-2">
-                <div className="flex justify-between"><p>Subtotal:</p><p>{formatCurrency(subtotalInflado)}</p></div>
+                {descuentoValor > 0 && <div className="flex justify-between"><p>Subtotal:</p><p>{formatCurrency(subtotalInflado)}</p></div>}
                 {descuentoValor > 0 && <div className="flex justify-between text-red-600"><p>Descuento Especial ({descuentoValor}%):</p><p>-{formatCurrency(montoDescuento)}</p></div>}
                 <div className="flex justify-between font-bold text-lg border-t pt-2"><p>TOTAL:</p><p>{formatCurrency(realTotal)}</p></div>
                 </div>
@@ -112,8 +112,7 @@ function ResumenContent() {
 
   const handleShareWhatsApp = () => {
     if (!summaryData) return;
-    // Generar un mensaje que incite al contacto, en lugar de compartir detalles complejos.
-    const message = `¡Hola! He generado un presupuesto para mi evento con AK Producciones a través de su sitio web. Me gustaría conversar sobre los detalles.\n\n*Cliente:* ${summaryData.cliente}\n*Invitados:* ${summaryData.invitados}\n*Total Estimado:* ${formatCurrency(summaryData.total)}\n\nPor favor, contáctenme. ¡Gracias!`;
+    const message = `¡Hola! He generado un presupuesto para mi evento con AK Producciones a través de su sitio web y me gustaría conversar sobre los detalles. Puedes ver el resumen aquí: ${window.location.href}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
