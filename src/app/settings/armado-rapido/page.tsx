@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -20,6 +20,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { cn } from '@/lib/utils';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 
 
 const formatCurrency = (amount?: number) => {
@@ -50,6 +56,7 @@ function AddOrEditDialog({
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(item);
     const [searchTerm, setSearchTerm] = useState('');
+    const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
 
     useEffect(() => {
         setLocalItem(item);
@@ -71,9 +78,9 @@ function AddOrEditDialog({
                     nombre: service.nombre,
                     precioFijo: service.precioVenta || 0,
                     categoria: mode === 'menu' ? 'Entrada' : 'Servicio Adicional',
-                    // Default package item to 'fijo'
                     calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
                     precioBase: mode === 'paquete' ? service.precioVenta || 0 : undefined,
+                    esRegalo: false,
                 }];
             }
             return { ...prev, serviciosIncluidos: newServices };
@@ -92,7 +99,6 @@ function AddOrEditDialog({
           serviciosIncluidos: prev.serviciosIncluidos.map(s => {
             if (s.id !== serviceId) return s;
             const updatedService = { ...s, [field]: value };
-            // Reset fields if calculation method changes
             if (field === 'calculationMethod') {
               updatedService.precioBase = undefined;
               updatedService.precioPorPersona = undefined;
@@ -103,6 +109,9 @@ function AddOrEditDialog({
                 updatedService.precioBase = catalogService?.precioVenta || 0;
               }
             }
+             if (field === 'esRegalo') {
+                updatedService.precioBase = value ? 0 : (vendibleServices.find(vs => vs.id === serviceId)?.precioVenta || 0);
+             }
             return updatedService;
           })
         }
@@ -124,7 +133,7 @@ function AddOrEditDialog({
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>{localItem.id ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú de Catering' : 'Paquete de Servicios'}</DialogTitle>
+                    <DialogTitle className="font-headline text-xl">{localItem.id && !localItem.id.startsWith('new_') ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú de Catering' : 'Paquete de Servicios'}</DialogTitle>
                      <DialogDescription>
                         {mode === 'menu' 
                           ? "Gestiona todas las opciones de catering que tus clientes podrán elegir en el Armado Rápido."
@@ -150,53 +159,57 @@ function AddOrEditDialog({
                         <Label>Servicios Incluidos en este {mode === 'menu' ? 'Menú' : 'Paquete'}</Label>
                          <ScrollArea className="h-full border rounded-md p-2">
                            {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
-                            <Accordion type="multiple" className="space-y-2">
+                            <div className="space-y-2">
                               {(localItem.serviciosIncluidos || []).map(s => (
-                                <AccordionItem value={s.id} key={s.id} className="border rounded-md bg-background px-2">
-                                    <div className="flex justify-between items-center py-2">
-                                        <div className="flex items-center gap-2 flex-grow">
-                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()}/>
-                                            <AccordionTrigger className="text-sm py-0 hover:no-underline flex-grow text-left">
-                                            {s.nombre}
-                                            </AccordionTrigger>
-                                        </div>
+                                <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)}>
+                                  <div className="border rounded-md bg-background p-2">
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                        <Label htmlFor={`current-${s.id}`} className="flex-grow cursor-pointer">{s.nombre}</Label>
+                                        <CollapsibleTrigger asChild>
+                                          <Button variant="ghost" size="sm">
+                                            Configurar Precio
+                                            <ChevronDown className={cn("h-4 w-4 transition-transform", openCollapsibleId === s.id && "rotate-180")} />
+                                          </Button>
+                                        </CollapsibleTrigger>
                                     </div>
-                                  <AccordionContent className="pt-2 pb-3 space-y-2 border-t mt-2">
-                                    {mode === 'menu' ? (
-                                        <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
-                                            <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                            <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
-                                        </Select>
-                                    ) : (
-                                        <div className="space-y-2">
-                                            <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)}>
-                                              <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                              <SelectContent>
-                                                <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
-                                                <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
-                                                <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
-                                                <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
-                                              </SelectContent>
+                                    <CollapsibleContent className="pt-3 mt-2 border-t space-y-3">
+                                        {mode === 'menu' ? (
+                                            <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
+                                                <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                                <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
                                             </Select>
-                                            {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>}
-                                            {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs"/>}
-                                            {s.calculationMethod === 'ratio' && (
-                                              <div className="grid grid-cols-2 gap-2">
-                                                  <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>
-                                                  <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/>
-                                              </div>
-                                            )}
-                                            {/* Tramo editor is complex, skipping for now */}
-                                            <div className="flex items-center space-x-2 pt-1">
-                                                <Checkbox id={`serv-regalo-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
-                                                <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal">Marcar como regalo</Label>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)}>
+                                                  <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                                  <SelectContent>
+                                                    <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
+                                                    <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
+                                                    <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
+                                                    <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
+                                                  </SelectContent>
+                                                </Select>
+                                                {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>}
+                                                {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs"/>}
+                                                {s.calculationMethod === 'ratio' && (
+                                                  <div className="grid grid-cols-2 gap-2">
+                                                      <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs"/>
+                                                      <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/>
+                                                  </div>
+                                                )}
+                                                {/* Tramo editor is complex, skipping for now */}
+                                                <div className="flex items-center space-x-2 pt-1">
+                                                    <Checkbox id={`serv-regalo-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
+                                                    <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal">Marcar como regalo</Label>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
-                                  </AccordionContent>
-                                </AccordionItem>
+                                        )}
+                                    </CollapsibleContent>
+                                  </div>
+                                </Collapsible>
                               ))}
-                             </Accordion>
+                             </div>
                            }
                          </ScrollArea>
                       </div>
