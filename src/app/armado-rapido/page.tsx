@@ -1,40 +1,29 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Wand2, Users, FileText, ChefHat, Package, Check, ArrowRight, MinusCircle, PlusCircle, User, UserSquare2, Phone, Download, Share2, MessageSquare, List } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Users, ChefHat, Package, Check, ArrowRight, User, Phone, List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Separator } from '@/components/ui/separator';
-import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-};
-
-interface CantidadPlato {
-  servicioId: string;
-  nombre: string;
-  cantidad: number;
-  precioUnitario: number;
-}
 
 export default function ArmadoRapidoPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const whatsappLink = "https://wa.me/59898355530"; 
 
     const [paso, setPaso] = useState(1);
     
@@ -50,7 +39,6 @@ export default function ArmadoRapidoPage() {
     const [entradasSeleccionadas, setEntradasSeleccionadas] = useState<Set<string>>(new Set());
     const [platoPrincipalId, setPlatoPrincipalId] = useState<string | undefined>(undefined);
     const [menuInfantilId, setMenuInfantilId] = useState<string | undefined>(undefined);
-
 
     // Paso 4 State
     const [paqueteServiciosId, setPaqueteServiciosId] = useState<string>('');
@@ -88,7 +76,6 @@ export default function ArmadoRapidoPage() {
         setPaso(4);
     };
 
-
     const loadData = useCallback(async () => {
         setIsLoading(true); setError(null);
         try {
@@ -103,105 +90,96 @@ export default function ArmadoRapidoPage() {
     }, [toast]);
 
     useEffect(() => { loadData(); }, [loadData]);
-
-    const totalAdultos = numAdultos;
-    const totalInvitados = totalAdultos + numJovenesYNinos;
     
     const opcionesMenu = useMemo(() => config?.menus?.[0], [config]);
     const paqueteActual = useMemo(() => config?.paquetes.find(p => p.id === paqueteServiciosId), [config, paqueteServiciosId]);
     
-    const costoEntradas = useMemo(() => {
-        if (!opcionesMenu) return 0;
-        let total = 0;
-        entradasSeleccionadas.forEach(id => {
-            const servicio = opcionesMenu.serviciosIncluidos.find(s => s.id === id);
-            if (servicio) total += servicio.precioFijo * totalAdultos;
-        });
-        return total;
-    }, [opcionesMenu, entradasSeleccionadas, totalAdultos]);
-    
-    const costoPlatoPrincipal = useMemo(() => {
-        if (!platoPrincipalId) return 0;
-        const plato = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
-        return plato ? plato.precioFijo * numAdultos : 0;
-    }, [platoPrincipalId, opcionesMenu, numAdultos]);
-
-    const costoMenuInfantil = useMemo(() => {
-        if (numJovenesYNinos === 0) return 0;
-        if (!menuInfantilId) return 0;
-        const menu = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
-        return menu ? menu.precioFijo * numJovenesYNinos : 0;
-    }, [menuInfantilId, opcionesMenu, numJovenesYNinos]);
-    
-    const costoPaqueteServicios = useMemo(() => {
-        if (!paqueteActual) return 0;
-        return paqueteActual.serviciosIncluidos.reduce((total, servicio) => {
-            let costoServicio = 0;
-            switch(servicio.calculationMethod) {
-                case 'fijo':
-                    costoServicio = servicio.precioBase || 0;
-                    break;
-                case 'porPersona':
-                    costoServicio = (servicio.precioPorPersona || 0) * totalInvitados;
-                    break;
-                case 'ratio':
-                    if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) {
-                        const unidadesNecesarias = Math.ceil(totalInvitados / servicio.invitadosPorUnidad);
-                        costoServicio = unidadesNecesarias * (servicio.precioBase || 0);
-                    }
-                    break;
-                case 'tramos':
-                     const tramoAplicable = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-                     if (tramoAplicable) {
-                         costoServicio = tramoAplicable.precio;
-                     }
-                    break;
-                default:
-                    costoServicio = servicio.precioFijo || servicio.precioBase || 0;
-            }
-            return total + costoServicio;
-        }, 0);
-    }, [paqueteActual, totalInvitados]);
-    
-    const costoTotal = costoEntradas + costoPlatoPrincipal + costoMenuInfantil + costoPaqueteServicios;
-    const montoDescuento = config?.descuentoGeneral ? (costoTotal * config.descuentoGeneral) / 100 : 0;
-    const costoConDescuento = costoTotal - montoDescuento;
-
     const handleGenerarPresupuesto = async () => {
         setIsGeneratingLead(true);
         toast({ title: "Generando tu presupuesto...", description: "Espera un momento." });
-        
+
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual?.nombre || 'Sin paquete',
             nombreMenu: 'Catering Personalizado',
             tipoEvento: 'Evento desde Armado Rápido',
-            cantidadInvitados: totalInvitados,
-            costoEstimado: costoConDescuento,
+            cantidadInvitados: numAdultos + numJovenesYNinos,
+            costoEstimado: 0, // Placeholder
             clienteNombre: clienteNombre || 'Prospecto Web',
             salon: 'A confirmar'
         });
-        setIsGeneratingLead(false);
-        if (result.success) {
-            toast({ title: "¡Presupuesto Generado!", description: `Un asesor se contactará contigo. ID de seguimiento: ${result.leadId?.substring(0, 8)}`, duration: 9000 });
-            setPaso(5);
-        } else {
-            toast({ title: "Error", description: result.error, variant: "destructive" });
-        }
-    };
-    
-    const handlePrint = () => {
-        window.print();
-    };
 
-    const handleShare = () => {
-        const resumenText = `Resumen del Presupuesto para ${clienteNombre}:\n- Invitados: ${totalInvitados}\n- Catering: ${formatCurrency(costoEntradas + costoPlatoPrincipal + costoMenuInfantil)}\n- Servicios: ${formatCurrency(costoPaqueteServicios)}\n- Total Estimado: ${formatCurrency(costoConDescuento)}`;
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(resumenText)}`;
-        window.open(whatsappUrl, '_blank');
+        if (!result.success) {
+            toast({ title: "Error", description: result.error || "No se pudo generar el prospecto.", variant: "destructive" });
+            setIsGeneratingLead(false);
+            return;
+        }
+        
+        // Prepare data for the summary page
+        const resumenData = {
+            cliente: clienteNombre,
+            invitados: `${numAdultos} Adultos, ${numJovenesYNinos} Jóvenes/Niños`,
+            items: [],
+            total: 0,
+            descuento: config?.descuentoGeneral || 0,
+        };
+
+        const entradas = Array.from(entradasSeleccionadas).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id));
+        const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
+        const menuInfantil = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
+
+        let subtotal = 0;
+        
+        entradas.forEach(item => {
+            if (!item) return;
+            const itemTotal = item.precioFijo * numAdultos;
+            resumenData.items.push({ desc: `Entrada: ${item.nombre}`, total: formatCurrency(itemTotal) });
+            subtotal += itemTotal;
+        });
+
+        if (platoPrincipal) {
+            const itemTotal = platoPrincipal.precioFijo * numAdultos;
+            resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}`, total: formatCurrency(itemTotal) });
+            subtotal += itemTotal;
+        }
+        if (menuInfantil && numJovenesYNinos > 0) {
+            const itemTotal = menuInfantil.precioFijo * numJovenesYNinos;
+            resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}`, total: formatCurrency(itemTotal) });
+            subtotal += itemTotal;
+        }
+
+        if (paqueteActual) {
+            const totalInvitados = numAdultos + numJovenesYNinos;
+            paqueteActual.serviciosIncluidos.forEach(servicio => {
+                let costoServicio = 0;
+                switch(servicio.calculationMethod) {
+                    case 'fijo': costoServicio = servicio.precioBase || 0; break;
+                    case 'porPersona': costoServicio = (servicio.precioPorPersona || 0) * totalInvitados; break;
+                    case 'ratio': 
+                        if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) {
+                            const unidades = Math.ceil(totalInvitados / servicio.invitadosPorUnidad);
+                            costoServicio = unidades * (servicio.precioBase || 0);
+                        }
+                        break;
+                    case 'tramos':
+                        const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+                        if(tramo) costoServicio = tramo.precio;
+                        break;
+                    default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
+                }
+                resumenData.items.push({ desc: `Servicio Adicional: ${servicio.nombre}`, total: formatCurrency(costoServicio) });
+                subtotal += costoServicio;
+            });
+        }
+        
+        resumenData.total = subtotal;
+
+        const queryParams = new URLSearchParams({ data: JSON.stringify(resumenData) });
+        router.push(`/armado-rapido/resumen?${queryParams.toString()}`);
     };
 
     const renderPaso = () => {
         switch(paso) {
-            case 1: // Datos del Cliente
+            case 1:
                 return (
                   <motion.div key="paso1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                      <CardHeader><CardTitle className="font-headline text-2xl">Paso 1: Tus Datos</CardTitle><CardDescription>Ingresa tu nombre y celular para contactarte.</CardDescription></CardHeader>
@@ -212,27 +190,27 @@ export default function ArmadoRapidoPage() {
                      <CardFooter><Button onClick={() => setPaso(2)} disabled={!isPaso1Valid} className="w-full">Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                   </motion.div>
                 );
-            case 2: // Cantidad de Invitados
+            case 2:
                 return (
                   <motion.div key="paso2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                      <CardHeader><CardTitle className="font-headline text-2xl">Paso 2: Cantidad de Invitados</CardTitle><CardDescription>¿Cuántos adultos y cuántos adolescentes/niños asistirán?</CardDescription></CardHeader>
                      <CardContent className="space-y-3">
                           <div className="grid grid-cols-2 gap-4">
                             <div><Label htmlFor="adultos" className="flex items-center gap-1"><User/> Adultos</Label><Input id="adultos" type="number" value={numAdultos} onChange={(e) => setNumAdultos(Number(e.target.value) || 0)} min="0"/></div>
-                            <div><Label htmlFor="jovenes_ninos" className="flex items-center gap-1"><UserSquare2/> Adolescentes y Niños</Label><Input id="jovenes_ninos" type="number" value={numJovenesYNinos} onChange={(e) => setNumJovenesYNinos(Number(e.target.value) || 0)} min="0"/></div>
+                            <div><Label htmlFor="jovenes_ninos" className="flex items-center gap-1"><Users/> Adolescentes y Niños</Label><Input id="jovenes_ninos" type="number" value={numJovenesYNinos} onChange={(e) => setNumJovenesYNinos(Number(e.target.value) || 0)} min="0"/></div>
                           </div>
                      </CardContent>
                      <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(1)}>Anterior</Button><Button onClick={() => setPaso(3)} disabled={(numAdultos + numJovenesYNinos) <= 0}>Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                   </motion.div>
                 );
-            case 3: // Selección de Menú
+            case 3:
                  return (
                     <motion.div key="paso3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Arma tu Menú</CardTitle><CardDescription>Elige las opciones para tu evento.</CardDescription></CardHeader>
                        <CardContent className="space-y-6">
                            <div className="space-y-2">
                                 <Label className="font-semibold text-lg">1. Entradas (selecciona exactamente 2 opciones)</Label>
-                                <p className="text-sm text-muted-foreground">Cada opción seleccionada se calculará para el total de adultos ({totalAdultos}).</p>
+                                <p className="text-sm text-muted-foreground">Cada opción se calculará para el total de adultos ({numAdultos}).</p>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                         <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); while(n.size > 2) { n.delete(n.values().next().value); } return n;})}}/>
@@ -272,7 +250,7 @@ export default function ArmadoRapidoPage() {
                        <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(2)}>Anterior</Button><Button onClick={handlePaso3Next} >Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                     </motion.div>
                 );
-            case 4: // Paquete de Servicios
+            case 4:
                 return (
                     <motion.div key="paso4" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 4: Elige tu Combo de Servicios</CardTitle><CardDescription>Selecciona un combo de servicios adicionales (DJ, foto, etc.).</CardDescription></CardHeader>
@@ -302,35 +280,8 @@ export default function ArmadoRapidoPage() {
                        </CardContent>
                        <CardFooter className="flex justify-between"><Button variant="outline" onClick={() => setPaso(3)}>Anterior</Button><Button onClick={handleGenerarPresupuesto} disabled={!paqueteServiciosId || isGeneratingLead}>
                            {isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null} 
-                           {isGeneratingLead ? 'Generando...' : 'Finalizar y Solicitar Presupuesto'}
+                           {isGeneratingLead ? 'Generando...' : 'Finalizar y Ver Presupuesto'}
                         </Button></CardFooter>
-                    </motion.div>
-                );
-            case 5: // Finalizado
-                return (
-                    <motion.div key="paso5" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}>
-                        <CardHeader className="text-center">
-                            <FileText className="w-16 h-16 mx-auto text-primary" />
-                            <CardTitle className="font-headline text-2xl mt-4">¡Listo! Tu Presupuesto está en Camino</CardTitle>
-                             <CardDescription className="text-base text-muted-foreground">
-                                 Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad.
-                                 <span className="font-semibold mt-2 block">
-                                    ¡No pierdas esta oportunidad! PODÉS SEÑAR todos los servicios por SOLO $5,000 y acceder a la promoción especial y regalos exclusivos. Este presupuesto es válido por 30 días.
-                                 </span>
-                             </CardDescription>
-                        </CardHeader>
-                        <CardFooter className="flex flex-col gap-2">
-                           <Button onClick={handlePrint} variant="outline" className="w-full"><Download className="mr-2"/>Descargar Presupuesto</Button>
-                           <Button onClick={handleShare} variant="outline" className="w-full"><Share2 className="mr-2"/>Compartir Presupuesto</Button>
-                           {whatsappLink && (
-                             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-full">
-                                <Button className="w-full bg-green-500 hover:bg-green-600">
-                                    <MessageSquare className="mr-2"/>Comunicarse por WhatsApp
-                                </Button>
-                             </a>
-                           )}
-                           <Button onClick={() => window.location.reload()} variant="secondary" className="w-full mt-4">Generar un Nuevo Presupuesto</Button>
-                        </CardFooter>
                     </motion.div>
                 );
         }
@@ -339,64 +290,24 @@ export default function ArmadoRapidoPage() {
     if (isLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     if (error) return <div className="flex items-center justify-center min-h-screen text-center text-destructive">{error}</div>;
 
-    const PrintableContent = () => (
-      <Card className="shadow-xl border-t-4 border-primary">
-          <CardHeader><CardTitle className="font-headline text-2xl text-primary">Resumen de tu Selección</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-              <div className="flex justify-between items-center text-lg"><span>Invitados:</span><span className="font-bold">{totalAdultos} A / {numJovenesYNinos} J-N</span></div>
-              <Separator/>
-              <div className="space-y-2 text-sm">
-                 <h4 className="font-semibold">Catering:</h4>
-                 <div className="flex justify-between"><span>Entradas seleccionadas</span><span>{formatCurrency(costoEntradas)}</span></div>
-                 <div className="flex justify-between"><span>Plato principal</span><span>{formatCurrency(costoPlatoPrincipal)}</span></div>
-                 <div className="flex justify-between"><span>Menú niños/adolescentes</span><span>{formatCurrency(costoMenuInfantil)}</span></div>
-                 <h4 className="font-semibold mt-2">Paquete de Servicios:</h4>
-                 <div className="flex justify-between"><span>{paqueteActual?.nombre || 'No seleccionado'}</span><span>{formatCurrency(costoPaqueteServicios)}</span></div>
-              </div>
-              <Separator/>
-              <div className="space-y-2 pt-2">
-                  {config?.descuentoGeneral && config.descuentoGeneral > 0 && montoDescuento > 0 && <div className="flex justify-between items-center text-destructive"><span className="flex items-center gap-1">Descuento ({config?.descuentoGeneral}%)</span> <span className="font-semibold">-{formatCurrency(montoDescuento)}</span></div>}
-                  <div className="flex justify-between items-center text-2xl font-bold pt-2 border-t text-primary"><span>TOTAL ESTIMADO:</span><span>{formatCurrency(costoConDescuento)}</span></div>
-              </div>
-          </CardContent>
-          <CardFooter><p className="text-xs text-muted-foreground">Este es un costo estimado. Un asesor confirmará el precio final.</p></CardFooter>
-      </Card>
-    );
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+    };
 
     return (
-      <>
         <div id="main-content" className="non-printable">
           <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
-              <header className="absolute top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm">
+              <header className="fixed top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm z-10">
                   <div className="flex justify-between items-center max-w-5xl mx-auto">
                       <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Armado Rápido de Presupuesto</h1></div>
                       <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
                   </div>
               </header>
               
-              <main className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl pt-24">
-                  <Card className={`shadow-xl ${paso === 5 ? 'hidden md:block' : ''}`}><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
-                  <div className={`${paso !== 5 ? 'block' : 'hidden md:block'}`}><PrintableContent/></div>
+              <main className="w-full max-w-lg pt-24">
+                  <Card className="shadow-xl"><AnimatePresence mode="wait">{renderPaso()}</AnimatePresence></Card>
               </main>
           </div>
         </div>
-        <div id="printable-summary" className="hidden printable-content">
-          <PrintableContent/>
-        </div>
-         <style jsx global>{`
-          @media print {
-            body > *:not(.printable-content) {
-              display: none !important;
-            }
-            .printable-content {
-              display: block !important;
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-            }
-          }
-        `}</style>
-      </>
     );
 }
