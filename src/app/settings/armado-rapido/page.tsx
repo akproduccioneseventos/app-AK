@@ -110,7 +110,8 @@ function AddOrEditDialog({
               }
             }
              if (field === 'esRegalo') {
-                updatedService.precioBase = value ? 0 : (vendibleServices.find(vs => vs.id === serviceId)?.precioVenta || 0);
+                const catalogService = vendibleServices.find(vs => vs.id === serviceId);
+                updatedService.precioBase = value ? 0 : (catalogService?.precioVenta || 0);
              }
             return updatedService;
           })
@@ -153,6 +154,17 @@ function AddOrEditDialog({
                               <Label>Descripción</Label>
                               <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
                           </div>
+                           <div className="flex items-center space-x-2 pt-1">
+                            <Checkbox 
+                                id={`es-regalo-${localItem.id}`} 
+                                checked={(localItem as PaqueteArmadoRapido).esRegalo || false}
+                                onCheckedChange={(checked) => setLocalItem(p => p ? {...p, esRegalo: !!checked} : null)}
+                            />
+                            <Label htmlFor={`es-regalo-${localItem.id}`} className="text-sm font-normal flex items-center gap-1">
+                                <Gift className="w-4 h-4"/>
+                                Marcar todo el paquete como un regalo (se muestra un descuento por el total)
+                            </Label>
+                          </div>
                         </>
                       )}
                       <div className="space-y-1 flex-grow flex flex-col min-h-0">
@@ -161,10 +173,10 @@ function AddOrEditDialog({
                            {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
                             <div className="space-y-2">
                               {(localItem.serviciosIncluidos || []).map(s => (
-                                <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background p-2">
-                                  <div className="flex items-center gap-3">
+                                <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2">
+                                  <div className="flex items-center gap-2 py-1">
                                     <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
-                                    <Label htmlFor={`current-${s.id}`} className="flex-grow cursor-pointer">{s.nombre}</Label>
+                                    <Label htmlFor={`current-${s.id}`} className="flex-grow cursor-pointer text-sm py-2 hover:no-underline font-medium">{s.nombre}</Label>
                                     <CollapsibleTrigger asChild>
                                       <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
                                         Configurar Precio
@@ -172,7 +184,7 @@ function AddOrEditDialog({
                                       </Button>
                                     </CollapsibleTrigger>
                                   </div>
-                                  <CollapsibleContent className="pt-3 mt-2 border-t space-y-3">
+                                  <CollapsibleContent className="pt-3 mt-2 border-t space-y-3 px-1 pb-2">
                                       {mode === 'menu' ? (
                                           <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
                                               <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
@@ -197,11 +209,6 @@ function AddOrEditDialog({
                                                     <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/>
                                                 </div>
                                               )}
-                                              {/* Tramo editor is complex, skipping for now */}
-                                              <div className="flex items-center space-x-2 pt-1">
-                                                  <Checkbox id={`serv-regalo-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
-                                                  <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal flex items-center gap-1"><Gift className="w-3 h-3"/>Es Regalo</Label>
-                                              </div>
                                           </div>
                                       )}
                                   </CollapsibleContent>
