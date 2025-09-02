@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -19,7 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 
 const formatCurrency = (amount?: number) => {
@@ -144,10 +144,6 @@ function AddOrEditDialog({
                               <Label>Descripción</Label>
                               <Input value={localItem.descripcion || ''} onChange={e => setLocalItem(p => p ? { ...p, descripcion: e.target.value } : null)} />
                           </div>
-                           <div className="flex items-center space-x-2">
-                                <Checkbox id={`es-regalo-${localItem.id}`} checked={(localItem as PaqueteArmadoRapido).esRegalo} onCheckedChange={(checked) => setLocalItem(p => p ? {...p, esRegalo: !!checked} : null)}/>
-                                <Label htmlFor={`es-regalo-${localItem.id}`}>Marcar todo el paquete como un regalo (no se suma al total)</Label>
-                            </div>
                         </>
                       )}
                       <div className="space-y-1 flex-grow flex flex-col min-h-0">
@@ -159,7 +155,7 @@ function AddOrEditDialog({
                                 <AccordionItem value={s.id} key={s.id} className="border rounded-md bg-background px-2">
                                     <div className="flex justify-between items-center py-2">
                                         <div className="flex items-center gap-2 flex-grow">
-                                             <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()}/>
+                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()}/>
                                             <AccordionTrigger className="text-sm py-0 hover:no-underline flex-grow text-left">
                                             {s.nombre}
                                             </AccordionTrigger>
@@ -193,7 +189,7 @@ function AddOrEditDialog({
                                             {/* Tramo editor is complex, skipping for now */}
                                             <div className="flex items-center space-x-2 pt-1">
                                                 <Checkbox id={`serv-regalo-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
-                                                <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal">Marcar como regalo (sin costo)</Label>
+                                                <Label htmlFor={`serv-regalo-${s.id}`} className="text-xs font-normal">Marcar como regalo</Label>
                                             </div>
                                         </div>
                                     )}

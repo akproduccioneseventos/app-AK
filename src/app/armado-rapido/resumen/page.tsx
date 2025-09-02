@@ -17,12 +17,8 @@ const formatCurrency = (amount?: number) => {
 // Componente aislado para la vista imprimible del presupuesto
 const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>(({ summaryData }, ref) => {
   if (!summaryData) return null;
-  const descuentoValor = summaryData.descuento || 0;
-  const realTotal = summaryData.total || 0;
-
-  // Lógica de "descuento falso"
-  const subtotalInflado = descuentoValor > 0 && descuentoValor < 100 ? realTotal / (1 - descuentoValor / 100) : realTotal;
-  const montoDescuento = subtotalInflado - realTotal;
+  const descuentoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + r.valor, 0);
+  const subtotal = summaryData.total + descuentoRegalos;
 
   return (
     <div ref={ref} className="bg-white">
@@ -41,33 +37,30 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
                 <thead>
                 <tr className="border-b">
                     <th className="text-left font-semibold py-2">Descripción</th>
+                    <th className="text-right font-semibold py-2">Importe</th>
                 </tr>
                 </thead>
                 <tbody>
                 {summaryData.items.map((item: any, index: number) => (
                     <tr key={index} className="border-b">
                     <td className="py-2">{item.desc}</td>
+                    <td className="py-2 text-right">{formatCurrency(item.total)}</td>
+                    </tr>
+                ))}
+                 {summaryData.regalos.map((item: any, index: number) => (
+                    <tr key={`regalo-${index}`} className="border-b">
+                    <td className="py-2 flex items-center gap-2"><Gift className="w-4 h-4 text-primary"/>{item.desc}</td>
+                    <td className="py-2 text-right">{formatCurrency(item.valor)}</td>
                     </tr>
                 ))}
                 </tbody>
             </table>
             
-            {summaryData.regalos && summaryData.regalos.length > 0 && (
-              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <h3 className="font-semibold text-green-700 flex items-center gap-2"><Gift className="w-5 h-5"/>¡Regalos Incluidos!</h3>
-                  <ul className="list-disc list-inside mt-2 text-sm text-green-600">
-                    {summaryData.regalos.map((regalo: any, index: number) => (
-                      <li key={index}>{regalo.desc} (Valor: {regalo.total})</li>
-                    ))}
-                  </ul>
-              </div>
-            )}
-            
             <div className="mt-6 flex justify-end">
                 <div className="w-full max-w-xs space-y-2">
-                {descuentoValor > 0 && <div className="flex justify-between"><p>Subtotal:</p><p>{formatCurrency(subtotalInflado)}</p></div>}
-                {descuentoValor > 0 && <div className="flex justify-between text-red-600"><p>Descuento Especial ({descuentoValor}%):</p><p>-{formatCurrency(montoDescuento)}</p></div>}
-                <div className="flex justify-between font-bold text-lg border-t pt-2"><p>TOTAL:</p><p>{formatCurrency(realTotal)}</p></div>
+                {descuentoRegalos > 0 && <div className="flex justify-between"><p>Subtotal:</p><p>{formatCurrency(subtotal)}</p></div>}
+                {descuentoRegalos > 0 && <div className="flex justify-between text-red-600"><p>Descuento por regalos:</p><p>-{formatCurrency(descuentoRegalos)}</p></div>}
+                <div className="flex justify-between font-bold text-lg border-t pt-2"><p>TOTAL:</p><p>{formatCurrency(summaryData.total)}</p></div>
                 </div>
             </div>
             </CardContent>
