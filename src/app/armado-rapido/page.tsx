@@ -115,11 +115,12 @@ export default function ArmadoRapidoPage() {
         }
         
         // Prepare data for the summary page
-        const resumenData = {
+        const resumenData: any = {
             cliente: clienteNombre,
             invitados: `${numAdultos} Adultos, ${numJovenesYNinos} Jóvenes/Niños`,
             items: [],
             total: 0,
+            regalos: [],
             descuento: config?.descuentoGeneral || 0,
         };
 
@@ -166,8 +167,13 @@ export default function ArmadoRapidoPage() {
                         break;
                     default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
                 }
-                resumenData.items.push({ desc: `Servicio Adicional: ${servicio.nombre}`, total: formatCurrency(costoServicio) });
-                subtotal += costoServicio;
+
+                if (servicio.esRegalo) {
+                    resumenData.regalos.push({ desc: servicio.nombre, total: formatCurrency(costoServicio) });
+                } else {
+                    resumenData.items.push({ desc: `Servicio Adicional: ${servicio.nombre}`, total: formatCurrency(costoServicio) });
+                    subtotal += costoServicio;
+                }
             });
         }
         
@@ -210,12 +216,10 @@ export default function ArmadoRapidoPage() {
                        <CardContent className="space-y-6">
                            <div className="space-y-2">
                                 <Label className="font-semibold text-lg">1. Entradas (selecciona exactamente 2 opciones)</Label>
-                                <p className="text-sm text-muted-foreground">Cada opción se calculará para el total de adultos ({numAdultos}).</p>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                         <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); while(n.size > 2) { n.delete(n.values().next().value); } return n;})}}/>
                                         <Label htmlFor={`e-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
-                                        <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
                                     </div>
                                 ))}
                            </div>
@@ -227,7 +231,6 @@ export default function ArmadoRapidoPage() {
                                       <Label key={s.id} htmlFor={`pp-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                                           <RadioGroupItem value={s.id} id={`pp-${s.id}`} />
                                           <span className="flex-grow font-normal">{s.nombre}</span>
-                                          <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
                                       </Label>
                                   ))}
                                 </RadioGroup>
@@ -240,7 +243,6 @@ export default function ArmadoRapidoPage() {
                                         <Label key={s.id} htmlFor={`pi-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                                             <RadioGroupItem value={s.id} id={`pi-${s.id}`} />
                                             <span className="flex-grow font-normal">{s.nombre}</span>
-                                            <span className="text-sm font-medium">{formatCurrency(s.precioFijo)} c/u</span>
                                         </Label>
                                     ))}
                                  </RadioGroup>

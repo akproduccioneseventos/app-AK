@@ -20,6 +20,7 @@ export interface ServicioIncluidoArmadoRapido {
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
   invitadosPorUnidad?: number;
   tramosDePrecio?: TramoDePrecio[];
+  esRegalo?: boolean; // New field for gifts
 }
 
 // Un "Menu" ahora es solo una lista de servicios de catering categorizados.

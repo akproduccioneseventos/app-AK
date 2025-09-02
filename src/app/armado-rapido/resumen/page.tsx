@@ -5,7 +5,7 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, MessageSquare, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, Printer, MessageSquare, ClipboardCopy, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -17,8 +17,12 @@ const formatCurrency = (amount?: number) => {
 // Componente aislado para la vista imprimible del presupuesto
 const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>(({ summaryData }, ref) => {
   if (!summaryData) return null;
-  const totalDescuento = summaryData.total * (summaryData.descuento / 100);
-  const totalFinal = summaryData.total - totalDescuento;
+  const descuentoValor = summaryData.descuento || 0;
+  const realTotal = summaryData.total || 0;
+
+  // Lógica de "descuento falso"
+  const subtotalInflado = realTotal / (1 - descuentoValor / 100);
+  const montoDescuento = subtotalInflado - realTotal;
 
   return (
     <div ref={ref} className="bg-white">
@@ -49,11 +53,23 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
                 ))}
                 </tbody>
             </table>
+            
+            {summaryData.regalos && summaryData.regalos.length > 0 && (
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <h3 className="font-semibold text-green-700 flex items-center gap-2"><Gift className="w-5 h-5"/>¡Regalos Incluidos!</h3>
+                  <ul className="list-disc list-inside mt-2 text-sm text-green-600">
+                    {summaryData.regalos.map((regalo: any, index: number) => (
+                      <li key={index}>{regalo.desc} (Valor: {regalo.total})</li>
+                    ))}
+                  </ul>
+              </div>
+            )}
+            
             <div className="mt-6 flex justify-end">
                 <div className="w-full max-w-xs space-y-2">
-                <div className="flex justify-between"><p>Subtotal:</p><p>{formatCurrency(summaryData.total)}</p></div>
-                {summaryData.descuento > 0 && <div className="flex justify-between text-red-600"><p>Descuento ({summaryData.descuento}%):</p><p>-{formatCurrency(totalDescuento)}</p></div>}
-                <div className="flex justify-between font-bold text-lg border-t pt-2"><p>TOTAL:</p><p>{formatCurrency(totalFinal)}</p></div>
+                <div className="flex justify-between"><p>Subtotal:</p><p>{formatCurrency(subtotalInflado)}</p></div>
+                {descuentoValor > 0 && <div className="flex justify-between text-red-600"><p>Descuento Especial ({descuentoValor}%):</p><p>-{formatCurrency(montoDescuento)}</p></div>}
+                <div className="flex justify-between font-bold text-lg border-t pt-2"><p>TOTAL:</p><p>{formatCurrency(realTotal)}</p></div>
                 </div>
             </div>
             </CardContent>
@@ -96,11 +112,19 @@ function ResumenContent() {
 
   const handleShareWhatsApp = () => {
     if (!summaryData) return;
-    const link = window.location.href;
-    const message = `¡Hola! Te comparto el presupuesto que generé para el evento de ${summaryData.cliente}:\n\n${link}\n\nPodrás verlo en detalle y descargarlo en PDF desde allí.`;
+    // Generar un mensaje que incite al contacto, en lugar de compartir detalles complejos.
+    const message = `¡Hola! He generado un presupuesto para mi evento con AK Producciones a través de su sitio web. Me gustaría conversar sobre los detalles.\n\n*Cliente:* ${summaryData.cliente}\n*Invitados:* ${summaryData.invitados}\n*Total Estimado:* ${formatCurrency(summaryData.total)}\n\nPor favor, contáctenme. ¡Gracias!`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
+  
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Enlace Copiado",
+      description: "El enlace a esta página ha sido copiado.",
+    });
+  }
 
   if (!summaryData) {
     return <div>Cargando resumen...</div>;
@@ -111,7 +135,8 @@ function ResumenContent() {
       <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleShareWhatsApp}><MessageSquare className="mr-2"/>Compartir por WhatsApp</Button>
+            <Button variant="outline" onClick={handleCopyLink}><ClipboardCopy className="mr-2"/>Copiar Enlace</Button>
+            <Button onClick={handleShareWhatsApp} className="bg-green-500 hover:bg-green-600"><MessageSquare className="mr-2"/>Contactar por WhatsApp</Button>
             <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
          </div>
       </div>
