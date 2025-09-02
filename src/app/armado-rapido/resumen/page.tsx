@@ -5,7 +5,7 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, MessageSquare, ClipboardCopy, Gift } from 'lucide-react';
+import { ArrowLeft, Printer, MessageSquare, Share2, ClipboardCopy, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -89,7 +89,6 @@ function ResumenContent() {
   const router = useRouter();
   const { toast } = useToast();
   const [summaryData, setSummaryData] = useState<any | null>(null);
-  
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -110,20 +109,34 @@ function ResumenContent() {
     window.print();
   };
 
-  const handleShareWhatsApp = () => {
+  const handleContactWhatsApp = () => {
     if (!summaryData) return;
-    const message = `¡Hola! He generado un presupuesto para mi evento con AK Producciones a través de su sitio web y me gustaría conversar sobre los detalles. Puedes ver el resumen aquí: ${window.location.href}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const message = `¡Hola! He generado un presupuesto para mi evento con AK Producciones a través de su sitio web y me gustaría conversar sobre los detalles. Mi nombre es ${summaryData.cliente}.`;
+    const whatsappUrl = `https://wa.me/59898355530?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
   
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast({
-      title: "Enlace Copiado",
-      description: "El enlace a esta página ha sido copiado.",
-    });
-  }
+  const handleShare = async () => {
+    if (!summaryData) return;
+    const shareData = {
+      title: `Presupuesto para ${summaryData.cliente}`,
+      text: `¡Hola! Mira el presupuesto que armé para mi evento con AK Producciones.`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error("La API de compartir no está disponible.");
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
+  };
 
   if (!summaryData) {
     return <div>Cargando resumen...</div>;
@@ -133,9 +146,9 @@ function ResumenContent() {
     <div className="min-h-screen bg-gray-100 print:bg-white flex flex-col items-center py-8">
       <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
-         <div className="flex gap-2">
-            <Button variant="outline" onClick={handleCopyLink}><ClipboardCopy className="mr-2"/>Copiar Enlace</Button>
-            <Button onClick={handleShareWhatsApp} className="bg-green-500 hover:bg-green-600"><MessageSquare className="mr-2"/>Contactar por WhatsApp</Button>
+         <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Resumen</Button>
+            <Button onClick={handleContactWhatsApp} className="bg-green-500 hover:bg-green-600"><MessageSquare className="mr-2"/>Contactar por WhatsApp</Button>
             <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
          </div>
       </div>
