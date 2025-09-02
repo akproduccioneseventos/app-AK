@@ -172,7 +172,7 @@ export default function ArmadoRapidoPage() {
                 if (servicio.esRegalo) {
                     resumenData.regalos.push({ desc: servicio.nombre, total: formatCurrency(costoServicio) });
                 } else {
-                    resumenData.items.push({ desc: `Servicio Adicional: ${servicio.nombre}` });
+                    resumenData.items.push({ desc: servicio.nombre });
                     subtotal += costoServicio;
                 }
             });

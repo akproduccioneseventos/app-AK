@@ -28,7 +28,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
     <div ref={ref} className="bg-white">
         <Card className="w-full max-w-3xl shadow-lg print:shadow-none print:border-none">
             <CardHeader className="text-center p-6 bg-muted/30">
-            <Image src="https://placehold.co/150x80.png?text=AK+Logo" alt="Logo" width={120} height={64} className="mx-auto" data-ai-hint="company logo elegant"/>
+            <Image src="/logo.png" alt="Logo" width={120} height={64} className="mx-auto" data-ai-hint="company logo elegant"/>
             <CardTitle className="font-headline text-2xl mt-4">Presupuesto para Evento</CardTitle>
             <CardDescription>Generado desde Mi Presupuesto al Instante</CardDescription>
             </CardHeader>

@@ -1,6 +1,8 @@
 
 'use client';
 
+import React, { useState, type ChangeEvent, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UploadCloud, Palette, Save, ArrowLeft, Info, Image as ImageIconLucide, AlertTriangle, Loader2, FileText, Settings as SettingsIcon } from 'lucide-react';
 import NextImage from 'next/image'; 
-import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import React, { useState, type ChangeEvent, useEffect, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
 import type { InvoiceTemplateSettings } from '@/types/settings';
 import { defaultInvoiceTemplateSettings } from '@/types/settings';

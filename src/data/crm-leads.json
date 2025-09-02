@@ -1,5 +1,20 @@
 [
   {
+    "id": "lead_1756839730531_dxo98pq",
+    "name": "nicolas",
+    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Premium\"\nTipo: Evento desde Armado Rápido\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 0,00",
+    "currentStageId": "s1",
+    "createdAt": "2025-09-02T19:02:10.531Z",
+    "updatedAt": "2025-09-02T19:02:10.531Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-09-02T19:02:10.531Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1756839453991_91045e2",
     "name": "nicolas",
     "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 0,00",
@@ -315,17 +330,17 @@
     ]
   },
   {
-    "id": "lead_1756839730531_dxo98pq",
+    "id": "lead_1756853652095_iid8anh",
     "name": "nicolas",
-    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Premium\"\nTipo: Evento desde Armado Rápido\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 0,00",
+    "notes": "Generado desde Mi Presupuesto al Instante.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Presupuesto al Instante\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 0,00",
     "currentStageId": "s1",
-    "createdAt": "2025-09-02T19:02:10.531Z",
-    "updatedAt": "2025-09-02T19:02:10.531Z",
+    "createdAt": "2025-09-02T22:54:12.095Z",
+    "updatedAt": "2025-09-02T22:54:12.095Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
-        "timestamp": "2025-09-02T19:02:10.531Z"
+        "timestamp": "2025-09-02T22:54:12.095Z"
       }
     ]
   }
