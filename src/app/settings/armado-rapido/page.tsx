@@ -157,13 +157,13 @@ function AddOrEditDialog({
                             <Accordion type="multiple" className="space-y-2">
                               {(localItem.serviciosIncluidos || []).map(s => (
                                 <AccordionItem value={s.id} key={s.id} className="border rounded-md bg-background px-2">
-                                  <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                                    <div className="flex justify-between items-center w-full">
-                                      <Label htmlFor={`current-${s.id}`} className="cursor-pointer flex-grow text-left">{s.nombre}</Label>
-                                      <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()}/>
-                                    </div>
-                                  </AccordionTrigger>
-                                  <AccordionContent className="pt-2 pb-3 space-y-2">
+                                  <div className="flex justify-between items-center py-2">
+                                    <AccordionTrigger className="text-sm py-0 hover:no-underline flex-grow text-left">
+                                       {s.nombre}
+                                    </AccordionTrigger>
+                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()} className="ml-2"/>
+                                  </div>
+                                  <AccordionContent className="pt-2 pb-3 space-y-2 border-t mt-2">
                                     {mode === 'menu' ? (
                                         <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
                                             <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
