@@ -46,11 +46,9 @@ function ResumenContent() {
       url: window.location.href,
     };
     try {
-      // Use Web Share API if available (common on mobile)
-      if (navigator.share && navigator.canShare(shareData)) {
+      if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        // Fallback for desktop: copy link to clipboard
         await navigator.clipboard.writeText(window.location.href);
         toast({
           title: "Enlace Copiado",
