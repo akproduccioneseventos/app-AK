@@ -5,7 +5,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Share2, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, MessageSquare, ClipboardCopy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -38,7 +38,7 @@ function ResumenContent() {
     window.print();
   };
   
-  const handleShare = () => {
+  const handleCopyLink = () => {
     if (typeof window === 'undefined') return;
     navigator.clipboard.writeText(window.location.href).then(() => {
         toast({
@@ -68,7 +68,7 @@ function ResumenContent() {
       <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Presupuesto</Button>
+            <Button variant="outline" onClick={handleCopyLink}><ClipboardCopy className="mr-2"/>Copiar Enlace</Button>
             <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
          </div>
       </div>
