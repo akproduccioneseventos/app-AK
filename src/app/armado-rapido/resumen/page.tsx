@@ -91,20 +91,6 @@ function ResumenContent() {
     }
   }, [searchParams, router, toast]);
 
-  const handlePrint = () => {
-    window.print();
-  };
-  
-  const handleCopyToClipboard = () => {
-    if (typeof window !== 'undefined') {
-        navigator.clipboard.writeText(window.location.href);
-        toast({
-            title: "Enlace Copiado",
-            description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
-        });
-    }
-  };
-
   const whatsappLink = "https://wa.me/59898355530"; 
 
   if (!summaryData) {
@@ -115,10 +101,6 @@ function ResumenContent() {
     <div className="min-h-screen bg-gray-100 print:bg-white flex flex-col items-center py-8">
       <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
-         <div className="flex gap-2">
-            <Button variant="outline" onClick={handleCopyToClipboard}><ClipboardCopy className="mr-2"/>Copiar Enlace</Button>
-            <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
-         </div>
       </div>
       
       <div className="print-only-container">
