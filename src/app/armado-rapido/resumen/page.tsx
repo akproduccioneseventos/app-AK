@@ -37,9 +37,9 @@ function ResumenContent() {
   const handlePrint = () => {
     window.print();
   };
-
+  
   const handleShare = async () => {
-    if (!summaryData) return;
+    if (!summaryData || typeof window === 'undefined') return;
     const shareData = {
       title: `Presupuesto para ${summaryData.cliente}`,
       text: `¡Hola! Aquí tienes el resumen de tu presupuesto con AK Producciones.`,
@@ -126,7 +126,7 @@ function ResumenContent() {
           </div>
         </CardContent>
          <CardFooter className="flex-col items-center text-center p-6 bg-muted/30">
-            <p className="font-semibold text-lg">Hemos recibido tu solicitud. Un asesor se pondrá en contacto contigo a la brevedad.</p>
+            <p className="font-semibold text-lg">Hemos recibido tu solicitud. Un asesor de AK Producciones se pondrá en contacto contigo a la brevedad.</p>
             <p className="mt-2 text-primary font-bold">¡No pierdas esta oportunidad! PODÉS SEÑAR todos los servicios por SOLO $5,000 y acceder a la promoción especial y regalos exclusivos.</p>
             <p className="text-xs text-muted-foreground mt-2">Este presupuesto es válido por 30 días.</p>
              <div className="flex gap-4 mt-6 print:hidden">
