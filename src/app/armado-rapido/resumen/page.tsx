@@ -56,8 +56,9 @@ function ResumenContent() {
         });
       }
     } catch (error: any) {
-      // Don't show an error toast if the user cancels the share dialog
-      if (error.name !== 'AbortError') {
+      // Don't show an error toast if the user cancels or denies permission.
+      // 'AbortError' is for cancellation, 'NotAllowedError' is for permission denial.
+      if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
           console.error('Error sharing:', error);
           toast({
               title: "Error al Compartir",
@@ -147,3 +148,4 @@ export default function ResumenPage() {
         </Suspense>
     )
 }
+
