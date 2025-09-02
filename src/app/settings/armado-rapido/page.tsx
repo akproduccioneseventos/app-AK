@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -157,12 +157,14 @@ function AddOrEditDialog({
                             <Accordion type="multiple" className="space-y-2">
                               {(localItem.serviciosIncluidos || []).map(s => (
                                 <AccordionItem value={s.id} key={s.id} className="border rounded-md bg-background px-2">
-                                  <div className="flex justify-between items-center py-2">
-                                    <AccordionTrigger className="text-sm py-0 hover:no-underline flex-grow text-left">
-                                       {s.nombre}
-                                    </AccordionTrigger>
-                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()} className="ml-2"/>
-                                  </div>
+                                    <div className="flex justify-between items-center py-2">
+                                        <div className="flex items-center gap-2 flex-grow">
+                                             <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} onClick={e => e.stopPropagation()}/>
+                                            <AccordionTrigger className="text-sm py-0 hover:no-underline flex-grow text-left">
+                                            {s.nombre}
+                                            </AccordionTrigger>
+                                        </div>
+                                    </div>
                                   <AccordionContent className="pt-2 pb-3 space-y-2 border-t mt-2">
                                     {mode === 'menu' ? (
                                         <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
