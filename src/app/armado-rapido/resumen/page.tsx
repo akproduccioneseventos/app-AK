@@ -38,42 +38,21 @@ function ResumenContent() {
     window.print();
   };
   
-  const handleShare = async () => {
-    if (!summaryData || typeof window === 'undefined') return;
-    const shareData = {
-      title: `Presupuesto para ${summaryData.cliente}`,
-      text: `¡Hola! Aquí tienes el resumen de tu presupuesto con AK Producciones.`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error('Web Share API not supported');
-      }
-    } catch (error: any) {
-      // Fallback to copy link if share is not supported, or if user cancels/aborts.
-      // AbortError and NotAllowedError are common when user cancels.
-      if (error.name === 'AbortError' || error.name === 'NotAllowedError') {
-        // User canceled share, do nothing.
-      } else {
-        try {
-            await navigator.clipboard.writeText(window.location.href);
-            toast({
-            title: "Enlace Copiado",
-            description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
-            });
-        } catch (copyError) {
-            toast({
-                title: "Error al Compartir",
-                description: "No se pudo compartir ni copiar el enlace.",
-                variant: "destructive",
-            });
-        }
-      }
-    }
+  const handleShare = () => {
+    if (typeof window === 'undefined') return;
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        toast({
+        title: "Enlace Copiado",
+        description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
+        });
+    }).catch(() => {
+        toast({
+            title: "Error al Copiar",
+            description: "No se pudo copiar el enlace.",
+            variant: "destructive",
+        });
+    });
   };
-
 
   const whatsappLink = "https://wa.me/59898355530";
 
