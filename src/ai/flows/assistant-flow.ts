@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview The main AI assistant flow for conversational quoting.
@@ -115,14 +116,25 @@ export async function assistant(input: AssistantInput): Promise<AssistantOutput>
   if (toolCall) {
     const toolResult = await toolCall.run() as any;
     
-    // Instead of a second LLM call, directly construct the final response.
-    // This is more reliable and avoids the previous point of failure.
-    const finalOutput: AssistantOutput = {
-      response: toolResult.message || "No se pudo obtener un mensaje de resultado.",
-      presupuestoId: toolResult.success ? toolResult.presupuestoId : null,
-    };
+    // Generate a final, friendly response based on the tool's output message.
+    const finalResponse = await ai.generate({
+        prompt: `Basado en el resultado de la creación del presupuesto, que fue: ${JSON.stringify(toolResult)}, formula una respuesta final y amigable para el usuario. Usa únicamente el campo "message" como base para tu respuesta.`,
+        model: 'googleai/gemini-1.5-flash',
+        output: {
+            schema: AssistantOutputSchema,
+        }
+    });
+
+    const output = finalResponse.output;
+    if(!output) {
+      throw new Error("El asistente de IA no pudo generar una respuesta final después de usar la herramienta.");
+    }
     
-    return finalOutput;
+    if (toolResult.success && toolResult.presupuestoId) {
+        output.presupuestoId = toolResult.presupuestoId;
+    }
+
+    return output;
   }
   
   const output = llmResponse.output;
