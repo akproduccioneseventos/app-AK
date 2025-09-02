@@ -5,7 +5,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Share2, MessageSquare, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, Printer, MessageSquare, ClipboardCopy, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -38,21 +38,36 @@ function ResumenContent() {
     window.print();
   };
   
-  const handleCopyLink = () => {
+  const handleShare = async () => {
     if (typeof window === 'undefined') return;
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        toast({
-        title: "Enlace Copiado",
-        description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
-        });
-    }).catch(() => {
-        toast({
-            title: "Error al Copiar",
-            description: "No se pudo copiar el enlace.",
-            variant: "destructive",
-        });
-    });
+    const shareData = {
+      title: 'Presupuesto de Evento - AK Producciones',
+      text: '¡Mira el presupuesto que generé para mi evento!',
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+         await navigator.clipboard.writeText(window.location.href);
+         toast({
+            title: "Enlace Copiado",
+            description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
+         });
+      }
+    } catch (err: any) {
+        // This specifically ignores the user cancelling the share action
+        if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+             toast({
+                title: "Error al Compartir",
+                description: "No se pudo compartir el enlace. Fue copiado al portapapeles.",
+                variant: "destructive",
+            });
+            await navigator.clipboard.writeText(window.location.href);
+        }
+    }
   };
+
 
   const whatsappLink = "https://wa.me/59898355530";
 
@@ -68,7 +83,7 @@ function ResumenContent() {
       <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleCopyLink}><ClipboardCopy className="mr-2"/>Copiar Enlace</Button>
+            <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Presupuesto</Button>
             <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
          </div>
       </div>
