@@ -49,8 +49,10 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                 setIsLoading(false);
             });
         };
-        startConversation();
-    }, [toast]); // Empty dependency array ensures this runs only once on mount
+        if(isPage || isOpen){
+            startConversation();
+        }
+    }, [toast, isPage, isOpen]);
     
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -160,7 +162,7 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                                         </div>
                                     );
                                 })}
-                                {isLoading && (
+                                {isLoading && messages.length > 0 && (
                                     <div className="flex items-start gap-3">
                                         <Avatar className="h-6 w-6"><AvatarFallback>AK</AvatarFallback></Avatar>
                                         <div className="max-w-xs rounded-lg px-3 py-2 text-sm bg-muted flex items-center">
@@ -182,11 +184,6 @@ export function AkAssistant({ isPage = false }: { isPage?: boolean }) {
                     </motion.div>
                 )}
             </AnimatePresence>
-            {!isPage && !isOpen && (
-                 <Button onClick={() => setIsOpen(true)} className="rounded-full w-16 h-16 shadow-lg">
-                    <Bot className="h-8 w-8" />
-                </Button>
-            )}
         </div>
     );
 }
