@@ -110,7 +110,7 @@ export default function BudgetDisplaySettingsPage() {
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Armado Rápido</CardTitle>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Mi Presupuesto al Instante</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">

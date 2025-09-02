@@ -30,7 +30,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
             <CardHeader className="text-center p-6 bg-muted/30">
             <Image src="https://placehold.co/150x80.png?text=AK+Logo" alt="Logo" width={120} height={64} className="mx-auto" data-ai-hint="company logo elegant"/>
             <CardTitle className="font-headline text-2xl mt-4">Presupuesto para Evento</CardTitle>
-            <CardDescription>Generado por Armado Rápido</CardDescription>
+            <CardDescription>Generado desde Mi Presupuesto al Instante</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -41,14 +41,12 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
                 <thead>
                 <tr className="border-b">
                     <th className="text-left font-semibold py-2">Descripción</th>
-                    <th className="text-right font-semibold py-2">Total</th>
                 </tr>
                 </thead>
                 <tbody>
                 {summaryData.items.map((item: any, index: number) => (
                     <tr key={index} className="border-b">
                     <td className="py-2">{item.desc}</td>
-                    <td className="text-right py-2">{item.total}</td>
                     </tr>
                 ))}
                 </tbody>
@@ -120,17 +118,17 @@ function ResumenContent() {
     if (!summaryData) return;
     const shareData = {
       title: `Presupuesto para ${summaryData.cliente}`,
-      text: `¡Hola! Mira el presupuesto que armé para mi evento con AK Producciones.`,
+      text: `¡Hola! Mira el presupuesto que armé para mi evento con AK Producciones: ${window.location.href}`,
       url: window.location.href,
     };
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        throw new Error("La API de compartir no está disponible.");
+        throw new Error("La API para compartir no está disponible en este navegador.");
       }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
+       navigator.clipboard.writeText(shareData.url);
       toast({
         title: "Enlace Copiado",
         description: "El enlace a esta página ha sido copiado a tu portapapeles.",
@@ -138,13 +136,14 @@ function ResumenContent() {
     }
   };
 
+
   if (!summaryData) {
     return <div>Cargando resumen...</div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100 print:bg-white flex flex-col items-center py-8">
-      <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4">
+      <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4 flex-wrap">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Presupuesto</Button>

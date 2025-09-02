@@ -138,7 +138,7 @@ export default function DashboardPage() {
 
           <Card className="p-4 flex flex-col justify-between">
             <div>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>Armado Rápido</CardTitle>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>Mi Presupuesto al Instante</CardTitle>
               <CardDescription className="text-sm mt-1 mb-3">El cliente elige un paquete predefinido y obtiene una cotización al instante.</CardDescription>
             </div>
              <div className="flex gap-2">
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                 </Link>
               <ShareLinkDialog
                   link={armadoRapidoLink}
-                  title="Compartir Armado Rápido"
+                  title="Compartir Mi Presupuesto al Instante"
                   description="Copia este enlace para que tu cliente cree un presupuesto rápido."
               >
                   <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>

@@ -58,7 +58,7 @@ export async function generateLeadFromQuickBudget(
   data: LeadGenerationData
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
-    let notes = `Generado desde Armado Rápido.\nMenú: "${data.nombreMenu}"\nPaquete de Servicios: "${data.nombrePaquete}"`;
+    let notes = `Generado desde Mi Presupuesto al Instante.\nMenú: "${data.nombreMenu}"\nPaquete de Servicios: "${data.nombrePaquete}"`;
     notes += `\nTipo: ${data.tipoEvento}\nInvitados: ${data.cantidadInvitados}\nSalón: ${data.salon}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
     
     const leadResult = await addCrmLead({

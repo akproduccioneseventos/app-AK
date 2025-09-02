@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -101,7 +102,7 @@ export default function ArmadoRapidoPage() {
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual?.nombre || 'Sin paquete',
             nombreMenu: 'Catering Personalizado',
-            tipoEvento: 'Evento desde Armado Rápido',
+            tipoEvento: 'Evento desde Presupuesto al Instante',
             cantidadInvitados: numAdultos + numJovenesYNinos,
             costoEstimado: 0, // Placeholder
             clienteNombre: clienteNombre || 'Prospecto Web',
@@ -133,18 +134,18 @@ export default function ArmadoRapidoPage() {
         entradas.forEach(item => {
             if (!item) return;
             const itemTotal = item.precioFijo * numAdultos;
-            resumenData.items.push({ desc: `Entrada: ${item.nombre}`, total: formatCurrency(itemTotal) });
+            resumenData.items.push({ desc: `Entrada: ${item.nombre}` });
             subtotal += itemTotal;
         });
 
         if (platoPrincipal) {
             const itemTotal = platoPrincipal.precioFijo * numAdultos;
-            resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}`, total: formatCurrency(itemTotal) });
+            resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}` });
             subtotal += itemTotal;
         }
         if (menuInfantil && numJovenesYNinos > 0) {
             const itemTotal = menuInfantil.precioFijo * numJovenesYNinos;
-            resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}`, total: formatCurrency(itemTotal) });
+            resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}` });
             subtotal += itemTotal;
         }
 
@@ -171,7 +172,7 @@ export default function ArmadoRapidoPage() {
                 if (servicio.esRegalo) {
                     resumenData.regalos.push({ desc: servicio.nombre, total: formatCurrency(costoServicio) });
                 } else {
-                    resumenData.items.push({ desc: `Servicio Adicional: ${servicio.nombre}`, total: formatCurrency(costoServicio) });
+                    resumenData.items.push({ desc: `Servicio Adicional: ${servicio.nombre}` });
                     subtotal += costoServicio;
                 }
             });
@@ -301,7 +302,7 @@ export default function ArmadoRapidoPage() {
           <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
               <header className="fixed top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm z-10">
                   <div className="flex justify-between items-center max-w-5xl mx-auto">
-                      <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Armado Rápido de Presupuesto</h1></div>
+                      <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Mi Presupuesto al Instante</h1></div>
                       <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
                   </div>
               </header>

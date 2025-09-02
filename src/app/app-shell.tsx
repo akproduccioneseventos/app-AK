@@ -103,7 +103,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
-  if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
+  if (pathname === '/armado-rapido') return 'Mi Presupuesto al Instante';
   if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
 
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
@@ -291,7 +291,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
-      
+      {pathname !== '/portal' && <AkAssistant />}
     </div>
   );
 }
