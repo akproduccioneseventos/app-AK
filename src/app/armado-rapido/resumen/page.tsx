@@ -56,8 +56,7 @@ function ResumenContent() {
         });
       }
     } catch (error: any) {
-      // Don't show an error toast if the user cancels or denies permission.
-      // 'AbortError' is for cancellation, 'NotAllowedError' is for permission denial.
+      // Ignore user cancellation errors
       if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
           console.error('Error sharing:', error);
           toast({
@@ -148,4 +147,3 @@ export default function ResumenPage() {
         </Suspense>
     )
 }
-
