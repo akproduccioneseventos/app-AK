@@ -49,20 +49,23 @@ function ResumenContent() {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
+        // Fallback for browsers that don't support navigator.share
+        throw new Error('Web Share API not supported');
+      }
+    } catch (error: any) {
+       // This block will be entered if navigator.share is not supported,
+       // or if the user cancels the share dialog (NotAllowedError, AbortError)
+      try {
         await navigator.clipboard.writeText(window.location.href);
         toast({
           title: "Enlace Copiado",
           description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
         });
-      }
-    } catch (error: any) {
-      // Ignore user cancellation errors
-      if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
-          console.error('Error sharing:', error);
-          toast({
-              title: "Error al Compartir",
-              description: "No se pudo compartir el enlace. Intenta copiarlo manualmente.",
-              variant: "destructive",
+      } catch(copyError) {
+         toast({
+            title: "Error al Compartir",
+            description: "No se pudo compartir ni copiar el enlace.",
+            variant: "destructive",
           });
       }
     }
