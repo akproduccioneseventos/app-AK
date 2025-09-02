@@ -73,6 +73,8 @@ function ResumenContent() {
   const router = useRouter();
   const { toast } = useToast();
   const [summaryData, setSummaryData] = useState<any | null>(null);
+  
+  // Ref para el contenido que se imprimirá
   const printRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -94,11 +96,13 @@ function ResumenContent() {
   };
   
   const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast({
-        title: "Enlace Copiado",
-        description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
-    });
+    if (typeof window !== 'undefined') {
+        navigator.clipboard.writeText(window.location.href);
+        toast({
+            title: "Enlace Copiado",
+            description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
+        });
+    }
   };
 
   const whatsappLink = "https://wa.me/59898355530"; 
@@ -147,12 +151,6 @@ function ResumenContent() {
         }
         @media screen {
             .print-only-container > div {
-                display: none;
-            }
-            .min-h-screen.bg-gray-100 .print-only-container {
-                 display: block;
-            }
-             .min-h-screen.bg-gray-100 .print-only-container > div {
                 display: block;
             }
         }
