@@ -38,32 +38,35 @@ function ResumenContent() {
     window.print();
   };
 
-  const generateWhatsAppText = () => {
-    if (!summaryData) return '';
-    let text = `¡Hola! Aquí tienes un resumen de tu presupuesto con AK Producciones:\n\n`;
-    text += `*Cliente:* ${summaryData.cliente}\n`;
-    text += `*Invitados:* ${summaryData.invitados}\n\n`;
-    text += `*Detalle:*\n`;
-    summaryData.items.forEach((item: any) => {
-      text += `• ${item.desc}: ${item.total}\n`;
-    });
-    const totalDescuento = summaryData.total * (summaryData.descuento / 100);
-    const totalFinal = summaryData.total - totalDescuento;
-    text += `\n*SUBTOTAL:* ${formatCurrency(summaryData.total)}\n`;
-    if(summaryData.descuento > 0){
-       text += `*Descuento (${summaryData.descuento}%):* -${formatCurrency(totalDescuento)}\n`;
+  const handleShare = async () => {
+    if (!summaryData) return;
+    const shareData = {
+      title: `Presupuesto para ${summaryData.cliente}`,
+      text: `¡Hola! Aquí tienes el resumen de tu presupuesto con AK Producciones.`,
+      url: window.location.href,
+    };
+    try {
+      // Use Web Share API if available (common on mobile)
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback for desktop: copy link to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Enlace Copiado",
+          description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast({
+        title: "Error al Compartir",
+        description: "No se pudo compartir el enlace. Intenta copiarlo manualmente.",
+        variant: "destructive",
+      });
     }
-    text += `*TOTAL FINAL:* *${formatCurrency(totalFinal)}*\n\n`;
-    text += `¡No pierdas esta oportunidad! PODÉS SEÑAR todos los servicios por SOLO $5,000 y acceder a la promoción especial y regalos exclusivos. Este presupuesto es válido por 30 días.\n\n`;
-    text += `¡Contacta a un asesor para confirmar!`;
-    return text;
   };
 
-  const handleShare = () => {
-    const text = generateWhatsAppText();
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(whatsappUrl, '_blank');
-  };
 
   const whatsappLink = "https://wa.me/59898355530";
 
@@ -79,7 +82,7 @@ function ResumenContent() {
       <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir</Button>
+            <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Presupuesto</Button>
             <Button onClick={handlePrint}><Printer className="mr-2"/>Descargar PDF</Button>
          </div>
       </div>
