@@ -55,13 +55,16 @@ function ResumenContent() {
           description: "El enlace al presupuesto ha sido copiado a tu portapapeles.",
         });
       }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      toast({
-        title: "Error al Compartir",
-        description: "No se pudo compartir el enlace. Intenta copiarlo manualmente.",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      // Don't show an error toast if the user cancels the share dialog
+      if (error.name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          toast({
+              title: "Error al Compartir",
+              description: "No se pudo compartir el enlace. Intenta copiarlo manualmente.",
+              variant: "destructive",
+          });
+      }
     }
   };
 
