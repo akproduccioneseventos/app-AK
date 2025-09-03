@@ -184,7 +184,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 100
+    "precioVenta": 150
   },
   {
     "id": "serv_1752489600023_asadocom",
@@ -247,14 +247,14 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 350
+    "precioVenta": 390
   },
   {
     "id": "serv_cerdo_relleno",
     "nombre": "Cerdo relleno c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "precioVenta": 300
+    "precioVenta": 380
   },
   {
     "id": "serv_1752489600006_chivit",
@@ -263,7 +263,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 300
+    "precioVenta": 350
   },
   {
     "id": "serv_1752489600022_cordero",
@@ -281,21 +281,14 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 150
-  },
-  {
-    "id": "serv_picada_fiambres",
-    "nombre": "Entrada: Picada de fiambres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 120
+    "precioVenta": 200
   },
   {
     "id": "serv_sandwiches_saladitos",
     "nombre": "Entrada: Sándwiches y Saladitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "precioVenta": 200
+    "precioVenta": 220
   },
   {
     "id": "serv_1752489600025_faina",
@@ -313,7 +306,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 270
+    "precioVenta": 280
   },
   {
     "id": "serv_1752489600030_kebabs",
@@ -417,7 +410,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 210
+    "precioVenta": 200
   },
   {
     "id": "serv_1752489600034_minichiv",
@@ -435,7 +428,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 380
+    "precioVenta": 420
   },
   {
     "id": "serv_1752489600009_noquis",
@@ -444,7 +437,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 350
+    "precioVenta": 390
   },
   {
     "id": "serv_1752489600017_paella",
@@ -462,7 +455,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 210
+    "precioVenta": 220
   },
   {
     "id": "serv_1752489600041_piccrio",
@@ -471,7 +464,14 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 210
+    "precioVenta": 220
+  },
+  {
+    "id": "serv_picada_fiambres",
+    "nombre": "Picada de fiambres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 120
   },
   {
     "id": "serv_1752489600042_picmar",
@@ -498,7 +498,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 120
+    "precioVenta": 150
   },
   {
     "id": "serv_1752489600035_pizzemp",
@@ -516,7 +516,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 120
+    "precioVenta": 150
   },
   {
     "id": "serv_1752489600007_pollarr",
@@ -525,7 +525,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 380
+    "precioVenta": 390
   },
   {
     "id": "serv_1752489600010_raviol",
@@ -534,7 +534,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 350
+    "precioVenta": 390
   },
   {
     "id": "serv_1752489600032_salpoll",
@@ -568,7 +568,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Show de Pizzas",
     "unidad": "Por persona",
-    "precioVenta": 329
+    "precioVenta": 190
   },
   {
     "id": "serv_1752489600058_showpizarr",
@@ -667,7 +667,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 400
+    "precioVenta": 420
   },
   {
     "id": "serv_1752489600019_strogon",
@@ -676,7 +676,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Platos Principales",
     "unidad": "Por persona",
-    "precioVenta": 400
+    "precioVenta": 420
   },
   {
     "id": "serv_1752489600045_shushi",
@@ -712,7 +712,7 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entradas",
     "unidad": "Por persona",
-    "precioVenta": 200
+    "precioVenta": 240
   },
   {
     "id": "serv_1752489600026_tapsab",

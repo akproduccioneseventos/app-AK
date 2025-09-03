@@ -15,7 +15,7 @@
         {
           "id": "serv_1752489600007_pollarr",
           "nombre": "Pollo arrollado c/ guarnición",
-          "precioFijo": "380",
+          "precioFijo": "390",
           "categoria": "Plato Principal"
         },
         {
@@ -33,13 +33,13 @@
         {
           "id": "serv_1752489600028_picsna",
           "nombre": "Picada Snack",
-          "precioFijo": 120,
+          "precioFijo": "150",
           "categoria": "Entrada"
         },
         {
           "id": "serv_1752489600010_raviol",
           "nombre": "Ravioles a la crema",
-          "precioFijo": 350,
+          "precioFijo": "390",
           "categoria": "Plato Principal"
         },
         {
@@ -49,37 +49,16 @@
           "categoria": "Menú Adolescente / Niño"
         },
         {
-          "id": "serv_1752489600038_arepven",
-          "nombre": "Arepas venezolanas",
-          "precioFijo": 200,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600014_bauru",
-          "nombre": "Bauru c/ fritas",
-          "precioFijo": 390,
-          "categoria": "Plato Principal",
-          "esRegalo": false
-        },
-        {
           "id": "serv_sandwiches_saladitos",
-          "nombre": "Entrada: Sándwiches y Saladitos",
-          "precioFijo": 200,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_picada_fiambres",
-          "nombre": "Entrada: Picada de fiambres",
-          "precioFijo": 120,
+          "nombre": "Sandwiches y Saladitos",
+          "precioFijo": "220",
           "categoria": "Entrada",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600033_empcas",
           "nombre": "Empanadas caseras",
-          "precioFijo": 150,
+          "precioFijo": "200",
           "categoria": "Entrada",
           "esRegalo": false
         },
@@ -87,62 +66,48 @@
           "id": "serv_1752489600022_cordero",
           "nombre": "Cordero Asado c/ guarnición",
           "precioFijo": 560,
-          "categoria": "Entrada",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600006_chivit",
           "nombre": "Chivito completo c/ fritas",
-          "precioFijo": 300,
-          "categoria": "Entrada",
+          "precioFijo": "350",
+          "categoria": "Menú Adolescente / Niño",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600005_hambur",
           "nombre": "Hamburguesa completa c/ fritas",
-          "precioFijo": 270,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600030_kebabs",
-          "nombre": "Kebabs",
-          "precioFijo": 130,
-          "categoria": "Entrada",
+          "precioFijo": "280",
+          "categoria": "Menú Adolescente / Niño",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600015_napoli",
           "nombre": "Napolitana c/ fritas",
-          "precioFijo": 380,
-          "categoria": "Entrada",
+          "precioFijo": "420",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600039_minibro",
           "nombre": "Mini brochetas",
-          "precioFijo": 210,
+          "precioFijo": "200",
           "categoria": "Entrada",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600009_noquis",
           "nombre": "Ñoquis al queso",
-          "precioFijo": 350,
-          "categoria": "Entrada",
+          "precioFijo": "390",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600040_piccal",
           "nombre": "Picada caliente",
-          "precioFijo": 210,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600041_piccrio",
-          "nombre": "Picada Criolla",
-          "precioFijo": 210,
+          "precioFijo": "220",
           "categoria": "Entrada",
           "esRegalo": false
         },
@@ -156,7 +121,7 @@
         {
           "id": "serv_1752489600029_plancal",
           "nombre": "Planchas calientes",
-          "precioFijo": 120,
+          "precioFijo": "150",
           "categoria": "Entrada",
           "esRegalo": false
         },
@@ -168,51 +133,37 @@
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600044_sansal",
-          "nombre": "Sandwiches y Saladitos",
-          "precioFijo": 220,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
           "id": "serv_1752489600056_showpiz",
           "nombre": "Show de pizzas",
-          "precioFijo": 329,
+          "precioFijo": "190",
           "categoria": "Entrada",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600013_sorren",
           "nombre": "Sorrentinos con salsa rosa",
-          "precioFijo": 400,
-          "categoria": "Entrada",
+          "precioFijo": "420",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600019_strogon",
           "nombre": "Strogonoff de pollo c/ fritas",
-          "precioFijo": 400,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600046_tabgour",
-          "nombre": "Tabla gourmet de fiambre",
-          "precioFijo": 280,
-          "categoria": "Entrada",
+          "precioFijo": "420",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600037_tacmex",
           "nombre": "Tacos mexicanos",
-          "precioFijo": 200,
+          "precioFijo": "240",
           "categoria": "Entrada",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600027_arrprim",
           "nombre": "Arrolladitos primavera",
-          "precioFijo": 100,
+          "precioFijo": "150",
           "categoria": "Entrada",
           "esRegalo": false
         },
@@ -220,7 +171,7 @@
           "id": "serv_1752489600021_bifech",
           "nombre": "Bife al champiñón c/ guarnición",
           "precioFijo": 480,
-          "categoria": "Entrada",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
@@ -233,15 +184,15 @@
         {
           "id": "serv_1752489600011_cerdmos",
           "nombre": "Cerdo a la mostaza c/ guarnición",
-          "precioFijo": 350,
-          "categoria": "Entrada",
+          "precioFijo": "390",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
           "id": "serv_cerdo_relleno",
           "nombre": "Cerdo relleno c/ guarnición",
-          "precioFijo": 300,
-          "categoria": "Entrada",
+          "precioFijo": "380",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
@@ -249,6 +200,13 @@
           "nombre": "Mini Chivitos",
           "precioFijo": 180,
           "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600045_shushi",
+          "nombre": "Sushi",
+          "precioFijo": 250,
+          "categoria": "Entradas",
           "esRegalo": false
         }
       ]

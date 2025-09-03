@@ -139,9 +139,9 @@ function AddNewServiceDialog({
           <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Base*</Label><Input id="new-serv-price" type="number" value={precioVenta} onChange={e => setPrecioVenta(e.target.value)} /></div>
           <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría*</Label>
           {serviceType === 'catering' ? (
-            <Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select>
+            <Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue placeholder="Seleccionar subcategoría..." /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select>
           ) : (
-             <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
+             <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría existente..."/></SelectTrigger><SelectContent>{existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
           )}
           </div>
         </div>
@@ -198,7 +198,6 @@ function AddOrEditDialog({
             return acc;
         }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
         
-        // Sort items within each category alphabetically
         for (const category in grouped) {
             grouped[category].sort((a, b) => a.nombre.localeCompare(b.nombre));
         }
@@ -222,8 +221,8 @@ function AddOrEditDialog({
         setModifiedServices(prev => new Map(prev).set(service.id, service));
     };
 
-    const handleToggleService = (service: ServicioEmpresa) => {
-        if (!service) return; // Guard against undefined service
+    const handleToggleService = (service: ServicioEmpresa | undefined) => {
+        if (!service) return;
         setLocalItem(prev => {
             if (!prev) return null;
             const currentServices = prev.serviciosIncluidos || [];
@@ -258,7 +257,7 @@ function AddOrEditDialog({
           if (s.id !== serviceId) return s;
           
           const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-          if(!catalogService) return s; // Should not happen
+          if(!catalogService) return s;
           
           const updatedService = { ...s, [field]: value };
           
