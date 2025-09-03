@@ -77,7 +77,7 @@ function AddOrEditDialog({
     isOpen,
     onOpenChange,
     onSave,
-    item,
+    item: initialItem,
     vendibleServices: initialVendibleServices,
     mode,
 }: {
@@ -88,16 +88,16 @@ function AddOrEditDialog({
     vendibleServices: ServicioEmpresa[];
     mode: 'menu' | 'paquete';
 }) {
-    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(item);
+    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(initialItem);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
     const [modifiedServices, setModifiedServices] = useState<Map<string, ServicioEmpresa>>(new Map());
     const sensors = useSensors(useSensor(PointerSensor));
 
     useEffect(() => {
-        setLocalItem(item);
+        setLocalItem(initialItem);
         setModifiedServices(new Map()); // Reset modifications when item changes
-    }, [item]);
+    }, [initialItem]);
     
     const groupedAndSortedServices = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos || mode !== 'menu') {
@@ -180,7 +180,7 @@ function AddOrEditDialog({
               const serviceToUpdateInCatalog = { ...catalogService, nombre: value };
               trackModification(serviceToUpdateInCatalog);
           }
-           if (field === 'precioFijo' || field === 'precioBase' || field === 'precioPorPersona') {
+           if (field === 'precioBase' || field === 'precioPorPersona') {
               const serviceToUpdateInCatalog = { ...catalogService, precioVenta: Number(value) || 0 };
               trackModification(serviceToUpdateInCatalog);
            }
@@ -319,7 +319,9 @@ function AddOrEditDialog({
                                                             <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                             </SelectContent>
                                                         </Select>
-                                                         {s.calculationMethod === 'fijo' && ( <div className="text-sm p-2 bg-gray-50 rounded-md"> El precio fijo del servicio es <strong>{formatCurrency(s.precioFijo)}</strong>. </div> )}
+                                                         {s.calculationMethod === 'fijo' && (
+                                                            <div className="text-sm p-2 bg-gray-50 rounded-md"> El precio de este servicio es <strong>{formatCurrency(s.precioBase)}</strong>. </div>
+                                                         )}
                                                          {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                                          {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/></div> )}
                                                          {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs"/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
@@ -567,3 +569,5 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
+
+    
