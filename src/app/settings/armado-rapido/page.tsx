@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -21,7 +20,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,7 +96,7 @@ function AddOrEditDialog({
     const handleServiceDetailChange = (
       serviceId: string, 
       field: keyof ServicioIncluidoArmadoRapido, 
-      value: string | number | boolean
+      value: string | number | boolean | TramoDePrecio[] | undefined
     ) => {
       setLocalItem(prev => {
         if (!prev) return null;
@@ -128,6 +127,24 @@ function AddOrEditDialog({
         }
       })
     };
+    
+    const handleTramoChange = (serviceId: string, tramoIndex: number, field: 'desde' | 'hasta' | 'precio', value: string) => {
+      handleServiceDetailChange(serviceId, 'tramosDePrecio', localItem.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio?.map((tramo, index) => {
+        if (index !== tramoIndex) return tramo;
+        return { ...tramo, [field]: Number(value) || 0 };
+      }));
+    };
+    
+    const addTramo = (serviceId: string) => {
+      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0 };
+      const currentTramos = localItem.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
+      handleServiceDetailChange(serviceId, 'tramosDePrecio', [...currentTramos, newTramo]);
+    };
+    
+    const removeTramo = (serviceId: string, tramoId: string) => {
+        const currentTramos = localItem.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
+        handleServiceDetailChange(serviceId, 'tramosDePrecio', currentTramos.filter(t => t.id !== tramoId));
+    };
 
 
     const handleCategoryChange = (serviceId: string, newCategory: ServicioCategoriaArmadoRapido) => {
@@ -150,12 +167,10 @@ function AddOrEditDialog({
                     {/* Columna Izquierda: Detalles y Servicios Incluidos */}
                     <div className="flex flex-col gap-4 min-h-0">
                       {mode === 'paquete' && (
-                        <>
                           <div className="space-y-1">
                               <Label>Nombre del Paquete</Label>
                               <Input value={localItem.nombre} onChange={e => setLocalItem(p => p ? { ...p, nombre: e.target.value } : null)} />
                           </div>
-                        </>
                       )}
                       <div className="space-y-1 flex-grow flex flex-col min-h-0">
                         <Label>Servicios Incluidos en este {mode === 'menu' ? 'Menú' : 'Paquete'}</Label>
@@ -176,10 +191,13 @@ function AddOrEditDialog({
                                   </div>
                                   <CollapsibleContent className="pt-3 mt-2 border-t space-y-3 px-1 pb-2">
                                       {mode === 'menu' ? (
-                                          <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
-                                              <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                              <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
-                                          </Select>
+                                        <>
+                                            <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
+                                                <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                                <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                             <Input type="number" placeholder="Precio Fijo por Persona" value={s.precioFijo || 0} onChange={e => handleServiceDetailChange(s.id, 'precioFijo', e.target.value)} className="h-8 text-xs"/>
+                                        </>
                                       ) : (
                                           <div className="space-y-2">
                                             <div className="flex items-center space-x-2 pt-1">
@@ -199,9 +217,14 @@ function AddOrEditDialog({
                                               {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                               {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                               {s.calculationMethod === 'ratio' && (
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>
-                                                    <Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>
+                                                <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/></div>
+                                              )}
+                                              {s.calculationMethod === 'tramos' && (
+                                                <div className="space-y-2">
+                                                    {(s.tramosDePrecio || []).map((tramo, idx) => (
+                                                        <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs"/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div>
+                                                    ))}
+                                                    <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button>
                                                 </div>
                                               )}
                                           </div>
