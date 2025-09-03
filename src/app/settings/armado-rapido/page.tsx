@@ -75,10 +75,12 @@ function SortableServiceItem({ service, children }: { service: ServicioIncluidoA
 
 function AddNewServiceDialog({
   onServiceCreated,
-  serviceType
+  serviceType,
+  existingCategories = []
 }: { 
   onServiceCreated: (newService: ServicioEmpresa) => void,
-  serviceType: 'catering' | 'general'
+  serviceType: 'catering' | 'general',
+  existingCategories?: string[]
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [nombre, setNombre] = useState('');
@@ -88,8 +90,8 @@ function AddNewServiceDialog({
   const { toast } = useToast();
 
   const handleSaveNewService = async () => {
-    if (!nombre.trim() || !precioVenta.trim()) {
-      toast({ title: "Datos incompletos", variant: "destructive" });
+    if (!nombre.trim() || !precioVenta.trim() || !categoria.trim()) {
+      toast({ title: "Datos incompletos", description: "Nombre, precio y categoría son obligatorios.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
@@ -137,7 +139,7 @@ function AddNewServiceDialog({
           {serviceType === 'catering' ? (
             <Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select>
           ) : (
-            <Input value={categoria} onChange={e => setCategoria(e.target.value as CategoriaServicio)} placeholder="Ej: Decoración, Sonido"/>
+             <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
           )}
           </div>
         </div>
@@ -421,7 +423,7 @@ function AddOrEditDialog({
                                                 {groupedAndSortedServices[categoryName].map(s => (
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
-                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id))} />
+                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id)!)} />
                                                             <div className="flex-grow">
                                                                 <Input 
                                                                     value={s.nombre} 
@@ -458,7 +460,11 @@ function AddOrEditDialog({
                     <div className="flex flex-col gap-2 min-h-0">
                         <Label>Catálogo de Servicios Vendibles</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
-                        <AddNewServiceDialog onServiceCreated={onServiceCreated} serviceType={mode === 'menu' ? 'catering' : 'general'}/>
+                        <AddNewServiceDialog 
+                          onServiceCreated={onServiceCreated} 
+                          serviceType={mode === 'menu' ? 'catering' : 'general'}
+                          existingCategories={mode === 'general' ? Array.from(new Set(initialVendibleServices.map(s => s.categoria))) : []}
+                        />
                         <ScrollArea className="h-full border rounded-md p-2">
                           {initialVendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => {
                             if (s.precioVenta === undefined || s.precioVenta <= 0) return null;
