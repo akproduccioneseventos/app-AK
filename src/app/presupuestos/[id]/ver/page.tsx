@@ -56,7 +56,7 @@ const COMPANY_LOGO_AI_HINT_PDF = "company logo AK circle red";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
 
-export default function VerPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function VerPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id as string;
@@ -277,7 +277,9 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
           <section className="mb-6 print:mb-3">
             {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                 <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
-                    <h3 className="font-bold text-sm mb-1 bg-gray-100 p-1 print:text-[8pt]">{categoria}</h3>
+                    <h3 className={`font-bold text-sm mb-1 p-1 print:text-[8pt] ${categoria === 'Regalos Incluidos' ? 'bg-red-100 text-red-800' : 'bg-gray-100'}`}>
+                        {categoria === 'Regalos Incluidos' ? <span className="flex items-center gap-1"><Gift className="w-4 h-4"/>{categoria}</span> : categoria}
+                      </h3>
                     <table className="w-full text-xs print:text-[7pt] border-collapse">
                         <thead className="print:bg-gray-100">
                         <tr>
@@ -292,8 +294,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                             <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.precioUnitario, false)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.costoTotalItem, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
                             </tr>
                         ))}
                         </tbody>
@@ -312,8 +314,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
             <div className="flex justify-between"><span>Subtotal Bruto:</span><span>{formatCurrency(subtotalBruto)}</span></div>
-            {descuentoPromocional > 0 && <div className="flex justify-between text-red-600"><span>Descuento Promocional:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}
             {costoTotalRegalos > 0 && <div className="flex justify-between text-red-600"><span>Ahorro por Regalos:</span><span>-{formatCurrency(costoTotalRegalos)}</span></div>}
+            {descuentoPromocional > 0 && <div className="flex justify-between text-red-600"><span>Descuento Promocional:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}
             <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500"><span className="text-base">TOTAL A PAGAR:</span><span className="text-base">{formatCurrency(totalFinal)}</span></div>
           </div>
         </section>

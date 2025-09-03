@@ -274,19 +274,19 @@
               "id": "tramo_1756927049912",
               "desde": 1,
               "hasta": 80,
-              "precio": 0
+              "precio": 9000
             },
             {
               "id": "tramo_1756927091333",
               "desde": 81,
               "hasta": 130,
-              "precio": 0
+              "precio": 15000
             },
             {
               "id": "tramo_1756927105655",
               "desde": 131,
               "hasta": 250,
-              "precio": 0
+              "precio": 2500
             }
           ]
         },

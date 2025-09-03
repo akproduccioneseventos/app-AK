@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
-import { Separator } from '../ui/separator'; 
+import { Separator } from '@/components/ui/separator'; 
 
 // Company Info Constants from PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
@@ -273,7 +273,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
             <section className="mb-4 print:mb-2">
               {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                   <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
-                      <h3 className={`font-bold text-sm mb-1 p-1 print:text-[8pt] ${categoria === 'Regalos Incluidos' ? 'bg-green-100 text-green-800' : 'bg-gray-100'}`}>
+                      <h3 className={`font-bold text-sm mb-1 p-1 print:text-[8pt] ${categoria === 'Regalos Incluidos' ? 'bg-red-100 text-red-800' : 'bg-gray-100'}`}>
                         {categoria === 'Regalos Incluidos' ? <span className="flex items-center gap-1"><Gift className="w-4 h-4"/>{categoria}</span> : categoria}
                       </h3>
                       <table className="w-full text-xs print:text-[7pt] border-collapse">
