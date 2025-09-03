@@ -1,0 +1,479 @@
+{
+  "id": "fiesta_1756924717109",
+  "configuracion": {
+    "nombreEvento": "Mi Próximo Evento Increíble",
+    "tipoCelebracion": "Cumpleaños",
+    "fechaEvento": "2026-09-03T00:00:00.000Z",
+    "horaInicio": "19:00",
+    "horaFin": "02:00",
+    "nombreLugar": "Salón de Ensueño",
+    "invitadosEstimados": 50,
+    "presupuestoEstimado": 100000,
+    "notasAdicionales": "Planificación inicial."
+  },
+  "personalAsignado": [],
+  "invoiceIds": [],
+  "reuniones": [],
+  "tareas": [
+    {
+      "texto": "Definir lista de invitados",
+      "completada": false,
+      "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_3tsrulr"
+    },
+    {
+      "texto": "Seleccionar catering y menú",
+      "completada": false,
+      "descripcion": "Contactar proveedores de catering, degustar opciones y definir el menú.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_z5gwp9a"
+    },
+    {
+      "texto": "Contratar DJ o música",
+      "completada": false,
+      "descripcion": "Buscar y contratar DJ, banda o sistema de sonido.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_m7ss7nt"
+    },
+    {
+      "texto": "Elegir decoración y temática",
+      "completada": false,
+      "descripcion": "Definir el estilo, colores y elementos decorativos principales.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_cjkvp49"
+    },
+    {
+      "texto": "Enviar invitaciones",
+      "completada": false,
+      "descripcion": "Diseñar, imprimir y enviar las invitaciones físicas o digitales.",
+      "esPredeterminada": false,
+      "asignadaA": "Cliente",
+      "id": "task_1756924717109_f4v86o3"
+    }
+  ],
+  "clientChecklist": [
+    {
+      "texto": "Confirmar lista final de invitados",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1756924717109_06k4mm3"
+    },
+    {
+      "texto": "Elegir el diseño de la torta",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1756924717109_1070e4w"
+    },
+    {
+      "texto": "Proporcionar lista de canciones especiales",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1756924717109_hyf4sax"
+    },
+    {
+      "texto": "Revisar y aprobar el presupuesto final",
+      "asignadaA": "Organizador",
+      "completada": false,
+      "id": "client_task_1756924717109_r69danf"
+    }
+  ],
+  "clientNotes": "",
+  "decoracion": {
+    "tema": "Elegante y Moderno",
+    "paletaColores": {
+      "primary": "#D9B8FF",
+      "secondary": "#FCD3DE",
+      "accent": "#F0E6CC"
+    },
+    "moodboardImageUrl": "",
+    "colorCubremantel": "",
+    "colorGlobos": "",
+    "decoracionTorta": {
+      "descripcion": "",
+      "imageUrl": "",
+      "dataAiHint": "cake design"
+    },
+    "items": [],
+    "zonasContratadas": [
+      {
+        "id": "atras_torta",
+        "nombreDisplay": "Atrás de la torta",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "cake backdrop"
+      },
+      {
+        "id": "frente_salon",
+        "nombreDisplay": "Frente del salón / Entrada principal",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "event entrance"
+      },
+      {
+        "id": "zona_regalos",
+        "nombreDisplay": "Zona de regalos",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "gift table"
+      },
+      {
+        "id": "zona_fotografia",
+        "nombreDisplay": "Zona de fotografía / Photocall",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "photo booth"
+      },
+      {
+        "id": "centro_salon",
+        "nombreDisplay": "Centro del salón / Ambientación general",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "event hall center"
+      }
+    ],
+    "generalNotesDecoracion": "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
+    "pdfNotasAdicionales": "",
+    "salonWidth": 800,
+    "salonHeight": 600,
+    "salonPlanBackgroundImageUrl": "",
+    "salonElements": [],
+    "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
+    "layoutMode": "libre",
+    "guestNameStyle": "full",
+    "guestIconStyle": "color",
+    "layoutTemplateName": ""
+  },
+  "invitados": [],
+  "webPageSettings": {
+    "pageTitle": "Mi Evento Especial",
+    "heroSubtitle": "¡Una celebración inolvidable!",
+    "welcomeMessage": "¡Bienvenidos a la celebración de nuestro evento!",
+    "coverImageUrl": "",
+    "galleryImageUrls": [],
+    "showCountdown": true,
+    "ourStoryTitle": "Nuestra Historia",
+    "ourStoryText": "Un breve relato de cómo llegamos hasta aquí...",
+    "ourStoryImageUrl": "",
+    "showOurStory": false,
+    "eventDetailsTitle": "Detalles del Evento",
+    "eventDetailsText": "Fecha, hora, lugar y más información importante.",
+    "showEventDetails": true,
+    "dressCodeText": "Elegante Sport",
+    "showDressCode": false,
+    "giftRegistryTitle": "Lista de Regalos",
+    "giftRegistryText": "Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...",
+    "showGiftRegistry": false,
+    "giftRegistry": [],
+    "showRsvp": true,
+    "showPrograma": false,
+    "musicaEspecialText": "",
+    "showGallery": false
+  },
+  "clientPortalSettings": {
+    "enabled": false,
+    "accessKey": "",
+    "checklist": {
+      "visible": false,
+      "editable": false
+    },
+    "itinerario": {
+      "visible": false
+    },
+    "musica": {
+      "visible": false,
+      "editable": false
+    },
+    "videoVida": {
+      "visible": false,
+      "editable": true
+    },
+    "listaRegalos": {
+      "visible": false
+    },
+    "documentos": {
+      "visible": true
+    },
+    "notasCliente": {
+      "visible": false,
+      "editable": true
+    },
+    "invitados": {
+      "visible": true
+    },
+    "paginaPublica": {
+      "visible": true
+    },
+    "fotografiaYFilmacion": {
+      "visible": true
+    }
+  },
+  "socialGallerySettings": {
+    "enabled": false,
+    "allowLikes": true,
+    "allowComments": true,
+    "uploadsActive": true
+  },
+  "musica": {
+    "cancionEntrada": "",
+    "cancionVals": "",
+    "cancionesTortaBrindis": [],
+    "playlistFiesta": "",
+    "listaNoReproducir": ""
+  },
+  "reposteria": {
+    "categorias": [
+      {
+        "id": "tortas_personalizadas",
+        "nombreDisplay": "Tortas Personalizadas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Diseño y sabores a medida.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "cupcakes_minitortas",
+        "nombreDisplay": "Cupcakes / Mini Tortas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Pequeñas delicias individuales.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "candy_bar",
+        "nombreDisplay": "Candy Bar Temático",
+        "activada": false,
+        "items": [],
+        "descripcion": "Mesa de dulces y golosinas variadas.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "fuente_chocolate",
+        "nombreDisplay": "Fuente de Chocolate",
+        "activada": false,
+        "items": [],
+        "descripcion": "Con frutas, malvaviscos y más.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "mesa_dulce_tradicional",
+        "nombreDisplay": "Mesa Dulce Tradicional",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de postres clásicos.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "mesa_helada",
+        "nombreDisplay": "Mesa Helada",
+        "activada": false,
+        "items": [],
+        "descripcion": "Selección de helados y toppings.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "postres_individuales",
+        "nombreDisplay": "Postres Individuales",
+        "activada": false,
+        "items": [],
+        "descripcion": "Porciones individuales de postres variados.",
+        "cantidadEstimadaPersonas": 0
+      }
+    ],
+    "consumoConfig": {
+      "tortas_personalizadas": {
+        "adulto": 0.1,
+        "adolescente": 0.1,
+        "nino": 0.08
+      },
+      "cupcakes_minitortas": {
+        "adulto": 1.5,
+        "adolescente": 2,
+        "nino": 1
+      },
+      "candy_bar": {
+        "adulto": 1,
+        "adolescente": 1.5,
+        "nino": 2
+      },
+      "fuente_chocolate": {
+        "adulto": 1,
+        "adolescente": 1,
+        "nino": 1
+      },
+      "mesa_dulce_tradicional": {
+        "adulto": 2,
+        "adolescente": 2,
+        "nino": 1.5
+      },
+      "mesa_helada": {
+        "adulto": 1,
+        "adolescente": 1.5,
+        "nino": 1.5
+      },
+      "postres_individuales": {
+        "adulto": 1.5,
+        "adolescente": 1.5,
+        "nino": 1
+      }
+    },
+    "notasGenerales": ""
+  },
+  "bebidas": {
+    "categorias": [
+      {
+        "id": "refrescos_gaseosas",
+        "nombreDisplay": "Refrescos / Gaseosas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de bebidas carbonatadas."
+      },
+      {
+        "id": "jugos",
+        "nombreDisplay": "Jugos Naturales y Envasados",
+        "activada": false,
+        "items": [],
+        "descripcion": "Opciones frutales y refrescantes."
+      },
+      {
+        "id": "aguas_saborizadas",
+        "nombreDisplay": "Aguas Saborizadas y Minerales",
+        "activada": false,
+        "items": [],
+        "descripcion": "Con y sin gas, opciones saborizadas."
+      },
+      {
+        "id": "cervezas",
+        "nombreDisplay": "Cervezas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de cervezas nacionales e importadas."
+      },
+      {
+        "id": "vinos_espumantes",
+        "nombreDisplay": "Vinos y Espumantes",
+        "activada": false,
+        "items": [],
+        "descripcion": "Selección de tintos, blancos, rosados y espumosos."
+      },
+      {
+        "id": "barra_tragos",
+        "nombreDisplay": "Barra de Tragos",
+        "activada": false,
+        "items": [],
+        "descripcion": "Cócteles con y sin alcohol preparados al momento."
+      },
+      {
+        "id": "cafeteria",
+        "nombreDisplay": "Servicio de Cafetería",
+        "activada": false,
+        "items": [],
+        "descripcion": "Café, té, infusiones."
+      }
+    ],
+    "consumoConfig": {
+      "refrescos_gaseosas": {
+        "adulto": 0.2,
+        "adolescente": 0.3,
+        "nino": 0.25
+      },
+      "jugos": {
+        "adulto": 0.1,
+        "adolescente": 0.15,
+        "nino": 0.15
+      },
+      "aguas_saborizadas": {
+        "adulto": 0.15,
+        "adolescente": 0.1,
+        "nino": 0.1
+      },
+      "cervezas": {
+        "adulto": 0.4,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "vinos_espumantes": {
+        "adulto": 0.3,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "barra_tragos": {
+        "adulto": 0.2,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "cafeteria": {
+        "adulto": 0.05,
+        "adolescente": 0,
+        "nino": 0
+      }
+    },
+    "notasGenerales": ""
+  },
+  "listaDeCargaOperativa": {
+    "categorias": [],
+    "notasGenerales": ""
+  },
+  "gestionCostos": {
+    "costosItems": [],
+    "ingresosTotalesEstimados": 0,
+    "notasGeneralesCostos": ""
+  },
+  "videoVida": {
+    "galleryEnabled": false,
+    "photosUploaded": false,
+    "songSuggestion": "",
+    "customText": ""
+  },
+  "programa": [
+    {
+      "id": "prog_1756924717109_6tbgwfi",
+      "hora": "20:00",
+      "titulo": "Recepción de Invitados",
+      "descripcion": "Música suave y cóctel de bienvenida.",
+      "icono": "GlassWater"
+    },
+    {
+      "id": "prog_1756924717109_uxjl4rk",
+      "hora": "21:00",
+      "titulo": "Entrada Principal",
+      "descripcion": "Entrada de los agasajados al salón.",
+      "icono": "Sparkles"
+    },
+    {
+      "id": "prog_1756924717109_ola7hxt",
+      "hora": "21:30",
+      "titulo": "Cena",
+      "descripcion": "Servicio de plato principal.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1756924717109_roq1h75",
+      "hora": "23:00",
+      "titulo": "¡A Bailar!",
+      "descripcion": "Se abre la pista de baile.",
+      "icono": "Music"
+    },
+    {
+      "id": "prog_1756924717109_16mlzjs",
+      "hora": "00:30",
+      "titulo": "Corte de Torta y Brindis",
+      "descripcion": "Momento especial con la torta y el brindis.",
+      "icono": "CakeSlice"
+    }
+  ],
+  "fotografiaYFilmacion": {
+    "estadoEntrega": "Pendiente",
+    "recibidoPorCliente": false
+  },
+  "otrosDocumentos": []
+}

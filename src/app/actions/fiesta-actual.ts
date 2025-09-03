@@ -1,16 +1,15 @@
 
-
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData, GiftItem, ClientPortalSettings, Reunion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData, GiftItem, ClientPortalSettings, Reunion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
 import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
 
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const FIESTAS_DIR = path.join(dataDirectory, 'fiestas');
-const ARCHIVE_DIR = path.join(dataDirectory, 'archive');
+const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+const FIESTAS_DIR = path.join(DATA_DIR, 'fiestas');
+const ARCHIVE_DIR = path.join(DATA_DIR, 'archive');
 // This is the fixed ID for the single, currently active party plan.
 const FIESTA_ACTUAL_ID = "fiesta_1762181514757"; 
 const FIESTA_ACTUAL_FILE_PATH = path.join(FIESTAS_DIR, `${FIESTA_ACTUAL_ID}.json`);
@@ -338,7 +337,7 @@ export async function uploadDocumentoFiesta(formData: FormData): Promise<{ succe
 
     try {
         const fiesta = await getFiestaActual();
-        const docsDir = path.join(dataDirectory, 'documentos-varios-fiesta', fiesta.id);
+        const docsDir = path.join(DATA_DIR, 'documentos-varios-fiesta', fiesta.id);
         await ensureDirectoryExists(docsDir);
         
         const docId = `doc_${Date.now()}`;
@@ -372,7 +371,7 @@ export async function deleteDocumentoFiesta(docId: string): Promise<{ success: b
             return { success: false, error: 'Documento no encontrado.' };
         }
         
-        const filePath = path.join(dataDirectory, 'documentos-varios-fiesta', fiesta.id, docToDelete.fileName);
+        const filePath = path.join(DATA_DIR, 'documentos-varios-fiesta', fiesta.id, docToDelete.fileName);
         try { await fs.unlink(filePath); } catch (e) { console.warn(`No se pudo eliminar el archivo físico ${filePath}, puede que ya no exista.`); }
 
         const otrosDocumentos = (fiesta.otrosDocumentos || []).filter(d => d.id !== docId);
@@ -435,8 +434,6 @@ export async function removeInvoiceIdFromFiestaActual(invoiceId: string) {
   });
 }
 
-
-// --- DEPRECATED/MIGRATED SECTION ---
 
 // This function is being kept for backwards compatibility with older components
 // that might still call it. It now delegates to getFiestaActual.
@@ -501,6 +498,4 @@ export async function createNewFiestaForCustomer(customer: Customer): Promise<{ 
   // Let's assume for now it should overwrite if the user intends to start a new plan for a new customer.
   // The safer approach is to archive first, then create.
   
-  // For now, let's just save it as the current one.
-  return saveFiesta(newFiesta);
-}
+  // For now, let's just save it as the current
