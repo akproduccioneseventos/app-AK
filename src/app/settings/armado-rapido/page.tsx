@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -329,10 +329,8 @@ export default function ArmadoRapidoSettingsPage() {
       setConfig(prev => {
           if (!prev) return null;
           if(listKey === 'menus'){
-            // There's only one menu, so we replace it.
             return {...prev, menus: [itemToSave as MenuArmadoRapido]};
           }
-          // For packages, we find and update or add.
           const list = prev[listKey] || [];
           const existingIndex = list.findIndex(i => i.id === itemToSave.id);
           if (existingIndex > -1) {
@@ -351,6 +349,27 @@ export default function ArmadoRapidoSettingsPage() {
           return { ...prev, paquetes: prev.paquetes.filter(i => i.id !== id) }
       });
   }
+
+  const handleDuplicatePackage = (packageId: string) => {
+    setConfig(prev => {
+      if (!prev) return null;
+      const packageToCopy = prev.paquetes.find(p => p.id === packageId);
+      if (!packageToCopy) return prev;
+
+      const newPackage: PaqueteArmadoRapido = {
+        ...JSON.parse(JSON.stringify(packageToCopy)), // Deep copy
+        id: `new_paquete_${Date.now()}`,
+        nombre: `${packageToCopy.nombre} (Copia)`,
+      };
+
+      const originalIndex = prev.paquetes.findIndex(p => p.id === packageId);
+      const newPackages = [...prev.paquetes];
+      newPackages.splice(originalIndex + 1, 0, newPackage);
+
+      return { ...prev, paquetes: newPackages };
+    });
+    toast({ description: "Paquete duplicado. No olvides guardar los cambios." });
+  };
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
@@ -392,6 +411,7 @@ export default function ArmadoRapidoSettingsPage() {
                     <CardHeader className="flex-row items-center justify-between p-3">
                      <CardTitle className="text-base">{pkg.nombre}</CardTitle>
                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Duplicar Paquete" onClick={() => handleDuplicatePackage(pkg.id)}><Copy className="w-4 h-4"/></Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog('paquete', pkg)}><Settings className="w-4 h-4"/></Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="w-4 h-4"/></Button></AlertDialogTrigger>
