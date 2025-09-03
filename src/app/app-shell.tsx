@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
 import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot } from 'lucide-react';
@@ -19,6 +19,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
 import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -90,7 +92,7 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
-  if (pathname === '/settings') return 'Configuración General';
+  if (pathname === '/settings') return 'Configuración';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
   if (pathname === '/settings/budget-display') return 'Configuración de Presupuestos';
   if (pathname === '/settings/company') return 'Información de la Empresa';
@@ -219,6 +221,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
+  const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchLogo() {
+      try {
+        const settings = await getInvoiceTemplateSettings();
+        setLogoUrl(settings.logoUrl);
+      } catch (error) {
+        console.error("Failed to fetch company logo for avatar", error);
+        setLogoUrl(null);
+      }
+    }
+    fetchLogo();
+  }, []);
+
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
@@ -264,8 +281,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://placehold.co/40x40.png" alt="Avatar de Usuario" data-ai-hint="user avatar" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">U</AvatarFallback>
+                  {logoUrl === undefined ? (
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                  ) : logoUrl ? (
+                    <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
+                  ) : (
+                    <AvatarFallback className="bg-primary text-primary-foreground">AK</AvatarFallback>
+                  )}
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

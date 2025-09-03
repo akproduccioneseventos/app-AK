@@ -24,26 +24,26 @@ const AppLogo = () => {
   
   if (logoUrl === undefined) {
     // Loading state to prevent layout shift
-    return <Skeleton className="h-8 w-8 rounded-full" />;
+    return <Skeleton className="h-8 w-24 rounded-md" />;
   }
 
   if (logoUrl) {
     return (
-      <NextImage 
-          src={logoUrl} 
-          alt="Logo de la Empresa"
-          width={40}
-          height={40}
-          className="object-contain h-8 w-auto"
-          priority
-          data-ai-hint="company logo"
-      />
+        <NextImage 
+            src={logoUrl} 
+            alt="Logo de la Empresa"
+            width={120}
+            height={40}
+            className="object-contain h-8 w-auto"
+            priority
+            data-ai-hint="company logo"
+        />
     );
   }
 
   // Fallback to text if no logo URL
   return (
-    <span className="text-lg font-bold">AK</span>
+    <span className="text-xl font-bold tracking-tight">AK Producciones</span>
   );
 };
 
