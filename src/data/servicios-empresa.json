@@ -37,6 +37,14 @@
     "precioVenta": 2800
   },
   {
+    "id": "item_1756940568854_u5m4prf",
+    "nombre": "Organizacion de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "unidad": "Por evento",
+    "precioVenta": 8000
+  },
+  {
     "id": "serv_1752489600118_albdig",
     "nombre": "Álbum digital",
     "tipoItem": "Servicio",
@@ -150,12 +158,12 @@
     "precioVenta": 70
   },
   {
+    "id": "item_1756940250721_t95g4rl",
     "nombre": "Mesa de Jugos Naturales",
-    "precioVenta": 90,
-    "categoria": "Servicio de bebidas",
     "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
     "unidad": "Por evento",
-    "id": "item_1756940250721_t95g4rl"
+    "precioVenta": 90
   },
   {
     "id": "serv_1752489600094_pinacol",
@@ -902,11 +910,35 @@
     "precioVenta": 8000
   },
   {
+    "id": "item_1756940534187_rw402t7",
+    "nombre": "Bogue",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "unidad": "Por evento",
+    "precioVenta": 2900
+  },
+  {
     "id": "serv_fotocabina",
     "nombre": "Fotocabina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "precioVenta": 2900
+  },
+  {
+    "id": "item_1756940618500_jnt7ly4",
+    "nombre": "Fuegos Frios",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "unidad": "Por evento",
+    "precioVenta": 3000
+  },
+  {
+    "id": "item_1756940489048_bay3uhp",
+    "nombre": "Mesa Glitter",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "unidad": "Por evento",
+    "precioVenta": 70
   },
   {
     "id": "serv_1752489600109_plat360",
@@ -930,7 +962,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
     "unidad": "Por evento",
-    "precioVenta": 7500
+    "precioVenta": 9500
   },
   {
     "id": "serv_1752489600113_filpin",
@@ -970,6 +1002,14 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3890
+  },
+  {
+    "id": "item_1756940447697_78uvkhe",
+    "nombre": "Candy Bar",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "unidad": "Por evento",
+    "precioVenta": 109
   },
   {
     "id": "serv_1752489600084_fuentchoc",
@@ -1053,6 +1093,15 @@
     "precioVenta": 950
   },
   {
+    "id": "serv_1752489600083_selvneg",
+    "nombre": "Mesa de postres - Selva Negra",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
+    "unidad": "Unidad",
+    "precioVenta": 1400
+  },
+  {
     "id": "serv_1752489600080_tartcoco",
     "nombre": "Mesa de postres - Tarta de coco",
     "tipoItem": "Servicio",
@@ -1085,15 +1134,6 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "precioVenta": 1100
-  },
-  {
-    "id": "serv_1752489600083_selvneg",
-    "nombre": "Selva Negra",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "subcategoria": "Mesa de Postres",
-    "unidad": "Unidad",
-    "precioVenta": 1400
   },
   {
     "id": "serv_torta_principal",

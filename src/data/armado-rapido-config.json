@@ -532,7 +532,7 @@
     },
     {
       "id": "new_paquete_1756939833003",
-      "nombre": "Paquete Intermedio (Copia)",
+      "nombre": "Paquete Premium",
       "descripcion": "Servicios esenciales para tu evento.",
       "serviciosIncluidos": [
         {
@@ -718,6 +718,136 @@
           "calculationMethod": "porPersona",
           "esRegalo": false,
           "precioPorPersona": 119
+        },
+        {
+          "id": "item_1756940618500_jnt7ly4",
+          "nombre": "Fuegos Frios",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "item_1756940568854_u5m4prf",
+          "nombre": "Organizacion de la fiesta",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "item_1756940250721_t95g4rl",
+          "nombre": "Mesa de Jugos Naturales",
+          "precioFijo": 90,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 90,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600102_banner",
+          "nombre": "BANNER GIGANTOGRAFIA",
+          "precioFijo": 2900,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 2900,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_pantalla_proyector",
+          "nombre": "Pantalla gigante y proyector",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "item_1756940534187_rw402t7",
+          "nombre": "Bogue",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "serv_1752489600112_filfie",
+          "nombre": "Filmación de la fiesta",
+          "precioFijo": 7500,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 7500,
+          "esRegalo": false
+        },
+        {
+          "id": "item_1756940447697_78uvkhe",
+          "nombre": "Candy Bar",
+          "precioFijo": 109,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioPorPersona": 109
+        },
+        {
+          "id": "serv_1752489600072_cheesecake",
+          "nombre": "Mesa de postres - Cheesecake",
+          "precioFijo": 1200,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 1200,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600077_mouschoc",
+          "nombre": "Mesa de postres - Mousse de chocolate",
+          "precioFijo": 1000,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 1000,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600078_mousddl",
+          "nombre": "Mesa de postres - Mousse de dulce de leche",
+          "precioFijo": 1000,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 1000,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600076_lemonpie",
+          "nombre": "Mesa de postres - Lemon Pie",
+          "precioFijo": 1100,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 1100,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600079_rogel",
+          "nombre": "Mesa de postres - Rogel",
+          "precioFijo": 950,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 950,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600083_selvneg",
+          "nombre": "Mesa de postres - Selva Negra",
+          "precioFijo": 1400,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 1400,
+          "esRegalo": false
         }
       ]
     }
