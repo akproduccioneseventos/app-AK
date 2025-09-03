@@ -14,13 +14,13 @@ import type { InvoiceTemplateSettings } from '@/types/settings';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 // Componente aislado para la vista imprimible del presupuesto
 const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, settings: InvoiceTemplateSettings | null }>(({ summaryData, settings }, ref) => {
   if (!summaryData) return null;
-  const descuentoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + r.valor, 0);
+  const descuentoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + (r.total || 0), 0);
   const subtotal = summaryData.total + descuentoRegalos;
 
   return (
@@ -57,7 +57,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
                  {summaryData.regalos.map((item: any, index: number) => (
                     <tr key={`regalo-${index}`} className="border-b">
                     <td className="py-2 flex items-center gap-2"><Gift className="w-4 h-4 text-primary"/>{item.desc}</td>
-                    <td className="py-2 text-right">{formatCurrency(item.valor)}</td>
+                    <td className="py-2 text-right">{formatCurrency(item.total)}</td>
                     </tr>
                 ))}
                 </tbody>
