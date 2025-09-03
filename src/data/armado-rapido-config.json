@@ -15,13 +15,13 @@
         {
           "id": "serv_1752489600007_pollarr",
           "nombre": "Pollo arrollado c/ guarnición",
-          "precioFijo": 350,
+          "precioFijo": "380",
           "categoria": "Plato Principal"
         },
         {
           "id": "serv_1752489600053_menninpan",
-          "nombre": "Menú niños - Panchos c/ fritas",
-          "precioFijo": 165,
+          "nombre": "Panchos c/ fritas",
+          "precioFijo": "185",
           "categoria": "Menú Adolescente / Niño"
         },
         {
