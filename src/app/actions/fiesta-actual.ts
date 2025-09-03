@@ -2,11 +2,11 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData, GiftItem, ClientPortalSettings, Reunion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
+import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const FIESTAS_DIR = path.join(dataDirectory, 'fiestas');
@@ -78,14 +78,23 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   }
 }
 
-export async function archivarFiestaActualYEmpezarNueva(): Promise<{ success: boolean; error?: string }> {
+export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  if (fiestaId !== FIESTA_ACTUAL_ID) {
+    return { success: false, error: "Solo se puede archivar la fiesta activa." };
+  }
+  
   try {
     const fiestaActual = await getFiestaActual();
     if (!fiestaActual) {
       return { success: false, error: "No hay una fiesta activa para archivar." };
     }
-    // Move the current fiesta to the archive with its original ID
-    const archivePath = path.join(ARCHIVE_DIR, `fiesta_${fiestaActual.id}.json`);
+    
+    // Create a unique name for the archive file based on the event date and name
+    const datePart = fiestaActual.configuracion.fechaEvento ? new Date(fiestaActual.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
+    const namePart = fiestaActual.configuracion.nombreEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 20);
+    const archiveFilename = `fiesta_archivada_${datePart}_${namePart}_${fiestaActual.id}.json`;
+    const archivePath = path.join(ARCHIVE_DIR, archiveFilename);
+    
     await writeFiestaFile(archivePath, fiestaActual);
 
     // Reset the main file to the initial state
@@ -97,6 +106,7 @@ export async function archivarFiestaActualYEmpezarNueva(): Promise<{ success: bo
     return { success: false, error: "No se pudo archivar la fiesta." };
   }
 }
+
 
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
     try {
@@ -158,6 +168,38 @@ export async function deleteInvitadoFiestaActual(invitadoId: string) {
         const invitados = (data.invitados || []).filter(inv => inv.id !== invitadoId);
         return { ...data, invitados };
     });
+}
+
+export async function handleRsvpSubmission(submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[] }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
+   return updateFiestaData(data => {
+     const invitadoExistenteIndex = (data.invitados || []).findIndex(
+        inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
+      );
+      
+      let updatedInvitado: Invitado;
+
+      if (invitadoExistenteIndex > -1) {
+         updatedInvitado = {
+           ...(data.invitados![invitadoExistenteIndex]),
+           rsvp: submission.confirmacion as RsvpStatus,
+           partySize: submission.numeroAsistentes,
+           notes: [data.invitados![invitadoExistenteIndex].notes, submission.mensaje].filter(Boolean).join('\n---\n'),
+           companionNames: submission.companionNames,
+         };
+         data.invitados![invitadoExistenteIndex] = updatedInvitado;
+      } else {
+         updatedInvitado = {
+           id: `inv_rsvp_${Date.now()}`,
+           nombre: submission.nombreCompleto,
+           rsvp: submission.confirmacion as RsvpStatus,
+           partySize: submission.numeroAsistentes,
+           notes: submission.mensaje,
+           companionNames: submission.companionNames,
+         };
+         data.invitados = [...(data.invitados || []), updatedInvitado];
+      }
+      return data;
+   })
 }
 
 export async function checkInGuest(guestId: string): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
@@ -261,16 +303,18 @@ export async function updateProgramaFiestaActual(programa: ProgramaEventoItem[])
 // REUNIONES
 export async function addReunionToFiestaActual(reunionData: Omit<Reunion, 'id'>) {
     const newReunion: Reunion = { ...reunionData, id: `reunion_${Date.now()}` };
-    return updateFiestaData(data => ({
+    const result = await updateFiestaData(data => ({
         ...data,
         reuniones: [...(data.reuniones || []), newReunion]
     }));
+    return {...result, reunion: newReunion };
 }
 export async function updateReunionInFiestaActual(updatedReunion: Reunion) {
-    return updateFiestaData(data => ({
+    const result = await updateFiestaData(data => ({
         ...data,
         reuniones: (data.reuniones || []).map(r => r.id === updatedReunion.id ? updatedReunion : r)
     }));
+    return {...result, reunion: updatedReunion };
 }
 export async function deleteReunionFromFiestaActual(reunionId: string) {
     return updateFiestaData(data => ({
@@ -343,6 +387,11 @@ export async function deleteDocumentoFiesta(docId: string): Promise<{ success: b
 // PAGOS A PROVEEDORES
 export async function updatePagosProveedores(pagos: PagoProveedor[]) {
     return updateFiestaData(data => ({ ...data, pagosProveedores: pagos }));
+}
+
+// PERSONAL
+export async function updatePersonalFiestaActual(personal: PersonalAsignadoDetalleStorage[]) {
+  return updateFiestaData(data => ({ ...data, personalAsignado: personal }));
 }
 
 // GIFT REGISTRY
