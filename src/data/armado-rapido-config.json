@@ -305,7 +305,7 @@
           "precioFijo": 8500,
           "categoria": "Servicio Adicional",
           "calculationMethod": "fijo",
-          "precioBase": 8500,
+          "precioBase": "9000",
           "esRegalo": false
         },
         {
@@ -331,11 +331,12 @@
         {
           "id": "serv_invitaciones_digitales",
           "nombre": "Invitaciones digitales",
-          "precioFijo": 1500,
+          "precioFijo": 0,
           "categoria": "Servicio Adicional",
           "calculationMethod": "fijo",
-          "precioBase": 1500,
-          "esRegalo": false
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
         }
       ]
     },
@@ -527,6 +528,15 @@
           "calculationMethod": "porPersona",
           "esRegalo": false,
           "precioPorPersona": 119
+        },
+        {
+          "id": "serv_1752489600099_zonafot",
+          "nombre": "Decoración de zona de fotos con sillón divan",
+          "precioFijo": 5000,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 5000,
+          "esRegalo": false
         }
       ]
     },

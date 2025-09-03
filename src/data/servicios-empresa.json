@@ -797,6 +797,15 @@
     "precioVenta": 14500
   },
   {
+    "id": "serv_1752489600099_zonafot",
+    "nombre": "Decoración de zona de fotos con sillón divan",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Mobiliario",
+    "unidad": "Por evento",
+    "precioVenta": 5000
+  },
+  {
     "id": "serv_manteleria_completa",
     "nombre": "Mantelería completa",
     "tipoItem": "Servicio",
@@ -837,15 +846,6 @@
     "subcategoria": "Mobiliario",
     "unidad": "Por persona",
     "precioVenta": 25
-  },
-  {
-    "id": "serv_1752489600099_zonafot",
-    "nombre": "Zona de fotos con sillón DIVA",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Mobiliario",
-    "unidad": "Por evento",
-    "precioVenta": 5000
   },
   {
     "id": "serv_1752489600103_disbas",
