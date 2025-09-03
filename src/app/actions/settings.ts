@@ -93,11 +93,11 @@ export async function saveInvoiceTemplateSettings(
   settings: InvoiceTemplateSettings
 ): Promise<{ success: boolean; settings?: InvoiceTemplateSettings; error?: string }> {
   try {
-    // Ensure logoUrl is either a string or null, not undefined
+    const currentSettings = await readInvoiceTemplateSettingsFile();
     const settingsToSave: InvoiceTemplateSettings = {
-      ...defaultInvoiceTemplateSettings,
+      ...currentSettings,
       ...settings,
-      logoUrl: settings.logoUrl || null, 
+      logoUrl: settings.logoUrl !== undefined ? settings.logoUrl : currentSettings.logoUrl,
     };
     await writeInvoiceTemplateSettingsFile(settingsToSave);
     return { success: true, settings: settingsToSave };

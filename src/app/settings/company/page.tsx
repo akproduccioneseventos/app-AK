@@ -14,7 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { getInvoiceTemplateSettings, saveInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { InvoiceTemplateSettings } from '@/types/settings';
-import { defaultInvoiceTemplateSettings } from '@/types/settings';
 
 
 // Placeholder function for future save logic
@@ -45,8 +44,6 @@ export default function CompanySettingsPage() {
     setIsLoading(true);
     try {
       const fetchedSettings = await getInvoiceTemplateSettings();
-      // For now, we are mixing concerns, this should be refactored later
-      // to have a dedicated company settings data file.
       setLogoUrl(fetchedSettings.logoUrl);
       setLogoPreview(fetchedSettings.logoUrl);
     } catch(e) {
@@ -87,19 +84,14 @@ export default function CompanySettingsPage() {
     e.preventDefault();
     setIsSaving(true);
     
-    // This is temporary. In a real app, you'd have a dedicated saveCompanyInfo action
-    // that also handles the logo, and separate state for company details and logo.
-    // For now, we save it via the invoice template settings.
     const settingsToSave: Partial<InvoiceTemplateSettings> = { logoUrl: logoUrl };
 
     try {
-      // First save the logo part
       const result = await saveInvoiceTemplateSettings(settingsToSave as InvoiceTemplateSettings);
       if (!result.success) {
         throw new Error(result.error || "No se pudo guardar el logo.");
       }
 
-      // Then simulate saving the rest of the company info
       const companyInfo = { companyName, companyAddress, companyTaxId, companyContact, defaultDocumentNotes, invoiceCustomFooter };
       await saveCompanyInfo(companyInfo);
 
