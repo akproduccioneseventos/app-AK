@@ -196,8 +196,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/asistente-ak') return BrainCircuit;
   
-  if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
-  if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
+  if (pathname === '/armado-rapido') return Wand2;
+  if (pathname === '/asistente-ak') return Bot;
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;

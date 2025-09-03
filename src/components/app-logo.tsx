@@ -1,7 +1,6 @@
 
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import NextImage from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
@@ -30,28 +29,21 @@ const AppLogo = () => {
 
   if (logoUrl) {
     return (
-      <Link href="/" className="flex items-center group text-foreground no-underline hover:opacity-80 transition-opacity">
-        <NextImage 
-            src={logoUrl} 
-            alt="Logo de la Empresa"
-            width={40}
-            height={40}
-            className="object-contain h-8 w-auto"
-            priority
-            data-ai-hint="company logo"
-        />
-      </Link>
+      <NextImage 
+          src={logoUrl} 
+          alt="Logo de la Empresa"
+          width={40}
+          height={40}
+          className="object-contain h-8 w-auto"
+          priority
+          data-ai-hint="company logo"
+      />
     );
   }
 
   // Fallback to text if no logo URL
   return (
-    <Link
-      href="/"
-      className="flex items-center group text-foreground no-underline hover:opacity-80 transition-opacity"
-    >
-      <span className="text-lg font-bold">AK</span>
-    </Link>
+    <span className="text-lg font-bold">AK</span>
   );
 };
 
