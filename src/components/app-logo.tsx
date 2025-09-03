@@ -25,7 +25,7 @@ const AppLogo = () => {
   
   if (logoUrl === undefined) {
     // Loading state to prevent layout shift
-    return <Skeleton className="h-8 w-32" />;
+    return <Skeleton className="h-8 w-8 rounded-full" />;
   }
 
   if (logoUrl) {
@@ -34,9 +34,9 @@ const AppLogo = () => {
         <NextImage 
             src={logoUrl} 
             alt="Logo de la Empresa"
-            width={120}
+            width={40}
             height={40}
-            className="object-contain"
+            className="object-contain h-8 w-auto"
             priority
             data-ai-hint="company logo"
         />
@@ -48,10 +48,9 @@ const AppLogo = () => {
   return (
     <Link
       href="/"
-      className="flex flex-col items-start group text-foreground no-underline hover:opacity-80 transition-opacity"
+      className="flex items-center group text-foreground no-underline hover:opacity-80 transition-opacity"
     >
-      <span className="text-lg font-bold">AK Producciones</span>
-      <span className="text-sm text-muted-foreground">Gestión de Eventos</span>
+      <span className="text-lg font-bold">AK</span>
     </Link>
   );
 };
