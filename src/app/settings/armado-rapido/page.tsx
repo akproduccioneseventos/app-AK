@@ -72,15 +72,17 @@ function SortableServiceItem({ service, children }: { service: ServicioIncluidoA
     );
 }
 
-function AddNewServiceDialog({ 
-  onServiceCreated
+function AddNewServiceDialog({
+  onServiceCreated,
+  serviceType
 }: { 
-  onServiceCreated: (newService: ServicioEmpresa) => void 
+  onServiceCreated: (newService: ServicioEmpresa) => void,
+  serviceType: 'catering' | 'general'
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [nombre, setNombre] = useState('');
   const [precioVenta, setPrecioVenta] = useState('');
-  const [categoria, setCategoria] = useState<ServicioCategoriaArmadoRapido>('Entrada');
+  const [categoria, setCategoria] = useState<ServicioCategoriaArmadoRapido | CategoriaServicio>(serviceType === 'catering' ? 'Entrada' : 'Otros servicios');
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -93,10 +95,10 @@ function AddNewServiceDialog({
     const newServiceData: Omit<ServicioEmpresa, 'id'> = {
       nombre,
       precioVenta: parseFloat(precioVenta),
-      categoria: 'Servicio de catering',
-      subcategoria: categoria,
+      categoria: serviceType === 'catering' ? 'Servicio de catering' : (categoria as CategoriaServicio),
+      subcategoria: serviceType === 'catering' ? categoria : undefined,
       tipoItem: 'Servicio',
-      unidad: 'Por persona',
+      unidad: serviceType === 'catering' ? 'Por persona' : 'Por evento',
     };
     try {
       const result = await saveServicioEmpresa(newServiceData);
@@ -120,17 +122,23 @@ function AddNewServiceDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full text-xs">
-          <PlusCircle className="w-4 h-4 mr-2" />Crear Servicio de Catering
+          <PlusCircle className="w-4 h-4 mr-2" />Crear Nuevo Servicio
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Crear Nuevo Servicio de Catering</DialogTitle>
+          <DialogTitle>Crear Nuevo Servicio</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio*</Label><Input id="new-serv-name" value={nombre} onChange={e => setNombre(e.target.value)} /></div>
-          <div className="space-y-1"><Label htmlFor="new-serv-price">Precio por Persona*</Label><Input id="new-serv-price" type="number" value={precioVenta} onChange={e => setPrecioVenta(e.target.value)} /></div>
-          <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría*</Label><Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select></div>
+          <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Base*</Label><Input id="new-serv-price" type="number" value={precioVenta} onChange={e => setPrecioVenta(e.target.value)} /></div>
+          <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría*</Label>
+          {serviceType === 'catering' ? (
+            <Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select>
+          ) : (
+            <Input value={categoria} onChange={e => setCategoria(e.target.value as CategoriaServicio)} placeholder="Ej: Decoración, Sonido"/>
+          )}
+          </div>
         </div>
         <DialogFooter>
           <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
@@ -392,9 +400,7 @@ function AddOrEditDialog({
                                                             <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                             </SelectContent>
                                                         </Select>
-                                                         {s.calculationMethod === 'fijo' && (
-                                                            <div className="text-sm p-2 bg-gray-50 rounded-md"> El precio de este servicio es <strong>{formatCurrency(s.precioBase)}</strong>. </div>
-                                                         )}
+                                                         {s.calculationMethod === 'fijo' && ( <div className="text-sm p-2 bg-gray-50 rounded-md">El precio de este servicio es <strong>{formatCurrency(s.precioBase)}</strong>. </div> )}
                                                          {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                                          {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/></div> )}
                                                          {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs"/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
@@ -452,9 +458,7 @@ function AddOrEditDialog({
                     <div className="flex flex-col gap-2 min-h-0">
                         <Label>Catálogo de Servicios Vendibles</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
-                        {mode === 'menu' && (
-                          <AddNewServiceDialog onServiceCreated={onServiceCreated}/>
-                        )}
+                        <AddNewServiceDialog onServiceCreated={onServiceCreated} serviceType={mode === 'menu' ? 'catering' : 'general'}/>
                         <ScrollArea className="h-full border rounded-md p-2">
                           {initialVendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
                             <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
@@ -590,14 +594,14 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'menu' ? cateringServices : vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'menu' ? cateringServices : otherServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de "Mi Presupuesto al Instante"</h1></div>
         <div className="flex gap-2">
             <Link href="/empresa/todos-los-servicios/nuevo?type=servicio" passHref>
                 <Button variant="outline"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio al Catálogo</Button>
             </Link>
-            <Link href="/settings" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+            <Link href="/settings/budget-display" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
         </div>
       </div>
       
