@@ -130,10 +130,20 @@ function AddOrEditDialog({
     };
     
     const handleTramoChange = (serviceId: string, tramoIndex: number, field: 'desde' | 'hasta' | 'precio', value: string) => {
-      handleServiceDetailChange(serviceId, 'tramosDePrecio', localItem.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio?.map((tramo, index) => {
-        if (index !== tramoIndex) return tramo;
-        return { ...tramo, [field]: Number(value) || 0 };
-      }));
+        const newValue = Number(value);
+        if (isNaN(newValue)) return;
+        
+        setLocalItem(prev => {
+            if (!prev) return null;
+            const newServicios = prev.serviciosIncluidos.map(s => {
+                if (s.id !== serviceId) return s;
+                const newTramos = (s.tramosDePrecio || []).map((t, i) =>
+                    i === tramoIndex ? { ...t, [field]: newValue } : t
+                );
+                return { ...s, tramosDePrecio: newTramos };
+            });
+            return { ...prev, serviciosIncluidos: newServicios };
+        });
     };
     
     const addTramo = (serviceId: string) => {
@@ -325,20 +335,22 @@ export default function ArmadoRapidoSettingsPage() {
   }
   
   const handleSaveItem = (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
-      const listKey = modalMode === 'menu' ? 'menus' : 'paquetes';
       setConfig(prev => {
           if (!prev) return null;
-          if(listKey === 'menus'){
-            return {...prev, menus: [itemToSave as MenuArmadoRapido]};
-          }
-          const list = prev[listKey] || [];
-          const existingIndex = list.findIndex(i => i.id === itemToSave.id);
-          if (existingIndex > -1) {
-              list[existingIndex] = itemToSave as any;
+          let updatedConfig = {...prev};
+          if (modalMode === 'menu') {
+            updatedConfig.menus = [itemToSave as MenuArmadoRapido];
           } else {
-              list.push(itemToSave as any);
+            const list = prev.paquetes || [];
+            const existingIndex = list.findIndex(i => i.id === itemToSave.id);
+            if (existingIndex > -1) {
+                list[existingIndex] = itemToSave as PaqueteArmadoRapido;
+            } else {
+                list.push(itemToSave as PaqueteArmadoRapido);
+            }
+            updatedConfig.paquetes = [...list];
           }
-          return {...prev, [listKey]: [...list]};
+          return updatedConfig;
       });
       setIsModalOpen(false);
   }
