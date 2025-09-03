@@ -56,24 +56,10 @@
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600021_bifech",
-          "nombre": "Bife al champiñón c/ guarnición",
-          "precioFijo": 480,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600036_calzita",
-          "nombre": "Calzones Italianos",
-          "precioFijo": 200,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
           "id": "serv_1752489600014_bauru",
           "nombre": "Bauru c/ fritas",
           "precioFijo": 390,
-          "categoria": "Entrada",
+          "categoria": "Plato Principal",
           "esRegalo": false
         },
         {
@@ -107,20 +93,6 @@
         {
           "id": "serv_1752489600006_chivit",
           "nombre": "Chivito completo c/ fritas",
-          "precioFijo": 300,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600011_cerdmos",
-          "nombre": "Cerdo a la mostaza c/ guarnición",
-          "precioFijo": 350,
-          "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_cerdo_relleno",
-          "nombre": "Cerdo relleno c/ guarnición",
           "precioFijo": 300,
           "categoria": "Entrada",
           "esRegalo": false
@@ -234,6 +206,48 @@
           "id": "serv_1752489600037_tacmex",
           "nombre": "Tacos mexicanos",
           "precioFijo": 200,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600027_arrprim",
+          "nombre": "Arrolladitos primavera",
+          "precioFijo": 100,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600021_bifech",
+          "nombre": "Bife al champiñón c/ guarnición",
+          "precioFijo": 480,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600036_calzita",
+          "nombre": "Calzones Italianos",
+          "precioFijo": 200,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600011_cerdmos",
+          "nombre": "Cerdo a la mostaza c/ guarnición",
+          "precioFijo": 350,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_cerdo_relleno",
+          "nombre": "Cerdo relleno c/ guarnición",
+          "precioFijo": 300,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600034_minichiv",
+          "nombre": "Mini Chivitos",
+          "precioFijo": 180,
           "categoria": "Entrada",
           "esRegalo": false
         }

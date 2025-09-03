@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -10,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Checkbox } from '@/components/ui/checkbox';
@@ -73,6 +72,77 @@ function SortableServiceItem({ service, children }: { service: ServicioIncluidoA
     );
 }
 
+function AddNewServiceDialog({ 
+  onServiceCreated
+}: { 
+  onServiceCreated: (newService: ServicioEmpresa) => void 
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [nombre, setNombre] = useState('');
+  const [precioVenta, setPrecioVenta] = useState('');
+  const [categoria, setCategoria] = useState<ServicioCategoriaArmadoRapido>('Entrada');
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
+
+  const handleSaveNewService = async () => {
+    if (!nombre.trim() || !precioVenta.trim()) {
+      toast({ title: "Datos incompletos", variant: "destructive" });
+      return;
+    }
+    setIsSaving(true);
+    const newServiceData: Omit<ServicioEmpresa, 'id'> = {
+      nombre,
+      precioVenta: parseFloat(precioVenta),
+      categoria: 'Servicio de catering',
+      subcategoria: categoria,
+      tipoItem: 'Servicio',
+      unidad: 'Por persona',
+    };
+    try {
+      const result = await saveServicioEmpresa(newServiceData);
+      if (result.success && result.servicio) {
+        toast({ title: "Servicio Creado" });
+        onServiceCreated(result.servicio);
+        setIsOpen(false);
+        setNombre('');
+        setPrecioVenta('');
+      } else {
+        throw new Error(result.error || "No se pudo crear el servicio.");
+      }
+    } catch (err: any) {
+       toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full text-xs">
+          <PlusCircle className="w-4 h-4 mr-2" />Crear Servicio de Catering
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Crear Nuevo Servicio de Catering</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio*</Label><Input id="new-serv-name" value={nombre} onChange={e => setNombre(e.target.value)} /></div>
+          <div className="space-y-1"><Label htmlFor="new-serv-price">Precio por Persona*</Label><Input id="new-serv-price" type="number" value={precioVenta} onChange={e => setPrecioVenta(e.target.value)} /></div>
+          <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría*</Label><Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select></div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+          <Button onClick={handleSaveNewService} disabled={isSaving}>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : "Guardar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function AddOrEditDialog({
     isOpen,
     onOpenChange,
@@ -80,6 +150,7 @@ function AddOrEditDialog({
     item: initialItem,
     vendibleServices: initialVendibleServices,
     mode,
+    onServiceCreated
 }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
@@ -87,6 +158,7 @@ function AddOrEditDialog({
     item: MenuArmadoRapido | PaqueteArmadoRapido | null;
     vendibleServices: ServicioEmpresa[];
     mode: 'menu' | 'paquete';
+    onServiceCreated: () => void;
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(initialItem);
     const [searchTerm, setSearchTerm] = useState('');
@@ -151,7 +223,7 @@ function AddOrEditDialog({
                     id: service.id,
                     nombre: service.nombre,
                     precioFijo: service.precioVenta || 0,
-                    categoria: mode === 'menu' ? 'Entrada' : 'Servicio Adicional',
+                    categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
                     calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
                     precioBase: mode === 'paquete' ? service.precioVenta || 0 : undefined,
                     esRegalo: false,
@@ -380,6 +452,9 @@ function AddOrEditDialog({
                     <div className="flex flex-col gap-2 min-h-0">
                         <Label>Catálogo de Servicios Vendibles</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
+                        {mode === 'menu' && (
+                          <AddNewServiceDialog onServiceCreated={onServiceCreated}/>
+                        )}
                         <ScrollArea className="h-full border rounded-md p-2">
                           {initialVendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
                             <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
@@ -515,7 +590,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'menu' ? cateringServices : vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'menu' ? cateringServices : vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de "Mi Presupuesto al Instante"</h1></div>
         <div className="flex gap-2">
