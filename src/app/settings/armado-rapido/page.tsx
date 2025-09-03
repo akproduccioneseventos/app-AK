@@ -171,7 +171,7 @@ function AddOrEditDialog({
       const lastTramo = currentTramos[currentTramos.length - 1];
       const newDesde = lastTramo ? (lastTramo.hasta || 0) + 1 : 1;
       
-      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde, precio: 0 };
+      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde + 49, precio: 0 };
       
       handleServiceDetailChange(serviceId, 'tramosDePrecio', [...currentTramos, newTramo]);
     };
@@ -368,19 +368,19 @@ export default function ArmadoRapidoSettingsPage() {
   
   const handleSaveItem = useCallback((itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
     if (!config) return;
-    const newConfig = {...config} as ArmadoRapidoConfig;
+    let newConfig = { ...config };
 
     if (modalMode === 'menu') {
-      newConfig.menus = [itemToSave as MenuArmadoRapido];
-    } else {
-      const list = newConfig.paquetes || [];
+      newConfig = { ...newConfig, menus: [itemToSave as MenuArmadoRapido] };
+    } else { // It's a 'paquete'
+      const list = [...(config.paquetes || [])];
       const existingIndex = list.findIndex(i => i.id === itemToSave.id);
       if (existingIndex > -1) {
           list[existingIndex] = itemToSave as PaqueteArmadoRapido;
       } else {
           list.push(itemToSave as PaqueteArmadoRapido);
       }
-      newConfig.paquetes = [...list];
+      newConfig = { ...newConfig, paquetes: list };
     }
     
     handleSaveConfig(newConfig);
@@ -482,3 +482,4 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
+

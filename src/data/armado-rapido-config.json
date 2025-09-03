@@ -97,57 +97,6 @@
           "esRegalo": false
         }
       ]
-    },
-    {
-      "id": "new_paquete_1756927980196",
-      "nombre": "Nuevo Paquete",
-      "serviciosIncluidos": [
-        {
-          "id": "serv_1752489600012_pollcre",
-          "nombre": "Pollo a la crema c/ guarnición",
-          "precioFijo": 350,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 350,
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600007_pollarr",
-          "nombre": "Pollo arrollado c/ guarnición",
-          "precioFijo": 350,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 350,
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600019_strogon",
-          "nombre": "Strogonoff de pollo c/ fritas",
-          "precioFijo": 400,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 400,
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600032_salpoll",
-          "nombre": "Salpicón de pollo",
-          "precioFijo": 150,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 150,
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600015_napoli",
-          "nombre": "Napolitana c/ fritas",
-          "precioFijo": 380,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 380,
-          "esRegalo": false
-        }
-      ]
     }
   ],
   "menus": [
