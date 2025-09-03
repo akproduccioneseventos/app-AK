@@ -263,7 +263,11 @@ function AddOrEditDialog({
                                                             <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                             </SelectContent>
                                                         </Select>
-                                                        {s.calculationMethod === 'fijo' && <Input type="number" placeholder="Precio Fijo" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                                        {s.calculationMethod === 'fijo' && (
+                                                            <div className="text-sm p-2 bg-gray-50 rounded-md">
+                                                                El precio fijo del servicio es <strong>{formatCurrency(s.precioBase)}</strong>.
+                                                            </div>
+                                                        )}
                                                         {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                                         {s.calculationMethod === 'ratio' && (
                                                             <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/></div>
@@ -482,4 +486,3 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
-

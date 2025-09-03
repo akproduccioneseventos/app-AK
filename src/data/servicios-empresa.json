@@ -1,5 +1,11 @@
-
 [
+  {
+    "id": "serv_invitaciones_digitales",
+    "nombre": "Invitaciones digitales",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "precioVenta": 1500
+  },
   {
     "id": "serv_1752489600004_pchef",
     "nombre": "Cheff",
@@ -31,6 +37,20 @@
     "categoria": "Personal",
     "unidad": "Por evento",
     "precioVenta": 2900
+  },
+  {
+    "id": "serv_mozo_cocina",
+    "nombre": "Mozo de cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "precioVenta": 2800
+  },
+  {
+    "id": "serv_mozos",
+    "nombre": "Mozos",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "precioVenta": 2800
   },
   {
     "id": "serv_1752489600118_albdig",
@@ -283,6 +303,20 @@
     "precioVenta": 150
   },
   {
+    "id": "serv_sandwiches_saladitos",
+    "nombre": "Entrada 23: Sándwiches y Saladitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 200
+  },
+  {
+    "id": "serv_picada_fiambres",
+    "nombre": "Entrada 8: Picada de fiambres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 120
+  },
+  {
     "id": "serv_1752489600025_faina",
     "nombre": "Faina",
     "tipoItem": "Servicio",
@@ -380,6 +414,20 @@
     "subcategoria": "Menús para Niños",
     "unidad": "Por persona",
     "precioVenta": 349
+  },
+  {
+    "id": "serv_menu_ninos_hamburguesa",
+    "nombre": "Menú niños- Hamburguesa c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 200
+  },
+  {
+    "id": "serv_menu_ninos_panchos",
+    "nombre": "Menú niños- Panchos c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 165
   },
   {
     "id": "serv_1752489600051_menveg",
@@ -517,6 +565,13 @@
     "precioVenta": 120
   },
   {
+    "id": "serv_cerdo_relleno",
+    "nombre": "Plato principal 4: Cerdo relleno c/ guarnición",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 300
+  },
+  {
     "id": "serv_1752489600012_pollcre",
     "nombre": "Pollo a la crema c/ guarnición",
     "tipoItem": "Servicio",
@@ -560,6 +615,13 @@
     "subcategoria": "Entradas",
     "unidad": "Por persona",
     "precioVenta": 220
+  },
+  {
+    "id": "serv_cafe_te",
+    "nombre": "Servicio de café y te",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 35
   },
   {
     "id": "serv_1752489600056_showpiz",
@@ -724,6 +786,13 @@
     "precioVenta": 100
   },
   {
+    "id": "serv_vajilla_completa",
+    "nombre": "Vajilla completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 70
+  },
+  {
     "id": "serv_1752489600102_banner",
     "nombre": "BANNER GIGANTOGRAFIA",
     "tipoItem": "Servicio",
@@ -740,6 +809,13 @@
     "subcategoria": "Centros de Mesa",
     "unidad": "Unidad",
     "precioVenta": 250
+  },
+  {
+    "id": "serv_cuadro_firmas",
+    "nombre": "Cuadro de firmas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 2900
   },
   {
     "id": "serv_1752489600101_cuafirm",
@@ -765,6 +841,13 @@
     "categoria": "Servicio de decoración",
     "subcategoria": "Textiles",
     "unidad": "Por persona",
+    "precioVenta": 70
+  },
+  {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
     "precioVenta": 70
   },
   {
@@ -861,6 +944,13 @@
     "precioVenta": 23900
   },
   {
+    "id": "serv_pantalla_proyector",
+    "nombre": "Pantalla gigante y proyector",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 2000
+  },
+  {
     "id": "item_1756162086596_etozu9y",
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
@@ -869,12 +959,26 @@
     "precioVenta": 9000
   },
   {
+    "id": "serv_discoteca_completa",
+    "nombre": "Servicio de discoteca",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "precioVenta": 18000
+  },
+  {
     "id": "serv_1752489600108_sonido",
     "nombre": "Sonido",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
     "unidad": "Por evento",
     "precioVenta": 8000
+  },
+  {
+    "id": "serv_fotocabina",
+    "nombre": "Fotocabina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "precioVenta": 2900
   },
   {
     "id": "serv_1752489600110_fotcab",
@@ -917,6 +1021,13 @@
     "precioVenta": 3000
   },
   {
+    "id": "serv_video_vida",
+    "nombre": "Video de vida",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "precioVenta": 1900
+  },
+  {
     "id": "serv_1752489600115_fotciv",
     "nombre": "FOTOGRAFIA CIVIL",
     "tipoItem": "Servicio",
@@ -947,6 +1058,13 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3890
+  },
+  {
+    "id": "serv_fotografia_fiesta",
+    "nombre": "Servicio de fotografía",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 10500
   },
   {
     "id": "serv_1752489600084_fuentchoc",
@@ -1057,6 +1175,13 @@
     "precioVenta": 1100
   },
   {
+    "id": "serv_mesa_postres",
+    "nombre": "Postres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "precioVenta": 1100
+  },
+  {
     "id": "serv_1752489600083_selvneg",
     "nombre": "Selva Negra",
     "tipoItem": "Servicio",
@@ -1066,136 +1191,10 @@
     "precioVenta": 1400
   },
   {
-    "id": "serv_discoteca_completa",
-    "nombre": "Servicio de discoteca",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
-    "precioVenta": 18000
-  },
-  {
-    "id": "serv_pantalla_proyector",
-    "nombre": "Pantalla gigante y proyector",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
-    "precioVenta": 2000
-  },
-  {
-    "id": "serv_fotocabina",
-    "nombre": "Fotocabina",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "precioVenta": 2900
-  },
-  {
-    "id": "serv_fotografia_fiesta",
-    "nombre": "Servicio de fotografía",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "precioVenta": 10500
-  },
-  {
-    "id": "serv_mesa_postres",
-    "nombre": "Postres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "precioVenta": 1100
-  },
-  {
     "id": "serv_torta_principal",
     "nombre": "Torta principal",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "precioVenta": 3500
-  },
-  {
-    "id": "serv_cuadro_firmas",
-    "nombre": "Cuadro de firmas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 2900
-  },
-  {
-    "id": "serv_cafe_te",
-    "nombre": "Servicio de café y te",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 35
-  },
-  {
-    "id": "serv_vajilla_completa",
-    "nombre": "Vajilla completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 70
-  },
-  {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 70
-  },
-  {
-    "id": "serv_mozo_cocina",
-    "nombre": "Mozo de cocina",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "precioVenta": 2800
-  },
-  {
-    "id": "serv_mozos",
-    "nombre": "Mozos",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "precioVenta": 2800
-  },
-  {
-    "id": "serv_picada_fiambres",
-    "nombre": "Entrada 8: Picada de fiambres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 120
-  },
-  {
-    "id": "serv_sandwiches_saladitos",
-    "nombre": "Entrada 23: Sándwiches y Saladitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 200
-  },
-  {
-    "id": "serv_menu_ninos_panchos",
-    "nombre": "Menú niños- Panchos c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 165
-  },
-  {
-    "id": "serv_menu_ninos_hamburguesa",
-    "nombre": "Menú niños- Hamburguesa c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 200
-  },
-  {
-    "id": "serv_cerdo_relleno",
-    "nombre": "Plato principal 4: Cerdo relleno c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 300
-  },
-  {
-    "id": "serv_video_vida",
-    "nombre": "Video de vida",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de filmación",
-    "precioVenta": 1900
-  },
-  {
-    "id": "serv_invitaciones_digitales",
-    "nombre": "Invitaciones digitales",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "precioVenta": 1500
   }
 ]
