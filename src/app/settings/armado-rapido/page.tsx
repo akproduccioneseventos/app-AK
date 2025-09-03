@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -257,35 +257,42 @@ function AddOrEditDialog({
           if (s.id !== serviceId) return s;
           
           const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-          if(!catalogService) return s;
           
           const updatedService = { ...s, [field]: value };
           
-          if (field === 'nombre' && typeof value === 'string') {
-              const serviceToUpdateInCatalog = { ...catalogService, nombre: value };
-              trackModification(serviceToUpdateInCatalog);
-          }
-           if (field === 'precioBase' || field === 'precioPorPersona' || (field === 'precioFijo' && mode === 'menu')) {
-              const serviceToUpdateInCatalog = { ...catalogService, precioVenta: Number(value) || 0 };
-              trackModification(serviceToUpdateInCatalog);
-           }
-            if (field === 'calculationMethod') {
-              updatedService.precioBase = undefined;
-              updatedService.precioPorPersona = undefined;
-              updatedService.invitadosPorUnidad = undefined;
-              updatedService.tramosDePrecio = undefined;
-              if (value === 'fijo' || value === 'ratio') {
-                updatedService.precioBase = catalogService?.precioVenta || 0;
-              } else if(value === 'porPersona') {
-                updatedService.precioPorPersona = catalogService?.precioVenta || 0;
+          if(catalogService) {
+              if (field === 'nombre' && typeof value === 'string') {
+                  const serviceToUpdateInCatalog = { ...catalogService, nombre: value };
+                  trackModification(serviceToUpdateInCatalog);
               }
-            }
-             if (field === 'esRegalo') {
-                const precioOriginal = catalogService?.precioVenta || 0;
-                updatedService.precioBase = value ? 0 : precioOriginal;
-                updatedService.precioFijo = value ? 0 : precioOriginal;
-                updatedService.precioPorPersona = value ? 0 : updatedService.precioPorPersona;
-             }
+               if (field === 'precioBase' || field === 'precioPorPersona' || (field === 'precioFijo' && mode === 'menu')) {
+                  const numericValue = Number(value) || 0;
+                  const serviceToUpdateInCatalog = { ...catalogService, precioVenta: numericValue };
+                  trackModification(serviceToUpdateInCatalog);
+                  if (field === 'precioFijo' && mode === 'menu') {
+                      updatedService['precioFijo'] = numericValue;
+                  } else {
+                     updatedService[field] = numericValue;
+                  }
+               }
+                if (field === 'calculationMethod') {
+                  updatedService.precioBase = undefined;
+                  updatedService.precioPorPersona = undefined;
+                  updatedService.invitadosPorUnidad = undefined;
+                  updatedService.tramosDePrecio = undefined;
+                  if (value === 'fijo' || value === 'ratio') {
+                    updatedService.precioBase = catalogService?.precioVenta || 0;
+                  } else if(value === 'porPersona') {
+                    updatedService.precioPorPersona = catalogService?.precioVenta || 0;
+                  }
+                }
+                 if (field === 'esRegalo') {
+                    const precioOriginal = catalogService?.precioVenta || 0;
+                    updatedService.precioBase = value ? 0 : precioOriginal;
+                    updatedService.precioFijo = value ? 0 : precioOriginal;
+                    updatedService.precioPorPersona = value ? 0 : updatedService.precioPorPersona;
+                 }
+          }
             return updatedService;
           });
 
@@ -460,7 +467,7 @@ function AddOrEditDialog({
                     </div>
                     {/* Columna Derecha: Catálogo de Servicios */}
                     <div className="flex flex-col gap-2 min-h-0">
-                        <Label>Catálogo de Servicios Vendibles</Label>
+                        <Label>Catálogo de Servicios</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
                         <AddNewServiceDialog 
                           onServiceCreated={onServiceCreated} 
@@ -507,7 +514,7 @@ export default function ArmadoRapidoSettingsPage() {
         paquetes: fetchedConfig.paquetes || [],
         menus: fetchedConfig.menus || [],
       });
-      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio'));
+      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta && s.precioVenta > 0));
     } catch (err: any) {
       toast({ title: "Error", description: "No se pudo cargar la configuración.", variant: "destructive" });
     } finally {
@@ -606,7 +613,7 @@ export default function ArmadoRapidoSettingsPage() {
     <div className="max-w-6xl mx-auto space-y-8">
       {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'menu' ? cateringServices : otherServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de "Mi Presupuesto al Instante"</h1></div>
+        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración "Mi Presupuesto al Instante"</h1></div>
         <div className="flex gap-2">
             <Link href="/empresa/todos-los-servicios/nuevo?type=servicio" passHref>
                 <Button variant="outline"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio al Catálogo</Button>
