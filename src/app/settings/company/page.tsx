@@ -7,10 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Building, Save, Loader2 } from 'lucide-react';
-import React, { useState, type FormEvent } from 'react';
+import { ArrowLeft, Building, Save, Loader2, Image as ImageIconLucide } from 'lucide-react';
+import React, { useState, type FormEvent, useEffect, useCallback, type ChangeEvent } from 'react';
+import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { getInvoiceTemplateSettings, saveInvoiceTemplateSettings } from '@/app/actions/settings';
+import type { InvoiceTemplateSettings } from '@/types/settings';
+import { defaultInvoiceTemplateSettings } from '@/types/settings';
+
 
 // Placeholder function for future save logic
 async function saveCompanyInfo(info: any) {
@@ -30,19 +35,80 @@ export default function CompanySettingsPage() {
   const [defaultDocumentNotes, setDefaultDocumentNotes] = useState("El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.");
   const [invoiceCustomFooter, setInvoiceCustomFooter] = useState("Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.");
   
-  const [isSaving, setIsSaving] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadSettings = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const fetchedSettings = await getInvoiceTemplateSettings();
+      // For now, we are mixing concerns, this should be refactored later
+      // to have a dedicated company settings data file.
+      setLogoUrl(fetchedSettings.logoUrl);
+      setLogoPreview(fetchedSettings.logoUrl);
+    } catch(e) {
+       toast({ title: "Error", description: "No se pudo cargar la configuración del logo.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+  
+  
+  const handleLogoFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setLogoPreview(dataUrl);
+        setLogoUrl(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setLogoPreview(null);
+      setLogoUrl(null);
+    }
+  };
+  
+  const handleLogoUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const url = event.target.value;
+    setLogoPreview(url || null);
+    setLogoUrl(url || null);
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    const companyInfo = { companyName, companyAddress, companyTaxId, companyContact, defaultDocumentNotes, invoiceCustomFooter };
-    const result = await saveCompanyInfo(companyInfo);
-    if (result.success) {
-      toast({ title: "Información Guardada", description: "Los datos de la empresa han sido actualizados (simulado)." });
-    } else {
-      toast({ title: "Error", description: "No se pudo guardar la información (simulado).", variant: "destructive" });
+    
+    // This is temporary. In a real app, you'd have a dedicated saveCompanyInfo action
+    // that also handles the logo, and separate state for company details and logo.
+    // For now, we save it via the invoice template settings.
+    const settingsToSave: Partial<InvoiceTemplateSettings> = { logoUrl: logoUrl };
+
+    try {
+      // First save the logo part
+      const result = await saveInvoiceTemplateSettings(settingsToSave as InvoiceTemplateSettings);
+      if (!result.success) {
+        throw new Error(result.error || "No se pudo guardar el logo.");
+      }
+
+      // Then simulate saving the rest of the company info
+      const companyInfo = { companyName, companyAddress, companyTaxId, companyContact, defaultDocumentNotes, invoiceCustomFooter };
+      await saveCompanyInfo(companyInfo);
+
+      toast({ title: "Información Guardada", description: "Los datos de la empresa y el logo han sido actualizados." });
+    } catch (err: any) {
+       toast({ title: "Error", description: err.message || "No se pudo guardar la información.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   return (
@@ -69,6 +135,28 @@ export default function CompanySettingsPage() {
               <CardDescription>Esta información se usará en tus facturas, presupuestos y otros documentos.</CardDescription>
           </CardHeader>
             <CardContent className="space-y-6">
+                {/* Logo Section */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium flex items-center gap-2">
+                    <ImageIconLucide className="w-5 h-5 text-primary/80"/> Logotipo de la Empresa
+                  </Label>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="w-36 h-20 border rounded-md flex items-center justify-center bg-muted overflow-hidden flex-shrink-0 p-1">
+                      {logoPreview ? (
+                        <NextImage src={logoPreview} alt="Logo Preview" width={140} height={70} className="object-contain" data-ai-hint="company logo" onError={() => setLogoPreview(null)}/>
+                      ) : <span className="text-xs text-muted-foreground">Sin logo</span>}
+                    </div>
+                    <div className="space-y-2 flex-grow">
+                      <Label htmlFor="logo-upload" className="text-sm">Subir nuevo logo</Label>
+                      <Input id="logo-upload" type="file" accept="image/png, image/jpeg" onChange={handleLogoFileChange} className="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving} />
+                       <p className="text-xs text-muted-foreground pt-1">O pega una URL directa:</p>
+                       <Input id="logo-url" type="url" value={logoUrl || ''} onChange={handleLogoUrlChange} placeholder="https://ejemplo.com/logo.png" className="text-sm h-9" disabled={isSaving}/>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+            
                 <div className="space-y-2"><Label htmlFor="company-name">Nombre de la Empresa</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Tu Nombre Comercial" disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="company-taxid">RUT / NIF / Identificación Fiscal</Label><Input id="company-taxid" value={companyTaxId} onChange={(e) => setCompanyTaxId(e.target.value)} placeholder="Número de Identificación Fiscal" disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="company-address">Dirección Fiscal</Label><Textarea id="company-address" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Calle, Número, Ciudad, País" rows={2} disabled={isSaving}/></div>
@@ -78,7 +166,7 @@ export default function CompanySettingsPage() {
                 <div className="space-y-2"><Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label><Textarea id="invoice-custom-footer" value={invoiceCustomFooter} onChange={(e) => setInvoiceCustomFooter(e.target.value)} placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." rows={3} disabled={isSaving} className="text-sm"/></div>
             </CardContent>
             <CardFooter className="border-t pt-6">
-                 <Button type="submit" disabled={isSaving}>
+                 <Button type="submit" disabled={isSaving || isLoading}>
                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
                     {isSaving ? "Guardando..." : "Guardar Información"}
                 </Button>
