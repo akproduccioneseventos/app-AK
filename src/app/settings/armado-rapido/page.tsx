@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -257,7 +258,7 @@ function AddOrEditDialog({
           
           const catalogService = vendibleServices.find(vs => vs.id === serviceId);
           
-          const updatedService = { ...s, [field]: value };
+          let updatedService = { ...s, [field]: value };
           
           if(catalogService) {
               if (field === 'nombre' && typeof value === 'string') {
@@ -268,11 +269,7 @@ function AddOrEditDialog({
                   const numericValue = Number(value) || 0;
                   const serviceToUpdateInCatalog = { ...catalogService, precioVenta: numericValue };
                   trackModification(serviceToUpdateInCatalog);
-                  if (field === 'precioFijo' && mode === 'menu') {
-                      updatedService['precioFijo'] = numericValue;
-                  } else {
-                     updatedService[field] = numericValue;
-                  }
+                  updatedService = { ...updatedService, [field]: numericValue };
                }
                 if (field === 'calculationMethod') {
                   updatedService.precioBase = undefined;
@@ -431,7 +428,7 @@ function AddOrEditDialog({
                                                 {groupedAndSortedServices[categoryName].map(s => (
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
-                                                            <Checkbox id={`current-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id))}/>
+                                                            <Checkbox id={`current-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id))} />
                                                             <div className="flex-grow">
                                                                 <Input 
                                                                     value={s.nombre} 
@@ -514,7 +511,7 @@ export default function ArmadoRapidoSettingsPage() {
         paquetes: fetchedConfig.paquetes || [],
         menus: fetchedConfig.menus || [],
       });
-      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta && s.precioVenta > 0));
+      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0));
     } catch (err: any) {
       toast({ title: "Error", description: "No se pudo cargar la configuración.", variant: "destructive" });
     } finally {

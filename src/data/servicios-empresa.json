@@ -67,7 +67,7 @@
     "categoria": "Servicio de bebidas",
     "subcategoria": "Barras",
     "unidad": "Por persona",
-    "precioVenta": 299
+    "precioVenta": 350
   },
   {
     "id": "serv_1752489600087_bebidjug",
@@ -104,6 +104,14 @@
     "subcategoria": "Bebidas con Alcohol",
     "unidad": "Unidad",
     "precioVenta": 6000
+  },
+  {
+    "id": "item_1756938259020_8m0yxv8",
+    "nombre": "Cofe Break",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Por evento",
+    "precioVenta": 3500
   },
   {
     "id": "serv_1752489600091_copon",
@@ -790,7 +798,7 @@
   },
   {
     "id": "serv_1752489600071_mobil",
-    "nombre": "Mobiliario",
+    "nombre": "Mobiliario completo",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "subcategoria": "Mobiliario",
@@ -1084,6 +1092,6 @@
     "nombre": "Torta principal",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "precioVenta": 3500
+    "precioVenta": 95
   }
 ]

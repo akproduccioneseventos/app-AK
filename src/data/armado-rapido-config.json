@@ -43,6 +43,12 @@
           "categoria": "Plato Principal"
         },
         {
+          "id": "serv_1752489600052_menninham",
+          "nombre": "Hamburguesa completa c/ fritas",
+          "precioFijo": "290",
+          "categoria": "Menú Adolescente / Niño"
+        },
+        {
           "id": "serv_sandwiches_saladitos",
           "nombre": "Sandwiches y Saladitos",
           "precioFijo": "220",
@@ -188,6 +194,20 @@
           "precioFijo": 180,
           "categoria": "Entrada",
           "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600045_shushi",
+          "nombre": "Sushi",
+          "precioFijo": 250,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1756937639800_z1mjmoj",
+          "nombre": "Panchos de MEDIO METRO",
+          "precioFijo": 200,
+          "categoria": "Menú Adolescente / Niño",
+          "esRegalo": false
         }
       ]
     }
@@ -196,6 +216,133 @@
     {
       "id": "paquete_basico",
       "nombre": "Paquete Básico",
+      "descripcion": "Servicios esenciales para tu evento.",
+      "serviciosIncluidos": [
+        {
+          "id": "serv_1752489600070_mantcomp",
+          "nombre": "Mantelería completa",
+          "precioFijo": 70,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 70,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600071_mobil",
+          "nombre": "Mobiliario completo",
+          "precioFijo": 69,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 69,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600069_vajcomp",
+          "nombre": "Vajilla completa",
+          "precioFijo": 70,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "porPersona",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600001_pmozo",
+          "nombre": "Mozo",
+          "precioBase": 2900,
+          "precioPorPersona": 0,
+          "calculationMethod": "ratio",
+          "invitadosPorUnidad": 25,
+          "categoria": "Servicio Adicional"
+        },
+        {
+          "id": "serv_1752489600002_pcoci",
+          "nombre": "Mozo de cocina",
+          "precioBase": 2900,
+          "precioPorPersona": 0,
+          "calculationMethod": "ratio",
+          "invitadosPorUnidad": 25,
+          "categoria": "Servicio Adicional"
+        },
+        {
+          "id": "item_1756162086596_etozu9y",
+          "nombre": "Servicio de discoteca",
+          "precioFijo": 9000,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "tramos",
+          "esRegalo": false,
+          "tramosDePrecio": [
+            {
+              "id": "tramo_1756927049912",
+              "desde": 1,
+              "hasta": 80,
+              "precio": 0
+            },
+            {
+              "id": "tramo_1756927091333",
+              "desde": 81,
+              "hasta": 130,
+              "precio": 0
+            },
+            {
+              "id": "tramo_1756927105655",
+              "desde": 131,
+              "hasta": 250,
+              "precio": 0
+            }
+          ]
+        },
+        {
+          "id": "item_1756162117407_jnb051r",
+          "nombre": "Servicio de decoración",
+          "precioFijo": 14500,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 14500,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600116_fotfie",
+          "nombre": "Fotografía de la fiesta",
+          "precioFijo": 8500,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 8500,
+          "esRegalo": false
+        },
+        {
+          "id": "item_1756938259020_8m0yxv8",
+          "nombre": "Cofe Break",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "nombre": "Invitaciones digitales",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "serv_1752489600118_albdig",
+          "nombre": "Álbum digital",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        }
+      ]
+    },
+    {
+      "id": "new_paquete_1756938354471",
+      "nombre": "Paquete Intermedio",
       "descripcion": "Servicios esenciales para tu evento.",
       "serviciosIncluidos": [
         {
@@ -287,6 +434,100 @@
           "calculationMethod": "fijo",
           "precioBase": 8500,
           "esRegalo": false
+        },
+        {
+          "id": "item_1756938259020_8m0yxv8",
+          "nombre": "Cofe Break",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "nombre": "Invitaciones digitales",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "serv_1752489600118_albdig",
+          "nombre": "Álbum digital",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "serv_cuadro_firmas",
+          "nombre": "Cuadro de firmas",
+          "precioFijo": 2900,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 2900,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600117_fotext",
+          "nombre": "Fotografía de exteriores",
+          "precioFijo": 3500,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 3500,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600086_barlib",
+          "nombre": "Barra libre con tragos",
+          "precioFijo": 299,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioPorPersona": 350
+        },
+        {
+          "id": "serv_video_vida",
+          "nombre": "Video de vida",
+          "precioFijo": 0,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 0,
+          "esRegalo": true,
+          "precioPorPersona": 0
+        },
+        {
+          "id": "serv_fotocabina",
+          "nombre": "Fotocabina",
+          "precioFijo": 2900,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 2900,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_torta_principal",
+          "nombre": "Torta principal",
+          "precioFijo": 3500,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioPorPersona": 95
+        },
+        {
+          "id": "serv_1752489600084_fuentchoc",
+          "nombre": "Fuente de chocolate con mesa de frutas",
+          "precioFijo": 119,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioPorPersona": 119
         }
       ]
     }
