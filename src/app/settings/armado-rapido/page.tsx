@@ -145,11 +145,6 @@ function AddOrEditDialog({
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="font-headline text-xl">{localItem.id && !localItem.id.startsWith('new_') ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú de Catering' : 'Paquete de Servicios'}</DialogTitle>
-                     <DialogDescription>
-                        {mode === 'menu' 
-                          ? "Gestiona todas las opciones de catering que tus clientes podrán elegir en el Armado Rápido."
-                          : "Define los paquetes de servicios adicionales como discoteca, fotografía, etc."}
-                    </DialogDescription>
                 </DialogHeader>
                 <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 py-2 min-h-0">
                     {/* Columna Izquierda: Detalles y Servicios Incluidos */}
@@ -169,16 +164,14 @@ function AddOrEditDialog({
                             <div className="space-y-2">
                               {(localItem.serviciosIncluidos || []).map(s => (
                                 <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2">
-                                  <div className="flex items-center gap-2 py-1">
+                                  <div className="flex items-center gap-3 py-2">
                                       <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                      <Label htmlFor={`current-${s.id}`} className="font-medium text-sm flex-grow cursor-pointer">{s.nombre}</Label>
                                       <CollapsibleTrigger asChild>
-                                        <button type="button" className="flex flex-1 items-center justify-between font-medium transition-all [&[data-state=open]>svg]:rotate-180 text-sm py-0 hover:no-underline flex-grow text-left">
-                                          <span>{s.nombre}</span>
-                                          <div className="flex items-center">
-                                            <span className="text-xs text-muted-foreground mr-1">Configurar</span>
-                                            <ChevronDown className={cn("h-4 w-4 transition-transform", openCollapsibleId === s.id && "rotate-180")} />
-                                          </div>
-                                        </button>
+                                          <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
+                                              Configurar Precio
+                                              <ChevronDown className={cn("h-4 w-4 transition-transform ml-1", openCollapsibleId === s.id && "rotate-180")} />
+                                          </Button>
                                       </CollapsibleTrigger>
                                   </div>
                                   <CollapsibleContent className="pt-3 mt-2 border-t space-y-3 px-1 pb-2">
@@ -295,7 +288,7 @@ export default function ArmadoRapidoSettingsPage() {
   const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
     setModalMode(mode);
     if(mode === 'menu'){
-        const menuToEdit = config?.menus[0] || { id: 'menu_catering', nombre: 'Menú de Catering', descripcion: 'Opciones de catering para el armado rápido', serviciosIncluidos: [] };
+        const menuToEdit = config?.menus[0] || { id: 'menu_catering', nombre: 'Menú de Catering', serviciosIncluidos: [] };
         setCurrentItem(menuToEdit);
     } else {
         setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo Paquete`, serviciosIncluidos: [] });
@@ -370,7 +363,13 @@ export default function ArmadoRapidoSettingsPage() {
                      <CardTitle className="text-base">{pkg.nombre}</CardTitle>
                      <div className="flex gap-1">
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog('paquete', pkg)}><Settings className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem('paquete', pkg.id)}><Trash2 className="w-4 h-4"/></Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="w-4 h-4"/></Button></AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader><AlertDialogTitle>¿Confirmar?</AlertDialogTitle><AlertDialogDescription>Se eliminará el paquete "{pkg.nombre}".</AlertDialogDescription></AlertDialogHeader>
+                                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteItem('paquete', pkg.id)} className="bg-destructive">Eliminar</AlertDialogAction></AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                      </div>
                    </CardHeader>
                    <CardContent className="px-3 pb-3">
