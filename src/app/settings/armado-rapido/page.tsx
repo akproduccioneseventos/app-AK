@@ -76,16 +76,16 @@ function SortableServiceItem({ service, children }: { service: ServicioIncluidoA
 function AddNewServiceDialog({
   onServiceCreated,
   serviceType,
-  existingCategories = []
+  vendibleServices = []
 }: { 
   onServiceCreated: (newService: ServicioEmpresa) => void,
   serviceType: 'catering' | 'general',
-  existingCategories?: string[]
+  vendibleServices?: ServicioEmpresa[]
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [nombre, setNombre] = useState('');
   const [precioVenta, setPrecioVenta] = useState('');
-  const [categoria, setCategoria] = useState<ServicioCategoriaArmadoRapido | CategoriaServicio>(serviceType === 'catering' ? 'Entrada' : '');
+  const [categoria, setCategoria] = useState<ServicioCategoriaArmadoRapido | CategoriaServicio>('');
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -120,9 +120,11 @@ function AddNewServiceDialog({
         setIsSaving(false);
     }
   };
+  
+  const existingCategories = useMemo(() => Array.from(new Set(vendibleServices.map(s => s.categoria))), [vendibleServices]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (open) setCategoria(''); setIsOpen(open); }}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full text-xs">
           <PlusCircle className="w-4 h-4 mr-2" />Crear Nuevo Servicio
@@ -159,7 +161,7 @@ function AddOrEditDialog({
     onOpenChange,
     onSave,
     item: initialItem,
-    vendibleServices: initialVendibleServices,
+    vendibleServices,
     mode,
     onServiceCreated
 }: {
@@ -221,6 +223,7 @@ function AddOrEditDialog({
     };
 
     const handleToggleService = (service: ServicioEmpresa) => {
+        if (!service) return; // Guard against undefined service
         setLocalItem(prev => {
             if (!prev) return null;
             const currentServices = prev.serviciosIncluidos || [];
@@ -254,7 +257,7 @@ function AddOrEditDialog({
         const updatedServiciosIncluidos = prev.serviciosIncluidos.map(s => {
           if (s.id !== serviceId) return s;
           
-          const catalogService = initialVendibleServices.find(vs => vs.id === serviceId);
+          const catalogService = vendibleServices.find(vs => vs.id === serviceId);
           if(!catalogService) return s; // Should not happen
           
           const updatedService = { ...s, [field]: value };
@@ -377,7 +380,7 @@ function AddOrEditDialog({
                                                 {/* Paquete Item Content */}
                                                 <Collapsible onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                 <div className="flex items-center gap-3 py-2">
-                                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id)!)} />
+                                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
                                                     <div className="flex-grow"><Input value={s.nombre} onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/></div>
                                                     <CollapsibleTrigger asChild>
                                                         <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
@@ -423,7 +426,7 @@ function AddOrEditDialog({
                                                 {groupedAndSortedServices[categoryName].map(s => (
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
-                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id)!)} />
+                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
                                                             <div className="flex-grow">
                                                                 <Input 
                                                                     value={s.nombre} 
@@ -463,11 +466,10 @@ function AddOrEditDialog({
                         <AddNewServiceDialog 
                           onServiceCreated={onServiceCreated} 
                           serviceType={mode === 'menu' ? 'catering' : 'general'}
-                          existingCategories={mode === 'general' ? Array.from(new Set(initialVendibleServices.map(s => s.categoria))) : []}
+                          vendibleServices={vendibleServices}
                         />
                         <ScrollArea className="h-full border rounded-md p-2">
-                          {initialVendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => {
-                            if (s.precioVenta === undefined || s.precioVenta <= 0) return null;
+                          {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => {
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
                                 <Checkbox id={`cat-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(s)}/>
