@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -82,7 +83,7 @@ function AddNewServiceDialog({
   const [isOpen, setIsOpen] = useState(false);
   const [nombre, setNombre] = useState('');
   const [precioVenta, setPrecioVenta] = useState('');
-  const [categoria, setCategoria] = useState<ServicioCategoriaArmadoRapido | CategoriaServicio>(serviceType === 'catering' ? 'Entrada' : 'Otros servicios');
+  const [categoria, setCategoria] = useState<ServicioCategoriaArmadoRapido | CategoriaServicio>(serviceType === 'catering' ? 'Entrada' : '');
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -217,8 +218,7 @@ function AddOrEditDialog({
         setModifiedServices(prev => new Map(prev).set(service.id, service));
     };
 
-    const handleToggleService = (service?: ServicioEmpresa) => {
-        if (!service) return; // Prevent error if service is undefined
+    const handleToggleService = (service: ServicioEmpresa) => {
         setLocalItem(prev => {
             if (!prev) return null;
             const currentServices = prev.serviciosIncluidos || [];
@@ -460,12 +460,15 @@ function AddOrEditDialog({
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
                         <AddNewServiceDialog onServiceCreated={onServiceCreated} serviceType={mode === 'menu' ? 'catering' : 'general'}/>
                         <ScrollArea className="h-full border rounded-md p-2">
-                          {initialVendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
-                            <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
-                               <Checkbox id={`cat-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(s)}/>
-                               <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
-                            </div>
-                          ))}
+                          {initialVendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => {
+                            if (s.precioVenta === undefined || s.precioVenta <= 0) return null;
+                            return (
+                                <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
+                                <Checkbox id={`cat-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(s)}/>
+                                <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
+                                </div>
+                            )
+                          })}
                         </ScrollArea>
                     </div>
                 </div>
@@ -497,7 +500,7 @@ export default function ArmadoRapidoSettingsPage() {
         paquetes: fetchedConfig.paquetes || [],
         menus: fetchedConfig.menus || [],
       });
-      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0));
+      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio'));
     } catch (err: any) {
       toast({ title: "Error", description: "No se pudo cargar la configuración.", variant: "destructive" });
     } finally {
