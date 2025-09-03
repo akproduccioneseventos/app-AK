@@ -150,6 +150,14 @@
     "precioVenta": 70
   },
   {
+    "nombre": "Mesa de Jugos Naturales",
+    "precioVenta": 90,
+    "categoria": "Servicio de bebidas",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1756940250721_t95g4rl"
+  },
+  {
     "id": "serv_1752489600094_pinacol",
     "nombre": "Piña colada",
     "tipoItem": "Servicio",

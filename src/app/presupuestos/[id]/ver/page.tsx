@@ -1,15 +1,15 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Copy } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Copy, Gift } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
-import type { Presupuesto } from '@/types/presupuesto';
+import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
@@ -154,6 +154,40 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     }
   };
 
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal } = useMemo(() => {
+    if (!presupuesto) {
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0 };
+    }
+    
+    const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
+    const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+
+    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
+        const categoria = item.categoriaServicio || 'Otros Servicios';
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+    }, {} as Record<string, ItemPresupuestado[]>);
+
+    if (itemsRegalo.length > 0) {
+      agrupados['Regalos Incluidos'] = itemsRegalo;
+    }
+    
+    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + item.precioUnitario * item.cantidad, 0);
+    const costoRegular = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
+    
+    const bruto = costoRegular + costoRegalos;
+    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) - costoRegalos;
+    
+    return {
+      itemsAgrupados: agrupados,
+      costoTotalRegalos: costoRegalos,
+      subtotalBruto: bruto,
+      descuentoPromocional: Math.max(0, descPromo),
+      totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+    };
+
+  }, [presupuesto]);
 
   if (isLoading || !displaySettings) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
@@ -161,9 +195,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   if (error || !presupuesto) {
     return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado."}</p><Link href="/presupuestos" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
   }
-
-  const costoTotalSinDescuento = presupuesto.itemsPresupuestados.reduce((sum, item) => sum + (item.esRegalo ? 0 : item.costoTotalItem), 0);
-  const totalFinalMostrado = presupuesto.totalConDescuento ?? costoTotalSinDescuento;
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
@@ -243,86 +274,54 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         </section>
 
         {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
-            <section className="mb-6 print:mb-3">
-            <table className="w-full text-xs print:text-[7pt] border-collapse">
-                <thead className="print:bg-gray-100">
-                <tr>
-                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
-                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
-                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-50 w-[10%]">Unidad</th>
-                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
-                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
-                    <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
-                </tr>
-                </thead>
-                <tbody>
-                {presupuesto.itemsPresupuestados.map((item) => (
-                    <tr key={item.idServicioCatalogo}>
-                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 align-top">
-                        {item.nombreServicio}
-                        {presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
-                        <div className="text-gray-500 print:text-gray-600 text-[6pt]">{presupuesto.descuentoValor}% de descuento</div>
-                        )}
-                    </td>
-                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">{item.cantidad}</td>
-                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">$</td>
-                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right align-top">{formatCurrency(item.precioUnitario, false)}</td>
-                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-center align-top">
-                        {presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor && presupuesto.descuentoValor > 0 ? `${presupuesto.descuentoValor}%` : ''}
-                    </td>
-                    <td className="border border-gray-300 print:border-gray-400 px-2 py-1 text-right align-top">{formatCurrency(item.costoTotalItem, false)}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            </section>
+          <section className="mb-6 print:mb-3">
+            {Object.entries(itemsAgrupados).map(([categoria, items]) => (
+                <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
+                    <h3 className="font-bold text-sm mb-1 bg-gray-100 p-1 print:text-[8pt]">{categoria}</h3>
+                    <table className="w-full text-xs print:text-[7pt] border-collapse">
+                        <thead className="print:bg-gray-100">
+                        <tr>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {items.map((item) => (
+                            <tr key={item.idServicioCatalogo}>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.precioUnitario, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.costoTotalItem, false)}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            ))}
+          </section>
         )}
         
         {showAnnualAdjustmentLegend && (
           <div className="my-4 p-3 border-l-4 border-orange-400 bg-orange-50 text-orange-700 text-xs print:hidden">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <AlertTriangle className="h-5 w-5 text-orange-500" />
-              </div>
-              <div className="ml-3">
-                <p className="font-bold">Notificación de Ajuste Anual</p>
-                <p className="mt-1">
-                  Este presupuesto podría estar sujeto a un ajuste del <strong>{displaySettings.annualAdjustmentPercentage}%</strong> por realizarse en un año futuro. Este ajuste se aplicará al momento de la facturación final.
-                </p>
-              </div>
-            </div>
+            <div className="flex"><div className="flex-shrink-0"><AlertTriangle className="h-5 w-5 text-orange-500" /></div><div className="ml-3"><p className="font-bold">Notificación de Ajuste Anual</p><p className="mt-1">Este presupuesto podría estar sujeto a un ajuste del <strong>{displaySettings.annualAdjustmentPercentage}%</strong> por realizarse en un año futuro. Este ajuste se aplicará al momento de la facturación final.</p></div></div>
           </div>
         )}
 
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
-          <div className="w-full max-w-[220px] print:max-w-[180px] space-y-0.5">
-            {presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
-              <>
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>{formatCurrency(costoTotalSinDescuento)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-red-600">Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                  <span className="text-red-600">-{formatCurrency(costoTotalSinDescuento - totalFinalMostrado)}</span>
-                </div>
-              </>
-            )}
-            <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500">
-              <span>Importe total</span>
-              <span>{formatCurrency(totalFinalMostrado)}</span>
-            </div>
+          <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
+            <div className="flex justify-between"><span>Subtotal Bruto:</span><span>{formatCurrency(subtotalBruto)}</span></div>
+            {descuentoPromocional > 0 && <div className="flex justify-between text-red-600"><span>Descuento Promocional:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}
+            {costoTotalRegalos > 0 && <div className="flex justify-between text-red-600"><span>Ahorro por Regalos:</span><span>-{formatCurrency(costoTotalRegalos)}</span></div>}
+            <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500"><span className="text-base">TOTAL A PAGAR:</span><span className="text-base">{formatCurrency(totalFinal)}</span></div>
           </div>
         </section>
         
         <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-2 whitespace-pre-line">{presupuesto.notas}</p>}
-          {showAnnualAdjustmentLegend && (
-            <p className="mt-1 print:mt-0.5 text-orange-600">
-                Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
-            </p>
-           )}
+          {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
         </footer>
       </div>
     </div>
