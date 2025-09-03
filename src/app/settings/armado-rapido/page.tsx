@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -71,25 +71,33 @@ function AddOrEditDialog({
     onSave,
     item,
     vendibleServices,
+    setVendibleServices, // Para poder actualizar el catálogo principal
     mode,
 }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
-    onSave: (item: MenuArmadoRapido | PaqueteArmadoRapido) => void;
+    onSave: (item: MenuArmadoRapido | PaqueteArmadoRapido, updatedServices: ServicioEmpresa[]) => void;
     item: MenuArmadoRapido | PaqueteArmadoRapido | null;
     vendibleServices: ServicioEmpresa[];
+    setVendibleServices: React.Dispatch<React.SetStateAction<ServicioEmpresa[]>>;
     mode: 'menu' | 'paquete';
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(item);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
+    const [modifiedServices, setModifiedServices] = useState<Map<string, ServicioEmpresa>>(new Map());
     const sensors = useSensors(useSensor(PointerSensor));
 
     useEffect(() => {
         setLocalItem(item);
+        setModifiedServices(new Map()); // Reset modifications when item changes
     }, [item]);
 
     if (!localItem) return null;
+
+    const trackModification = (service: ServicioEmpresa) => {
+        setModifiedServices(prev => new Map(prev).set(service.id, service));
+    };
 
     const handleToggleService = (service: ServicioEmpresa) => {
         setLocalItem(prev => {
@@ -114,26 +122,43 @@ function AddOrEditDialog({
         });
     };
     
-    const handleServiceDetailChange = (
+     const handleServiceDetailChange = (
       serviceId: string, 
-      field: keyof ServicioIncluidoArmadoRapido, 
+      field: keyof ServicioIncluidoArmadoRapido | 'nombre', 
       value: string | number | boolean | TramoDePrecio[] | undefined
     ) => {
       setLocalItem(prev => {
         if (!prev) return null;
-        return {
-          ...prev,
-          serviciosIncluidos: prev.serviciosIncluidos.map(s => {
-            if (s.id !== serviceId) return s;
-            const updatedService = { ...s, [field]: value };
+        let serviceToUpdateInCatalog: ServicioEmpresa | undefined;
+
+        const updatedServiciosIncluidos = prev.serviciosIncluidos.map(s => {
+          if (s.id !== serviceId) return s;
+          const updatedService = { ...s, [field]: value };
+          
+          if (field === 'nombre') {
+              const catalogService = vendibleServices.find(vs => vs.id === serviceId);
+              if (catalogService) {
+                  serviceToUpdateInCatalog = { ...catalogService, nombre: value as string };
+                  trackModification(serviceToUpdateInCatalog);
+              }
+          }
+           if (field === 'precioFijo' || field === 'precioBase' || field === 'precioPorPersona') {
+              const catalogService = vendibleServices.find(vs => vs.id === serviceId);
+              if (catalogService) {
+                  serviceToUpdateInCatalog = { ...catalogService, precioVenta: Number(value) || 0 };
+                  trackModification(serviceToUpdateInCatalog);
+              }
+           }
             if (field === 'calculationMethod') {
               updatedService.precioBase = undefined;
               updatedService.precioPorPersona = undefined;
               updatedService.invitadosPorUnidad = undefined;
               updatedService.tramosDePrecio = undefined;
-              if (value === 'fijo' || value === 'ratio') {
+              if (value === 'fijo' || value === 'ratio' || value === 'porPersona') {
                 const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-                updatedService.precioBase = catalogService?.precioVenta || 0;
+                const precioOriginal = catalogService?.precioVenta || 0;
+                if(value === 'porPersona') updatedService.precioPorPersona = precioOriginal;
+                else updatedService.precioBase = precioOriginal;
               }
             }
              if (field === 'esRegalo') {
@@ -144,8 +169,13 @@ function AddOrEditDialog({
                 updatedService.precioPorPersona = value ? 0 : updatedService.precioPorPersona;
              }
             return updatedService;
-          })
-        }
+          });
+
+          if(serviceToUpdateInCatalog) {
+            setVendibleServices(prevServices => prevServices.map(ps => ps.id === serviceId ? serviceToUpdateInCatalog! : ps));
+          }
+
+          return { ...prev, serviciosIncluidos: updatedServiciosIncluidos };
       })
     };
     
@@ -203,6 +233,10 @@ function AddOrEditDialog({
         }
     };
 
+    const handleSaveAndExit = () => {
+        onSave(localItem, Array.from(modifiedServices.values()));
+    };
+
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
@@ -230,10 +264,10 @@ function AddOrEditDialog({
                                             <Collapsible onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                             <div className="flex items-center gap-3 py-2">
                                                 <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
-                                                <Label htmlFor={`current-${s.id}`} className="font-medium text-sm flex-grow cursor-pointer">{s.nombre}</Label>
+                                                <div className="flex-grow"><Input value={s.nombre} onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/></div>
                                                 <CollapsibleTrigger asChild>
                                                     <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
-                                                        Configurar Precio
+                                                        <Edit className="w-3 h-3 mr-1"/> Config
                                                         <ChevronDown className={cn("h-4 w-4 transition-transform ml-1", openCollapsibleId === s.id && "rotate-180")} />
                                                     </Button>
                                                 </CollapsibleTrigger>
@@ -263,23 +297,10 @@ function AddOrEditDialog({
                                                             <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                             </SelectContent>
                                                         </Select>
-                                                        {s.calculationMethod === 'fijo' && (
-                                                            <div className="text-sm p-2 bg-gray-50 rounded-md">
-                                                                El precio fijo del servicio es <strong>{formatCurrency(s.precioBase)}</strong>.
-                                                            </div>
-                                                        )}
-                                                        {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
-                                                        {s.calculationMethod === 'ratio' && (
-                                                            <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/></div>
-                                                        )}
-                                                        {s.calculationMethod === 'tramos' && (
-                                                            <div className="space-y-2">
-                                                                {(s.tramosDePrecio || []).map((tramo, idx) => (
-                                                                    <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs"/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div>
-                                                                ))}
-                                                                <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button>
-                                                            </div>
-                                                        )}
+                                                         {s.calculationMethod === 'fijo' && ( <div className="text-sm p-2 bg-gray-50 rounded-md"> El precio fijo del servicio es <strong>{formatCurrency(s.precioBase)}</strong>. </div> )}
+                                                         {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                                         {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/></div> )}
+                                                         {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs"/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
                                                     </div>
                                                 )}
                                             </CollapsibleContent>
@@ -309,7 +330,7 @@ function AddOrEditDialog({
                 </div>
                  <DialogFooter className="flex-shrink-0 pt-4 border-t">
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                    <Button onClick={() => onSave(localItem)}>Guardar</Button>
+                    <Button onClick={handleSaveAndExit}>Guardar</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -345,32 +366,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
   
-  const handleSaveConfig = useCallback(async (newConfig: ArmadoRapidoConfig) => {
-    try {
-      const result = await saveArmadoRapidoConfig(newConfig);
-      if (result.success) {
-        toast({ title: "¡Guardado!", description: "La configuración ha sido actualizada." });
-        setConfig(newConfig); // Optimistic update
-      } else {
-        throw new Error(result.error || "No se pudo guardar la configuración.");
-      }
-    } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    }
-  }, [toast]);
-  
-  const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
-    setModalMode(mode);
-    if(mode === 'menu'){
-        const menuToEdit = config?.menus[0] || { id: 'menu_catering', nombre: 'Menú de Catering', serviciosIncluidos: [] };
-        setCurrentItem(menuToEdit);
-    } else {
-        setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo Paquete`, serviciosIncluidos: [] });
-    }
-    setIsModalOpen(true);
-  }
-  
-  const handleSaveItem = useCallback((itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
+  const handleSaveItem = useCallback(async (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido, updatedServices: ServicioEmpresa[]) => {
     if (!config) return;
     let newConfig = { ...config };
 
@@ -387,17 +383,40 @@ export default function ArmadoRapidoSettingsPage() {
       newConfig = { ...newConfig, paquetes: list };
     }
     
-    handleSaveConfig(newConfig);
-    setIsModalOpen(false);
-  }, [config, modalMode, handleSaveConfig]);
-  
-  const handleDeleteItem = useCallback((type: 'paquete', id: string) => {
+    try {
+        const result = await updateArmadoRapidoAndSyncServices(newConfig, updatedServices);
+        if (result.success) {
+            toast({ title: "¡Guardado!", description: "La configuración ha sido actualizada." });
+            await loadData();
+            setIsModalOpen(false);
+        } else {
+            throw new Error(result.error || "No se pudo guardar la configuración.");
+        }
+    } catch (err: any) {
+        toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+    }
+  }, [config, modalMode, toast, loadData]);
+
+  const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
+    setModalMode(mode);
+    if(mode === 'menu'){
+        const menuToEdit = config?.menus[0] || { id: 'menu_catering', nombre: 'Menú de Catering', serviciosIncluidos: [] };
+        setCurrentItem(menuToEdit);
+    } else {
+        setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo Paquete`, serviciosIncluidos: [] });
+    }
+    setIsModalOpen(true);
+  }
+    
+  const handleDeleteItem = useCallback(async (type: 'paquete', id: string) => {
       if (!config) return;
       const newConfig = { ...config, paquetes: config.paquetes.filter(i => i.id !== id) };
-      handleSaveConfig(newConfig);
-  }, [config, handleSaveConfig]);
+      await updateArmadoRapidoAndSyncServices(newConfig, []);
+      await loadData();
+      toast({title: "Paquete Eliminado", variant: "destructive"});
+  }, [config, loadData, toast]);
 
-  const handleDuplicatePackage = useCallback((packageId: string) => {
+  const handleDuplicatePackage = useCallback(async (packageId: string) => {
     if (!config) return;
     const packageToCopy = config.paquetes.find(p => p.id === packageId);
     if (!packageToCopy) return;
@@ -411,17 +430,18 @@ export default function ArmadoRapidoSettingsPage() {
     const originalIndex = config.paquetes.findIndex(p => p.id === packageId);
     const newPackages = [...config.paquetes];
     newPackages.splice(originalIndex + 1, 0, newPackage);
-
     const newConfig = { ...config, paquetes: newPackages };
-    handleSaveConfig(newConfig);
+    
+    await updateArmadoRapidoAndSyncServices(newConfig, []);
+    await loadData();
     toast({ description: "Paquete duplicado." });
-  }, [config, handleSaveConfig, toast]);
+  }, [config, loadData, toast]);
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} setVendibleServices={setVendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de "Mi Presupuesto al Instante"</h1></div>
         <div className="flex gap-2">

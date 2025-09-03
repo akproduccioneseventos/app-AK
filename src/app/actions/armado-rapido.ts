@@ -4,7 +4,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 import type { ArmadoRapidoConfig, LeadGenerationData } from '@/types/armado-rapido';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { addCrmLead } from './crm';
+import { getServiciosEmpresa, saveServicioEmpresa } from './servicios-empresa'; // Importar saveServicioEmpresa
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
@@ -25,13 +27,11 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
     const parsedConfig = fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
-    // Ensure menus and paquetes are always arrays to prevent runtime errors
     parsedConfig.menus = parsedConfig.menus || [];
     parsedConfig.paquetes = parsedConfig.paquetes || [];
     return parsedConfig;
   } catch (error) {
     console.error("Error reading armado-rapido-config.json, returning default. The file will NOT be overwritten.", error);
-    // Return default but DO NOT overwrite the file, preserving user data in case of temporary read errors.
     return defaultConfig;
   }
 }
@@ -42,11 +42,9 @@ export async function saveArmadoRapidoConfig(
   await ensureDataFileExists();
   try {
     const existingConfig = await getArmadoRapidoConfig();
-
     const configToSave: ArmadoRapidoConfig = {
-      descuentoGeneral: newConfigData.descuentoGeneral !== undefined ? newConfigData.descuentoGeneral : existingConfig.descuentoGeneral,
-      menus: newConfigData.menus !== undefined ? newConfigData.menus : (existingConfig.menus || []),
-      paquetes: newConfigData.paquetes !== undefined ? newConfigData.paquetes : (existingConfig.paquetes || []),
+      ...existingConfig,
+      ...newConfigData,
     };
     
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
@@ -56,6 +54,28 @@ export async function saveArmadoRapidoConfig(
     return { success: false, error: error.message || "Unknown error saving config." };
   }
 }
+
+
+export async function updateArmadoRapidoAndSyncServices(
+  configToSave: ArmadoRapidoConfig,
+  updatedServices: ServicioEmpresa[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // 1. Save all services that were modified
+    for (const service of updatedServices) {
+      await saveServicioEmpresa(service);
+    }
+
+    // 2. Save the Armado Rapido config
+    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error in updateArmadoRapidoAndSyncServices:", error);
+    return { success: false, error: error.message || "Error desconocido durante la sincronización." };
+  }
+}
+
 
 export async function generateLeadFromQuickBudget(
   data: LeadGenerationData

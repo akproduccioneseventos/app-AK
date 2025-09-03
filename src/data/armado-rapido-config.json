@@ -1,5 +1,245 @@
 {
   "descuentoGeneral": 15,
+  "menus": [
+    {
+      "id": "menu_catering",
+      "nombre": "Opciones de Catering",
+      "descripcion": "Lista de todos los servicios de catering disponibles para el Armado Rápido.",
+      "serviciosIncluidos": [
+        {
+          "id": "serv_1752489600023_asadocom",
+          "nombre": "Asado completo c/ guarnición",
+          "precioFijo": 645,
+          "categoria": "Plato Principal"
+        },
+        {
+          "id": "serv_1752489600007_pollarr",
+          "nombre": "Pollo arrollado c/ guarnición",
+          "precioFijo": 350,
+          "categoria": "Plato Principal"
+        },
+        {
+          "id": "serv_1752489600053_menninpan",
+          "nombre": "Menú niños - Panchos c/ fritas",
+          "precioFijo": 165,
+          "categoria": "Menú Adolescente / Niño"
+        },
+        {
+          "id": "serv_1752489600031_picfiam",
+          "nombre": "Picada de fiambres",
+          "precioFijo": 150,
+          "categoria": "Entrada"
+        },
+        {
+          "id": "serv_1752489600028_picsna",
+          "nombre": "Picada Snack",
+          "precioFijo": 120,
+          "categoria": "Entrada"
+        },
+        {
+          "id": "serv_1752489600010_raviol",
+          "nombre": "Ravioles a la crema",
+          "precioFijo": 350,
+          "categoria": "Plato Principal"
+        },
+        {
+          "id": "serv_1752489600052_menninham",
+          "nombre": "Menú niños - Hamburguesa completa c/ fritas",
+          "precioFijo": 250,
+          "categoria": "Menú Adolescente / Niño"
+        },
+        {
+          "id": "serv_1752489600038_arepven",
+          "nombre": "Arepas venezolanas",
+          "precioFijo": 200,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600021_bifech",
+          "nombre": "Bife al champiñón c/ guarnición",
+          "precioFijo": 480,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600036_calzita",
+          "nombre": "Calzones Italianos",
+          "precioFijo": 200,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600014_bauru",
+          "nombre": "Bauru c/ fritas",
+          "precioFijo": 390,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_sandwiches_saladitos",
+          "nombre": "Entrada: Sándwiches y Saladitos",
+          "precioFijo": 200,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_picada_fiambres",
+          "nombre": "Entrada: Picada de fiambres",
+          "precioFijo": 120,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600033_empcas",
+          "nombre": "Empanadas caseras",
+          "precioFijo": 150,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600022_cordero",
+          "nombre": "Cordero Asado c/ guarnición",
+          "precioFijo": 560,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600006_chivit",
+          "nombre": "Chivito completo c/ fritas",
+          "precioFijo": 300,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600011_cerdmos",
+          "nombre": "Cerdo a la mostaza c/ guarnición",
+          "precioFijo": 350,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_cerdo_relleno",
+          "nombre": "Cerdo relleno c/ guarnición",
+          "precioFijo": 300,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600005_hambur",
+          "nombre": "Hamburguesa completa c/ fritas",
+          "precioFijo": 270,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600030_kebabs",
+          "nombre": "Kebabs",
+          "precioFijo": 130,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600015_napoli",
+          "nombre": "Napolitana c/ fritas",
+          "precioFijo": 380,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600039_minibro",
+          "nombre": "Mini brochetas",
+          "precioFijo": 210,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600009_noquis",
+          "nombre": "Ñoquis al queso",
+          "precioFijo": 350,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600040_piccal",
+          "nombre": "Picada caliente",
+          "precioFijo": 210,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600041_piccrio",
+          "nombre": "Picada Criolla",
+          "precioFijo": 210,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600035_pizzemp",
+          "nombre": "Pizzetitas y empanaditas de copetín",
+          "precioFijo": 180,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600029_plancal",
+          "nombre": "Planchas calientes",
+          "precioFijo": 120,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600032_salpoll",
+          "nombre": "Salpicón de pollo",
+          "precioFijo": 150,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600044_sansal",
+          "nombre": "Sandwiches y Saladitos",
+          "precioFijo": 220,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600056_showpiz",
+          "nombre": "Show de pizzas",
+          "precioFijo": 329,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600013_sorren",
+          "nombre": "Sorrentinos con salsa rosa",
+          "precioFijo": 400,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600019_strogon",
+          "nombre": "Strogonoff de pollo c/ fritas",
+          "precioFijo": 400,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600046_tabgour",
+          "nombre": "Tabla gourmet de fiambre",
+          "precioFijo": 280,
+          "categoria": "Entrada",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600037_tacmex",
+          "nombre": "Tacos mexicanos",
+          "precioFijo": 200,
+          "categoria": "Entrada",
+          "esRegalo": false
+        }
+      ]
+    }
+  ],
   "paquetes": [
     {
       "id": "paquete_basico",
@@ -95,69 +335,6 @@
           "calculationMethod": "fijo",
           "precioBase": 69,
           "esRegalo": false
-        }
-      ]
-    }
-  ],
-  "menus": [
-    {
-      "id": "menu_catering",
-      "nombre": "Opciones de Catering",
-      "descripcion": "Lista de todos los servicios de catering disponibles para el Armado Rápido.",
-      "serviciosIncluidos": [
-        {
-          "id": "serv_1752489600024_bunalga",
-          "nombre": "Buñuelo de algas",
-          "precioFijo": 120,
-          "categoria": "Entrada"
-        },
-        {
-          "id": "serv_1752489600027_arrprim",
-          "nombre": "Arrolladitos primavera",
-          "precioFijo": 100,
-          "categoria": "Entrada"
-        },
-        {
-          "id": "serv_1752489600023_asadocom",
-          "nombre": "Asado completo c/ guarnición",
-          "precioFijo": 645,
-          "categoria": "Plato Principal"
-        },
-        {
-          "id": "serv_1752489600007_pollarr",
-          "nombre": "Pollo arrollado c/ guarnición",
-          "precioFijo": 350,
-          "categoria": "Plato Principal"
-        },
-        {
-          "id": "serv_1752489600053_menninpan",
-          "nombre": "Menú niños - Panchos c/ fritas",
-          "precioFijo": 165,
-          "categoria": "Menú Adolescente / Niño"
-        },
-        {
-          "id": "serv_1752489600031_picfiam",
-          "nombre": "Picada de fiambres",
-          "precioFijo": 150,
-          "categoria": "Entrada"
-        },
-        {
-          "id": "serv_1752489600028_picsna",
-          "nombre": "Picada Snack",
-          "precioFijo": 120,
-          "categoria": "Entrada"
-        },
-        {
-          "id": "serv_1752489600010_raviol",
-          "nombre": "Ravioles a la crema",
-          "precioFijo": 350,
-          "categoria": "Plato Principal"
-        },
-        {
-          "id": "serv_1752489600052_menninham",
-          "nombre": "Menú niños - Hamburguesa completa c/ fritas",
-          "precioFijo": 250,
-          "categoria": "Menú Adolescente / Niño"
         }
       ]
     }
