@@ -92,7 +92,7 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
-  if (pathname === '/settings') return 'Configuración';
+  if (pathname === '/settings') return 'Menú Principal';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
   if (pathname === '/settings/budget-display') return 'Configuración de Presupuestos';
   if (pathname === '/settings/company') return 'Información de la Empresa';
@@ -274,9 +274,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <h1 className="text-lg md:text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/" className="hidden sm:block">
-            <AppLogo />
-          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
