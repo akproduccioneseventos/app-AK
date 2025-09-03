@@ -4,8 +4,8 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import NextImage from 'next/image';
-import type { InvoiceTemplateSettings } from '@/types/settings';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const AppLogo = () => {
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
@@ -22,6 +22,11 @@ const AppLogo = () => {
     };
     fetchLogo();
   }, []);
+  
+  if (logoUrl === undefined) {
+    // Loading state to prevent layout shift
+    return <Skeleton className="h-8 w-32" />;
+  }
 
   if (logoUrl) {
     return (
@@ -29,17 +34,17 @@ const AppLogo = () => {
         <NextImage 
             src={logoUrl} 
             alt="Logo de la Empresa"
-            width={120} // Adjust width as needed
-            height={40} // Adjust height as needed
+            width={120}
+            height={40}
             className="object-contain"
-            priority // Prioritize loading the logo in the header
+            priority
             data-ai-hint="company logo"
         />
       </Link>
     );
   }
 
-  // Fallback to text if no logo URL or still loading
+  // Fallback to text if no logo URL
   return (
     <Link
       href="/"
