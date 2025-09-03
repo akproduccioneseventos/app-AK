@@ -151,7 +151,7 @@ function AddOrEditDialog({
       const lastTramo = currentTramos[currentTramos.length - 1];
       const newDesde = lastTramo ? (lastTramo.hasta || 0) + 1 : 0;
       
-      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: 0, precio: 0 };
+      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde, precio: 0 };
       
       handleServiceDetailChange(serviceId, 'tramosDePrecio', [...currentTramos, newTramo]);
     };
@@ -305,14 +305,13 @@ export default function ArmadoRapidoSettingsPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
   
-  const handleSaveChanges = async () => {
-    if (!config) return;
+  const handleSaveConfig = async (newConfig: ArmadoRapidoConfig) => {
     setIsSaving(true);
     try {
-      const result = await saveArmadoRapidoConfig(config);
+      const result = await saveArmadoRapidoConfig(newConfig);
       if (result.success) {
-        toast({ title: "¡Configuración Guardada!" });
-        loadData();
+        toast({ title: "¡Guardado!", description: "La configuración ha sido actualizada." });
+        setConfig(newConfig); // Optimistic update
       } else {
         throw new Error(result.error || "No se pudo guardar la configuración.");
       }
@@ -335,41 +334,52 @@ export default function ArmadoRapidoSettingsPage() {
   }
   
   const handleSaveItem = (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
-      setConfig(prev => {
-          if (!prev) return null;
-          let updatedConfig = {...prev};
-          if (modalMode === 'menu') {
-            updatedConfig.menus = [itemToSave as MenuArmadoRapido];
+    let newConfig: ArmadoRapidoConfig | null = null;
+    setConfig(prev => {
+        if (!prev) return null;
+        let updatedConfig = {...prev};
+        if (modalMode === 'menu') {
+          updatedConfig.menus = [itemToSave as MenuArmadoRapido];
+        } else {
+          const list = prev.paquetes || [];
+          const existingIndex = list.findIndex(i => i.id === itemToSave.id);
+          if (existingIndex > -1) {
+              list[existingIndex] = itemToSave as PaqueteArmadoRapido;
           } else {
-            const list = prev.paquetes || [];
-            const existingIndex = list.findIndex(i => i.id === itemToSave.id);
-            if (existingIndex > -1) {
-                list[existingIndex] = itemToSave as PaqueteArmadoRapido;
-            } else {
-                list.push(itemToSave as PaqueteArmadoRapido);
-            }
-            updatedConfig.paquetes = [...list];
+              list.push(itemToSave as PaqueteArmadoRapido);
           }
-          return updatedConfig;
-      });
-      setIsModalOpen(false);
+          updatedConfig.paquetes = [...list];
+        }
+        newConfig = updatedConfig;
+        return updatedConfig;
+    });
+    setIsModalOpen(false);
+    if (newConfig) {
+      handleSaveConfig(newConfig);
+    }
   }
   
   const handleDeleteItem = (type: 'paquete', id: string) => {
+      let newConfig: ArmadoRapidoConfig | null = null;
       setConfig(prev => {
           if (!prev) return null;
-          return { ...prev, paquetes: prev.paquetes.filter(i => i.id !== id) }
+          newConfig = { ...prev, paquetes: prev.paquetes.filter(i => i.id !== id) };
+          return newConfig;
       });
+       if (newConfig) {
+        handleSaveConfig(newConfig);
+      }
   }
 
   const handleDuplicatePackage = (packageId: string) => {
+    let newConfig: ArmadoRapidoConfig | null = null;
     setConfig(prev => {
       if (!prev) return null;
       const packageToCopy = prev.paquetes.find(p => p.id === packageId);
       if (!packageToCopy) return prev;
 
       const newPackage: PaqueteArmadoRapido = {
-        ...JSON.parse(JSON.stringify(packageToCopy)), // Deep copy
+        ...JSON.parse(JSON.stringify(packageToCopy)),
         id: `new_paquete_${Date.now()}`,
         nombre: `${packageToCopy.nombre} (Copia)`,
       };
@@ -378,9 +388,13 @@ export default function ArmadoRapidoSettingsPage() {
       const newPackages = [...prev.paquetes];
       newPackages.splice(originalIndex + 1, 0, newPackage);
 
-      return { ...prev, paquetes: newPackages };
+      newConfig = { ...prev, paquetes: newPackages };
+      return newConfig;
     });
-    toast({ description: "Paquete duplicado. No olvides guardar los cambios." });
+    if (newConfig) {
+      handleSaveConfig(newConfig);
+    }
+    toast({ description: "Paquete duplicado." });
   };
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -449,13 +463,6 @@ export default function ArmadoRapidoSettingsPage() {
         </Card>
 
       </div>
-
-      <CardFooter className="border-t pt-6">
-        <Button size="lg" onClick={handleSaveChanges} disabled={isSaving}>
-            {isSaving ? <Loader2 className="w-5 h-5 animate-spin mr-2"/> : <Save className="w-5 h-5 mr-2"/>}
-            {isSaving ? 'Guardando...' : 'Guardar Toda la Configuración'}
-        </Button>
-      </CardFooter>
     </div>
   );
 }
