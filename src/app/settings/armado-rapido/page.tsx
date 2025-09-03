@@ -317,7 +317,6 @@ export default function ArmadoRapidoSettingsPage() {
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   
   const [currentItem, setCurrentItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -343,7 +342,6 @@ export default function ArmadoRapidoSettingsPage() {
   useEffect(() => { loadData(); }, [loadData]);
   
   const handleSaveConfig = useCallback(async (newConfig: ArmadoRapidoConfig) => {
-    setIsSaving(true);
     try {
       const result = await saveArmadoRapidoConfig(newConfig);
       if (result.success) {
@@ -354,8 +352,6 @@ export default function ArmadoRapidoSettingsPage() {
       }
     } catch (err: any) {
       toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
     }
   }, [toast]);
   
