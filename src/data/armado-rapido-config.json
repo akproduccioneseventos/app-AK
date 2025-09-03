@@ -319,16 +319,6 @@
           "precioPorPersona": 0
         },
         {
-          "id": "serv_invitaciones_digitales",
-          "nombre": "Invitaciones digitales",
-          "precioFijo": 0,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 0,
-          "esRegalo": true,
-          "precioPorPersona": 0
-        },
-        {
           "id": "serv_1752489600118_albdig",
           "nombre": "Álbum digital",
           "precioFijo": 0,
@@ -337,6 +327,15 @@
           "precioBase": 0,
           "esRegalo": true,
           "precioPorPersona": 0
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "nombre": "Invitaciones digitales",
+          "precioFijo": 1500,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 1500,
+          "esRegalo": false
         }
       ]
     },
