@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -89,7 +89,6 @@ function AddOrEditDialog({
     mode: 'menu' | 'paquete';
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(item);
-    const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
     const [modifiedServices, setModifiedServices] = useState<Map<string, ServicioEmpresa>>(new Map());
@@ -97,9 +96,8 @@ function AddOrEditDialog({
 
     useEffect(() => {
         setLocalItem(item);
-        setVendibleServices(initialVendibleServices);
         setModifiedServices(new Map()); // Reset modifications when item changes
-    }, [item, initialVendibleServices]);
+    }, [item]);
     
     const groupedAndSortedServices = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos || mode !== 'menu') {
@@ -173,13 +171,13 @@ function AddOrEditDialog({
         const updatedServiciosIncluidos = prev.serviciosIncluidos.map(s => {
           if (s.id !== serviceId) return s;
           
-          const catalogService = vendibleServices.find(vs => vs.id === serviceId);
+          const catalogService = initialVendibleServices.find(vs => vs.id === serviceId);
           if(!catalogService) return s; // Should not happen
           
           const updatedService = { ...s, [field]: value };
           
-          if (field === 'nombre') {
-              const serviceToUpdateInCatalog = { ...catalogService, nombre: value as string };
+          if (field === 'nombre' && typeof value === 'string') {
+              const serviceToUpdateInCatalog = { ...catalogService, nombre: value };
               trackModification(serviceToUpdateInCatalog);
           }
            if (field === 'precioFijo' || field === 'precioBase' || field === 'precioPorPersona') {
@@ -191,10 +189,10 @@ function AddOrEditDialog({
               updatedService.precioPorPersona = undefined;
               updatedService.invitadosPorUnidad = undefined;
               updatedService.tramosDePrecio = undefined;
-              if (value === 'fijo' || value === 'ratio' || value === 'porPersona') {
-                const precioOriginal = catalogService?.precioVenta || 0;
-                if(value === 'porPersona') updatedService.precioPorPersona = precioOriginal;
-                else updatedService.precioBase = precioOriginal;
+              if (value === 'fijo' || value === 'ratio') {
+                updatedService.precioBase = catalogService?.precioVenta || 0;
+              } else if(value === 'porPersona') {
+                updatedService.precioPorPersona = catalogService?.precioVenta || 0;
               }
             }
              if (field === 'esRegalo') {
@@ -296,7 +294,7 @@ function AddOrEditDialog({
                                                 {/* Paquete Item Content */}
                                                 <Collapsible onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                 <div className="flex items-center gap-3 py-2">
-                                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id)!)} />
                                                     <div className="flex-grow"><Input value={s.nombre} onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/></div>
                                                     <CollapsibleTrigger asChild>
                                                         <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
@@ -321,7 +319,7 @@ function AddOrEditDialog({
                                                             <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                             </SelectContent>
                                                         </Select>
-                                                         {s.calculationMethod === 'fijo' && ( <div className="text-sm p-2 bg-gray-50 rounded-md"> El precio fijo del servicio es <strong>{formatCurrency(s.precioBase)}</strong>. </div> )}
+                                                         {s.calculationMethod === 'fijo' && ( <div className="text-sm p-2 bg-gray-50 rounded-md"> El precio fijo del servicio es <strong>{formatCurrency(s.precioFijo)}</strong>. </div> )}
                                                          {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                                          {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/></div> )}
                                                          {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs"/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
@@ -342,7 +340,7 @@ function AddOrEditDialog({
                                                 {groupedAndSortedServices[categoryName].map(s => (
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
-                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id)!)} />
                                                             <div className="flex-grow"><Label htmlFor={`current-${s.id}`} className="text-sm font-medium cursor-pointer">{s.nombre}</Label></div>
                                                             <CollapsibleTrigger asChild>
                                                                 <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
@@ -374,7 +372,7 @@ function AddOrEditDialog({
                         <Label>Catálogo de Servicios Vendibles</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
                         <ScrollArea className="h-full border rounded-md p-2">
-                          {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
+                          {initialVendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
                             <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
                                <Checkbox id={`cat-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(s)}/>
                                <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
@@ -423,21 +421,21 @@ export default function ArmadoRapidoSettingsPage() {
   
   const handleSaveItem = useCallback(async (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido, updatedServices: ServicioEmpresa[]) => {
     if (!config) return;
-    let newConfig = { ...config };
-
-    if (modalMode === 'menu') {
-      newConfig = { ...newConfig, menus: [itemToSave as MenuArmadoRapido] };
-    } else { // It's a 'paquete'
-      const list = [...(config.paquetes || [])];
-      const existingIndex = list.findIndex(i => i.id === itemToSave.id);
-      if (existingIndex > -1) {
-          list[existingIndex] = itemToSave as PaqueteArmadoRapido;
-      } else {
-          list.push(itemToSave as PaqueteArmadoRapido);
-      }
-      newConfig = { ...newConfig, paquetes: list };
-    }
     
+    let newConfig: ArmadoRapidoConfig;
+    if (modalMode === 'menu') {
+        newConfig = { ...config, menus: [itemToSave as MenuArmadoRapido] };
+    } else { // It's a 'paquete'
+        const list = [...(config.paquetes || [])];
+        const existingIndex = list.findIndex(i => i.id === itemToSave.id);
+        if (existingIndex > -1) {
+            list[existingIndex] = itemToSave as PaqueteArmadoRapido;
+        } else {
+            list.push(itemToSave as PaqueteArmadoRapido);
+        }
+        newConfig = { ...config, paquetes: list };
+    }
+
     try {
         const result = await updateArmadoRapidoAndSyncServices(newConfig, updatedServices);
         if (result.success) {
