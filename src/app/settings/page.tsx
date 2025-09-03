@@ -77,9 +77,14 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <SettingsIcon className="w-8 h-8 text-primary" />
-        <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Configuración General
-        </h1>
+        <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+                AK Producciones
+            </h1>
+            <p className="text-muted-foreground">
+                Servicio integral de fiestas
+            </p>
+        </div>
       </div>
       <p className="text-muted-foreground">
         Administra las preferencias de la aplicación, apariencia de documentos y detalles de tu cuenta.
