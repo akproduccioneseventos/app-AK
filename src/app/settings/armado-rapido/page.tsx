@@ -344,7 +344,13 @@ function AddOrEditDialog({
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
                                                             <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id))} />
-                                                            <div className="flex-grow"><Label htmlFor={`current-${s.id}`} className="text-sm font-medium cursor-pointer">{s.nombre}</Label></div>
+                                                            <div className="flex-grow">
+                                                                <Input 
+                                                                    value={s.nombre} 
+                                                                    onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} 
+                                                                    className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"
+                                                                />
+                                                            </div>
                                                             <CollapsibleTrigger asChild>
                                                                 <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
                                                                     <Edit className="w-3 h-3 mr-1"/> Config
