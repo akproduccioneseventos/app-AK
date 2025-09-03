@@ -77,13 +77,6 @@
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600005_hambur",
-          "nombre": "Hamburguesa completa c/ fritas",
-          "precioFijo": "280",
-          "categoria": "Menú Adolescente / Niño",
-          "esRegalo": false
-        },
-        {
           "id": "serv_1752489600015_napoli",
           "nombre": "Napolitana c/ fritas",
           "precioFijo": "420",
@@ -200,13 +193,6 @@
           "nombre": "Mini Chivitos",
           "precioFijo": 180,
           "categoria": "Entrada",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600045_shushi",
-          "nombre": "Sushi",
-          "precioFijo": 250,
-          "categoria": "Entradas",
           "esRegalo": false
         }
       ]

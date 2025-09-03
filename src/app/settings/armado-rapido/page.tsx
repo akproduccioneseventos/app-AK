@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -288,9 +287,9 @@ function AddOrEditDialog({
                 }
                  if (field === 'esRegalo') {
                     const precioOriginal = catalogService?.precioVenta || 0;
-                    updatedService.precioBase = value ? 0 : precioOriginal;
-                    updatedService.precioFijo = value ? 0 : precioOriginal;
-                    updatedService.precioPorPersona = value ? 0 : updatedService.precioPorPersona;
+                    updatedService.precioBase = !!value ? 0 : precioOriginal;
+                    updatedService.precioFijo = !!value ? 0 : precioOriginal;
+                    updatedService.precioPorPersona = !!value ? 0 : updatedService.precioPorPersona;
                  }
           }
             return updatedService;
@@ -386,7 +385,7 @@ function AddOrEditDialog({
                                                 {/* Paquete Item Content */}
                                                 <Collapsible onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                 <div className="flex items-center gap-3 py-2">
-                                                    <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                                    <Checkbox id={`current-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id))} />
                                                     <div className="flex-grow"><Input value={s.nombre} onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/></div>
                                                     <CollapsibleTrigger asChild>
                                                         <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
@@ -432,7 +431,7 @@ function AddOrEditDialog({
                                                 {groupedAndSortedServices[categoryName].map(s => (
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
-                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id)!)} />
+                                                            <Checkbox id={`current-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id))}/>
                                                             <div className="flex-grow">
                                                                 <Input 
                                                                     value={s.nombre} 
@@ -476,6 +475,7 @@ function AddOrEditDialog({
                         />
                         <ScrollArea className="h-full border rounded-md p-2">
                           {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => {
+                            if(!s) return null;
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
                                 <Checkbox id={`cat-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(s)}/>

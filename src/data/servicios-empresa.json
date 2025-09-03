@@ -449,6 +449,15 @@
     "precioVenta": 380
   },
   {
+    "nombre": "Panchos de MEDIO METRO",
+    "precioVenta": 200,
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Adolescente / Niño",
+    "tipoItem": "Servicio",
+    "unidad": "Por persona",
+    "id": "item_1756937639800_z1mjmoj"
+  },
+  {
     "id": "serv_1752489600040_piccal",
     "nombre": "Picada caliente",
     "tipoItem": "Servicio",
