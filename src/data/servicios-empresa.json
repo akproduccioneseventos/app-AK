@@ -1,4 +1,3 @@
-
 [
   {
     "id": "serv_invitaciones_digitales",
@@ -285,18 +284,18 @@
     "precioVenta": 150
   },
   {
-    "id": "serv_sandwiches_saladitos",
-    "nombre": "Entrada: Sándwiches y Saladitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 200
-  },
-  {
     "id": "serv_picada_fiambres",
     "nombre": "Entrada: Picada de fiambres",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "precioVenta": 120
+  },
+  {
+    "id": "serv_sandwiches_saladitos",
+    "nombre": "Entrada: Sándwiches y Saladitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "precioVenta": 200
   },
   {
     "id": "serv_1752489600025_faina",

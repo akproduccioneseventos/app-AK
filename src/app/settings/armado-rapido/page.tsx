@@ -70,8 +70,7 @@ function AddOrEditDialog({
     onOpenChange,
     onSave,
     item,
-    vendibleServices,
-    setVendibleServices, // Para poder actualizar el catálogo principal
+    vendibleServices: initialVendibleServices,
     mode,
 }: {
     isOpen: boolean;
@@ -79,10 +78,10 @@ function AddOrEditDialog({
     onSave: (item: MenuArmadoRapido | PaqueteArmadoRapido, updatedServices: ServicioEmpresa[]) => void;
     item: MenuArmadoRapido | PaqueteArmadoRapido | null;
     vendibleServices: ServicioEmpresa[];
-    setVendibleServices: React.Dispatch<React.SetStateAction<ServicioEmpresa[]>>;
     mode: 'menu' | 'paquete';
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(item);
+    const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
     const [modifiedServices, setModifiedServices] = useState<Map<string, ServicioEmpresa>>(new Map());
@@ -90,8 +89,9 @@ function AddOrEditDialog({
 
     useEffect(() => {
         setLocalItem(item);
+        setVendibleServices(initialVendibleServices);
         setModifiedServices(new Map()); // Reset modifications when item changes
-    }, [item]);
+    }, [item, initialVendibleServices]);
 
     if (!localItem) return null;
 
@@ -129,7 +129,6 @@ function AddOrEditDialog({
     ) => {
       setLocalItem(prev => {
         if (!prev) return null;
-        let serviceToUpdateInCatalog: ServicioEmpresa | undefined;
 
         const updatedServiciosIncluidos = prev.serviciosIncluidos.map(s => {
           if (s.id !== serviceId) return s;
@@ -138,15 +137,17 @@ function AddOrEditDialog({
           if (field === 'nombre') {
               const catalogService = vendibleServices.find(vs => vs.id === serviceId);
               if (catalogService) {
-                  serviceToUpdateInCatalog = { ...catalogService, nombre: value as string };
+                  const serviceToUpdateInCatalog = { ...catalogService, nombre: value as string };
                   trackModification(serviceToUpdateInCatalog);
+                  setVendibleServices(prevServices => prevServices.map(ps => ps.id === serviceId ? serviceToUpdateInCatalog : ps));
               }
           }
            if (field === 'precioFijo' || field === 'precioBase' || field === 'precioPorPersona') {
               const catalogService = vendibleServices.find(vs => vs.id === serviceId);
               if (catalogService) {
-                  serviceToUpdateInCatalog = { ...catalogService, precioVenta: Number(value) || 0 };
+                  const serviceToUpdateInCatalog = { ...catalogService, precioVenta: Number(value) || 0 };
                   trackModification(serviceToUpdateInCatalog);
+                   setVendibleServices(prevServices => prevServices.map(ps => ps.id === serviceId ? serviceToUpdateInCatalog : ps));
               }
            }
             if (field === 'calculationMethod') {
@@ -170,10 +171,6 @@ function AddOrEditDialog({
              }
             return updatedService;
           });
-
-          if(serviceToUpdateInCatalog) {
-            setVendibleServices(prevServices => prevServices.map(ps => ps.id === serviceId ? serviceToUpdateInCatalog! : ps));
-          }
 
           return { ...prev, serviciosIncluidos: updatedServiciosIncluidos };
       })
@@ -441,7 +438,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} setVendibleServices={setVendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de "Mi Presupuesto al Instante"</h1></div>
         <div className="flex gap-2">
