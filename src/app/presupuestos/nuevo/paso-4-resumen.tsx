@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon } from 'lucide-react';
+import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState, useMemo } from 'react'; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator'; 
+import { Separator } from '../ui/separator'; 
 
 // Company Info Constants from PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
@@ -89,6 +89,42 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal } = useMemo(() => {
+    if (!presupuesto) {
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0 };
+    }
+    
+    const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
+    const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+
+    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
+        const categoria = item.categoriaServicio || 'Otros Servicios';
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+    }, {} as Record<string, ItemPresupuestado[]>);
+
+    if (itemsRegalo.length > 0) {
+      agrupados['Regalos Incluidos'] = itemsRegalo;
+    }
+    
+    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
+    const costoRegular = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
+    
+    const bruto = costoRegular + costoRegalos;
+    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) - costoRegalos;
+    
+    return {
+      itemsAgrupados: agrupados,
+      costoTotalRegalos: costoRegalos,
+      subtotalBruto: bruto,
+      descuentoPromocional: Math.max(0, descPromo),
+      totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+    };
+
+  }, [presupuesto]);
+
+
   if (isLoadingSettings) {
     return <div className="flex justify-center items-center h-64"><p>Cargando configuración de visualización...</p></div>;
   }
@@ -147,9 +183,10 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
       presupuesto.itemsPresupuestados.forEach(item => {
-        texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-         if (formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0) {
-            texto += `    (Descuento ${formData.descuentoValor}% aplicado)\n`;
+        if (item.esRegalo) {
+             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(item.precioUnitario * item.cantidad)})\n`;
+        } else {
+            texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
         }
       });
       texto += `\n  SUBTOTAL: *${formatCurrency(costoTotalAntesDescuento)}*\n\n`;
@@ -234,58 +271,42 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
 
           {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
             <section className="mb-4 print:mb-2">
-              <table className="w-full text-xs print:text-[7pt] border-collapse">
-                  <thead className="print:bg-gray-100">
-                  <tr>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Unidad</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  {presupuesto.itemsPresupuestados.map((item) => (
-                      <tr key={item.idServicioCatalogo}>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                          {item.nombreServicio}
-                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 && (
-                          <div className="text-gray-500 print:text-gray-600 text-[6pt]">{formData.descuentoValor}% de descuento</div>
-                          )}
-                      </td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">$</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.precioUnitario, false)}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">
-                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 ? `${formData.descuentoValor}%` : ''}
-                      </td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{formatCurrency(item.costoTotalItem, false)}</td>
-                      </tr>
-                  ))}
-                  </tbody>
-              </table>
+              {Object.entries(itemsAgrupados).map(([categoria, items]) => (
+                  <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
+                      <h3 className={`font-bold text-sm mb-1 p-1 print:text-[8pt] ${categoria === 'Regalos Incluidos' ? 'bg-green-100 text-green-800' : 'bg-gray-100'}`}>
+                        {categoria === 'Regalos Incluidos' ? <span className="flex items-center gap-1"><Gift className="w-4 h-4"/>{categoria}</span> : categoria}
+                      </h3>
+                      <table className="w-full text-xs print:text-[7pt] border-collapse">
+                          <thead className="print:bg-gray-100">
+                          <tr>
+                              <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
+                              <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
+                              <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
+                              <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          {items.map((item) => (
+                              <tr key={item.idServicioCatalogo}>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                              </tr>
+                          ))}
+                          </tbody>
+                      </table>
+                  </div>
+              ))}
             </section>
           )}
           
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
-            <div className="w-full max-w-[250px] print:max-w-[200px] space-y-0.5">
-              {descuentoAplicado > 0 && displaySettings.showPriceBreakdown && ( 
-                <>
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span>{formatCurrency(costoTotalAntesDescuento, true, true)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-red-600">Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
-                    <span className="text-red-600">-{formatCurrency(descuentoAplicado, true, true)}</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500">
-                <span>Importe total</span>
-                <span>{formatCurrency(totalFinalConDescuento, true, true)}</span>
-              </div>
+            <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
+              <div className="flex justify-between"><span>Subtotal Bruto:</span><span>{formatCurrency(subtotalBruto)}</span></div>
+              {costoTotalRegalos > 0 && <div className="flex justify-between text-red-600"><span>Ahorro por Regalos:</span><span>-{formatCurrency(costoTotalRegalos)}</span></div>}
+              {descuentoPromocional > 0 && <div className="flex justify-between text-red-600"><span>Descuento Promocional:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}
+              <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500"><span className="text-base">TOTAL A PAGAR:</span><span className="text-base">{formatCurrency(totalFinal)}</span></div>
             </div>
           </section>
           
