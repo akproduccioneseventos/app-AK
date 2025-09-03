@@ -185,6 +185,10 @@ function AddOrEditDialog({
         setModifiedServices(new Map()); // Reset modifications when item changes
     }, [initialItem]);
     
+    const filteredCatalog = useMemo(() => {
+        return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [vendibleServices, searchTerm]);
+
     const groupedAndSortedServices = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos || mode !== 'menu') {
             return { ' ungrouped': localItem?.serviciosIncluidos || [] };
@@ -271,7 +275,9 @@ function AddOrEditDialog({
                   const serviceToUpdateInCatalog = { ...catalogService, precioVenta: numericValue };
                   trackModification(serviceToUpdateInCatalog);
                   updatedService = { ...updatedService, [field]: numericValue };
-                  if(field === 'precioBase') updatedService.precioFijo = numericValue;
+                  if(mode === 'paquete' && (field === 'precioBase' || field === 'precioFijo')) {
+                    updatedService.precioFijo = numericValue;
+                  }
                }
                 if (field === 'calculationMethod') {
                   updatedService.precioBase = undefined;
@@ -384,7 +390,6 @@ function AddOrEditDialog({
                                                 <Card className="bg-background w-full">
                                                     <CardContent className="p-3 space-y-3">
                                                         <div className="flex items-center gap-3">
-                                                            <Checkbox id={`current-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id))} />
                                                             <div className="flex-grow">
                                                                 <Input value={s.nombre} onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/>
                                                             </div>
@@ -431,7 +436,6 @@ function AddOrEditDialog({
                                                 {groupedAndSortedServices[categoryName].map(s => (
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
-                                                            <Checkbox id={`current-${s.id}`} checked={(localItem.serviciosIncluidos || []).some(ls => ls.id === s.id)} onCheckedChange={() => handleToggleService(vendibleServices.find(vs => vs.id === s.id))} />
                                                             <div className="flex-grow">
                                                                 <Input 
                                                                     value={s.nombre} 
@@ -474,7 +478,7 @@ function AddOrEditDialog({
                           vendibleServices={vendibleServices}
                         />
                         <ScrollArea className="h-full border rounded-md p-2">
-                          {vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map(s => {
+                          {filteredCatalog.length > 0 ? filteredCatalog.map(s => {
                             if(!s) return null;
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
@@ -482,7 +486,7 @@ function AddOrEditDialog({
                                 <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
                                 </div>
                             )
-                          })}
+                          }) : <p className="text-sm text-center text-muted-foreground p-4">No hay servicios que coincidan.</p>}
                         </ScrollArea>
                     </div>
                 </div>
@@ -498,7 +502,7 @@ function AddOrEditDialog({
 export default function ArmadoRapidoSettingsPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
-  const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>([]);
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   const [currentItem, setCurrentItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
@@ -514,7 +518,7 @@ export default function ArmadoRapidoSettingsPage() {
         paquetes: fetchedConfig.paquetes || [],
         menus: fetchedConfig.menus || [],
       });
-      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0));
+      setServiciosCatalogo(fetchedServices);
     } catch (err: any) {
       toast({ title: "Error", description: "No se pudo cargar la configuración.", variant: "destructive" });
     } finally {
@@ -605,6 +609,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   
+  const vendibleServices = serviciosCatalogo.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
   const cateringServices = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
   const otherServices = vendibleServices.filter(s => s.categoria !== 'Servicio de catering');
 
@@ -643,10 +648,13 @@ export default function ArmadoRapidoSettingsPage() {
              <Separator/>
              <div className="space-y-3">
               {(config.paquetes || []).map(pkg => (
-                 <Card key={pkg.id} className="bg-muted/40">
-                    <CardHeader className="flex-row items-center justify-between p-3">
-                     <CardTitle className="text-base">{pkg.nombre}</CardTitle>
-                     <div className="flex gap-1">
+                 <Collapsible key={pkg.id} className="border rounded-lg shadow-sm bg-muted/40 overflow-hidden">
+                    <CollapsibleTrigger className="flex items-center justify-between p-3 w-full hover:bg-muted/60">
+                     <span className="font-semibold">{pkg.nombre}</span>
+                     <ChevronDown className="w-4 h-4" />
+                   </CollapsibleTrigger>
+                   <CollapsibleContent className="p-3 border-t">
+                      <div className="flex justify-end gap-1 mb-2">
                         <Button variant="ghost" size="icon" className="h-7 w-7" title="Duplicar Paquete" onClick={() => handleDuplicatePackage(pkg.id)}><Copy className="w-4 h-4"/></Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog('paquete', pkg)}><Settings className="w-4 h-4"/></Button>
                         <AlertDialog>
@@ -657,16 +665,13 @@ export default function ArmadoRapidoSettingsPage() {
                             </AlertDialogContent>
                         </AlertDialog>
                      </div>
-                   </CardHeader>
-                   <CardContent className="px-3 pb-3">
                       {pkg.serviciosIncluidos.length > 0 ? (
                           <ul className="space-y-1 text-sm">
-                              {pkg.serviciosIncluidos.slice(0, 3).map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <Badge variant="outline">{s.calculationMethod}</Badge></li>)}
-                              {pkg.serviciosIncluidos.length > 3 && <li className="text-xs text-muted-foreground">...y {pkg.serviciosIncluidos.length - 3} más.</li>}
+                              {pkg.serviciosIncluidos.map(s => <li key={s.id} className="flex justify-between"><span>{s.nombre}</span> <Badge variant="outline">{s.calculationMethod}</Badge></li>)}
                           </ul>
                       ) : <p className="text-sm text-muted-foreground">Este paquete no tiene servicios.</p>}
-                   </CardContent>
-                 </Card>
+                   </CollapsibleContent>
+                 </Collapsible>
               ))}
              </div>
           </CardContent>
@@ -676,3 +681,5 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
+
+    
