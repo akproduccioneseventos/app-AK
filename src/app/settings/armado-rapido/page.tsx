@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -136,8 +137,12 @@ function AddOrEditDialog({
     };
     
     const addTramo = (serviceId: string) => {
-      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0 };
       const currentTramos = localItem.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
+      const lastTramo = currentTramos[currentTramos.length - 1];
+      const newDesde = lastTramo ? (lastTramo.hasta || 0) + 1 : 0;
+      
+      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: 0, precio: 0 };
+      
       handleServiceDetailChange(serviceId, 'tramosDePrecio', [...currentTramos, newTramo]);
     };
     
