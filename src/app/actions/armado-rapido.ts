@@ -25,13 +25,13 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
     const parsedConfig = fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
-    // Ensure menus and paquetes are always arrays
+    // Ensure menus and paquetes are always arrays to prevent runtime errors
     parsedConfig.menus = parsedConfig.menus || [];
     parsedConfig.paquetes = parsedConfig.paquetes || [];
     return parsedConfig;
   } catch (error) {
-    console.error("Error reading armado-rapido-config.json, returning default.", error);
-    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8');
+    console.error("Error reading armado-rapido-config.json, returning default. The file will NOT be overwritten.", error);
+    // Return default but DO NOT overwrite the file, preserving user data in case of temporary read errors.
     return defaultConfig;
   }
 }
@@ -41,12 +41,13 @@ export async function saveArmadoRapidoConfig(
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
-    // **CRITICAL FIX**: Read the existing config first to merge, not overwrite.
+    // **CRITICAL FIX**: Always read the existing config first to merge, not blindly overwrite.
     const existingConfig = await getArmadoRapidoConfig();
 
     const configToSave: ArmadoRapidoConfig = {
       ...existingConfig,
       ...newConfigData,
+      // Explicitly ensure arrays are not accidentally overwritten by partial data
       menus: newConfigData.menus !== undefined ? newConfigData.menus : existingConfig.menus,
       paquetes: newConfigData.paquetes !== undefined ? newConfigData.paquetes : existingConfig.paquetes,
     };
