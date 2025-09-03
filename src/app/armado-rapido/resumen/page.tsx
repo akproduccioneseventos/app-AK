@@ -5,9 +5,12 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, MessageSquare, Share2, ClipboardCopy, Gift } from 'lucide-react';
+import { ArrowLeft, Printer, MessageSquare, Share2, ClipboardCopy, Gift, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
+import NextImage from 'next/image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import type { InvoiceTemplateSettings } from '@/types/settings';
+
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -15,7 +18,7 @@ const formatCurrency = (amount?: number) => {
 };
 
 // Componente aislado para la vista imprimible del presupuesto
-const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>(({ summaryData }, ref) => {
+const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, settings: InvoiceTemplateSettings | null }>(({ summaryData, settings }, ref) => {
   if (!summaryData) return null;
   const descuentoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + r.valor, 0);
   const subtotal = summaryData.total + descuentoRegalos;
@@ -24,7 +27,11 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any }>((
     <div ref={ref} className="bg-white">
         <Card className="w-full max-w-3xl shadow-lg print:shadow-none print:border-none">
             <CardHeader className="text-center p-6 bg-muted/30">
-            <Image src="/logo.png" alt="Logo" width={120} height={64} className="mx-auto" data-ai-hint="company logo elegant"/>
+            {settings?.logoUrl ? (
+                <NextImage src={settings.logoUrl} alt="Logo" width={120} height={64} className="mx-auto object-contain" data-ai-hint="company logo elegant"/>
+            ) : (
+                <div className="h-16 w-32 bg-gray-200 mx-auto flex items-center justify-center text-xs text-muted-foreground">Tu Logo Aquí</div>
+            )}
             <CardTitle className="font-headline text-2xl mt-4">Presupuesto para Evento</CardTitle>
             <CardDescription>Generado desde Mi Presupuesto al Instante</CardDescription>
             </CardHeader>
@@ -81,19 +88,30 @@ function ResumenContent() {
   const { toast } = useToast();
   const [summaryData, setSummaryData] = useState<any | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+  const [settings, setSettings] = useState<InvoiceTemplateSettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const data = searchParams.get('data');
-    if (data) {
-      try {
-        setSummaryData(JSON.parse(data));
-      } catch (e) {
-        toast({ title: "Error", description: "No se pudo leer el resumen del presupuesto.", variant: "destructive" });
-        router.push('/armado-rapido');
-      }
-    } else {
-      router.push('/armado-rapido');
+    async function loadData() {
+        setIsLoading(true);
+        try {
+            const data = searchParams.get('data');
+            if (data) {
+                setSummaryData(JSON.parse(data));
+            } else {
+                router.push('/armado-rapido');
+                return;
+            }
+            const fetchedSettings = await getInvoiceTemplateSettings();
+            setSettings(fetchedSettings);
+        } catch (e) {
+            toast({ title: "Error", description: "No se pudo leer el resumen o la configuración.", variant: "destructive" });
+            router.push('/armado-rapido');
+        } finally {
+            setIsLoading(false);
+        }
     }
+    loadData();
   }, [searchParams, router, toast]);
 
   const handlePrint = () => {
@@ -130,8 +148,8 @@ function ResumenContent() {
   };
 
 
-  if (!summaryData) {
-    return <div>Cargando resumen...</div>;
+  if (isLoading || !summaryData) {
+    return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
 
   return (
@@ -146,7 +164,7 @@ function ResumenContent() {
       </div>
       
       <div className="print-only-container">
-        <BudgetPrintView summaryData={summaryData} ref={printRef} />
+        <BudgetPrintView summaryData={summaryData} settings={settings} ref={printRef} />
       </div>
       
       <style jsx global>{`
@@ -177,7 +195,7 @@ function ResumenContent() {
 
 export default function ResumenPage() {
     return (
-        <Suspense fallback={<div>Cargando...</div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
             <ResumenContent />
         </Suspense>
     )
