@@ -1,3 +1,4 @@
+
 [
   {
     "id": "serv_invitaciones_digitales",
@@ -23,31 +24,15 @@
     "precioVenta": 3500
   },
   {
-    "id": "serv_1752489600001_pmozo",
+    "id": "serv_mozos",
     "nombre": "Mozo",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "unidad": "Por evento",
-    "precioVenta": 2900
-  },
-  {
-    "id": "serv_1752489600002_pcoci",
-    "nombre": "Mozo de cocina",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "unidad": "Por evento",
-    "precioVenta": 2900
-  },
-  {
-    "id": "serv_mozo_cocina",
-    "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "precioVenta": 2800
   },
   {
-    "id": "serv_mozos",
-    "nombre": "Mozos",
+    "id": "serv_mozo_cocina",
+    "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "precioVenta": 2800
@@ -61,12 +46,11 @@
     "precioVenta": 2500
   },
   {
-    "id": "serv_1752489600119_vidvid",
+    "id": "serv_video_vida",
     "nombre": "Video de vida",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 2500
+    "precioVenta": 1900
   },
   {
     "id": "serv_1752489600084_barlic",
@@ -267,12 +251,10 @@
     "precioVenta": 350
   },
   {
-    "id": "serv_1752489600008_cerdorel",
+    "id": "serv_cerdo_relleno",
     "nombre": "Cerdo relleno c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
-    "unidad": "Por persona",
     "precioVenta": 300
   },
   {
@@ -304,14 +286,14 @@
   },
   {
     "id": "serv_sandwiches_saladitos",
-    "nombre": "Entrada 23: Sándwiches y Saladitos",
+    "nombre": "Entrada: Sándwiches y Saladitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "precioVenta": 200
   },
   {
     "id": "serv_picada_fiambres",
-    "nombre": "Entrada 8: Picada de fiambres",
+    "nombre": "Entrada: Picada de fiambres",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "precioVenta": 120
@@ -371,21 +353,17 @@
     "precioVenta": 300
   },
   {
-    "id": "serv_1752489600052_menninham",
+    "id": "serv_menu_ninos_hamburguesa",
     "nombre": "Menú niños - Hamburguesa c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menús para Niños",
-    "unidad": "Por persona",
-    "precioVenta": 250
+    "precioVenta": 200
   },
   {
-    "id": "serv_1752489600053_menninpan",
+    "id": "serv_menu_ninos_panchos",
     "nombre": "Menú niños - Panchos c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menús para Niños",
-    "unidad": "Por persona",
     "precioVenta": 165
   },
   {
@@ -414,20 +392,6 @@
     "subcategoria": "Menús para Niños",
     "unidad": "Por persona",
     "precioVenta": 349
-  },
-  {
-    "id": "serv_menu_ninos_hamburguesa",
-    "nombre": "Menú niños- Hamburguesa c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 200
-  },
-  {
-    "id": "serv_menu_ninos_panchos",
-    "nombre": "Menú niños- Panchos c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 165
   },
   {
     "id": "serv_1752489600051_menveg",
@@ -511,15 +475,6 @@
     "precioVenta": 210
   },
   {
-    "id": "serv_1752489600031_picfiam",
-    "nombre": "Picada de fiambres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
-    "unidad": "Por persona",
-    "precioVenta": 150
-  },
-  {
     "id": "serv_1752489600042_picmar",
     "nombre": "Picada de mar",
     "tipoItem": "Servicio",
@@ -563,22 +518,6 @@
     "subcategoria": "Entradas",
     "unidad": "Por persona",
     "precioVenta": 120
-  },
-  {
-    "id": "serv_cerdo_relleno",
-    "nombre": "Plato principal 4: Cerdo relleno c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "precioVenta": 300
-  },
-  {
-    "id": "serv_1752489600012_pollcre",
-    "nombre": "Pollo a la crema c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
-    "unidad": "Por persona",
-    "precioVenta": 350
   },
   {
     "id": "serv_1752489600007_pollarr",
@@ -818,30 +757,12 @@
     "precioVenta": 2900
   },
   {
-    "id": "serv_1752489600101_cuafirm",
-    "nombre": "CUADRO DE FIRMAS",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Señalética",
-    "unidad": "Por evento",
-    "precioVenta": 2900
-  },
-  {
     "id": "serv_1752489600098_decbas",
     "nombre": "DECORACION BASICA",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "unidad": "Por evento",
     "precioVenta": 14500
-  },
-  {
-    "id": "serv_1752489600070_mantcomp",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Textiles",
-    "unidad": "Por persona",
-    "precioVenta": 70
   },
   {
     "id": "serv_manteleria_completa",
@@ -884,15 +805,6 @@
     "subcategoria": "Mobiliario",
     "unidad": "Por persona",
     "precioVenta": 25
-  },
-  {
-    "id": "serv_1752489600069_vajcomp",
-    "nombre": "Vajilla completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Vajilla",
-    "unidad": "Por persona",
-    "precioVenta": 70
   },
   {
     "id": "serv_1752489600099_zonafot",
@@ -951,14 +863,6 @@
     "precioVenta": 2000
   },
   {
-    "id": "item_1756162086596_etozu9y",
-    "nombre": "Servicio de discoteca",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
-    "unidad": "Por evento",
-    "precioVenta": 9000
-  },
-  {
     "id": "serv_discoteca_completa",
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
@@ -978,14 +882,6 @@
     "nombre": "Fotocabina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "precioVenta": 2900
-  },
-  {
-    "id": "serv_1752489600110_fotcab",
-    "nombre": "FOTOCABINA",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "unidad": "Por evento",
     "precioVenta": 2900
   },
   {
@@ -1021,13 +917,6 @@
     "precioVenta": 3000
   },
   {
-    "id": "serv_video_vida",
-    "nombre": "Video de vida",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de filmación",
-    "precioVenta": 1900
-  },
-  {
     "id": "serv_1752489600115_fotciv",
     "nombre": "FOTOGRAFIA CIVIL",
     "tipoItem": "Servicio",
@@ -1044,12 +933,11 @@
     "precioVenta": 3500
   },
   {
-    "id": "serv_1752489600116_fotfie",
+    "id": "serv_fotografia_fiesta",
     "nombre": "Fotografía de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "unidad": "Por evento",
-    "precioVenta": 8500
+    "precioVenta": 10500
   },
   {
     "id": "serv_1752489600114_fotigl",
@@ -1058,13 +946,6 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3890
-  },
-  {
-    "id": "serv_fotografia_fiesta",
-    "nombre": "Servicio de fotografía",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "precioVenta": 10500
   },
   {
     "id": "serv_1752489600084_fuentchoc",
