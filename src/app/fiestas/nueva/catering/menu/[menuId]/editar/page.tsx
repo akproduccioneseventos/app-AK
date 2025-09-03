@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, type FormEvent } from 'react';
@@ -435,7 +436,7 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
                                 <DialogDescription>Busca y selecciona un ingrediente pre-cargado.</DialogDescription>
                             </DialogHeader>
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
                                 <Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/>
                             </div>
                             <ScrollArea className="h-64 border rounded-md">

@@ -305,12 +305,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
           </section>
         )}
         
-        {showAnnualAdjustmentLegend && (
-          <div className="my-4 p-3 border-l-4 border-orange-400 bg-orange-50 text-orange-700 text-xs print:hidden">
-            <div className="flex"><div className="flex-shrink-0"><AlertTriangle className="h-5 w-5 text-orange-500" /></div><div className="ml-3"><p className="font-bold">Notificación de Ajuste Anual</p><p className="mt-1">Este presupuesto podría estar sujeto a un ajuste del <strong>{displaySettings.annualAdjustmentPercentage}%</strong> por realizarse en un año futuro. Este ajuste se aplicará al momento de la facturación final.</p></div></div>
-          </div>
-        )}
-
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
             <div className="flex justify-between"><span>Subtotal Bruto:</span><span>{formatCurrency(subtotalBruto)}</span></div>
