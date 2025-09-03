@@ -138,6 +138,7 @@ function AddOrEditDialog({
     };
 
     const handleToggleService = (service: ServicioEmpresa) => {
+        if (!service) return; // Prevent error if service is undefined
         setLocalItem(prev => {
             if (!prev) return null;
             const currentServices = prev.serviciosIncluidos || [];
@@ -411,7 +412,7 @@ export default function ArmadoRapidoSettingsPage() {
         paquetes: fetchedConfig.paquetes || [],
         menus: fetchedConfig.menus || [],
       });
-      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined));
+      setVendibleServices(fetchedServices.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0));
     } catch (err: any) {
       toast({ title: "Error", description: "No se pudo cargar la configuración.", variant: "destructive" });
     } finally {
@@ -569,5 +570,3 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
-
-    
