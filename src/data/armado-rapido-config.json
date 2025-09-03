@@ -43,12 +43,6 @@
           "categoria": "Plato Principal"
         },
         {
-          "id": "serv_1752489600052_menninham",
-          "nombre": "Menú niños - Hamburguesa completa c/ fritas",
-          "precioFijo": 250,
-          "categoria": "Menú Adolescente / Niño"
-        },
-        {
           "id": "serv_sandwiches_saladitos",
           "nombre": "Sandwiches y Saladitos",
           "precioFijo": "220",
@@ -205,6 +199,32 @@
       "descripcion": "Servicios esenciales para tu evento.",
       "serviciosIncluidos": [
         {
+          "id": "serv_1752489600070_mantcomp",
+          "nombre": "Mantelería completa",
+          "precioFijo": 70,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 70,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600071_mobil",
+          "nombre": "Mobiliario",
+          "precioFijo": 69,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "precioBase": 69,
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600069_vajcomp",
+          "nombre": "Vajilla completa",
+          "precioFijo": 70,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "porPersona",
+          "esRegalo": false
+        },
+        {
           "id": "serv_1752489600001_pmozo",
           "nombre": "Mozo",
           "precioBase": 2900,
@@ -266,32 +286,6 @@
           "categoria": "Servicio Adicional",
           "calculationMethod": "fijo",
           "precioBase": 8500,
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600069_vajcomp",
-          "nombre": "Vajilla completa",
-          "precioFijo": 70,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "porPersona",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600070_mantcomp",
-          "nombre": "Mantelería completa",
-          "precioFijo": 70,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 70,
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600071_mobil",
-          "nombre": "Mobiliario",
-          "precioFijo": 69,
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "precioBase": 69,
           "esRegalo": false
         }
       ]
