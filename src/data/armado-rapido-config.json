@@ -23,6 +23,34 @@
           "calculationMethod": "ratio",
           "invitadosPorUnidad": 25,
           "categoria": "Servicio Adicional"
+        },
+        {
+          "id": "item_1756162086596_etozu9y",
+          "nombre": "Servicio de discoteca",
+          "precioFijo": 9000,
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "tramos",
+          "esRegalo": false,
+          "tramosDePrecio": [
+            {
+              "id": "tramo_1756927049912",
+              "desde": 1,
+              "hasta": 80,
+              "precio": 0
+            },
+            {
+              "id": "tramo_1756927091333",
+              "desde": 81,
+              "hasta": 130,
+              "precio": 0
+            },
+            {
+              "id": "tramo_1756927105655",
+              "desde": 131,
+              "hasta": 250,
+              "precio": 0
+            }
+          ]
         }
       ]
     }

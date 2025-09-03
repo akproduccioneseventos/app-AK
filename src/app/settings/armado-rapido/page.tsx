@@ -149,7 +149,7 @@ function AddOrEditDialog({
     const addTramo = (serviceId: string) => {
       const currentTramos = localItem.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
       const lastTramo = currentTramos[currentTramos.length - 1];
-      const newDesde = lastTramo ? (lastTramo.hasta || 0) + 1 : 0;
+      const newDesde = lastTramo ? (lastTramo.hasta || 0) + 1 : 1;
       
       const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde, precio: 0 };
       
@@ -305,7 +305,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
   
-  const handleSaveConfig = async (newConfig: ArmadoRapidoConfig) => {
+  const handleSaveConfig = useCallback(async (newConfig: ArmadoRapidoConfig) => {
     setIsSaving(true);
     try {
       const result = await saveArmadoRapidoConfig(newConfig);
@@ -320,7 +320,7 @@ export default function ArmadoRapidoSettingsPage() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [toast]);
   
   const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
     setModalMode(mode);
@@ -333,69 +333,54 @@ export default function ArmadoRapidoSettingsPage() {
     setIsModalOpen(true);
   }
   
-  const handleSaveItem = (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
-    let newConfig: ArmadoRapidoConfig | null = null;
-    setConfig(prev => {
-        if (!prev) return null;
-        let updatedConfig = {...prev};
-        if (modalMode === 'menu') {
-          updatedConfig.menus = [itemToSave as MenuArmadoRapido];
-        } else {
-          const list = prev.paquetes || [];
-          const existingIndex = list.findIndex(i => i.id === itemToSave.id);
-          if (existingIndex > -1) {
-              list[existingIndex] = itemToSave as PaqueteArmadoRapido;
-          } else {
-              list.push(itemToSave as PaqueteArmadoRapido);
-          }
-          updatedConfig.paquetes = [...list];
-        }
-        newConfig = updatedConfig;
-        return updatedConfig;
-    });
-    setIsModalOpen(false);
-    if (newConfig) {
-      handleSaveConfig(newConfig);
-    }
-  }
-  
-  const handleDeleteItem = (type: 'paquete', id: string) => {
-      let newConfig: ArmadoRapidoConfig | null = null;
-      setConfig(prev => {
-          if (!prev) return null;
-          newConfig = { ...prev, paquetes: prev.paquetes.filter(i => i.id !== id) };
-          return newConfig;
-      });
-       if (newConfig) {
-        handleSaveConfig(newConfig);
+  const handleSaveItem = useCallback((itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
+    const newConfig = {...config} as ArmadoRapidoConfig;
+
+    if (modalMode === 'menu') {
+      newConfig.menus = [itemToSave as MenuArmadoRapido];
+    } else {
+      const list = newConfig.paquetes || [];
+      const existingIndex = list.findIndex(i => i.id === itemToSave.id);
+      if (existingIndex > -1) {
+          list[existingIndex] = itemToSave as PaqueteArmadoRapido;
+      } else {
+          list.push(itemToSave as PaqueteArmadoRapido);
       }
-  }
-
-  const handleDuplicatePackage = (packageId: string) => {
-    let newConfig: ArmadoRapidoConfig | null = null;
-    setConfig(prev => {
-      if (!prev) return null;
-      const packageToCopy = prev.paquetes.find(p => p.id === packageId);
-      if (!packageToCopy) return prev;
-
-      const newPackage: PaqueteArmadoRapido = {
-        ...JSON.parse(JSON.stringify(packageToCopy)),
-        id: `new_paquete_${Date.now()}`,
-        nombre: `${packageToCopy.nombre} (Copia)`,
-      };
-
-      const originalIndex = prev.paquetes.findIndex(p => p.id === packageId);
-      const newPackages = [...prev.paquetes];
-      newPackages.splice(originalIndex + 1, 0, newPackage);
-
-      newConfig = { ...prev, paquetes: newPackages };
-      return newConfig;
-    });
-    if (newConfig) {
-      handleSaveConfig(newConfig);
+      newConfig.paquetes = [...list];
     }
+    
+    setConfig(newConfig);
+    setIsModalOpen(false);
+    handleSaveConfig(newConfig);
+  }, [config, modalMode, handleSaveConfig]);
+  
+  const handleDeleteItem = useCallback((type: 'paquete', id: string) => {
+      if (!config) return;
+      const newConfig = { ...config, paquetes: config.paquetes.filter(i => i.id !== id) };
+      setConfig(newConfig);
+      handleSaveConfig(newConfig);
+  }, [config, handleSaveConfig]);
+
+  const handleDuplicatePackage = useCallback((packageId: string) => {
+    if (!config) return;
+    const packageToCopy = config.paquetes.find(p => p.id === packageId);
+    if (!packageToCopy) return;
+
+    const newPackage: PaqueteArmadoRapido = {
+      ...JSON.parse(JSON.stringify(packageToCopy)),
+      id: `new_paquete_${Date.now()}`,
+      nombre: `${packageToCopy.nombre} (Copia)`,
+    };
+
+    const originalIndex = config.paquetes.findIndex(p => p.id === packageId);
+    const newPackages = [...config.paquetes];
+    newPackages.splice(originalIndex + 1, 0, newPackage);
+
+    const newConfig = { ...config, paquetes: newPackages };
+    setConfig(newConfig);
+    handleSaveConfig(newConfig);
     toast({ description: "Paquete duplicado." });
-  };
+  }, [config, handleSaveConfig, toast]);
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
