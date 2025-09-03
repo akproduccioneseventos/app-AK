@@ -37,15 +37,20 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
 }
 
 export async function saveArmadoRapidoConfig(
-  config: ArmadoRapidoConfig
+  newConfigData: Partial<ArmadoRapidoConfig>
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
-    const configToSave = {
-        ...config,
-        menus: config.menus || [],
-        paquetes: config.paquetes || [],
+    // **CRITICAL FIX**: Read the existing config first to merge, not overwrite.
+    const existingConfig = await getArmadoRapidoConfig();
+
+    const configToSave: ArmadoRapidoConfig = {
+      ...existingConfig,
+      ...newConfigData,
+      menus: newConfigData.menus !== undefined ? newConfigData.menus : existingConfig.menus,
+      paquetes: newConfigData.paquetes !== undefined ? newConfigData.paquetes : existingConfig.paquetes,
     };
+    
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
     return { success: true };
   } catch (error: any) {

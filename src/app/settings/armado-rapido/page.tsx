@@ -324,19 +324,21 @@ export default function ArmadoRapidoSettingsPage() {
     setIsModalOpen(true);
   }
   
-  const handleSaveItem = (item: MenuArmadoRapido | PaqueteArmadoRapido) => {
+  const handleSaveItem = (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
       const listKey = modalMode === 'menu' ? 'menus' : 'paquetes';
       setConfig(prev => {
           if (!prev) return null;
           if(listKey === 'menus'){
-            return {...prev, menus: [item as MenuArmadoRapido]};
+            // There's only one menu, so we replace it.
+            return {...prev, menus: [itemToSave as MenuArmadoRapido]};
           }
+          // For packages, we find and update or add.
           const list = prev[listKey] || [];
-          const existingIndex = list.findIndex(i => i.id === item.id);
+          const existingIndex = list.findIndex(i => i.id === itemToSave.id);
           if (existingIndex > -1) {
-              list[existingIndex] = item as any;
+              list[existingIndex] = itemToSave as any;
           } else {
-              list.push(item as any);
+              list.push(itemToSave as any);
           }
           return {...prev, [listKey]: [...list]};
       });
