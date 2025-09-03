@@ -137,7 +137,7 @@ function AddOrEditDialog({
         setModifiedServices(prev => new Map(prev).set(service.id, service));
     };
 
-    const handleToggleService = (service: ServicioEmpresa) => {
+    const handleToggleService = (service?: ServicioEmpresa) => {
         if (!service) return; // Prevent error if service is undefined
         setLocalItem(prev => {
             if (!prev) return null;
@@ -181,7 +181,7 @@ function AddOrEditDialog({
               const serviceToUpdateInCatalog = { ...catalogService, nombre: value };
               trackModification(serviceToUpdateInCatalog);
           }
-           if (field === 'precioBase' || field === 'precioPorPersona') {
+           if (field === 'precioBase' || field === 'precioPorPersona' || (field === 'precioFijo' && mode === 'menu')) {
               const serviceToUpdateInCatalog = { ...catalogService, precioVenta: Number(value) || 0 };
               trackModification(serviceToUpdateInCatalog);
            }
@@ -343,7 +343,7 @@ function AddOrEditDialog({
                                                 {groupedAndSortedServices[categoryName].map(s => (
                                                     <Collapsible key={s.id} onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)} className="border rounded-md bg-background px-2 w-full">
                                                         <div className="flex items-center gap-3 py-2">
-                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id)!)} />
+                                                            <Checkbox id={`current-${s.id}`} checked={true} onCheckedChange={() => handleToggleService(initialVendibleServices.find(vs => vs.id === s.id))} />
                                                             <div className="flex-grow"><Label htmlFor={`current-${s.id}`} className="text-sm font-medium cursor-pointer">{s.nombre}</Label></div>
                                                             <CollapsibleTrigger asChild>
                                                                 <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
@@ -502,10 +502,14 @@ export default function ArmadoRapidoSettingsPage() {
   }, [config, loadData, toast]);
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  
+  const cateringServices = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
+  const otherServices = vendibleServices.filter(s => s.categoria !== 'Servicio de catering');
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'menu' ? cateringServices : vendibleServices} mode={modalMode} onSave={handleSaveItem}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de "Mi Presupuesto al Instante"</h1></div>
         <div className="flex gap-2">
