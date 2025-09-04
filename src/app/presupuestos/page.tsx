@@ -93,21 +93,13 @@ export default function PresupuestosPage() {
                 Crear Presupuesto Manual
               </Button>
             </Link>
-             <Link href="/settings/budget-display" passHref>
-              <Button variant="outline" size="lg" className="rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-primary text-primary hover:bg-primary/5 w-full sm:w-auto">
-                <SettingsIcon className="w-6 h-6 mr-3"/>
-                Configurar Presupuestos
+            <Link href="/armado-rapido" passHref>
+              <Button size="lg" variant="secondary" className="rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
+                <Wand2 className="w-7 h-7 mr-3" />
+                Mi Presupuesto al Instante
               </Button>
             </Link>
           </div>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 max-w-md mx-auto">
-                <Link href="/armado-rapido" passHref>
-                    <Button variant="secondary" className="w-full py-6 text-base"><Wand2 className="w-5 h-5 mr-2"/>Armado Rápido</Button>
-                </Link>
-                 <Link href="/asistente-ak" passHref>
-                    <Button variant="secondary" className="w-full py-6 text-base"><Bot className="w-5 h-5 mr-2"/>Asistente IA</Button>
-                </Link>
-            </div>
         </CardContent>
       </Card>
 

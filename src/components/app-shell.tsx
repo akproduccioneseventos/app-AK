@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
 import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot } from 'lucide-react';
@@ -18,7 +18,8 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -98,14 +99,12 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/settings/asistente-ak') return 'Configuración Asistente';
   if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
   if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
-  if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
-
+  
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
   if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
@@ -194,10 +193,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
-  if (pathname === '/settings/asistente-ak') return BrainCircuit;
   
   if (pathname === '/armado-rapido') return Wand2;
-  if (pathname === '/asistente-ak') return Bot;
+  
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
@@ -219,11 +217,26 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
+  const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchLogo() {
+      try {
+        const settings = await getInvoiceTemplateSettings();
+        setLogoUrl(settings.logoUrl);
+      } catch (error) {
+        console.error("Failed to fetch company logo for avatar", error);
+        setLogoUrl(null);
+      }
+    }
+    fetchLogo();
+  }, []);
+
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
-  const isClientFacingTool = pathname === '/armado-rapido' || pathname === '/asistente-ak';
+  const isClientFacingTool = pathname === '/armado-rapido';
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
@@ -253,45 +266,49 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
         <div className="flex items-center gap-2">
-          <AppLogo />
-          <span className="mx-2 text-muted-foreground">|</span>
           {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
           <h1 className="text-lg md:text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src="https://placehold.co/40x40.png" alt="Avatar de Usuario" data-ai-hint="user avatar" />
-                <AvatarFallback className="bg-primary text-primary-foreground">U</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <UserCircle className="mr-2 h-4 w-4" />
-              <span>Perfil</span>
-            </DropdownMenuItem>
-            <Link href="/settings" passHref>
-              <DropdownMenuItem>
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Configuración</span>
+        <div className="flex items-center gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar className="h-9 w-9">
+                  {logoUrl === undefined ? (
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                  ) : logoUrl ? (
+                    <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
+                  ) : (
+                    <AvatarFallback className="bg-primary text-primary-foreground">AK</AvatarFallback>
+                  )}
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem disabled>
+                <UserCircle className="mr-2 h-4 w-4" />
+                <span>Perfil</span>
               </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogoutClick}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Cerrar Sesión</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <Link href="/settings" passHref>
+                <DropdownMenuItem>
+                  <SettingsIcon className="mr-2 h-4 w-4" />
+                  <span>Configuración</span>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogoutClick}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Cerrar Sesión</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </header>
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
-      {pathname !== '/portal' && <AkAssistant />}
     </div>
   );
 }

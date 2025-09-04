@@ -9,14 +9,14 @@ import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainC
 const settingsCards = [
    {
     title: "Configuración de Presupuestos",
-    description: "Personaliza el PDF, el Armado Rápido y el Asistente de IA.",
+    description: "Personaliza el PDF y la herramienta 'Mi Presupuesto al Instante'.",
     href: "/settings/budget-display", 
     icon: FileText,
     buttonLabel: "Configurar Presupuestos"
   },
   {
     title: "Información de la Empresa",
-    description: "Actualiza los datos fiscales y de contacto de tu empresa.",
+    description: "Actualiza los datos fiscales y de contactode tu empresa.",
     href: "/settings/company", 
     icon: Building,
     buttonLabel: "Gestionar Datos"
@@ -78,10 +78,10 @@ export default function SettingsPage() {
       <div className="flex items-center gap-3">
         <div>
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-                AK Producciones
+                Configuración General
             </h1>
             <p className="text-muted-foreground">
-                Servicio integral de fiestas
+                Administra las preferencias de la aplicación, apariencia de documentos y detalles de tu cuenta.
             </p>
         </div>
       </div>

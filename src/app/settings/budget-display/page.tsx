@@ -121,19 +121,6 @@ export default function BudgetDisplaySettingsPage() {
                 </Link>
             </CardContent>
           </Card>
-          <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle className="font-headline text-xl flex items-center gap-2"><Bot className="text-primary"/>Asistente de Presupuestos (IA)</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Define cómo el asistente conversacional guía a los clientes para crear un presupuesto.
-                </p>
-                <Link href="/settings/asistente-ak" passHref className="w-full">
-                     <Button variant="outline" className="w-full">Configurar Asistente IA</Button>
-                </Link>
-            </CardContent>
-          </Card>
         </div>
 
 

@@ -73,14 +73,12 @@ export default function DashboardPage() {
     totalPendiente: 0,
   });
   
-  const [asistenteAkLink, setAsistenteAkLink] = useState('');
   const [armadoRapidoLink, setArmadoRapidoLink] = useState('');
 
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
-      setAsistenteAkLink(`${origin}/asistente-ak`);
       setArmadoRapidoLink(`${origin}/armado-rapido`);
     }
   }, []);
@@ -127,7 +125,7 @@ export default function DashboardPage() {
           <CardTitle className="font-headline text-xl">Creación de Presupuestos</CardTitle>
           <CardDescription>Elige el método que mejor se adapte a tus necesidades y las de tu cliente.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4 flex flex-col justify-between">
             <div>
               <CardTitle className="text-lg font-semibold flex items-center gap-2"><PlusCircle className="w-5 h-5"/>Presupuesto Manual</CardTitle>
@@ -152,23 +150,6 @@ export default function DashboardPage() {
                   link={armadoRapidoLink}
                   title="Compartir Mi Presupuesto al Instante"
                   description="Copia este enlace para que tu cliente cree un presupuesto rápido."
-              >
-                  <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
-              </ShareLinkDialog>
-            </div>
-          </Card>
-          
-           <Card className="p-4 flex flex-col justify-between">
-            <div>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Bot className="w-5 h-5"/>Asistente AK (IA)</CardTitle>
-              <CardDescription className="text-sm mt-1 mb-3">Un chat guía al cliente en la creación del presupuesto. Comparte el enlace.</CardDescription>
-            </div>
-             <div className="flex gap-2">
-              <Link href={asistenteAkLink} passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
-              <ShareLinkDialog
-                  link={asistenteAkLink}
-                  title="Compartir Asistente AK"
-                  description="Copia este enlace para que tu cliente cree un presupuesto conversando."
               >
                   <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
               </ShareLinkDialog>

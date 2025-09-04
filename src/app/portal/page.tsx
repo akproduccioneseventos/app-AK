@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -15,7 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 
 
 const formatDate = (dateString?: string) => {
@@ -263,7 +261,6 @@ export default function ClientPortalPage() {
                     </Card>
                 )}
             </div>
-            {/* The assistant is rendered but its functionality is disabled on this page by AppShell logic */}
         </div>
     );
 }

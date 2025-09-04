@@ -18,7 +18,6 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -106,8 +105,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
   if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
-  if (pathname === '/asistente-ak') return 'Asistente de Presupuestos IA';
-
+  
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
   if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
@@ -199,8 +197,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/asistente-ak') return BrainCircuit;
   
   if (pathname === '/armado-rapido') return Wand2;
-  if (pathname === '/asistente-ak') return Bot;
-
+  
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
   if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
@@ -240,7 +237,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
-  const isClientFacingTool = pathname === '/armado-rapido' || pathname === '/asistente-ak';
+  const isClientFacingTool = pathname === '/armado-rapido';
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
@@ -313,7 +310,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
-      {pathname !== '/portal' && <AkAssistant />}
     </div>
   );
 }

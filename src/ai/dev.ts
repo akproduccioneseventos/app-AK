@@ -17,4 +17,3 @@ import '@/ai/types/assign-guests-types';
 import '@/ai/types/generate-social-post-types';
 import '@/ai/types/generate-testimonial-types';
 import '@/ai/types/suggest-palette-types';
-import '@/ai/types/assistant-types';
