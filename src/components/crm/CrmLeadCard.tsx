@@ -75,7 +75,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
           {lead.name}
         </CardTitle>
         <div {...attributes} {...listeners} className="cursor-grab p-1" title="Mover prospecto">
-            <GripVertical className="w-4 h-4 text-muted-foreground/70" />
+            <GripVertical className="w-5 h-5 text-muted-foreground/70" />
         </div>
       </CardHeader>
       <CardFooter className="p-2 border-t flex justify-between items-center">
