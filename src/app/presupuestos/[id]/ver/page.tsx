@@ -56,7 +56,7 @@ const COMPANY_LOGO_AI_HINT_PDF = "company logo AK circle red";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
 
-export default function VerPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
+export default function VerPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id as string;
@@ -168,9 +168,14 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
         acc[categoria].push(item);
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
+    
+    // Move "Regalos" to the end if it exists
+    const sortedKeys = Object.keys(agrupados).sort((a,b) => a.localeCompare(b));
+    const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
+    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
     if (itemsRegalo.length > 0) {
-      agrupados['Regalos Incluidos'] = itemsRegalo;
+      sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + item.precioUnitario * item.cantidad, 0);
@@ -180,7 +185,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) - costoRegalos;
     
     return {
-      itemsAgrupados: agrupados,
+      itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),

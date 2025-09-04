@@ -103,9 +103,14 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
         acc[categoria].push(item);
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
+    
+    // Move "Regalos" to the end if it exists
+    const sortedKeys = Object.keys(agrupados).sort((a,b) => a.localeCompare(b));
+    const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
+    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
     if (itemsRegalo.length > 0) {
-      agrupados['Regalos Incluidos'] = itemsRegalo;
+      sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
@@ -115,7 +120,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) - costoRegalos;
     
     return {
-      itemsAgrupados: agrupados,
+      itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),
