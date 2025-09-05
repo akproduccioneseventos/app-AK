@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -17,7 +18,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
@@ -28,7 +28,6 @@ interface CrmLeadCardProps {
 }
 
 export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps) {
-  const { toast } = useToast();
   const {
     attributes,
     listeners,
@@ -47,14 +46,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   const handleDelete = () => {
     onDeleteLead(lead.id);
   };
-
-  const handleEdit = () => {
-    toast({
-      title: "Función no implementada",
-      description: "La edición de prospectos se añadirá en una futura actualización.",
-    });
-  };
-
+  
   const getDisplayNotes = (notes: string | undefined): { type: 'badge' | 'text', content: string } | null => {
     if (!notes) return null;
     if (notes.includes('Generado desde Mi Presupuesto al Instante') || notes.includes('Generado desde Armado Rápido')) {
@@ -65,55 +57,56 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
 
   const displayNotes = getDisplayNotes(lead.notes);
 
+
   return (
-    <Card ref={setNodeRef} style={style} className="mb-2 shadow-sm hover:shadow-md transition-shadow bg-card touch-none flex flex-col w-full">
-      <CardHeader className="p-2 flex flex-row items-start gap-2">
-        <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
-          <GripVertical className="w-5 h-5 text-muted-foreground/70" />
-        </div>
-        <div className="flex-grow min-w-0">
+    <div ref={setNodeRef} style={style} className="mb-2 touch-none">
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full">
+        <CardHeader className="p-2 flex flex-row items-start gap-2">
+          <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
+            <GripVertical className="w-5 h-5 text-muted-foreground/70" />
+          </div>
+          <div className="flex-grow min-w-0">
             <p className="font-semibold text-sm break-words" title={lead.name}>{lead.name}</p>
-        </div>
-      </CardHeader>
-      <CardContent className="px-3 pb-2 flex-grow min-h-[40px]">
+          </div>
+        </CardHeader>
         {displayNotes && (
-          displayNotes.type === 'badge' ? (
-            <Badge variant="secondary">{displayNotes.content}</Badge>
-          ) : (
-            <p className="text-xs text-muted-foreground break-words">{displayNotes.content}</p>
-          )
+            <CardContent className="px-3 pb-2 min-h-[40px]">
+             {displayNotes.type === 'badge' ? (
+                <Badge variant="secondary">{displayNotes.content}</Badge>
+            ) : (
+                <p className="text-xs text-muted-foreground break-words max-h-24 overflow-y-auto">{displayNotes.content}</p>
+            )}
+            </CardContent>
         )}
-      </CardContent>
-      <CardFooter className="p-2 border-t flex justify-end gap-1">
-          <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref>
-            <Button variant="ghost" size="icon" className="h-7 w-7" title="Crear Presupuesto">
-                <Eye className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </Link>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar Prospecto (Próximamente)" onClick={handleEdit}>
-            <Edit className="h-4 w-4 text-muted-foreground" />
-          </Button>
-          <AlertDialog>
-              <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto" disabled={isDeleting}>
-                      {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
-                  </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                  <AlertDialogHeader>
-                      <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                      <AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                      <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                      {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
-                      Eliminar
-                      </AlertDialogAction>
-                  </AlertDialogFooter>
-              </AlertDialogContent>
-          </AlertDialog>
-      </CardFooter>
-    </Card>
+        <CardFooter className="p-2 border-t flex justify-end gap-1">
+            <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref>
+                <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
+                    <Eye className="h-3.5 w-3.5 mr-1" />
+                    Presupuesto
+                </Button>
+            </Link>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="icon" className="h-7 w-7" title="Eliminar Prospecto" disabled={isDeleting}>
+                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                        <AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                            {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
+                            Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }
