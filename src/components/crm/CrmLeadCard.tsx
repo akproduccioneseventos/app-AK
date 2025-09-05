@@ -68,6 +68,17 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
           <div className="flex-grow min-w-0">
             <p className="font-semibold text-sm break-words" title={lead.name}>{lead.name}</p>
           </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto" disabled={isDeleting}>
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription></AlertDialogHeader>
+                <AlertDialogFooter><AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">{isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Eliminar</AlertDialogAction></AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardHeader>
         {displayNotes && (
             <CardContent className="px-3 pb-2 min-h-[40px] flex-grow">
@@ -80,33 +91,11 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
         )}
         <CardFooter className="p-2 border-t flex justify-end gap-1">
             <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref>
-                <Button variant="ghost" size="icon" className="h-7 w-7" title="Crear Presupuesto">
-                    <Eye className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
+                    <Eye className="w-4 h-4" />
+                    Crear Presupuesto
                 </Button>
             </Link>
-             <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar Prospecto (Próximamente)" disabled>
-                <Edit className="h-4 w-4" />
-            </Button>
-            <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto" disabled={isDeleting}>
-                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
-                    </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                        <AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                            {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
-                            Eliminar
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </CardFooter>
       </Card>
     </div>

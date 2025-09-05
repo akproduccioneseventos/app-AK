@@ -3,14 +3,19 @@
     "id": "lead_1756853652095_iid8anh",
     "name": "nicolas",
     "notes": "Generado desde Mi Presupuesto al Instante.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Presupuesto al Instante\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 0,00",
-    "currentStageId": "s1",
+    "currentStageId": "s3",
     "createdAt": "2025-09-02T22:54:12.095Z",
-    "updatedAt": "2025-09-02T22:54:12.095Z",
+    "updatedAt": "2025-09-05T20:40:53.948Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
         "timestamp": "2025-09-02T22:54:12.095Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-05T20:40:53.948Z"
       }
     ]
   },
