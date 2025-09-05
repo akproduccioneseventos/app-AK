@@ -76,50 +76,55 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
 
   return (
     <Card ref={setNodeRef} style={style} className="mb-3 shadow-md hover:shadow-lg transition-shadow bg-card touch-none">
-      <CardHeader className="p-3 flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2 flex-grow min-w-0">
-            <div {...attributes} {...listeners} className="cursor-grab p-1 flex-shrink-0" title="Mover prospecto">
-                <GripVertical className="w-5 h-5 text-muted-foreground/70" />
-            </div>
-            <CardTitle className="text-sm font-medium truncate">
+      <CardHeader className="p-3 flex flex-row items-center justify-between gap-2">
+        <div {...attributes} {...listeners} className="cursor-grab p-1 flex-shrink-0" title="Mover prospecto">
+            <GripVertical className="w-5 h-5 text-muted-foreground/70" />
+        </div>
+        <div className="flex-grow min-w-0">
+            <CardTitle className="text-sm font-medium truncate" title={lead.name}>
             {lead.name}
             </CardTitle>
         </div>
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0">
-                    <MoreVertical className="h-4 w-4"/>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref>
-                    <DropdownMenuItem>
+        <div className="flex-shrink-0 flex items-center gap-0.5">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                        <MoreVertical className="h-4 w-4"/>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`}>
                         <FileText className="mr-2 h-4 w-4"/> Crear Presupuesto
+                      </Link>
                     </DropdownMenuItem>
-                </Link>
-                <DropdownMenuSeparator/>
-                 <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                         <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                           <Trash2 className="mr-2 h-4 w-4"/> Eliminar Prospecto
-                         </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                            <AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                            {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
-                            Eliminar
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    <DropdownMenuSeparator/>
+                    <DropdownMenuItem disabled>
+                      Ver Historial (Próximamente)
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto">
+                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                        <AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                        {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
+                        Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
       </CardHeader>
         {lead.notes && (
             <CardFooter className="p-3 pt-0 border-t">
