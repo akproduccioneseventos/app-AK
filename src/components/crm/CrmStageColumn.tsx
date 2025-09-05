@@ -28,7 +28,7 @@ export function CrmStageColumn({
   const leadIds = leads.map(l => l.id);
 
   return (
-    <Card ref={setNodeRef} className={`w-72 md:w-80 flex-shrink-0 border-t-4 ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors`}>
+    <Card ref={setNodeRef} className={`w-72 flex-shrink-0 border-t-4 ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors`}>
       <CardHeader className={`p-3 ${stage.headerBgColor} ${stage.headerTextColor} rounded-t-md`}>
         <CardTitle className="text-base font-semibold flex justify-between items-center">
           <span>{stage.name}</span>
