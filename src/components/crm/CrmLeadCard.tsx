@@ -4,15 +4,9 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
-import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, UserCircle2, GripVertical, History, FileText, MoreVertical } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Loader2, Trash2, GripVertical, FileText, MoreVertical } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,20 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
-
-// Helper to format date
-const formatHistoryDate = (dateString: string) => {
-  try {
-    return new Date(dateString).toLocaleString('es-ES', {
-      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  } catch (e) {
-    return "Fecha inválida";
-  }
-};
-
 
 interface CrmLeadCardProps {
   lead: CrmLead;
@@ -71,21 +52,18 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   const handleDelete = () => {
     onDeleteLead(lead.id);
   };
-  
-  const cardIsProcessing = isDeleting;
 
   return (
-    <Card ref={setNodeRef} style={style} className="mb-3 shadow-md hover:shadow-lg transition-shadow bg-card touch-none">
-      <CardHeader className="p-3 flex flex-row items-center justify-between gap-2">
-        <div {...attributes} {...listeners} className="cursor-grab p-1 flex-shrink-0" title="Mover prospecto">
+    <Card ref={setNodeRef} style={style} className="mb-3 shadow-md hover:shadow-lg transition-shadow bg-card touch-none w-full">
+      <div className="p-3 flex items-start gap-2">
+        <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
             <GripVertical className="w-5 h-5 text-muted-foreground/70" />
         </div>
         <div className="flex-grow min-w-0">
-            <CardTitle className="text-sm font-medium truncate" title={lead.name}>
-            {lead.name}
-            </CardTitle>
+          <p className="font-semibold text-sm break-words" title={lead.name}>{lead.name}</p>
+          {lead.notes && <p className="text-xs text-muted-foreground mt-1 break-words">{lead.notes}</p>}
         </div>
-        <div className="flex-shrink-0 flex items-center gap-0.5">
+        <div className="flex-shrink-0 flex items-center">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-7 w-7">
@@ -98,13 +76,9 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
                         <FileText className="mr-2 h-4 w-4"/> Crear Presupuesto
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator/>
-                    <DropdownMenuItem disabled>
-                      Ver Historial (Próximamente)
-                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-            <AlertDialog>
+             <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto">
                         {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
@@ -125,12 +99,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
                 </AlertDialogContent>
             </AlertDialog>
         </div>
-      </CardHeader>
-        {lead.notes && (
-            <CardFooter className="p-3 pt-0 border-t">
-                <p className="text-xs text-muted-foreground italic truncate">{lead.notes}</p>
-            </CardFooter>
-        )}
+      </div>
     </Card>
   );
 }
