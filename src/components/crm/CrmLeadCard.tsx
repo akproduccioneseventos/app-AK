@@ -4,9 +4,9 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, Edit } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, Edit, Eye } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +19,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
-
+import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 interface CrmLeadCardProps {
   lead: CrmLead;
@@ -48,7 +49,6 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
     onDeleteLead(lead.id);
   };
 
-  // Placeholder for edit functionality
   const handleEdit = () => {
     toast({
       title: "Función no implementada",
@@ -56,44 +56,62 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
     });
   };
 
+  const getDisplayNotes = (notes: string | undefined): { type: 'badge' | 'text', content: string } | null => {
+    if (!notes) return null;
+    if (notes.includes('Generado desde Mi Presupuesto al Instante') || notes.includes('Generado desde Armado Rápido')) {
+        return { type: 'badge', content: 'Presupuesto al Instante' };
+    }
+    return { type: 'text', content: notes };
+  };
+
+  const displayNotes = getDisplayNotes(lead.notes);
+
   return (
-    <Card ref={setNodeRef} style={style} className="mb-2 shadow-sm hover:shadow-md transition-shadow bg-card touch-none w-full">
-        <div className="p-2.5 flex items-start gap-2">
+    <Card ref={setNodeRef} style={style} className="mb-2 shadow-sm hover:shadow-md transition-shadow bg-card touch-none w-full flex flex-col">
+        <CardHeader className="p-2 flex flex-row items-start gap-2">
             <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
                 <GripVertical className="w-5 h-5 text-muted-foreground/70" />
             </div>
-
             <div className="flex-grow min-w-0">
                 <p className="font-semibold text-sm break-words" title={lead.name}>{lead.name}</p>
-                {lead.notes && <p className="text-xs text-muted-foreground mt-1 break-words line-clamp-2" title={lead.notes}>{lead.notes}</p>}
             </div>
-
-            <div className="flex flex-col gap-1 flex-shrink-0">
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleEdit} title="Editar Prospecto (Próximamente)">
-                    <Edit className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent className="px-3 pb-2 flex-grow min-h-[40px]">
+          {displayNotes && (
+            displayNotes.type === 'badge' ? (
+              <Badge variant="secondary">{displayNotes.content}</Badge>
+            ) : (
+              <p className="text-xs text-muted-foreground break-words">{displayNotes.content}</p>
+            )
+          )}
+        </CardContent>
+        <CardFooter className="p-2 border-t flex justify-end gap-1">
+             <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref>
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Crear Presupuesto">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
                 </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto">
-                            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                            <AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                            {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
-                            Eliminar
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-        </div>
+            </Link>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto" disabled={isDeleting}>
+                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                        <AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                        {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
+                        Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </CardFooter>
     </Card>
   );
 }
