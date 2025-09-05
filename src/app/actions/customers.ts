@@ -4,7 +4,6 @@
 import type { Customer, CustomerStatus } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
-import type { ConfigEventoDataStorage } from '@/types/fiesta';
 
 const CLIENTES_COLLECTION_JSON = 'customers.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
@@ -240,7 +239,7 @@ export async function getBudgetFilePath(filename: string): Promise<string | null
 
 export async function syncCustomerFromFiestaConfig(
   customerId: string,
-  config: Partial<ConfigEventoDataStorage>
+  config: Partial<import('@/types/fiesta').ConfigEventoDataStorage>
 ): Promise<{ success: boolean; error?: string }> {
   const customerToUpdate = await getCustomerById(customerId);
   if (!customerToUpdate) {

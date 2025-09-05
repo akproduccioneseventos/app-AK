@@ -1,29 +1,36 @@
-// This file is now obsolete and will be removed.
+
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Info, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ListaComprasObsoletoPage() {
+    const router = useRouter();
+
+    useEffect(() => {
+        router.replace('/fiestas/nueva/catering/lista-compras');
+    }, [router]);
+    
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
             <Card className="max-w-xl text-center">
                 <CardHeader>
-                    <Info className="w-12 h-12 mx-auto text-primary" />
-                    <CardTitle className="font-headline text-2xl mt-4">Página Reubicada</CardTitle>
+                    <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
+                    <CardTitle className="font-headline text-2xl mt-4">Redirigiendo...</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">
+                     <p className="text-muted-foreground">
                         La lista de compras gastronómicas ahora se encuentra dentro del módulo de Catering del planificador de fiestas.
                     </p>
                 </CardContent>
-                <CardFooter className="justify-center">
+                 <CardFooter className="justify-center">
                     <Link href="/fiestas/nueva/catering/lista-compras" passHref>
-                        <Button>
-                            <ArrowLeft className="mr-2" /> Ir a la Nueva Página
+                        <Button variant="link">
+                            Si no eres redirigido, haz clic aquí.
                         </Button>
                     </Link>
                 </CardFooter>

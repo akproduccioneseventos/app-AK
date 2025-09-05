@@ -14,11 +14,11 @@ const LEADS_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-leads.json');
 const STAGES_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-stages.json');
 
 const defaultStages: CrmStage[] = [
-  { id: 's1', name: 'Consultó', order: 1, bgColor: 'bg-sky-100 dark:bg-sky-900/30', borderColor: 'border-sky-500 dark:border-sky-700', textColor: 'text-sky-700 dark:text-sky-300' },
-  { id: 's2', name: 'Agendó entrevista', order: 2, bgColor: 'bg-teal-100 dark:bg-teal-900/30', borderColor: 'border-teal-500 dark:border-teal-700', textColor: 'text-teal-700 dark:text-teal-300' },
-  { id: 's3', name: 'Con presupuesto', order: 3, bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-500 dark:border-amber-600', textColor: 'text-amber-700 dark:text-amber-300' },
-  { id: 's4', name: 'Firmó contrato', order: 4, bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', borderColor: 'border-emerald-500 dark:border-emerald-700', textColor: 'text-emerald-700 dark:text-emerald-300', headerBgColor: 'bg-emerald-500 dark:bg-emerald-700', headerTextColor: 'text-emerald-50', isConversionStage: true },
-  { id: 's5', name: 'No contrató', order: 5, bgColor: 'bg-rose-100 dark:bg-rose-900/30', borderColor: 'border-rose-500 dark:border-rose-700', textColor: 'text-rose-700 dark:text-rose-300', headerBgColor: 'bg-rose-500 dark:bg-rose-700', headerTextColor: 'text-rose-50' },
+  { id: 's1', name: 'Consultó', order: 1, headerBgColor: "bg-sky-500 dark:bg-sky-700", headerTextColor: 'text-sky-50', bgColor: 'bg-sky-100 dark:bg-sky-900/30', borderColor: 'border-sky-500 dark:border-sky-700', textColor: 'text-sky-700 dark:text-sky-300' },
+  { id: 's2', name: 'Agendó entrevista', order: 2, headerBgColor: "bg-teal-500 dark:bg-teal-700", headerTextColor: 'text-teal-50', bgColor: 'bg-teal-100 dark:bg-teal-900/30', borderColor: 'border-teal-500 dark:border-teal-700', textColor: 'text-teal-700 dark:text-teal-300' },
+  { id: 's3', name: 'Con presupuesto', order: 3, headerBgColor: "bg-amber-500 dark:bg-amber-600", headerTextColor: 'text-amber-900 dark:text-amber-100', bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-500 dark:border-amber-600', textColor: 'text-amber-700 dark:text-amber-300' },
+  { id: 's4', name: 'Firmó contrato', order: 4, headerBgColor: "bg-emerald-500 dark:bg-emerald-700", headerTextColor: 'text-emerald-50', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', borderColor: 'border-emerald-500 dark:border-emerald-700', textColor: 'text-emerald-700 dark:text-emerald-300', isConversionStage: true },
+  { id: 's5', name: 'No contrató', order: 5, headerBgColor: "bg-rose-500 dark:bg-rose-700", headerTextColor: 'text-rose-50', bgColor: 'bg-rose-100 dark:bg-rose-900/30', borderColor: 'border-rose-500 dark:border-rose-700', textColor: 'text-rose-700 dark:text-rose-300' },
 ];
 
 async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
@@ -75,6 +75,11 @@ export async function addCrmLead(
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
   const leads = await getCrmLeads();
+  
+  if (leads.some(lead => lead.name.toLowerCase() === leadData.name.trim().toLowerCase())) {
+    return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
+  }
+
   const stages = await getCrmStages();
   const now = new Date().toISOString();
   
@@ -195,7 +200,7 @@ export async function convertToClientAndMoveProspect(
   customerFormData.append('contract', contractFile);
 
   try {
-    const customerResult = await saveCustomer(customerFormData as any);
+    const customerResult = await saveCustomer(customerFormData);
 
     if (!customerResult.success || !customerResult.id) {
       return { success: false, error: customerResult.error || "No se pudo crear el cliente." };

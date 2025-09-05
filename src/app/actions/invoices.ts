@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
@@ -74,7 +75,7 @@ export async function saveInvoice(
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
   // Validate that all item quantities are positive and descriptions are not empty
-  if (invoiceDataInput.items.some(item => item.quantity <= 0)) {
+  if (!invoiceDataInput.items || invoiceDataInput.items.some(item => item.quantity <= 0)) {
     return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
   }
   if (invoiceDataInput.items.some(item => !item.description || item.description.trim() === '')) {
