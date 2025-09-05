@@ -91,7 +91,7 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
-  if (pathname === '/settings') return 'Menú Principal';
+  if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
   if (pathname === '/settings/budget-display') return 'Configuración de Presupuestos';
   if (pathname === '/settings/company') return 'Información de la Empresa';
@@ -99,7 +99,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/settings/asistente-ak') return 'Configuración Asistente';
   if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
@@ -194,10 +193,10 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
-  if (pathname === '/settings/asistente-ak') return BrainCircuit;
   
   if (pathname === '/armado-rapido') return Wand2;
   
+
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
   if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
@@ -280,7 +279,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   ) : logoUrl ? (
                     <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
                   ) : (
-                    <AvatarFallback className="bg-primary text-primary-foreground">AK</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground font-headline">
+                      AK
+                    </AvatarFallback>
                   )}
                 </Avatar>
               </Button>

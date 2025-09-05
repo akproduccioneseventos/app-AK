@@ -56,7 +56,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center space-y-3">
            <Image
-            src="https://placehold.co/150x80.png?text=AK+Logo"
+            src="https://placehold.co/150x80.png?text=Logo"
             alt="AK Producciones Logo"
             width={150}
             height={80}
