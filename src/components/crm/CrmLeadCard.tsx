@@ -59,8 +59,8 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
 
 
   return (
-    <div ref={setNodeRef} style={style} className="mb-2 touch-none">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full">
+    <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col">
         <CardHeader className="p-2 flex flex-row items-start gap-2">
           <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
             <GripVertical className="w-5 h-5 text-muted-foreground/70" />
@@ -70,7 +70,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
           </div>
         </CardHeader>
         {displayNotes && (
-            <CardContent className="px-3 pb-2 min-h-[40px]">
+            <CardContent className="px-3 pb-2 min-h-[40px] flex-grow">
              {displayNotes.type === 'badge' ? (
                 <Badge variant="secondary">{displayNotes.content}</Badge>
             ) : (
@@ -80,14 +80,16 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
         )}
         <CardFooter className="p-2 border-t flex justify-end gap-1">
             <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref>
-                <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                    <Eye className="h-3.5 w-3.5 mr-1" />
-                    Presupuesto
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Crear Presupuesto">
+                    <Eye className="h-4 w-4" />
                 </Button>
             </Link>
+             <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar Prospecto (Próximamente)" disabled>
+                <Edit className="h-4 w-4" />
+            </Button>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="icon" className="h-7 w-7" title="Eliminar Prospecto" disabled={isDeleting}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Eliminar Prospecto" disabled={isDeleting}>
                         {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                     </Button>
                 </AlertDialogTrigger>

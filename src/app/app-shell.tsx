@@ -279,9 +279,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   ) : logoUrl ? (
                     <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
                   ) : (
-                    <AvatarFallback className="bg-primary text-primary-foreground font-headline">
-                      AK
-                    </AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground font-headline">AK</AvatarFallback>
                   )}
                 </Avatar>
               </Button>
@@ -308,7 +306,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DropdownMenu>
         </div>
       </header>
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
+      <main className="flex-1 p-4 md:p-6 bg-background">
         {children}
       </main>
     </div>

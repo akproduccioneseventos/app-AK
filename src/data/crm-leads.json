@@ -195,26 +195,6 @@
     ]
   },
   {
-    "id": "lead_1756769705359_l0cjz7p",
-    "name": "nico",
-    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Premium\"\nTipo: Evento desde Armado Rápido\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 82.215,00",
-    "currentStageId": "s3",
-    "createdAt": "2025-09-01T23:35:05.359Z",
-    "updatedAt": "2025-09-04T00:19:24.662Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2025-09-01T23:35:05.359Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2025-09-04T00:19:24.662Z"
-      }
-    ]
-  },
-  {
     "id": "lead_1756769570967_tc1m2rb",
     "name": "nico",
     "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 51.615,00",
@@ -256,21 +236,6 @@
         "stageId": "s1",
         "stageName": "Consultó",
         "timestamp": "2025-09-01T23:20:14.590Z"
-      }
-    ]
-  },
-  {
-    "id": "lead_1756768684957_amq9ctb",
-    "name": "nico",
-    "notes": "Generado desde Armado Rápido.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Armado Rápido\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 50.715,00",
-    "currentStageId": "s1",
-    "createdAt": "2025-09-01T23:18:04.957Z",
-    "updatedAt": "2025-09-01T23:18:04.957Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2025-09-01T23:18:04.957Z"
       }
     ]
   },
