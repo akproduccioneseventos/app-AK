@@ -294,7 +294,7 @@ export default function SimuladorDePresupuestoPage() {
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Arma tu Menú</CardTitle><CardDescription>Elige las opciones para tu evento.</CardDescription></CardHeader>
                        <CardContent className="space-y-6">
                            <div className="space-y-2">
-                                <Label className="font-semibold text-lg">1. Entradas (selecciona exactamente 2 opciones)</Label>
+                                <Label className="font-semibold text-lg">1. Entradas (elige 2)</Label>
                                 {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').sort((a,b) => (a.precioFijo || 0) - (b.precioFijo || 0)).map(s=>(
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                         <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); while(n.size > 2) { n.delete(n.values().next().value); } return n;})}}/>
