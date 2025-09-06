@@ -102,7 +102,7 @@ export default function ArmadoRapidoPage() {
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual?.nombre || 'Sin paquete',
             nombreMenu: 'Catering Personalizado',
-            tipoEvento: 'Evento desde Presupuesto al Instante',
+            tipoEvento: 'Evento desde Simulador de Presupuesto',
             cantidadInvitados: numAdultos + numJovenesYNinos,
             costoEstimado: 0, // Placeholder
             clienteNombre: clienteNombre || 'Prospecto Web',
@@ -133,18 +133,18 @@ export default function ArmadoRapidoPage() {
         
         entradas.forEach(item => {
             if (!item) return;
-            const itemTotal = item.precioFijo * numAdultos;
+            const itemTotal = (item.precioFijo ?? 0) * numAdultos;
             resumenData.items.push({ desc: `Entrada: ${item.nombre}` });
             subtotal += itemTotal;
         });
 
         if (platoPrincipal) {
-            const itemTotal = platoPrincipal.precioFijo * numAdultos;
+            const itemTotal = (platoPrincipal.precioFijo ?? 0) * numAdultos;
             resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}` });
             subtotal += itemTotal;
         }
         if (menuInfantil && numJovenesYNinos > 0) {
-            const itemTotal = menuInfantil.precioFijo * numJovenesYNinos;
+            const itemTotal = (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
             resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}` });
             subtotal += itemTotal;
         }
@@ -301,7 +301,7 @@ export default function ArmadoRapidoPage() {
           <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
               <header className="fixed top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm z-10">
                   <div className="flex justify-between items-center max-w-5xl mx-auto">
-                      <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Mi Presupuesto al Instante</h1></div>
+                      <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Simulador de Presupuesto al Instante</h1></div>
                       <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
                   </div>
               </header>

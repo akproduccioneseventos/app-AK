@@ -33,7 +33,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
                 <div className="h-16 w-32 bg-gray-200 mx-auto flex items-center justify-center text-xs text-muted-foreground">Tu Logo Aquí</div>
             )}
             <CardTitle className="font-headline text-2xl mt-4">Presupuesto para Evento</CardTitle>
-            <CardDescription>Generado desde Mi Presupuesto al Instante</CardDescription>
+            <CardDescription>Generado desde el Simulador de Presupuesto al Instante</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
             <div className="grid grid-cols-2 gap-4 mb-6">

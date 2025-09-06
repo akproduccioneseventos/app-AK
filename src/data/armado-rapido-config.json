@@ -4,7 +4,7 @@
     {
       "id": "menu_catering",
       "nombre": "Opciones de Catering",
-      "descripcion": "Lista de todos los servicios de catering disponibles para el Armado Rápido.",
+      "descripcion": "Lista de todos los servicios de catering disponibles para el Simulador de Presupuesto.",
       "serviciosIncluidos": [
         {
           "id": "serv_1752489600027_arrprim",

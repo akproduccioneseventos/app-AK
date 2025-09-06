@@ -92,7 +92,7 @@ function AddNewServiceDialog({
     const newServiceData: Omit<ServicioEmpresa, 'id'> = {
       nombre,
       precioVenta: parseFloat(precioVenta),
-      categoria: serviceType === 'catering' ? 'Servicio de catering' : (categoria as CategoriaServicio),
+      categoria: categoria as CategoriaServicio,
       subcategoria: serviceType === 'catering' ? categoria : undefined,
       tipoItem: 'Servicio',
       unidad: serviceType === 'catering' ? 'Por persona' : 'Por evento',
@@ -136,7 +136,7 @@ function AddNewServiceDialog({
           {serviceType === 'catering' ? (
             <Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue placeholder="Seleccionar subcategoría..." /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select>
           ) : (
-             <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría existente..."/></SelectTrigger><SelectContent>{existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
+             <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría existente..."/></SelectTrigger><SelectContent>{[...existingCategories, 'Servicio de catering'].sort().map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
           )}
           </div>
         </div>
@@ -193,21 +193,17 @@ export function AddOrEditDialog({
         setModifiedServices(new Map());
     }, [initialItem, isOpen, vendibleServices]);
 
-    const sortedServices = useMemo(() => {
+     const sortedServices = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos) return [];
-        
         return [...localItem.serviciosIncluidos].sort((a, b) => {
             if (a.esRegalo && !b.esRegalo) return 1;
             if (!a.esRegalo && b.esRegalo) return -1;
-            
-            const aCat = vendibleServices.find(s => s.id === a.id)?.categoria || 'Z';
-            const bCat = vendibleServices.find(s => s.id === b.id)?.categoria || 'Z';
-            
+            const aCat = (mode === 'paquete' ? vendibleServices.find(s => s.id === a.id)?.categoria : a.categoria) || 'Z';
+            const bCat = (mode === 'paquete' ? vendibleServices.find(s => s.id === b.id)?.categoria : b.categoria) || 'Z';
             if (aCat.localeCompare(bCat) !== 0) return aCat.localeCompare(bCat);
-            
             return a.nombre.localeCompare(b.nombre);
         });
-    }, [localItem, vendibleServices]);
+    }, [localItem, vendibleServices, mode]);
 
 
     const filteredCatalog = useMemo(() => {

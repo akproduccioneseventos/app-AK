@@ -142,13 +142,13 @@ export default function DashboardPage() {
              <div className="flex gap-2">
               <Link href={armadoRapidoLink} passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
                <Link href="/settings/armado-rapido" passHref>
-                  <Button variant="outline" size="icon" title="Configurar Mi Presupuesto al Instante">
+                  <Button variant="outline" size="icon" title="Configurar Simulador de Presupuesto">
                     <Settings className="w-4 h-4"/>
                   </Button>
                 </Link>
               <ShareLinkDialog
                   link={armadoRapidoLink}
-                  title="Compartir Mi Presupuesto al Instante"
+                  title="Compartir Simulador de Presupuesto"
                   description="Copia este enlace para que tu cliente cree un presupuesto rápido."
               >
                   <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>

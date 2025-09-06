@@ -1,4 +1,3 @@
-
 [
   {
     "id": "serv_invitaciones_digitales",
@@ -344,6 +343,14 @@
     "precioVenta": 130
   },
   {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Textiles",
+    "precioVenta": 75
+  },
+  {
     "id": "serv_1752489600047_mencel",
     "nombre": "Menú celíaco",
     "tipoItem": "Servicio",
@@ -448,6 +455,15 @@
     "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 180
+  },
+  {
+    "id": "serv_1752489600071_mobil",
+    "nombre": "Mobiliario completo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Mobiliario",
+    "unidad": "Por persona",
+    "precioVenta": 69
   },
   {
     "id": "serv_1752489600015_napoli",
@@ -763,29 +779,12 @@
     "precioVenta": 100
   },
   {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Textiles",
-    "precioVenta": 75
-  },
-  {
     "id": "serv_vajilla_completa",
     "nombre": "Vajilla completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Vajilla y Cristalería",
     "precioVenta": 70
-  },
-  {
-    "id": "serv_1752489600071_mobil",
-    "nombre": "Mobiliario completo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Mobiliario",
-    "unidad": "Por persona",
-    "precioVenta": 69
   },
   {
     "id": "serv_1752489600102_banner",
