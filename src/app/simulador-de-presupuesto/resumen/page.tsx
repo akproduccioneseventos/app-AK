@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
@@ -40,19 +41,28 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
             </div>
             <table className="w-full text-sm">
                 <thead>
-                <tr className="border-b">
-                    <th className="text-left font-semibold py-2">Servicios Incluidos</th>
-                </tr>
+                    <tr className="border-b">
+                        <th className="text-left font-semibold py-2">Servicios Incluidos</th>
+                        <th className="text-right font-semibold py-2">Cantidad</th>
+                        <th className="text-right font-semibold py-2">P. Unitario</th>
+                        <th className="text-right font-semibold py-2">Total</th>
+                    </tr>
                 </thead>
                 <tbody>
                 {summaryData.items.map((item: any, index: number) => (
                     <tr key={index} className="border-b">
-                    <td className="py-2">{item.desc}</td>
+                        <td className="py-2">{item.desc}</td>
+                        <td className="py-2 text-right">{item.cantidad}</td>
+                        <td className="py-2 text-right">{formatCurrency(item.precioUnitario)}</td>
+                        <td className="py-2 text-right">{formatCurrency(item.total)}</td>
                     </tr>
                 ))}
                  {summaryData.regalos.map((item: any, index: number) => (
                     <tr key={`regalo-${index}`} className="border-b">
-                    <td className="py-2 flex items-center gap-2"><Gift className="w-4 h-4 text-primary"/>{item.desc}</td>
+                        <td className="py-2 flex items-center gap-2"><Gift className="w-4 h-4 text-primary"/>{item.desc}</td>
+                        <td className="py-2 text-right">1</td>
+                        <td className="py-2 text-right line-through">{formatCurrency(item.total)}</td>
+                        <td className="py-2 text-right">{formatCurrency(0)}</td>
                     </tr>
                 ))}
                 </tbody>
