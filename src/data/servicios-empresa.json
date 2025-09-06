@@ -54,6 +54,37 @@
     "precioVenta": 2500
   },
   {
+    "id": "item_1756940534187_t95g4rl",
+    "nombre": "Bogue",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "unidad": "Por evento",
+    "precioVenta": 2900
+  },
+  {
+    "id": "item_1756938259020_8m0yxv8",
+    "nombre": "Cofe Break",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "unidad": "Por evento",
+    "precioVenta": 3500
+  },
+  {
+    "id": "item_1756940618500_jnt7ly4",
+    "nombre": "Fuegos Frios",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "unidad": "Por evento",
+    "precioVenta": 3000
+  },
+  {
+    "id": "serv_pantalla_proyector",
+    "nombre": "Pantalla gigante y proyector",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "precioVenta": 2000
+  },
+  {
     "id": "serv_video_vida",
     "nombre": "Video de vida",
     "tipoItem": "Servicio",
@@ -113,14 +144,6 @@
     "subcategoria": "Bebidas con Alcohol",
     "unidad": "Unidad",
     "precioVenta": 6000
-  },
-  {
-    "id": "item_1756938259020_8m0yxv8",
-    "nombre": "Cofe Break",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 3500
   },
   {
     "id": "serv_1752489600091_copon",
@@ -310,14 +333,6 @@
     "precioVenta": 200
   },
   {
-    "id": "serv_sandwiches_saladitos",
-    "nombre": "Sándwiches y Saladitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "precioVenta": 220
-  },
-  {
     "id": "serv_1752489600025_faina",
     "nombre": "Faina",
     "tipoItem": "Servicio",
@@ -343,6 +358,14 @@
     "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 130
+  },
+  {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Textiles",
+    "precioVenta": 75
   },
   {
     "id": "serv_1752489600047_mencel",
@@ -431,6 +454,24 @@
     "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 450
+  },
+  {
+    "id": "serv_1752489600067_mesmant",
+    "nombre": "Mesas con manteles",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Mobiliario",
+    "unidad": "Por persona",
+    "precioVenta": 150
+  },
+  {
+    "id": "serv_1752489600071_mobil",
+    "nombre": "Mobiliario completo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Mobiliario",
+    "unidad": "Por persona",
+    "precioVenta": 69
   },
   {
     "id": "serv_1752489600039_minibro",
@@ -594,12 +635,12 @@
     "precioVenta": 220
   },
   {
-    "id": "serv_cafe_te",
-    "nombre": "Servicio de café y te",
+    "id": "serv_sandwiches_saladitos",
+    "nombre": "Sándwiches y Saladitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Servicio Adicional",
-    "precioVenta": 35
+    "subcategoria": "Entrada",
+    "precioVenta": 220
   },
   {
     "id": "serv_1752489600056_showpiz",
@@ -767,7 +808,7 @@
     "id": "serv_vajilla_completa",
     "nombre": "Vajilla completa",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
+    "categoria": "Servicio de catering",
     "subcategoria": "Vajilla y Cristalería",
     "precioVenta": 70
   },
@@ -813,32 +854,6 @@
     "subcategoria": "Mobiliario",
     "unidad": "Por evento",
     "precioVenta": 5000
-  },
-  {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Textiles",
-    "precioVenta": 70
-  },
-  {
-    "id": "serv_1752489600067_mesmant",
-    "nombre": "Mesas con manteles",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Mobiliario",
-    "unidad": "Por persona",
-    "precioVenta": 150
-  },
-  {
-    "id": "serv_1752489600071_mobil",
-    "nombre": "Mobiliario completo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Mobiliario",
-    "unidad": "Por persona",
-    "precioVenta": 75
   },
   {
     "id": "item_1756162117407_jnb051r",
@@ -898,13 +913,6 @@
     "precioVenta": 23900
   },
   {
-    "id": "serv_pantalla_proyector",
-    "nombre": "Pantalla gigante y proyector",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "precioVenta": 2000
-  },
-  {
     "id": "serv_discoteca_completa",
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
@@ -920,27 +928,11 @@
     "precioVenta": 8000
   },
   {
-    "id": "item_1756940534187_t95g4rl",
-    "nombre": "Bogue",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 2900
-  },
-  {
     "id": "serv_fotocabina",
     "nombre": "Fotocabina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "precioVenta": 2900
-  },
-  {
-    "id": "item_1756940618500_jnt7ly4",
-    "nombre": "Fuegos Frios",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 3000
   },
   {
     "id": "item_1756940489048_bay3uhp",
@@ -1003,7 +995,7 @@
     "nombre": "Fotografía de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "precioVenta": 9000
+    "precioVenta": 8500
   },
   {
     "id": "serv_1752489600114_fotigl",
