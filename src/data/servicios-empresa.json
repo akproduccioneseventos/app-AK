@@ -54,22 +54,6 @@
     "precioVenta": 2500
   },
   {
-    "id": "item_1756940534187_t95g4rl",
-    "nombre": "Bogue",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 2900
-  },
-  {
-    "id": "item_1756938259020_8m0yxv8",
-    "nombre": "Cofe Break",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 3500
-  },
-  {
     "id": "item_1756940618500_jnt7ly4",
     "nombre": "Fuegos Frios",
     "tipoItem": "Servicio",
@@ -360,14 +344,6 @@
     "precioVenta": 130
   },
   {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Textiles",
-    "precioVenta": 75
-  },
-  {
     "id": "serv_1752489600047_mencel",
     "nombre": "Menú celíaco",
     "tipoItem": "Servicio",
@@ -454,24 +430,6 @@
     "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 450
-  },
-  {
-    "id": "serv_1752489600067_mesmant",
-    "nombre": "Mesas con manteles",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Mobiliario",
-    "unidad": "Por persona",
-    "precioVenta": 150
-  },
-  {
-    "id": "serv_1752489600071_mobil",
-    "nombre": "Mobiliario completo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Mobiliario",
-    "unidad": "Por persona",
-    "precioVenta": 69
   },
   {
     "id": "serv_1752489600039_minibro",
@@ -805,12 +763,29 @@
     "precioVenta": 100
   },
   {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Textiles",
+    "precioVenta": 75
+  },
+  {
     "id": "serv_vajilla_completa",
     "nombre": "Vajilla completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Vajilla y Cristalería",
     "precioVenta": 70
+  },
+  {
+    "id": "serv_1752489600071_mobil",
+    "nombre": "Mobiliario completo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Mobiliario",
+    "unidad": "Por persona",
+    "precioVenta": 69
   },
   {
     "id": "serv_1752489600102_banner",
@@ -1128,14 +1103,6 @@
     "categoria": "Servicio de repostería",
     "subcategoria": "Mesa de Postres",
     "unidad": "Unidad",
-    "precioVenta": 1100
-  },
-  {
-    "id": "serv_mesa_postres",
-    "nombre": "Postres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "subcategoria": "Mesa de Postres",
     "precioVenta": 1100
   },
   {
