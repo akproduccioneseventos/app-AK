@@ -11,184 +11,236 @@
           "nombre": "Arrolladitos primavera",
           "precioFijo": "150",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 150,
+          "precioPorPersona": 150
         },
         {
           "id": "serv_1752489600036_calzita",
           "nombre": "Calzones Italianos",
           "precioFijo": 200,
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 200,
+          "precioPorPersona": 200
         },
         {
           "id": "serv_1752489600033_empcas",
           "nombre": "Empanadas caseras",
           "precioFijo": "200",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 200,
+          "precioPorPersona": 200
         },
         {
           "id": "serv_1752489600039_minibro",
           "nombre": "Mini brochetas",
           "precioFijo": "200",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 200,
+          "precioPorPersona": 200
         },
         {
           "id": "serv_1752489600034_minichiv",
           "nombre": "Mini Chivitos",
           "precioFijo": 180,
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 180,
+          "precioPorPersona": 180
         },
         {
           "id": "serv_1752489600040_piccal",
           "nombre": "Picada caliente",
           "precioFijo": "220",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 220,
+          "precioPorPersona": 220
         },
         {
           "id": "serv_1752489600031_picfiam",
           "nombre": "Picada de fiambres",
-          "precioFijo": 150,
+          "precioFijo": 180,
           "categoria": "Entrada"
         },
         {
           "id": "serv_1752489600028_picsna",
           "nombre": "Picada Snack",
           "precioFijo": "150",
-          "categoria": "Entrada"
+          "categoria": "Entrada",
+          "precioBase": 150,
+          "precioPorPersona": 150
         },
         {
           "id": "serv_1752489600035_pizzemp",
           "nombre": "Pizzetitas y empanaditas de copetín",
           "precioFijo": 180,
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 180,
+          "precioPorPersona": 180
         },
         {
           "id": "serv_1752489600029_plancal",
           "nombre": "Planchas calientes",
           "precioFijo": "150",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 150,
+          "precioPorPersona": 150
         },
         {
           "id": "serv_1752489600032_salpoll",
           "nombre": "Salpicón de pollo",
           "precioFijo": 150,
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 150,
+          "precioPorPersona": 150
         },
         {
           "id": "serv_sandwiches_saladitos",
-          "nombre": "Sandwiches y Saladitos",
+          "nombre": "Sándwiches y Saladitos",
           "precioFijo": "220",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 220,
+          "precioPorPersona": 220
         },
         {
           "id": "serv_1752489600056_showpiz",
           "nombre": "Show de pizzas",
           "precioFijo": "190",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 190,
+          "precioPorPersona": 190
         },
         {
           "id": "serv_1752489600045_shushi",
           "nombre": "Sushi",
           "precioFijo": 250,
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 250,
+          "precioPorPersona": 250
         },
         {
           "id": "serv_1752489600037_tacmex",
           "nombre": "Tacos mexicanos",
           "precioFijo": "240",
           "categoria": "Entrada",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 240,
+          "precioPorPersona": 240
         },
         {
           "id": "serv_1752489600023_asadocom",
           "nombre": "Asado completo c/ guarnición",
           "precioFijo": 645,
-          "categoria": "Plato Principal"
+          "categoria": "Plato Principal",
+          "precioBase": 645,
+          "precioPorPersona": 645
         },
         {
           "id": "serv_1752489600021_bifech",
           "nombre": "Bife al champiñón c/ guarnición",
           "precioFijo": 480,
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 480,
+          "precioPorPersona": 480
         },
         {
           "id": "serv_1752489600011_cerdmos",
           "nombre": "Cerdo a la mostaza c/ guarnición",
           "precioFijo": "390",
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 390,
+          "precioPorPersona": 390
         },
         {
           "id": "serv_cerdo_relleno",
           "nombre": "Cerdo relleno c/ guarnición",
           "precioFijo": "380",
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 380,
+          "precioPorPersona": 380
         },
         {
           "id": "serv_1752489600022_cordero",
           "nombre": "Cordero Asado c/ guarnición",
           "precioFijo": 560,
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 560,
+          "precioPorPersona": 560
         },
         {
           "id": "serv_1752489600015_napoli",
           "nombre": "Napolitana c/ fritas",
           "precioFijo": "420",
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 420,
+          "precioPorPersona": 420
         },
         {
           "id": "serv_1752489600009_noquis",
           "nombre": "Ñoquis al queso",
           "precioFijo": "390",
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 390,
+          "precioPorPersona": 390
         },
         {
           "id": "serv_1752489600007_pollarr",
           "nombre": "Pollo arrollado c/ guarnición",
           "precioFijo": "390",
-          "categoria": "Plato Principal"
+          "categoria": "Plato Principal",
+          "precioBase": 390,
+          "precioPorPersona": 390
         },
         {
           "id": "serv_1752489600010_raviol",
           "nombre": "Ravioles a la crema",
           "precioFijo": "390",
-          "categoria": "Plato Principal"
+          "categoria": "Plato Principal",
+          "precioBase": 390,
+          "precioPorPersona": 390
         },
         {
           "id": "serv_1752489600013_sorren",
           "nombre": "Sorrentinos con salsa rosa",
           "precioFijo": "420",
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 420,
+          "precioPorPersona": 420
         },
         {
           "id": "serv_1752489600019_strogon",
           "nombre": "Strogonoff de pollo c/ fritas",
           "precioFijo": "420",
           "categoria": "Plato Principal",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 420,
+          "precioPorPersona": 420
         },
         {
           "id": "serv_1752489600006_chivit",
           "nombre": "Chivito completo c/ fritas",
           "precioFijo": "350",
           "categoria": "Menú Adolescente / Niño",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 350,
+          "precioPorPersona": 350
         },
         {
           "id": "serv_1752489600052_menninham",
@@ -207,37 +259,12 @@
           "nombre": "Panchos de MEDIO METRO",
           "precioFijo": 200,
           "categoria": "Menú Adolescente / Niño",
-          "esRegalo": false
+          "esRegalo": false,
+          "precioBase": 200,
+          "precioPorPersona": 200
         }
       ]
     }
   ],
-  "paquetes": [
-    {
-      "id": "new_paquete_1757175861856",
-      "nombre": "Paquete Básico",
-      "serviciosIncluidos": [
-        {
-          "id": "serv_mozos",
-          "nombre": "Mozo",
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 2900,
-          "precioBase": 2900,
-          "precioPorPersona": 2900
-        },
-        {
-          "id": "serv_mozo_cocina",
-          "nombre": "Mozo de cocina",
-          "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 2900,
-          "precioBase": 2900,
-          "precioPorPersona": 2900
-        }
-      ]
-    }
-  ]
+  "paquetes": []
 }
