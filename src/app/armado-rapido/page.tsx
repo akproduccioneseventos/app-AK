@@ -192,7 +192,7 @@ export default function ArmadoRapidoPage() {
                      <CardHeader><CardTitle className="font-headline text-2xl">Paso 1: Tus Datos</CardTitle><CardDescription>Ingresa tu nombre y celular para contactarte.</CardDescription></CardHeader>
                      <CardContent className="space-y-4">
                           <div><Label htmlFor="cliente-nombre" className="flex items-center gap-1"><User/> Nombre Completo</Label><Input id="cliente-nombre" type="text" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} placeholder="Ej: Maria Gonzalez"/></div>
-                          <div><Label htmlFor="cliente-celular" className="flex items-center gap-1"><Phone/> Celular (solo números, 8-15 dígitos)</Label><Input id="cliente-celular" type="tel" value={clienteCelular} onChange={(e) => setClienteCelular(e.target.value)} placeholder="Ej: 099123456"/></div>
+                          <div><Label htmlFor="cliente-celular" className="flex items-center gap-1"><Phone/> Celular</Label><Input id="cliente-celular" type="tel" value={clienteCelular} onChange={(e) => setClienteCelular(e.target.value)} placeholder="Ej: 099123456"/></div>
                      </CardContent>
                      <CardFooter><Button onClick={() => setPaso(2)} disabled={!isPaso1Valid} className="w-full">Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                   </motion.div>
