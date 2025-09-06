@@ -351,6 +351,14 @@
     "precioVenta": 75
   },
   {
+    "nombre": "Mantelería, mobiliario y vajilla completa",
+    "precioVenta": 230,
+    "categoria": "Servicio de catering",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757176691814_wkx7uiy"
+  },
+  {
     "id": "serv_1752489600047_mencel",
     "nombre": "Menú celíaco",
     "tipoItem": "Servicio",
@@ -615,6 +623,14 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Entrada",
     "precioVenta": 220
+  },
+  {
+    "id": "item_1757176590000_ulkxp3t",
+    "nombre": "Servicio de mantelería, vajilla y mobiliario completo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "unidad": "Por evento",
+    "precioVenta": 230
   },
   {
     "id": "serv_1752489600056_showpiz",
