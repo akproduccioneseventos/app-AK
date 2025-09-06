@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData, GiftItem, ClientPortalSettings, Reunion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData, GiftItem, ClientPortalSettings, Reunion, PersonalAsignadoDetalleStorage, Invitado, RsvpStatus } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
@@ -493,9 +493,12 @@ export async function createNewFiestaForCustomer(customer: Customer): Promise<{ 
     },
   };
   
-  // This is tricky. In a multi-event system, we would save a new file.
-  // In a single-event system, this would OVERWRITE the current event.
-  // Let's assume for now it should overwrite if the user intends to start a new plan for a new customer.
-  // The safer approach is to archive first, then create.
-  
-  // For now, let's just save it as the current
+  try {
+    const filePath = path.join(FIESTAS_DIR, `fiesta_${newFiesta.id}.json`);
+    await writeFiestaFile(filePath, newFiesta);
+    return { success: true, fiesta: newFiesta };
+  } catch (error: any) {
+    console.error("Error creating new fiesta for customer:", error);
+    return { success: false, error: "No se pudo crear la fiesta para el nuevo cliente." };
+  }
+}
