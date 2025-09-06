@@ -188,15 +188,6 @@ export function AddOrEditDialog({
                 const newService = { ...service };
                 if(catalogService) {
                     newService.nombre = catalogService.nombre;
-                    // For packages, ensure the price details from the package are preserved, but sync if they are missing
-                    if (mode === 'paquete') {
-                        if (newService.precioBase === undefined) newService.precioBase = catalogService.precioVenta;
-                        if (newService.precioPorPersona === undefined) newService.precioPorPersona = catalogService.precioVenta;
-                    }
-                    // For menus, always take the catalog price
-                    if(mode === 'menu') {
-                        newService.precioFijo = catalogService.precioVenta;
-                    }
                 }
                 return newService;
             });
@@ -205,7 +196,7 @@ export function AddOrEditDialog({
             setLocalItem(null);
         }
         setModifiedServices(new Map());
-    }, [initialItem, vendibleServices, isOpen, mode]); // Rerun when dialog opens
+    }, [initialItem, vendibleServices, isOpen, mode]);
     
     const filteredCatalog = useMemo(() => {
         return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -234,8 +225,7 @@ export function AddOrEditDialog({
           
           return grouped;
         }
-
-        // For packages, sort by category, then name, and push gifts to the end.
+        
         services.sort((a, b) => {
             if (a.esRegalo && !b.esRegalo) return 1;
             if (!a.esRegalo && b.esRegalo) return -1;
@@ -315,7 +305,6 @@ export function AddOrEditDialog({
           
           let updatedService = { ...s, [field]: value };
           
-          // Track modifications to the master catalog service only for price-related fields.
           const numericValue = Number(value);
           if (field === 'precioBase' || field === 'precioPorPersona' || field === 'precioFijo') {
               if (!isNaN(numericValue)) {
@@ -395,7 +384,6 @@ export function AddOrEditDialog({
                     <DialogTitle className="font-headline text-xl">{localItem.id && !localItem.id.startsWith('new_') ? 'Editar' : 'Crear'} {mode === 'menu' ? 'Menú de Catering' : 'Paquete de Servicios'}</DialogTitle>
                 </DialogHeader>
                 <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 py-2 min-h-0">
-                    {/* Columna Izquierda: Detalles y Servicios Incluidos */}
                     <div className="flex flex-col gap-4 min-h-0">
                       {mode === 'paquete' && (
                           <div className="space-y-1">
@@ -456,9 +444,9 @@ export function AddOrEditDialog({
                                                                                         <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                                                         </SelectContent>
                                                                                     </Select>
-                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase || ''} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
-                                                                                    {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || ''} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
-                                                                                    {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || ''} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
+                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase ?? (vendibleServices.find(vs => vs.id === s.id)?.precioVenta || 0)} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
+                                                                                    {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona ?? (vendibleServices.find(vs => vs.id === s.id)?.precioVenta || 0)} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                                                                    {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase ?? (vendibleServices.find(vs => vs.id === s.id)?.precioVenta || 0)} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
                                                                                     {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={s.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
                                                                                 </>
                                                                             )}
@@ -480,7 +468,6 @@ export function AddOrEditDialog({
                          </ScrollArea>
                       </div>
                     </div>
-                    {/* Columna Derecha: Catálogo de Servicios */}
                     <div className="flex flex-col gap-2 min-h-0">
                         <Label>Catálogo de Servicios</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
