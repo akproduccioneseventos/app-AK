@@ -76,9 +76,9 @@ export async function addCrmLead(
   }
   const leads = await getCrmLeads();
   
-  if (leads.some(lead => lead.name.toLowerCase() === leadData.name.trim().toLowerCase())) {
-    return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
-  }
+  //if (leads.some(lead => lead.name.toLowerCase() === leadData.name.trim().toLowerCase())) {
+    //return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
+  //}
 
   const stages = await getCrmStages();
   const now = new Date().toISOString();
