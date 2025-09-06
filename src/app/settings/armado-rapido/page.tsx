@@ -118,10 +118,7 @@ function AddNewServiceDialog({
   
   const existingCategories = useMemo(() => {
     const categories = new Set(vendibleServices.map(s => s.categoria));
-    // Eliminamos el filtro para que 'Servicio de catering' siempre esté disponible.
-    // if (serviceType === 'general') {
-        categories.add('Servicio de catering');
-    // }
+    categories.add('Servicio de catering');
     return Array.from(categories).sort();
   }, [vendibleServices]);
 
@@ -209,7 +206,7 @@ export function AddOrEditDialog({
         const nonGifts = services.filter(s => !s.esRegalo);
         const gifts = services.filter(s => s.esRegalo);
         
-        const groupedAndSortedServices: Record<string, ServicioIncluidoArmadoRapido[]> = nonGifts.reduce(
+        const groupedServices: Record<string, ServicioIncluidoArmadoRapido[]> = nonGifts.reduce(
             (acc, service) => {
                 let category: string;
                  if (mode === 'menu') {
@@ -228,8 +225,8 @@ export function AddOrEditDialog({
         );
         
         const sortedServiceGroups: Record<string, ServicioIncluidoArmadoRapido[]> = {};
-        Object.keys(groupedAndSortedServices).sort().forEach(key => {
-            sortedServiceGroups[key] = groupedAndSortedServices[key];
+        Object.keys(groupedServices).sort().forEach(key => {
+            sortedServiceGroups[key] = groupedServices[key];
         });
 
 
@@ -243,7 +240,6 @@ export function AddOrEditDialog({
         if (mode === 'menu') {
             catalogToShow = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
         } else {
-            // Para paquetes, mostrar todos los servicios
             catalogToShow = vendibleServices;
         }
         
@@ -277,7 +273,6 @@ export function AddOrEditDialog({
         const isSelected = currentServices.some(s => s.id === service.id);
 
         if (isSelected) {
-            // Notificar que ya está seleccionado en lugar de no hacer nada.
             toast({ title: "Servicio ya en la lista", description: `"${service.nombre}" ya ha sido añadido.`, variant: "default" });
             return prev;
         } else {
@@ -342,9 +337,8 @@ export function AddOrEditDialog({
                 
                 const newTramos = (s.tramosDePrecio || []).map(t => {
                     if (t.id !== tramoId) return t;
-                    // Keep it as a string for the input field to allow editing "0"
-                    // The conversion to number will happen on save
-                    return { ...t, [field]: value };
+                    const numericValue = Number(value);
+                    return { ...t, [field]: isNaN(numericValue) ? value : numericValue };
                 });
                 
                 return { ...s, tramosDePrecio: newTramos };
@@ -454,7 +448,7 @@ export function AddOrEditDialog({
                                                     {service.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={service.precioBase ?? ''} onChange={e => handleServiceDetailChange(service.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={service.esRegalo}/></div> )}
                                                     {service.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={service.precioPorPersona ?? ''} onChange={e => handleServiceDetailChange(service.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={service.esRegalo}/>}
                                                     {service.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={service.precioBase ?? 0} onChange={e => handleServiceDetailChange(service.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={service.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={service.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(service.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
-                                                    {service.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(service.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(service.id,tramo.id,'desde',Number(e.target.value) || 0)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(service.id,tramo.id,'hasta',Number(e.target.value) || 0)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(service.id,tramo.id,'precio',Number(e.target.value) || 0)} className="h-7 flex-grow text-xs" disabled={service.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(service.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(service.id)} className="text-xs h-7">+ Añadir Tramo</Button></div> )}
+                                                    {service.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(service.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(service.id,tramo.id,'desde', e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(service.id,tramo.id,'hasta', e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(service.id,tramo.id,'precio', e.target.value)} className="h-7 w-24 text-xs" disabled={service.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(service.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(service.id)} className="text-xs h-7">+ Añadir Tramo</Button></div> )}
                                                 </>
                                             )}
                                          </div>
