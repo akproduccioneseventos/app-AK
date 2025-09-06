@@ -28,5 +28,20 @@
         "timestamp": "2025-09-06T14:46:45.314Z"
       }
     ]
+  },
+  {
+    "id": "lead_1757180107916_8q9b6hb",
+    "name": "nico",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Nuevo Paquete\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 0,00",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-06T17:35:07.916Z",
+    "updatedAt": "2025-09-06T17:35:07.916Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-06T17:35:07.916Z"
+      }
+    ]
   }
 ]

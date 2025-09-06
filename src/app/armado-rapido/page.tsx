@@ -170,7 +170,7 @@ export default function ArmadoRapidoPage() {
                 }
 
                 if (servicio.esRegalo) {
-                    resumenData.regalos.push({ desc: servicio.nombre, total: formatCurrency(costoServicio) });
+                    resumenData.regalos.push({ desc: servicio.nombre, total: costoServicio });
                 } else {
                     resumenData.items.push({ desc: servicio.nombre });
                     subtotal += costoServicio;
@@ -291,10 +291,6 @@ export default function ArmadoRapidoPage() {
 
     if (isLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     if (error) return <div className="flex items-center justify-center min-h-screen text-center text-destructive">{error}</div>;
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-    };
 
     return (
         <div id="main-content" className="non-printable">

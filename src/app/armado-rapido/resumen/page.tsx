@@ -20,8 +20,12 @@ const formatCurrency = (amount?: number) => {
 // Componente aislado para la vista imprimible del presupuesto
 const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, settings: InvoiceTemplateSettings | null }>(({ summaryData, settings }, ref) => {
   if (!summaryData) return null;
-  const descuentoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + (r.total || 0), 0);
-  const subtotal = summaryData.total + descuentoRegalos;
+  const costoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + (r.total || 0), 0);
+  const costoServicios = summaryData.total;
+  const subtotal = costoServicios + costoRegalos;
+  const descuentoGeneralMonto = (costoServicios * (summaryData.descuento || 0)) / 100;
+  const ahorroTotal = costoRegalos + descuentoGeneralMonto;
+  const totalFinal = costoServicios - descuentoGeneralMonto;
 
   return (
     <div ref={ref} className="bg-white">
@@ -44,30 +48,29 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
                 <thead>
                 <tr className="border-b">
                     <th className="text-left font-semibold py-2">Descripción</th>
-                    <th className="text-right font-semibold py-2">Importe</th>
                 </tr>
                 </thead>
                 <tbody>
                 {summaryData.items.map((item: any, index: number) => (
                     <tr key={index} className="border-b">
                     <td className="py-2">{item.desc}</td>
-                    <td className="py-2 text-right">{formatCurrency(item.total)}</td>
                     </tr>
                 ))}
                  {summaryData.regalos.map((item: any, index: number) => (
                     <tr key={`regalo-${index}`} className="border-b">
                     <td className="py-2 flex items-center gap-2"><Gift className="w-4 h-4 text-primary"/>{item.desc}</td>
-                    <td className="py-2 text-right">{formatCurrency(item.total)}</td>
                     </tr>
                 ))}
                 </tbody>
             </table>
             
-            <div className="mt-6 flex justify-end">
+             <div className="mt-6 flex justify-end">
                 <div className="w-full max-w-xs space-y-2">
-                {descuentoRegalos > 0 && <div className="flex justify-between"><p>Subtotal:</p><p>{formatCurrency(subtotal)}</p></div>}
-                {descuentoRegalos > 0 && <div className="flex justify-between text-red-600"><p>Descuento por regalos:</p><p>-{formatCurrency(descuentoRegalos)}</p></div>}
-                <div className="flex justify-between font-bold text-lg border-t pt-2"><p>TOTAL:</p><p>{formatCurrency(summaryData.total)}</p></div>
+                    <div className="flex justify-between"><p>Costo de servicios:</p><p>{formatCurrency(costoServicios)}</p></div>
+                    {costoRegalos > 0 && <div className="flex justify-between text-green-600"><p>Valor de regalos:</p><p>+{formatCurrency(costoRegalos)}</p></div>}
+                    {descuentoGeneralMonto > 0 && <div className="flex justify-between text-green-600"><p>Descuento ({summaryData.descuento}%):</p><p>-{formatCurrency(descuentoGeneralMonto)}</p></div>}
+                    <div className="flex justify-between font-bold text-lg border-t pt-2"><p>AHORRO TOTAL:</p><p className="text-green-600">{formatCurrency(ahorroTotal)}</p></div>
+                    <div className="flex justify-between font-bold text-xl border-t-2 border-primary pt-2 mt-4 text-primary"><p>TOTAL FINAL:</p><p>{formatCurrency(totalFinal)}</p></div>
                 </div>
             </div>
             </CardContent>
