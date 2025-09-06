@@ -116,7 +116,7 @@ function AddNewServiceDialog({
     }
   };
   
-  const existingCategories = useMemo(() => Array.from(new Set(vendibleServices.filter(s => s.categoria !== 'Servicio de catering').map(s => s.categoria))), [vendibleServices]);
+  const existingCategories = useMemo(() => Array.from(new Set(vendibleServices.map(s => s.categoria))), [vendibleServices]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (open) setCategoria(''); setIsOpen(open); }}>
@@ -195,12 +195,16 @@ export function AddOrEditDialog({
 
     const sortedServices = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos) return [];
+        
         return [...localItem.serviciosIncluidos].sort((a, b) => {
             if (a.esRegalo && !b.esRegalo) return 1;
             if (!a.esRegalo && b.esRegalo) return -1;
+            
             const aCat = vendibleServices.find(s => s.id === a.id)?.categoria || 'Z';
             const bCat = vendibleServices.find(s => s.id === b.id)?.categoria || 'Z';
+            
             if (aCat.localeCompare(bCat) !== 0) return aCat.localeCompare(bCat);
+            
             return a.nombre.localeCompare(b.nombre);
         });
     }, [localItem, vendibleServices]);
@@ -434,7 +438,9 @@ export function AddOrEditDialog({
                                                                     {currentCategory}
                                                                 </h4>
                                                             )}
-                                                            {renderServiceCard(s)}
+                                                            <SortableServiceItem service={s}>
+                                                                {renderServiceCard(s)}
+                                                            </SortableServiceItem>
                                                         </React.Fragment>
                                                     );
                                                 });

@@ -212,5 +212,32 @@
       ]
     }
   ],
-  "paquetes": []
+  "paquetes": [
+    {
+      "id": "new_paquete_1757175861856",
+      "nombre": "Paquete Básico",
+      "serviciosIncluidos": [
+        {
+          "id": "serv_mozos",
+          "nombre": "Mozo",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 2900,
+          "precioBase": 2900,
+          "precioPorPersona": 2900
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "nombre": "Mozo de cocina",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 2900,
+          "precioBase": 2900,
+          "precioPorPersona": 2900
+        }
+      ]
+    }
+  ]
 }
