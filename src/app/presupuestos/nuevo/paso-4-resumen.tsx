@@ -160,7 +160,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
     }
     if (presupuesto.nombreEmpresa) texto += `*Empresa:* ${presupuesto.nombreEmpresa}\n`;
     texto += `\n`;
-    if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
+    if (presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
       Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
         texto += `*${categoria}*\n`;
@@ -253,7 +253,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
             </table>
           </section>
 
-          {presupuesto.itemsPresupuestados.length > 0 && displaySettings.showPriceBreakdown && (
+          {presupuesto.itemsPresupuestados.length > 0 && (
             <section className="mb-4 print:mb-2">
               {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                   <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">

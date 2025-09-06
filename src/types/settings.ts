@@ -3,7 +3,6 @@ export interface BudgetDisplaySettings {
   showClientData: boolean;
   showEventTypeAndDate: boolean;
   showPaymentMethodNotes: boolean; // Controls "Notas y Condiciones" visibility
-  showPriceBreakdown: boolean; // Controls itemized list vs. just total
   showCompanyLogo: boolean;
   annualAdjustmentPercentage?: number; // Porcentaje de ajuste anual
   promotionalDiscounts?: Array<{ 
@@ -18,7 +17,6 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   showClientData: true,
   showEventTypeAndDate: true,
   showPaymentMethodNotes: true,
-  showPriceBreakdown: true,
   showCompanyLogo: true,
   annualAdjustmentPercentage: 0, // Por defecto 0%
   promotionalDiscounts: [],
