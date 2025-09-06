@@ -14,7 +14,7 @@ import React, { useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
-import { Separator } from '../ui/separator'; 
+import { Separator } from '@/components/ui/separator'; 
 
 // Company Info Constants from PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
@@ -126,7 +126,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
       <div className="flex flex-col items-center justify-center h-full text-center p-8">
         <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
         <p className="text-xl font-semibold">Generando resumen...</p>
-        <p className="text-muted-foreground">Asegúrate de haber completado los pasos anteriores.</p>
+        <p className="text-muted-foreground">Asegúrate de haber completado los pasos anteriores o que la configuración de visualización esté disponible.</p>
       </div>
     );
   }
