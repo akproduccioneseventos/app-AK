@@ -201,7 +201,7 @@ export function AddOrEditDialog({
         setModifiedServices(new Map());
     }, [initialItem, isOpen, vendibleServices]);
     
-    const groupedAndSortedServices = useMemo(() => {
+    const { serviceGroups, giftGroup } = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos) return { serviceGroups: {}, giftGroup: [] };
 
         const services = localItem.serviciosIncluidos;
@@ -265,7 +265,8 @@ export function AddOrEditDialog({
             const isSelected = currentServices.some(s => s.id === service.id);
 
             if (isSelected) {
-                return { ...prev, serviciosIncluidos: currentServices.filter(s => s.id !== service.id) };
+                toast({ title: "Aviso", description: "El servicio ya está en la lista.", variant: "default" });
+                return prev;
             } else {
                  const newService: ServicioIncluidoArmadoRapido = {
                     id: service.id,
@@ -285,11 +286,6 @@ export function AddOrEditDialog({
     const handleRemoveService = (serviceId: string) => {
         setLocalItem(prev => {
             if (!prev) return null;
-            const isSelected = (prev.serviciosIncluidos || []).some(s => s.id === serviceId);
-            if (!isSelected) {
-                toast({ title: "Aviso", description: "El servicio ya está en la lista.", variant: "default" });
-                return prev;
-            }
             return {
                 ...prev,
                 serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== serviceId)
@@ -333,8 +329,7 @@ export function AddOrEditDialog({
           
           const newTramos = (s.tramosDePrecio || []).map((t, i) => {
             if (i !== tramoIndex) return t;
-            const numValue = parseFloat(value);
-            return { ...t, [field]: value === '' ? '' : (isNaN(numValue) ? t[field] : numValue) };
+            return { ...t, [field]: value };
           });
           
           return { ...s, tramosDePrecio: newTramos };
@@ -475,16 +470,16 @@ export function AddOrEditDialog({
                                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                                     <SortableContext items={localItem.serviciosIncluidos.map(s => s.id)} strategy={verticalListSortingStrategy}>
                                         <div className="space-y-2">
-                                            {Object.entries(groupedAndSortedServices.serviceGroups).map(([category, services]) => (
+                                            {Object.entries(serviceGroups).map(([category, services]) => (
                                                 <div key={category}>
                                                     <h4 className='font-semibold text-sm my-2 border-b text-primary'>{category}</h4>
                                                     {services.map(service => renderServiceCard(service))}
                                                 </div>
                                             ))}
-                                            {groupedAndSortedServices.giftGroup.length > 0 && (
+                                            {giftGroup.length > 0 && (
                                                 <div>
                                                     <h4 className='font-semibold text-sm my-2 border-b text-destructive'>Regalos Incluidos</h4>
-                                                    {groupedAndSortedServices.giftGroup.map(service => renderServiceCard(service))}
+                                                    {giftGroup.map(service => renderServiceCard(service))}
                                                 </div>
                                             )}
                                         </div>
@@ -510,12 +505,10 @@ export function AddOrEditDialog({
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
                                 <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => {
-                                    if(isSelected && !checked) {
-                                        handleRemoveService(s.id);
-                                    } else if (!isSelected && checked) {
+                                    if (checked) {
                                         handleToggleService(s);
-                                    } else if (isSelected && checked) {
-                                        toast({ title: "Aviso", description: "El servicio ya está en la lista.", variant: "default" });
+                                    } else {
+                                        handleRemoveService(s.id);
                                     }
                                 }} />
                                 <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
@@ -661,8 +654,6 @@ export default function ArmadoRapidoSettingsPage() {
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   
   const vendibleServices = serviciosCatalogo.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
-  const cateringServices = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
-
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
