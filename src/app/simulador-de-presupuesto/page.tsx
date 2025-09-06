@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -99,14 +98,14 @@ export default function ArmadoRapidoPage() {
         setIsGeneratingLead(true);
         toast({ title: "Generando tu presupuesto...", description: "Espera un momento." });
 
-        const totalCostoServicios = calcularCostoTotalServicios();
+        const { resumenData, costoFinal } = calcularDetallesPresupuesto();
         
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual?.nombre || 'Sin paquete',
             nombreMenu: 'Catering Personalizado',
             tipoEvento: 'Evento desde Simulador de Presupuesto',
             cantidadInvitados: numAdultos + numJovenesYNinos,
-            costoEstimado: totalCostoServicios,
+            costoEstimado: costoFinal,
             clienteNombre: clienteNombre || 'Prospecto Web',
             salon: 'A confirmar'
         });
@@ -117,60 +116,27 @@ export default function ArmadoRapidoPage() {
             return;
         }
         
-        // Recalcular para pasar los datos correctos a la página de resumen
-        const { resumenData } = calcularDetallesPresupuesto();
-
         const queryParams = new URLSearchParams({ data: JSON.stringify(resumenData) });
-        router.push(`/armado-rapido/resumen?${queryParams.toString()}`);
+        router.push(`/simulador-de-presupuesto/resumen?${queryParams.toString()}`);
     };
     
-    const calcularCostoTotalServicios = () => {
-        let subtotal = 0;
-        
-        const entradas = Array.from(entradasSeleccionadas).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id));
-        const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
-        const menuInfantil = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
-
-        entradas.forEach(item => { if (item) subtotal += (item.precioFijo ?? 0) * numAdultos; });
-        if (platoPrincipal) subtotal += (platoPrincipal.precioFijo ?? 0) * numAdultos;
-        if (menuInfantil && numJovenesYNinos > 0) subtotal += (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
-
-        if (paqueteActual) {
-            const totalInvitados = numAdultos + numJovenesYNinos;
-            paqueteActual.serviciosIncluidos.forEach(servicio => {
-                if (servicio.esRegalo) return; 
-                let costoServicio = 0;
-                switch(servicio.calculationMethod) {
-                    case 'fijo': costoServicio = servicio.precioBase || 0; break;
-                    case 'porPersona': costoServicio = (servicio.precioPorPersona || 0) * totalInvitados; break;
-                    case 'ratio': 
-                        if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) {
-                            const unidades = Math.ceil(totalInvitados / servicio.invitadosPorUnidad);
-                            costoServicio = unidades * (servicio.precioBase || 0);
-                        }
-                        break;
-                    case 'tramos':
-                        const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-                        costoServicio = tramo?.precio || 0;
-                        break;
-                    default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
-                }
-                subtotal += costoServicio;
-            });
-        }
-        return subtotal;
-    };
-
      const calcularDetallesPresupuesto = () => {
+        let subtotalServicios = 0;
+        let costoRegalos = 0;
+        const totalInvitados = numAdultos + numJovenesYNinos;
+        
         const resumenData: any = {
             cliente: clienteNombre,
-            invitados: `${numAdultos} Adultos, ${numJovenesYNinos} Jóvenes/Niños`,
+            invitados: `${numAdultos} Adultos, ${numJovenesYNinos > 0 ? `${numJovenesYNinos} Jóvenes/Niños` : ''}`,
             items: [],
-            totalServicios: 0,
             regalos: [],
+            totalServicios: 0,
+            totalRegalos: 0,
             descuentoGeneral: config?.descuentoGeneral || 0,
+            montoDescuento: 0,
+            ahorroTotal: 0,
+            totalFinal: 0,
         };
-        let subtotalServicios = 0;
 
         const entradas = Array.from(entradasSeleccionadas).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id));
         const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
@@ -178,20 +144,23 @@ export default function ArmadoRapidoPage() {
 
         entradas.forEach(item => {
             if (!item) return;
-            subtotalServicios += (item.precioFijo ?? 0) * numAdultos;
+            const costoItem = (item.precioFijo ?? 0) * numAdultos;
+            subtotalServicios += costoItem;
             resumenData.items.push({ desc: `Entrada: ${item.nombre}` });
         });
 
         if (platoPrincipal) {
-            subtotalServicios += (platoPrincipal.precioFijo ?? 0) * numAdultos;
+            const costoItem = (platoPrincipal.precioFijo ?? 0) * numAdultos;
+            subtotalServicios += costoItem;
             resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}` });
         }
         if (menuInfantil && numJovenesYNinos > 0) {
-            subtotalServicios += (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
+             const costoItem = (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
+            subtotalServicios += costoItem;
             resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}` });
         }
+
         if (paqueteActual) {
-            const totalInvitados = numAdultos + numJovenesYNinos;
             paqueteActual.serviciosIncluidos.forEach(servicio => {
                 let costoServicio = 0;
                 switch(servicio.calculationMethod) {
@@ -209,6 +178,7 @@ export default function ArmadoRapidoPage() {
                     default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
                 }
                 if (servicio.esRegalo) {
+                    costoRegalos += costoServicio;
                     resumenData.regalos.push({ desc: servicio.nombre, total: costoServicio });
                 } else {
                     subtotalServicios += costoServicio;
@@ -216,8 +186,18 @@ export default function ArmadoRapidoPage() {
                 }
             });
         }
+        
+        const montoDescuento = (subtotalServicios * (config?.descuentoGeneral || 0)) / 100;
+        const ahorroTotal = costoRegalos + montoDescuento;
+        const costoFinal = subtotalServicios - montoDescuento;
+
         resumenData.totalServicios = subtotalServicios;
-        return { resumenData };
+        resumenData.totalRegalos = costoRegalos;
+        resumenData.montoDescuento = montoDescuento;
+        resumenData.ahorroTotal = ahorroTotal;
+        resumenData.totalFinal = costoFinal;
+        
+        return { resumenData, costoFinal };
     };
 
     const renderPaso = () => {

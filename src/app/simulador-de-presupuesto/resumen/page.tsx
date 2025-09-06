@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
@@ -20,11 +19,7 @@ const formatCurrency = (amount?: number) => {
 // Componente aislado para la vista imprimible del presupuesto
 const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, settings: InvoiceTemplateSettings | null }>(({ summaryData, settings }, ref) => {
   if (!summaryData) return null;
-  const costoServicios = summaryData.totalServicios || 0;
-  const costoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + (r.total || 0), 0);
-  const descuentoGeneralMonto = (costoServicios * (summaryData.descuentoGeneral || 0)) / 100;
-  const ahorroTotal = costoRegalos + descuentoGeneralMonto;
-  const totalFinal = costoServicios - descuentoGeneralMonto;
+  const { totalServicios, totalRegalos, montoDescuento, ahorroTotal, totalFinal } = summaryData;
 
   return (
     <div ref={ref} className="bg-white">
@@ -65,9 +60,9 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
             
              <div className="mt-6 flex justify-end">
                 <div className="w-full max-w-xs space-y-2">
-                    <div className="flex justify-between"><p>Costo de servicios:</p><p>{formatCurrency(costoServicios)}</p></div>
-                    {costoRegalos > 0 && <div className="flex justify-between text-green-600"><p>Valor de regalos:</p><p>+{formatCurrency(costoRegalos)}</p></div>}
-                    {descuentoGeneralMonto > 0 && <div className="flex justify-between text-green-600"><p>Descuento ({summaryData.descuentoGeneral}%):</p><p>-{formatCurrency(descuentoGeneralMonto)}</p></div>}
+                    <div className="flex justify-between"><p>Costo de servicios:</p><p>{formatCurrency(totalServicios)}</p></div>
+                    {totalRegalos > 0 && <div className="flex justify-between text-green-600"><p>Valor de regalos:</p><p>+{formatCurrency(totalRegalos)}</p></div>}
+                    {montoDescuento > 0 && <div className="flex justify-between text-green-600"><p>Descuento ({summaryData.descuentoGeneral}%):</p><p>-{formatCurrency(montoDescuento)}</p></div>}
                     <div className="flex justify-between font-bold text-lg border-t pt-2"><p>AHORRO TOTAL:</p><p className="text-green-600">{formatCurrency(ahorroTotal)}</p></div>
                     <div className="flex justify-between font-bold text-xl border-t-2 border-primary pt-2 mt-4 text-primary"><p>TOTAL FINAL:</p><p>{formatCurrency(totalFinal)}</p></div>
                 </div>
@@ -101,14 +96,14 @@ function ResumenContent() {
             if (data) {
                 setSummaryData(JSON.parse(data));
             } else {
-                router.push('/armado-rapido');
+                router.push('/simulador-de-presupuesto');
                 return;
             }
             const fetchedSettings = await getInvoiceTemplateSettings();
             setSettings(fetchedSettings);
         } catch (e) {
             toast({ title: "Error", description: "No se pudo leer el resumen o la configuración.", variant: "destructive" });
-            router.push('/armado-rapido');
+            router.push('/simulador-de-presupuesto');
         } finally {
             setIsLoading(false);
         }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -79,7 +78,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
-      setArmadoRapidoLink(`${origin}/armado-rapido`);
+      setArmadoRapidoLink(`${origin}/simulador-de-presupuesto`);
     }
   }, []);
 
