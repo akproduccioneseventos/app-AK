@@ -34,7 +34,7 @@ interface Paso4ResumenProps {
   presupuesto: Presupuesto;
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
-  displaySettings: BudgetDisplaySettings;
+  displaySettings: BudgetDisplaySettings | null;
 }
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
@@ -253,7 +253,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
             </table>
           </section>
 
-          {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 ? (
+          {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
             <section className="mb-4 print:mb-2">
               {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                   <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
@@ -283,13 +283,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                   </div>
               ))}
             </section>
-          ) : (
-             <section className="mb-4 print:mb-2">
-                <div className="p-3 bg-gray-50 rounded-md">
-                    <p className="font-semibold">Detalle de Servicios</p>
-                    <p className="text-sm text-muted-foreground">El desglose de precios no está visible en esta vista.</p>
-                </div>
-             </section>
           )}
           
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
