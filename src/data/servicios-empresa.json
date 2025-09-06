@@ -45,6 +45,14 @@
     "precioVenta": 8000
   },
   {
+    "id": "item_1757177826475_9vzfx4g",
+    "nombre": "Album Digital",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "unidad": "Por evento",
+    "precioVenta": 3000
+  },
+  {
     "id": "serv_1752489600118_albdig",
     "nombre": "Álbum digital",
     "tipoItem": "Servicio",
@@ -129,12 +137,12 @@
     "precioVenta": 6000
   },
   {
+    "id": "item_1757177422000_4ru2piy",
     "nombre": "Coffe Break",
-    "precioVenta": 3000,
-    "categoria": "Servicio de bebidas",
     "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
     "unidad": "Por evento",
-    "id": "item_1757177422000_4ru2piy"
+    "precioVenta": 3000
   },
   {
     "id": "serv_1752489600091_copon",
@@ -993,7 +1001,7 @@
     "nombre": "Fotografía de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "precioVenta": 8500
+    "precioVenta": 9000
   },
   {
     "id": "serv_1752489600114_fotigl",
@@ -1134,6 +1142,6 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "subcategoria": "Torta Principal",
-    "precioVenta": 95
+    "precioVenta": 100
   }
 ]

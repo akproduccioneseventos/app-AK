@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -119,7 +118,6 @@ function AddNewServiceDialog({
   
   const existingCategories = useMemo(() => {
     const categories = new Set(vendibleServices.map(s => s.categoria));
-    // Ensure "Servicio de catering" is an option for general services if it's not present
     if (serviceType === 'general' && !categories.has('Servicio de catering')) {
         categories.add('Servicio de catering');
     }
@@ -208,39 +206,37 @@ export function AddOrEditDialog({
 
         const serviceMap: Record<string, ServicioIncluidoArmadoRapido[]> = {};
         const giftGroup: ServicioIncluidoArmadoRapido[] = [];
+        
+        const servicesToSort = [...localItem.serviciosIncluidos];
+        
+        servicesToSort.sort((a,b) => {
+            const catA = vendibleServices.find(vs => vs.id === a.id)?.categoria || 'z';
+            const catB = vendibleServices.find(vs => vs.id === b.id)?.categoria || 'z';
+            if (catA < catB) return -1;
+            if (catA > catB) return 1;
+            return a.nombre.localeCompare(b.nombre);
+        });
 
-        localItem.serviciosIncluidos.forEach(service => {
-            if (service.esRegalo) {
-                giftGroup.push(service);
-            } else {
-                const category = (mode === 'paquete'
+        const nonGifts = servicesToSort.filter(s => !s.esRegalo);
+        const gifts = servicesToSort.filter(s => s.esRegalo);
+
+        nonGifts.forEach(service => {
+             const category = (mode === 'paquete'
                     ? (vendibleServices.find(vs => vs.id === service.id)?.categoria || 'Otros')
                     : service.categoria || 'Servicio Adicional');
-                if (!serviceMap[category]) {
-                    serviceMap[category] = [];
-                }
-                serviceMap[category].push(service);
+            if (!serviceMap[category]) {
+                serviceMap[category] = [];
             }
+            serviceMap[category].push(service);
         });
-        
-        // Sort services within each category by name
-        for(const category in serviceMap) {
-            serviceMap[category].sort((a,b) => a.nombre.localeCompare(b.nombre));
-        }
-        
-        // Sort gifts by name
-        giftGroup.sort((a,b) => a.nombre.localeCompare(b.nombre));
 
-        return { serviceGroups: serviceMap, giftGroup };
+        return { serviceGroups: serviceMap, giftGroup: gifts };
     }, [localItem, vendibleServices, mode]);
 
 
     const filteredCatalog = useMemo(() => {
-        // For packages, show all vendible services. For menu, show only catering.
-        const catalogToShow = mode === 'paquete' 
-            ? vendibleServices 
-            : vendibleServices.filter(s => s.categoria === 'Servicio de catering');
-
+        const catalogToShow = vendibleServices;
+        
         if (!searchTerm) return catalogToShow;
 
         const lowerSearch = searchTerm.toLowerCase();
@@ -248,7 +244,7 @@ export function AddOrEditDialog({
             s => s.nombre.toLowerCase().includes(lowerSearch) || 
                  s.categoria?.toLowerCase().includes(lowerSearch)
         );
-    }, [vendibleServices, searchTerm, mode]);
+    }, [vendibleServices, searchTerm]);
 
     if (!localItem) return null;
 
@@ -271,10 +267,7 @@ export function AddOrEditDialog({
             const isSelected = currentServices.some(s => s.id === service.id);
 
             if (isSelected) {
-                // If it's already selected, don't add it again. Just notify the user.
-                // The checkbox change handler will prevent unchecking, but this is a safeguard.
-                toast({ title: "Servicio Duplicado", description: "Este servicio ya está en la lista.", variant: "default" });
-                return prev;
+                return { ...prev, serviciosIncluidos: currentServices.filter(s => s.id !== service.id) };
             } else {
                  const newService: ServicioIncluidoArmadoRapido = {
                     id: service.id,
@@ -329,21 +322,23 @@ export function AddOrEditDialog({
       })
     };
     
-    const handleTramoChange = (serviceId: string, tramoIndex: number, field: 'desde' | 'hasta' | 'precio', value: string) => {
-        const newValue = Number(value);
-        if (isNaN(newValue)) return;
-        
-        setLocalItem(prev => {
-            if (!prev) return null;
-            const newServicios = prev.serviciosIncluidos.map(s => {
-                if (s.id !== serviceId) return s;
-                const newTramos = (s.tramosDePrecio || []).map((t, i) =>
-                    i === tramoIndex ? { ...t, [field]: newValue < 0 ? 0 : newValue } : t
-                );
-                return { ...s, tramosDePrecio: newTramos };
-            });
-            return { ...prev, serviciosIncluidos: newServicios };
+    const handleTramoChange = (serviceId: string, tramoIndex: number, field: 'desde' | 'hasta' | 'precio', value: string | number) => {
+      setLocalItem(prev => {
+        if (!prev) return null;
+        const newServicios = prev.serviciosIncluidos.map(s => {
+          if (s.id !== serviceId) return s;
+          
+          const newTramos = (s.tramosDePrecio || []).map((t, i) => {
+            if (i !== tramoIndex) return t;
+            
+            const numValue = typeof value === 'string' ? parseFloat(value) : value;
+            return { ...t, [field]: isNaN(numValue) ? 0 : numValue };
+          });
+          
+          return { ...s, tramosDePrecio: newTramos };
         });
+        return { ...prev, serviciosIncluidos: newServicios };
+      });
     };
     
     const addTramo = (serviceId: string) => {
@@ -384,7 +379,14 @@ export function AddOrEditDialog({
     };
 
     const handleSaveAndExit = () => {
-        onSave(localItem, Array.from(modifiedServices.values()));
+        const finalItem = {
+            ...localItem,
+            serviciosIncluidos: (localItem.serviciosIncluidos || []).map(s => ({
+                ...s,
+                tramosDePrecio: (s.tramosDePrecio || []).map(t => ({...t, precio: Number(t.precio) || 0 }))
+            }))
+        };
+        onSave(finalItem, Array.from(modifiedServices.values()));
     };
 
      const renderServiceCard = (service: ServicioIncluidoArmadoRapido) => {
@@ -506,12 +508,7 @@ export function AddOrEditDialog({
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
                                 <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => {
-                                    if(checked && isSelected) {
-                                        toast({ title: "Servicio Duplicado", description: "Este servicio ya está en la lista." });
-                                        return;
-                                    }
-                                    if(checked) handleToggleService(s);
-                                    else handleRemoveService(s.id);
+                                    handleToggleService(s);
                                 }} />
                                 <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
                                 {isSelected && <Check className="w-4 h-4 text-primary" />}
@@ -661,7 +658,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'paquete' ? vendibleServices : cateringServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración Simulador de Presupuesto</h1></div>
         <div className="flex gap-2">

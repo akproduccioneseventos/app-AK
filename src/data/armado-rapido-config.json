@@ -324,10 +324,10 @@
           "precioPorPersona": 9000,
           "tramosDePrecio": [
             {
-              "id": "tramo_1757177526436",
+              "id": "tramo_1757177876905",
               "desde": 1,
-              "hasta": 80,
-              "precio": -8998
+              "hasta": 50,
+              "precio": 0
             }
           ]
         },
@@ -338,18 +338,18 @@
           "calculationMethod": "fijo",
           "esRegalo": false,
           "precioFijo": 8500,
-          "precioBase": 8500,
+          "precioBase": 9000,
           "precioPorPersona": 8500
         },
         {
           "id": "serv_torta_principal",
           "nombre": "Torta principal",
           "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
+          "calculationMethod": "porPersona",
           "esRegalo": false,
           "precioFijo": 95,
           "precioBase": 95,
-          "precioPorPersona": 95
+          "precioPorPersona": 100
         },
         {
           "id": "serv_1752489600118_albdig",
@@ -377,6 +377,16 @@
           "categoria": "Servicio Adicional",
           "calculationMethod": "fijo",
           "esRegalo": true,
+          "precioFijo": 3000,
+          "precioBase": 3000,
+          "precioPorPersona": 3000
+        },
+        {
+          "id": "item_1757177826475_9vzfx4g",
+          "nombre": "Album Digital",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
           "precioFijo": 3000,
           "precioBase": 3000,
           "precioPorPersona": 3000
