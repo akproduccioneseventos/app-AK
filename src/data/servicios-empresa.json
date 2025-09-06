@@ -129,6 +129,14 @@
     "precioVenta": 6000
   },
   {
+    "nombre": "Coffe Break",
+    "precioVenta": 3000,
+    "categoria": "Servicio de bebidas",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757177422000_4ru2piy"
+  },
+  {
     "id": "serv_1752489600091_copon",
     "nombre": "Copón",
     "tipoItem": "Servicio",

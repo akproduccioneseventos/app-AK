@@ -119,8 +119,12 @@ function AddNewServiceDialog({
   
   const existingCategories = useMemo(() => {
     const categories = new Set(vendibleServices.map(s => s.categoria));
+    // Ensure "Servicio de catering" is an option for general services if it's not present
+    if (serviceType === 'general' && !categories.has('Servicio de catering')) {
+        categories.add('Servicio de catering');
+    }
     return Array.from(categories).sort();
-  }, [vendibleServices]);
+  }, [vendibleServices, serviceType]);
 
 
   return (
@@ -199,48 +203,52 @@ export function AddOrEditDialog({
         setModifiedServices(new Map());
     }, [initialItem, isOpen, vendibleServices]);
 
-    const { sortedServices, categoryHeaders } = useMemo(() => {
-        if (!localItem || !localItem.serviciosIncluidos) return { sortedServices: [], categoryHeaders: {} };
+    const groupedAndSortedServices = useMemo(() => {
+        if (!localItem || !localItem.serviciosIncluidos) return { serviceGroups: {}, giftGroup: [] };
 
-        // 1. Separate gifts from regular services
-        const gifts = localItem.serviciosIncluidos.filter(s => s.esRegalo);
-        const regularServices = localItem.serviciosIncluidos.filter(s => !s.esRegalo);
+        const serviceMap: Record<string, ServicioIncluidoArmadoRapido[]> = {};
+        const giftGroup: ServicioIncluidoArmadoRapido[] = [];
 
-        // 2. Sort regular services by category then by name
-        regularServices.sort((a, b) => {
-            const categoryA = (mode === 'paquete' ? vendibleServices.find(vs => vs.id === a.id)?.categoria : a.categoria) || 'z';
-            const categoryB = (mode === 'paquete' ? vendibleServices.find(vs => vs.id === b.id)?.categoria : b.categoria) || 'z';
-            if (categoryA < categoryB) return -1;
-            if (categoryA > categoryB) return 1;
-            return a.nombre.localeCompare(b.nombre);
-        });
-
-        // 3. Combine sorted lists
-        const allSorted = [...regularServices, ...gifts];
-
-        // 4. Create headers map
-        const headers: Record<string, string> = {};
-        let lastCategory = '';
-        allSorted.forEach(service => {
-            const currentCategory = service.esRegalo
-                ? 'Regalos Incluidos'
-                : (mode === 'paquete'
+        localItem.serviciosIncluidos.forEach(service => {
+            if (service.esRegalo) {
+                giftGroup.push(service);
+            } else {
+                const category = (mode === 'paquete'
                     ? (vendibleServices.find(vs => vs.id === service.id)?.categoria || 'Otros')
                     : service.categoria || 'Servicio Adicional');
-            
-            if (currentCategory !== lastCategory) {
-                headers[service.id] = currentCategory;
-                lastCategory = currentCategory;
+                if (!serviceMap[category]) {
+                    serviceMap[category] = [];
+                }
+                serviceMap[category].push(service);
             }
         });
         
-        return { sortedServices: allSorted, categoryHeaders: headers };
+        // Sort services within each category by name
+        for(const category in serviceMap) {
+            serviceMap[category].sort((a,b) => a.nombre.localeCompare(b.nombre));
+        }
+        
+        // Sort gifts by name
+        giftGroup.sort((a,b) => a.nombre.localeCompare(b.nombre));
+
+        return { serviceGroups: serviceMap, giftGroup };
     }, [localItem, vendibleServices, mode]);
 
 
     const filteredCatalog = useMemo(() => {
-        return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
-    }, [vendibleServices, searchTerm]);
+        // For packages, show all vendible services. For menu, show only catering.
+        const catalogToShow = mode === 'paquete' 
+            ? vendibleServices 
+            : vendibleServices.filter(s => s.categoria === 'Servicio de catering');
+
+        if (!searchTerm) return catalogToShow;
+
+        const lowerSearch = searchTerm.toLowerCase();
+        return catalogToShow.filter(
+            s => s.nombre.toLowerCase().includes(lowerSearch) || 
+                 s.categoria?.toLowerCase().includes(lowerSearch)
+        );
+    }, [vendibleServices, searchTerm, mode]);
 
     if (!localItem) return null;
 
@@ -255,7 +263,7 @@ export function AddOrEditDialog({
     };
 
 
-    const handleToggleService = (service: ServicioEmpresa | undefined) => {
+    const handleToggleService = (service: ServicioEmpresa) => {
         if (!service) return;
         setLocalItem(prev => {
             if (!prev) return null;
@@ -263,9 +271,12 @@ export function AddOrEditDialog({
             const isSelected = currentServices.some(s => s.id === service.id);
 
             if (isSelected) {
-                return { ...prev, serviciosIncluidos: currentServices.filter(s => s.id !== service.id) };
+                // If it's already selected, don't add it again. Just notify the user.
+                // The checkbox change handler will prevent unchecking, but this is a safeguard.
+                toast({ title: "Servicio Duplicado", description: "Este servicio ya está en la lista.", variant: "default" });
+                return prev;
             } else {
-                const newService: ServicioIncluidoArmadoRapido = {
+                 const newService: ServicioIncluidoArmadoRapido = {
                     id: service.id,
                     nombre: service.nombre,
                     categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
@@ -277,6 +288,16 @@ export function AddOrEditDialog({
                 };
                 return { ...prev, serviciosIncluidos: [...currentServices, newService] };
             }
+        });
+    };
+    
+    const handleRemoveService = (serviceId: string) => {
+        setLocalItem(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== serviceId)
+            };
         });
     };
     
@@ -317,7 +338,7 @@ export function AddOrEditDialog({
             const newServicios = prev.serviciosIncluidos.map(s => {
                 if (s.id !== serviceId) return s;
                 const newTramos = (s.tramosDePrecio || []).map((t, i) =>
-                    i === tramoIndex ? { ...t, [field]: newValue } : t
+                    i === tramoIndex ? { ...t, [field]: newValue < 0 ? 0 : newValue } : t
                 );
                 return { ...s, tramosDePrecio: newTramos };
             });
@@ -367,14 +388,8 @@ export function AddOrEditDialog({
     };
 
      const renderServiceCard = (service: ServicioIncluidoArmadoRapido) => {
-        const showHeader = categoryHeaders[service.id];
         return (
             <React.Fragment key={service.id}>
-                {showHeader && (
-                    <h4 className={`font-semibold text-sm my-2 border-b ${service.esRegalo ? 'text-destructive' : 'text-primary'}`}>
-                        {categoryHeaders[service.id]}
-                    </h4>
-                )}
                 <SortableServiceItem service={service}>
                     <Card className={cn("bg-background w-full", service.esRegalo && "border-destructive/50 bg-destructive/5")}>
                         <CardContent className="p-2 space-y-2">
@@ -389,6 +404,7 @@ export function AddOrEditDialog({
                                             <ChevronDown className={cn("h-4 w-4 transition-transform ml-1", openCollapsibleId === service.id && "rotate-180")} />
                                         </Button>
                                     </CollapsibleTrigger>
+                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveService(service.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                                     <CollapsibleContent asChild>
                                         <div className="pt-2 mt-2 border-t space-y-3 px-1 pb-1">
                                             {mode === 'menu' && (
@@ -453,9 +469,20 @@ export function AddOrEditDialog({
                            {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
                              (
                                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                                    <SortableContext items={sortedServices.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                                    <SortableContext items={localItem.serviciosIncluidos.map(s => s.id)} strategy={verticalListSortingStrategy}>
                                         <div className="space-y-2">
-                                            {sortedServices.map(service => renderServiceCard(service))}
+                                            {Object.entries(groupedAndSortedServices.serviceGroups).map(([category, services]) => (
+                                                <div key={category}>
+                                                    <h4 className='font-semibold text-sm my-2 border-b text-primary'>{category}</h4>
+                                                    {services.map(service => renderServiceCard(service))}
+                                                </div>
+                                            ))}
+                                            {groupedAndSortedServices.giftGroup.length > 0 && (
+                                                <div>
+                                                    <h4 className='font-semibold text-sm my-2 border-b text-destructive'>Regalos Incluidos</h4>
+                                                    {groupedAndSortedServices.giftGroup.map(service => renderServiceCard(service))}
+                                                </div>
+                                            )}
                                         </div>
                                     </SortableContext>
                                 </DndContext>
@@ -478,7 +505,14 @@ export function AddOrEditDialog({
                             const isSelected = (localItem.serviciosIncluidos || []).some(ls => ls.id === s.id);
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
-                                <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={() => handleToggleService(s)} />
+                                <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => {
+                                    if(checked && isSelected) {
+                                        toast({ title: "Servicio Duplicado", description: "Este servicio ya está en la lista." });
+                                        return;
+                                    }
+                                    if(checked) handleToggleService(s);
+                                    else handleRemoveService(s.id);
+                                }} />
                                 <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
                                 {isSelected && <Check className="w-4 h-4 text-primary" />}
                                 </div>
@@ -627,7 +661,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'menu' ? cateringServices : vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={modalMode === 'paquete' ? vendibleServices : cateringServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración Simulador de Presupuesto</h1></div>
         <div className="flex gap-2">
