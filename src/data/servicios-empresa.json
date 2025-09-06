@@ -28,14 +28,14 @@
     "nombre": "Mozo",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "precioVenta": 2800
+    "precioVenta": 2900
   },
   {
     "id": "serv_mozo_cocina",
     "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "precioVenta": 2800
+    "precioVenta": 2900
   },
   {
     "id": "item_1756940568854_u5m4prf",
@@ -118,7 +118,7 @@
     "id": "item_1756938259020_8m0yxv8",
     "nombre": "Cofe Break",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
+    "categoria": "Regalo exclusivo",
     "unidad": "Por evento",
     "precioVenta": 3500
   },
@@ -198,7 +198,7 @@
     "nombre": "Arepas venezolanas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 200
   },
@@ -207,7 +207,7 @@
     "nombre": "Arrolladitos primavera",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 150
   },
@@ -216,7 +216,7 @@
     "nombre": "Asado completo c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 645
   },
@@ -225,7 +225,7 @@
     "nombre": "Bauru c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 390
   },
@@ -234,7 +234,7 @@
     "nombre": "Bife al champiñón c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 480
   },
@@ -243,7 +243,7 @@
     "nombre": "Brochetas c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 380
   },
@@ -252,7 +252,7 @@
     "nombre": "Buñuelo de algas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 120
   },
@@ -261,7 +261,7 @@
     "nombre": "Calzones Italianos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 200
   },
@@ -270,7 +270,7 @@
     "nombre": "Cerdo a la mostaza c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 390
   },
@@ -279,6 +279,7 @@
     "nombre": "Cerdo relleno c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
+    "subcategoria": "Plato Principal",
     "precioVenta": 380
   },
   {
@@ -286,7 +287,7 @@
     "nombre": "Chivito completo c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 350
   },
@@ -295,7 +296,7 @@
     "nombre": "Cordero Asado c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 560
   },
@@ -304,15 +305,16 @@
     "nombre": "Empanadas caseras",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 200
   },
   {
     "id": "serv_sandwiches_saladitos",
-    "nombre": "Entrada: Sándwiches y Saladitos",
+    "nombre": "Sándwiches y Saladitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
     "precioVenta": 220
   },
   {
@@ -320,7 +322,7 @@
     "nombre": "Faina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 100
   },
@@ -329,7 +331,7 @@
     "nombre": "Hamburguesa completa c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 280
   },
@@ -338,7 +340,7 @@
     "nombre": "Kebabs",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 130
   },
@@ -365,7 +367,7 @@
     "nombre": "Menú niños - Chivitos c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menús para Niños",
+    "subcategoria": "Menú Adolescente / Niño",
     "unidad": "Por persona",
     "precioVenta": 300
   },
@@ -374,6 +376,7 @@
     "nombre": "Menú niños - Hamburguesa c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
+    "subcategoria": "Menú Adolescente / Niño",
     "precioVenta": 200
   },
   {
@@ -381,6 +384,7 @@
     "nombre": "Menú niños - Panchos c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
+    "subcategoria": "Menú Adolescente / Niño",
     "precioVenta": 165
   },
   {
@@ -388,7 +392,7 @@
     "nombre": "Menú niños - Panchos medio metro c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menús para Niños",
+    "subcategoria": "Menú Adolescente / Niño",
     "unidad": "Por persona",
     "precioVenta": 300
   },
@@ -397,7 +401,7 @@
     "nombre": "Menú niños 1",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menús para Niños",
+    "subcategoria": "Menú Adolescente / Niño",
     "unidad": "Por persona",
     "precioVenta": 320
   },
@@ -406,7 +410,7 @@
     "nombre": "Menú niños 2",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menús para Niños",
+    "subcategoria": "Menú Adolescente / Niño",
     "unidad": "Por persona",
     "precioVenta": 349
   },
@@ -424,7 +428,7 @@
     "nombre": "Merluza a la crema c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 450
   },
@@ -433,7 +437,7 @@
     "nombre": "Mini brochetas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 200
   },
@@ -442,7 +446,7 @@
     "nombre": "Mini Chivitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 180
   },
@@ -451,7 +455,7 @@
     "nombre": "Napolitana c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 420
   },
@@ -460,7 +464,7 @@
     "nombre": "Ñoquis al queso",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 390
   },
@@ -469,7 +473,7 @@
     "nombre": "Paella de mariscos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 380
   },
@@ -487,7 +491,7 @@
     "nombre": "Picada caliente",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 220
   },
@@ -496,7 +500,7 @@
     "nombre": "Picada Criolla",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 220
   },
@@ -505,6 +509,7 @@
     "nombre": "Picada de fiambres",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
     "precioVenta": 120
   },
   {
@@ -512,7 +517,7 @@
     "nombre": "Picada de mar",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 210
   },
@@ -521,7 +526,7 @@
     "nombre": "Picada premium",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 200
   },
@@ -530,7 +535,7 @@
     "nombre": "Picada Snack",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 150
   },
@@ -539,7 +544,7 @@
     "nombre": "Pizzetitas y empanaditas de copetín",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 180
   },
@@ -548,7 +553,7 @@
     "nombre": "Planchas calientes",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 150
   },
@@ -557,7 +562,7 @@
     "nombre": "Pollo arrollado c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 390
   },
@@ -566,7 +571,7 @@
     "nombre": "Ravioles a la crema",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 390
   },
@@ -575,7 +580,7 @@
     "nombre": "Salpicón de pollo",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 150
   },
@@ -584,7 +589,7 @@
     "nombre": "Sandwiches y Saladitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 220
   },
@@ -593,6 +598,7 @@
     "nombre": "Servicio de café y te",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
+    "subcategoria": "Servicio Adicional",
     "precioVenta": 35
   },
   {
@@ -699,7 +705,7 @@
     "nombre": "Sorrentinos con salsa rosa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 420
   },
@@ -708,7 +714,7 @@
     "nombre": "Strogonoff de pollo c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 420
   },
@@ -717,7 +723,7 @@
     "nombre": "Sushi",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 250
   },
@@ -726,7 +732,7 @@
     "nombre": "Sushi con ensalada",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Platos Principales",
+    "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 400
   },
@@ -735,7 +741,7 @@
     "nombre": "Tabla gourmet de fiambre",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 280
   },
@@ -744,7 +750,7 @@
     "nombre": "Tacos mexicanos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 240
   },
@@ -753,7 +759,7 @@
     "nombre": "Tapas saborizadas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Entradas",
+    "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 100
   },
@@ -761,7 +767,8 @@
     "id": "serv_vajilla_completa",
     "nombre": "Vajilla completa",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Vajilla y Cristalería",
     "precioVenta": 70
   },
   {
@@ -787,6 +794,7 @@
     "nombre": "Cuadro de firmas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
+    "subcategoria": "Señalética",
     "precioVenta": 2900
   },
   {
@@ -811,6 +819,7 @@
     "nombre": "Mantelería completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
+    "subcategoria": "Textiles",
     "precioVenta": 70
   },
   {
@@ -892,7 +901,7 @@
     "id": "serv_pantalla_proyector",
     "nombre": "Pantalla gigante y proyector",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
+    "categoria": "Regalo exclusivo",
     "precioVenta": 2000
   },
   {
@@ -900,7 +909,7 @@
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
-    "precioVenta": 18000
+    "precioVenta": 9000
   },
   {
     "id": "serv_1752489600108_sonido",
@@ -911,10 +920,10 @@
     "precioVenta": 8000
   },
   {
-    "id": "item_1756940534187_rw402t7",
+    "id": "item_1756940534187_t95g4rl",
     "nombre": "Bogue",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
+    "categoria": "Regalo exclusivo",
     "unidad": "Por evento",
     "precioVenta": 2900
   },
@@ -929,7 +938,7 @@
     "id": "item_1756940618500_jnt7ly4",
     "nombre": "Fuegos Frios",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
+    "categoria": "Regalo exclusivo",
     "unidad": "Por evento",
     "precioVenta": 3000
   },
@@ -963,7 +972,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
     "unidad": "Por evento",
-    "precioVenta": 9500
+    "precioVenta": 7500
   },
   {
     "id": "serv_1752489600113_filpin",
@@ -994,7 +1003,7 @@
     "nombre": "Fotografía de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "precioVenta": 10500
+    "precioVenta": 9000
   },
   {
     "id": "serv_1752489600114_fotigl",
@@ -1134,6 +1143,7 @@
     "nombre": "Postres",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
+    "subcategoria": "Mesa de Postres",
     "precioVenta": 1100
   },
   {
@@ -1141,6 +1151,7 @@
     "nombre": "Torta principal",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "precioVenta": 100
+    "subcategoria": "Torta Principal",
+    "precioVenta": 95
   }
 ]
