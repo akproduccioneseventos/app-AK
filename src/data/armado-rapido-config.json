@@ -233,16 +233,16 @@
           "precioFijo": 70,
           "categoria": "Servicio Adicional",
           "calculationMethod": "fijo",
-          "precioBase": 70,
+          "precioBase": "75",
           "esRegalo": false
         },
         {
           "id": "serv_1752489600071_mobil",
           "nombre": "Mobiliario completo",
-          "precioFijo": 69,
+          "precioFijo": 75,
           "categoria": "Servicio Adicional",
           "calculationMethod": "fijo",
-          "precioBase": 69,
+          "precioBase": 75,
           "esRegalo": false
         },
         {

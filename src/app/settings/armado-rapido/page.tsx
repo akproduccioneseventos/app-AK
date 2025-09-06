@@ -47,6 +47,7 @@ const CATEGORIAS_MENU: { value: ServicioCategoriaArmadoRapido, label: string }[]
     { value: 'Entrada', label: 'Entrada' },
     { value: 'Plato Principal', label: 'Plato Principal' },
     { value: 'Menú Adolescente / Niño', label: 'Menú Adolescente / Niño' },
+    { value: 'Servicio Adicional', label: 'Servicio Adicional (Bebidas, etc.)'}
 ];
 
 const CATEGORY_ORDER: Record<ServicioCategoriaArmadoRapido, number> = {
@@ -181,9 +182,26 @@ function AddOrEditDialog({
     const sensors = useSensors(useSensor(PointerSensor));
 
     useEffect(() => {
-        setLocalItem(initialItem);
-        setModifiedServices(new Map()); // Reset modifications when item changes
-    }, [initialItem]);
+        if (initialItem) {
+            // Sincronizar precios con el catálogo al abrir el diálogo
+            const syncedServices = initialItem.serviciosIncluidos.map(service => {
+                const catalogService = vendibleServices.find(vs => vs.id === service.id);
+                if (catalogService && !service.esRegalo) { // No actualizar precio si es un regalo
+                    return {
+                        ...service,
+                        precioFijo: catalogService.precioVenta || service.precioFijo,
+                        precioBase: service.calculationMethod === 'fijo' || service.calculationMethod === 'ratio' ? catalogService.precioVenta || service.precioBase : service.precioBase,
+                        precioPorPersona: service.calculationMethod === 'porPersona' ? catalogService.precioVenta || service.precioPorPersona : service.precioPorPersona,
+                    };
+                }
+                return service;
+            });
+            setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
+        } else {
+            setLocalItem(null);
+        }
+        setModifiedServices(new Map());
+    }, [initialItem, vendibleServices]);
     
     const filteredCatalog = useMemo(() => {
         return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
