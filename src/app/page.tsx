@@ -136,7 +136,7 @@ export default function DashboardPage() {
 
           <Card className="p-4 flex flex-col justify-between">
             <div>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>Mi Presupuesto al Instante</CardTitle>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>SIMULADOR DE PRESUPUESTO</CardTitle>
               <CardDescription className="text-sm mt-1 mb-3">El cliente elige un paquete predefinido y obtiene una cotización al instante.</CardDescription>
             </div>
              <div className="flex gap-2">

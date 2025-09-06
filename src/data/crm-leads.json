@@ -3,14 +3,29 @@
     "id": "lead_1755299760787_k5kimy9",
     "name": "Prospecto de Evento corporativo: prueba",
     "notes": "Generado desde Armado Rápido con paquete \"Paquete Básico\".\nTipo: Evento corporativo\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 0,00",
-    "currentStageId": "s1",
+    "currentStageId": "s2",
     "createdAt": "2025-08-15T23:16:00.787Z",
-    "updatedAt": "2025-08-15T23:16:00.787Z",
+    "updatedAt": "2025-09-06T14:46:45.314Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
         "timestamp": "2025-08-15T23:16:00.787Z"
+      },
+      {
+        "stageId": "s2",
+        "stageName": "Agendó entrevista",
+        "timestamp": "2025-09-06T14:46:35.531Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-06T14:46:38.369Z"
+      },
+      {
+        "stageId": "s2",
+        "stageName": "Agendó entrevista",
+        "timestamp": "2025-09-06T14:46:45.314Z"
       }
     ]
   }
