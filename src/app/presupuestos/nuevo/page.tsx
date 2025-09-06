@@ -1,11 +1,12 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense, useReducer } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Loader2, RotateCcw } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,11 +16,47 @@ import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto, TipoEvento } from '@/types/presupuesto';
 import { savePresupuesto } from '@/app/actions/presupuestos';
-import { getCrmLeads } from '@/app/actions/crm';
-import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 
 const TOTAL_PASOS = 3;
+const SESSION_STORAGE_KEY = 'presupuestoEnProgreso';
+
+const initialFormData: PresupuestoFormData = {
+  pasoActual: 1,
+  clienteNombre: '',
+  eventoTipo: '',
+  eventoFecha: undefined,
+  invitadosCantidad: null,
+  salonFiestas: '',
+  nombreEmpresa: '',
+  protagonista1Nombre: '',
+  protagonista2Nombre: '',
+  serviciosSeleccionados: new Map(),
+  nombrePromocion: '',
+  descuentoTipo: undefined,
+  descuentoValor: '',
+  vigenciaPromocion: '',
+  notas: '',
+};
+
+function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFormData {
+    if (typeof window === 'undefined') {
+        return initialState;
+    }
+    try {
+        const storedState = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        if (storedState) {
+            const parsed = JSON.parse(storedState);
+            // Re-hydrate the Map from the stored array
+            parsed.serviciosSeleccionados = new Map(parsed.serviciosSeleccionados);
+            parsed.eventoFecha = parsed.eventoFecha ? new Date(parsed.eventoFecha) : undefined;
+            return parsed;
+        }
+    } catch (error) {
+        console.error("Failed to parse form state from sessionStorage", error);
+    }
+    return initialState;
+}
 
 function NuevoPresupuestoContent() {
   const router = useRouter();
@@ -29,23 +66,26 @@ function NuevoPresupuestoContent() {
   const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
 
-  const [formData, setFormData] = useState<PresupuestoFormData>({
-    pasoActual: 1,
-    clienteNombre: '',
-    eventoTipo: '',
-    eventoFecha: undefined,
-    invitadosCantidad: null,
-    salonFiestas: '',
-    nombreEmpresa: '',
-    protagonista1Nombre: '',
-    protagonista2Nombre: '',
-    serviciosSeleccionados: new Map(),
-    nombrePromocion: '',
-    descuentoTipo: undefined,
-    descuentoValor: '',
-    vigenciaPromocion: '',
-    notas: '',
-  });
+  const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
+          ...formData,
+          serviciosSeleccionados: Array.from(formData.serviciosSeleccionados.entries())
+      }));
+    } catch (error) {
+      console.warn("Could not save form state to sessionStorage", error);
+    }
+  }, [formData]);
+
+  const handleReset = () => {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    setFormData(initialFormData);
+    router.replace('/presupuestos/nuevo'); // Clear URL params too
+    toast({ description: "El formulario del simulador ha sido reiniciado." });
+  };
+
 
   useEffect(() => {
     async function cargarDatosIniciales() {
@@ -53,12 +93,11 @@ function NuevoPresupuestoContent() {
       try {
         const leadNameParam = searchParams.get('leadName');
 
-        // Dinámicamente importar la acción del servidor para servicios
         const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
         const fetchedServiciosCatalogo = await getServiciosEmpresa();
         setServiciosCatalogo(fetchedServiciosCatalogo);
         
-        if (leadNameParam) {
+        if (leadNameParam && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
            setFormData(prev => ({...prev, clienteNombre: leadNameParam}));
         }
        
@@ -172,6 +211,7 @@ function NuevoPresupuestoContent() {
       const result = await savePresupuesto(presupuestoAGuardar);
       if (result.success && result.id) {
         toast({ title: "¡Presupuesto Guardado!", description: `Presupuesto para ${presupuestoAGuardar.clienteNombre} guardado con ID: ${result.id.split('_').pop()}` });
+        sessionStorage.removeItem(SESSION_STORAGE_KEY); // Clear saved data after successful save
         router.push('/presupuestos');
       } else {
         throw new Error(result.error || "Error desconocido al guardar el presupuesto.");
@@ -193,11 +233,10 @@ function NuevoPresupuestoContent() {
     }
     switch (formData.pasoActual) {
       case 1: return <Paso1DatosEvento formData={formData} setFormData={setFormData} />;
-      case 2: return <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} setServiciosCatalogo={setServiciosCatalogo} />;
+      case 2: return <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} />;
       case 3:
-        const presupuestoCalculado = calcularPresupuestoDesdeForm(formData);
         const presupuestoParaResumen: Presupuesto = {
-            ...presupuestoCalculado,
+            ...calcularPresupuestoDesdeForm(formData),
             id: 'temp-summary', 
             estado: 'Borrador',
             invoiceId: undefined,
@@ -211,8 +250,11 @@ function NuevoPresupuestoContent() {
     <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-0">
       <Card className="shadow-xl overflow-hidden border-primary/20 print:p-0 print:m-0 print:shadow-none print:border-none">
         <CardHeader className="bg-primary/10 p-6 print:hidden">
-          <Progress value={progreso} className="w-full h-2 mb-4" />
-          <CardTitle className="font-headline text-3xl text-primary">{titulosPasos[formData.pasoActual - 1]}</CardTitle>
+            <div className="flex justify-between items-center">
+                 <Progress value={progreso} className="w-full h-2" />
+                 <Button variant="ghost" size="sm" onClick={handleReset} className="ml-4 shrink-0"><RotateCcw className="w-4 h-4 mr-1"/> Reiniciar</Button>
+            </div>
+          <CardTitle className="font-headline text-3xl text-primary mt-4">{titulosPasos[formData.pasoActual - 1]}</CardTitle>
           <CardDescription className="text-lg">{descripcionesPasos[formData.pasoActual - 1]} (Paso {formData.pasoActual} de {TOTAL_PASOS})</CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8 min-h-[400px] print:p-0 print:pt-0 print:pb-0">

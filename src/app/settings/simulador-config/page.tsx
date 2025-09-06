@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -464,10 +465,10 @@ export function AddOrEditDialog({
                          <ScrollArea className="h-full border rounded-md p-2">
                            {regularServices.length === 0 && giftServices.length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> : (
                             <div className="space-y-4">
-                                {Object.keys(regularServiceGroups).length > 0 && (
+                                {Object.keys(regularServiceGroups).sort().length > 0 && (
                                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, 'regular')}>
                                         <div className="space-y-2">
-                                            {Object.entries(regularServiceGroups).map(([category, services]) => (
+                                            {Object.entries(regularServiceGroups).sort(([catA], [catB]) => catA.localeCompare(catB)).map(([category, services]) => (
                                                 <div key={category}>
                                                     <h4 className='font-semibold text-sm my-2 border-b text-primary'>{category}</h4>
                                                     <SortableContext items={services.map(s => s.id)} strategy={verticalListSortingStrategy}>
@@ -733,6 +734,7 @@ export default function ArmadoRapidoSettingsPage() {
              <div className="space-y-3">
               {sortedPaquetes.map(pkg => {
                 const { groupedRegular, giftServices } = getGroupedAndSortedPackageServices(pkg);
+                const sortedCategories = Object.keys(groupedRegular).sort();
                 return (
                  <Collapsible key={pkg.id} className="border rounded-lg shadow-sm bg-muted/40 overflow-hidden">
                     <CollapsibleTrigger className="flex items-center justify-between p-3 w-full hover:bg-muted/60">
@@ -756,32 +758,32 @@ export default function ArmadoRapidoSettingsPage() {
                      </div>
                       {pkg.serviciosIncluidos.length > 0 ? (
                           <div className="space-y-3 text-sm">
-                            {Object.entries(groupedRegular).sort(([catA], [catB]) => catA.localeCompare(catB)).map(([category, services]) => (
-                                <div key={category}>
-                                    <h4 className="font-medium text-xs text-muted-foreground uppercase tracking-wider">{category}</h4>
-                                    <ul className="pl-2 space-y-1">
-                                        {services.map(s => (
-                                            <li key={s.id} className="flex justify-between items-center p-1">
-                                                <span>{s.nombre}</span>
-                                                <Badge variant='secondary' className="text-xs">{getPriceDisplay(s)}</Badge>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
-                            {giftServices.length > 0 && (
-                                <div>
-                                    <h4 className="font-medium text-xs text-red-600 uppercase tracking-wider">Regalos Incluidos</h4>
-                                    <ul className="pl-2 space-y-1">
-                                        {giftServices.map(s => (
-                                            <li key={s.id} className="flex justify-between items-center p-1">
-                                                <span className="flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>{s.nombre} (Regalo)</span>
-                                                <Badge variant='destructive' className="text-xs">{getPriceDisplay(s)}</Badge>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+                              {sortedCategories.map(category => (
+                                  <div key={category}>
+                                      <h4 className="font-medium text-xs text-muted-foreground uppercase tracking-wider">{category}</h4>
+                                      <ul className="pl-2 space-y-1">
+                                          {groupedRegular[category].map(s => (
+                                              <li key={s.id} className="flex justify-between items-center p-1">
+                                                  <span>{s.nombre}</span>
+                                                  <Badge variant='secondary' className="text-xs">{getPriceDisplay(s)}</Badge>
+                                              </li>
+                                          ))}
+                                      </ul>
+                                  </div>
+                              ))}
+                              {giftServices.length > 0 && (
+                                  <div>
+                                      <h4 className="font-medium text-xs text-red-600 uppercase tracking-wider">Regalos Incluidos</h4>
+                                      <ul className="pl-2 space-y-1">
+                                          {giftServices.map(s => (
+                                              <li key={s.id} className="flex justify-between items-center p-1">
+                                                  <span className="flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>{s.nombre} (Regalo)</span>
+                                                  <Badge variant='destructive' className="text-xs">{getPriceDisplay(s)}</Badge>
+                                              </li>
+                                          ))}
+                                      </ul>
+                                  </div>
+                              )}
                           </div>
                       ) : <p className="text-sm text-muted-foreground">Este paquete no tiene servicios.</p>}
                    </CollapsibleContent>

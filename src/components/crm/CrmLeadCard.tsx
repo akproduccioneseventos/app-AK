@@ -60,7 +60,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-full">
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-full min-h-[120px]">
         <CardHeader 
           {...attributes} 
           {...listeners} 
