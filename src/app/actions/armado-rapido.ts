@@ -6,7 +6,7 @@ import path from 'path';
 import type { ArmadoRapidoConfig, LeadGenerationData } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { addCrmLead, getCrmStages } from './crm'; // Importar getCrmStages
-import { getServiciosEmpresa, saveServicioEmpresa } from './servicios-empresa'; // Importar saveServicioEmpresa
+import { saveServicioEmpresa } from './servicios-empresa'; // Importar saveServicioEmpresa
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
@@ -61,12 +61,12 @@ export async function updateArmadoRapidoAndSyncServices(
   updatedServices: ServicioEmpresa[]
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // 1. Save all services that were modified
+    // 1. Save all services that were modified in the master catalog
     for (const service of updatedServices) {
       await saveServicioEmpresa(service);
     }
 
-    // 2. Save the Armado Rapido config
+    // 2. Save the Armado Rapido config (which now doesn't store prices)
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
 
     return { success: true };

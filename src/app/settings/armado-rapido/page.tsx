@@ -183,12 +183,13 @@ export function AddOrEditDialog({
 
     useEffect(() => {
         if (initialItem) {
-            // Sincronizar precios con el catálogo al abrir el diálogo
             const syncedServices = initialItem.serviciosIncluidos.map(service => {
                 const catalogService = vendibleServices.find(vs => vs.id === service.id);
-                if (catalogService && !service.esRegalo) { // No actualizar precio si es un regalo
+                if (catalogService) {
                     return {
                         ...service,
+                        // Always sync name and price from catalog
+                        nombre: catalogService.nombre,
                         precioFijo: catalogService.precioVenta || service.precioFijo,
                         precioBase: service.calculationMethod === 'fijo' || service.calculationMethod === 'ratio' ? catalogService.precioVenta || service.precioBase : service.precioBase,
                         precioPorPersona: service.calculationMethod === 'porPersona' ? catalogService.precioVenta || service.precioPorPersona : service.precioPorPersona,
@@ -201,7 +202,7 @@ export function AddOrEditDialog({
             setLocalItem(null);
         }
         setModifiedServices(new Map());
-    }, [initialItem, vendibleServices]);
+    }, [initialItem, vendibleServices, isOpen]); // Rerun when dialog opens
     
     const filteredCatalog = useMemo(() => {
         return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -279,11 +280,10 @@ export function AddOrEditDialog({
                 newServices = [...currentServices, {
                     id: service.id,
                     nombre: service.nombre,
-                    precioFijo: service.precioVenta || 0,
                     categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
                     calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
-                    precioBase: mode === 'paquete' ? service.precioVenta || 0 : undefined,
                     esRegalo: false,
+                    // Prices are no longer stored here; they will be read from the catalog.
                 }];
             }
             return { ...prev, serviciosIncluidos: newServices };
@@ -301,41 +301,21 @@ export function AddOrEditDialog({
         const updatedServiciosIncluidos = prev.serviciosIncluidos.map(s => {
           if (s.id !== serviceId) return s;
           
-          const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-          
           let updatedService = { ...s, [field]: value };
           
+          // Track modifications to the master catalog service
+          const catalogService = vendibleServices.find(vs => vs.id === serviceId);
           if(catalogService) {
               if (field === 'nombre' && typeof value === 'string') {
                   const serviceToUpdateInCatalog = { ...catalogService, nombre: value };
                   trackModification(serviceToUpdateInCatalog);
               }
-               if (field === 'precioBase' || field === 'precioPorPersona' || (field === 'precioFijo' && mode === 'menu')) {
+              // Price editing now directly updates the master catalog
+              if (field === 'precioBase' || field === 'precioPorPersona' || (field === 'precioFijo' && mode === 'menu')) {
                   const numericValue = Number(value) || 0;
                   const serviceToUpdateInCatalog = { ...catalogService, precioVenta: numericValue };
                   trackModification(serviceToUpdateInCatalog);
-                  updatedService = { ...updatedService, [field]: numericValue };
-                  if(mode === 'paquete' && (field === 'precioBase' || field === 'precioFijo')) {
-                    updatedService.precioFijo = numericValue;
-                  }
-               }
-                if (field === 'calculationMethod') {
-                  updatedService.precioBase = undefined;
-                  updatedService.precioPorPersona = undefined;
-                  updatedService.invitadosPorUnidad = undefined;
-                  updatedService.tramosDePrecio = undefined;
-                  if (value === 'fijo' || value === 'ratio') {
-                    updatedService.precioBase = catalogService?.precioVenta || 0;
-                  } else if(value === 'porPersona') {
-                    updatedService.precioPorPersona = catalogService?.precioVenta || 0;
-                  }
-                }
-                 if (field === 'esRegalo') {
-                    const precioOriginal = catalogService?.precioVenta || 0;
-                    updatedService.precioBase = !!value ? 0 : precioOriginal;
-                    updatedService.precioFijo = !!value ? 0 : precioOriginal;
-                    updatedService.precioPorPersona = !!value ? 0 : updatedService.precioPorPersona;
-                 }
+              }
           }
             return updatedService;
           });
@@ -399,7 +379,15 @@ export function AddOrEditDialog({
     };
 
     const handleSaveAndExit = () => {
-        onSave(localItem, Array.from(modifiedServices.values()));
+        const itemToReturn = JSON.parse(JSON.stringify(localItem));
+        // Remove pricing data before saving to enforce reading from catalog
+        itemToReturn.serviciosIncluidos = itemToReturn.serviciosIncluidos.map((s: any) => {
+            delete s.precioFijo;
+            delete s.precioBase;
+            delete s.precioPorPersona;
+            return s;
+        });
+        onSave(itemToReturn, Array.from(modifiedServices.values()));
     };
 
     return (
@@ -456,7 +444,7 @@ export function AddOrEditDialog({
                                                                                 <Label htmlFor={`es-regalo-serv-${s.id}`} className="text-xs font-normal flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
                                                                             </div>
                                                                             
-                                                                            {mode === 'menu' && <Input type="number" placeholder="Precio Fijo por Persona" value={s.precioFijo || 0} onChange={e => handleServiceDetailChange(s.id, 'precioFijo', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo} />}
+                                                                            {mode === 'menu' && <Input type="number" placeholder="Precio Fijo por Persona" value={vendibleServices.find(vs=>vs.id===s.id)?.precioVenta || 0} onChange={e => handleServiceDetailChange(s.id, 'precioFijo', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo} />}
                                                                             
                                                                             {mode === 'paquete' && (
                                                                                 <>
@@ -470,7 +458,7 @@ export function AddOrEditDialog({
                                                                                         <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                                                         </SelectContent>
                                                                                     </Select>
-                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase || s.precioFijo || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
+                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={vendibleServices.find(vs=>vs.id===s.id)?.precioVenta || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
                                                                                     {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                                                                     {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-xs"/></div> )}
                                                                                     {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={s.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
@@ -635,12 +623,15 @@ export default function ArmadoRapidoSettingsPage() {
 
   const getPriceDisplay = (service: ServicioIncluidoArmadoRapido): string => {
     if (service.esRegalo) return 'Regalo';
+    const catalogService = serviciosCatalogo.find(s => s.id === service.id);
+    const priceFromCatalog = catalogService?.precioVenta;
+  
     switch (service.calculationMethod) {
-        case 'fijo': return formatCurrency(service.precioFijo);
-        case 'porPersona': return `${formatCurrency(service.precioPorPersona)} p/p`;
-        case 'ratio': return `${formatCurrency(service.precioBase)} c/${service.invitadosPorUnidad} inv.`;
-        case 'tramos': return 'Por Tramos';
-        default: return 'N/A';
+      case 'fijo': return formatCurrency(priceFromCatalog);
+      case 'porPersona': return `${formatCurrency(priceFromCatalog)} p/p`;
+      case 'ratio': return `${formatCurrency(priceFromCatalog)} c/${service.invitadosPorUnidad} inv.`;
+      case 'tramos': return 'Por Tramos';
+      default: return formatCurrency(priceFromCatalog);
     }
   };
 

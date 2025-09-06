@@ -11,11 +11,12 @@ export interface TramoDePrecio {
 export interface ServicioIncluidoArmadoRapido {
   id: string; // Corresponds to ServicioEmpresa id
   nombre: string;
-  precioFijo: number; // For menu items, this is PER PERSON
+  // Precio ya no se guarda aquí. Se obtiene desde ServicioEmpresa.precioVenta
+  // precioFijo?: number; 
   categoria: ServicioCategoriaArmadoRapido;
   
   // For package services, more complex pricing is possible
-  precioBase?: number;
+  precioBase?: number; // Este AHORA se usa para el cálculo, pero el precio unitario se obtiene del catálogo
   precioPorPersona?: number;
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
   invitadosPorUnidad?: number;
