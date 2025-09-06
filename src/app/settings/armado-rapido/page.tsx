@@ -185,15 +185,18 @@ export function AddOrEditDialog({
         if (initialItem) {
              const syncedServices = initialItem.serviciosIncluidos.map(service => {
                 const catalogService = vendibleServices.find(vs => vs.id === service.id);
-                // The service in the package should have its own pricing properties
-                // that are initialized from the catalog but can be edited independently.
                 const newService = { ...service };
                 if(catalogService) {
                     newService.nombre = catalogService.nombre;
-                     // Initialize pricing if not set in the package yet
-                    if (newService.precioFijo === undefined) newService.precioFijo = catalogService.precioVenta;
-                    if (newService.precioBase === undefined) newService.precioBase = catalogService.precioVenta;
-                    if (newService.precioPorPersona === undefined) newService.precioPorPersona = catalogService.precioVenta;
+                    // For packages, ensure the price details from the package are preserved, but sync if they are missing
+                    if (mode === 'paquete') {
+                        if (newService.precioBase === undefined) newService.precioBase = catalogService.precioVenta;
+                        if (newService.precioPorPersona === undefined) newService.precioPorPersona = catalogService.precioVenta;
+                    }
+                    // For menus, always take the catalog price
+                    if(mode === 'menu') {
+                        newService.precioFijo = catalogService.precioVenta;
+                    }
                 }
                 return newService;
             });
@@ -202,7 +205,7 @@ export function AddOrEditDialog({
             setLocalItem(null);
         }
         setModifiedServices(new Map());
-    }, [initialItem, vendibleServices, isOpen]); // Rerun when dialog opens
+    }, [initialItem, vendibleServices, isOpen, mode]); // Rerun when dialog opens
     
     const filteredCatalog = useMemo(() => {
         return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -312,13 +315,13 @@ export function AddOrEditDialog({
           
           let updatedService = { ...s, [field]: value };
           
-          // Track modifications to the master catalog service
-          if (field === 'nombre' && typeof value === 'string') {
-              trackModification(serviceId, { nombre: value });
-          }
+          // Track modifications to the master catalog service only for price-related fields.
+          const numericValue = Number(value);
           if (field === 'precioBase' || field === 'precioPorPersona' || field === 'precioFijo') {
-              const numericValue = Number(value) || 0;
-              trackModification(serviceId, { precioVenta: numericValue });
+              if (!isNaN(numericValue)) {
+                  trackModification(serviceId, { precioVenta: numericValue });
+                  updatedService[field] = numericValue;
+              }
           }
             return updatedService;
           });
@@ -453,9 +456,9 @@ export function AddOrEditDialog({
                                                                                         <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                                                         </SelectContent>
                                                                                     </Select>
-                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
-                                                                                    {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
-                                                                                    {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
+                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase || ''} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
+                                                                                    {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona || ''} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                                                                    {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase || ''} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
                                                                                     {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={s.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
                                                                                 </>
                                                                             )}
@@ -622,11 +625,11 @@ export default function ArmadoRapidoSettingsPage() {
     const priceFromCatalog = catalogService?.precioVenta;
   
     switch (service.calculationMethod) {
-      case 'fijo': return formatCurrency(priceFromCatalog);
-      case 'porPersona': return `${formatCurrency(priceFromCatalog)} p/p`;
-      case 'ratio': return `${formatCurrency(priceFromCatalog)} c/${service.invitadosPorUnidad} inv.`;
+      case 'fijo': return formatCurrency(service.precioBase ?? priceFromCatalog);
+      case 'porPersona': return `${formatCurrency(service.precioPorPersona ?? priceFromCatalog)} p/p`;
+      case 'ratio': return `${formatCurrency(service.precioBase ?? priceFromCatalog)} c/${service.invitadosPorUnidad} inv.`;
       case 'tramos': return 'Por Tramos';
-      default: return formatCurrency(priceFromCatalog);
+      default: return formatCurrency(service.precioFijo ?? priceFromCatalog);
     }
   };
 

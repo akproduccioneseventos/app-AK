@@ -241,9 +241,10 @@
           "nombre": "Mobiliario completo",
           "precioFijo": 75,
           "categoria": "Servicio Adicional",
-          "calculationMethod": "fijo",
+          "calculationMethod": "porPersona",
           "precioBase": 75,
-          "esRegalo": false
+          "esRegalo": false,
+          "precioPorPersona": 75
         },
         {
           "id": "serv_1752489600001_pmozo",
@@ -270,7 +271,8 @@
           "categoria": "Servicio Adicional",
           "calculationMethod": "fijo",
           "precioBase": 14500,
-          "esRegalo": false
+          "esRegalo": false,
+          "precioPorPersona": 14500
         },
         {
           "id": "item_1756162086596_etozu9y",
@@ -307,7 +309,8 @@
           "categoria": "Servicio Adicional",
           "calculationMethod": "porPersona",
           "esRegalo": false,
-          "precioPorPersona": 100
+          "precioPorPersona": 100,
+          "precioBase": 100
         },
         {
           "id": "serv_1752489600069_vajcomp",
