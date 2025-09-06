@@ -266,11 +266,5 @@
       ]
     }
   ],
-  "paquetes": [
-    {
-      "id": "new_paquete_1757176541562",
-      "nombre": "Paquete Básico",
-      "serviciosIncluidos": []
-    }
-  ]
+  "paquetes": []
 }
