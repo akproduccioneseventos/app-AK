@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -72,13 +73,13 @@ export default function DashboardPage() {
     totalPendiente: 0,
   });
   
-  const [armadoRapidoLink, setArmadoRapidoLink] = useState('');
+  const [simuladorLink, setSimuladorLink] = useState('');
 
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
-      setArmadoRapidoLink(`${origin}/simulador-de-presupuesto`);
+      setSimuladorLink(`${origin}/simulador-de-presupuesto`);
     }
   }, []);
 
@@ -139,14 +140,14 @@ export default function DashboardPage() {
               <CardDescription className="text-sm mt-1 mb-3">El cliente elige un paquete predefinido y obtiene una cotización al instante.</CardDescription>
             </div>
              <div className="flex gap-2">
-              <Link href={armadoRapidoLink} passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
-               <Link href="/settings/armado-rapido" passHref>
+              <Link href={simuladorLink} passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
+               <Link href="/settings/simulador-config" passHref>
                   <Button variant="outline" size="icon" title="Configurar Simulador de Presupuesto">
                     <Settings className="w-4 h-4"/>
                   </Button>
                 </Link>
               <ShareLinkDialog
-                  link={armadoRapidoLink}
+                  link={simuladorLink}
                   title="Compartir Simulador de Presupuesto"
                   description="Copia este enlace para que tu cliente cree un presupuesto rápido."
               >

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -115,7 +116,7 @@ export default function BudgetDisplaySettingsPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Configura los paquetes predefinidos que los clientes pueden usar para obtener una cotización instantánea.
                 </p>
-                <Link href="/settings/armado-rapido" passHref className="w-full">
+                <Link href="/settings/simulador-config" passHref className="w-full">
                      <Button variant="outline" className="w-full">Configurar Paquetes</Button>
                 </Link>
             </CardContent>

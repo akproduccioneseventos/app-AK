@@ -307,7 +307,7 @@ export function AddOrEditDialog({
       if(serviceToUpdate){
          let updatedService = { ...serviceToUpdate, [field]: value };
           if(isGiftField){
-              updatedService.precioUnitarioPresupuesto = isBecomingGift ? 0 : updatedService.precioUnitarioOriginal;
+              updatedService.precioFijo = isBecomingGift ? 0 : serviceToUpdate.precioFijo;
           }
           if(isBecomingGift){
               setGiftServices(prev => [...prev, updatedService]);
@@ -326,12 +326,12 @@ export function AddOrEditDialog({
     };
     
     const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
-        const numericValue = parseInt(value, 10);
-        const finalValue = isNaN(numericValue) ? 0 : numericValue;
         setRegularServices(prev => prev.map(s => {
             if (s.id !== serviceId) return s;
             const newTramos = (s.tramosDePrecio || []).map(t => {
                 if (t.id !== tramoId) return t;
+                const numericValue = parseInt(value, 10);
+                const finalValue = isNaN(numericValue) ? 0 : numericValue;
                 return { ...t, [field]: finalValue };
             });
             return { ...s, tramosDePrecio: newTramos };
