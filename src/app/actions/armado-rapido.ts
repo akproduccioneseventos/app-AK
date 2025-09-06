@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { ArmadoRapidoConfig, LeadGenerationData } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { addCrmLead } from './crm';
+import { addCrmLead, getCrmStages } from './crm'; // Importar getCrmStages
 import { getServiciosEmpresa, saveServicioEmpresa } from './servicios-empresa'; // Importar saveServicioEmpresa
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -81,12 +81,21 @@ export async function generateLeadFromQuickBudget(
   data: LeadGenerationData
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
-    let notes = `Generado desde Mi Presupuesto al Instante.\nMenú: "${data.nombreMenu}"\nPaquete de Servicios: "${data.nombrePaquete}"`;
+    const allStages = await getCrmStages();
+    const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
+    const targetStageId = targetStage?.id;
+
+    if (!targetStageId) {
+        console.warn("CRM Stage 'Con presupuesto' not found. Lead will be added to the default first stage.");
+    }
+    
+    let notes = `Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: "${data.nombreMenu}"\nPaquete de Servicios: "${data.nombrePaquete}"`;
     notes += `\nTipo: ${data.tipoEvento}\nInvitados: ${data.cantidadInvitados}\nSalón: ${data.salon}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
     
     const leadResult = await addCrmLead({
       name: data.clienteNombre,
-      notes: notes
+      notes: notes,
+      currentStageId: targetStageId // Pass the specific stage ID here
     });
 
     if (leadResult.success && leadResult.lead) {
