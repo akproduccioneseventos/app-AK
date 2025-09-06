@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -40,6 +41,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    width: '100%',
   };
   
   const handleDelete = () => {
@@ -48,7 +50,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   
   const getDisplayNotes = (notes: string | undefined): { type: 'badge' | 'text', content: string } | null => {
     if (!notes) return null;
-    if (notes.includes('Generado desde Mi Presupuesto al Instante') || notes.includes('Generado desde Armado Rápido')) {
+    if (notes.includes('Generado desde SIMULADOR DE PRESUPUESTO')) {
         return { type: 'badge', content: 'Presupuesto al Instante' };
     }
     return { type: 'text', content: notes };
@@ -58,16 +60,19 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col">
-        <CardHeader className="p-2 flex flex-row items-start gap-1 border-b">
-           <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
-              <GripVertical className="w-5 h-5 text-muted-foreground/70" />
-            </div>
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-full">
+        <CardHeader 
+          {...attributes} 
+          {...listeners} 
+          className="p-2 flex flex-row items-start gap-1 border-b cursor-grab"
+          title="Mover prospecto"
+        >
+           <GripVertical className="w-5 h-5 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
             <div className="flex-grow min-w-0">
                <p className="font-semibold text-sm break-words" title={lead.name}>{lead.name}</p>
             </div>
         </CardHeader>
-        <CardContent className="p-2 flex-grow min-h-[4rem]">
+        <CardContent className="p-2 flex-grow min-h-0">
           {displayNotes && (
             <div className="mt-1">
             {displayNotes.type === 'badge' ? (
@@ -78,7 +83,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
             </div>
           )}
         </CardContent>
-        <CardFooter className="p-2 border-t flex justify-between items-center gap-1">
+        <CardFooter className="p-2 border-t flex justify-end items-center gap-1">
             <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
                 <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
                     <Eye className="w-4 h-4" />
