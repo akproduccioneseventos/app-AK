@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, Suspense, useReducer } from 'react';
@@ -17,6 +16,8 @@ import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto, TipoEvento } from '@/types/presupuesto';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import type { ServicioEmpresa } from '@/types/empresa';
+import type { BudgetDisplaySettings } from '@/types/settings';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
 
 const TOTAL_PASOS = 3;
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso';
@@ -65,6 +66,7 @@ function NuevoPresupuestoContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
 
   const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
 
@@ -93,9 +95,13 @@ function NuevoPresupuestoContent() {
       try {
         const leadNameParam = searchParams.get('leadName');
 
-        const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
-        const fetchedServiciosCatalogo = await getServiciosEmpresa();
+        const [fetchedServiciosCatalogo, fetchedSettings] = await Promise.all([
+          import('@/app/actions/servicios-empresa').then(mod => mod.getServiciosEmpresa()),
+          getBudgetDisplaySettings()
+        ]);
+        
         setServiciosCatalogo(fetchedServiciosCatalogo);
+        setDisplaySettings(fetchedSettings);
         
         if (leadNameParam && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
            setFormData(prev => ({...prev, clienteNombre: leadNameParam}));
@@ -228,7 +234,7 @@ function NuevoPresupuestoContent() {
   const descripcionesPasos = ["Información básica de tu evento.", "Elige servicios del catálogo.", "Revisa, aplica descuentos y añade notas."];
 
   const renderPaso = () => {
-    if (isLoadingInitialData) {
+    if (isLoadingInitialData || !displaySettings) {
       return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
     }
     switch (formData.pasoActual) {
@@ -241,7 +247,7 @@ function NuevoPresupuestoContent() {
             estado: 'Borrador',
             invoiceId: undefined,
         };
-        return <Paso4Resumen presupuesto={presupuestoParaResumen} formData={formData} setFormData={setFormData} />;
+        return <Paso4Resumen presupuesto={presupuestoParaResumen} formData={formData} setFormData={setFormData} displaySettings={displaySettings}/>;
       default: return null;
     }
   };

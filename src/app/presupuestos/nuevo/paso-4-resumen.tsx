@@ -10,9 +10,8 @@ import { Label } from '@/components/ui/label';
 import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
-import React, { useEffect, useState, useMemo } from 'react'; 
+import React, { useMemo } from 'react'; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator'; 
@@ -35,6 +34,7 @@ interface Paso4ResumenProps {
   presupuesto: Presupuesto;
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
+  displaySettings: BudgetDisplaySettings;
 }
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
@@ -65,25 +65,8 @@ const formatDate = (dateString?: string, shortMonth = false) => {
   }
 };
 
-export default function Paso4Resumen({ presupuesto, formData, setFormData }: Paso4ResumenProps) {
+export default function Paso4Resumen({ presupuesto, formData, setFormData, displaySettings }: Paso4ResumenProps) {
   const { toast } = useToast();
-  const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
-  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
-
-  useEffect(() => {
-    async function loadSettings() {
-      setIsLoadingSettings(true);
-      try {
-        const settings = await getBudgetDisplaySettings();
-        setDisplaySettings(settings);
-      } catch (e) {
-        toast({title: "Error", description: "No se pudo cargar la configuración de visualización.", variant: "destructive"});
-      } finally {
-        setIsLoadingSettings(false);
-      }
-    }
-    loadSettings();
-  }, [toast]);
 
   const handleDiscountChange = (field: keyof Pick<PresupuestoFormData, 'nombrePromocion' | 'descuentoTipo' | 'descuentoValor' | 'vigenciaPromocion'>, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -104,7 +87,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
     
-    // Move "Regalos" to the end if it exists
     const sortedKeys = Object.keys(agrupados).sort((a,b) => a.localeCompare(b));
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
@@ -114,48 +96,44 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
-    const costoRegular = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
     
-    const bruto = costoRegular + costoRegalos;
-    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) - costoRegalos;
+    // Recalculate totals based on the formData discount values, not the ones in the passed `presupuesto` object
+    // which might be stale if the form has changed.
+    const costoTotalSinDescuento = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
+
+    let descuentoAplicado = 0;
+    const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
+    if (formData.descuentoTipo && descuentoValorNum > 0) {
+        if (formData.descuentoTipo === 'porcentaje') {
+            descuentoAplicado = (costoTotalSinDescuento * descuentoValorNum) / 100;
+        } else {
+            descuentoAplicado = descuentoValorNum;
+        }
+    }
+    
+    const finalTotal = costoTotalSinDescuento - descuentoAplicado;
     
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
-      subtotalBruto: bruto,
-      descuentoPromocional: Math.max(0, descPromo),
-      totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+      subtotalBruto: costoTotalSinDescuento,
+      descuentoPromocional: descuentoAplicado,
+      totalFinal: finalTotal
     };
 
-  }, [presupuesto]);
+  }, [presupuesto, formData.descuentoTipo, formData.descuentoValor]);
 
 
-  if (isLoadingSettings) {
-    return <div className="flex justify-center items-center h-64"><p>Cargando configuración de visualización...</p></div>;
-  }
   if (!presupuesto || !displaySettings) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-8">
         <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
         <p className="text-xl font-semibold">Generando resumen...</p>
-        <p className="text-muted-foreground">Asegúrate de haber completado los pasos anteriores o que la configuración de visualización esté disponible.</p>
+        <p className="text-muted-foreground">Asegúrate de haber completado los pasos anteriores.</p>
       </div>
     );
   }
 
-  const costoTotalAntesDescuento = presupuesto.costoTotalEstimado;
-  let descuentoAplicado = 0;
-  const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
-
-  if (formData.descuentoTipo && descuentoValorNum > 0) {
-    if (formData.descuentoTipo === 'porcentaje') {
-      descuentoAplicado = (costoTotalAntesDescuento * descuentoValorNum) / 100;
-    } else {
-      descuentoAplicado = descuentoValorNum;
-    }
-  }
-  const totalFinalConDescuento = costoTotalAntesDescuento - descuentoAplicado;
-  
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
   
@@ -187,23 +165,27 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     texto += `\n`;
     if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-      presupuesto.itemsPresupuestados.forEach(item => {
-        if (item.esRegalo) {
+      Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
+        texto += `*${categoria}*\n`;
+        items.forEach(item => {
+           if (item.esRegalo) {
              texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(item.precioUnitario * item.cantidad)})\n`;
-        } else {
+           } else {
             texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-        }
+           }
+        });
+        texto += `\n`;
       });
-      texto += `\n  SUBTOTAL: *${formatCurrency(costoTotalAntesDescuento)}*\n\n`;
+      texto += `  SUBTOTAL: *${formatCurrency(subtotalBruto)}*\n\n`;
     }
-    if (descuentoAplicado > 0 && formData.nombrePromocion) {
+    if (descuentoPromocional > 0 && formData.nombrePromocion) {
       texto += `🎁 *Promoción Aplicada: ${formData.nombrePromocion}*\n`;
-      if (formData.descuentoTipo === 'porcentaje') texto += `  Descuento: ${formData.descuentoValor}% (${formatCurrency(descuentoAplicado)})\n`;
-      else texto += `  Descuento: ${formatCurrency(descuentoAplicado)}\n`;
+      if (formData.descuentoTipo === 'porcentaje') texto += `  Descuento: ${formData.descuentoValor}% (${formatCurrency(descuentoPromocional)})\n`;
+      else texto += `  Descuento: ${formatCurrency(descuentoPromocional)}\n`;
       if (formData.vigenciaPromocion) texto += `  Válido hasta: ${formData.vigenciaPromocion}\n`;
       texto += `\n`;
     }
-    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinalConDescuento, true, true)}*\n\n`;
+    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinal, true, true)}*\n\n`;
     if(presupuesto.notas && presupuesto.notas.trim() !== '' && displaySettings.showPaymentMethodNotes){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
     texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
@@ -293,7 +275,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                           <tbody>
                           {items.map((item) => (
                               <tr key={item.idServicioCatalogo}>
-                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.esRegalo ? <span className="text-primary font-semibold">{item.nombreServicio}</span> : item.nombreServicio}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
                               <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
                               <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
                               <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
@@ -337,7 +319,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                 <Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} placeholder="Ej: 10 o 5000" min="0" step="any" disabled={!formData.descuentoTipo}/>
               </div>
             </div>
-            {descuentoAplicado > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoAplicado)}</p>}
+            {descuentoPromocional > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoPromocional)}</p>}
           </Card>
 
           <Separator className="my-4"/>
