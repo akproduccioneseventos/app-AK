@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -11,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2, Wand2, Users, ChefHat, Package, Check, ArrowRight, User, Phone, List, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { AnimatePresence, motion } from 'framer-motion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -102,6 +101,39 @@ export default function SimuladorDePresupuestoPage() {
     const opcionesMenu = useMemo(() => config?.menus?.[0], [config]);
     const paqueteActual = useMemo(() => config?.paquetes.find(p => p.id === paqueteServiciosId), [config, paqueteServiciosId]);
     
+    const calcularCostoCatering = useCallback(() => {
+        let costo = 0;
+        const entradas = Array.from(entradasSeleccionadas).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id));
+        const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
+        const menuInfantil = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
+
+        entradas.forEach(item => { if(item) costo += (item.precioFijo ?? 0) * numAdultos; });
+        if (platoPrincipal) costo += (platoPrincipal.precioFijo ?? 0) * numAdultos;
+        if (menuInfantil && numJovenesYNinos > 0) costo += (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
+        
+        return costo;
+    }, [entradasSeleccionadas, opcionesMenu, platoPrincipalId, menuInfantilId, numAdultos, numJovenesYNinos]);
+
+    const calcularCostoPaquete = useCallback((pkg: PaqueteArmadoRapido) => {
+        let costo = 0;
+        const totalInvitados = numAdultos + numJovenesYNinos;
+
+        pkg.serviciosIncluidos.forEach(servicio => {
+            if (servicio.esRegalo) return;
+            
+            let costoServicio = 0;
+            switch(servicio.calculationMethod) {
+                case 'fijo': costoServicio = servicio.precioBase || 0; break;
+                case 'porPersona': costoServicio = (servicio.precioPorPersona || 0) * totalInvitados; break;
+                case 'ratio': if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) { costoServicio = Math.ceil(totalInvitados / servicio.invitadosPorUnidad) * (servicio.precioBase || 0); } break;
+                case 'tramos': const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta); costoServicio = tramo?.precio || 0; break;
+                default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
+            }
+            costo += costoServicio;
+        });
+        return costo;
+    }, [numAdultos, numJovenesYNinos]);
+
     const calcularDetallesPresupuesto = useCallback(() => {
         let costoCatering = 0;
         let subtotalServicios = 0;
@@ -308,22 +340,8 @@ export default function SimuladorDePresupuestoPage() {
                         <CardContent className="space-y-4">
                             <RadioGroup value={paqueteServiciosId} onValueChange={setPaqueteServiciosId}>
                                 {config?.paquetes.map(pkg => {
-                                    const { costoFinal } = calcularDetallesPresupuesto();
-                                    const costoCatering = entradasSeleccionadas.size > 0 && platoPrincipalId ? (Array.from(entradasSeleccionadas).reduce((acc, id) => acc + (opcionesMenu?.serviciosIncluidos.find(s => s.id === id)?.precioFijo ?? 0), 0) * numAdultos) + ((opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId)?.precioFijo ?? 0) * numAdultos) + ((numJovenesYNinos > 0 && menuInfantilId ? (opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId)?.precioFijo ?? 0) : 0) * numJovenesYNinos) : 0;
-                                    
-                                    let costoPaquete = 0;
-                                    pkg.serviciosIncluidos.forEach(servicio => {
-                                        let costoServicio = 0;
-                                        switch(servicio.calculationMethod) {
-                                            case 'fijo': costoServicio = servicio.precioBase || 0; break;
-                                            case 'porPersona': costoServicio = (servicio.precioPorPersona || 0) * (numAdultos + numJovenesYNinos); break;
-                                            case 'ratio': if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) { costoServicio = Math.ceil((numAdultos + numJovenesYNinos) / servicio.invitadosPorUnidad) * (servicio.precioBase || 0); } break;
-                                            case 'tramos': const tramo = servicio.tramosDePrecio?.find(t => (numAdultos + numJovenesYNinos) >= t.desde && (numAdultos + numJovenesYNinos) <= t.hasta); costoServicio = tramo?.precio || 0; break;
-                                            default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
-                                        }
-                                        if(!servicio.esRegalo) costoPaquete += costoServicio;
-                                    });
-
+                                    const costoCatering = calcularCostoCatering();
+                                    const costoPaquete = calcularCostoPaquete(pkg);
                                     const subtotal = costoCatering + costoPaquete;
                                     const totalConDescuento = subtotal * (1 - (config.descuentoGeneral || 0) / 100);
 
