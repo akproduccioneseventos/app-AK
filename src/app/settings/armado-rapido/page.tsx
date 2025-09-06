@@ -229,12 +229,8 @@ export function AddOrEditDialog({
     }, [regularServices, vendibleServices, mode]);
 
     const filteredCatalog = useMemo(() => {
-        let catalogToShow: ServicioEmpresa[];
-        if (mode === 'menu') {
-            catalogToShow = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
-        } else {
-            catalogToShow = vendibleServices.filter(s => s.categoria !== 'Servicio de catering');
-        }
+        let catalogToShow = vendibleServices;
+
         if (!searchTerm) return catalogToShow;
         const lowerSearch = searchTerm.toLowerCase();
         return catalogToShow.filter(
@@ -254,10 +250,13 @@ export function AddOrEditDialog({
     };
 
     const handleToggleService = (service: ServicioEmpresa, isChecked: boolean) => {
-      if(isChecked && (regularServices.some(s => s.id === service.id) || giftServices.some(s => s.id === service.id))) {
-          toast({ title: "Servicio ya en la lista", variant: "default" });
+      const isAlreadyInList = regularServices.some(s => s.id === service.id) || giftServices.some(s => s.id === service.id);
+      
+      if (isChecked && isAlreadyInList) {
+          toast({ title: "Servicio ya en la lista.", variant: "default" });
           return;
       }
+      if (isChecked) {
         const newService: ServicioIncluidoArmadoRapido = {
             id: service.id,
             nombre: service.nombre,
@@ -268,12 +267,12 @@ export function AddOrEditDialog({
             precioBase: service.precioVenta,
             precioPorPersona: service.precioVenta,
         };
-        if (isChecked) {
-            setRegularServices(prev => [...prev, newService]);
-        } else {
-            setRegularServices(prev => prev.filter(s => s.id !== service.id));
-            setGiftServices(prev => prev.filter(s => s.id !== service.id));
-        }
+        setRegularServices(prev => [...prev, newService]);
+      } else {
+        // This will remove it regardless if it's a gift or not
+        setRegularServices(prev => prev.filter(s => s.id !== service.id));
+        setGiftServices(prev => prev.filter(s => s.id !== service.id));
+      }
     };
     
     const handleRemoveService = (serviceId: string) => {
@@ -327,11 +326,13 @@ export function AddOrEditDialog({
     };
     
     const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
+        const numericValue = parseInt(value, 10);
+        const finalValue = isNaN(numericValue) ? 0 : numericValue;
         setRegularServices(prev => prev.map(s => {
             if (s.id !== serviceId) return s;
             const newTramos = (s.tramosDePrecio || []).map(t => {
                 if (t.id !== tramoId) return t;
-                return { ...t, [field]: value };
+                return { ...t, [field]: finalValue };
             });
             return { ...s, tramosDePrecio: newTramos };
         }));
@@ -341,7 +342,7 @@ export function AddOrEditDialog({
       const currentTramos = regularServices.find(s => s.id === serviceId)?.tramosDePrecio || [];
       const lastTramo = currentTramos[currentTramos.length - 1];
       const newDesde = lastTramo ? (Number(lastTramo.hasta) || 0) + 1 : 1;
-      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde + 49, precio: '' };
+      const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde + 49, precio: 0 };
       handleServiceDetailChange(serviceId, 'tramosDePrecio', [...currentTramos, newTramo]);
     };
     
@@ -648,6 +649,23 @@ export default function ArmadoRapidoSettingsPage() {
     }
   };
 
+  const getGroupedAndSortedPackageServices = (pkg: PaqueteArmadoRapido) => {
+    const regularServices = pkg.serviciosIncluidos.filter(s => !s.esRegalo);
+    const giftServices = pkg.serviciosIncluidos.filter(s => s.esRegalo);
+    
+    const groupedRegular = regularServices.reduce((acc, service) => {
+        const catalogService = serviciosCatalogo.find(vs => vs.id === service.id);
+        const category = catalogService?.categoria || 'Otros';
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(service);
+        return acc;
+    }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
+    
+    return { groupedRegular, giftServices };
+  };
+
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   
   const vendibleServices = serviciosCatalogo.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
@@ -685,7 +703,9 @@ export default function ArmadoRapidoSettingsPage() {
              <Button onClick={() => openDialog('paquete')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete Nuevo</Button>
              <Separator/>
              <div className="space-y-3">
-              {(config.paquetes || []).map(pkg => (
+              {(config.paquetes || []).map(pkg => {
+                const { groupedRegular, giftServices } = getGroupedAndSortedPackageServices(pkg);
+                return (
                  <Collapsible key={pkg.id} className="border rounded-lg shadow-sm bg-muted/40 overflow-hidden">
                     <CollapsibleTrigger className="flex items-center justify-between p-3 w-full hover:bg-muted/60">
                      <span className="font-semibold">{pkg.nombre}</span>
@@ -704,22 +724,42 @@ export default function ArmadoRapidoSettingsPage() {
                         </AlertDialog>
                      </div>
                       {pkg.serviciosIncluidos.length > 0 ? (
-                          <ul className="space-y-1 text-sm">
-                              {pkg.serviciosIncluidos.map(s => (
-                                <li key={s.id} className={cn("flex justify-between items-center p-1 rounded", s.esRegalo && "text-red-600 font-medium")}>
-                                    <span className="flex items-center gap-1.5">{s.esRegalo && <Gift className="w-3.5 h-3.5"/>}{s.nombre}</span>
-                                    <Badge variant={s.esRegalo ? 'destructive' : 'secondary'} className="text-xs">{getPriceDisplay(s)}</Badge>
-                                </li>
-                              ))}
-                          </ul>
+                          <div className="space-y-3 text-sm">
+                            {Object.entries(groupedRegular).sort(([catA], [catB]) => catA.localeCompare(catB)).map(([category, services]) => (
+                                <div key={category}>
+                                    <h4 className="font-medium text-xs text-muted-foreground uppercase tracking-wider">{category}</h4>
+                                    <ul className="pl-2 space-y-1">
+                                        {services.map(s => (
+                                            <li key={s.id} className="flex justify-between items-center p-1">
+                                                <span>{s.nombre}</span>
+                                                <Badge variant='secondary' className="text-xs">{getPriceDisplay(s)}</Badge>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                            {giftServices.length > 0 && (
+                                <div>
+                                    <h4 className="font-medium text-xs text-red-600 uppercase tracking-wider">Regalos Incluidos</h4>
+                                    <ul className="pl-2 space-y-1">
+                                        {giftServices.map(s => (
+                                            <li key={s.id} className="flex justify-between items-center p-1 text-red-600 font-medium">
+                                                <span className="flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>{s.nombre}</span>
+                                                <Badge variant='destructive' className="text-xs">{getPriceDisplay(s)}</Badge>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                          </div>
                       ) : <p className="text-sm text-muted-foreground">Este paquete no tiene servicios.</p>}
                    </CollapsibleContent>
                  </Collapsible>
-              ))}
+                );
+              })}
              </div>
           </CardContent>
         </Card>
-
       </div>
     </div>
   );
