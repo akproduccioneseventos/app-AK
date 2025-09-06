@@ -185,22 +185,21 @@ export function AddOrEditDialog({
         if (initialItem) {
              const syncedServices = initialItem.serviciosIncluidos.map(service => {
                 const catalogService = vendibleServices.find(vs => vs.id === service.id);
-                if(catalogService) {
-                    return {
-                        ...service,
-                        nombre: catalogService.nombre,
-                        // Aquí no sobreescribimos los precios, solo el nombre.
-                        // El precio que el usuario ve y edita debe ser el del `service`
-                    };
-                }
-                return service; // Retornar el servicio como está si no se encuentra en el catálogo
+                const precioBaseFinal = catalogService?.precioVenta;
+                return {
+                    ...service,
+                    nombre: catalogService?.nombre || service.nombre,
+                    precioBase: service.precioBase ?? precioBaseFinal,
+                    precioFijo: service.precioFijo ?? precioBaseFinal,
+                    precioPorPersona: service.precioPorPersona ?? precioBaseFinal,
+                };
             });
             setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
         } else {
             setLocalItem(null);
         }
         setModifiedServices(new Map());
-    }, [initialItem, isOpen, mode]); // Eliminamos vendibleServices de las dependencias para evitar reseteos no deseados
+    }, [initialItem, isOpen]);
     
     const filteredCatalog = useMemo(() => {
         return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -213,45 +212,42 @@ export function AddOrEditDialog({
         
         const services = [...localItem.serviciosIncluidos];
 
-        if (mode === 'menu') {
-            const grouped = services.reduce((acc, service) => {
-                const category = service.categoria || 'Servicio Adicional';
-                if (!acc[category]) {
-                    acc[category] = [];
-                }
-                acc[category].push(service);
-                return acc;
-            }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
-            
-            for (const category in grouped) {
-                grouped[category].sort((a, b) => a.nombre.localeCompare(b.nombre));
-            }
-          
-          return grouped;
+        // Sort packages: Gifts go to the bottom. Others are sorted alphabetically by category, then by name.
+        if (mode === 'paquete') {
+            services.sort((a, b) => {
+                if (a.esRegalo && !b.esRegalo) return 1;
+                if (!a.esRegalo && b.esRegalo) return -1;
+                
+                const categoryA = vendibleServices.find(s => s.id === a.id)?.categoria || 'Z';
+                const categoryB = vendibleServices.find(s => s.id === b.id)?.categoria || 'Z';
+                const categoryComparison = categoryA.localeCompare(categoryB);
+                if (categoryComparison !== 0) return categoryComparison;
+
+                return a.nombre.localeCompare(b.nombre);
+            });
+             return {'Paquete de Servicios': services};
         }
         
-         services.sort((a, b) => {
-            // Regla 1: Regalos al final
-            if (a.esRegalo && !b.esRegalo) return 1;
-            if (!a.esRegalo && b.esRegalo) return -1;
-            
-            // Regla 2: Ordenar por categoría
-            const categoryA = vendibleServices.find(s => s.id === a.id)?.categoria || 'Z';
-            const categoryB = vendibleServices.find(s => s.id === b.id)?.categoria || 'Z';
-            const categoryComparison = categoryA.localeCompare(categoryB);
-            if (categoryComparison !== 0) return categoryComparison;
-
-            // Regla 3: Ordenar por nombre
-            return a.nombre.localeCompare(b.nombre);
-        });
-
-        return {'Paquete de Servicios': services};
+        // Group menu services by category
+        const grouped = services.reduce((acc, service) => {
+            const category = service.categoria || 'Servicio Adicional';
+            if (!acc[category]) acc[category] = [];
+            acc[category].push(service);
+            return acc;
+        }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
+        
+        // Sort items within each category
+        for (const category in grouped) {
+            grouped[category].sort((a, b) => a.nombre.localeCompare(b.nombre));
+        }
+      
+        return grouped;
 
     }, [localItem, mode, vendibleServices]);
 
     const sortedCategoryNames = useMemo(() => {
         return Object.keys(groupedAndSortedServices).sort((a, b) => {
-            if (a === 'Paquete de Servicios') return -1;
+            if (a === 'Paquete de Servicios') return -1; // Should not happen in menu mode, but for safety
             if (b === 'Paquete de Servicios') return 1;
             const orderA = CATEGORY_ORDER[a as ServicioCategoriaArmadoRapido] || 99;
             const orderB = CATEGORY_ORDER[b as ServicioCategoriaArmadoRapido] || 99;
@@ -311,6 +307,7 @@ export function AddOrEditDialog({
           
           let updatedService = { ...s, [field]: value };
           
+          // If a price field is changed, update the modification tracker
           if (field === 'precioBase' || field === 'precioPorPersona' || field === 'precioFijo') {
              const numericValue = Number(value);
               if (!isNaN(numericValue)) {
@@ -436,7 +433,7 @@ export function AddOrEditDialog({
                                                                                 <Label htmlFor={`es-regalo-serv-${s.id}`} className="text-xs font-normal flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
                                                                             </div>
                                                                             
-                                                                            {mode === 'menu' && <Input type="number" placeholder="Precio Fijo por Persona" value={s.precioFijo || 0} onChange={e => handleServiceDetailChange(s.id, 'precioFijo', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo} />}
+                                                                            {mode === 'menu' && <Input type="number" placeholder="Precio Fijo por Persona" value={s.precioFijo} onChange={e => handleServiceDetailChange(s.id, 'precioFijo', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo} />}
                                                                             
                                                                             {mode === 'paquete' && (
                                                                                 <>
