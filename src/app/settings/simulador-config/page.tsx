@@ -774,7 +774,7 @@ export default function ArmadoRapidoSettingsPage() {
                                     <ul className="pl-2 space-y-1">
                                         {giftServices.map(s => (
                                             <li key={s.id} className="flex justify-between items-center p-1">
-                                                <span className="flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>{s.nombre}</span>
+                                                <span className="flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>{s.nombre} (Regalo)</span>
                                                 <Badge variant='destructive' className="text-xs">{getPriceDisplay(s)}</Badge>
                                             </li>
                                         ))}
@@ -794,4 +794,3 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
-
