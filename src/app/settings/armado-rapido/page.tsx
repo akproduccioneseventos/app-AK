@@ -185,16 +185,13 @@ export function AddOrEditDialog({
         if (initialItem) {
              const syncedServices = initialItem.serviciosIncluidos.map(service => {
                 const catalogService = vendibleServices.find(vs => vs.id === service.id);
-                // The source of truth for the price IS the catalog.
-                // The price fields in ServicioIncluidoArmadoRapido should be seen as overrides for that specific package/menu.
                 const precioFromCatalog = catalogService?.precioVenta;
                 return {
                     ...service,
                     nombre: catalogService?.nombre || service.nombre,
-                    // Use existing override prices if they exist, otherwise fall back to catalog price.
-                    precioBase: service.precioBase ?? precioFromCatalog,
-                    precioFijo: service.precioFijo ?? precioFromCatalog,
-                    precioPorPersona: service.precioPorPersona ?? precioFromCatalog,
+                    precioBase: service.precioBase ?? precioFromCatalog ?? 0,
+                    precioFijo: service.precioFijo ?? precioFromCatalog ?? 0,
+                    precioPorPersona: service.precioPorPersona ?? precioFromCatalog ?? 0,
                 };
             });
             setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
@@ -214,7 +211,7 @@ export function AddOrEditDialog({
         }
 
         const services = [...localItem.serviciosIncluidos];
-        const gifts = services.filter(s => s.esRegalo);
+        const gifts = services.filter(s => s.esRegalo).sort((a,b) => a.nombre.localeCompare(b.nombre));
         const regularServices = services.filter(s => !s.esRegalo);
 
         if (mode === 'paquete') {
@@ -224,6 +221,7 @@ export function AddOrEditDialog({
                 acc[category].push(service);
                 return acc;
             }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
+            Object.keys(grouped).forEach(cat => grouped[cat].sort((a,b) => a.nombre.localeCompare(b.nombre)));
             return { groups: grouped, gifts: gifts };
         }
         
@@ -413,8 +411,8 @@ export function AddOrEditDialog({
                                             <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
-                                        {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                        {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase ?? ''} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
+                                        {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona ?? ''} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
                                         {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
                                         {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={s.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
                                     </>
@@ -449,18 +447,22 @@ export function AddOrEditDialog({
                                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                                     <SortableContext items={(localItem.serviciosIncluidos || []).map(s => s.id)} strategy={verticalListSortingStrategy}>
                                         <div className="space-y-2">
-                                        {sortedCategoryNames.map(categoryName => (
-                                          <div key={categoryName}>
-                                            <h4 className="font-semibold text-primary text-sm my-2 border-b">{categoryName}</h4>
-                                            {groupedAndSortedServices.groups[categoryName].map(s => <SortableServiceItem key={s.id} service={s}>{renderServiceCard(s)}</SortableServiceItem>)}
-                                          </div>
-                                        ))}
-                                        {groupedAndSortedServices.gifts.length > 0 && (
-                                             <div>
-                                                <h4 className="font-semibold text-destructive text-sm my-2 border-b">Regalos Incluidos</h4>
-                                                {groupedAndSortedServices.gifts.map(s => <SortableServiceItem key={s.id} service={s}>{renderServiceCard(s)}</SortableServiceItem>)}
-                                             </div>
-                                        )}
+                                            {sortedCategoryNames.map(categoryName => (
+                                              <div key={categoryName}>
+                                                <h4 className="font-semibold text-primary text-sm my-2 border-b">{categoryName}</h4>
+                                                <div className="space-y-2">
+                                                    {groupedAndSortedServices.groups[categoryName].map(s => <SortableServiceItem key={s.id} service={s}>{renderServiceCard(s)}</SortableServiceItem>)}
+                                                </div>
+                                              </div>
+                                            ))}
+                                            {groupedAndSortedServices.gifts.length > 0 && (
+                                                 <div>
+                                                    <h4 className="font-semibold text-destructive text-sm my-2 border-b">Regalos Incluidos</h4>
+                                                     <div className="space-y-2">
+                                                        {groupedAndSortedServices.gifts.map(s => <SortableServiceItem key={s.id} service={s}>{renderServiceCard(s)}</SortableServiceItem>)}
+                                                     </div>
+                                                 </div>
+                                            )}
                                         </div>
                                     </SortableContext>
                                 </DndContext>
