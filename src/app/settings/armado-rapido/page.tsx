@@ -118,7 +118,7 @@ function AddNewServiceDialog({
   
   const existingCategories = useMemo(() => {
     const categories = new Set(vendibleServices.map(s => s.categoria));
-    if (serviceType === 'general' && !categories.has('Servicio de catering')) {
+    if (serviceType === 'general') {
         categories.add('Servicio de catering');
     }
     return Array.from(categories).sort();
@@ -200,42 +200,40 @@ export function AddOrEditDialog({
         }
         setModifiedServices(new Map());
     }, [initialItem, isOpen, vendibleServices]);
-
+    
     const groupedAndSortedServices = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos) return { serviceGroups: {}, giftGroup: [] };
 
+        const services = localItem.serviciosIncluidos;
+        const nonGifts = services.filter(s => !s.esRegalo);
+        const gifts = services.filter(s => s.esRegalo);
+
         const serviceMap: Record<string, ServicioIncluidoArmadoRapido[]> = {};
-        const giftGroup: ServicioIncluidoArmadoRapido[] = [];
         
-        const servicesToSort = [...localItem.serviciosIncluidos];
-        
-        servicesToSort.sort((a,b) => {
-            const catA = vendibleServices.find(vs => vs.id === a.id)?.categoria || 'z';
-            const catB = vendibleServices.find(vs => vs.id === b.id)?.categoria || 'z';
-            if (catA < catB) return -1;
-            if (catA > catB) return 1;
-            return a.nombre.localeCompare(b.nombre);
-        });
-
-        const nonGifts = servicesToSort.filter(s => !s.esRegalo);
-        const gifts = servicesToSort.filter(s => s.esRegalo);
-
         nonGifts.forEach(service => {
-             const category = (mode === 'paquete'
-                    ? (vendibleServices.find(vs => vs.id === service.id)?.categoria || 'Otros')
-                    : service.categoria || 'Servicio Adicional');
+            const category = mode === 'paquete'
+                ? (vendibleServices.find(vs => vs.id === service.id)?.categoria || 'Otros')
+                : (service.categoria || 'Servicio Adicional');
             if (!serviceMap[category]) {
                 serviceMap[category] = [];
             }
             serviceMap[category].push(service);
         });
 
-        return { serviceGroups: serviceMap, giftGroup: gifts };
+        // Sort groups alphabetically by category name
+        const sortedServiceGroups: Record<string, ServicioIncluidoArmadoRapido[]> = {};
+        Object.keys(serviceMap).sort().forEach(key => {
+            sortedServiceGroups[key] = serviceMap[key];
+        });
+
+        return { serviceGroups: sortedServiceGroups, giftGroup: gifts };
     }, [localItem, vendibleServices, mode]);
 
 
     const filteredCatalog = useMemo(() => {
-        const catalogToShow = vendibleServices;
+        const catalogToShow = mode === 'menu'
+            ? vendibleServices.filter(s => s.categoria === 'Servicio de catering')
+            : vendibleServices;
         
         if (!searchTerm) return catalogToShow;
 
@@ -244,7 +242,7 @@ export function AddOrEditDialog({
             s => s.nombre.toLowerCase().includes(lowerSearch) || 
                  s.categoria?.toLowerCase().includes(lowerSearch)
         );
-    }, [vendibleServices, searchTerm]);
+    }, [vendibleServices, searchTerm, mode]);
 
     if (!localItem) return null;
 
@@ -287,6 +285,11 @@ export function AddOrEditDialog({
     const handleRemoveService = (serviceId: string) => {
         setLocalItem(prev => {
             if (!prev) return null;
+            const isSelected = (prev.serviciosIncluidos || []).some(s => s.id === serviceId);
+            if (!isSelected) {
+                toast({ title: "Aviso", description: "El servicio ya está en la lista.", variant: "default" });
+                return prev;
+            }
             return {
                 ...prev,
                 serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== serviceId)
@@ -322,7 +325,7 @@ export function AddOrEditDialog({
       })
     };
     
-    const handleTramoChange = (serviceId: string, tramoIndex: number, field: 'desde' | 'hasta' | 'precio', value: string | number) => {
+    const handleTramoChange = (serviceId: string, tramoIndex: number, field: 'desde' | 'hasta' | 'precio', value: string) => {
       setLocalItem(prev => {
         if (!prev) return null;
         const newServicios = prev.serviciosIncluidos.map(s => {
@@ -330,9 +333,8 @@ export function AddOrEditDialog({
           
           const newTramos = (s.tramosDePrecio || []).map((t, i) => {
             if (i !== tramoIndex) return t;
-            
-            const numValue = typeof value === 'string' ? parseFloat(value) : value;
-            return { ...t, [field]: isNaN(numValue) ? 0 : numValue };
+            const numValue = parseFloat(value);
+            return { ...t, [field]: value === '' ? '' : (isNaN(numValue) ? t[field] : numValue) };
           });
           
           return { ...s, tramosDePrecio: newTramos };
@@ -508,7 +510,13 @@ export function AddOrEditDialog({
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
                                 <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => {
-                                    handleToggleService(s);
+                                    if(isSelected && !checked) {
+                                        handleRemoveService(s.id);
+                                    } else if (!isSelected && checked) {
+                                        handleToggleService(s);
+                                    } else if (isSelected && checked) {
+                                        toast({ title: "Aviso", description: "El servicio ya está en la lista.", variant: "default" });
+                                    }
                                 }} />
                                 <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
                                 {isSelected && <Check className="w-4 h-4 text-primary" />}
