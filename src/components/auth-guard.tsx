@@ -40,7 +40,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/video-vida',
       '/feedback',
       '/portal',
-      '/armado-rapido',
+      '/simulador-de-presupuesto',
     ];
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
