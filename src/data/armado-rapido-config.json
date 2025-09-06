@@ -303,7 +303,7 @@
         {
           "id": "serv_torta_principal",
           "nombre": "Torta principal",
-          "precioFijo": 95,
+          "precioFijo": 100,
           "categoria": "Servicio Adicional",
           "calculationMethod": "porPersona",
           "esRegalo": false,

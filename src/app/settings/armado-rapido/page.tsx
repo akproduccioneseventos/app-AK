@@ -158,7 +158,7 @@ function AddNewServiceDialog({
   )
 }
 
-function AddOrEditDialog({
+export function AddOrEditDialog({
     isOpen,
     onOpenChange,
     onSave,
@@ -212,7 +212,7 @@ function AddOrEditDialog({
             return {};
         }
         
-        const services = [...localItem.serviciosIncluidos]; // Create a mutable copy
+        const services = [...localItem.serviciosIncluidos];
 
         if (mode === 'menu') {
             const grouped = services.reduce((acc, service) => {
@@ -224,7 +224,6 @@ function AddOrEditDialog({
                 return acc;
             }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
             
-            // Sort items within each category
             for (const category in grouped) {
                 grouped[category].sort((a, b) => a.nombre.localeCompare(b.nombre));
             }
@@ -232,16 +231,23 @@ function AddOrEditDialog({
           return grouped;
         }
 
-        // For packages, no grouping, just sort
+        // For packages, sort by category, then name, and push gifts to the end.
         services.sort((a, b) => {
-             if (a.esRegalo && !b.esRegalo) return 1;
-             if (!a.esRegalo && b.esRegalo) return -1;
-             return a.nombre.localeCompare(b.nombre);
+            if (a.esRegalo && !b.esRegalo) return 1;
+            if (!a.esRegalo && b.esRegalo) return -1;
+            
+            const categoryA = vendibleServices.find(s => s.id === a.id)?.categoria || 'Z';
+            const categoryB = vendibleServices.find(s => s.id === b.id)?.categoria || 'Z';
+
+            if (categoryA < categoryB) return -1;
+            if (categoryA > categoryB) return 1;
+            
+            return a.nombre.localeCompare(b.nombre);
         });
 
         return {'Paquete de Servicios': services};
 
-    }, [localItem, mode]);
+    }, [localItem, mode, vendibleServices]);
 
     const sortedCategoryNames = useMemo(() => {
         return Object.keys(groupedAndSortedServices).sort((a, b) => {
