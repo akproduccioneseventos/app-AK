@@ -4,7 +4,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Trash2, GripVertical, Eye } from 'lucide-react';
 import {
@@ -61,8 +61,8 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
       <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col">
-        <div className="flex items-start p-2 gap-1">
-            <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
+        <div className="p-2 flex items-start gap-1">
+             <div {...attributes} {...listeners} className="cursor-grab pt-1 flex-shrink-0" title="Mover prospecto">
                 <GripVertical className="w-5 h-5 text-muted-foreground/70" />
             </div>
             <div className="flex-grow min-w-0">
@@ -70,9 +70,9 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
                  {displayNotes && (
                     <div className="mt-1">
                     {displayNotes.type === 'badge' ? (
-                        <Badge variant="secondary">{displayNotes.content}</Badge>
+                        <Badge variant="secondary" className="text-xs">{displayNotes.content}</Badge>
                     ) : (
-                        <p className="text-xs text-muted-foreground break-words">{displayNotes.content}</p>
+                        <p className="text-xs text-muted-foreground break-words line-clamp-3">{displayNotes.content}</p>
                     )}
                     </div>
                 )}
