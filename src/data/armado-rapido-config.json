@@ -975,5 +975,6 @@
         }
       ]
     }
-  ]
+  ],
+  "mostrarPrecios": true
 }
