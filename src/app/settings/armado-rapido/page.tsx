@@ -185,18 +185,22 @@ export function AddOrEditDialog({
         if (initialItem) {
              const syncedServices = initialItem.serviciosIncluidos.map(service => {
                 const catalogService = vendibleServices.find(vs => vs.id === service.id);
-                const newService = { ...service };
                 if(catalogService) {
-                    newService.nombre = catalogService.nombre;
+                    return {
+                        ...service,
+                        nombre: catalogService.nombre,
+                        // Aquí no sobreescribimos los precios, solo el nombre.
+                        // El precio que el usuario ve y edita debe ser el del `service`
+                    };
                 }
-                return newService;
+                return service; // Retornar el servicio como está si no se encuentra en el catálogo
             });
             setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
         } else {
             setLocalItem(null);
         }
         setModifiedServices(new Map());
-    }, [initialItem, vendibleServices, isOpen, mode]);
+    }, [initialItem, isOpen, mode]); // Eliminamos vendibleServices de las dependencias para evitar reseteos no deseados
     
     const filteredCatalog = useMemo(() => {
         return vendibleServices.filter(s => s.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -226,16 +230,18 @@ export function AddOrEditDialog({
           return grouped;
         }
         
-        services.sort((a, b) => {
+         services.sort((a, b) => {
+            // Regla 1: Regalos al final
             if (a.esRegalo && !b.esRegalo) return 1;
             if (!a.esRegalo && b.esRegalo) return -1;
             
+            // Regla 2: Ordenar por categoría
             const categoryA = vendibleServices.find(s => s.id === a.id)?.categoria || 'Z';
             const categoryB = vendibleServices.find(s => s.id === b.id)?.categoria || 'Z';
+            const categoryComparison = categoryA.localeCompare(categoryB);
+            if (categoryComparison !== 0) return categoryComparison;
 
-            if (categoryA < categoryB) return -1;
-            if (categoryA > categoryB) return 1;
-            
+            // Regla 3: Ordenar por nombre
             return a.nombre.localeCompare(b.nombre);
         });
 
@@ -305,11 +311,11 @@ export function AddOrEditDialog({
           
           let updatedService = { ...s, [field]: value };
           
-          const numericValue = Number(value);
           if (field === 'precioBase' || field === 'precioPorPersona' || field === 'precioFijo') {
+             const numericValue = Number(value);
               if (!isNaN(numericValue)) {
-                  trackModification(serviceId, { precioVenta: numericValue });
                   updatedService[field] = numericValue;
+                  trackModification(serviceId, { precioVenta: numericValue });
               }
           }
             return updatedService;
@@ -444,9 +450,9 @@ export function AddOrEditDialog({
                                                                                         <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                                                         </SelectContent>
                                                                                     </Select>
-                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase ?? (vendibleServices.find(vs => vs.id === s.id)?.precioVenta || 0)} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
-                                                                                    {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona ?? (vendibleServices.find(vs => vs.id === s.id)?.precioVenta || 0)} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
-                                                                                    {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase ?? (vendibleServices.find(vs => vs.id === s.id)?.precioVenta || 0)} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
+                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
+                                                                                    {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                                                                    {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
                                                                                     {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={s.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
                                                                                 </>
                                                                             )}
