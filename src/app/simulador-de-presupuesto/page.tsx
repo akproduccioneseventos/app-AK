@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -142,23 +143,26 @@ export default function ArmadoRapidoPage() {
         const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
         const menuInfantil = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
 
+        let costoCatering = 0;
         entradas.forEach(item => {
             if (!item) return;
             const costoItem = (item.precioFijo ?? 0) * numAdultos;
-            subtotalServicios += costoItem;
+            costoCatering += costoItem;
             resumenData.items.push({ desc: `Entrada: ${item.nombre}` });
         });
 
         if (platoPrincipal) {
             const costoItem = (platoPrincipal.precioFijo ?? 0) * numAdultos;
-            subtotalServicios += costoItem;
+            costoCatering += costoItem;
             resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}` });
         }
         if (menuInfantil && numJovenesYNinos > 0) {
              const costoItem = (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
-            subtotalServicios += costoItem;
+            costoCatering += costoItem;
             resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}` });
         }
+        
+        subtotalServicios += costoCatering;
 
         if (paqueteActual) {
             paqueteActual.serviciosIncluidos.forEach(servicio => {
@@ -314,7 +318,6 @@ export default function ArmadoRapidoPage() {
               <header className="fixed top-0 left-0 right-0 p-4 border-b bg-background/80 backdrop-blur-sm z-10">
                   <div className="flex justify-between items-center max-w-5xl mx-auto">
                       <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary"/><h1 className="text-2xl font-bold font-headline">Simulador de Presupuesto al Instante</h1></div>
-                      <Link href="/" passHref><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al inicio</Button></Link>
                   </div>
               </header>
               
