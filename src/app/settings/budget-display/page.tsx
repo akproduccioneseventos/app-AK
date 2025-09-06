@@ -85,6 +85,7 @@ export default function BudgetDisplaySettingsPage() {
     { id: "showCompanyLogo", label: "Mostrar logo de la empresa", description: "Incluye el logo de tu empresa en la parte superior." },
     { id: "showClientData", label: "Mostrar datos del cliente", description: "Incluye el nombre y detalles del cliente." },
     { id: "showEventTypeAndDate", label: "Mostrar tipo y fecha de la fiesta", description: "Muestra la información básica del evento." },
+    { id: "showPriceBreakdown", label: "Mostrar desglose de precios por servicio", description: "Muestra la tabla detallada de servicios con sus costos individuales." },
     { id: "showPaymentMethodNotes", label: "Incluir observaciones o notas finales", description: "Muestra la sección de notas y condiciones (donde podría ir la forma de pago)." },
   ] as const;
 
