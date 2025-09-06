@@ -26,7 +26,7 @@ const formatCurrency = (amount?: number) => {
 };
 
 
-export default function ArmadoRapidoPage() {
+export default function SimuladorDePresupuestoPage() {
     const { toast } = useToast();
     const router = useRouter();
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
@@ -103,6 +103,7 @@ export default function ArmadoRapidoPage() {
     const paqueteActual = useMemo(() => config?.paquetes.find(p => p.id === paqueteServiciosId), [config, paqueteServiciosId]);
     
     const calcularDetallesPresupuesto = useCallback(() => {
+        let costoCatering = 0;
         let subtotalServicios = 0;
         let costoRegalos = 0;
         const totalInvitados = numAdultos + numJovenesYNinos;
@@ -119,8 +120,7 @@ export default function ArmadoRapidoPage() {
             ahorroTotal: 0,
             totalFinal: 0,
         };
-
-        let costoCatering = 0;
+        
         const entradas = Array.from(entradasSeleccionadas).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id));
         const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
         const menuInfantil = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
@@ -272,7 +272,7 @@ export default function ArmadoRapidoPage() {
                            </div>
                            
                             <div className="space-y-2">
-                                <Label className="font-semibold text-lg">2. Platos Principales (para {numAdultos} adultos, elige 1)</Label>
+                                <Label className="font-semibold text-lg">2. Platos Principales (elige 1)</Label>
                                 <RadioGroup value={platoPrincipalId} onValueChange={setPlatoPrincipalId}>
                                   {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
                                       <Label key={s.id} htmlFor={`pp-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
@@ -285,7 +285,7 @@ export default function ArmadoRapidoPage() {
                             </div>
                            {numJovenesYNinos > 0 && (
                              <div className="space-y-2">
-                                <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (para {numJovenesYNinos}, elige 1)</Label>
+                                <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (elige 1)</Label>
                                  <RadioGroup value={menuInfantilId} onValueChange={setMenuInfantilId}>
                                     {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=> (
                                         <Label key={s.id} htmlFor={`pi-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
@@ -308,7 +308,9 @@ export default function ArmadoRapidoPage() {
                         <CardContent className="space-y-4">
                             <RadioGroup value={paqueteServiciosId} onValueChange={setPaqueteServiciosId}>
                                 {config?.paquetes.map(pkg => {
-                                    const { costoFinal } = calcularDetallesPresupuesto(); // This is not ideal to run for each package, but it's for display only.
+                                    const { costoFinal } = calcularDetallesPresupuesto();
+                                    const costoCatering = entradasSeleccionadas.size > 0 && platoPrincipalId ? (Array.from(entradasSeleccionadas).reduce((acc, id) => acc + (opcionesMenu?.serviciosIncluidos.find(s => s.id === id)?.precioFijo ?? 0), 0) * numAdultos) + ((opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId)?.precioFijo ?? 0) * numAdultos) + ((numJovenesYNinos > 0 && menuInfantilId ? (opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId)?.precioFijo ?? 0) : 0) * numJovenesYNinos) : 0;
+                                    
                                     let costoPaquete = 0;
                                     pkg.serviciosIncluidos.forEach(servicio => {
                                         let costoServicio = 0;
@@ -322,6 +324,9 @@ export default function ArmadoRapidoPage() {
                                         if(!servicio.esRegalo) costoPaquete += costoServicio;
                                     });
 
+                                    const subtotal = costoCatering + costoPaquete;
+                                    const totalConDescuento = subtotal * (1 - (config.descuentoGeneral || 0) / 100);
+
                                     return (
                                         <Accordion type="single" collapsible key={pkg.id}>
                                             <AccordionItem value={pkg.id} className="border-none">
@@ -330,7 +335,7 @@ export default function ArmadoRapidoPage() {
                                                     <Package className="w-8 h-8 text-primary"/>
                                                     <div className="flex-grow">
                                                         <p className="text-base font-semibold">{pkg.nombre}</p>
-                                                        {config?.mostrarPrecios && <p className="text-sm font-bold text-primary">{formatCurrency(costoPaquete)}</p>}
+                                                        {config?.mostrarPrecios && <p className="text-sm font-bold text-primary">{formatCurrency(totalConDescuento)}</p>}
                                                     </div>
                                                     <AccordionTrigger className="p-2 hover:no-underline [&[data-state=open]>svg]:text-primary" />
                                                 </Label>
