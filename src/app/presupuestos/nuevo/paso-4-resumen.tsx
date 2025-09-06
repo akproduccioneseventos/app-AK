@@ -14,7 +14,7 @@ import React, { useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator'; 
+import { Separator } from '../ui/separator'; 
 
 // Company Info Constants from PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
@@ -96,9 +96,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
-    
-    // Recalculate totals based on the formData discount values, not the ones in the passed `presupuesto` object
-    // which might be stale if the form has changed.
     const costoTotalSinDescuento = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
 
     let descuentoAplicado = 0;
@@ -256,7 +253,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
             </table>
           </section>
 
-          {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
+          {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 ? (
             <section className="mb-4 print:mb-2">
               {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                   <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
@@ -286,6 +283,13 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                   </div>
               ))}
             </section>
+          ) : (
+             <section className="mb-4 print:mb-2">
+                <div className="p-3 bg-gray-50 rounded-md">
+                    <p className="font-semibold">Detalle de Servicios</p>
+                    <p className="text-sm text-muted-foreground">El desglose de precios no está visible en esta vista.</p>
+                </div>
+             </section>
           )}
           
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
