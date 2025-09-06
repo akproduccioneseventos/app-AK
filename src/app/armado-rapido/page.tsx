@@ -99,12 +99,14 @@ export default function ArmadoRapidoPage() {
         setIsGeneratingLead(true);
         toast({ title: "Generando tu presupuesto...", description: "Espera un momento." });
 
+        const totalCostoServicios = calcularCostoTotalServicios();
+        
         const result = await generateLeadFromQuickBudget({
             nombrePaquete: paqueteActual?.nombre || 'Sin paquete',
             nombreMenu: 'Catering Personalizado',
             tipoEvento: 'Evento desde Simulador de Presupuesto',
             cantidadInvitados: numAdultos + numJovenesYNinos,
-            costoEstimado: 0, // Placeholder
+            costoEstimado: totalCostoServicios,
             clienteNombre: clienteNombre || 'Prospecto Web',
             salon: 'A confirmar'
         });
@@ -115,43 +117,28 @@ export default function ArmadoRapidoPage() {
             return;
         }
         
-        // Prepare data for the summary page
-        const resumenData: any = {
-            cliente: clienteNombre,
-            invitados: `${numAdultos} Adultos, ${numJovenesYNinos} Jóvenes/Niños`,
-            items: [],
-            total: 0,
-            regalos: [],
-            descuento: config?.descuentoGeneral || 0,
-        };
+        // Recalcular para pasar los datos correctos a la página de resumen
+        const { resumenData } = calcularDetallesPresupuesto();
 
+        const queryParams = new URLSearchParams({ data: JSON.stringify(resumenData) });
+        router.push(`/armado-rapido/resumen?${queryParams.toString()}`);
+    };
+    
+    const calcularCostoTotalServicios = () => {
+        let subtotal = 0;
+        
         const entradas = Array.from(entradasSeleccionadas).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id));
         const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
         const menuInfantil = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
 
-        let subtotal = 0;
-        
-        entradas.forEach(item => {
-            if (!item) return;
-            const itemTotal = (item.precioFijo ?? 0) * numAdultos;
-            resumenData.items.push({ desc: `Entrada: ${item.nombre}` });
-            subtotal += itemTotal;
-        });
-
-        if (platoPrincipal) {
-            const itemTotal = (platoPrincipal.precioFijo ?? 0) * numAdultos;
-            resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}` });
-            subtotal += itemTotal;
-        }
-        if (menuInfantil && numJovenesYNinos > 0) {
-            const itemTotal = (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
-            resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}` });
-            subtotal += itemTotal;
-        }
+        entradas.forEach(item => { if (item) subtotal += (item.precioFijo ?? 0) * numAdultos; });
+        if (platoPrincipal) subtotal += (platoPrincipal.precioFijo ?? 0) * numAdultos;
+        if (menuInfantil && numJovenesYNinos > 0) subtotal += (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
 
         if (paqueteActual) {
             const totalInvitados = numAdultos + numJovenesYNinos;
             paqueteActual.serviciosIncluidos.forEach(servicio => {
+                if (servicio.esRegalo) return; 
                 let costoServicio = 0;
                 switch(servicio.calculationMethod) {
                     case 'fijo': costoServicio = servicio.precioBase || 0; break;
@@ -164,24 +151,73 @@ export default function ArmadoRapidoPage() {
                         break;
                     case 'tramos':
                         const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-                        if(tramo) costoServicio = tramo.precio;
+                        costoServicio = tramo?.precio || 0;
                         break;
                     default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
                 }
+                subtotal += costoServicio;
+            });
+        }
+        return subtotal;
+    };
 
+     const calcularDetallesPresupuesto = () => {
+        const resumenData: any = {
+            cliente: clienteNombre,
+            invitados: `${numAdultos} Adultos, ${numJovenesYNinos} Jóvenes/Niños`,
+            items: [],
+            totalServicios: 0,
+            regalos: [],
+            descuentoGeneral: config?.descuentoGeneral || 0,
+        };
+        let subtotalServicios = 0;
+
+        const entradas = Array.from(entradasSeleccionadas).map(id => opcionesMenu?.serviciosIncluidos.find(s => s.id === id));
+        const platoPrincipal = opcionesMenu?.serviciosIncluidos.find(s => s.id === platoPrincipalId);
+        const menuInfantil = opcionesMenu?.serviciosIncluidos.find(s => s.id === menuInfantilId);
+
+        entradas.forEach(item => {
+            if (!item) return;
+            subtotalServicios += (item.precioFijo ?? 0) * numAdultos;
+            resumenData.items.push({ desc: `Entrada: ${item.nombre}` });
+        });
+
+        if (platoPrincipal) {
+            subtotalServicios += (platoPrincipal.precioFijo ?? 0) * numAdultos;
+            resumenData.items.push({ desc: `Plato Principal: ${platoPrincipal.nombre}` });
+        }
+        if (menuInfantil && numJovenesYNinos > 0) {
+            subtotalServicios += (menuInfantil.precioFijo ?? 0) * numJovenesYNinos;
+            resumenData.items.push({ desc: `Menú Infantil: ${menuInfantil.nombre}` });
+        }
+        if (paqueteActual) {
+            const totalInvitados = numAdultos + numJovenesYNinos;
+            paqueteActual.serviciosIncluidos.forEach(servicio => {
+                let costoServicio = 0;
+                switch(servicio.calculationMethod) {
+                    case 'fijo': costoServicio = servicio.precioBase || 0; break;
+                    case 'porPersona': costoServicio = (servicio.precioPorPersona || 0) * totalInvitados; break;
+                    case 'ratio': 
+                        if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) {
+                            costoServicio = Math.ceil(totalInvitados / servicio.invitadosPorUnidad) * (servicio.precioBase || 0);
+                        }
+                        break;
+                    case 'tramos':
+                        const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+                        costoServicio = tramo?.precio || 0;
+                        break;
+                    default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
+                }
                 if (servicio.esRegalo) {
                     resumenData.regalos.push({ desc: servicio.nombre, total: costoServicio });
                 } else {
+                    subtotalServicios += costoServicio;
                     resumenData.items.push({ desc: servicio.nombre });
-                    subtotal += costoServicio;
                 }
             });
         }
-        
-        resumenData.total = subtotal;
-
-        const queryParams = new URLSearchParams({ data: JSON.stringify(resumenData) });
-        router.push(`/armado-rapido/resumen?${queryParams.toString()}`);
+        resumenData.totalServicios = subtotalServicios;
+        return { resumenData };
     };
 
     const renderPaso = () => {
@@ -191,8 +227,8 @@ export default function ArmadoRapidoPage() {
                   <motion.div key="paso1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                      <CardHeader><CardTitle className="font-headline text-2xl">Paso 1: Tus Datos</CardTitle><CardDescription>Ingresa tu nombre y celular para contactarte.</CardDescription></CardHeader>
                      <CardContent className="space-y-4">
-                          <div><Label htmlFor="cliente-nombre" className="flex items-center gap-1"><User/> Nombre Completo</Label><Input id="cliente-nombre" type="text" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} placeholder="Ej: Maria Gonzalez"/></div>
-                          <div><Label htmlFor="cliente-celular" className="flex items-center gap-1"><Phone/> Celular</Label><Input id="cliente-celular" type="tel" value={clienteCelular} onChange={(e) => setClienteCelular(e.target.value)} placeholder="Ej: 099123456"/></div>
+                          <div><Label htmlFor="cliente-nombre" className="flex items-center gap-1"><User/>Nombre Completo</Label><Input id="cliente-nombre" type="text" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} placeholder="Ej: Maria Gonzalez"/></div>
+                          <div><Label htmlFor="cliente-celular" className="flex items-center gap-1"><Phone/>Celular</Label><Input id="cliente-celular" type="tel" value={clienteCelular} onChange={(e) => setClienteCelular(e.target.value)} placeholder="Ej: 099123456"/></div>
                      </CardContent>
                      <CardFooter><Button onClick={() => setPaso(2)} disabled={!isPaso1Valid} className="w-full">Siguiente <ArrowRight className="ml-2"/></Button></CardFooter>
                   </motion.div>

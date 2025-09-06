@@ -20,10 +20,9 @@ const formatCurrency = (amount?: number) => {
 // Componente aislado para la vista imprimible del presupuesto
 const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, settings: InvoiceTemplateSettings | null }>(({ summaryData, settings }, ref) => {
   if (!summaryData) return null;
+  const costoServicios = summaryData.totalServicios || 0;
   const costoRegalos = summaryData.regalos.reduce((sum: number, r: any) => sum + (r.total || 0), 0);
-  const costoServicios = summaryData.total;
-  const subtotal = costoServicios + costoRegalos;
-  const descuentoGeneralMonto = (costoServicios * (summaryData.descuento || 0)) / 100;
+  const descuentoGeneralMonto = (costoServicios * (summaryData.descuentoGeneral || 0)) / 100;
   const ahorroTotal = costoRegalos + descuentoGeneralMonto;
   const totalFinal = costoServicios - descuentoGeneralMonto;
 
@@ -47,7 +46,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
             <table className="w-full text-sm">
                 <thead>
                 <tr className="border-b">
-                    <th className="text-left font-semibold py-2">Descripción</th>
+                    <th className="text-left font-semibold py-2">Servicios Incluidos</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,7 +67,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
                 <div className="w-full max-w-xs space-y-2">
                     <div className="flex justify-between"><p>Costo de servicios:</p><p>{formatCurrency(costoServicios)}</p></div>
                     {costoRegalos > 0 && <div className="flex justify-between text-green-600"><p>Valor de regalos:</p><p>+{formatCurrency(costoRegalos)}</p></div>}
-                    {descuentoGeneralMonto > 0 && <div className="flex justify-between text-green-600"><p>Descuento ({summaryData.descuento}%):</p><p>-{formatCurrency(descuentoGeneralMonto)}</p></div>}
+                    {descuentoGeneralMonto > 0 && <div className="flex justify-between text-green-600"><p>Descuento ({summaryData.descuentoGeneral}%):</p><p>-{formatCurrency(descuentoGeneralMonto)}</p></div>}
                     <div className="flex justify-between font-bold text-lg border-t pt-2"><p>AHORRO TOTAL:</p><p className="text-green-600">{formatCurrency(ahorroTotal)}</p></div>
                     <div className="flex justify-between font-bold text-xl border-t-2 border-primary pt-2 mt-4 text-primary"><p>TOTAL FINAL:</p><p>{formatCurrency(totalFinal)}</p></div>
                 </div>
