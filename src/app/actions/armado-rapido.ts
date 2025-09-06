@@ -82,11 +82,17 @@ export async function generateLeadFromQuickBudget(
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
     const allStages = await getCrmStages();
+    // Find the target stage, but handle the case where it might not exist.
     const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
-    const targetStageId = targetStage?.id;
+    
+    // If 'Con presupuesto' stage is not found, default to the first stage in the array.
+    // If no stages exist at all, this will be undefined.
+    const targetStageId = targetStage?.id || allStages[0]?.id;
 
     if (!targetStageId) {
-        console.warn("CRM Stage 'Con presupuesto' not found. Lead will be added to the default first stage.");
+        // This is a more critical error, as there are no stages to add the lead to.
+        console.error("CRM has no stages configured. Cannot add lead.");
+        return { success: false, error: "No hay etapas configuradas en el CRM para añadir el prospecto." };
     }
     
     let notes = `Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: "${data.nombreMenu}"\nPaquete de Servicios: "${data.nombrePaquete}"`;
