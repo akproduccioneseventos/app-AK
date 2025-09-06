@@ -253,7 +253,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
             </table>
           </section>
 
-          {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
+          {presupuesto.itemsPresupuestados.length > 0 && displaySettings.showPriceBreakdown && (
             <section className="mb-4 print:mb-2">
               {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                   <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">

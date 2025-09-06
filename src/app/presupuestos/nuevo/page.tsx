@@ -14,7 +14,7 @@ import Paso1DatosEvento from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
-import type { PresupuestoFormData, ItemPresupuestado, Presupuesto, TipoEvento } from '@/types/presupuesto';
+import type { PresupuestoFormData, ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { BudgetDisplaySettings } from '@/types/settings';
