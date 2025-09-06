@@ -185,13 +185,16 @@ export function AddOrEditDialog({
         if (initialItem) {
              const syncedServices = initialItem.serviciosIncluidos.map(service => {
                 const catalogService = vendibleServices.find(vs => vs.id === service.id);
-                const precioBaseFinal = catalogService?.precioVenta;
+                // The source of truth for the price IS the catalog.
+                // The price fields in ServicioIncluidoArmadoRapido should be seen as overrides for that specific package/menu.
+                const precioFromCatalog = catalogService?.precioVenta;
                 return {
                     ...service,
                     nombre: catalogService?.nombre || service.nombre,
-                    precioBase: service.precioBase ?? precioBaseFinal,
-                    precioFijo: service.precioFijo ?? precioBaseFinal,
-                    precioPorPersona: service.precioPorPersona ?? precioBaseFinal,
+                    // Use existing override prices if they exist, otherwise fall back to catalog price.
+                    precioBase: service.precioBase ?? precioFromCatalog,
+                    precioFijo: service.precioFijo ?? precioFromCatalog,
+                    precioPorPersona: service.precioPorPersona ?? precioFromCatalog,
                 };
             });
             setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
@@ -207,53 +210,42 @@ export function AddOrEditDialog({
 
     const groupedAndSortedServices = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos) {
-            return {};
+            return { groups: {}, gifts: [] };
         }
-        
+
         const services = [...localItem.serviciosIncluidos];
+        const gifts = services.filter(s => s.esRegalo);
+        const regularServices = services.filter(s => !s.esRegalo);
 
-        // Sort packages: Gifts go to the bottom. Others are sorted alphabetically by category, then by name.
         if (mode === 'paquete') {
-            services.sort((a, b) => {
-                if (a.esRegalo && !b.esRegalo) return 1;
-                if (!a.esRegalo && b.esRegalo) return -1;
-                
-                const categoryA = vendibleServices.find(s => s.id === a.id)?.categoria || 'Z';
-                const categoryB = vendibleServices.find(s => s.id === b.id)?.categoria || 'Z';
-                const categoryComparison = categoryA.localeCompare(categoryB);
-                if (categoryComparison !== 0) return categoryComparison;
-
-                return a.nombre.localeCompare(b.nombre);
-            });
-             return {'Paquete de Servicios': services};
+            const grouped = regularServices.reduce((acc, service) => {
+                const category = vendibleServices.find(s => s.id === service.id)?.categoria || 'Otros';
+                if (!acc[category]) acc[category] = [];
+                acc[category].push(service);
+                return acc;
+            }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
+            return { groups: grouped, gifts: gifts };
         }
         
-        // Group menu services by category
-        const grouped = services.reduce((acc, service) => {
+        // Menu mode
+        const grouped = regularServices.reduce((acc, service) => {
             const category = service.categoria || 'Servicio Adicional';
             if (!acc[category]) acc[category] = [];
             acc[category].push(service);
             return acc;
         }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
-        
-        // Sort items within each category
-        for (const category in grouped) {
-            grouped[category].sort((a, b) => a.nombre.localeCompare(b.nombre));
-        }
       
-        return grouped;
+        return { groups: grouped, gifts: gifts };
 
     }, [localItem, mode, vendibleServices]);
 
     const sortedCategoryNames = useMemo(() => {
-        return Object.keys(groupedAndSortedServices).sort((a, b) => {
-            if (a === 'Paquete de Servicios') return -1; // Should not happen in menu mode, but for safety
-            if (b === 'Paquete de Servicios') return 1;
-            const orderA = CATEGORY_ORDER[a as ServicioCategoriaArmadoRapido] || 99;
-            const orderB = CATEGORY_ORDER[b as ServicioCategoriaArmadoRapido] || 99;
-            return orderA - orderB;
-        });
-    }, [groupedAndSortedServices]);
+        const groupKeys = Object.keys(groupedAndSortedServices.groups);
+        if (mode === 'menu') {
+            return groupKeys.sort((a, b) => (CATEGORY_ORDER[a as ServicioCategoriaArmadoRapido] || 99) - (CATEGORY_ORDER[b as ServicioCategoriaArmadoRapido] || 99));
+        }
+        return groupKeys.sort((a,b) => a.localeCompare(b)); // Alphabetical for packages
+    }, [groupedAndSortedServices.groups, mode]);
 
 
     if (!localItem) return null;
@@ -307,11 +299,11 @@ export function AddOrEditDialog({
           
           let updatedService = { ...s, [field]: value };
           
-          // If a price field is changed, update the modification tracker
-          if (field === 'precioBase' || field === 'precioPorPersona' || field === 'precioFijo') {
+          const priceFields: (keyof ServicioIncluidoArmadoRapido)[] = ['precioBase', 'precioPorPersona', 'precioFijo'];
+          if (priceFields.includes(field)) {
              const numericValue = Number(value);
               if (!isNaN(numericValue)) {
-                  updatedService[field] = numericValue;
+                  updatedService[field as 'precioBase'] = numericValue; // Cast to make TS happy
                   trackModification(serviceId, { precioVenta: numericValue });
               }
           }
@@ -380,6 +372,61 @@ export function AddOrEditDialog({
         onSave(localItem, Array.from(modifiedServices.values()));
     };
 
+    const renderServiceCard = (s: ServicioIncluidoArmadoRapido) => (
+         <Card className={cn("bg-background w-full", s.esRegalo && "border-destructive/50 bg-destructive/5")}>
+            <CardContent className="p-2 space-y-2">
+                <div className="flex items-center gap-2">
+                     <div className="flex-grow">
+                        <Input value={s.nombre} onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/>
+                    </div>
+                    <Collapsible onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)}>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
+                                <Edit className="w-3 h-3 mr-1"/> Config
+                                <ChevronDown className={cn("h-4 w-4 transition-transform ml-1", openCollapsibleId === s.id && "rotate-180")} />
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent asChild>
+                             <div className="pt-2 mt-2 border-t space-y-3 px-1 pb-1">
+                                {mode === 'menu' && (
+                                    <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
+                                        <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                        <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
+                                    </Select>
+                                )}
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox id={`es-regalo-serv-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
+                                    <Label htmlFor={`es-regalo-serv-${s.id}`} className="text-xs font-normal flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
+                                </div>
+                                
+                                {mode === 'menu' && <Input type="number" placeholder="Precio Fijo por Persona" value={s.precioFijo} onChange={e => handleServiceDetailChange(s.id, 'precioFijo', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo} />}
+                                
+                                {mode === 'paquete' && (
+                                    <>
+                                        <Separator/>
+                                        <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)} disabled={s.esRegalo}>
+                                            <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                            <SelectContent>
+                                            <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
+                                            <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
+                                            <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
+                                            <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
+                                        {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
+                                        {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
+                                        {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={s.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
+                                    </>
+                                )}
+                             </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
@@ -404,65 +451,16 @@ export function AddOrEditDialog({
                                         <div className="space-y-2">
                                         {sortedCategoryNames.map(categoryName => (
                                           <div key={categoryName}>
-                                            {mode === 'menu' && <h4 className="font-semibold text-primary text-sm my-2 border-b">{categoryName}</h4>}
-                                            {(groupedAndSortedServices[categoryName] || []).map(s => (
-                                                <SortableServiceItem key={s.id} service={s}>
-                                                    <Card className={cn("bg-background w-full", s.esRegalo && "border-destructive/50 bg-destructive/5")}>
-                                                        <CardContent className="p-2 space-y-2">
-                                                            <div className="flex items-center gap-2">
-                                                                 <div className="flex-grow">
-                                                                    <Input value={s.nombre} onChange={(e) => handleServiceDetailChange(s.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/>
-                                                                </div>
-                                                                <Collapsible onOpenChange={(open) => setOpenCollapsibleId(open ? s.id : null)}>
-                                                                    <CollapsibleTrigger asChild>
-                                                                        <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
-                                                                            <Edit className="w-3 h-3 mr-1"/> Config
-                                                                            <ChevronDown className={cn("h-4 w-4 transition-transform ml-1", openCollapsibleId === s.id && "rotate-180")} />
-                                                                        </Button>
-                                                                    </CollapsibleTrigger>
-                                                                    <CollapsibleContent asChild>
-                                                                         <div className="pt-2 mt-2 border-t space-y-3 px-1 pb-1">
-                                                                            {mode === 'menu' && (
-                                                                                <Select value={s.categoria} onValueChange={(val) => handleCategoryChange(s.id, val as ServicioCategoriaArmadoRapido)}>
-                                                                                    <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                                                                    <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
-                                                                                </Select>
-                                                                            )}
-                                                                            <div className="flex items-center space-x-2">
-                                                                                <Checkbox id={`es-regalo-serv-${s.id}`} checked={s.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(s.id, 'esRegalo', !!checked)}/>
-                                                                                <Label htmlFor={`es-regalo-serv-${s.id}`} className="text-xs font-normal flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
-                                                                            </div>
-                                                                            
-                                                                            {mode === 'menu' && <Input type="number" placeholder="Precio Fijo por Persona" value={s.precioFijo} onChange={e => handleServiceDetailChange(s.id, 'precioFijo', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo} />}
-                                                                            
-                                                                            {mode === 'paquete' && (
-                                                                                <>
-                                                                                    <Separator/>
-                                                                                    <Select value={s.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(s.id, 'calculationMethod', v)} disabled={s.esRegalo}>
-                                                                                        <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                                                                        <SelectContent>
-                                                                                        <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
-                                                                                        <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
-                                                                                        <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
-                                                                                        <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
-                                                                                        </SelectContent>
-                                                                                    </Select>
-                                                                                    {s.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/></div> )}
-                                                                                    {s.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={s.precioPorPersona ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={s.esRegalo}/>}
-                                                                                    {s.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={s.precioBase ?? 0} onChange={e => handleServiceDetailChange(s.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={s.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={s.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(s.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
-                                                                                    {s.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(s.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(s.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(s.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(s.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={s.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(s.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(s.id)} className="text-xs h-7">+ Añadir Tramo</Button> </div> )}
-                                                                                </>
-                                                                            )}
-                                                                         </div>
-                                                                    </CollapsibleContent>
-                                                                </Collapsible>
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                </SortableServiceItem>
-                                            ))}
+                                            <h4 className="font-semibold text-primary text-sm my-2 border-b">{categoryName}</h4>
+                                            {groupedAndSortedServices.groups[categoryName].map(s => <SortableServiceItem key={s.id} service={s}>{renderServiceCard(s)}</SortableServiceItem>)}
                                           </div>
                                         ))}
+                                        {groupedAndSortedServices.gifts.length > 0 && (
+                                             <div>
+                                                <h4 className="font-semibold text-destructive text-sm my-2 border-b">Regalos Incluidos</h4>
+                                                {groupedAndSortedServices.gifts.map(s => <SortableServiceItem key={s.id} service={s}>{renderServiceCard(s)}</SortableServiceItem>)}
+                                             </div>
+                                        )}
                                         </div>
                                     </SortableContext>
                                 </DndContext>
@@ -610,9 +608,10 @@ export default function ArmadoRapidoSettingsPage() {
   }, [config, loadData, toast]);
 
   const getPriceDisplay = (service: ServicioIncluidoArmadoRapido): string => {
-    if (service.esRegalo) return 'Regalo';
     const catalogService = serviciosCatalogo.find(s => s.id === service.id);
     const priceFromCatalog = catalogService?.precioVenta;
+    
+    if (service.esRegalo) return 'Regalo';
   
     switch (service.calculationMethod) {
       case 'fijo': return formatCurrency(service.precioBase ?? priceFromCatalog);
