@@ -942,12 +942,12 @@
     "precioVenta": 8000
   },
   {
+    "id": "item_1757179560443_ozuhfc9",
     "nombre": "Bogue",
-    "precioVenta": 2900,
-    "categoria": "Servicio de entretenimiento",
     "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "id": "item_1757179560443_ozuhfc9"
+    "precioVenta": 2900
   },
   {
     "id": "serv_fotocabina",
