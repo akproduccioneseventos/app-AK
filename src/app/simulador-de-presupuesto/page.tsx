@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -294,7 +295,7 @@ export default function SimuladorDePresupuestoPage() {
                        <CardContent className="space-y-6">
                            <div className="space-y-2">
                                 <Label className="font-semibold text-lg">1. Entradas (selecciona exactamente 2 opciones)</Label>
-                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
+                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').sort((a,b) => (a.precioFijo || 0) - (b.precioFijo || 0)).map(s=>(
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                         <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); while(n.size > 2) { n.delete(n.values().next().value); } return n;})}}/>
                                         <Label htmlFor={`e-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
@@ -306,7 +307,7 @@ export default function SimuladorDePresupuestoPage() {
                             <div className="space-y-2">
                                 <Label className="font-semibold text-lg">2. Platos Principales (elige 1)</Label>
                                 <RadioGroup value={platoPrincipalId} onValueChange={setPlatoPrincipalId}>
-                                  {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
+                                  {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').sort((a,b) => (a.precioFijo || 0) - (b.precioFijo || 0)).map(s=> (
                                       <Label key={s.id} htmlFor={`pp-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                                           <RadioGroupItem value={s.id} id={`pp-${s.id}`} />
                                           <span className="flex-grow font-normal">{s.nombre}</span>
@@ -319,7 +320,7 @@ export default function SimuladorDePresupuestoPage() {
                              <div className="space-y-2">
                                 <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (elige 1)</Label>
                                  <RadioGroup value={menuInfantilId} onValueChange={setMenuInfantilId}>
-                                    {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=> (
+                                    {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').sort((a,b) => (a.precioFijo || 0) - (b.precioFijo || 0)).map(s=> (
                                         <Label key={s.id} htmlFor={`pi-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                                             <RadioGroupItem value={s.id} id={`pi-${s.id}`} />
                                             <span className="flex-grow font-normal">{s.nombre}</span>
