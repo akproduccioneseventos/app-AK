@@ -919,6 +919,14 @@
     "precioVenta": 23900
   },
   {
+    "id": "item_1757179247226_kn77w50",
+    "nombre": "Lluvia de burbujas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "unidad": "Por evento",
+    "precioVenta": 2000
+  },
+  {
     "id": "serv_discoteca_completa",
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
@@ -932,6 +940,14 @@
     "categoria": "Servicio de discoteca",
     "unidad": "Por evento",
     "precioVenta": 8000
+  },
+  {
+    "nombre": "Bogue",
+    "precioVenta": 2900,
+    "categoria": "Servicio de entretenimiento",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757179560443_ozuhfc9"
   },
   {
     "id": "serv_fotocabina",
@@ -994,7 +1010,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
-    "precioVenta": 3500
+    "precioVenta": 3900
   },
   {
     "id": "serv_fotografia_fiesta",

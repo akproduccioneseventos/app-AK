@@ -199,8 +199,8 @@ export function AddOrEditDialog({
         setModifiedServices(new Map());
     }, [initialItem, isOpen, vendibleServices]);
     
-     const { serviceGroups, giftGroup } = useMemo(() => {
-        if (!localItem || !localItem.serviciosIncluidos) return { serviceGroups: {}, giftGroup: [] };
+     const { regularServiceGroups, giftGroup } = useMemo(() => {
+        if (!localItem || !localItem.serviciosIncluidos) return { regularServiceGroups: {}, giftGroup: [] };
 
         const services = localItem.serviciosIncluidos;
         const nonGifts = services.filter(s => !s.esRegalo);
@@ -230,7 +230,7 @@ export function AddOrEditDialog({
         });
 
 
-        return { serviceGroups: sortedServiceGroups, giftGroup: gifts };
+        return { regularServiceGroups: sortedServiceGroups, giftGroup: gifts };
     }, [localItem, vendibleServices, mode]);
 
 
@@ -265,30 +265,30 @@ export function AddOrEditDialog({
     };
 
 
-    const handleToggleService = (service: ServicioEmpresa) => {
-      if (!service) return;
-      setLocalItem(prev => {
-        if (!prev) return null;
-        const currentServices = prev.serviciosIncluidos || [];
-        const isSelected = currentServices.some(s => s.id === service.id);
-
-        if (isSelected) {
-            toast({ title: "Servicio ya en la lista", description: `"${service.nombre}" ya ha sido añadido.`, variant: "default" });
-            return prev;
-        } else {
-            const newService: ServicioIncluidoArmadoRapido = {
-              id: service.id,
-              nombre: service.nombre,
-              categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
-              calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
-              esRegalo: false,
-              precioFijo: service.precioVenta,
-              precioBase: service.precioVenta,
-              precioPorPersona: service.precioVenta,
-            };
-            return { ...prev, serviciosIncluidos: [...currentServices, newService] };
-        }
-      });
+    const handleToggleService = (service: ServicioEmpresa, isChecked: boolean) => {
+        setLocalItem(prev => {
+            if (!prev) return null;
+            const currentServices = prev.serviciosIncluidos || [];
+            if (isChecked) {
+                if (currentServices.some(s => s.id === service.id)) {
+                    toast({ title: "Servicio ya en la lista", description: `"${service.nombre}" ya ha sido añadido.`, variant: "default" });
+                    return prev;
+                }
+                const newService: ServicioIncluidoArmadoRapido = {
+                    id: service.id,
+                    nombre: service.nombre,
+                    categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
+                    calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
+                    esRegalo: false,
+                    precioFijo: service.precioVenta,
+                    precioBase: service.precioVenta,
+                    precioPorPersona: service.precioVenta,
+                };
+                return { ...prev, serviciosIncluidos: [...currentServices, newService] };
+            } else {
+                return { ...prev, serviciosIncluidos: currentServices.filter(s => s.id !== service.id) };
+            }
+        });
     };
     
     const handleRemoveService = (serviceId: string) => {
@@ -329,7 +329,10 @@ export function AddOrEditDialog({
       })
     };
     
-    const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string | number) => {
+    const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
+        const numericValue = parseInt(value, 10);
+        const finalValue = isNaN(numericValue) ? 0 : numericValue;
+
         setLocalItem(prev => {
             if (!prev) return null;
             const newServicios = prev.serviciosIncluidos.map(s => {
@@ -337,8 +340,7 @@ export function AddOrEditDialog({
                 
                 const newTramos = (s.tramosDePrecio || []).map(t => {
                     if (t.id !== tramoId) return t;
-                    const numericValue = Number(value);
-                    return { ...t, [field]: isNaN(numericValue) ? value : numericValue };
+                    return { ...t, [field]: finalValue };
                 });
                 
                 return { ...s, tramosDePrecio: newTramos };
@@ -482,22 +484,24 @@ export function AddOrEditDialog({
                            {(localItem.serviciosIncluidos || []).length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> :
                              (
                                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                                    <SortableContext items={localItem.serviciosIncluidos.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                                        <div className="space-y-2">
-                                            {Object.entries(serviceGroups).map(([category, services]) => (
-                                                <div key={category}>
-                                                    <h4 className='font-semibold text-sm my-2 border-b text-primary'>{category}</h4>
+                                    <div className="space-y-2">
+                                        {Object.entries(regularServiceGroups).map(([category, services]) => (
+                                            <div key={category}>
+                                                <h4 className='font-semibold text-sm my-2 border-b text-primary'>{category}</h4>
+                                                <SortableContext items={services.map(s => s.id)} strategy={verticalListSortingStrategy}>
                                                     {services.map(service => renderServiceCard(service))}
-                                                </div>
-                                            ))}
-                                            {giftGroup.length > 0 && (
-                                                <div>
-                                                    <h4 className='font-semibold text-sm my-2 border-b text-destructive'>Regalos Incluidos</h4>
+                                                </SortableContext>
+                                            </div>
+                                        ))}
+                                        {giftGroup.length > 0 && (
+                                            <div>
+                                                <h4 className='font-semibold text-sm my-2 border-b text-destructive'>Regalos Incluidos</h4>
+                                                 <SortableContext items={giftGroup.map(s => s.id)} strategy={verticalListSortingStrategy}>
                                                     {giftGroup.map(service => renderServiceCard(service))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </SortableContext>
+                                                 </SortableContext>
+                                            </div>
+                                        )}
+                                    </div>
                                 </DndContext>
                              )
                            }
@@ -518,13 +522,7 @@ export function AddOrEditDialog({
                             const isSelected = (localItem.serviciosIncluidos || []).some(ls => ls.id === s.id);
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
-                                <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => {
-                                    if (checked) {
-                                        handleToggleService(s);
-                                    } else {
-                                        handleRemoveService(s.id);
-                                    }
-                                }} />
+                                <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => handleToggleService(s, !!checked)} />
                                 <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
                                 {isSelected && <Check className="w-4 h-4 text-primary" />}
                                 </div>
