@@ -43,6 +43,7 @@ export interface ArmadoRapidoConfig {
   menus: MenuArmadoRapido[]; // Será un array con un solo elemento que contiene todos los servicios de catering.
   paquetes: PaqueteArmadoRapido[];
   descuentoGeneral?: number; 
+  mostrarPrecios?: boolean; // New setting
 }
 
 
