@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -683,6 +682,8 @@ export default function ArmadoRapidoSettingsPage() {
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   
   const vendibleServices = serviciosCatalogo.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
+  const sortedPaquetes = [...(config.paquetes || [])].sort((a, b) => a.nombre.localeCompare(b.nombre));
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -730,7 +731,7 @@ export default function ArmadoRapidoSettingsPage() {
              <Button onClick={() => openDialog('paquete')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete Nuevo</Button>
              <Separator/>
              <div className="space-y-3">
-              {(config.paquetes || []).map(pkg => {
+              {sortedPaquetes.map(pkg => {
                 const { groupedRegular, giftServices } = getGroupedAndSortedPackageServices(pkg);
                 return (
                  <Collapsible key={pkg.id} className="border rounded-lg shadow-sm bg-muted/40 overflow-hidden">
