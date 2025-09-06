@@ -118,11 +118,12 @@ function AddNewServiceDialog({
   
   const existingCategories = useMemo(() => {
     const categories = new Set(vendibleServices.map(s => s.categoria));
-    if (serviceType === 'general') {
+    // Eliminamos el filtro para que 'Servicio de catering' siempre esté disponible.
+    // if (serviceType === 'general') {
         categories.add('Servicio de catering');
-    }
+    // }
     return Array.from(categories).sort();
-  }, [vendibleServices, serviceType]);
+  }, [vendibleServices]);
 
 
   return (
@@ -201,46 +202,57 @@ export function AddOrEditDialog({
         setModifiedServices(new Map());
     }, [initialItem, isOpen, vendibleServices]);
     
-    const { serviceGroups, giftGroup } = useMemo(() => {
+     const { serviceGroups, giftGroup } = useMemo(() => {
         if (!localItem || !localItem.serviciosIncluidos) return { serviceGroups: {}, giftGroup: [] };
 
         const services = localItem.serviciosIncluidos;
         const nonGifts = services.filter(s => !s.esRegalo);
         const gifts = services.filter(s => s.esRegalo);
-
-        const serviceMap: Record<string, ServicioIncluidoArmadoRapido[]> = {};
         
-        nonGifts.forEach(service => {
-            const category = mode === 'paquete'
-                ? (vendibleServices.find(vs => vs.id === service.id)?.categoria || 'Otros')
-                : (service.categoria || 'Servicio Adicional');
-            if (!serviceMap[category]) {
-                serviceMap[category] = [];
-            }
-            serviceMap[category].push(service);
+        const groupedAndSortedServices: Record<string, ServicioIncluidoArmadoRapido[]> = nonGifts.reduce(
+            (acc, service) => {
+                let category: string;
+                 if (mode === 'menu') {
+                    category = service.categoria || 'Servicio Adicional';
+                } else { // paquete
+                    const catalogService = vendibleServices.find(vs => vs.id === service.id);
+                    category = catalogService?.categoria || 'Otros';
+                }
+
+                if (!acc[category]) {
+                    acc[category] = [];
+                }
+                acc[category].push(service);
+                return acc;
+            }, {} as Record<string, ServicioIncluidoArmadoRapido[]>
+        );
+        
+        const sortedServiceGroups: Record<string, ServicioIncluidoArmadoRapido[]> = {};
+        Object.keys(groupedAndSortedServices).sort().forEach(key => {
+            sortedServiceGroups[key] = groupedAndSortedServices[key];
         });
 
-        // Sort groups alphabetically by category name
-        const sortedServiceGroups: Record<string, ServicioIncluidoArmadoRapido[]> = {};
-        Object.keys(serviceMap).sort().forEach(key => {
-            sortedServiceGroups[key] = serviceMap[key];
-        });
 
         return { serviceGroups: sortedServiceGroups, giftGroup: gifts };
     }, [localItem, vendibleServices, mode]);
 
 
     const filteredCatalog = useMemo(() => {
-        const catalogToShow = mode === 'menu'
-            ? vendibleServices.filter(s => s.categoria === 'Servicio de catering')
-            : vendibleServices;
+        let catalogToShow: ServicioEmpresa[];
+
+        if (mode === 'menu') {
+            catalogToShow = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
+        } else {
+            // Para paquetes, mostrar todos los servicios
+            catalogToShow = vendibleServices;
+        }
         
         if (!searchTerm) return catalogToShow;
 
         const lowerSearch = searchTerm.toLowerCase();
         return catalogToShow.filter(
             s => s.nombre.toLowerCase().includes(lowerSearch) || 
-                 s.categoria?.toLowerCase().includes(lowerSearch)
+                 (s.categoria && s.categoria.toLowerCase().includes(lowerSearch))
         );
     }, [vendibleServices, searchTerm, mode]);
 
@@ -258,29 +270,30 @@ export function AddOrEditDialog({
 
 
     const handleToggleService = (service: ServicioEmpresa) => {
-        if (!service) return;
-        setLocalItem(prev => {
-            if (!prev) return null;
-            const currentServices = prev.serviciosIncluidos || [];
-            const isSelected = currentServices.some(s => s.id === service.id);
+      if (!service) return;
+      setLocalItem(prev => {
+        if (!prev) return null;
+        const currentServices = prev.serviciosIncluidos || [];
+        const isSelected = currentServices.some(s => s.id === service.id);
 
-            if (isSelected) {
-                toast({ title: "Aviso", description: "El servicio ya está en la lista.", variant: "default" });
-                return prev;
-            } else {
-                 const newService: ServicioIncluidoArmadoRapido = {
-                    id: service.id,
-                    nombre: service.nombre,
-                    categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
-                    calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
-                    esRegalo: false,
-                    precioFijo: service.precioVenta,
-                    precioBase: service.precioVenta,
-                    precioPorPersona: service.precioVenta,
-                };
-                return { ...prev, serviciosIncluidos: [...currentServices, newService] };
-            }
-        });
+        if (isSelected) {
+            // Notificar que ya está seleccionado en lugar de no hacer nada.
+            toast({ title: "Servicio ya en la lista", description: `"${service.nombre}" ya ha sido añadido.`, variant: "default" });
+            return prev;
+        } else {
+            const newService: ServicioIncluidoArmadoRapido = {
+              id: service.id,
+              nombre: service.nombre,
+              categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
+              calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
+              esRegalo: false,
+              precioFijo: service.precioVenta,
+              precioBase: service.precioVenta,
+              precioPorPersona: service.precioVenta,
+            };
+            return { ...prev, serviciosIncluidos: [...currentServices, newService] };
+        }
+      });
     };
     
     const handleRemoveService = (serviceId: string) => {
@@ -321,27 +334,29 @@ export function AddOrEditDialog({
       })
     };
     
-    const handleTramoChange = (serviceId: string, tramoIndex: number, field: 'desde' | 'hasta' | 'precio', value: string) => {
-      setLocalItem(prev => {
-        if (!prev) return null;
-        const newServicios = prev.serviciosIncluidos.map(s => {
-          if (s.id !== serviceId) return s;
-          
-          const newTramos = (s.tramosDePrecio || []).map((t, i) => {
-            if (i !== tramoIndex) return t;
-            return { ...t, [field]: value };
-          });
-          
-          return { ...s, tramosDePrecio: newTramos };
+    const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string | number) => {
+        setLocalItem(prev => {
+            if (!prev) return null;
+            const newServicios = prev.serviciosIncluidos.map(s => {
+                if (s.id !== serviceId) return s;
+                
+                const newTramos = (s.tramosDePrecio || []).map(t => {
+                    if (t.id !== tramoId) return t;
+                    // Keep it as a string for the input field to allow editing "0"
+                    // The conversion to number will happen on save
+                    return { ...t, [field]: value };
+                });
+                
+                return { ...s, tramosDePrecio: newTramos };
+            });
+            return { ...prev, serviciosIncluidos: newServicios };
         });
-        return { ...prev, serviciosIncluidos: newServicios };
-      });
     };
     
     const addTramo = (serviceId: string) => {
       const currentTramos = localItem.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
       const lastTramo = currentTramos[currentTramos.length - 1];
-      const newDesde = lastTramo ? (lastTramo.hasta || 0) + 1 : 1;
+      const newDesde = lastTramo ? (Number(lastTramo.hasta) || 0) + 1 : 1;
       
       const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde + 49, precio: 0 };
       
@@ -380,7 +395,12 @@ export function AddOrEditDialog({
             ...localItem,
             serviciosIncluidos: (localItem.serviciosIncluidos || []).map(s => ({
                 ...s,
-                tramosDePrecio: (s.tramosDePrecio || []).map(t => ({...t, precio: Number(t.precio) || 0 }))
+                tramosDePrecio: (s.tramosDePrecio || []).map(t => ({
+                    ...t, 
+                    desde: Number(t.desde) || 0,
+                    hasta: Number(t.hasta) || 0,
+                    precio: Number(t.precio) || 0 
+                }))
             }))
         };
         onSave(finalItem, Array.from(modifiedServices.values()));
@@ -434,7 +454,7 @@ export function AddOrEditDialog({
                                                     {service.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={service.precioBase ?? ''} onChange={e => handleServiceDetailChange(service.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={service.esRegalo}/></div> )}
                                                     {service.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={service.precioPorPersona ?? ''} onChange={e => handleServiceDetailChange(service.id, 'precioPorPersona', e.target.value)} className="h-8 text-xs" disabled={service.esRegalo}/>}
                                                     {service.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={service.precioBase ?? 0} onChange={e => handleServiceDetailChange(service.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={service.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={service.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(service.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
-                                                    {service.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(service.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(service.id,idx,'desde',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(service.id,idx,'hasta',e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(service.id,idx,'precio',e.target.value)} className="h-7 flex-grow text-xs" disabled={service.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(service.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(service.id)} className="text-xs h-7">+ Añadir Tramo</Button></div> )}
+                                                    {service.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(service.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(service.id,tramo.id,'desde',Number(e.target.value) || 0)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(service.id,tramo.id,'hasta',Number(e.target.value) || 0)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(service.id,tramo.id,'precio',Number(e.target.value) || 0)} className="h-7 flex-grow text-xs" disabled={service.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(service.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(service.id)} className="text-xs h-7">+ Añadir Tramo</Button></div> )}
                                                 </>
                                             )}
                                          </div>
