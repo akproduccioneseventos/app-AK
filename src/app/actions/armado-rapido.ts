@@ -50,35 +50,25 @@ export async function saveArmadoRapidoConfig(
       ...newConfigData,
     };
     
-    // Ahora, asegúrate de que todos los servicios incluidos en los paquetes y menús
-    // estén actualizados con los últimos datos del catálogo maestro.
     const allServices = await getServiciosEmpresa();
 
-    const syncServices = (servicios: any[]) => {
-      return servicios.map(s => {
-        const catalogService = allServices.find(cs => cs.id === s.id);
-        if (catalogService) {
-          return {
-            ...s, // Mantiene la configuración específica del paquete (ej. esRegalo)
-            nombre: catalogService.nombre, // Pero actualiza los datos del catálogo
-            categoria: catalogService.categoria,
-            precioBase: s.precioBase ?? catalogService.precioVenta,
-            precioPorPersona: s.precioPorPersona ?? catalogService.precioVenta,
-            precioFijo: s.precioFijo ?? catalogService.precioVenta,
-          };
-        }
-        return s; // Devuelve el servicio como está si no se encuentra en el catálogo (manejo de errores)
-      });
-    };
-
-    if (configToSave.menus) {
-      configToSave.menus.forEach(menu => {
-        menu.serviciosIncluidos = syncServices(menu.serviciosIncluidos);
-      });
-    }
+    // Sincroniza SOLO los paquetes, dejando los menús intactos
     if (configToSave.paquetes) {
       configToSave.paquetes.forEach(paquete => {
-        paquete.serviciosIncluidos = syncServices(paquete.serviciosIncluidos);
+        if(paquete.serviciosIncluidos){
+            paquete.serviciosIncluidos = paquete.serviciosIncluidos.map(s => {
+                const catalogService = allServices.find(cs => cs.id === s.id);
+                if (catalogService) {
+                return {
+                    ...s, 
+                    nombre: catalogService.nombre,
+                    // No sobreescribir la categoría del paquete
+                    // categoria: catalogService.categoria,
+                };
+                }
+                return s; 
+            });
+        }
       });
     }
 
