@@ -126,7 +126,7 @@ export default function SimuladorDePresupuestoPage() {
         return costo;
     }, [entradasSeleccionadas, opcionesMenu, platoPrincipalId, menuInfantilId, numAdultos, numJovenesYNinos]);
 
-    const calcularCostoPaquete = useCallback((pkg: PaqueteArmadoRapido) => {
+     const calcularCostoPaquete = useCallback((pkg: PaqueteArmadoRapido) => {
         let costo = 0;
         const totalInvitados = numAdultos + numJovenesYNinos;
 
@@ -459,4 +459,3 @@ export default function SimuladorDePresupuestoPage() {
         </div>
     );
 }
-
