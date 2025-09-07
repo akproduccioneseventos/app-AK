@@ -115,7 +115,7 @@ function AddNewServiceDialog({
   
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (open) setCategoria('Otros servicios'); setIsOpen(open); }}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { setNombre(''); setPrecioVenta(''); setCategoria('Otros servicios'); } setIsOpen(open); }}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full text-xs">
           <PlusCircle className="w-4 h-4 mr-2" />Crear Nuevo Servicio
@@ -162,7 +162,7 @@ export function AddOrEditDialog({
     onServiceCreated: (newService: ServicioEmpresa) => void;
     onServiceDeleted: (deletedId: string) => void;
 }) {
-    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(initialItem);
+    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
     const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
@@ -171,16 +171,14 @@ export function AddOrEditDialog({
     const sensors = useSensors(useSensor(PointerSensor));
     const { toast } = useToast();
 
-    // Separate state for regular services and gifts to manage reordering correctly
-    const [regularServices, setRegularServices] = useState<ServicioIncluidoArmadoRapido[]>([]);
-    const [giftServices, setGiftServices] = useState<ServicioIncluidoArmadoRapido[]>([]);
-
-
     useEffect(() => {
         setVendibleServices(initialVendibleServices);
-        if (initialItem) {
+    }, [initialVendibleServices]);
+
+    useEffect(() => {
+        if (isOpen && initialItem) {
             const syncedServices = initialItem.serviciosIncluidos.map(service => {
-                const catalogService = initialVendibleServices.find(vs => vs.id === service.id);
+                const catalogService = vendibleServices.find(vs => vs.id === service.id);
                 return {
                     ...service,
                     nombre: catalogService?.nombre || service.nombre,
@@ -191,16 +189,15 @@ export function AddOrEditDialog({
                 };
             });
             setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
-            setRegularServices(syncedServices.filter(s => !s.esRegalo));
-            setGiftServices(syncedServices.filter(s => s.esRegalo));
         } else {
             setLocalItem(null);
-            setRegularServices([]);
-            setGiftServices([]);
         }
         setModifiedServices(new Map());
-    }, [initialItem, isOpen, initialVendibleServices]);
+    }, [initialItem, isOpen, vendibleServices]);
     
+    const regularServices = useMemo(() => localItem?.serviciosIncluidos.filter(s => !s.esRegalo) || [], [localItem]);
+    const giftServices = useMemo(() => localItem?.serviciosIncluidos.filter(s => s.esRegalo) || [], [localItem]);
+
      const groupedRegularServices = useMemo(() => {
       return regularServices.reduce(
           (acc, service) => {
@@ -235,34 +232,29 @@ export function AddOrEditDialog({
     };
 
     const handleToggleService = (service: ServicioEmpresa, isChecked: boolean) => {
-      const isAlreadyInList = regularServices.some(s => s.id === service.id) || giftServices.some(s => s.id === service.id);
-      
-      if (isChecked && isAlreadyInList) {
+      if (isChecked) {
+        if (localItem.serviciosIncluidos.some(s => s.id === service.id)) {
           toast({ title: "Servicio ya en la lista.", variant: "default" });
           return;
-      }
-      if (isChecked) {
+        }
         const newService: ServicioIncluidoArmadoRapido = {
             id: service.id,
             nombre: service.nombre,
-            categoria: service.subcategoria as ServicioCategoriaArmadoRapido || service.categoria as ServicioCategoriaArmadoRapido || 'Otros servicios',
+            categoria: (service.categoria || 'Otros servicios') as ServicioCategoriaArmadoRapido,
             calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
             esRegalo: false,
             precioFijo: service.precioVenta,
             precioBase: service.precioVenta,
             precioPorPersona: service.precioVenta,
         };
-        setRegularServices(prev => [...prev, newService]);
+        setLocalItem(prev => prev ? {...prev, serviciosIncluidos: [...prev.serviciosIncluidos, newService]} : null);
       } else {
-        // This will remove it regardless if it's a gift or not
-        setRegularServices(prev => prev.filter(s => s.id !== service.id));
-        setGiftServices(prev => prev.filter(s => s.id !== service.id));
+        setLocalItem(prev => prev ? {...prev, serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== service.id)} : null);
       }
     };
     
     const handleRemoveService = (serviceId: string) => {
-        setRegularServices(prev => prev.filter(s => s.id !== serviceId));
-        setGiftServices(prev => prev.filter(s => s.id !== serviceId));
+        setLocalItem(prev => prev ? {...prev, serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== serviceId)} : null);
     };
     
      const handleServiceDetailChange = (
@@ -270,36 +262,34 @@ export function AddOrEditDialog({
       field: keyof ServicioIncluidoArmadoRapido,
       value: string | number | boolean | TramoDePrecio[] | undefined
     ) => {
-      const isGiftField = field === 'esRegalo';
-      const isCurrentlyGift = giftServices.some(s => s.id === serviceId);
-      const isBecomingGift = isGiftField && !!value;
-      const isNoLongerGift = isGiftField && !value;
+        setLocalItem(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? {...s, [field]: value} : s)
+            }
+        });
 
-      let serviceToUpdate: ServicioIncluidoArmadoRapido | undefined;
-      
-      if(isNoLongerGift) {
-          serviceToUpdate = giftServices.find(s => s.id === serviceId);
-          setGiftServices(prev => prev.filter(s => s.id !== serviceId));
-      } else if (isBecomingGift) {
-          serviceToUpdate = regularServices.find(s => s.id === serviceId);
-          setRegularServices(prev => prev.filter(s => s.id !== serviceId));
-      } else if(isCurrentlyGift) {
-          setGiftServices(prev => prev.map(s => s.id === serviceId ? {...s, [field]: value} : s));
-      } else {
-          setRegularServices(prev => prev.map(s => s.id === serviceId ? {...s, [field]: value} : s));
-      }
-
-      if(serviceToUpdate){
-         let updatedService = { ...serviceToUpdate, [field]: value };
-          if(isGiftField){
-              updatedService.precioFijo = isBecomingGift ? 0 : serviceToUpdate.precioFijo;
-          }
-          if(isBecomingGift){
-              setGiftServices(prev => [...prev, updatedService]);
-          } else { // Is no longer gift
-              setRegularServices(prev => [...prev, updatedService]);
-          }
-      }
+        if (field === 'esRegalo') {
+            setLocalItem(prev => {
+                if(!prev) return null;
+                const serviceToUpdate = prev.serviciosIncluidos.find(s => s.id === serviceId);
+                if (!serviceToUpdate) return prev;
+                
+                const updatedService = {...serviceToUpdate, esRegalo: !!value};
+                if(!!value){
+                    updatedService.precioFijo = 0;
+                    updatedService.precioBase = 0;
+                    updatedService.precioPorPersona = 0;
+                } else {
+                    const catalogService = vendibleServices.find(vs => vs.id === serviceId);
+                    updatedService.precioFijo = catalogService?.precioVenta;
+                    updatedService.precioBase = catalogService?.precioVenta;
+                    updatedService.precioPorPersona = catalogService?.precioVenta;
+                }
+                return {...prev, serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? updatedService : s)};
+            })
+        }
 
       const priceFields: (keyof ServicioIncluidoArmadoRapido)[] = ['precioBase', 'precioPorPersona', 'precioFijo'];
       if (priceFields.includes(field)) {
@@ -311,20 +301,26 @@ export function AddOrEditDialog({
     };
     
     const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
-        setRegularServices(prev => prev.map(s => {
-            if (s.id !== serviceId) return s;
-            const newTramos = (s.tramosDePrecio || []).map(t => {
-                if (t.id !== tramoId) return t;
-                const numericValue = parseInt(value, 10);
-                const finalValue = isNaN(numericValue) ? 0 : numericValue;
-                return { ...t, [field]: finalValue };
-            });
-            return { ...s, tramosDePrecio: newTramos };
-        }));
+        setLocalItem(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                serviciosIncluidos: prev.serviciosIncluidos.map(s => {
+                    if (s.id !== serviceId) return s;
+                    const newTramos = (s.tramosDePrecio || []).map(t => {
+                        if (t.id !== tramoId) return t;
+                        const numericValue = parseInt(value, 10);
+                        const finalValue = isNaN(numericValue) ? 0 : numericValue;
+                        return { ...t, [field]: finalValue };
+                    });
+                    return { ...s, tramosDePrecio: newTramos };
+                })
+            };
+        });
     };
     
     const addTramo = (serviceId: string) => {
-      const currentTramos = regularServices.find(s => s.id === serviceId)?.tramosDePrecio || [];
+      const currentTramos = localItem?.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
       const lastTramo = currentTramos[currentTramos.length - 1];
       const newDesde = lastTramo ? (Number(lastTramo.hasta) || 0) + 1 : 1;
       const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde + 49, precio: 0 };
@@ -332,22 +328,34 @@ export function AddOrEditDialog({
     };
     
     const removeTramo = (serviceId: string, tramoId: string) => {
-        const currentTramos = regularServices.find(s => s.id === serviceId)?.tramosDePrecio || [];
+        const currentTramos = localItem?.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
         handleServiceDetailChange(serviceId, 'tramosDePrecio', currentTramos.filter(t => t.id !== tramoId));
     };
 
     const handleCategoryChange = (serviceId: string, newCategory: ServicioCategoriaArmadoRapido) => {
-        setRegularServices(prev => prev.map(s => s.id === serviceId ? {...s, categoria: newCategory} : s))
+        setLocalItem(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? {...s, categoria: newCategory} : s)
+            }
+        })
     }
 
     const handleDragEnd = (event: DragEndEvent, listType: 'regular' | 'gift') => {
         const { active, over } = event;
         if (over && active.id !== over.id) {
-            const setList = listType === 'regular' ? setRegularServices : setGiftServices;
-            setList((items) => {
-                const oldIndex = items.findIndex(s => s.id === active.id);
-                const newIndex = items.findIndex(s => s.id === over.id);
-                return arrayMove(items, oldIndex, newIndex);
+            setLocalItem(prev => {
+                if(!prev) return null;
+                const currentList = prev.serviciosIncluidos.filter(s => listType === 'gift' ? s.esRegalo : !s.esRegalo);
+                const otherList = prev.serviciosIncluidos.filter(s => listType === 'gift' ? !s.esRegalo : s.esRegalo);
+                
+                const oldIndex = currentList.findIndex(s => s.id === active.id);
+                const newIndex = currentList.findIndex(s => s.id === over.id);
+
+                const reorderedList = arrayMove(currentList, oldIndex, newIndex);
+                
+                return {...prev, serviciosIncluidos: [...otherList, ...reorderedList]};
             });
         }
     };
@@ -370,10 +378,9 @@ export function AddOrEditDialog({
     };
 
     const handleSaveAndExit = () => {
-        const allServices = [...regularServices, ...giftServices];
         const finalItem = {
             ...localItem,
-            serviciosIncluidos: allServices.map(s => ({
+            serviciosIncluidos: (localItem.serviciosIncluidos || []).map(s => ({
                 ...s,
                 tramosDePrecio: (s.tramosDePrecio || []).map(t => ({
                     ...t, 
@@ -511,7 +518,7 @@ export function AddOrEditDialog({
                         <ScrollArea className="h-full border rounded-md p-2">
                           {filteredCatalog.length > 0 ? filteredCatalog.map(s => {
                             if(!s) return null;
-                            const isSelected = regularServices.some(ls => ls.id === s.id) || giftServices.some(gs => gs.id === s.id);
+                            const isSelected = localItem.serviciosIncluidos.some(ls => ls.id === s.id);
                             return (
                                 <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md group">
                                 <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => handleToggleService(s, !!checked)} />
@@ -807,3 +814,5 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
+
+

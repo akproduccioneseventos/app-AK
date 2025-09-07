@@ -819,6 +819,14 @@
     "precioVenta": 9000
   },
   {
+    "nombre": "Bogue",
+    "precioVenta": 2900,
+    "categoria": "Servicio de entretenimiento",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757280812776_9jzr1bb"
+  },
+  {
     "id": "item_1757258121428_4wd3ed5",
     "nombre": "Fotografia de exteriores",
     "tipoItem": "Servicio",
@@ -827,11 +835,11 @@
     "precioVenta": 3900
   },
   {
+    "id": "item_1757280489194_y9qozwm",
     "nombre": "Torta principal",
-    "precioVenta": 100,
-    "categoria": "Servicio de repostería",
     "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
     "unidad": "Por evento",
-    "id": "item_1757280489194_y9qozwm"
+    "precioVenta": 100
   }
 ]
