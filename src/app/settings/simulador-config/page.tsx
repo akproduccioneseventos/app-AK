@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -227,17 +226,13 @@ export function AddOrEditDialog({
     const filteredCatalog = useMemo(() => {
         let catalogToShow = vendibleServices;
 
-        if (mode === 'menu') {
-            catalogToShow = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
-        }
-
         if (!searchTerm) return catalogToShow;
         const lowerSearch = searchTerm.toLowerCase();
         return catalogToShow.filter(
             s => s.nombre.toLowerCase().includes(lowerSearch) || 
                  (s.categoria && s.categoria.toLowerCase().includes(lowerSearch))
         );
-    }, [vendibleServices, searchTerm, mode]);
+    }, [vendibleServices, searchTerm]);
 
     if (!localItem) return null;
 
@@ -260,7 +255,7 @@ export function AddOrEditDialog({
         const newService: ServicioIncluidoArmadoRapido = {
             id: service.id,
             nombre: service.nombre,
-            categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : 'Servicio Adicional',
+            categoria: mode === 'menu' ? (service.subcategoria as ServicioCategoriaArmadoRapido || 'Entrada') : (service.categoria as ServicioCategoriaArmadoRapido | 'Otros servicios'),
             calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
             esRegalo: false,
             precioFijo: service.precioVenta,
