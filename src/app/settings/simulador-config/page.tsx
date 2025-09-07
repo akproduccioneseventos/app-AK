@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit, DollarSign, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
@@ -430,7 +430,7 @@ export function AddOrEditDialog({
                                                         <SelectContent>
                                                         <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
                                                         <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
-                                                        <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 por cada X personas)</SelectItem>
+                                                        <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 cada X personas)</SelectItem>
                                                         <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
                                                         </SelectContent>
                                                     </Select>
@@ -505,7 +505,7 @@ export function AddOrEditDialog({
                         <AddNewServiceDialog 
                           onServiceCreated={(newService) => {
                             setVendibleServices(prev => [newService, ...prev]);
-                            onServiceCreated();
+                            onServiceCreated(newService);
                           }}
                         />
                         <ScrollArea className="h-full border rounded-md p-2">
@@ -574,9 +574,9 @@ export default function ArmadoRapidoSettingsPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
   
-  const handleSaveConfig = useCallback(async (newConfig: ArmadoRapidoConfig, updatedServices: ServicioEmpresa[] = []) => {
+  const handleSaveConfig = useCallback(async (newConfig: ArmadoRapidoConfig) => {
     try {
-        const result = await updateArmadoRapidoAndSyncServices(newConfig, updatedServices);
+        const result = await saveArmadoRapidoConfig(newConfig);
         if (result.success) {
             toast({ title: "¡Guardado!", description: "La configuración ha sido actualizada." });
             await loadData();
@@ -591,6 +591,16 @@ export default function ArmadoRapidoSettingsPage() {
   const handleSaveItem = useCallback(async (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido, updatedServices: ServicioEmpresa[]) => {
     if (!config) return;
     
+    // First save any modified services to the main catalog
+    try {
+      for (const service of updatedServices) {
+        await saveServicioEmpresa(service);
+      }
+    } catch (err: any) {
+        toast({ title: "Error al sincronizar", description: "No se pudieron guardar los cambios en el catálogo de servicios: " + err.message, variant: "destructive"});
+        return; // Stop if service sync fails
+    }
+
     let newConfig: ArmadoRapidoConfig;
     if (modalMode === 'menu') {
         newConfig = { ...config, menus: [itemToSave as MenuArmadoRapido] };
@@ -605,10 +615,10 @@ export default function ArmadoRapidoSettingsPage() {
         newConfig = { ...config, paquetes: list };
     }
 
-    await handleSaveConfig(newConfig, updatedServices);
+    await handleSaveConfig(newConfig);
     setIsModalOpen(false);
 
-  }, [config, modalMode, handleSaveConfig]);
+  }, [config, modalMode, handleSaveConfig, toast]);
 
   const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
     setModalMode(mode);

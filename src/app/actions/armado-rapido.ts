@@ -6,7 +6,7 @@ import path from 'path';
 import type { ArmadoRapidoConfig, LeadGenerationData } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { addCrmLead, getCrmStages } from './crm'; // Importar getCrmStages
-import { saveServicioEmpresa } from './servicios-empresa'; // Importar saveServicioEmpresa
+import { saveServicioEmpresa, getServiciosEmpresa } from './servicios-empresa';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
@@ -27,9 +27,11 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   try {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
     const parsedConfig = fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
-    parsedConfig.menus = parsedConfig.menus || [];
-    parsedConfig.paquetes = parsedConfig.paquetes || [];
-    return parsedConfig;
+    // Merge with defaults to ensure all keys are present
+    const finalConfig = { ...defaultConfig, ...parsedConfig };
+    finalConfig.menus = finalConfig.menus || [];
+    finalConfig.paquetes = finalConfig.paquetes || [];
+    return finalConfig;
   } catch (error) {
     console.error("Error reading armado-rapido-config.json, returning default. The file will NOT be overwritten.", error);
     return defaultConfig;
@@ -41,12 +43,45 @@ export async function saveArmadoRapidoConfig(
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
+    // Lee la configuración existente para asegurarse de no perder datos
     const existingConfig = await getArmadoRapidoConfig();
     const configToSave: ArmadoRapidoConfig = {
       ...existingConfig,
       ...newConfigData,
     };
     
+    // Ahora, asegúrate de que todos los servicios incluidos en los paquetes y menús
+    // estén actualizados con los últimos datos del catálogo maestro.
+    const allServices = await getServiciosEmpresa();
+
+    const syncServices = (servicios: any[]) => {
+      return servicios.map(s => {
+        const catalogService = allServices.find(cs => cs.id === s.id);
+        if (catalogService) {
+          return {
+            ...s, // Mantiene la configuración específica del paquete (ej. esRegalo)
+            nombre: catalogService.nombre, // Pero actualiza los datos del catálogo
+            categoria: catalogService.categoria,
+            precioBase: s.precioBase ?? catalogService.precioVenta,
+            precioPorPersona: s.precioPorPersona ?? catalogService.precioVenta,
+            precioFijo: s.precioFijo ?? catalogService.precioVenta,
+          };
+        }
+        return s; // Devuelve el servicio como está si no se encuentra en el catálogo (manejo de errores)
+      });
+    };
+
+    if (configToSave.menus) {
+      configToSave.menus.forEach(menu => {
+        menu.serviciosIncluidos = syncServices(menu.serviciosIncluidos);
+      });
+    }
+    if (configToSave.paquetes) {
+      configToSave.paquetes.forEach(paquete => {
+        paquete.serviciosIncluidos = syncServices(paquete.serviciosIncluidos);
+      });
+    }
+
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
     return { success: true };
   } catch (error: any) {
@@ -67,7 +102,7 @@ export async function updateArmadoRapidoAndSyncServices(
     }
 
     // 2. Save the Armado Rapido config (which now doesn't store prices)
-    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
+    await saveArmadoRapidoConfig(configToSave);
 
     return { success: true };
   } catch (error: any) {
