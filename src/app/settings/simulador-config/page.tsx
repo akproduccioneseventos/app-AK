@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit, DollarSign, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { Separator } from '@/components/ui/separator';
@@ -72,7 +72,7 @@ function AddNewServiceDialog({
   serviceType,
   vendibleServices = []
 }: { 
-  onServiceCreated: (newService: ServicioEmpresa) => void,
+  onServiceCreated: () => void,
   serviceType: 'catering' | 'general',
   vendibleServices?: ServicioEmpresa[]
 }) {
@@ -101,7 +101,7 @@ function AddNewServiceDialog({
       const result = await saveServicioEmpresa(newServiceData);
       if (result.success && result.servicio) {
         toast({ title: "Servicio Creado" });
-        onServiceCreated(result.servicio);
+        onServiceCreated();
         setIsOpen(false);
         setNombre('');
         setPrecioVenta('');
@@ -163,7 +163,8 @@ export function AddOrEditDialog({
     item: initialItem,
     vendibleServices,
     mode,
-    onServiceCreated
+    onServiceCreated,
+    onServiceDeleted
 }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
@@ -172,11 +173,13 @@ export function AddOrEditDialog({
     vendibleServices: ServicioEmpresa[];
     mode: 'menu' | 'paquete';
     onServiceCreated: () => void;
+    onServiceDeleted: () => void;
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(initialItem);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
     const [modifiedServices, setModifiedServices] = useState<Map<string, ServicioEmpresa>>(new Map());
+    const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
     const sensors = useSensors(useSensor(PointerSensor));
     const { toast } = useToast();
 
@@ -366,6 +369,23 @@ export function AddOrEditDialog({
             });
         }
     };
+    
+    const handleDeleteServiceFromCatalog = async (service: ServicioEmpresa) => {
+        setDeletingServiceId(service.id);
+        try {
+            const result = await deleteServicioEmpresa(service.id);
+            if (result.success) {
+                toast({ title: "Servicio Eliminado", description: `"${service.nombre}" fue eliminado del catálogo.` });
+                onServiceDeleted(); // This will trigger a re-fetch in the parent component
+            } else {
+                throw new Error(result.error || "No se pudo eliminar el servicio.");
+            }
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally {
+            setDeletingServiceId(null);
+        }
+    };
 
     const handleSaveAndExit = () => {
         const allServices = [...regularServices, ...giftServices];
@@ -507,10 +527,23 @@ export function AddOrEditDialog({
                             if(!s) return null;
                             const isSelected = regularServices.some(ls => ls.id === s.id) || giftServices.some(gs => gs.id === s.id);
                             return (
-                                <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md">
+                                <div key={s.id} className="flex items-center gap-3 my-1 p-1 hover:bg-muted rounded-md group">
                                 <Checkbox id={`cat-${s.id}`} checked={isSelected} onCheckedChange={(checked) => handleToggleService(s, !!checked)} />
                                 <Label htmlFor={`cat-${s.id}`} className="cursor-pointer flex-grow text-sm">{s.nombre} - {formatCurrency(s.precioVenta)}</Label>
-                                {isSelected && <Check className="w-4 h-4 text-primary" />}
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Trash2 className="w-4 h-4"/>
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar del Catálogo?</AlertDialogTitle><AlertDialogDescription>Se eliminará "{s.nombre}" del catálogo maestro de servicios. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction className="bg-destructive" onClick={() => handleDeleteServiceFromCatalog(s)}>Eliminar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                                 </div>
                             )
                           }) : <p className="text-sm text-center text-muted-foreground p-4">No se encontraron servicios.</p>}
@@ -688,7 +721,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData} onServiceDeleted={loadData}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración Simulador de Presupuesto</h1></div>
         <Link href="/settings/budget-display" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
