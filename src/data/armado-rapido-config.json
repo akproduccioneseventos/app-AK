@@ -269,7 +269,7 @@
   "paquetes": [
     {
       "id": "new_paquete_1757178904770",
-      "nombre": "Nuevo Paquete",
+      "nombre": "Paquete Intermedia",
       "serviciosIncluidos": [
         {
           "id": "serv_discoteca_completa",
@@ -370,6 +370,61 @@
           "tramosDePrecio": []
         },
         {
+          "id": "serv_1752489600086_barlib",
+          "nombre": "Barra libre con tragos",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 350,
+          "precioBase": 350,
+          "precioPorPersona": 350,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_fotocabina",
+          "nombre": "Fotocabina",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 2900,
+          "precioBase": 2900,
+          "precioPorPersona": 2900,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600109_plat360",
+          "nombre": "Plataforma 360",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 3900,
+          "precioBase": 3900,
+          "precioPorPersona": 3900,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_cuadro_firmas",
+          "nombre": "Cuadro de firmas",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 2900,
+          "precioBase": 2900,
+          "precioPorPersona": 2900,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600099_zonafot",
+          "nombre": "Decoración de zona de fotos con sillón divan",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 5000,
+          "precioBase": 5000,
+          "precioPorPersona": 5000,
+          "tramosDePrecio": []
+        },
+        {
           "id": "item_1757177826475_9vzfx4g",
           "nombre": "Album Digital",
           "categoria": "Servicio Adicional",
@@ -417,7 +472,7 @@
     },
     {
       "id": "new_paquete_1757252824403",
-      "nombre": "Nuevo Paquete (Copia)",
+      "nombre": "Paquete Básico",
       "serviciosIncluidos": [
         {
           "id": "serv_discoteca_completa",
@@ -428,6 +483,7 @@
           "precioFijo": 9000,
           "precioBase": 9000,
           "precioPorPersona": 9000,
+          "invitadosPorUnidad": 0,
           "tramosDePrecio": [
             {
               "id": "tramo_1757178918059",
