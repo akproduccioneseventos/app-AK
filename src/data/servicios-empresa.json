@@ -859,12 +859,12 @@
     "precioVenta": 100
   },
   {
+    "id": "item_1757282105396_39i6zkn",
     "nombre": "Album digital personalizado",
-    "precioVenta": 3000,
-    "categoria": "Servicio de fotografía",
     "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
-    "id": "item_1757282105396_39i6zkn"
+    "precioVenta": 3000
   },
   {
     "id": "item_1757258121428_4wd3ed5",

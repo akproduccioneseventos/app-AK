@@ -162,7 +162,7 @@ export function AddOrEditDialog({
     onServiceCreated: (newService: ServicioEmpresa) => void;
     onServiceDeleted: (deletedId: string) => void;
 }) {
-    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(initialItem);
+    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
     const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
@@ -174,10 +174,12 @@ export function AddOrEditDialog({
         setVendibleServices(initialVendibleServices);
     }, [initialVendibleServices]);
     
-    useEffect(() => {
-        if(isOpen) {
-            // Deep copy to prevent modifying the original state directly
+     useEffect(() => {
+        if (isOpen) {
             setLocalItem(initialItem ? JSON.parse(JSON.stringify(initialItem)) : null);
+        } else {
+            setLocalItem(null);
+            setSearchTerm('');
         }
     }, [isOpen, initialItem]);
     
@@ -202,8 +204,10 @@ export function AddOrEditDialog({
         let servicesToFilter = vendibleServices;
         
         if (mode === 'menu') {
-            const cateringCategories: ServicioCategoriaArmadoRapido[] = ['Entrada', 'Plato Principal', 'Menú Adolescente / Niño', 'Servicio Adicional'];
-            servicesToFilter = vendibleServices.filter(s => s.categoria && cateringCategories.includes(s.categoria as ServicioCategoriaArmadoRapido) || s.categoria === 'Servicio de catering');
+            const cateringCategories: string[] = ['Servicio de catering', 'Entrada', 'Plato Principal', 'Menú Adolescente / Niño'];
+            servicesToFilter = vendibleServices.filter(s => s.categoria && cateringCategories.includes(s.categoria));
+        } else {
+             servicesToFilter = vendibleServices.filter(s => s.categoria !== 'Servicio de catering');
         }
 
         if (!searchTerm) return servicesToFilter;
@@ -799,3 +803,4 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
+
