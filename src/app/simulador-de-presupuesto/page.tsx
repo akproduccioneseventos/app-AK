@@ -289,7 +289,7 @@ export default function SimuladorDePresupuestoPage() {
                   </motion.div>
                 );
             case 3:
-                 return (
+                return (
                     <motion.div key="paso3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 3: Arma tu Menú</CardTitle><CardDescription>Elige las opciones para tu evento.</CardDescription></CardHeader>
                        <CardContent className="space-y-6">
@@ -397,4 +397,3 @@ export default function SimuladorDePresupuestoPage() {
         </div>
     );
 }
-

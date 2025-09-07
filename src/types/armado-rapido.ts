@@ -1,5 +1,6 @@
 
-export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Menú Adolescente / Niño' | 'Servicio Adicional';
+
+export type ServicioCategoriaArmadoRapido = 'Entrada' | 'Plato Principal' | 'Menú Adolescente / Niño' | 'Servicio Adicional' | 'Servicio de catering';
 
 export interface TramoDePrecio {
   id: string;
