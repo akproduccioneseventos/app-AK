@@ -204,7 +204,7 @@ export function AddOrEditDialog({
         let servicesToFilter = vendibleServices;
         
         if (mode === 'menu') {
-            const cateringCategories: string[] = ['Servicio de catering', 'Entrada', 'Plato Principal', 'Menú Adolescente / Niño', 'Servicio Adicional'];
+            const cateringCategories: string[] = ['Entrada', 'Plato Principal', 'Menú Adolescente / Niño', 'Servicio Adicional', 'Servicio de catering'];
             servicesToFilter = vendibleServices.filter(s => s.categoria && cateringCategories.includes(s.categoria));
         } else {
              servicesToFilter = vendibleServices.filter(s => s.categoria !== 'Servicio de catering');
@@ -669,7 +669,9 @@ export default function ArmadoRapidoSettingsPage() {
         return acc;
     }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
     
-    return { groupedRegular, giftServices };
+    const sortedCategories = Object.keys(groupedRegular).sort((a,b) => a.localeCompare(b));
+    
+    return { groupedRegular, giftServices, sortedCategories };
   };
 
   if (isLoading || !config) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -734,8 +736,7 @@ export default function ArmadoRapidoSettingsPage() {
              <Separator/>
              <div className="space-y-3">
               {sortedPaquetes.map(pkg => {
-                const { groupedRegular, giftServices } = getGroupedAndSortedPackageServices(pkg);
-                const sortedCategories = Object.keys(groupedRegular).sort();
+                const { groupedRegular, giftServices, sortedCategories } = getGroupedAndSortedPackageServices(pkg);
                 return (
                  <Collapsible key={pkg.id} className="border rounded-lg shadow-sm bg-muted/40 overflow-hidden">
                     <CollapsibleTrigger className="flex items-center justify-between p-3 w-full hover:bg-muted/60">

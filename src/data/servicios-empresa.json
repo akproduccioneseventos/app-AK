@@ -803,12 +803,28 @@
     "precioVenta": 70
   },
   {
+    "id": "item_1757285123224_r671pqr",
+    "nombre": "Cuadro de firmas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "unidad": "Por evento",
+    "precioVenta": 2900
+  },
+  {
     "id": "item_1757258437308_s0lgq1z",
     "nombre": "Servicio de decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "unidad": "Por evento",
     "precioVenta": 14500
+  },
+  {
+    "nombre": "Zona de Fotografía con sillón diván",
+    "precioVenta": 5000,
+    "categoria": "Servicio de decoración",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757285163028_qyoj9ae"
   },
   {
     "id": "item_1757281306778_y5bsuqu",
@@ -851,12 +867,28 @@
     "precioVenta": 3900
   },
   {
+    "id": "item_1757284864269_4d9w4ml",
+    "nombre": "Fotocabina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "unidad": "Por evento",
+    "precioVenta": 2900
+  },
+  {
     "id": "item_1757281638453_cckt0t5",
     "nombre": "Mesa Glitter",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
     "precioVenta": 100
+  },
+  {
+    "id": "item_1757284889281_ioj7571",
+    "nombre": "Plataforma 360",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "unidad": "Por evento",
+    "precioVenta": 3900
   },
   {
     "id": "item_1757282105396_39i6zkn",
@@ -881,6 +913,14 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 9000
+  },
+  {
+    "id": "item_1757285027582_71oyrff",
+    "nombre": "Fuente de chocolate con mesa dulce",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "unidad": "Por evento",
+    "precioVenta": 120
   },
   {
     "id": "item_1757280489194_y9qozwm",
