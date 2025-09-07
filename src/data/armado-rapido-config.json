@@ -1,6 +1,12 @@
 {
   "descuentoGeneral": 15,
-  "paquetes": [],
+  "paquetes": [
+    {
+      "id": "new_paquete_1757281559971",
+      "nombre": "Nuevo Paquete",
+      "serviciosIncluidos": []
+    }
+  ],
   "menus": [
     {
       "id": "menu_catering",

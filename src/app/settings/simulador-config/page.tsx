@@ -162,7 +162,7 @@ export function AddOrEditDialog({
     onServiceCreated: (newService: ServicioEmpresa) => void;
     onServiceDeleted: (deletedId: string) => void;
 }) {
-    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
+    const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(initialItem);
     const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
@@ -173,25 +173,12 @@ export function AddOrEditDialog({
     useEffect(() => {
         setVendibleServices(initialVendibleServices);
     }, [initialVendibleServices]);
-
+    
     useEffect(() => {
-        if (isOpen && initialItem) {
-             const syncedServices = initialItem.serviciosIncluidos.map(service => {
-                const catalogService = vendibleServices.find(vs => vs.id === service.id);
-                return {
-                    ...service,
-                    nombre: catalogService?.nombre || service.nombre,
-                    precioBase: service.precioBase ?? catalogService?.precioVenta,
-                    precioFijo: service.precioFijo ?? catalogService?.precioVenta,
-                    precioPorPersona: service.precioPorPersona ?? catalogService?.precioVenta,
-                    categoria: catalogService?.categoria as ServicioCategoriaArmadoRapido || 'Otros servicios',
-                };
-            });
-            setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
-        } else if (!isOpen) {
-            setLocalItem(null); // Reset when closing
+        if(isOpen) {
+            setLocalItem(JSON.parse(JSON.stringify(initialItem)));
         }
-    }, [initialItem, isOpen, vendibleServices]);
+    }, [isOpen, initialItem]);
     
     const regularServices = useMemo(() => localItem?.serviciosIncluidos.filter(s => !s.esRegalo) || [], [localItem]);
     const giftServices = useMemo(() => localItem?.serviciosIncluidos.filter(s => s.esRegalo) || [], [localItem]);
@@ -692,19 +679,15 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} 
-      onServiceCreated={(newService) => {
-          setServiciosCatalogo(prev => [newService, ...prev]);
-          if(currentItem) {
-            setLocalItem(prev => prev ? {...prev, serviciosIncluidos: [...prev.serviciosIncluidos]} : null);
-          }
-      }} 
-      onServiceDeleted={(deletedId) => { 
-        setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId)); 
-        if (currentItem) {
-           setLocalItem(prev => prev ? { ...prev, serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== deletedId) } : null);
-        }
-      }}
+      {isModalOpen && <AddOrEditDialog 
+        isOpen={isModalOpen} 
+        onOpenChange={setIsModalOpen} 
+        item={currentItem} 
+        vendibleServices={vendibleServices} 
+        mode={modalMode} 
+        onSave={handleSaveItem} 
+        onServiceCreated={(newService) => setServiciosCatalogo(prev => [newService, ...prev])}
+        onServiceDeleted={(deletedId) => setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId))}
       />}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración Simulador de Presupuesto</h1></div>
