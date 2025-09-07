@@ -825,5 +825,13 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3900
+  },
+  {
+    "nombre": "Torta principal",
+    "precioVenta": 100,
+    "categoria": "Servicio de repostería",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757280489194_y9qozwm"
   }
 ]

@@ -698,7 +698,7 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={loadData} onServiceDeleted={(deletedId) => { setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId)); }}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={(newService) => setServiciosCatalogo(prev => [newService, ...prev])} onServiceDeleted={(deletedId) => { setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId)); }}/>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración Simulador de Presupuesto</h1></div>
         <Link href="/settings/budget-display" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
