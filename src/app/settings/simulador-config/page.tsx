@@ -13,7 +13,7 @@ import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/
 import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
-import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa'; // Import the full list
+import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa'; 
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Checkbox } from '@/components/ui/checkbox';
@@ -226,6 +226,10 @@ export function AddOrEditDialog({
 
     const filteredCatalog = useMemo(() => {
         let catalogToShow = vendibleServices;
+
+        if (mode === 'menu') {
+            catalogToShow = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
+        }
 
         if (!searchTerm) return catalogToShow;
         const lowerSearch = searchTerm.toLowerCase();
@@ -525,7 +529,7 @@ export function AddOrEditDialog({
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Trash2 className="w-4 h-4"/>
+                                            {deletingServiceId === s.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                                         </Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
