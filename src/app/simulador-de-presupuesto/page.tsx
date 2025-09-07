@@ -101,8 +101,7 @@ export default function SimuladorDePresupuestoPage() {
     
     const opcionesMenu = useMemo(() => {
         if (!config?.menus) return undefined;
-        // La lógica asume que el primer menú (y único) contiene todas las opciones de catering
-        const cateringMenu = config.menus[0];
+        const cateringMenu = config.menus.find(m => m.id === 'menu_catering');
         if (!cateringMenu) return undefined;
 
         // Filtrar y ordenar las opciones del menú
@@ -136,8 +135,12 @@ export default function SimuladorDePresupuestoPage() {
             
             let costoServicio = 0;
             switch(servicio.calculationMethod) {
-                case 'fijo': costoServicio = servicio.precioBase || 0; break;
-                case 'porPersona': costoServicio = (servicio.precioPorPersona || 0) * totalInvitados; break;
+                case 'fijo': 
+                    costoServicio = servicio.precioBase || 0; 
+                    break;
+                case 'porPersona': 
+                    costoServicio = (servicio.precioPorPersona || servicio.precioBase || 0) * totalInvitados; 
+                    break;
                 case 'ratio': 
                     const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
                     if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
@@ -146,8 +149,12 @@ export default function SimuladorDePresupuestoPage() {
                         console.warn(`Servicio con ratio inválido: ${servicio.nombre} (invitadosPorUnidad: ${servicio.invitadosPorUnidad})`);
                     }
                     break;
-                case 'tramos': const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta); costoServicio = tramo?.precio || 0; break;
-                default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
+                case 'tramos':
+                    const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+                    costoServicio = tramo?.precio || 0;
+                    break;
+                default: 
+                    costoServicio = servicio.precioFijo || servicio.precioBase || 0;
             }
             costo += costoServicio;
         });
@@ -209,9 +216,9 @@ export default function SimuladorDePresupuestoPage() {
                         precioUnitario = costoServicio;
                         break;
                     case 'porPersona': 
-                        costoServicio = (servicio.precioPorPersona || 0) * totalInvitados; 
+                        costoServicio = (servicio.precioPorPersona || servicio.precioBase || 0) * totalInvitados; 
                         cantidad = totalInvitados;
-                        precioUnitario = servicio.precioPorPersona || 0;
+                        precioUnitario = servicio.precioPorPersona || servicio.precioBase || 0;
                         break;
                     case 'ratio': 
                         const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
