@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Wand2, Users, ChefHat, Package, Check, ArrowRight, User, Phone, List, DollarSign } from 'lucide-react';
+import { ArrowLeft, Loader2, Wand2, Users, ChefHat, Package, Check, ArrowRight, User, Phone, List, DollarSign, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
@@ -335,6 +335,24 @@ export default function SimuladorDePresupuestoPage() {
                     </motion.div>
                 );
             case 4:
+                const getGroupedAndSortedPackageServices = (pkg: PaqueteArmadoRapido) => {
+                    const regularServices = pkg.serviciosIncluidos.filter(s => !s.esRegalo);
+                    const giftServices = pkg.serviciosIncluidos.filter(s => s.esRegalo);
+                    
+                    const groupedRegular = regularServices.reduce((acc, service) => {
+                        const category = service.categoria || 'Otros servicios';
+                        if (!acc[category]) {
+                            acc[category] = [];
+                        }
+                        acc[category].push(service);
+                        return acc;
+                    }, {} as Record<string, ServicioIncluidoArmadoRapido[]>);
+                    
+                    const sortedCategories = Object.keys(groupedRegular).sort((a,b) => a.localeCompare(b));
+                    
+                    return { groupedRegular, giftServices, sortedCategories };
+                  };
+
                 return (
                     <motion.div key="paso4" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 4: Elige tu Combo de Servicios</CardTitle><CardDescription>Selecciona un combo de servicios adicionales (DJ, foto, etc.).</CardDescription></CardHeader>
@@ -345,6 +363,7 @@ export default function SimuladorDePresupuestoPage() {
                                     const costoPaquete = calcularCostoPaquete(pkg);
                                     const subtotal = costoCatering + costoPaquete;
                                     const totalConDescuento = subtotal * (1 - (config.descuentoGeneral || 0) / 100);
+                                    const { groupedRegular, giftServices, sortedCategories } = getGroupedAndSortedPackageServices(pkg);
 
                                     return (
                                         <Accordion type="single" collapsible key={pkg.id}>
@@ -359,9 +378,24 @@ export default function SimuladorDePresupuestoPage() {
                                                     <AccordionTrigger className="p-2 hover:no-underline [&[data-state=open]>svg]:text-primary" />
                                                 </Label>
                                                 <AccordionContent className="p-3 text-sm">
-                                                    <ul className="list-disc pl-5 text-muted-foreground space-y-1">
-                                                        {pkg.serviciosIncluidos.map(s => <li key={s.id}>{s.nombre} {s.esRegalo ? <Badge variant="destructive" className="ml-1">(Regalo)</Badge> : ''}</li>)}
-                                                    </ul>
+                                                    <div className="space-y-2">
+                                                        {sortedCategories.map(category => (
+                                                            <div key={category}>
+                                                                <h4 className="font-semibold text-xs uppercase text-muted-foreground">{category}</h4>
+                                                                <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+                                                                    {groupedRegular[category].map(s => <li key={s.id}>{s.nombre}</li>)}
+                                                                </ul>
+                                                            </div>
+                                                        ))}
+                                                        {giftServices.length > 0 && (
+                                                             <div>
+                                                                <h4 className="font-semibold text-xs uppercase text-primary">Regalos Incluidos</h4>
+                                                                <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+                                                                    {giftServices.map(s => <li key={s.id}>{s.nombre}</li>)}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </AccordionContent>
                                             </AccordionItem>
                                         </Accordion>
