@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit, DollarSign, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
@@ -129,7 +129,7 @@ function AddNewServiceDialog({
           <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio*</Label><Input id="new-serv-name" value={nombre} onChange={e => setNombre(e.target.value)} /></div>
           <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Base*</Label><Input id="new-serv-price" type="number" value={precioVenta} onChange={e => setPrecioVenta(e.target.value)} /></div>
           <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría*</Label>
-            <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
+            <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría existente..."/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
           </div>
         </div>
         <DialogFooter>
@@ -176,7 +176,7 @@ export function AddOrEditDialog({
 
     useEffect(() => {
         if (isOpen && initialItem) {
-            const syncedServices = initialItem.serviciosIncluidos.map(service => {
+             const syncedServices = initialItem.serviciosIncluidos.map(service => {
                 const catalogService = vendibleServices.find(vs => vs.id === service.id);
                 return {
                     ...service,
@@ -188,8 +188,8 @@ export function AddOrEditDialog({
                 };
             });
             setLocalItem({ ...initialItem, serviciosIncluidos: syncedServices });
-        } else {
-            setLocalItem(null);
+        } else if (!isOpen) {
+            setLocalItem(null); // Reset when closing
         }
     }, [initialItem, isOpen, vendibleServices]);
     
@@ -214,7 +214,6 @@ export function AddOrEditDialog({
     const filteredCatalog = useMemo(() => {
         let servicesToFilter = vendibleServices;
         
-        // When editing a menu, only show catering services
         if (mode === 'menu') {
             servicesToFilter = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
         }
@@ -693,7 +692,20 @@ export default function ArmadoRapidoSettingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} onServiceCreated={(newService) => setServiciosCatalogo(prev => [newService, ...prev])} onServiceDeleted={(deletedId) => { setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId)); }}/>}
+      {isModalOpen && <AddOrEditDialog isOpen={isModalOpen} onOpenChange={setIsModalOpen} item={currentItem} vendibleServices={vendibleServices} mode={modalMode} onSave={handleSaveItem} 
+      onServiceCreated={(newService) => {
+          setServiciosCatalogo(prev => [newService, ...prev]);
+          if(currentItem) {
+            setLocalItem(prev => prev ? {...prev, serviciosIncluidos: [...prev.serviciosIncluidos]} : null);
+          }
+      }} 
+      onServiceDeleted={(deletedId) => { 
+        setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId)); 
+        if (currentItem) {
+           setLocalItem(prev => prev ? { ...prev, serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== deletedId) } : null);
+        }
+      }}
+      />}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración Simulador de Presupuesto</h1></div>
         <Link href="/settings/budget-display" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
@@ -802,6 +814,3 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
-
-
-
