@@ -819,12 +819,12 @@
     "precioVenta": 14500
   },
   {
+    "id": "item_1757285163028_qyoj9ae",
     "nombre": "Zona de Fotografía con sillón diván",
-    "precioVenta": 5000,
-    "categoria": "Servicio de decoración",
     "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
     "unidad": "Por evento",
-    "id": "item_1757285163028_qyoj9ae"
+    "precioVenta": 5000
   },
   {
     "id": "item_1757281306778_y5bsuqu",
