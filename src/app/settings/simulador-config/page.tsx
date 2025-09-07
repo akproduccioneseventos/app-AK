@@ -13,7 +13,7 @@ import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/
 import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
-import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa'; 
+import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Checkbox } from '@/components/ui/checkbox';
@@ -55,7 +55,6 @@ const CATEGORIAS_MENU: { value: ServicioCategoriaArmadoRapido, label: string }[]
 function SortableServiceItem({ service, children }: { service: ServicioIncluidoArmadoRapido, children: React.ReactNode }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: service.id });
     const style = { transform: transform ? CSS.Transform.toString(transform) : undefined, transition };
-
 
     return (
         <div ref={setNodeRef} style={style} className="flex items-start gap-2">
@@ -575,9 +574,9 @@ export default function ArmadoRapidoSettingsPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
   
-  const handleSaveConfig = useCallback(async (newConfig: ArmadoRapidoConfig) => {
+  const handleSaveConfig = useCallback(async (newConfig: ArmadoRapidoConfig, updatedServices: ServicioEmpresa[] = []) => {
     try {
-        const result = await updateArmadoRapidoAndSyncServices(newConfig, []);
+        const result = await updateArmadoRapidoAndSyncServices(newConfig, updatedServices);
         if (result.success) {
             toast({ title: "¡Guardado!", description: "La configuración ha sido actualizada." });
             await loadData();
@@ -606,19 +605,10 @@ export default function ArmadoRapidoSettingsPage() {
         newConfig = { ...config, paquetes: list };
     }
 
-    try {
-        const result = await updateArmadoRapidoAndSyncServices(newConfig, updatedServices);
-        if (result.success) {
-            toast({ title: "¡Guardado!", description: "La configuración ha sido actualizada." });
-            await loadData();
-            setIsModalOpen(false);
-        } else {
-            throw new Error(result.error || "No se pudo guardar la configuración.");
-        }
-    } catch (err: any) {
-        toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    }
-  }, [config, modalMode, toast, loadData]);
+    await handleSaveConfig(newConfig, updatedServices);
+    setIsModalOpen(false);
+
+  }, [config, modalMode, handleSaveConfig]);
 
   const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
     setModalMode(mode);
@@ -634,14 +624,9 @@ export default function ArmadoRapidoSettingsPage() {
   const handleDeleteItem = useCallback(async (type: 'paquete', id: string) => {
       if (!config) return;
       const newConfig = { ...config, paquetes: config.paquetes.filter(i => i.id !== id) };
-      const result = await updateArmadoRapidoAndSyncServices(newConfig, []);
-      if(result.success) {
-        toast({title: "Paquete Eliminado", variant: "destructive"});
-        await loadData();
-      } else {
-        toast({ title: "Error al Eliminar", description: result.error, variant: "destructive"});
-      }
-  }, [config, loadData, toast]);
+      await handleSaveConfig(newConfig);
+      toast({title: "Paquete Eliminado", variant: "destructive"});
+  }, [config, handleSaveConfig, toast]);
 
   const handleDuplicatePackage = useCallback(async (packageId: string) => {
     if (!config) return;
@@ -659,14 +644,9 @@ export default function ArmadoRapidoSettingsPage() {
     newPackages.splice(originalIndex + 1, 0, newPackage);
     const newConfig = { ...config, paquetes: newPackages };
     
-    const result = await updateArmadoRapidoAndSyncServices(newConfig, []);
-    if(result.success) {
-        toast({ description: "Paquete duplicado." });
-        await loadData();
-    } else {
-       toast({ title: "Error al duplicar", description: result.error, variant: "destructive"});
-    }
-  }, [config, loadData, toast]);
+    await handleSaveConfig(newConfig);
+    toast({ description: "Paquete duplicado." });
+  }, [config, handleSaveConfig, toast]);
 
   const getPriceDisplay = (service: ServicioIncluidoArmadoRapido): string => {
     const catalogService = serviciosCatalogo.find(s => s.id === service.id);
@@ -746,7 +726,7 @@ export default function ArmadoRapidoSettingsPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios (Para Paso 4)</CardTitle>
-            <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, decoración, etc). Define precios fijos, por persona o por ratios.</CardDescription>
+            <CardDescription>Crea y edita los paquetes de servicios adicionales (DJ, foto, etc). Define precios fijos, por persona o por ratios.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
              <Button onClick={() => openDialog('paquete')} className="w-full"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete Nuevo</Button>
