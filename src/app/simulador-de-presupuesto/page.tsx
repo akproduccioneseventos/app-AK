@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2, Wand2, Users, ChefHat, Package, Check, ArrowRight, User, Phone, List, DollarSign, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido } from '@/types/armado-rapido';
 import { AnimatePresence, motion } from 'framer-motion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -99,7 +99,19 @@ export default function SimuladorDePresupuestoPage() {
 
     useEffect(() => { loadData(); }, [loadData]);
     
-    const opcionesMenu = useMemo(() => config?.menus?.[0], [config]);
+    const opcionesMenu = useMemo(() => {
+        if (!config?.menus) return undefined;
+        // La lógica asume que el primer menú (y único) contiene todas las opciones de catering
+        const cateringMenu = config.menus[0];
+        if (!cateringMenu) return undefined;
+
+        // Filtrar y ordenar las opciones del menú
+        return {
+            ...cateringMenu,
+            serviciosIncluidos: (cateringMenu.serviciosIncluidos || []).sort((a, b) => (a.precioFijo ?? 0) - (b.precioFijo ?? 0))
+        };
+    }, [config]);
+
     const paqueteActual = useMemo(() => config?.paquetes.find(p => p.id === paqueteServiciosId), [config, paqueteServiciosId]);
     
     const calcularCostoCatering = useCallback(() => {
@@ -126,7 +138,14 @@ export default function SimuladorDePresupuestoPage() {
             switch(servicio.calculationMethod) {
                 case 'fijo': costoServicio = servicio.precioBase || 0; break;
                 case 'porPersona': costoServicio = (servicio.precioPorPersona || 0) * totalInvitados; break;
-                case 'ratio': if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) { costoServicio = Math.ceil(totalInvitados / servicio.invitadosPorUnidad) * (servicio.precioBase || 0); } break;
+                case 'ratio': 
+                    const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
+                    if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
+                        costoServicio = Math.ceil(totalInvitados / invitadosPorUnidadNum) * (servicio.precioBase || 0);
+                    } else {
+                        console.warn(`Servicio con ratio inválido: ${servicio.nombre} (invitadosPorUnidad: ${servicio.invitadosPorUnidad})`);
+                    }
+                    break;
                 case 'tramos': const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta); costoServicio = tramo?.precio || 0; break;
                 default: costoServicio = servicio.precioFijo || servicio.precioBase || 0;
             }
@@ -195,8 +214,9 @@ export default function SimuladorDePresupuestoPage() {
                         precioUnitario = servicio.precioPorPersona || 0;
                         break;
                     case 'ratio': 
-                        if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0) {
-                            cantidad = Math.ceil(totalInvitados / servicio.invitadosPorUnidad);
+                        const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
+                        if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
+                            cantidad = Math.ceil(totalInvitados / invitadosPorUnidadNum);
                             costoServicio = cantidad * (servicio.precioBase || 0);
                             precioUnitario = servicio.precioBase || 0;
                             descServicio += ` (1 cada ${servicio.invitadosPorUnidad} inv.)`;
@@ -295,7 +315,7 @@ export default function SimuladorDePresupuestoPage() {
                        <CardContent className="space-y-6">
                            <div className="space-y-2">
                                 <Label className="font-semibold text-lg">1. Entradas (elige 2)</Label>
-                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').sort((a,b) => (a.precioFijo ?? 0) - (b.precioFijo ?? 0)).map(s=>(
+                                {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Entrada').map(s=>(
                                     <div key={s.id} className="flex items-center gap-3 p-2 border rounded-md">
                                         <Checkbox id={`e-${s.id}`} checked={entradasSeleccionadas.has(s.id)} onCheckedChange={()=>{setEntradasSeleccionadas(p=>{const n=new Set(p); if(n.has(s.id)) n.delete(s.id); else n.add(s.id); while(n.size > 2) { n.delete(n.values().next().value); } return n;})}}/>
                                         <Label htmlFor={`e-${s.id}`} className="flex-grow font-normal">{s.nombre}</Label>
@@ -307,7 +327,7 @@ export default function SimuladorDePresupuestoPage() {
                             <div className="space-y-2">
                                 <Label className="font-semibold text-lg">2. Platos Principales (elige 1)</Label>
                                 <RadioGroup value={platoPrincipalId} onValueChange={setPlatoPrincipalId}>
-                                  {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').sort((a,b) => (a.precioFijo ?? 0) - (b.precioFijo ?? 0)).map(s=> (
+                                  {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Plato Principal').map(s=> (
                                       <Label key={s.id} htmlFor={`pp-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                                           <RadioGroupItem value={s.id} id={`pp-${s.id}`} />
                                           <span className="flex-grow font-normal">{s.nombre}</span>
@@ -320,7 +340,7 @@ export default function SimuladorDePresupuestoPage() {
                              <div className="space-y-2">
                                 <Label className="font-semibold text-lg">3. Menú Adolescentes y Niños (elige 1)</Label>
                                  <RadioGroup value={menuInfantilId} onValueChange={setMenuInfantilId}>
-                                    {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').sort((a,b) => (a.precioFijo ?? 0) - (b.precioFijo ?? 0)).map(s=> (
+                                    {opcionesMenu?.serviciosIncluidos.filter(s=>s.categoria === 'Menú Adolescente / Niño').map(s=> (
                                         <Label key={s.id} htmlFor={`pi-${s.id}`} className="flex items-center gap-3 p-2 border rounded-md cursor-pointer has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                                             <RadioGroupItem value={s.id} id={`pi-${s.id}`} />
                                             <span className="flex-grow font-normal">{s.nombre}</span>
@@ -358,7 +378,7 @@ export default function SimuladorDePresupuestoPage() {
                        <CardHeader><CardTitle className="font-headline text-2xl">Paso 4: Elige tu Combo de Servicios</CardTitle><CardDescription>Selecciona un combo de servicios adicionales (DJ, foto, etc.).</CardDescription></CardHeader>
                         <CardContent className="space-y-4">
                             <RadioGroup value={paqueteServiciosId} onValueChange={setPaqueteServiciosId}>
-                                {config?.paquetes.map(pkg => {
+                                {config?.paquetes.sort((a,b) => a.nombre.localeCompare(b.nombre)).map(pkg => {
                                     const costoCatering = calcularCostoCatering();
                                     const costoPaquete = calcularCostoPaquete(pkg);
                                     const subtotal = costoCatering + costoPaquete;
