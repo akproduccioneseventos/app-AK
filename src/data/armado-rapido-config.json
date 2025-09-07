@@ -1,4 +1,3 @@
-
 {
   "descuentoGeneral": 15,
   "menus": [
@@ -14,7 +13,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 150,
-          "precioPorPersona": 150
+          "precioPorPersona": 150,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600036_calzita",
@@ -23,7 +23,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 200,
-          "precioPorPersona": 200
+          "precioPorPersona": 200,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600033_empcas",
@@ -32,7 +33,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 200,
-          "precioPorPersona": 200
+          "precioPorPersona": 200,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600039_minibro",
@@ -41,7 +43,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 200,
-          "precioPorPersona": 200
+          "precioPorPersona": 200,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600034_minichiv",
@@ -50,7 +53,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 180,
-          "precioPorPersona": 180
+          "precioPorPersona": 180,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600040_piccal",
@@ -59,13 +63,15 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 220,
-          "precioPorPersona": 220
+          "precioPorPersona": 220,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600031_picfiam",
           "nombre": "Picada de fiambres",
           "precioFijo": 180,
-          "categoria": "Entrada"
+          "categoria": "Entrada",
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600028_picsna",
@@ -73,7 +79,8 @@
           "precioFijo": "150",
           "categoria": "Entrada",
           "precioBase": 150,
-          "precioPorPersona": 150
+          "precioPorPersona": 150,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600035_pizzemp",
@@ -82,7 +89,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 180,
-          "precioPorPersona": 180
+          "precioPorPersona": 180,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600029_plancal",
@@ -91,7 +99,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 150,
-          "precioPorPersona": 150
+          "precioPorPersona": 150,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600032_salpoll",
@@ -100,7 +109,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 150,
-          "precioPorPersona": 150
+          "precioPorPersona": 150,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_sandwiches_saladitos",
@@ -109,7 +119,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 220,
-          "precioPorPersona": 220
+          "precioPorPersona": 220,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600056_showpiz",
@@ -118,7 +129,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 190,
-          "precioPorPersona": 190
+          "precioPorPersona": 190,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600045_shushi",
@@ -127,7 +139,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 250,
-          "precioPorPersona": 250
+          "precioPorPersona": 250,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600037_tacmex",
@@ -136,7 +149,8 @@
           "categoria": "Entrada",
           "esRegalo": false,
           "precioBase": 240,
-          "precioPorPersona": 240
+          "precioPorPersona": 240,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600023_asadocom",
@@ -144,7 +158,8 @@
           "precioFijo": 645,
           "categoria": "Plato Principal",
           "precioBase": 645,
-          "precioPorPersona": 645
+          "precioPorPersona": 645,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600021_bifech",
@@ -153,7 +168,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 480,
-          "precioPorPersona": 480
+          "precioPorPersona": 480,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600011_cerdmos",
@@ -162,7 +178,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 390,
-          "precioPorPersona": 390
+          "precioPorPersona": 390,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_cerdo_relleno",
@@ -171,7 +188,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 380,
-          "precioPorPersona": 380
+          "precioPorPersona": 380,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600022_cordero",
@@ -180,7 +198,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 560,
-          "precioPorPersona": 560
+          "precioPorPersona": 560,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600015_napoli",
@@ -189,7 +208,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 420,
-          "precioPorPersona": 420
+          "precioPorPersona": 420,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600009_noquis",
@@ -198,7 +218,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 390,
-          "precioPorPersona": 390
+          "precioPorPersona": 390,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600007_pollarr",
@@ -206,7 +227,8 @@
           "precioFijo": "390",
           "categoria": "Plato Principal",
           "precioBase": 390,
-          "precioPorPersona": 390
+          "precioPorPersona": 390,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600010_raviol",
@@ -214,7 +236,8 @@
           "precioFijo": "390",
           "categoria": "Plato Principal",
           "precioBase": 390,
-          "precioPorPersona": 390
+          "precioPorPersona": 390,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600013_sorren",
@@ -223,7 +246,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 420,
-          "precioPorPersona": 420
+          "precioPorPersona": 420,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600019_strogon",
@@ -232,7 +256,8 @@
           "categoria": "Plato Principal",
           "esRegalo": false,
           "precioBase": 420,
-          "precioPorPersona": 420
+          "precioPorPersona": 420,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600006_chivit",
@@ -241,18 +266,21 @@
           "categoria": "Menú Adolescente / Niño",
           "esRegalo": false,
           "precioBase": 350,
-          "precioPorPersona": 350
+          "precioPorPersona": 350,
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600052_menninham",
           "nombre": "Hamburguesa completa c/ fritas",
-          "categoria": "Menú Adolescente / Niño"
+          "categoria": "Menú Adolescente / Niño",
+          "tramosDePrecio": []
         },
         {
           "id": "serv_1752489600053_menninpan",
           "nombre": "Panchos c/ fritas",
           "precioFijo": "185",
-          "categoria": "Menú Adolescente / Niño"
+          "categoria": "Menú Adolescente / Niño",
+          "tramosDePrecio": []
         },
         {
           "id": "item_1756937639800_z1mjmoj",
@@ -261,7 +289,8 @@
           "categoria": "Menú Adolescente / Niño",
           "esRegalo": false,
           "precioBase": 200,
-          "precioPorPersona": 200
+          "precioPorPersona": 200,
+          "tramosDePrecio": []
         }
       ]
     }
@@ -506,6 +535,17 @@
           "precioFijo": 9000,
           "precioBase": 9000,
           "precioPorPersona": 9000,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600086_barlib",
+          "nombre": "Barra libre con tragos",
+          "categoria": "Servicio Adicional",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 350,
+          "precioBase": 350,
+          "precioPorPersona": 350,
           "tramosDePrecio": []
         },
         {

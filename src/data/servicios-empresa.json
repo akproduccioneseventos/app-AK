@@ -45,22 +45,6 @@
     "precioVenta": 8000
   },
   {
-    "id": "item_1757177826475_9vzfx4g",
-    "nombre": "Album Digital",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 3000
-  },
-  {
-    "id": "serv_1752489600118_albdig",
-    "nombre": "Álbum digital",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "unidad": "Por evento",
-    "precioVenta": 2500
-  },
-  {
     "id": "item_1756940618500_jnt7ly4",
     "nombre": "Fuegos Frios",
     "tipoItem": "Servicio",
@@ -817,13 +801,5 @@
     "categoria": "Servicio de catering",
     "subcategoria": "Vajilla y Cristalería",
     "precioVenta": 70
-  },
-  {
-    "id": "item_1757179247226_kn77w50",
-    "nombre": "Bogue",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "unidad": "Por evento",
-    "precioVenta": 2900
   }
 ]

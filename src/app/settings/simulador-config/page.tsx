@@ -13,6 +13,7 @@ import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/
 import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa'; // Import the full list
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Checkbox } from '@/components/ui/checkbox';
@@ -70,11 +71,9 @@ function SortableServiceItem({ service, children }: { service: ServicioIncluidoA
 function AddNewServiceDialog({
   onServiceCreated,
   serviceType,
-  vendibleServices = []
 }: { 
   onServiceCreated: () => void,
-  serviceType: 'catering' | 'general',
-  vendibleServices?: ServicioEmpresa[]
+  serviceType: 'catering' | 'general'
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [nombre, setNombre] = useState('');
@@ -116,12 +115,6 @@ function AddNewServiceDialog({
     }
   };
   
-  const existingCategories = useMemo(() => {
-    const categories = new Set(vendibleServices.map(s => s.categoria));
-    categories.add('Servicio de catering');
-    return Array.from(categories).sort();
-  }, [vendibleServices]);
-
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (open) setCategoria(''); setIsOpen(open); }}>
@@ -141,7 +134,7 @@ function AddNewServiceDialog({
           {serviceType === 'catering' ? (
             <Select value={categoria} onValueChange={(v) => setCategoria(v as ServicioCategoriaArmadoRapido)}><SelectTrigger><SelectValue placeholder="Seleccionar subcategoría..." /></SelectTrigger><SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent></Select>
           ) : (
-             <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría existente..."/></SelectTrigger><SelectContent>{existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
+             <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
           )}
           </div>
         </div>
@@ -520,7 +513,6 @@ export function AddOrEditDialog({
                         <AddNewServiceDialog 
                           onServiceCreated={onServiceCreated} 
                           serviceType={mode === 'menu' ? 'catering' : 'general'}
-                          vendibleServices={vendibleServices}
                         />
                         <ScrollArea className="h-full border rounded-md p-2">
                           {filteredCatalog.length > 0 ? filteredCatalog.map(s => {
