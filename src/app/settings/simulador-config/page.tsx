@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -54,6 +55,7 @@ const CATEGORIAS_MENU: { value: ServicioCategoriaArmadoRapido, label: string }[]
 function SortableServiceItem({ service, children }: { service: ServicioIncluidoArmadoRapido, children: React.ReactNode }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: service.id });
     const style = { transform: transform ? CSS.Transform.toString(transform) : undefined, transition };
+
 
     return (
         <div ref={setNodeRef} style={style} className="flex items-start gap-2">
@@ -147,7 +149,7 @@ export function AddOrEditDialog({
     onOpenChange,
     onSave,
     item: initialItem,
-    vendibleServices,
+    vendibleServices: initialVendibleServices,
     mode,
     onServiceCreated,
     onServiceDeleted
@@ -158,10 +160,11 @@ export function AddOrEditDialog({
     item: MenuArmadoRapido | PaqueteArmadoRapido | null;
     vendibleServices: ServicioEmpresa[];
     mode: 'menu' | 'paquete';
-    onServiceCreated: () => void;
+    onServiceCreated: (newService: ServicioEmpresa) => void;
     onServiceDeleted: (deletedId: string) => void;
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(initialItem);
+    const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
     const [modifiedServices, setModifiedServices] = useState<Map<string, ServicioEmpresa>>(new Map());
@@ -175,9 +178,10 @@ export function AddOrEditDialog({
 
 
     useEffect(() => {
+        setVendibleServices(initialVendibleServices);
         if (initialItem) {
             const syncedServices = initialItem.serviciosIncluidos.map(service => {
-                const catalogService = vendibleServices.find(vs => vs.id === service.id);
+                const catalogService = initialVendibleServices.find(vs => vs.id === service.id);
                 return {
                     ...service,
                     nombre: catalogService?.nombre || service.nombre,
@@ -196,12 +200,13 @@ export function AddOrEditDialog({
             setGiftServices([]);
         }
         setModifiedServices(new Map());
-    }, [initialItem, isOpen, vendibleServices]);
+    }, [initialItem, isOpen, initialVendibleServices]);
     
      const groupedRegularServices = useMemo(() => {
       return regularServices.reduce(
           (acc, service) => {
-              const category = service.categoria || 'Otros servicios';
+              const catalogService = vendibleServices.find(vs => vs.id === service.id);
+              const category = catalogService?.categoria || 'Otros servicios';
               if (!acc[category]) {
                   acc[category] = [];
               }
@@ -209,7 +214,7 @@ export function AddOrEditDialog({
               return acc;
           }, {} as Record<string, ServicioIncluidoArmadoRapido[]>
       );
-    }, [regularServices]);
+    }, [regularServices, vendibleServices]);
 
     const filteredCatalog = useMemo(() => {
         if (!searchTerm) return vendibleServices;
@@ -241,7 +246,7 @@ export function AddOrEditDialog({
         const newService: ServicioIncluidoArmadoRapido = {
             id: service.id,
             nombre: service.nombre,
-            categoria: service.subcategoria as ServicioCategoriaArmadoRapido || service.categoria as ServicioCategoriaArmadoRapido,
+            categoria: service.subcategoria as ServicioCategoriaArmadoRapido || service.categoria as ServicioCategoriaArmadoRapido || 'Otros servicios',
             calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
             esRegalo: false,
             precioFijo: service.precioVenta,
@@ -384,6 +389,7 @@ export function AddOrEditDialog({
 
      const renderServiceCard = (service: ServicioIncluidoArmadoRapido) => {
         const catalogService = vendibleServices.find(s => s.id === service.id);
+        const categoryForService = catalogService?.categoria || 'Otros servicios';
         return (
             <React.Fragment key={service.id}>
                 <SortableServiceItem service={service}>
@@ -392,7 +398,7 @@ export function AddOrEditDialog({
                             <div className="flex items-center gap-2">
                                 <div className="flex-grow">
                                     <Input value={service.nombre} onChange={(e) => handleServiceDetailChange(service.id, 'nombre', e.target.value)} className="h-7 text-sm font-medium border-none focus-visible:ring-1 focus-visible:ring-ring p-1"/>
-                                    <p className='text-xs text-muted-foreground ml-1'>Catálogo: {catalogService?.categoria}</p>
+                                    <p className='text-xs text-muted-foreground ml-1'>Catálogo: {categoryForService}</p>
                                 </div>
                                 <Collapsible onOpenChange={(open) => setOpenCollapsibleId(open ? service.id : null)}>
                                     <CollapsibleTrigger asChild>
@@ -498,7 +504,10 @@ export function AddOrEditDialog({
                         <Label>Catálogo de Servicios</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
                         <AddNewServiceDialog 
-                          onServiceCreated={onServiceCreated}
+                          onServiceCreated={(newService) => {
+                            setVendibleServices(prev => [newService, ...prev]);
+                            onServiceCreated();
+                          }}
                         />
                         <ScrollArea className="h-full border rounded-md p-2">
                           {filteredCatalog.length > 0 ? filteredCatalog.map(s => {
@@ -680,7 +689,7 @@ export default function ArmadoRapidoSettingsPage() {
     
     const groupedRegular = regularServices.reduce((acc, service) => {
         const catalogService = serviciosCatalogo.find(vs => vs.id === service.id);
-        const category = catalogService?.categoria || 'Otros';
+        const category = catalogService?.categoria || 'Otros servicios';
         if (!acc[category]) {
             acc[category] = [];
         }
