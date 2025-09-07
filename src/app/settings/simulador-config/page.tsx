@@ -204,7 +204,7 @@ export function AddOrEditDialog({
         let servicesToFilter = vendibleServices;
         
         if (mode === 'menu') {
-            const cateringCategories: string[] = ['Servicio de catering', 'Entrada', 'Plato Principal', 'Menú Adolescente / Niño'];
+            const cateringCategories: string[] = ['Servicio de catering', 'Entrada', 'Plato Principal', 'Menú Adolescente / Niño', 'Servicio Adicional'];
             servicesToFilter = vendibleServices.filter(s => s.categoria && cateringCategories.includes(s.categoria));
         } else {
              servicesToFilter = vendibleServices.filter(s => s.categoria !== 'Servicio de catering');
@@ -491,12 +491,7 @@ export function AddOrEditDialog({
                     <div className="flex flex-col gap-2 min-h-0">
                         <Label>Catálogo de Servicios</Label>
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
-                        <AddNewServiceDialog 
-                          onServiceCreated={(newService) => {
-                            setVendibleServices(prev => [newService, ...prev]);
-                            onServiceCreated(newService);
-                          }}
-                        />
+                        <AddNewServiceDialog onServiceCreated={onServiceCreated}/>
                         <ScrollArea className="h-full border rounded-md p-2">
                           {filteredCatalog.length > 0 ? filteredCatalog.map(s => {
                             if(!s) return null;
@@ -803,4 +798,3 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
-
