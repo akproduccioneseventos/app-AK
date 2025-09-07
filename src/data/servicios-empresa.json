@@ -811,6 +811,14 @@
     "precioVenta": 14500
   },
   {
+    "nombre": "Lluvia de burbujas",
+    "precioVenta": 2500,
+    "categoria": "Servicio de discoteca",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757281306778_y5bsuqu"
+  },
+  {
     "id": "item_1757258361278_fs8ba4x",
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
@@ -819,12 +827,12 @@
     "precioVenta": 9000
   },
   {
+    "id": "item_1757280812776_9jzr1bb",
     "nombre": "Bogue",
-    "precioVenta": 2900,
-    "categoria": "Servicio de entretenimiento",
     "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "id": "item_1757280812776_9jzr1bb"
+    "precioVenta": 2900
   },
   {
     "id": "item_1757258121428_4wd3ed5",

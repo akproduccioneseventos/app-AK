@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit, DollarSign, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig, updateArmadoRapidoAndSyncServices } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido, TramoDePrecio } from '@/types/armado-rapido';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
@@ -155,7 +155,7 @@ export function AddOrEditDialog({
 }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
-    onSave: (item: MenuArmadoRapido | PaqueteArmadoRapido, updatedServices: ServicioEmpresa[]) => void;
+    onSave: (item: MenuArmadoRapido | PaqueteArmadoRapido) => void;
     item: MenuArmadoRapido | PaqueteArmadoRapido | null;
     vendibleServices: ServicioEmpresa[];
     mode: 'menu' | 'paquete';
@@ -166,11 +166,10 @@ export function AddOrEditDialog({
     const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
     const [openCollapsibleId, setOpenCollapsibleId] = useState<string | null>(null);
-    const [modifiedServices, setModifiedServices] = useState<Map<string, ServicioEmpresa>>(new Map());
     const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
     const sensors = useSensors(useSensor(PointerSensor));
     const { toast } = useToast();
-
+    
     useEffect(() => {
         setVendibleServices(initialVendibleServices);
     }, [initialVendibleServices]);
@@ -192,13 +191,13 @@ export function AddOrEditDialog({
         } else {
             setLocalItem(null);
         }
-        setModifiedServices(new Map());
     }, [initialItem, isOpen, vendibleServices]);
     
     const regularServices = useMemo(() => localItem?.serviciosIncluidos.filter(s => !s.esRegalo) || [], [localItem]);
     const giftServices = useMemo(() => localItem?.serviciosIncluidos.filter(s => s.esRegalo) || [], [localItem]);
 
      const groupedRegularServices = useMemo(() => {
+      if (!regularServices) return {};
       return regularServices.reduce(
           (acc, service) => {
               const catalogService = vendibleServices.find(vs => vs.id === service.id);
@@ -213,23 +212,22 @@ export function AddOrEditDialog({
     }, [regularServices, vendibleServices]);
 
     const filteredCatalog = useMemo(() => {
-        if (!searchTerm) return vendibleServices;
+        let servicesToFilter = vendibleServices;
+        
+        // When editing a menu, only show catering services
+        if (mode === 'menu') {
+            servicesToFilter = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
+        }
+
+        if (!searchTerm) return servicesToFilter;
         const lowerSearch = searchTerm.toLowerCase();
-        return vendibleServices.filter(
+        return servicesToFilter.filter(
             s => s.nombre.toLowerCase().includes(lowerSearch) || 
                  (s.categoria && s.categoria.toLowerCase().includes(lowerSearch))
         );
-    }, [vendibleServices, searchTerm]);
+    }, [vendibleServices, searchTerm, mode]);
 
     if (!localItem) return null;
-
-    const trackModification = (serviceId: string, updatedFields: Partial<ServicioEmpresa>) => {
-      const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-      if (!catalogService) return;
-      const existingMod = modifiedServices.get(serviceId) || catalogService;
-      const updatedService = { ...existingMod, ...updatedFields };
-      setModifiedServices(prev => new Map(prev).set(serviceId, updatedService));
-    };
 
     const handleToggleService = (service: ServicioEmpresa, isChecked: boolean) => {
       if (isChecked) {
@@ -290,14 +288,6 @@ export function AddOrEditDialog({
                 return {...prev, serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? updatedService : s)};
             })
         }
-
-      const priceFields: (keyof ServicioIncluidoArmadoRapido)[] = ['precioBase', 'precioPorPersona', 'precioFijo'];
-      if (priceFields.includes(field)) {
-         const numericValue = Number(value);
-          if (!isNaN(numericValue)) {
-              trackModification(serviceId, { precioVenta: numericValue });
-          }
-      }
     };
     
     const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
@@ -390,7 +380,7 @@ export function AddOrEditDialog({
                 }))
             }))
         };
-        onSave(finalItem, Array.from(modifiedServices.values()));
+        onSave(finalItem);
     };
 
      const renderServiceCard = (service: ServicioIncluidoArmadoRapido) => {
@@ -595,22 +585,20 @@ export default function ArmadoRapidoSettingsPage() {
     }
   }, [loadData, toast]);
 
-  const handleSaveItem = useCallback(async (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido, updatedServices: ServicioEmpresa[]) => {
+  const handleSaveItem = useCallback(async (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
     if (!config) return;
     
-    // First save any modified services to the main catalog
-    try {
-      for (const service of updatedServices) {
-        await saveServicioEmpresa(service);
-      }
-    } catch (err: any) {
-        toast({ title: "Error al sincronizar", description: "No se pudieron guardar los cambios en el catálogo de servicios: " + err.message, variant: "destructive"});
-        return; // Stop if service sync fails
-    }
-
     let newConfig: ArmadoRapidoConfig;
     if (modalMode === 'menu') {
-        newConfig = { ...config, menus: [itemToSave as MenuArmadoRapido] };
+        const existingIndex = config.menus.findIndex(i => i.id === itemToSave.id);
+        const list = [...config.menus];
+        if (existingIndex > -1) {
+            list[existingIndex] = itemToSave as MenuArmadoRapido;
+        } else {
+            list.push(itemToSave as MenuArmadoRapido);
+        }
+        newConfig = { ...config, menus: list };
+
     } else { // It's a 'paquete'
         const list = [...(config.paquetes || [])];
         const existingIndex = list.findIndex(i => i.id === itemToSave.id);
@@ -625,7 +613,7 @@ export default function ArmadoRapidoSettingsPage() {
     await handleSaveConfig(newConfig);
     setIsModalOpen(false);
 
-  }, [config, modalMode, handleSaveConfig, toast]);
+  }, [config, modalMode, handleSaveConfig]);
 
   const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
     setModalMode(mode);
@@ -814,5 +802,6 @@ export default function ArmadoRapidoSettingsPage() {
     </div>
   );
 }
+
 
 
