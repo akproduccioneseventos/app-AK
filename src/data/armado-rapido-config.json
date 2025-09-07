@@ -285,17 +285,6 @@
           "tramosDePrecio": []
         },
         {
-          "id": "serv_video_vida",
-          "nombre": "Video de vida",
-          "categoria": "Regalo exclusivo",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 1900,
-          "precioBase": 1900,
-          "precioPorPersona": 1900,
-          "tramosDePrecio": []
-        },
-        {
           "id": "serv_pantalla_proyector",
           "nombre": "Pantalla gigante y proyector",
           "categoria": "Regalo exclusivo",

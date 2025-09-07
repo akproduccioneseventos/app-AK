@@ -217,16 +217,16 @@ export default function SimuladorDePresupuestoPage() {
                         precioUnitario = costoServicio;
                         break;
                     case 'porPersona': 
-                        costoServicio = (servicio.precioPorPersona || servicio.precioBase || 0) * totalInvitados; 
-                        cantidad = totalInvitados;
                         precioUnitario = servicio.precioPorPersona || servicio.precioBase || 0;
+                        costoServicio = precioUnitario * totalInvitados; 
+                        cantidad = totalInvitados;
                         break;
                     case 'ratio': 
                         const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
                         if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
                             cantidad = Math.ceil(totalInvitados / invitadosPorUnidadNum);
-                            costoServicio = cantidad * (servicio.precioBase || 0);
                             precioUnitario = servicio.precioBase || 0;
+                            costoServicio = cantidad * precioUnitario;
                             descServicio += ` (1 cada ${servicio.invitadosPorUnidad} inv.)`;
                         }
                         break;
@@ -459,3 +459,4 @@ export default function SimuladorDePresupuestoPage() {
         </div>
     );
 }
+

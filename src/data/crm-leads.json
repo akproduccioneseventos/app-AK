@@ -1,5 +1,20 @@
 [
   {
+    "id": "lead_1757287519944_vc76cd7",
+    "name": "nico",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Intermedio\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 100\nSalón: A confirmar\nPresupuesto Estimado: $ 129.641,15",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-07T23:25:19.943Z",
+    "updatedAt": "2025-09-07T23:25:19.943Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-07T23:25:19.943Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1757287254834_jdpvdwk",
     "name": "nico",
     "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Intermedio\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 111.068,65",
@@ -585,17 +600,17 @@
     ]
   },
   {
-    "id": "lead_1757287519944_vc76cd7",
+    "id": "lead_1757288307351_7ubbzu4",
     "name": "nico",
-    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Intermedio\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 100\nSalón: A confirmar\nPresupuesto Estimado: $ 129.641,15",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Intermedio\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 102.441,15",
     "currentStageId": "s3",
-    "createdAt": "2025-09-07T23:25:19.943Z",
-    "updatedAt": "2025-09-07T23:25:19.943Z",
+    "createdAt": "2025-09-07T23:38:27.351Z",
+    "updatedAt": "2025-09-07T23:38:27.351Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-09-07T23:25:19.943Z"
+        "timestamp": "2025-09-07T23:38:27.351Z"
       }
     ]
   }
