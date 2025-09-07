@@ -53,7 +53,7 @@ const CATEGORIAS_MENU: { value: ServicioCategoriaArmadoRapido, label: string }[]
 
 function SortableServiceItem({ service, children }: { service: ServicioIncluidoArmadoRapido, children: React.ReactNode }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: service.id });
-    const style = { transform: CSS.Transform.toString(transform), transition };
+    const style = { transform: transform ? CSS.Transform.toString(transform) : undefined, transition };
 
     return (
         <div ref={setNodeRef} style={style} className="flex items-start gap-2">
