@@ -997,6 +997,14 @@
     "precioVenta": 3000
   },
   {
+    "nombre": "Album digital personalizado",
+    "precioVenta": 3000,
+    "categoria": "Servicio de fotografía",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757253788681_j8zv8xh"
+  },
+  {
     "id": "serv_1752489600115_fotciv",
     "nombre": "FOTOGRAFIA CIVIL",
     "tipoItem": "Servicio",
