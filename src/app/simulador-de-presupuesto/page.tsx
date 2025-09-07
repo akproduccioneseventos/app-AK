@@ -154,6 +154,7 @@ export default function SimuladorDePresupuestoPage() {
                     costoServicio = tramo?.precio || 0;
                     break;
                 default: 
+                    // Fallback to fijo if calculationMethod is undefined or not recognized
                     costoServicio = servicio.precioFijo || servicio.precioBase || 0;
             }
             costo += costoServicio;
