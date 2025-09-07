@@ -129,7 +129,7 @@ function AddNewServiceDialog({
           <div className="space-y-1"><Label htmlFor="new-serv-name">Nombre del Servicio*</Label><Input id="new-serv-name" value={nombre} onChange={e => setNombre(e.target.value)} /></div>
           <div className="space-y-1"><Label htmlFor="new-serv-price">Precio Base*</Label><Input id="new-serv-price" type="number" value={precioVenta} onChange={e => setPrecioVenta(e.target.value)} /></div>
           <div className="space-y-1"><Label htmlFor="new-serv-cat">Categoría*</Label>
-            <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría existente..."/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
+            <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaServicio)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>
           </div>
         </div>
         <DialogFooter>
@@ -176,7 +176,8 @@ export function AddOrEditDialog({
     
     useEffect(() => {
         if(isOpen) {
-            setLocalItem(JSON.parse(JSON.stringify(initialItem)));
+            // Deep copy to prevent modifying the original state directly
+            setLocalItem(initialItem ? JSON.parse(JSON.stringify(initialItem)) : null);
         }
     }, [isOpen, initialItem]);
     
@@ -187,8 +188,7 @@ export function AddOrEditDialog({
       if (!regularServices) return {};
       return regularServices.reduce(
           (acc, service) => {
-              const catalogService = vendibleServices.find(vs => vs.id === service.id);
-              const category = catalogService?.categoria || 'Otros servicios';
+              const category = service.categoria || 'Otros servicios';
               if (!acc[category]) {
                   acc[category] = [];
               }
@@ -196,13 +196,14 @@ export function AddOrEditDialog({
               return acc;
           }, {} as Record<string, ServicioIncluidoArmadoRapido[]>
       );
-    }, [regularServices, vendibleServices]);
+    }, [regularServices]);
 
     const filteredCatalog = useMemo(() => {
         let servicesToFilter = vendibleServices;
         
         if (mode === 'menu') {
-            servicesToFilter = vendibleServices.filter(s => s.categoria === 'Servicio de catering');
+            const cateringCategories: ServicioCategoriaArmadoRapido[] = ['Entrada', 'Plato Principal', 'Menú Adolescente / Niño', 'Servicio Adicional'];
+            servicesToFilter = vendibleServices.filter(s => s.categoria && cateringCategories.includes(s.categoria as ServicioCategoriaArmadoRapido) || s.categoria === 'Servicio de catering');
         }
 
         if (!searchTerm) return servicesToFilter;
@@ -354,6 +355,7 @@ export function AddOrEditDialog({
     };
 
     const handleSaveAndExit = () => {
+        if (!localItem) return;
         const finalItem = {
             ...localItem,
             serviciosIncluidos: (localItem.serviciosIncluidos || []).map(s => ({
@@ -604,7 +606,7 @@ export default function ArmadoRapidoSettingsPage() {
   const openDialog = (mode: 'menu' | 'paquete', item?: MenuArmadoRapido | PaqueteArmadoRapido) => {
     setModalMode(mode);
     if(mode === 'menu'){
-        const menuToEdit = config?.menus[0] || { id: 'menu_catering', nombre: 'Menú de Catering', serviciosIncluidos: [] };
+        const menuToEdit = config?.menus[0] || { id: 'menu_catering', nombre: 'Opciones de Catering', serviciosIncluidos: [] };
         setCurrentItem(menuToEdit);
     } else {
         setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo Paquete`, serviciosIncluidos: [] });

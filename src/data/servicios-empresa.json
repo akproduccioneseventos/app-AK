@@ -7,6 +7,14 @@
     "precioVenta": 1500
   },
   {
+    "id": "item_1757281900147_oxmo0cy",
+    "nombre": "Servicio de Peluqueria, uñas y maquillaje",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "unidad": "Por evento",
+    "precioVenta": 3900
+  },
+  {
     "id": "serv_1752489600004_pchef",
     "nombre": "Cheff",
     "tipoItem": "Servicio",
@@ -851,12 +859,28 @@
     "precioVenta": 100
   },
   {
+    "nombre": "Album digital personalizado",
+    "precioVenta": 3000,
+    "categoria": "Servicio de fotografía",
+    "tipoItem": "Servicio",
+    "unidad": "Por evento",
+    "id": "item_1757282105396_39i6zkn"
+  },
+  {
     "id": "item_1757258121428_4wd3ed5",
     "nombre": "Fotografia de exteriores",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3900
+  },
+  {
+    "id": "item_1757281980225_3x3nbzo",
+    "nombre": "Fotografía de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "unidad": "Por evento",
+    "precioVenta": 9000
   },
   {
     "id": "item_1757280489194_y9qozwm",
