@@ -1,5 +1,35 @@
 [
   {
+    "id": "lead_1757285397959_ee9o3l0",
+    "name": "nico",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Básico\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 94.435,00",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-07T22:49:57.959Z",
+    "updatedAt": "2025-09-07T22:49:57.959Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-07T22:49:57.959Z"
+      }
+    ]
+  },
+  {
+    "id": "lead_1757285338455_u1sjdja",
+    "name": "nico",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedia\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 127.755,00",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-07T22:48:58.455Z",
+    "updatedAt": "2025-09-07T22:48:58.455Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-07T22:48:58.455Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1757284965280_4vntsmc",
     "name": "nico",
     "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedia\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 115.090,00",
@@ -420,17 +450,17 @@
     ]
   },
   {
-    "id": "lead_1757285338455_u1sjdja",
+    "id": "lead_1757285423140_kh67xsw",
     "name": "nico",
     "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedia\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 127.755,00",
     "currentStageId": "s3",
-    "createdAt": "2025-09-07T22:48:58.455Z",
-    "updatedAt": "2025-09-07T22:48:58.455Z",
+    "createdAt": "2025-09-07T22:50:23.140Z",
+    "updatedAt": "2025-09-07T22:50:23.140Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-09-07T22:48:58.455Z"
+        "timestamp": "2025-09-07T22:50:23.140Z"
       }
     ]
   }

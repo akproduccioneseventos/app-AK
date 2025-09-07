@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -175,11 +174,8 @@ export function AddOrEditDialog({
     }, [initialVendibleServices]);
     
      useEffect(() => {
-        if (isOpen) {
-            setLocalItem(initialItem ? JSON.parse(JSON.stringify(initialItem)) : null);
-        } else {
-            setLocalItem(null);
-            setSearchTerm('');
+        if (isOpen && initialItem) {
+            setLocalItem(JSON.parse(JSON.stringify(initialItem)));
         }
     }, [isOpen, initialItem]);
     
@@ -221,25 +217,28 @@ export function AddOrEditDialog({
     if (!localItem) return null;
 
     const handleToggleService = (service: ServicioEmpresa, isChecked: boolean) => {
-      if (isChecked) {
-        if (localItem.serviciosIncluidos.some(s => s.id === service.id)) {
-          toast({ title: "Servicio ya en la lista.", variant: "default" });
-          return;
+      setLocalItem(prev => {
+        if (!prev) return null;
+        if (isChecked) {
+          if (prev.serviciosIncluidos.some(s => s.id === service.id)) {
+            toast({ title: "Servicio ya en la lista.", variant: "default" });
+            return prev;
+          }
+          const newService: ServicioIncluidoArmadoRapido = {
+              id: service.id,
+              nombre: service.nombre,
+              categoria: (service.categoria || 'Otros servicios') as ServicioCategoriaArmadoRapido,
+              calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
+              esRegalo: false,
+              precioFijo: service.precioVenta,
+              precioBase: service.precioVenta,
+              precioPorPersona: service.precioVenta,
+          };
+          return {...prev, serviciosIncluidos: [...prev.serviciosIncluidos, newService]};
+        } else {
+          return {...prev, serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== service.id)};
         }
-        const newService: ServicioIncluidoArmadoRapido = {
-            id: service.id,
-            nombre: service.nombre,
-            categoria: (service.categoria || 'Otros servicios') as ServicioCategoriaArmadoRapido,
-            calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
-            esRegalo: false,
-            precioFijo: service.precioVenta,
-            precioBase: service.precioVenta,
-            precioPorPersona: service.precioVenta,
-        };
-        setLocalItem(prev => prev ? {...prev, serviciosIncluidos: [...prev.serviciosIncluidos, newService]} : null);
-      } else {
-        setLocalItem(prev => prev ? {...prev, serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== service.id)} : null);
-      }
+      });
     };
     
     const handleRemoveService = (serviceId: string) => {
@@ -253,32 +252,27 @@ export function AddOrEditDialog({
     ) => {
         setLocalItem(prev => {
             if (!prev) return null;
-            return {
-                ...prev,
-                serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? {...s, [field]: value} : s)
-            }
-        });
+            const updatedServices = prev.serviciosIncluidos.map(s => s.id === serviceId ? {...s, [field]: value} : s)
 
-        if (field === 'esRegalo') {
-            setLocalItem(prev => {
-                if(!prev) return null;
-                const serviceToUpdate = prev.serviciosIncluidos.find(s => s.id === serviceId);
-                if (!serviceToUpdate) return prev;
-                
-                const updatedService = {...serviceToUpdate, esRegalo: !!value};
-                if(!!value){
-                    updatedService.precioFijo = 0;
-                    updatedService.precioBase = 0;
-                    updatedService.precioPorPersona = 0;
-                } else {
-                    const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-                    updatedService.precioFijo = catalogService?.precioVenta;
-                    updatedService.precioBase = catalogService?.precioVenta;
-                    updatedService.precioPorPersona = catalogService?.precioVenta;
+            if (field === 'esRegalo') {
+                const serviceToUpdate = updatedServices.find(s => s.id === serviceId);
+                if (serviceToUpdate) {
+                    const esRegalo = !!value;
+                    serviceToUpdate.esRegalo = esRegalo;
+                    if(esRegalo){
+                        serviceToUpdate.precioFijo = 0;
+                        serviceToUpdate.precioBase = 0;
+                        serviceToUpdate.precioPorPersona = 0;
+                    } else {
+                        const catalogService = vendibleServices.find(vs => vs.id === serviceId);
+                        serviceToUpdate.precioFijo = catalogService?.precioVenta;
+                        serviceToUpdate.precioBase = catalogService?.precioVenta;
+                        serviceToUpdate.precioPorPersona = catalogService?.precioVenta;
+                    }
                 }
-                return {...prev, serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? updatedService : s)};
-            })
-        }
+            }
+             return { ...prev, serviciosIncluidos: updatedServices };
+        });
     };
     
     const handleTramoChange = (serviceId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
