@@ -181,13 +181,13 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
-    const bruto = presupuesto.costoTotalEstimado + costoRegalos;
-    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) - costoRegalos;
+    const bruto = presupuesto.costoTotalEstimado;
+    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
     
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
-      subtotalBruto: presupuesto.costoTotalEstimado,
+      subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),
       totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
     };

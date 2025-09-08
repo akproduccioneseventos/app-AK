@@ -273,12 +273,11 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                           </thead>
                           <tbody>
                           {items.map((item) => {
-                            const precioOriginal = item.precioUnitario;
                             return (
                               <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(precioOriginal, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(item.precioUnitario, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="font-semibold text-primary">Incluido</span> : formatCurrency(item.costoTotalItem, false)}</td>
                               </tr>
                             )
@@ -293,7 +292,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
           )}
           
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
-            <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
+            <div className="w-full max-w-[250px] print:max-w-[200px] space-y-0.5">
               <div className="flex justify-between"><span>Subtotal Bruto:</span><span>{formatCurrency(subtotalBruto)}</span></div>
               {costoTotalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro por Regalos:</span><span>-{formatCurrency(costoTotalRegalos)}</span></div>}
               {descuentoPromocional > 0 && <div className="flex justify-between text-red-600"><span>Descuento Promocional:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}

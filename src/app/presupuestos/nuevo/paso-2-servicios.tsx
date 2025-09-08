@@ -67,16 +67,17 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         let updatedServicio = { ...currentServicio };
 
         if (field === 'esRegalo') {
-            updatedServicio.esRegalo = !!value;
+          updatedServicio.esRegalo = !!value;
         } else if (field === 'cantidad') {
-            const numericValue = Number(value);
-            updatedServicio.cantidad = isNaN(numericValue) || numericValue < 1 ? 1 : numericValue;
+          const numericValue = Number(value);
+          updatedServicio.cantidad = isNaN(numericValue) || numericValue < 1 ? 1 : numericValue;
         } else if (field === 'precioUnitarioPresupuesto') {
-            const numericValue = Number(value);
-            updatedServicio.precioUnitarioPresupuesto = isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
-            if (updatedServicio.esRegalo && numericValue > 0) {
-              updatedServicio.esRegalo = false;
-            }
+          const numericValue = Number(value);
+          updatedServicio.precioUnitarioPresupuesto = isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
+          // Desmarcar como regalo si se edita el precio manualmente
+          if (updatedServicio.esRegalo && numericValue > 0) {
+            updatedServicio.esRegalo = false;
+          }
         }
         
         newSelected.set(servicioId, updatedServicio);
@@ -228,12 +229,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                                       </div>
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
-                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" disabled={selectedInfo.esRegalo} required />
+                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" required />
                                       </div>
                                     </div>
                                     <div className="flex items-center space-x-2 pt-2">
                                         <Checkbox id={`gift-${servicio.id}`} checked={selectedInfo.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(servicio.id, 'esRegalo', !!checked)}/>
-                                        <Label htmlFor={`gift-${servicio.id}`} className="text-xs font-normal flex items-center gap-1 text-primary"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
+                                        <Label htmlFor={`gift-${servicio.id}`} className="text-xs font-normal flex items-center gap-1 text-primary"><Gift className="w-3 h-3"/>Marcar como Regalo (Precio = $0)</Label>
                                     </div>
                                     <p className="text-xs font-medium text-right pt-1">Subtotal Servicio: {formatCurrency(finalPrice)}</p>
                                   </div>

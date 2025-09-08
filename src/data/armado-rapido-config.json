@@ -283,6 +283,61 @@
           "precioBase": 0,
           "precioPorPersona": 0,
           "tramosDePrecio": []
+        },
+        {
+          "id": "serv_video_vida",
+          "nombre": "Video de vida",
+          "categoria": "Regalo exclusivo",
+          "calculationMethod": "fijo",
+          "esRegalo": true,
+          "precioFijo": 0,
+          "precioBase": 0,
+          "precioPorPersona": 0,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "item_1757284889281_ioj7571",
+          "nombre": "Plataforma 360",
+          "categoria": "Servicio de entretenimiento",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 3900,
+          "precioBase": 3900,
+          "precioPorPersona": 3900,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "item_1757284864269_4d9w4ml",
+          "nombre": "Fotocabina",
+          "categoria": "Servicio de entretenimiento",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 2900,
+          "precioBase": 2900,
+          "precioPorPersona": 2900,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "item_1757285027582_71oyrff",
+          "nombre": "Fuente de chocolate con mesa dulce",
+          "categoria": "Servicio de repostería",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 120,
+          "precioBase": 120,
+          "precioPorPersona": 120,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600086_barlib",
+          "nombre": "Barra libre con tragos",
+          "categoria": "Servicio de bebidas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 350,
+          "precioBase": 350,
+          "precioPorPersona": 350,
+          "tramosDePrecio": []
         }
       ]
     }
