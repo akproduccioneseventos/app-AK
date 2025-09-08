@@ -139,7 +139,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
       .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
       .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
   };
-
+  
   const handleShare = async () => {
     const shareData = {
       title: `Presupuesto para ${presupuesto?.clienteNombre}`,
@@ -297,7 +297,9 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                         <tbody>
                         {items.map((item) => (
                             <tr key={item.idServicioCatalogo}>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
+                                  {item.esRegalo ? <span className="flex items-center gap-1 font-semibold text-primary"><Gift className="w-3 h-3"/> {item.nombreServicio}</span> : item.nombreServicio}
+                                </td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(item.precioUnitario, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="font-semibold text-primary">Incluido</span> : formatCurrency(item.costoTotalItem, false)}</td>

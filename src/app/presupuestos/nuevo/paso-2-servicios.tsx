@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Tag, Search, PackageSearch, Gift, PlusCircle } from 'lucide-react';
+import { Sparkles, Tag, Search, PackageSearch, Gift } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -74,7 +74,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         } else if (field === 'precioUnitarioPresupuesto') {
           const numericValue = Number(value);
           updatedServicio.precioUnitarioPresupuesto = isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
-          // Desmarcar como regalo si se edita el precio manualmente
           if (updatedServicio.esRegalo && numericValue > 0) {
             updatedServicio.esRegalo = false;
           }
