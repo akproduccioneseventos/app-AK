@@ -181,15 +181,13 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
-    const costoRegular = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
-    
-    const bruto = costoRegular + costoRegalos;
+    const bruto = presupuesto.costoTotalEstimado + costoRegalos;
     const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) - costoRegalos;
     
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
-      subtotalBruto: bruto,
+      subtotalBruto: presupuesto.costoTotalEstimado,
       descuentoPromocional: Math.max(0, descPromo),
       totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
     };
@@ -301,7 +299,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                             <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(item.precioUnitario, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="font-semibold text-primary">Incluido</span> : formatCurrency(item.costoTotalItem, false)}</td>
                             </tr>
                         ))}

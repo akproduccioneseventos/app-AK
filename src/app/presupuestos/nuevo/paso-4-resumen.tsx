@@ -13,6 +13,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import React, { useMemo } from 'react'; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { BudgetDisplaySettings } from '@/types/settings';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator'; 
 
@@ -272,12 +273,12 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                           </thead>
                           <tbody>
                           {items.map((item) => {
-                            const valorOriginalRegalo = item.precioUnitarioOriginal ?? item.precioUnitario;
+                            const precioOriginal = item.precioUnitario;
                             return (
                               <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(valorOriginalRegalo, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(precioOriginal, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="font-semibold text-primary">Incluido</span> : formatCurrency(item.costoTotalItem, false)}</td>
                               </tr>
                             )
