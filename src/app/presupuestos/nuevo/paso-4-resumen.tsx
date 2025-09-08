@@ -325,7 +325,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                 <Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} placeholder="Ej: 10 o 5000" min="0" step="any" disabled={!formData.descuentoTipo}/>
               </div>
             </div>
-            {descuentoAplicado > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoAplicado)}</p>}
+            {descuentoPromocional > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoPromocional)}</p>}
           </Card>
 
           <Separator className="my-4"/>
