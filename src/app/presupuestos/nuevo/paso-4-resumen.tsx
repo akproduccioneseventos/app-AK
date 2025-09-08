@@ -166,7 +166,8 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
         texto += `*${categoria}*\n`;
         items.forEach(item => {
            if (item.esRegalo) {
-             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(item.precioUnitario * item.cantidad)})\n`;
+             const valorRegalo = item.precioUnitario * item.cantidad;
+             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
            } else {
             texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
            }
@@ -270,14 +271,17 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                           </tr>
                           </thead>
                           <tbody>
-                          {items.map((item) => (
+                          {items.map((item) => {
+                            const valorOriginalRegalo = item.precioUnitarioOriginal ?? item.precioUnitario;
+                            return (
                               <tr key={item.idServicioCatalogo}>
-                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
-                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
-                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(valorOriginalRegalo, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="font-semibold text-primary">Incluido</span> : formatCurrency(item.costoTotalItem, false)}</td>
                               </tr>
-                          ))}
+                            )
+                          })}
                           </tbody>
                       </table>
                   </div>
@@ -318,7 +322,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                 <Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} placeholder="Ej: 10 o 5000" min="0" step="any" disabled={!formData.descuentoTipo}/>
               </div>
             </div>
-            {descuentoPromocional > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoPromocional)}</p>}
+            {descuentoAplicado > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoAplicado)}</p>}
           </Card>
 
           <Separator className="my-4"/>

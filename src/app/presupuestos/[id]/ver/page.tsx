@@ -119,8 +119,11 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
       presupuesto.itemsPresupuestados.forEach(item => {
-        if (!item.nombreServicio.toLowerCase().includes('elección')) {
-          texto += `  • ${item.nombreServicio}\n`;
+        if (item.esRegalo) {
+             const valorRegalo = item.precioUnitario * item.cantidad;
+             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
+        } else {
+            texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
         }
       });
       texto += `\n`;
@@ -169,7 +172,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
     
-    // Move "Regalos" to the end if it exists
     const sortedKeys = Object.keys(agrupados).sort((a,b) => a.localeCompare(b));
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
@@ -178,7 +180,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
     
-    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + item.precioUnitario * item.cantidad, 0);
+    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     const costoRegular = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
     
     const bruto = costoRegular + costoRegalos;
@@ -300,7 +302,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">{item.nombreServicio}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="font-semibold text-primary">Incluido</span> : formatCurrency(item.costoTotalItem, false)}</td>
                             </tr>
                         ))}
                         </tbody>
@@ -313,7 +315,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
             <div className="flex justify-between"><span>Subtotal Bruto:</span><span>{formatCurrency(subtotalBruto)}</span></div>
-            {costoTotalRegalos > 0 && <div className="flex justify-between text-red-600"><span>Ahorro por Regalos:</span><span>-{formatCurrency(costoTotalRegalos)}</span></div>}
+            {costoTotalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro por Regalos:</span><span>-{formatCurrency(costoTotalRegalos)}</span></div>}
             {descuentoPromocional > 0 && <div className="flex justify-between text-red-600"><span>Descuento Promocional:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}
             <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500"><span className="text-base">TOTAL A PAGAR:</span><span className="text-base">{formatCurrency(totalFinal)}</span></div>
           </div>

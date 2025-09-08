@@ -69,7 +69,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             newSelected.set(servicioId, {
               ...currentServicio,
               esRegalo,
-              // Si es regalo, el precio del presupuesto es 0, si no, se restaura al original.
+              // Al ser regalo, el precio presupuestado es 0, pero conservamos el original
               precioUnitarioPresupuesto: esRegalo ? 0 : currentServicio.precioUnitarioOriginal,
             });
         } else {
@@ -82,7 +82,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             newSelected.set(servicioId, {
               ...currentServicio,
               [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-               esRegalo: false, // Desmarcar como regalo si se edita el precio manualmente
+               // Si se edita el precio manualmente, no es un regalo.
+               // Mantenemos el precio original de catálogo intacto.
+               esRegalo: false, 
             });
         }
       }
@@ -226,11 +228,11 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                                     <div className="grid grid-cols-2 gap-3 items-center">
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`qty-${servicio.id}`} className="text-xs">Cant.</Label>
-                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm"/>
+                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm" required />
                                       </div>
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
-                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" disabled={selectedInfo.esRegalo}/>
+                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" disabled={selectedInfo.esRegalo} required />
                                       </div>
                                     </div>
                                     <div className="flex items-center space-x-2 pt-2">
