@@ -167,8 +167,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
         texto += `*${categoria}*\n`;
         items.forEach(item => {
            if (item.esRegalo) {
-             const valorRegalo = item.precioUnitario * item.cantidad;
-             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
+             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(item.precioUnitario * item.cantidad)})\n`;
            } else {
             texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
            }
@@ -273,7 +272,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData, displ
                           </thead>
                           <tbody>
                           {items.map((item) => {
-                            const costoTotalItem = item.esRegalo ? 0 : item.costoTotalItem;
+                            const costoTotalItem = item.cantidad * item.precioUnitario;
                             return (
                               <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">

@@ -68,15 +68,14 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
         if (field === 'esRegalo') {
           updatedServicio.esRegalo = !!value;
+          // Al marcar como regalo, no cambiamos el precio, solo la bandera.
+          // El cálculo del total se encargará de tratarlo como cero.
         } else if (field === 'cantidad') {
           const numericValue = Number(value);
           updatedServicio.cantidad = isNaN(numericValue) || numericValue < 1 ? 1 : numericValue;
         } else if (field === 'precioUnitarioPresupuesto') {
           const numericValue = Number(value);
           updatedServicio.precioUnitarioPresupuesto = isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
-          if (updatedServicio.esRegalo && numericValue > 0) {
-            updatedServicio.esRegalo = false;
-          }
         }
         
         newSelected.set(servicioId, updatedServicio);
@@ -228,7 +227,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                                       </div>
                                       <div className="space-y-0.5">
                                         <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
-                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.esRegalo ? 0 : selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" required disabled={selectedInfo.esRegalo} />
+                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" required />
                                       </div>
                                     </div>
                                     <div className="flex items-center space-x-2 pt-2">

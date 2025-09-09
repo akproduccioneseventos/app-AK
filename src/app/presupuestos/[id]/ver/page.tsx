@@ -118,17 +118,28 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     texto += `\n`;
     if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-      presupuesto.itemsPresupuestados.forEach(item => {
-        if (item.esRegalo) {
+      itemsAgrupados && Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
+        texto += `*${categoria}*\n`;
+        items.forEach(item => {
+           if (item.esRegalo) {
              const valorRegalo = item.precioUnitario * item.cantidad;
              texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
-        } else {
+           } else {
             texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-        }
+           }
+        });
+        texto += `\n`;
       });
+      texto += `  SUBTOTAL: *${formatCurrency(subtotalBruto)}*\n\n`;
+    }
+    if (descuentoPromocional > 0 && presupuesto.nombrePromocion) {
+      texto += `🎁 *Promoción Aplicada: ${presupuesto.nombrePromocion}*\n`;
+      if (presupuesto.descuentoTipo === 'porcentaje') texto += `  Descuento: ${presupuesto.descuentoValor}% (${formatCurrency(descuentoPromocional)})\n`;
+      else texto += `  Descuento: ${formatCurrency(descuentoPromocional)}\n`;
+      if (presupuesto.vigenciaPromocion) texto += `  Válido hasta: ${presupuesto.vigenciaPromocion}\n`;
       texto += `\n`;
     }
-    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinalConDescuento, true, true)}*\n\n`;
+    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinal, true, true)}*\n\n`;
     if(presupuesto.notas && presupuesto.notas.trim() !== '' && displaySettings.showPaymentMethodNotes){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
     texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
