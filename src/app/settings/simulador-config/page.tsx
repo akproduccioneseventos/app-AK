@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit, DollarSign, Check } from 'lucide-react';
+import { ArrowLeft, Wand2, PlusCircle, Save, Loader2, Package, Trash2, Settings, ChefHat, Search, ChevronDown, Gift, Info, ShoppingCart, Copy, GripVertical, Edit, DollarSign, Check, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
@@ -151,7 +151,8 @@ export function AddOrEditDialog({
     vendibleServices: initialVendibleServices,
     mode,
     onServiceCreated,
-    onServiceDeleted
+    onServiceDeleted,
+    refreshCatalog
 }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
@@ -161,6 +162,7 @@ export function AddOrEditDialog({
     mode: 'menu' | 'paquete';
     onServiceCreated: (newService: ServicioEmpresa) => void;
     onServiceDeleted: (deletedId: string) => void;
+    refreshCatalog: () => Promise<void>;
 }) {
     const [localItem, setLocalItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
     const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
@@ -485,7 +487,13 @@ export function AddOrEditDialog({
                     </div>
                     <div className="flex flex-col gap-2 min-h-0">
                         <Label>Catálogo de Servicios</Label>
-                        <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/></div>
+                        <div className="flex gap-2">
+                            <div className="relative flex-grow">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
+                                <Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8"/>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={refreshCatalog} title="Actualizar Catálogo"><RefreshCw className="w-4 h-4"/></Button>
+                        </div>
                         
                         <ScrollArea className="h-full border rounded-md p-2">
                           {filteredCatalog.length > 0 ? filteredCatalog.map(s => {
@@ -534,8 +542,8 @@ export default function ArmadoRapidoSettingsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'menu' | 'paquete'>('menu');
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+  const loadData = useCallback(async (showLoading = true) => {
+    if(showLoading) setIsLoading(true);
     try {
       const [fetchedConfig, fetchedServices] = await Promise.all([ getArmadoRapidoConfig(), getServiciosEmpresa() ]);
       setConfig({
@@ -547,7 +555,7 @@ export default function ArmadoRapidoSettingsPage() {
     } catch (err: any) {
       toast({ title: "Error", description: "No se pudo cargar la configuración.", variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      if(showLoading) setIsLoading(false);
     }
   }, [toast]);
 
@@ -558,7 +566,7 @@ export default function ArmadoRapidoSettingsPage() {
         const result = await saveArmadoRapidoConfig(newConfig);
         if (result.success) {
             toast({ title: "¡Guardado!", description: "La configuración ha sido actualizada." });
-            await loadData();
+            await loadData(false);
         } else {
             throw new Error(result.error || "No se pudo guardar la configuración.");
         }
@@ -686,6 +694,11 @@ export default function ArmadoRapidoSettingsPage() {
         onSave={handleSaveItem} 
         onServiceCreated={(newService) => setServiciosCatalogo(prev => [newService, ...prev])}
         onServiceDeleted={(deletedId) => setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId))}
+        refreshCatalog={async () => {
+            const services = await getServiciosEmpresa();
+            setServiciosCatalogo(services);
+            toast({ title: "Catálogo actualizado." });
+        }}
       />}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración Simulador de Presupuesto</h1></div>
@@ -770,7 +783,7 @@ export default function ArmadoRapidoSettingsPage() {
                               ))}
                               {giftServices.length > 0 && (
                                   <div>
-                                      <h4 className="font-medium text-xs text-red-600 uppercase tracking-wider">Regalos Incluidos</h4>
+                                      <h4 className="font-medium text-xs text-primary uppercase tracking-wider">Regalos Incluidos</h4>
                                       <ul className="pl-2 space-y-1">
                                           {giftServices.map(s => (
                                               <li key={s.id} className="flex justify-between items-center p-1">
