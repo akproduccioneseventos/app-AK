@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -98,7 +97,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         nombre: formData.nombre.trim(),
         tipoItem: formData.tipoItem,
         categoria: formData.categoria,
-        unidad: formData.tipoItem === 'Servicio' ? undefined : formData.unidad, // Unidad es opcional para servicios
+        unidad: formData.tipoItem === 'Servicio' ? undefined : formData.unidad,
         subcategoria: formData.subcategoria?.trim() || undefined,
         cantidadDisponible: formData.cantidadDisponible !== undefined ? Number(formData.cantidadDisponible) : undefined,
         valorUnitarioEstimado: formData.valorUnitarioEstimado !== undefined ? Number(formData.valorUnitarioEstimado) : undefined,
@@ -127,6 +126,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
 
   const isCatering = formData.categoria === 'Servicio de catering';
   const isReposteria = formData.categoria === 'Servicio de repostería';
+  const isServicio = formData.tipoItem === 'Servicio';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -144,7 +144,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
       
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Actualizar Ítem del Inventario</CardTitle>
+          <CardTitle className="font-headline">Actualizar Ítem del Catálogo</CardTitle>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
@@ -182,33 +182,37 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
               </div>
             </div>
              
-             {formData.tipoItem === 'Servicio' ? (
-                 <div className="space-y-2 p-3 border rounded-md border-primary/30 bg-primary/5">
-                    <Label htmlFor="item-precio-venta" className="text-base flex items-center gap-2 text-primary">
-                        <DollarSign className="w-5 h-5"/>Precio de Venta (UYU) *
-                    </Label>
-                    <Input id="item-precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} required disabled={isSaving}/>
+             {isServicio ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-3 border rounded-md border-primary/30 bg-primary/5">
+                    <div className="space-y-2">
+                        <Label htmlFor="item-costo-servicio" className="text-base flex items-center gap-2 text-primary"><DollarSign className="w-5 h-5"/>Costo Estimado</Label>
+                        <Input id="item-costo-servicio" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} placeholder="0.00" min="0" step="any" disabled={isSaving}/>
+                         <p className="text-xs text-muted-foreground">¿Cuánto te cuesta a ti prestar este servicio?</p>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="item-precio-venta" className="text-base flex items-center gap-2 text-primary"><DollarSign className="w-5 h-5"/>Precio de Venta (UYU) *</Label>
+                        <Input id="item-precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} required disabled={isSaving}/>
+                        <p className="text-xs text-muted-foreground">El precio que verá el cliente.</p>
+                    </div>
                 </div>
             ) : (
-                <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label>
-                            <Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label>
-                            <Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/>
-                        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label>
+                        <Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label>
+                        <Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/>
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="item-unidad" className="text-base">Unidad *</Label>
-                        <Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required>
+                        <Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required={!isServicio}>
                         <SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger>
                         <SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent>
                         </Select>
                     </div>
-                </>
+                </div>
             )}
             
             <div className="space-y-2">

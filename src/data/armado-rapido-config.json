@@ -541,6 +541,28 @@
           "precioBase": 350,
           "precioPorPersona": 350,
           "tramosDePrecio": []
+        },
+        {
+          "id": "item_1757456795455_fu82w28",
+          "nombre": "Zona de fotografía con sillón diván y mural personalizado",
+          "categoria": "Otros servicios",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 5000,
+          "precioBase": 5000,
+          "precioPorPersona": 5000,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "item_1757456750062_nqnlzpy",
+          "nombre": "Mesa Glitter",
+          "categoria": "Servicio de entretenimiento",
+          "calculationMethod": "fijo",
+          "esRegalo": false,
+          "precioFijo": 100,
+          "precioBase": 100,
+          "precioPorPersona": 100,
+          "tramosDePrecio": []
         }
       ]
     }
