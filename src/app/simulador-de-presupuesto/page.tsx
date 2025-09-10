@@ -241,8 +241,11 @@ export default function SimuladorDePresupuestoPage() {
                         precioUnitario = costoServicio;
                 }
                 if (servicio.esRegalo) {
-                    costoRegalos += costoServicio;
-                    resumenData.regalos.push({ desc: servicio.nombre, total: costoServicio });
+                    // Corrected logic: find the original price from the catalog to show its value
+                    const originalService = config?.paquetes.flatMap(p => p.serviciosIncluidos).find(s => s.id === servicio.id);
+                    const originalPrice = calcularCostoPaquete({ ...paqueteActual, serviciosIncluidos: [originalService!] } as PaqueteArmadoRapido);
+                    costoRegalos += originalPrice;
+                    resumenData.regalos.push({ desc: servicio.nombre, total: originalPrice });
                 } else {
                     subtotalServicios += costoServicio;
                     resumenData.items.push({ desc: descServicio, cantidad, precioUnitario, total: costoServicio });
@@ -261,7 +264,7 @@ export default function SimuladorDePresupuestoPage() {
         resumenData.totalFinal = costoFinal;
         
         return { resumenData, costoFinal };
-    }, [numAdultos, numJovenesYNinos, entradasSeleccionadas, platoPrincipalId, menuInfantilId, paqueteActual, opcionesMenu, clienteNombre, config]);
+    }, [numAdultos, numJovenesYNinos, entradasSeleccionadas, platoPrincipalId, menuInfantilId, paqueteActual, opcionesMenu, clienteNombre, config, calcularCostoPaquete]);
 
     
     const handleGenerarPresupuesto = async () => {
