@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2, Wand2, Users, ChefHat, Package, Check, ArrowRight, User, Phone, List, DollarSign, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { AnimatePresence, motion } from 'framer-motion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -18,6 +19,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import type { ServicioEmpresa } from '@/types/empresa';
 
 
 const formatCurrency = (amount?: number) => {
@@ -30,6 +32,7 @@ export default function SimuladorDePresupuestoPage() {
     const { toast } = useToast();
     const router = useRouter();
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
+    const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -87,8 +90,12 @@ export default function SimuladorDePresupuestoPage() {
     const loadData = useCallback(async () => {
         setIsLoading(true); setError(null);
         try {
-            const fetchedConfig = await getArmadoRapidoConfig();
+            const [fetchedConfig, fetchedServices] = await Promise.all([
+              getArmadoRapidoConfig(),
+              getServiciosEmpresa()
+            ]);
             setConfig(fetchedConfig);
+            setServiciosCatalogo(fetchedServices);
         } catch (err: any) {
             setError('No se pudo cargar la configuración de presupuestos rápidos.');
             toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -103,8 +110,6 @@ export default function SimuladorDePresupuestoPage() {
         if (!config?.menus) return undefined;
         const cateringMenu = config.menus.find(m => m.id === 'menu_catering');
         if (!cateringMenu) return undefined;
-
-        // Filtrar y ordenar las opciones del menú
         return {
             ...cateringMenu,
             serviciosIncluidos: (cateringMenu.serviciosIncluidos || []).sort((a, b) => (a.precioFijo ?? 0) - (b.precioFijo ?? 0))
@@ -154,7 +159,6 @@ export default function SimuladorDePresupuestoPage() {
                     costoServicio = tramo?.precio || 0;
                     break;
                 default: 
-                    // Fallback to fijo if calculationMethod is undefined or not recognized
                     costoServicio = servicio.precioFijo || servicio.precioBase || 0;
             }
             costo += costoServicio;
@@ -242,14 +246,8 @@ export default function SimuladorDePresupuestoPage() {
                 }
 
                 if (servicio.esRegalo) {
-                    const originalService = config?.paquetes.flatMap(p => p.serviciosIncluidos).find(s => s.id === servicio.id);
-                    let originalPrice = originalService?.precioBase || 0; // Use a fallback
-                    if(originalService?.calculationMethod === 'porPersona') {
-                         originalPrice = (originalService.precioPorPersona || originalService.precioBase || 0) * totalInvitados;
-                    } else if (originalService?.calculationMethod === 'tramos') {
-                        const tramo = originalService.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-                        originalPrice = tramo?.precio || 0;
-                    }
+                    const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
+                    const originalPrice = catalogService?.precioVenta || 0;
                     costoRegalos += originalPrice;
                     resumenData.regalos.push({ desc: servicio.nombre, total: originalPrice });
                 } else {
@@ -270,7 +268,7 @@ export default function SimuladorDePresupuestoPage() {
         resumenData.totalFinal = costoFinal;
         
         return { resumenData, costoFinal };
-    }, [numAdultos, numJovenesYNinos, entradasSeleccionadas, platoPrincipalId, menuInfantilId, paqueteActual, opcionesMenu, clienteNombre, config, calcularCostoPaquete]);
+    }, [numAdultos, numJovenesYNinos, entradasSeleccionadas, platoPrincipalId, menuInfantilId, paqueteActual, opcionesMenu, clienteNombre, config, serviciosCatalogo]);
 
     
     const handleGenerarPresupuesto = async () => {

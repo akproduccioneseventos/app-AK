@@ -232,7 +232,7 @@ export function AddOrEditDialog({
               id: service.id,
               nombre: service.nombre,
               categoria: (service.categoria || 'Otros servicios') as ServicioCategoriaArmadoRapido,
-              calculationMethod: mode === 'paquete' ? 'fijo' : undefined,
+              calculationMethod: mode === 'paquete' ? 'fijo' : 'porPersona',
               esRegalo: false,
               precioFijo: service.precioVenta,
               precioBase: service.precioVenta,
@@ -261,18 +261,7 @@ export function AddOrEditDialog({
             if (field === 'esRegalo') {
                 const serviceToUpdate = updatedServices.find(s => s.id === serviceId);
                 if (serviceToUpdate) {
-                    const esRegalo = !!value;
-                    serviceToUpdate.esRegalo = esRegalo;
-                    if(esRegalo){
-                        serviceToUpdate.precioFijo = 0;
-                        serviceToUpdate.precioBase = 0;
-                        serviceToUpdate.precioPorPersona = 0;
-                    } else {
-                        const catalogService = vendibleServices.find(vs => vs.id === serviceId);
-                        serviceToUpdate.precioFijo = catalogService?.precioVenta;
-                        serviceToUpdate.precioBase = catalogService?.precioVenta;
-                        serviceToUpdate.precioPorPersona = catalogService?.precioVenta;
-                    }
+                    serviceToUpdate.esRegalo = !!value;
                 }
             }
              return { ...prev, serviciosIncluidos: updatedServices };
@@ -402,7 +391,7 @@ export function AddOrEditDialog({
                                                     <SelectContent>{CATEGORIAS_MENU.map(c => <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>)}</SelectContent>
                                                 </Select>
                                             )}
-                                            <div className="flex items-center space-x-2">
+                                            <div className="flex items-center space-x-2 pt-2">
                                                 <Checkbox id={`es-regalo-serv-${service.id}`} checked={service.esRegalo} onCheckedChange={(checked) => handleServiceDetailChange(service.id, 'esRegalo', !!checked)}/>
                                                 <Label htmlFor={`es-regalo-serv-${service.id}`} className="text-xs font-normal flex items-center gap-1 text-primary"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
                                             </div>
@@ -717,7 +706,7 @@ export default function ArmadoRapidoSettingsPage() {
                 <Input id="descuento-general" type="number" value={config.descuentoGeneral || ''} onChange={e => handleSaveConfig({...config, descuentoGeneral: parseFloat(e.target.value) || 0})} placeholder="Ej: 15 para 15%"/>
               </div>
               <div className="flex items-center justify-between p-3 border rounded-lg">
-                <Label htmlFor="mostrar-precios" className="text-base font-medium">Mostrar precios en resumen</Label>
+                <Label htmlFor="mostrar-precios" className="text-base font-medium">Mostrar precios en simulador</Label>
                 <Switch id="mostrar-precios" checked={config.mostrarPrecios} onCheckedChange={(val) => handleSaveConfig({...config, mostrarPrecios: val})} />
               </div>
             </div>
@@ -788,7 +777,7 @@ export default function ArmadoRapidoSettingsPage() {
                                       <ul className="pl-2 space-y-1">
                                           {giftServices.map(s => (
                                               <li key={s.id} className="flex justify-between items-center p-1">
-                                                  <span className="flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>{s.nombre} (Regalo)</span>
+                                                  <span className="flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>{s.nombre}</span>
                                                   <Badge variant='destructive' className="text-xs">{getPriceDisplay(s)}</Badge>
                                               </li>
                                           ))}
