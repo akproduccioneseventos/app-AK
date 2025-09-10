@@ -309,7 +309,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                         {items.map((item) => (
                             <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                                  {item.esRegalo ? <span className="flex items-center gap-1 font-semibold text-primary"><Gift className="w-3 h-3"/> {item.nombreServicio}</span> : item.nombreServicio}
+                                  {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(item.precioUnitario, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
@@ -334,7 +334,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         
         <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
-          {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-2 whitespace-pre-line">{presupuesto.notas}</p>}
+          {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
           {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
         </footer>
       </div>

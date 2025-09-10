@@ -7,13 +7,6 @@
     "precioVenta": 1500
   },
   {
-    "id": "item_1757456795455_fu82w28",
-    "nombre": "Zona de fotografía con sillón diván y mural personalizado",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "precioVenta": 5000
-  },
-  {
     "id": "serv_1752489600004_pchef",
     "nombre": "Cheff",
     "tipoItem": "Servicio",
@@ -817,6 +810,13 @@
     "precioVenta": 14500
   },
   {
+    "id": "item_1757456795455_fu82w28",
+    "nombre": "Zona de fotografía con sillón diván y mural personalizado",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 5000
+  },
+  {
     "id": "item_1757281306778_y5bsuqu",
     "nombre": "Lluvia de burbujas",
     "tipoItem": "Servicio",
@@ -831,14 +831,6 @@
     "categoria": "Servicio de discoteca",
     "unidad": "Por evento",
     "precioVenta": 9000
-  },
-  {
-    "id": "item_1757280812776_9jzr1bb",
-    "nombre": "Bogue",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "unidad": "Por evento",
-    "precioVenta": 2900
   },
   {
     "id": "item_1757281679718_anst4pv",
@@ -886,14 +878,6 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3000
-  },
-  {
-    "id": "item_1757258121428_4wd3ed5",
-    "nombre": "Fotografia de exteriores",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "unidad": "Por evento",
-    "precioVenta": 3900
   },
   {
     "id": "item_1757281980225_3x3nbzo",
