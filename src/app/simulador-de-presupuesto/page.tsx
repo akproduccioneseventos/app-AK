@@ -213,6 +213,12 @@ export default function SimuladorDePresupuestoPage() {
                 const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
                 const precioBaseCatalogo = catalogService?.precioVenta || 0;
                 
+                if (servicio.esRegalo) {
+                    costoRegalos += precioBaseCatalogo; 
+                    resumenData.regalos.push({ desc: servicio.nombre, total: precioBaseCatalogo });
+                    return; // Skip cost calculation for gifts
+                }
+                
                 let costoServicio = 0;
                 let descServicio = servicio.nombre;
                 let cantidad = 1;
@@ -247,14 +253,8 @@ export default function SimuladorDePresupuestoPage() {
                         precioUnitario = servicio.precioFijo ?? precioBaseCatalogo;
                         costoServicio = precioUnitario;
                 }
-
-                if (servicio.esRegalo) {
-                    costoRegalos += precioBaseCatalogo; 
-                    resumenData.regalos.push({ desc: servicio.nombre, total: precioBaseCatalogo });
-                } else {
-                    subtotalServicios += costoServicio;
-                    resumenData.items.push({ desc: descServicio, cantidad, precioUnitario, total: costoServicio });
-                }
+                subtotalServicios += costoServicio;
+                resumenData.items.push({ desc: descServicio, cantidad, precioUnitario, total: costoServicio });
             });
         }
         

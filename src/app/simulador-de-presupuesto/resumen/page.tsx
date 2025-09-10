@@ -62,7 +62,7 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
                         <td className="py-2 flex items-center gap-2 font-semibold"><Gift className="w-4 h-4"/>{item.desc} (REGALO)</td>
                         <td className="py-2 text-right">1</td>
                         <td className="py-2 text-right line-through">{formatCurrency(item.total)}</td>
-                        <td className="py-2 text-right font-semibold">{formatCurrency(0)}</td>
+                        <td className="py-2 text-right font-semibold">Incluido</td>
                     </tr>
                 ))}
                 </tbody>

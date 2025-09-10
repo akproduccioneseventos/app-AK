@@ -353,8 +353,8 @@
       ]
     },
     {
-      "id": "new_paquete_1757539929564",
-      "nombre": "Paquete Premium",
+      "id": "new_paquete_1757540419626",
+      "nombre": "Paquete Intermedio (Copia)",
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
@@ -554,25 +554,14 @@
           "tramosDePrecio": []
         },
         {
-          "id": "item_1757456683585_bb9tztm",
-          "nombre": "Mesa de jugos naturales",
-          "categoria": "Servicio de bebidas",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioFijo": 100,
-          "precioBase": 100,
-          "precioPorPersona": 100,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757539236109_vtqfjaz",
-          "nombre": "Lluvia de burbujas",
-          "categoria": "Servicio de discoteca",
+          "id": "item_1757539461884_w7kfwsm",
+          "nombre": "Cuadro de firmas",
+          "categoria": "Servicio de decoración",
           "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 1500,
-          "precioBase": 1500,
-          "precioPorPersona": 1500,
+          "esRegalo": false,
+          "precioFijo": 2900,
+          "precioBase": 2900,
+          "precioPorPersona": 2900,
           "tramosDePrecio": []
         }
       ]
