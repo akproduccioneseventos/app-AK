@@ -139,19 +139,19 @@ export default function SimuladorDePresupuestoPage() {
             if (servicio.esRegalo) return;
             
             let costoServicio = 0;
+            const precioBaseCatalogo = serviciosCatalogo.find(s => s.id === servicio.id)?.precioVenta || 0;
+
             switch(servicio.calculationMethod) {
                 case 'fijo': 
-                    costoServicio = servicio.precioBase || 0; 
+                    costoServicio = servicio.precioBase ?? precioBaseCatalogo; 
                     break;
                 case 'porPersona': 
-                    costoServicio = (servicio.precioPorPersona || servicio.precioBase || 0) * totalInvitados; 
+                    costoServicio = (servicio.precioPorPersona ?? precioBaseCatalogo) * totalInvitados; 
                     break;
                 case 'ratio': 
                     const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
                     if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
-                        costoServicio = Math.ceil(totalInvitados / invitadosPorUnidadNum) * (servicio.precioBase || 0);
-                    } else {
-                        console.warn(`Servicio con ratio inválido: ${servicio.nombre} (invitadosPorUnidad: ${servicio.invitadosPorUnidad})`);
+                        costoServicio = Math.ceil(totalInvitados / invitadosPorUnidadNum) * (servicio.precioBase ?? precioBaseCatalogo);
                     }
                     break;
                 case 'tramos':
@@ -159,12 +159,12 @@ export default function SimuladorDePresupuestoPage() {
                     costoServicio = tramo?.precio || 0;
                     break;
                 default: 
-                    costoServicio = servicio.precioFijo || servicio.precioBase || 0;
+                    costoServicio = servicio.precioFijo ?? precioBaseCatalogo;
             }
             costo += costoServicio;
         });
         return costo;
-    }, [numAdultos, numJovenesYNinos]);
+    }, [numAdultos, numJovenesYNinos, serviciosCatalogo]);
 
     const calcularDetallesPresupuesto = useCallback(() => {
         let costoCatering = 0;
@@ -210,6 +210,9 @@ export default function SimuladorDePresupuestoPage() {
 
         if (paqueteActual) {
             paqueteActual.serviciosIncluidos.forEach(servicio => {
+                const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
+                const precioBaseCatalogo = catalogService?.precioVenta || 0;
+                
                 let costoServicio = 0;
                 let descServicio = servicio.nombre;
                 let cantidad = 1;
@@ -217,11 +220,11 @@ export default function SimuladorDePresupuestoPage() {
 
                 switch(servicio.calculationMethod) {
                     case 'fijo': 
-                        precioUnitario = servicio.precioBase || 0; 
+                        precioUnitario = servicio.precioBase ?? precioBaseCatalogo; 
                         costoServicio = precioUnitario;
                         break;
                     case 'porPersona': 
-                        precioUnitario = servicio.precioPorPersona || servicio.precioBase || 0;
+                        precioUnitario = servicio.precioPorPersona ?? precioBaseCatalogo;
                         cantidad = totalInvitados;
                         costoServicio = precioUnitario * cantidad;
                         break;
@@ -229,7 +232,7 @@ export default function SimuladorDePresupuestoPage() {
                         const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
                         if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
                             cantidad = Math.ceil(totalInvitados / invitadosPorUnidadNum);
-                            precioUnitario = servicio.precioBase || 0;
+                            precioUnitario = servicio.precioBase ?? precioBaseCatalogo;
                             costoServicio = cantidad * precioUnitario;
                             descServicio += ` (1 cada ${servicio.invitadosPorUnidad} inv.)`;
                         }
@@ -241,15 +244,13 @@ export default function SimuladorDePresupuestoPage() {
                         descServicio += ` (para ${totalInvitados} inv.)`;
                         break;
                     default: 
-                        precioUnitario = servicio.precioFijo || servicio.precioBase || 0;
+                        precioUnitario = servicio.precioFijo ?? precioBaseCatalogo;
                         costoServicio = precioUnitario;
                 }
 
                 if (servicio.esRegalo) {
-                    const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
-                    const originalPrice = catalogService?.precioVenta || 0;
-                    costoRegalos += originalPrice;
-                    resumenData.regalos.push({ desc: servicio.nombre, total: originalPrice });
+                    costoRegalos += precioBaseCatalogo; 
+                    resumenData.regalos.push({ desc: servicio.nombre, total: precioBaseCatalogo });
                 } else {
                     subtotalServicios += costoServicio;
                     resumenData.items.push({ desc: descServicio, cantidad, precioUnitario, total: costoServicio });

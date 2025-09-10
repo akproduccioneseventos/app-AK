@@ -377,14 +377,6 @@
     "precioVenta": 300
   },
   {
-    "id": "serv_menu_ninos_hamburguesa",
-    "nombre": "Menú niños - Hamburguesa c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Adolescente / Niño",
-    "precioVenta": 200
-  },
-  {
     "id": "serv_menu_ninos_panchos",
     "nombre": "Menú niños - Panchos c/ fritas",
     "tipoItem": "Servicio",
@@ -608,14 +600,6 @@
     "precioVenta": 220
   },
   {
-    "id": "serv_sandwiches_saladitos",
-    "nombre": "Sándwiches y Saladitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "precioVenta": 220
-  },
-  {
     "id": "item_1757176590000_ulkxp3t",
     "nombre": "Servicio de mantelería, vajilla y mobiliario completo",
     "tipoItem": "Servicio",
@@ -794,11 +778,11 @@
     "precioVenta": 70
   },
   {
-    "id": "item_1757285123224_r671pqr",
+    "id": "item_1757539461884_w7kfwsm",
     "nombre": "Cuadro de firmas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "unidad": "Por evento",
+    "valorUnitarioEstimado": 1400,
     "precioVenta": 2900
   },
   {
@@ -810,19 +794,18 @@
     "precioVenta": 14500
   },
   {
-    "id": "item_1757456795455_fu82w28",
-    "nombre": "Zona de fotografía con sillón diván y mural personalizado",
+    "id": "item_1757537800722_u9hnkaw",
+    "nombre": "Zona para fotografía con sillón diván y mural personalizado",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "precioVenta": 5000
+    "precioVenta": 4900
   },
   {
-    "id": "item_1757281306778_y5bsuqu",
+    "id": "item_1757539236109_vtqfjaz",
     "nombre": "Lluvia de burbujas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
-    "unidad": "Por evento",
-    "precioVenta": 2500
+    "precioVenta": 1500
   },
   {
     "id": "item_1757258361278_fs8ba4x",
@@ -857,11 +840,11 @@
     "precioVenta": 2900
   },
   {
-    "id": "item_1757456750062_nqnlzpy",
-    "nombre": "Mesa Glitter",
+    "id": "item_1757536022626_o6vi9hl",
+    "nombre": "Mesa de Glitter Bar",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "precioVenta": 100
+    "precioVenta": 80
   },
   {
     "id": "item_1757284889281_ioj7571",
@@ -878,6 +861,14 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3000
+  },
+  {
+    "id": "item_1757539285149_qrknudv",
+    "nombre": "Fotografía de exteriores",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 3900
   },
   {
     "id": "item_1757281980225_3x3nbzo",
