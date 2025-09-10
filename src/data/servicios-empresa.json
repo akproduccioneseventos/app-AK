@@ -1,3 +1,4 @@
+
 [
   {
     "id": "serv_invitaciones_digitales",
@@ -448,24 +449,6 @@
     "precioVenta": 180
   },
   {
-    "id": "serv_1752489600071_mobil",
-    "nombre": "Mobiliario completo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Mobiliario",
-    "unidad": "Por persona",
-    "precioVenta": 69
-  },
-  {
-    "id": "serv_1752489600015_napoli",
-    "nombre": "Napolitana c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "unidad": "Por persona",
-    "precioVenta": 420
-  },
-  {
     "id": "serv_1752489600009_noquis",
     "nombre": "Ñoquis al queso",
     "tipoItem": "Servicio",
@@ -473,24 +456,6 @@
     "subcategoria": "Plato Principal",
     "unidad": "Por persona",
     "precioVenta": 390
-  },
-  {
-    "id": "serv_1752489600017_paella",
-    "nombre": "Paella de mariscos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "unidad": "Por persona",
-    "precioVenta": 380
-  },
-  {
-    "id": "item_1756937639800_z1mjmoj",
-    "nombre": "Panchos de MEDIO METRO",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Adolescente / Niño",
-    "unidad": "Por persona",
-    "precioVenta": 200
   },
   {
     "id": "serv_1752489600040_piccal",
@@ -509,14 +474,6 @@
     "subcategoria": "Entrada",
     "unidad": "Por persona",
     "precioVenta": 220
-  },
-  {
-    "id": "serv_picada_fiambres",
-    "nombre": "Picada de fiambres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "precioVenta": 120
   },
   {
     "id": "serv_1752489600042_picmar",

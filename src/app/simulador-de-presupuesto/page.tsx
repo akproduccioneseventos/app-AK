@@ -216,7 +216,7 @@ export default function SimuladorDePresupuestoPage() {
                 if (servicio.esRegalo) {
                     costoRegalos += precioBaseCatalogo; 
                     resumenData.regalos.push({ desc: servicio.nombre, total: precioBaseCatalogo });
-                    return; // Skip cost calculation for gifts
+                    return;
                 }
                 
                 let costoServicio = 0;
