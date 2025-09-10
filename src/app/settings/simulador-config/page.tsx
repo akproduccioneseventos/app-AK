@@ -249,22 +249,36 @@ export function AddOrEditDialog({
         setLocalItem(prev => prev ? {...prev, serviciosIncluidos: prev.serviciosIncluidos.filter(s => s.id !== serviceId)} : null);
     };
     
-     const handleServiceDetailChange = (
-      serviceId: string, 
-      field: keyof ServicioIncluidoArmadoRapido,
-      value: string | number | boolean | TramoDePrecio[] | undefined
+    const handleServiceDetailChange = (
+        serviceId: string, 
+        field: keyof Omit<ServicioIncluidoArmadoRapido, 'tramosDePrecio'>,
+        value: string | number | boolean | undefined
     ) => {
         setLocalItem(prev => {
             if (!prev) return null;
-            const updatedServices = prev.serviciosIncluidos.map(s => s.id === serviceId ? {...s, [field]: value} : s)
-
-            if (field === 'esRegalo') {
-                const serviceToUpdate = updatedServices.find(s => s.id === serviceId);
-                if (serviceToUpdate) {
-                    serviceToUpdate.esRegalo = !!value;
-                }
-            }
-             return { ...prev, serviciosIncluidos: updatedServices };
+            return {
+                ...prev,
+                serviciosIncluidos: prev.serviciosIncluidos.map(s => {
+                    if (s.id !== serviceId) return s;
+    
+                    let updatedService = { ...s, [field]: value };
+    
+                    // Correct handling when 'esRegalo' is toggled
+                    if (field === 'esRegalo') {
+                        const isGift = !!value;
+                        const catalogPrice = initialVendibleServices.find(vs => vs.id === serviceId)?.precioVenta;
+                        
+                        updatedService.esRegalo = isGift;
+                        if(mode === 'paquete'){
+                            updatedService.precioBase = isGift ? 0 : (s.precioBase ?? catalogPrice ?? 0);
+                            updatedService.precioPorPersona = isGift ? 0 : (s.precioPorPersona ?? catalogPrice ?? 0);
+                        } else {
+                            updatedService.precioFijo = isGift ? 0 : (s.precioFijo ?? catalogPrice ?? 0);
+                        }
+                    }
+                    return updatedService;
+                })
+            };
         });
     };
     
@@ -292,12 +306,20 @@ export function AddOrEditDialog({
       const lastTramo = currentTramos[currentTramos.length - 1];
       const newDesde = lastTramo ? (Number(lastTramo.hasta) || 0) + 1 : 1;
       const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: newDesde, hasta: newDesde + 49, precio: 0 };
-      handleServiceDetailChange(serviceId, 'tramosDePrecio', [...currentTramos, newTramo]);
+      const updatedTramos = [...currentTramos, newTramo];
+       setLocalItem(prev => prev ? {
+        ...prev,
+        serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? { ...s, tramosDePrecio: updatedTramos } : s)
+    } : null);
     };
     
     const removeTramo = (serviceId: string, tramoId: string) => {
         const currentTramos = localItem?.serviciosIncluidos.find(s => s.id === serviceId)?.tramosDePrecio || [];
-        handleServiceDetailChange(serviceId, 'tramosDePrecio', currentTramos.filter(t => t.id !== tramoId));
+        const updatedTramos = currentTramos.filter(t => t.id !== tramoId);
+        setLocalItem(prev => prev ? {
+            ...prev,
+            serviciosIncluidos: prev.serviciosIncluidos.map(s => s.id === serviceId ? { ...s, tramosDePrecio: updatedTramos } : s)
+        } : null);
     };
 
     const handleCategoryChange = (serviceId: string, newCategory: ServicioCategoriaArmadoRapido) => {
