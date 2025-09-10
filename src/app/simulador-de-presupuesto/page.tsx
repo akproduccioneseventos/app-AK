@@ -242,12 +242,13 @@ export default function SimuladorDePresupuestoPage() {
                 }
 
                 if (servicio.esRegalo) {
-                    // Correctly find the original price from the master catalog of the package
                     const originalService = config?.paquetes.flatMap(p => p.serviciosIncluidos).find(s => s.id === servicio.id);
-                    let originalPrice = 0;
-                    if(originalService) {
-                         const tempPackageToCalc: PaqueteArmadoRapido = { ...paqueteActual, serviciosIncluidos: [{...originalService, esRegalo: false}] };
-                         originalPrice = calcularCostoPaquete(tempPackageToCalc);
+                    let originalPrice = originalService?.precioBase || 0; // Use a fallback
+                    if(originalService?.calculationMethod === 'porPersona') {
+                         originalPrice = (originalService.precioPorPersona || originalService.precioBase || 0) * totalInvitados;
+                    } else if (originalService?.calculationMethod === 'tramos') {
+                        const tramo = originalService.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+                        originalPrice = tramo?.precio || 0;
                     }
                     costoRegalos += originalPrice;
                     resumenData.regalos.push({ desc: servicio.nombre, total: originalPrice });
