@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
@@ -58,11 +57,11 @@ const BudgetPrintView = React.forwardRef<HTMLDivElement, { summaryData: any, set
                     </tr>
                 ))}
                  {summaryData.regalos.map((item: any, index: number) => (
-                    <tr key={`regalo-${index}`} className="border-b">
-                        <td className="py-2 flex items-center gap-2"><Gift className="w-4 h-4 text-primary"/>{item.desc}</td>
+                    <tr key={`regalo-${index}`} className="border-b bg-green-50 text-green-700">
+                        <td className="py-2 flex items-center gap-2 font-semibold"><Gift className="w-4 h-4"/>{item.desc} (REGALO)</td>
                         <td className="py-2 text-right">1</td>
                         <td className="py-2 text-right line-through">{formatCurrency(item.total)}</td>
-                        <td className="py-2 text-right">{formatCurrency(0)}</td>
+                        <td className="py-2 text-right font-semibold">{formatCurrency(0)}</td>
                     </tr>
                 ))}
                 </tbody>
@@ -161,7 +160,7 @@ function ResumenContent() {
 
   return (
     <div className="min-h-screen bg-gray-100 print:bg-white flex flex-col items-center py-8">
-      <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4 flex-wrap">
+      <div className="w-full max-w-3xl mx-auto print:hidden mb-6 flex justify-between items-center gap-4 flex-wrap px-4">
          <Button variant="outline" onClick={() => router.back()}><ArrowLeft className="mr-2"/> Volver a Editar</Button>
          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={handleShare}><Share2 className="mr-2"/>Compartir Presupuesto</Button>
@@ -170,7 +169,7 @@ function ResumenContent() {
          </div>
       </div>
       
-      <div className="print-only-container">
+      <div className="print-only-container px-4">
         <BudgetPrintView summaryData={summaryData} settings={settings} ref={printRef} />
       </div>
       

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -11,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2, Wand2, Users, ChefHat, Package, Check, ArrowRight, User, Phone, List, DollarSign, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, ServicioCategoriaArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { AnimatePresence, motion } from 'framer-motion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -213,13 +212,13 @@ export default function SimuladorDePresupuestoPage() {
 
                 switch(servicio.calculationMethod) {
                     case 'fijo': 
-                        costoServicio = servicio.precioBase || 0; 
-                        precioUnitario = costoServicio;
+                        precioUnitario = servicio.precioBase || 0; 
+                        costoServicio = precioUnitario;
                         break;
                     case 'porPersona': 
                         precioUnitario = servicio.precioPorPersona || servicio.precioBase || 0;
-                        costoServicio = precioUnitario * totalInvitados; 
                         cantidad = totalInvitados;
+                        costoServicio = precioUnitario * cantidad;
                         break;
                     case 'ratio': 
                         const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
@@ -237,13 +236,18 @@ export default function SimuladorDePresupuestoPage() {
                         descServicio += ` (para ${totalInvitados} inv.)`;
                         break;
                     default: 
-                        costoServicio = servicio.precioFijo || servicio.precioBase || 0;
-                        precioUnitario = costoServicio;
+                        precioUnitario = servicio.precioFijo || servicio.precioBase || 0;
+                        costoServicio = precioUnitario;
                 }
+
                 if (servicio.esRegalo) {
-                    // Corrected logic: find the original price from the catalog to show its value
                     const originalService = config?.paquetes.flatMap(p => p.serviciosIncluidos).find(s => s.id === servicio.id);
-                    const originalPrice = calcularCostoPaquete({ ...paqueteActual, serviciosIncluidos: [originalService!] } as PaqueteArmadoRapido);
+                    let originalPrice = 0;
+                    if(originalService) {
+                         // Recalculate original price based on its method, can't just take a property
+                        const tempPackageToCalc: PaqueteArmadoRapido = { ...paqueteActual, serviciosIncluidos: [{...originalService, esRegalo: false}] };
+                        originalPrice = calcularCostoPaquete(tempPackageToCalc);
+                    }
                     costoRegalos += originalPrice;
                     resumenData.regalos.push({ desc: servicio.nombre, total: originalPrice });
                 } else {
