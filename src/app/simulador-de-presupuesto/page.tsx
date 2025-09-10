@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -241,12 +242,12 @@ export default function SimuladorDePresupuestoPage() {
                 }
 
                 if (servicio.esRegalo) {
+                    // Correctly find the original price from the master catalog of the package
                     const originalService = config?.paquetes.flatMap(p => p.serviciosIncluidos).find(s => s.id === servicio.id);
                     let originalPrice = 0;
                     if(originalService) {
-                         // Recalculate original price based on its method, can't just take a property
-                        const tempPackageToCalc: PaqueteArmadoRapido = { ...paqueteActual, serviciosIncluidos: [{...originalService, esRegalo: false}] };
-                        originalPrice = calcularCostoPaquete(tempPackageToCalc);
+                         const tempPackageToCalc: PaqueteArmadoRapido = { ...paqueteActual, serviciosIncluidos: [{...originalService, esRegalo: false}] };
+                         originalPrice = calcularCostoPaquete(tempPackageToCalc);
                     }
                     costoRegalos += originalPrice;
                     resumenData.regalos.push({ desc: servicio.nombre, total: originalPrice });
