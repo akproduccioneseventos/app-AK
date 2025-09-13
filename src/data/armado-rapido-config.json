@@ -353,8 +353,8 @@
       ]
     },
     {
-      "id": "new_paquete_1757728780615",
-      "nombre": "Paquete Premium",
+      "id": "new_paquete_1757731007907",
+      "nombre": "Paquete Intermedio (Copia)",
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
@@ -565,25 +565,19 @@
           "tramosDePrecio": []
         },
         {
-          "id": "item_1757537800722_u9hnkaw",
-          "nombre": "Zona para fotografía con sillón diván y mural personalizado",
-          "categoria": "Servicio de decoración",
-          "calculationMethod": "fijo",
+          "id": "item_1757730526614_jebslpx",
+          "nombre": "Fotografía de exteriores",
+          "categoria": "Servicio de fotografía",
           "esRegalo": false,
-          "precioFijo": 4900,
-          "precioBase": 4900,
-          "precioPorPersona": 4900,
+          "precioFijo": 3890,
           "tramosDePrecio": []
         },
         {
-          "id": "item_1757539285149_qrknudv",
-          "nombre": "Fotografía de exteriores",
-          "categoria": "Servicio de fotografía",
-          "calculationMethod": "fijo",
+          "id": "item_1757730442435_l4y7805",
+          "nombre": "Zona de fotografía con sillón diván y mural",
+          "categoria": "Servicio de decoración",
           "esRegalo": false,
-          "precioFijo": 3900,
-          "precioBase": 3900,
-          "precioPorPersona": 3900,
+          "precioFijo": 4990,
           "tramosDePrecio": []
         }
       ]

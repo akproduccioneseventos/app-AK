@@ -160,6 +160,8 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   const isCatering = formData.categoria === 'Servicio de catering';
   const isReposteria = formData.categoria === 'Servicio de repostería';
   const isServicio = formData.tipoItem === 'Servicio';
+  const backUrl = isServicio ? '/empresa/servicios' : '/empresa/todos-los-servicios';
+
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -170,7 +172,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
             Editando: <span className="text-primary">{item?.nombre}</span>
           </h1>
         </div>
-        <Link href="/empresa/todos-los-servicios" passHref>
+        <Link href={backUrl} passHref>
           <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>
