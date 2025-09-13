@@ -353,266 +353,8 @@
       ]
     },
     {
-      "id": "new_paquete_1757540419626",
-      "nombre": "Paquete Premium",
-      "serviciosIncluidos": [
-        {
-          "id": "item_1756940568854_u5m4prf",
-          "nombre": "Organizacion de la fiesta",
-          "categoria": "Personal",
-          "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 0,
-          "precioBase": 0,
-          "precioPorPersona": 0,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757177422000_4ru2piy",
-          "nombre": "Coffe Break",
-          "categoria": "Servicio de bebidas",
-          "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 0,
-          "precioBase": 0,
-          "precioPorPersona": 0,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757282105396_39i6zkn",
-          "nombre": "Album digital personalizado",
-          "categoria": "Servicio de fotografía",
-          "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 0,
-          "precioBase": 0,
-          "precioPorPersona": 0,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "serv_invitaciones_digitales",
-          "nombre": "Invitaciones digitales",
-          "categoria": "Otros servicios",
-          "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 0,
-          "precioBase": 0,
-          "precioPorPersona": 0,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757258361278_fs8ba4x",
-          "nombre": "Servicio de discoteca",
-          "categoria": "Servicio de discoteca",
-          "calculationMethod": "tramos",
-          "esRegalo": false,
-          "precioFijo": 9000,
-          "precioBase": 9000,
-          "precioPorPersona": 9000,
-          "tramosDePrecio": [
-            {
-              "id": "tramo_1757286982440",
-              "desde": 1,
-              "hasta": 80,
-              "precio": 9000
-            },
-            {
-              "id": "tramo_1757286988371",
-              "desde": 81,
-              "hasta": 130,
-              "precio": 15000
-            },
-            {
-              "id": "tramo_1757286990030",
-              "desde": 131,
-              "hasta": 200,
-              "precio": 25000
-            }
-          ]
-        },
-        {
-          "id": "item_1757258437308_s0lgq1z",
-          "nombre": "Servicio de decoración",
-          "categoria": "Servicio de decoración",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 14500,
-          "precioBase": 14500,
-          "precioPorPersona": 14500,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "serv_mozos",
-          "nombre": "Mozo",
-          "categoria": "Personal",
-          "calculationMethod": "ratio",
-          "esRegalo": false,
-          "precioFijo": 2900,
-          "precioBase": 2900,
-          "precioPorPersona": 2900,
-          "invitadosPorUnidad": 25,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "serv_mozo_cocina",
-          "nombre": "Mozo de cocina",
-          "categoria": "Personal",
-          "calculationMethod": "ratio",
-          "esRegalo": false,
-          "precioFijo": 2900,
-          "precioBase": 2900,
-          "precioPorPersona": 2900,
-          "invitadosPorUnidad": 25,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757281980225_3x3nbzo",
-          "nombre": "Fotografía de la fiesta",
-          "categoria": "Servicio de fotografía",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 9000,
-          "precioBase": 9000,
-          "precioPorPersona": 9000,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757280489194_y9qozwm",
-          "nombre": "Torta principal",
-          "categoria": "Servicio de repostería",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioFijo": 100,
-          "precioBase": 100,
-          "precioPorPersona": 100,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "serv_pantalla_proyector",
-          "nombre": "Pantalla gigante y proyector",
-          "categoria": "Regalo exclusivo",
-          "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 0,
-          "precioBase": 0,
-          "precioPorPersona": 0,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "serv_video_vida",
-          "nombre": "Video de vida",
-          "categoria": "Regalo exclusivo",
-          "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 0,
-          "precioBase": 0,
-          "precioPorPersona": 0,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757284889281_ioj7571",
-          "nombre": "Plataforma 360",
-          "categoria": "Servicio de entretenimiento",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 3900,
-          "precioBase": 3900,
-          "precioPorPersona": 3900,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757284864269_4d9w4ml",
-          "nombre": "Fotocabina",
-          "categoria": "Servicio de entretenimiento",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 2900,
-          "precioBase": 2900,
-          "precioPorPersona": 2900,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757285027582_71oyrff",
-          "nombre": "Fuente de chocolate con mesa dulce",
-          "categoria": "Servicio de repostería",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioFijo": 120,
-          "precioBase": 120,
-          "precioPorPersona": 120,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "serv_1752489600086_barlib",
-          "nombre": "Barra libre con tragos",
-          "categoria": "Servicio de bebidas",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioFijo": 350,
-          "precioBase": 350,
-          "precioPorPersona": 350,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757539461884_w7kfwsm",
-          "nombre": "Cuadro de firmas",
-          "categoria": "Servicio de decoración",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 2900,
-          "precioBase": 2900,
-          "precioPorPersona": 2900,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757537800722_u9hnkaw",
-          "nombre": "Zona para fotografía con sillón diván y mural personalizado",
-          "categoria": "Servicio de decoración",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 4900,
-          "precioBase": 4900,
-          "precioPorPersona": 4900,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757536022626_o6vi9hl",
-          "nombre": "Mesa de Glitter Bar",
-          "categoria": "Servicio de entretenimiento",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioFijo": 80,
-          "precioBase": 80,
-          "precioPorPersona": 80,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757539285149_qrknudv",
-          "nombre": "Fotografía de exteriores",
-          "categoria": "Servicio de fotografía",
-          "calculationMethod": "fijo",
-          "esRegalo": false,
-          "precioFijo": 3900,
-          "precioBase": 3900,
-          "precioPorPersona": 3900,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757456683585_bb9tztm",
-          "nombre": "Mesa de jugos naturales",
-          "categoria": "Servicio de bebidas",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioFijo": 100,
-          "precioBase": 100,
-          "precioPorPersona": 100,
-          "tramosDePrecio": []
-        }
-      ]
-    },
-    {
       "id": "new_paquete_1757727349751",
-      "nombre": "Paquete Premium (Copia)",
+      "nombre": "Paquete Premium ",
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
@@ -817,9 +559,7 @@
           "categoria": "Servicio de decoración",
           "calculationMethod": "fijo",
           "esRegalo": false,
-          "precioFijo": 2900,
           "precioBase": 2900,
-          "precioPorPersona": 2900,
           "tramosDePrecio": []
         },
         {
@@ -839,8 +579,6 @@
           "categoria": "Servicio de entretenimiento",
           "calculationMethod": "porPersona",
           "esRegalo": false,
-          "precioFijo": 80,
-          "precioBase": 80,
           "precioPorPersona": 80,
           "tramosDePrecio": []
         },
@@ -1059,8 +797,8 @@
           "tramosDePrecio": []
         },
         {
-          "id": "serv_1752489600010_raviol",
-          "nombre": "Ravioles a la crema",
+          "id": "serv_1752489600007_pollarr",
+          "nombre": "Pollo arrollado c/ guarnición",
           "categoria": "Plato Principal",
           "calculationMethod": "porPersona",
           "esRegalo": false,
@@ -1070,8 +808,8 @@
           "tramosDePrecio": []
         },
         {
-          "id": "serv_1752489600007_pollarr",
-          "nombre": "Pollo arrollado c/ guarnición",
+          "id": "serv_1752489600010_raviol",
+          "nombre": "Ravioles a la crema",
           "categoria": "Plato Principal",
           "calculationMethod": "porPersona",
           "esRegalo": false,
@@ -1105,12 +843,199 @@
         {
           "id": "serv_1752489600056_showpiz",
           "nombre": "Show de pizzas",
-          "categoria": "Entrada",
+          "categoria": "Show de Pizzas",
           "calculationMethod": "porPersona",
           "esRegalo": false,
           "precioFijo": 190,
           "precioBase": 190,
           "precioPorPersona": 190,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600058_showpizarr",
+          "nombre": "Show de pizzas + arrolladitos primavera",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 399,
+          "precioBase": 399,
+          "precioPorPersona": 399,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600059_showpizbun",
+          "nombre": "Show de pizzas + buñuelos de algas",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 389,
+          "precioBase": 389,
+          "precioPorPersona": 389,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600060_showpizcal",
+          "nombre": "Show de pizzas + calzones italianos",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 489,
+          "precioBase": 489,
+          "precioPorPersona": 489,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600061_showpizmini",
+          "nombre": "Show de pizzas + minichivitos",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 429,
+          "precioBase": 429,
+          "precioPorPersona": 429,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600062_showpizpicfiam",
+          "nombre": "Show de pizzas + picada de fiambre",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 419,
+          "precioBase": 419,
+          "precioPorPersona": 419,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600063_showpizpicsna",
+          "nombre": "Show de pizzas + picada Snack",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 419,
+          "precioBase": 419,
+          "precioPorPersona": 419,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600064_showpizplancal",
+          "nombre": "Show de pizzas + planchas calientes",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 419,
+          "precioBase": 419,
+          "precioPorPersona": 419,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600065_showpizsansal",
+          "nombre": "Show de pizzas + sandwiches y saladitos",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 469,
+          "precioBase": 469,
+          "precioPorPersona": 469,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600066_showpiztacmex",
+          "nombre": "Show de pizzas + Tacos mexicanos",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 489,
+          "precioBase": 489,
+          "precioPorPersona": 489,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600057_showpizfai",
+          "nombre": "Show de pizzas y faena",
+          "categoria": "Show de Pizzas",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 389,
+          "precioBase": 389,
+          "precioPorPersona": 389,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600013_sorren",
+          "nombre": "Sorrentinos con salsa rosa",
+          "categoria": "Plato Principal",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 420,
+          "precioBase": 420,
+          "precioPorPersona": 420,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600019_strogon",
+          "nombre": "Strogonoff de pollo c/ fritas",
+          "categoria": "Plato Principal",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 420,
+          "precioBase": 420,
+          "precioPorPersona": 420,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600045_shushi",
+          "nombre": "Sushi",
+          "categoria": "Entrada",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 250,
+          "precioBase": 250,
+          "precioPorPersona": 250,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600018_sushi",
+          "nombre": "Sushi con ensalada",
+          "categoria": "Plato Principal",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 400,
+          "precioBase": 400,
+          "precioPorPersona": 400,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600046_tabgour",
+          "nombre": "Tabla gourmet de fiambre",
+          "categoria": "Entrada",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 280,
+          "precioBase": 280,
+          "precioPorPersona": 280,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600037_tacmex",
+          "nombre": "Tacos mexicanos",
+          "categoria": "Entrada",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 240,
+          "precioBase": 240,
+          "precioPorPersona": 240,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "serv_1752489600026_tapsab",
+          "nombre": "Tapas saborizadas",
+          "categoria": "Entrada",
+          "calculationMethod": "porPersona",
+          "esRegalo": false,
+          "precioFijo": 100,
+          "precioBase": 100,
+          "precioPorPersona": 100,
           "tramosDePrecio": []
         },
         {
