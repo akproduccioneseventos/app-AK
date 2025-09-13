@@ -227,11 +227,11 @@ export default function SimuladorDePresupuestoPage() {
 
                 switch(servicio.calculationMethod) {
                     case 'fijo': 
-                        precioUnitario = servicio.precioBase ?? precioBaseCatalogo; 
+                        precioUnitario = servicio.precioBase ?? precioBaseCatalogo ?? 0;
                         costoServicio = precioUnitario;
                         break;
                     case 'porPersona': 
-                        precioUnitario = servicio.precioPorPersona ?? precioBaseCatalogo;
+                        precioUnitario = servicio.precioPorPersona ?? precioBaseCatalogo ?? 0;
                         cantidad = totalInvitados;
                         costoServicio = precioUnitario * cantidad;
                         break;
@@ -239,7 +239,7 @@ export default function SimuladorDePresupuestoPage() {
                         const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
                         if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
                             cantidad = Math.ceil(totalInvitados / invitadosPorUnidadNum);
-                            precioUnitario = servicio.precioBase ?? precioBaseCatalogo;
+                            precioUnitario = servicio.precioBase ?? precioBaseCatalogo ?? 0;
                             costoServicio = cantidad * precioUnitario;
                             descServicio += ` (1 cada ${servicio.invitadosPorUnidad} inv.)`;
                         }
@@ -251,7 +251,7 @@ export default function SimuladorDePresupuestoPage() {
                         descServicio += ` (para ${totalInvitados} inv.)`;
                         break;
                     default: 
-                        precioUnitario = servicio.precioFijo ?? precioBaseCatalogo;
+                        precioUnitario = servicio.precioFijo ?? precioBaseCatalogo ?? 0;
                         costoServicio = precioUnitario;
                 }
                 subtotalServicios += costoServicio;
