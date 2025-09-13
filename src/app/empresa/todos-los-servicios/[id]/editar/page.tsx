@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, PackagePlus, AlertTriangle, StickyNote, DollarSign } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, StickyNote, DollarSign, PlusCircle, Trash2, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa, getServicioEmpresaById } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 
 const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños y Adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
@@ -42,8 +43,8 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         setItem(loadedItem);
         setFormData({
             ...loadedItem,
-            cantidadDisponible: loadedItem.cantidadDisponible ?? undefined,
-            valorUnitarioEstimado: loadedItem.valorUnitarioEstimado ?? undefined
+            calculationMethod: loadedItem.calculationMethod || 'fijo',
+            tramosDePrecio: loadedItem.tramosDePrecio || [],
         });
       } else {
         setNotFound(true);
@@ -71,6 +72,34 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     setFormData(prev => ({...prev, categoria: value as CategoriaServicio, subcategoria: '' }));
   }
 
+  const handleTramoChange = (tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
+    const numericValue = parseInt(value, 10);
+    const finalValue = isNaN(numericValue) ? 0 : numericValue;
+
+    setFormData(prev => ({
+      ...prev,
+      tramosDePrecio: (prev.tramosDePrecio || []).map(t => 
+        t.id === tramoId ? { ...t, [field]: finalValue } : t
+      )
+    }));
+  };
+
+  const addTramo = () => {
+    const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0 };
+    setFormData(prev => ({
+      ...prev,
+      tramosDePrecio: [...(prev.tramosDePrecio || []), newTramo]
+    }));
+  };
+
+  const removeTramo = (tramoId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tramosDePrecio: (prev.tramosDePrecio || []).filter(t => t.id !== tramoId)
+    }));
+  };
+  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!item) return;
@@ -85,8 +114,8 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         return;
     }
     
-    if (formData.tipoItem === 'Servicio' && (formData.precioVenta === undefined || formData.precioVenta <= 0)) {
-        toast({ title: "Precio Requerido", description: "Los servicios deben tener un precio de venta mayor a cero.", variant: "destructive" });
+    if (formData.tipoItem === 'Servicio' && (formData.calculationMethod === 'fijo' || formData.calculationMethod === 'porPersona') && (formData.precioVenta === undefined || formData.precioVenta <= 0)) {
+        toast({ title: "Precio Requerido", description: "Los servicios con precio fijo o por persona deben tener un precio de venta mayor a cero.", variant: "destructive" });
         return;
     }
 
@@ -102,6 +131,9 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         cantidadDisponible: formData.cantidadDisponible !== undefined ? Number(formData.cantidadDisponible) : undefined,
         valorUnitarioEstimado: formData.valorUnitarioEstimado !== undefined ? Number(formData.valorUnitarioEstimado) : undefined,
         precioVenta: formData.precioVenta !== undefined ? Number(formData.precioVenta) : undefined,
+        precioBase: formData.precioBase !== undefined ? Number(formData.precioBase) : undefined,
+        precioPorPersona: formData.precioPorPersona !== undefined ? Number(formData.precioPorPersona) : undefined,
+        invitadosPorUnidad: formData.invitadosPorUnidad !== undefined ? Number(formData.invitadosPorUnidad) : undefined,
         notas: formData.notas?.trim() || undefined,
     };
     
@@ -182,36 +214,56 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
               </div>
             </div>
              
-             {isServicio ? (
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-3 border rounded-md border-primary/30 bg-primary/5">
-                    <div className="space-y-2">
-                        <Label htmlFor="item-costo-servicio" className="text-base flex items-center gap-2 text-primary"><DollarSign className="w-5 h-5"/>Costo Estimado</Label>
-                        <Input id="item-costo-servicio" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} placeholder="0.00" min="0" step="any" disabled={isSaving}/>
-                         <p className="text-xs text-muted-foreground">¿Cuánto te cuesta a ti prestar este servicio?</p>
+            {isServicio ? (
+                <div className="p-4 border rounded-lg bg-primary/5 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="calculation-method" className="text-base text-primary font-semibold">Método de Cálculo del Precio *</Label>
+                    <Select value={formData.calculationMethod || 'fijo'} onValueChange={(val) => handleFormChange('calculationMethod', val as ServicioEmpresa['calculationMethod'])} required disabled={isSaving}>
+                      <SelectTrigger><SelectValue/></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fijo">Precio Fijo</SelectItem>
+                        <SelectItem value="porPersona">Precio por Persona</SelectItem>
+                        <SelectItem value="ratio">Ratio (ej: 1 cada X invitados)</SelectItem>
+                        <SelectItem value="tramos">Por Tramos de Invitados</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {formData.calculationMethod === 'fijo' && (
+                    <div className="space-y-2"><Label htmlFor="item-precioVenta">Precio de Venta Fijo (UYU) *</Label><Input id="item-precioVenta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} required disabled={isSaving} min="0" step="any"/></div>
+                  )}
+                  {formData.calculationMethod === 'porPersona' && (
+                    <div className="space-y-2"><Label htmlFor="item-precioPorPersona">Precio por Persona (UYU) *</Label><Input id="item-precioPorPersona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.value)} required disabled={isSaving} min="0" step="any"/></div>
+                  )}
+                  {formData.calculationMethod === 'ratio' && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1"><Label htmlFor="item-precioBaseRatio" className="text-xs">Precio por Unidad</Label><Input id="item-precioBaseRatio" type="number" value={formData.precioBase ?? ''} onChange={e => handleFormChange('precioBase', e.target.value)} required min="0" step="any"/></div>
+                      <div className="space-y-1"><Label htmlFor="item-invitadosUnidad" className="text-xs">Invitados por Unidad</Label><Input id="item-invitadosUnidad" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={e => handleFormChange('invitadosPorUnidad', e.target.value)} required min="1"/></div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="item-precio-venta" className="text-base flex items-center gap-2 text-primary"><DollarSign className="w-5 h-5"/>Precio de Venta (UYU) *</Label>
-                        <Input id="item-precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} required disabled={isSaving}/>
-                        <p className="text-xs text-muted-foreground">El precio que verá el cliente.</p>
+                  )}
+                  {formData.calculationMethod === 'tramos' && (
+                    <div className="space-y-3">
+                        <Label>Tramos de Precios</Label>
+                        {(formData.tramosDePrecio || []).map(tramo => (
+                            <div key={tramo.id} className="flex items-end gap-2 p-2 border rounded bg-background">
+                                <div className="space-y-1"><Label htmlFor={`tramo-desde-${tramo.id}`} className="text-xs">Desde</Label><Input id={`tramo-desde-${tramo.id}`} type="number" value={tramo.desde} onChange={e=>handleTramoChange(tramo.id, 'desde', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1"><Label htmlFor={`tramo-hasta-${tramo.id}`} className="text-xs">Hasta</Label><Input id={`tramo-hasta-${tramo.id}`} type="number" value={tramo.hasta} onChange={e=>handleTramoChange(tramo.id, 'hasta', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1 flex-grow"><Label htmlFor={`tramo-precio-${tramo.id}`} className="text-xs">Precio</Label><Input id={`tramo-precio-${tramo.id}`} type="number" value={tramo.precio} onChange={e=>handleTramoChange(tramo.id, 'precio', e.target.value)} className="h-8"/></div>
+                                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeTramo(tramo.id)}><Trash2 className="w-4 h-4"/></Button>
+                            </div>
+                        ))}
+                        <Button type="button" size="sm" variant="outline" onClick={addTramo}>+ Añadir Tramo</Button>
                     </div>
+                  )}
+
+                  <Separator/>
+                  <div className="space-y-2"><Label htmlFor="item-costo-servicio" className="text-base flex items-center gap-2"><DollarSign className="w-5 h-5"/>Costo Estimado para la Empresa</Label><Input id="item-costo-servicio" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} placeholder="0.00" min="0" step="any" disabled={isSaving}/></div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label>
-                        <Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label>
-                        <Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="item-unidad" className="text-base">Unidad *</Label>
-                        <Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required={!isServicio}>
-                        <SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger>
-                        <SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent>
-                        </Select>
-                    </div>
+                    <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/></div>
+                    <div className="space-y-2"><Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label><Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/></div>
+                     <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required={!isServicio}><SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent></Select></div>
                 </div>
             )}
             

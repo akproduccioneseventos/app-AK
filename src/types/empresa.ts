@@ -36,24 +36,33 @@ export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro'
 export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Bebida (Insumo)' | 'Activo Fijo' | 'Servicio' | 'Entrada' | 'Plato Principal' | 'Menú Niños/Adolescentes' | 'Servicio de catering';
 export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)', 'Activo Fijo', 'Servicio', 'Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Servicio de catering'];
 
-export interface ServicioEmpresa { // Esta interfaz ahora representa un Ítem de Inventario (Activo/Insumo) o un Servicio
+export interface TramoDePrecio {
+  id: string;
+  desde: number;
+  hasta: number;
+  precio: number;
+}
+
+export interface ServicioEmpresa { 
   id: string;
   nombre: string;
   tipoItem?: TipoItemEmpresa; 
   categoria: CategoriaServicio;
   subcategoria?: string; 
   
-  // Campos de inventario/costo (más relevantes para insumos y activos)
+  // Inventory/Cost fields
   cantidadDisponible?: number; 
   valorUnitarioEstimado?: number; 
   unidad?: UnidadServicio; 
-  
-  // Nuevo campo de observaciones
   notas?: string;
   
-  // Campo de precio de venta (para usar en presupuestos, principalmente para servicios)
-  precioVenta?: number; 
-  
-  // Campo para contacto principal/proveedor asociado (para insumos/activos)
+  // Pricing fields (primarily for 'Servicio' type)
+  calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
+  precioVenta?: number; // Used for 'fijo' and as a fallback
+  precioPorPersona?: number; // Used for 'porPersona'
+  precioBase?: number; // Used for 'ratio'
+  invitadosPorUnidad?: number; // Used for 'ratio'
+  tramosDePrecio?: TramoDePrecio[]; // Used for 'tramos'
+
   contactoPrincipal?: string;
 }

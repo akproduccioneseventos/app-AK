@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Save, Loader2, PackagePlus, ListFilter, StickyNote, DollarSign } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, Loader2, PackagePlus, DollarSign, Percent, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 
 const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
@@ -32,14 +33,23 @@ function NuevoItemInventarioContent() {
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
   const [notas, setNotas] = useState('');
-  const [precioVenta, setPrecioVenta] = useState<string>('');
   const [subcategoria, setSubcategoria] = useState('');
+  
+  // New pricing fields
+  const [calculationMethod, setCalculationMethod] = useState<ServicioEmpresa['calculationMethod']>('fijo');
+  const [precioVenta, setPrecioVenta] = useState<string>('');
+  const [precioBase, setPrecioBase] = useState<string>('');
+  const [precioPorPersona, setPrecioPorPersona] = useState<string>('');
+  const [invitadosPorUnidad, setInvitadosPorUnidad] = useState<string>('');
+  const [tramosDePrecio, setTramosDePrecio] = useState<TramoDePrecio[]>([]);
+
   
   useEffect(() => {
     const typeParam = searchParams.get('type');
     if (typeParam === 'servicio') {
       setTipoItem('Servicio');
       setUnidad('Por evento');
+      setCalculationMethod('fijo');
     } else {
       setTipoItem('Activo Fijo');
     }
@@ -55,8 +65,8 @@ function NuevoItemInventarioContent() {
         toast({ title: "Unidad Requerida", description: "La unidad es obligatoria para Insumos y Activos.", variant: "destructive" });
         return;
     }
-     if (tipoItem === 'Servicio' && (!precioVenta || parseFloat(precioVenta) <= 0)) {
-        toast({ title: "Precio Requerido", description: "Los servicios deben tener un precio de venta mayor a cero.", variant: "destructive" });
+     if (tipoItem === 'Servicio' && (calculationMethod === 'fijo' || calculationMethod === 'porPersona') && (!precioVenta || parseFloat(precioVenta) <= 0)) {
+        toast({ title: "Precio Requerido", description: "Los servicios con precio fijo o por persona deben tener un precio de venta mayor a cero.", variant: "destructive" });
         return;
     }
 
@@ -70,7 +80,14 @@ function NuevoItemInventarioContent() {
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
       unidad: tipoItem === 'Servicio' ? undefined : (unidad as UnidadServicio | undefined),
       notas: notas.trim() || undefined,
+      
+      // Pricing fields
+      calculationMethod: tipoItem === 'Servicio' ? calculationMethod : undefined,
       precioVenta: precioVenta ? parseFloat(precioVenta) : undefined,
+      precioBase: precioBase ? parseFloat(precioBase) : undefined,
+      precioPorPersona: precioPorPersona ? parseFloat(precioPorPersona) : undefined,
+      invitadosPorUnidad: invitadosPorUnidad ? parseInt(invitadosPorUnidad, 10) : undefined,
+      tramosDePrecio: tramosDePrecio.length > 0 ? tramosDePrecio.map(t => ({...t, desde: Number(t.desde) || 0, hasta: Number(t.hasta) || 0, precio: Number(t.precio) || 0})) : undefined,
     };
 
     try {
@@ -98,12 +115,28 @@ function NuevoItemInventarioContent() {
     if (value === 'Servicio') {
         setUnidad('Por evento');
         setCategoria('Otros servicios');
+        setCalculationMethod('fijo');
     }
   };
 
   const handleCategoryChange = (value: CategoriaServicio | '') => {
     setCategoria(value);
     setSubcategoria(''); // Reset subcategory when category changes
+  };
+
+  const addTramo = () => {
+    setTramosDePrecio([...tramosDePrecio, { id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0 }]);
+  };
+  const removeTramo = (tramoId: string) => {
+    setTramosDePrecio(tramosDePrecio.filter(t => t.id !== tramoId));
+  };
+  const handleTramoChange = (tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
+    const numericValue = parseInt(value, 10);
+    const finalValue = isNaN(numericValue) ? 0 : numericValue;
+
+    setTramosDePrecio(tramosDePrecio.map(t => 
+        t.id === tramoId ? { ...t, [field]: finalValue } : t
+    ));
   };
 
   const isCatering = categoria === 'Servicio de catering';
@@ -139,7 +172,6 @@ function NuevoItemInventarioContent() {
                 <Select value={tipoItem} onValueChange={handleTipoItemChange} required disabled={isSaving}>
                   <SelectTrigger id="item-tipo" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo..." /></SelectTrigger>
                   <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (
-                    // Excluir tipos de menú que ya no se usan como tipo de item
                      !['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Servicio de catering'].includes(t) && <SelectItem key={t} value={t} className="text-base">{t}</SelectItem>
                   ))}</SelectContent>
                 </Select>
@@ -175,40 +207,55 @@ function NuevoItemInventarioContent() {
             </div>
             
             {isServicio ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-3 border rounded-md border-primary/30 bg-primary/5">
-                    <div className="space-y-2">
-                        <Label htmlFor="item-costo-servicio" className="text-base flex items-center gap-2 text-primary">
-                            <DollarSign className="w-5 h-5"/>Costo Estimado
-                        </Label>
-                        <Input id="item-costo-servicio" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/>
-                        <p className="text-xs text-muted-foreground">¿Cuánto te cuesta a ti prestar este servicio?</p>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="item-precio-venta" className="text-base flex items-center gap-2 text-primary">
-                            <DollarSign className="w-5 h-5"/>Precio de Venta *
-                        </Label>
-                        <Input id="item-precio-venta" type="number" value={precioVenta} onChange={(e) => setPrecioVenta(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" required disabled={isSaving}/>
-                        <p className="text-xs text-muted-foreground">El precio que verá el cliente en los presupuestos.</p>
-                    </div>
+              <div className="p-4 border rounded-lg bg-primary/5 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="calculation-method" className="text-base text-primary font-semibold">Método de Cálculo del Precio *</Label>
+                  <Select value={calculationMethod} onValueChange={(val) => setCalculationMethod(val as ServicioEmpresa['calculationMethod'])} required disabled={isSaving}>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fijo">Precio Fijo</SelectItem>
+                      <SelectItem value="porPersona">Precio por Persona</SelectItem>
+                      <SelectItem value="ratio">Ratio (ej: 1 cada X invitados)</SelectItem>
+                      <SelectItem value="tramos">Por Tramos de Invitados</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+                
+                {calculationMethod === 'fijo' && (
+                  <div className="space-y-2"><Label htmlFor="item-precioVenta">Precio de Venta Fijo (UYU) *</Label><Input id="item-precioVenta" type="number" value={precioVenta} onChange={(e) => setPrecioVenta(e.target.value)} required disabled={isSaving} min="0" step="any"/></div>
+                )}
+                {calculationMethod === 'porPersona' && (
+                  <div className="space-y-2"><Label htmlFor="item-precioPorPersona">Precio por Persona (UYU) *</Label><Input id="item-precioPorPersona" type="number" value={precioPorPersona} onChange={(e) => setPrecioPorPersona(e.target.value)} required disabled={isSaving} min="0" step="any"/></div>
+                )}
+                {calculationMethod === 'ratio' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1"><Label htmlFor="item-precioBaseRatio" className="text-xs">Precio por Unidad</Label><Input id="item-precioBaseRatio" type="number" value={precioBase} onChange={e => setPrecioBase(e.target.value)} required min="0" step="any"/></div>
+                    <div className="space-y-1"><Label htmlFor="item-invitadosUnidad" className="text-xs">Invitados por Unidad</Label><Input id="item-invitadosUnidad" type="number" value={invitadosPorUnidad} onChange={e => setInvitadosPorUnidad(e.target.value)} required min="1"/></div>
+                  </div>
+                )}
+                {calculationMethod === 'tramos' && (
+                  <div className="space-y-3">
+                      <Label>Tramos de Precios</Label>
+                      {tramosDePrecio.map(tramo => (
+                          <div key={tramo.id} className="flex items-end gap-2 p-2 border rounded bg-background">
+                              <div className="space-y-1"><Label htmlFor={`tramo-desde-${tramo.id}`} className="text-xs">Desde</Label><Input id={`tramo-desde-${tramo.id}`} type="number" value={tramo.desde} onChange={e=>handleTramoChange(tramo.id, 'desde', e.target.value)} className="h-8"/></div>
+                              <div className="space-y-1"><Label htmlFor={`tramo-hasta-${tramo.id}`} className="text-xs">Hasta</Label><Input id={`tramo-hasta-${tramo.id}`} type="number" value={tramo.hasta} onChange={e=>handleTramoChange(tramo.id, 'hasta', e.target.value)} className="h-8"/></div>
+                              <div className="space-y-1 flex-grow"><Label htmlFor={`tramo-precio-${tramo.id}`} className="text-xs">Precio</Label><Input id={`tramo-precio-${tramo.id}`} type="number" value={tramo.precio} onChange={e=>handleTramoChange(tramo.id, 'precio', e.target.value)} className="h-8"/></div>
+                              <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeTramo(tramo.id)}><Trash2 className="w-4 h-4"/></Button>
+                          </div>
+                      ))}
+                      <Button type="button" size="sm" variant="outline" onClick={addTramo}>+ Añadir Tramo</Button>
+                  </div>
+                )}
+
+                <Separator/>
+                <div className="space-y-2"><Label htmlFor="item-costo-servicio" className="text-base flex items-center gap-2"><DollarSign className="w-5 h-5"/>Costo Estimado para la Empresa</Label><Input id="item-costo-servicio" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>
+              </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="item-cantidad" className="text-base">Cantidad Disponible (Stock)</Label>
-                        <Input id="item-cantidad" type="number" value={cantidadDisponible} onChange={(e) => setCantidadDisponible(e.target.value)} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="item-valor-unitario" className="text-base">Valor Unitario (Costo UYU)</Label>
-                        <Input id="item-valor-unitario" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/>
-                        <p className="text-xs text-muted-foreground">Costo de reposición o valor actual por unidad.</p>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="item-unidad" className="text-base">Unidad *</Label>
-                        <Select value={unidad} onValueChange={(value) => setUnidad(value as UnidadServicio | '')} disabled={isSaving} required={!isServicio}>
-                        <SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..." /></SelectTrigger>
-                        <SelectContent className="max-h-60">{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent>
-                        </Select>
-                    </div>
+                    <div className="space-y-2"><Label htmlFor="item-cantidad" className="text-base">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={cantidadDisponible} onChange={(e) => setCantidadDisponible(e.target.value)} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/></div>
+                    <div className="space-y-2"><Label htmlFor="item-valor-unitario" className="text-base">Valor Unitario (Costo UYU)</Label><Input id="item-valor-unitario" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/><p className="text-xs text-muted-foreground">Costo de reposición o valor actual por unidad.</p></div>
+                     <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={unidad} onValueChange={(value) => setUnidad(value as UnidadServicio | '')} disabled={isSaving} required={!isServicio}><SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..." /></SelectTrigger><SelectContent className="max-h-60">{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent></Select></div>
                 </div>
             )}
              <div className="space-y-2">
