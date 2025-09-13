@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -42,7 +41,8 @@ export default function ServiciosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const serviceItems = data.filter(s => s.tipoItem === 'Servicio' && s.precioVenta !== undefined && s.precioVenta > 0);
+      // Updated filter: Show ALL items of type 'Servicio'
+      const serviceItems = data.filter(s => s.tipoItem === 'Servicio');
       setAllItems(serviceItems);
       setFilteredItems(serviceItems);
     } catch (err: any) {
@@ -81,6 +81,14 @@ export default function ServiciosPage() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const getPriceDisplay = (item: ServicioEmpresa): string => {
+    if (item.precioVenta !== undefined) return formatCurrency(item.precioVenta);
+    if (item.precioPorPersona !== undefined) return `${formatCurrency(item.precioPorPersona)} p/p`;
+    if (item.precioBase !== undefined && item.invitadosPorUnidad) return `${formatCurrency(item.precioBase)} c/${item.invitadosPorUnidad}`;
+    if (item.calculationMethod === 'tramos') return 'Por Tramos';
+    return 'Precio no definido';
   };
 
   const itemsAgrupadosPorCategoria = useMemo(() => {
@@ -160,7 +168,7 @@ export default function ServiciosPage() {
                            {item.subcategoria && <CardDescription className="text-xs">{item.subcategoria}</CardDescription>}
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1">
-                            <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-bold text-primary/90">{formatCurrency(item.precioVenta)} {item.unidad ? `/ ${item.unidad.toLowerCase()}` : ''}</span></p>
+                            <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-bold text-primary/90">{getPriceDisplay(item)} {item.unidad ? `/ ${item.unidad.toLowerCase()}` : ''}</span></p>
                             {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>
                       </Card>

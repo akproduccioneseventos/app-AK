@@ -176,135 +176,110 @@
       ]
     },
     {
-      "id": "new_paquete_1757733010715",
+      "id": "new_paquete_1757733251670",
       "nombre": "Paquete Intermedio (Copia)",
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
           "nombre": "Organizacion de la fiesta",
           "categoria": "Personal",
-          "esRegalo": true,
-          "tramosDePrecio": []
+          "esRegalo": true
         },
         {
           "id": "item_1757177422000_4ru2piy",
           "nombre": "Coffe Break",
           "categoria": "Servicio de bebidas",
-          "esRegalo": true,
-          "tramosDePrecio": []
+          "esRegalo": true
         },
         {
           "id": "item_1757282105396_39i6zkn",
           "nombre": "Album digital personalizado",
           "categoria": "Servicio de fotografía",
-          "esRegalo": true,
-          "tramosDePrecio": []
+          "esRegalo": true
         },
         {
           "id": "serv_invitaciones_digitales",
           "nombre": "Invitaciones digitales",
           "categoria": "Otros servicios",
-          "esRegalo": true,
-          "tramosDePrecio": []
+          "esRegalo": true
         },
         {
           "id": "item_1757258361278_fs8ba4x",
           "nombre": "Servicio de discoteca",
           "categoria": "Servicio de discoteca",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "item_1757258437308_s0lgq1z",
           "nombre": "Servicio de decoración",
           "categoria": "Servicio de decoración",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "serv_mozos",
           "nombre": "Mozo",
           "categoria": "Personal",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "serv_mozo_cocina",
           "nombre": "Mozo de cocina",
           "categoria": "Personal",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "item_1757281980225_3x3nbzo",
           "nombre": "Fotografía de la fiesta",
           "categoria": "Servicio de fotografía",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "item_1757280489194_y9qozwm",
           "nombre": "Torta principal",
           "categoria": "Servicio de repostería",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "serv_pantalla_proyector",
           "nombre": "Pantalla gigante y proyector",
           "categoria": "Regalo exclusivo",
-          "esRegalo": true,
-          "tramosDePrecio": []
+          "esRegalo": true
         },
         {
           "id": "serv_video_vida",
           "nombre": "Video de vida",
           "categoria": "Regalo exclusivo",
-          "esRegalo": true,
-          "tramosDePrecio": []
+          "esRegalo": true
         },
         {
           "id": "item_1757284889281_ioj7571",
           "nombre": "Plataforma 360",
           "categoria": "Servicio de entretenimiento",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "item_1757284864269_4d9w4ml",
           "nombre": "Fotocabina",
           "categoria": "Servicio de entretenimiento",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "item_1757285027582_71oyrff",
           "nombre": "Fuente de chocolate con mesa dulce",
           "categoria": "Servicio de repostería",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "serv_1752489600086_barlib",
           "nombre": "Barra libre con tragos",
           "categoria": "Servicio de bebidas",
-          "esRegalo": false,
-          "tramosDePrecio": []
+          "esRegalo": false
         },
         {
           "id": "item_1757539461884_w7kfwsm",
           "nombre": "Cuadro de firmas",
           "categoria": "Servicio de decoración",
-          "esRegalo": false,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757732521409_rrjkwnj",
-          "nombre": "Fotografía de exteriores",
-          "categoria": "Servicio de fotografía",
-          "esRegalo": false,
-          "precioFijo": 3990,
-          "tramosDePrecio": []
+          "esRegalo": false
         }
       ]
     }
