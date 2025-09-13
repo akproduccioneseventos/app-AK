@@ -158,7 +158,7 @@ export default function SimuladorDePresupuestoPage() {
                     const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
                     costoServicio = tramo?.precio || 0;
                     break;
-                default: 
+                default: // Fallback for legacy items or items without a specific method
                     costoServicio = servicio.precioFijo ?? precioBaseCatalogo;
             }
             costo += costoServicio;
