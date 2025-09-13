@@ -1,10 +1,13 @@
+
 [
   {
     "id": "serv_invitaciones_digitales",
     "nombre": "Invitaciones digitales",
     "tipoItem": "Servicio",
     "categoria": "Otros servicios",
-    "precioVenta": 1500
+    "precioVenta": 1500,
+    "calculationMethod": "fijo",
+    "precioBase": 1500
   },
   {
     "id": "serv_1752489600004_pchef",
@@ -12,7 +15,9 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "unidad": "Por evento",
-    "precioVenta": 3500
+    "precioVenta": 3500,
+    "calculationMethod": "fijo",
+    "precioBase": 3500
   },
   {
     "id": "serv_1752489600003_pmetr",
@@ -20,21 +25,29 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "unidad": "Por evento",
-    "precioVenta": 3500
+    "precioVenta": 3500,
+    "calculationMethod": "fijo",
+    "precioBase": 3500
   },
   {
     "id": "serv_mozos",
     "nombre": "Mozo",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "precioVenta": 2900
+    "precioVenta": 2900,
+    "calculationMethod": "ratio",
+    "precioBase": 2900,
+    "invitadosPorUnidad": 25
   },
   {
     "id": "serv_mozo_cocina",
     "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "precioVenta": 2900
+    "precioVenta": 2900,
+    "calculationMethod": "ratio",
+    "precioBase": 2900,
+    "invitadosPorUnidad": 25
   },
   {
     "id": "item_1756940568854_u5m4prf",
@@ -42,21 +55,27 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "unidad": "Por evento",
-    "precioVenta": 8000
+    "precioVenta": 8000,
+    "calculationMethod": "fijo",
+    "precioBase": 8000
   },
   {
     "id": "serv_pantalla_proyector",
     "nombre": "Pantalla gigante y proyector",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "precioVenta": 2000
+    "precioVenta": 2000,
+    "calculationMethod": "fijo",
+    "precioBase": 2000
   },
   {
     "id": "serv_video_vida",
     "nombre": "Video de vida",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "precioVenta": 1900
+    "precioVenta": 1900,
+    "calculationMethod": "fijo",
+    "precioBase": 1900
   },
   {
     "id": "serv_1752489600084_barlic",
@@ -65,7 +84,9 @@
     "categoria": "Servicio de bebidas",
     "subcategoria": "Barras",
     "unidad": "Por persona",
-    "precioVenta": 199
+    "precioVenta": 199,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 199
   },
   {
     "id": "serv_1752489600086_barlib",
@@ -74,7 +95,9 @@
     "categoria": "Servicio de bebidas",
     "subcategoria": "Barras",
     "unidad": "Por persona",
-    "precioVenta": 350
+    "precioVenta": 350,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 350
   },
   {
     "id": "serv_1752489600087_bebidjug",
@@ -118,7 +141,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
     "unidad": "Por evento",
-    "precioVenta": 3000
+    "precioVenta": 3000,
+    "calculationMethod": "fijo",
+    "precioBase": 3000
   },
   {
     "id": "serv_1752489600091_copon",
@@ -161,7 +186,9 @@
     "nombre": "Mesa de jugos naturales",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "precioVenta": 100
+    "precioVenta": 100,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
   },
   {
     "id": "serv_1752489600094_pinacol",
@@ -556,14 +583,6 @@
     "precioVenta": 220
   },
   {
-    "id": "item_1757176590000_ulkxp3t",
-    "nombre": "Servicio de mantelería, vajilla y mobiliario completo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "unidad": "Por evento",
-    "precioVenta": 230
-  },
-  {
     "id": "serv_1752489600056_showpiz",
     "nombre": "Show de pizzas",
     "tipoItem": "Servicio",
@@ -739,7 +758,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 1400,
-    "precioVenta": 2900
+    "precioVenta": 2900,
+    "calculationMethod": "fijo",
+    "precioBase": 2900
   },
   {
     "id": "item_1757258437308_s0lgq1z",
@@ -747,21 +768,27 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "unidad": "Por evento",
-    "precioVenta": 14500
+    "precioVenta": 14500,
+    "calculationMethod": "fijo",
+    "precioBase": 14500
   },
   {
     "id": "item_1757537800722_u9hnkaw",
     "nombre": "Zona para fotografía con sillón diván y mural personalizado",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "precioVenta": 4900
+    "precioVenta": 4900,
+    "calculationMethod": "fijo",
+    "precioBase": 4900
   },
   {
     "id": "item_1757539236109_vtqfjaz",
     "nombre": "Lluvia de burbujas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
-    "precioVenta": 1500
+    "precioVenta": 1500,
+    "calculationMethod": "fijo",
+    "precioBase": 1500
   },
   {
     "id": "item_1757258361278_fs8ba4x",
@@ -769,7 +796,28 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
     "unidad": "Por evento",
-    "precioVenta": 9000
+    "precioVenta": 9000,
+    "calculationMethod": "tramos",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1757286982440",
+        "desde": 1,
+        "hasta": 80,
+        "precio": 9000
+      },
+      {
+        "id": "tramo_1757286988371",
+        "desde": 81,
+        "hasta": 130,
+        "precio": 15000
+      },
+      {
+        "id": "tramo_1757286990030",
+        "desde": 131,
+        "hasta": 200,
+        "precio": 25000
+      }
+    ]
   },
   {
     "id": "item_1757281679718_anst4pv",
@@ -793,14 +841,18 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "precioVenta": 2900
+    "precioVenta": 2900,
+    "calculationMethod": "fijo",
+    "precioBase": 2900
   },
   {
     "id": "item_1757536022626_o6vi9hl",
     "nombre": "Mesa de Glitter Bar",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "precioVenta": 80
+    "precioVenta": 80,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 80
   },
   {
     "id": "item_1757284889281_ioj7571",
@@ -808,7 +860,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "precioVenta": 3900
+    "precioVenta": 3900,
+    "calculationMethod": "fijo",
+    "precioBase": 3900
   },
   {
     "id": "item_1757282105396_39i6zkn",
@@ -816,7 +870,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
-    "precioVenta": 3000
+    "precioVenta": 3000,
+    "calculationMethod": "fijo",
+    "precioBase": 3000
   },
   {
     "id": "item_1757539285149_qrknudv",
@@ -824,7 +880,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "valorUnitarioEstimado": 2000,
-    "precioVenta": 3900
+    "precioVenta": 3900,
+    "calculationMethod": "fijo",
+    "precioBase": 3900
   },
   {
     "id": "item_1757281980225_3x3nbzo",
@@ -832,7 +890,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
-    "precioVenta": 9000
+    "precioVenta": 9000,
+    "calculationMethod": "fijo",
+    "precioBase": 9000
   },
   {
     "id": "item_1757285027582_71oyrff",
@@ -840,7 +900,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "unidad": "Por evento",
-    "precioVenta": 120
+    "precioVenta": 120,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 120
   },
   {
     "id": "item_1757280489194_y9qozwm",
@@ -848,6 +910,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "unidad": "Por evento",
-    "precioVenta": 100
+    "precioVenta": 100,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
   }
 ]
