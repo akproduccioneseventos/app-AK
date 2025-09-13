@@ -14,10 +14,9 @@ export interface ServicioIncluidoArmadoRapido {
   categoria: ServicioCategoriaArmadoRapido;
   esRegalo?: boolean;
   
-  // The complex pricing logic is now inherited from ServicioEmpresa.
-  // These fields are kept for potential overrides within a package, but the primary source is the catalog.
+  // These fields are now optional overrides. The primary source is the catalog.
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
-  precioFijo?: number;
+  precioFijo?: number; // Kept for legacy menu items
   precioBase?: number;
   precioPorPersona?: number;
   invitadosPorUnidad?: number;

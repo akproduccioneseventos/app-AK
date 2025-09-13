@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -16,7 +17,7 @@ import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA 
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños y Adolescentes', 'Personal'];
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 

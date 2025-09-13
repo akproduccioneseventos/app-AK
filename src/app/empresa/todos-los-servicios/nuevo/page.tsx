@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect, Suspense } from 'react';
@@ -171,9 +172,7 @@ function NuevoItemInventarioContent() {
                 <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
                 <Select value={tipoItem} onValueChange={handleTipoItemChange} required disabled={isSaving}>
                   <SelectTrigger id="item-tipo" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo..." /></SelectTrigger>
-                  <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (
-                     !['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Servicio de catering'].includes(t) && <SelectItem key={t} value={t} className="text-base">{t}</SelectItem>
-                  ))}</SelectContent>
+                  <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (<SelectItem key={t} value={t} className="text-base">{t}</SelectItem>))}</SelectContent>
                 </Select>
             </div>
             <div className="space-y-2">

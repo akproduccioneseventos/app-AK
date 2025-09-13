@@ -33,8 +33,8 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
 export type UnidadServicio = 'Unidad' | 'Set' | 'Metro' | 'Kg' | 'Litro' | 'Caja' | 'Rollo' | 'Docena' | 'Por persona' | 'Por evento' | 'Gramos' | 'Cc' | 'Pack';
 export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'];
 
-export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Bebida (Insumo)' | 'Activo Fijo' | 'Servicio' | 'Entrada' | 'Plato Principal' | 'Menú Niños/Adolescentes' | 'Servicio de catering';
-export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)', 'Activo Fijo', 'Servicio', 'Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Servicio de catering'];
+export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Bebida (Insumo)' | 'Activo Fijo' | 'Servicio';
+export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)', 'Activo Fijo', 'Servicio'];
 
 export interface TramoDePrecio {
   id: string;

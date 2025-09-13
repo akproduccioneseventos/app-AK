@@ -232,11 +232,13 @@ export function AddOrEditDialog({
               id: service.id,
               nombre: service.nombre,
               categoria: (service.categoria || 'Otros servicios') as ServicioCategoriaArmadoRapido,
-              calculationMethod: mode === 'paquete' ? 'fijo' : 'porPersona',
               esRegalo: false,
+              calculationMethod: service.calculationMethod,
               precioFijo: service.precioVenta,
-              precioBase: service.precioVenta,
-              precioPorPersona: service.precioVenta,
+              precioBase: service.precioBase,
+              precioPorPersona: service.precioPorPersona,
+              invitadosPorUnidad: service.invitadosPorUnidad,
+              tramosDePrecio: service.tramosDePrecio,
           };
           return {...prev, serviciosIncluidos: [...prev.serviciosIncluidos, newService]};
         } else {
@@ -263,17 +265,19 @@ export function AddOrEditDialog({
     
                     let updatedService = { ...s, [field]: value };
     
-                    // Correct handling when 'esRegalo' is toggled
                     if (field === 'esRegalo') {
                         const isGift = !!value;
-                        const catalogPrice = initialVendibleServices.find(vs => vs.id === serviceId)?.precioVenta;
+                        const catalogService = initialVendibleServices.find(vs => vs.id === serviceId);
                         
                         updatedService.esRegalo = isGift;
-                        if(mode === 'paquete'){
-                            updatedService.precioBase = isGift ? 0 : (s.precioBase ?? catalogPrice ?? 0);
-                            updatedService.precioPorPersona = isGift ? 0 : (s.precioPorPersona ?? catalogPrice ?? 0);
+                        if(isGift) {
+                            updatedService.precioFijo = 0;
+                            updatedService.precioBase = 0;
+                            updatedService.precioPorPersona = 0;
                         } else {
-                            updatedService.precioFijo = isGift ? 0 : (s.precioFijo ?? catalogPrice ?? 0);
+                            updatedService.precioFijo = catalogService?.precioVenta;
+                            updatedService.precioBase = catalogService?.precioBase;
+                            updatedService.precioPorPersona = catalogService?.precioPorPersona;
                         }
                     }
                     return updatedService;
@@ -423,19 +427,7 @@ export function AddOrEditDialog({
                                             {mode === 'paquete' && (
                                                 <>
                                                     <Separator/>
-                                                    <Select value={service.calculationMethod || 'fijo'} onValueChange={(v) => handleServiceDetailChange(service.id, 'calculationMethod', v)} disabled={service.esRegalo}>
-                                                        <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
-                                                        <SelectContent>
-                                                        <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
-                                                        <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
-                                                        <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 cada X personas)</SelectItem>
-                                                        <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {service.calculationMethod === 'fijo' && (<div className="text-sm p-2 bg-gray-50 rounded-md"> <Label className="text-xs text-muted-foreground">Precio Base</Label> <Input type="number" placeholder="Precio Base" value={service.precioBase ?? ''} onChange={e => handleServiceDetailChange(service.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={service.esRegalo}/></div> )}
-                                                    {service.calculationMethod === 'porPersona' && <Input type="number" placeholder="Precio por Persona" value={service.precioPorPersona ?? ''} onChange={e => handleServiceDetailChange(service.id, 'precioPorPersona', e.target.value)} className="h-8 text-sm" disabled={service.esRegalo}/>}
-                                                    {service.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Precio Base/Unidad" value={service.precioBase ?? 0} onChange={e => handleServiceDetailChange(service.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={service.esRegalo}/><Input type="number" placeholder="Invitados/Unidad" value={service.invitadosPorUnidad || 0} onChange={e => handleServiceDetailChange(service.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div> )}
-                                                    {service.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(service.tramosDePrecio || []).map((tramo, idx) => ( <div key={tramo.id} className="flex gap-1.5 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(service.id,tramo.id,'desde', e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(service.id,tramo.id,'hasta', e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(service.id,tramo.id,'precio', e.target.value)} className="h-7 w-24 text-sm" disabled={service.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(service.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(service.id)} className="text-xs h-7">+ Añadir Tramo</Button></div> )}
+                                                    <p className="text-xs text-muted-foreground">El método de cálculo y precio se heredan del catálogo. Solo puedes marcarlo como regalo.</p>
                                                 </>
                                             )}
                                          </div>
