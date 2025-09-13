@@ -138,6 +138,7 @@ export default function SimuladorDePresupuestoPage() {
         pkg.serviciosIncluidos.forEach(servicio => {
             if (servicio.esRegalo) return;
             
+            // Corrected: Find by ID, not by name
             const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
             if (!catalogService) return;
 
