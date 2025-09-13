@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -115,14 +114,14 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         return;
     }
     
-    if (formData.tipoItem === 'Servicio' && (formData.calculationMethod === 'fijo' || formData.calculationMethod === 'porPersona') && (formData.precioVenta === undefined || formData.precioVenta <= 0)) {
-        toast({ title: "Precio Requerido", description: "Los servicios con precio fijo o por persona deben tener un precio de venta mayor a cero.", variant: "destructive" });
+    if (formData.tipoItem === 'Servicio' && (formData.calculationMethod === 'fijo' ? !formData.precioVenta : false) && (formData.calculationMethod === 'porPersona' ? !formData.precioPorPersona : false)) {
+        toast({ title: "Precio Requerido", description: "El precio de venta es obligatorio para este método de cálculo.", variant: "destructive" });
         return;
     }
 
     setIsSaving(true);
     const itemDataToSave: ServicioEmpresa = {
-        ...(item as ServicioEmpresa), // Start with original item to keep ID etc.
+        ...(item as ServicioEmpresa), 
         ...formData,
         nombre: formData.nombre.trim(),
         tipoItem: formData.tipoItem,

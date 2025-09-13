@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent, useEffect, Suspense } from 'react';
@@ -31,12 +30,9 @@ function NuevoItemInventarioContent() {
   const [tipoItem, setTipoItem] = useState<TipoItemEmpresa>('Servicio');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
-  const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
-  const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
   const [notas, setNotas] = useState('');
   const [subcategoria, setSubcategoria] = useState('');
   
-  // New pricing fields
   const [calculationMethod, setCalculationMethod] = useState<ServicioEmpresa['calculationMethod']>('fijo');
   const [precioVenta, setPrecioVenta] = useState<string>('');
   const [precioBase, setPrecioBase] = useState<string>('');
@@ -46,12 +42,9 @@ function NuevoItemInventarioContent() {
 
   
   useEffect(() => {
-    const typeParam = searchParams.get('type');
-    // Force "Servicio" type, ignore URL param for other types to avoid confusion
+    // This form is now dedicated to creating "Servicio" type items.
     setTipoItem('Servicio');
-    setUnidad('Por evento'); // Default for services
-    setCalculationMethod('fijo');
-  }, [searchParams]);
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -60,7 +53,7 @@ function NuevoItemInventarioContent() {
       return;
     }
 
-     if (tipoItem === 'Servicio' && (calculationMethod === 'fijo' || calculationMethod === 'porPersona') && (!precioVenta && !precioPorPersona)) {
+     if (tipoItem === 'Servicio' && (calculationMethod === 'fijo' && !precioVenta) && (calculationMethod === 'porPersona' && !precioPorPersona)) {
         toast({ title: "Precio Requerido", description: "Define un precio para el servicio.", variant: "destructive" });
         return;
     }
@@ -72,8 +65,6 @@ function NuevoItemInventarioContent() {
       categoria: categoria as CategoriaServicio,
       subcategoria: subcategoria.trim() || undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
-      cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
-      unidad: tipoItem === 'Servicio' ? undefined : (unidad as UnidadServicio | undefined),
       notas: notas.trim() || undefined,
       
       calculationMethod: tipoItem === 'Servicio' ? calculationMethod : undefined,
@@ -101,7 +92,7 @@ function NuevoItemInventarioContent() {
 
   const handleCategoryChange = (value: CategoriaServicio | '') => {
     setCategoria(value);
-    setSubcategoria(''); // Reset subcategory when category changes
+    setSubcategoria(''); 
   };
 
   const addTramo = () => {
@@ -146,10 +137,7 @@ function NuevoItemInventarioContent() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
-             <div className="space-y-2">
-                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem</Label>
-                 <Input id="item-tipo-fijo" value="Servicio" readOnly disabled className="bg-muted/70 font-semibold"/>
-            </div>
+             <Input type="hidden" value="Servicio" />
             <div className="space-y-2">
               <Label htmlFor="item-nombre" className="text-base">Nombre del Servicio *</Label>
               <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Servicio de DJ, Fotografía Completa" className="text-base p-3" required disabled={isSaving}/>
