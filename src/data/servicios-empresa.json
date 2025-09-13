@@ -6,8 +6,7 @@
     "tipoItem": "Servicio",
     "categoria": "Otros servicios",
     "precioVenta": 1500,
-    "calculationMethod": "fijo",
-    "precioBase": 1500
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600004_pchef",
@@ -16,8 +15,7 @@
     "categoria": "Personal",
     "unidad": "Por evento",
     "precioVenta": 3500,
-    "calculationMethod": "fijo",
-    "precioBase": 3500
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600003_pmetr",
@@ -26,8 +24,7 @@
     "categoria": "Personal",
     "unidad": "Por evento",
     "precioVenta": 3500,
-    "calculationMethod": "fijo",
-    "precioBase": 3500
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_mozos",
@@ -56,8 +53,7 @@
     "categoria": "Personal",
     "unidad": "Por evento",
     "precioVenta": 8000,
-    "calculationMethod": "fijo",
-    "precioBase": 8000
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_pantalla_proyector",
@@ -65,8 +61,7 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "precioVenta": 2000,
-    "calculationMethod": "fijo",
-    "precioBase": 2000
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_video_vida",
@@ -74,8 +69,7 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "precioVenta": 1900,
-    "calculationMethod": "fijo",
-    "precioBase": 1900
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600084_barlic",
@@ -111,24 +105,6 @@
     "precioPorPersona": 70
   },
   {
-    "id": "serv_1752489600088_cana",
-    "nombre": "Caña",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Litro",
-    "precioVenta": 300
-  },
-  {
-    "id": "serv_1752489600089_cervcor",
-    "nombre": "Cerveza corona",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Unidad",
-    "precioVenta": 100
-  },
-  {
     "id": "serv_1752489600090_coctel",
     "nombre": "Coctel (50 litros)",
     "tipoItem": "Servicio",
@@ -136,8 +112,7 @@
     "subcategoria": "Bebidas con Alcohol",
     "unidad": "Unidad",
     "precioVenta": 6000,
-    "calculationMethod": "fijo",
-    "precioBase": 6000
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757177422000_4ru2piy",
@@ -146,35 +121,7 @@
     "categoria": "Servicio de bebidas",
     "unidad": "Por evento",
     "precioVenta": 3000,
-    "calculationMethod": "fijo",
-    "precioBase": 3000
-  },
-  {
-    "id": "serv_1752489600091_copon",
-    "nombre": "Copón",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Unidad",
-    "precioVenta": 750
-  },
-  {
-    "id": "serv_1752489600093_gin",
-    "nombre": "Gin",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Litro",
-    "precioVenta": 300
-  },
-  {
-    "id": "serv_1752489600092_granad",
-    "nombre": "Granadina",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas sin Alcohol",
-    "unidad": "Litro",
-    "precioVenta": 250
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600097_jugnat",
@@ -193,35 +140,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
     "precioVenta": 100,
-    "calculationMethod": "fijo",
-    "precioBase": 100
-  },
-  {
-    "id": "serv_1752489600094_pinacol",
-    "nombre": "Piña colada",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Litro",
-    "precioVenta": 350
-  },
-  {
-    "id": "serv_1752489600095_ron",
-    "nombre": "Ron",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Litro",
-    "precioVenta": 300
-  },
-  {
-    "id": "serv_1752489600096_vodka",
-    "nombre": "Vodka",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Litro",
-    "precioVenta": 300
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
   },
   {
     "id": "serv_1752489600038_arepven",
@@ -397,16 +317,6 @@
     "precioVenta": 130,
     "calculationMethod": "porPersona",
     "precioPorPersona": 130
-  },
-  {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Textiles",
-    "precioVenta": 75,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 75
   },
   {
     "id": "item_1757176691814_wkx7uiy",
@@ -885,8 +795,17 @@
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 1400,
     "precioVenta": 2900,
-    "calculationMethod": "fijo",
-    "precioBase": 2900
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Textiles",
+    "precioVenta": 75,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 75
   },
   {
     "id": "item_1757258437308_s0lgq1z",
@@ -895,8 +814,15 @@
     "categoria": "Servicio de decoración",
     "unidad": "Por evento",
     "precioVenta": 14500,
-    "calculationMethod": "fijo",
-    "precioBase": 14500
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757537800722_u9hnkaw",
+    "nombre": "Zona para fotografía con sillón diván y mural personalizado",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 4900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757539236109_vtqfjaz",
@@ -904,8 +830,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
     "precioVenta": 1500,
-    "calculationMethod": "fijo",
-    "precioBase": 1500
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757258361278_fs8ba4x",
@@ -928,8 +853,7 @@
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
     "precioVenta": 3900,
-    "calculationMethod": "fijo",
-    "precioBase": 3900
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757281594479_qby7zsw",
@@ -938,8 +862,7 @@
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
     "precioVenta": 3900,
-    "calculationMethod": "fijo",
-    "precioBase": 3900
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757284864269_4d9w4ml",
@@ -948,8 +871,7 @@
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
     "precioVenta": 2900,
-    "calculationMethod": "fijo",
-    "precioBase": 2900
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757536022626_o6vi9hl",
@@ -967,8 +889,7 @@
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
     "precioVenta": 3900,
-    "calculationMethod": "fijo",
-    "precioBase": 3900
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757282105396_39i6zkn",
@@ -977,8 +898,15 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3000,
-    "calculationMethod": "fijo",
-    "precioBase": 3000
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757539285149_qrknudv",
+    "nombre": "Fotografía de exteriores",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "precioVenta": 3900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757281980225_3x3nbzo",
@@ -987,8 +915,7 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 9000,
-    "calculationMethod": "fijo",
-    "precioBase": 9000
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757285027582_71oyrff",
@@ -1009,23 +936,5 @@
     "precioVenta": 100,
     "calculationMethod": "porPersona",
     "precioPorPersona": 100
-  },
-  {
-    "id": "item_1757537800722_u9hnkaw",
-    "nombre": "Zona para fotografía con sillón diván y mural personalizado",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 4900,
-    "calculationMethod": "fijo",
-    "precioBase": 4900
-  },
-  {
-    "id": "item_1757539285149_qrknudv",
-    "nombre": "Fotografía de exteriores",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "precioVenta": 3900,
-    "calculationMethod": "fijo",
-    "precioBase": 3900
   }
 ]

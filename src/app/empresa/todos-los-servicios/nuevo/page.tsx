@@ -28,7 +28,7 @@ function NuevoItemInventarioContent() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [nombre, setNombre] = useState('');
-  const [tipoItem, setTipoItem] = useState<TipoItemEmpresa | ''>('Activo Fijo');
+  const [tipoItem, setTipoItem] = useState<TipoItemEmpresa>('Servicio');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
@@ -47,13 +47,10 @@ function NuevoItemInventarioContent() {
   
   useEffect(() => {
     const typeParam = searchParams.get('type');
-    if (typeParam === 'servicio') {
-      setTipoItem('Servicio');
-      setUnidad('Por evento');
-      setCalculationMethod('fijo');
-    } else {
-      setTipoItem('Activo Fijo');
-    }
+    // Force "Servicio" type, ignore URL param for other types to avoid confusion
+    setTipoItem('Servicio');
+    setUnidad('Por evento'); // Default for services
+    setCalculationMethod('fijo');
   }, [searchParams]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -62,12 +59,9 @@ function NuevoItemInventarioContent() {
       toast({ title: "Campos Requeridos", description: "Nombre, Tipo y Categoría son obligatorios.", variant: "destructive" });
       return;
     }
-    if (tipoItem !== 'Servicio' && !unidad) {
-        toast({ title: "Unidad Requerida", description: "La unidad es obligatoria para Insumos y Activos.", variant: "destructive" });
-        return;
-    }
-     if (tipoItem === 'Servicio' && (calculationMethod === 'fijo' || calculationMethod === 'porPersona') && (!precioVenta || parseFloat(precioVenta) <= 0)) {
-        toast({ title: "Precio Requerido", description: "Los servicios con precio fijo o por persona deben tener un precio de venta mayor a cero.", variant: "destructive" });
+
+     if (tipoItem === 'Servicio' && (calculationMethod === 'fijo' || calculationMethod === 'porPersona') && (!precioVenta && !precioPorPersona)) {
+        toast({ title: "Precio Requerido", description: "Define un precio para el servicio.", variant: "destructive" });
         return;
     }
 
@@ -82,41 +76,26 @@ function NuevoItemInventarioContent() {
       unidad: tipoItem === 'Servicio' ? undefined : (unidad as UnidadServicio | undefined),
       notas: notas.trim() || undefined,
       
-      // Pricing fields
       calculationMethod: tipoItem === 'Servicio' ? calculationMethod : undefined,
-      precioVenta: precioVenta ? parseFloat(precioVenta) : undefined,
-      precioBase: precioBase ? parseFloat(precioBase) : undefined,
-      precioPorPersona: precioPorPersona ? parseFloat(precioPorPersona) : undefined,
-      invitadosPorUnidad: invitadosPorUnidad ? parseInt(invitadosPorUnidad, 10) : undefined,
-      tramosDePrecio: tramosDePrecio.length > 0 ? tramosDePrecio.map(t => ({...t, desde: Number(t.desde) || 0, hasta: Number(t.hasta) || 0, precio: Number(t.precio) || 0})) : undefined,
+      precioVenta: (calculationMethod === 'fijo' && precioVenta) ? parseFloat(precioVenta) : undefined,
+      precioBase: (calculationMethod === 'ratio' && precioBase) ? parseFloat(precioBase) : undefined,
+      precioPorPersona: (calculationMethod === 'porPersona' && precioPorPersona) ? parseFloat(precioPorPersona) : undefined,
+      invitadosPorUnidad: (calculationMethod === 'ratio' && invitadosPorUnidad) ? parseInt(invitadosPorUnidad, 10) : undefined,
+      tramosDePrecio: (calculationMethod === 'tramos' && tramosDePrecio.length > 0) ? tramosDePrecio.map(t => ({...t, desde: Number(t.desde) || 0, hasta: Number(t.hasta) || 0, precio: Number(t.precio) || 0})) : undefined,
     };
 
     try {
       const result = await saveServicioEmpresa(itemData);
       if (result.success && result.id) {
-        toast({ title: "¡Ítem Guardado!", description: `El ítem "${itemData.nombre}" ha sido guardado.` });
-        if (tipoItem === 'Servicio') router.push('/empresa/servicios');
-        else router.push('/empresa/todos-los-servicios');
+        toast({ title: "¡Servicio Guardado!", description: `El servicio "${itemData.nombre}" ha sido añadido al catálogo.` });
+        router.push('/empresa/servicios');
       } else {
-        toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar el ítem.", variant: "destructive"});
+        toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar el servicio.", variant: "destructive"});
       }
     } catch (error: any) {
       toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleTipoItemChange = (value: TipoItemEmpresa | '') => {
-    setTipoItem(value);
-    setUnidad(''); // Reset unit when type changes
-    setSubcategoria('');
-    setCategoria('');
-    
-    if (value === 'Servicio') {
-        setUnidad('Por evento');
-        setCategoria('Otros servicios');
-        setCalculationMethod('fijo');
     }
   };
 
@@ -142,7 +121,6 @@ function NuevoItemInventarioContent() {
 
   const isCatering = categoria === 'Servicio de catering';
   const isReposteria = categoria === 'Servicio de repostería';
-  const isServicio = tipoItem === 'Servicio';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -150,34 +128,31 @@ function NuevoItemInventarioContent() {
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Ítem al Catálogo
+            Añadir Nuevo Servicio al Catálogo
           </h1>
         </div>
-        <Link href="/empresa/todos-los-servicios" passHref>
+        <Link href="/empresa/servicios" passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
+            Volver al Catálogo
           </Button>
         </Link>
       </div>
       
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Detalles del Ítem</CardTitle>
-          <CardDescription>Registra un nuevo activo, insumo o servicio para usar en tus eventos y presupuestos.</CardDescription>
+          <CardTitle className="font-headline">Detalles del Servicio</CardTitle>
+          <CardDescription>Registra un nuevo servicio que ofreces a tus clientes para usar en presupuestos.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
              <div className="space-y-2">
-                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
-                <Select value={tipoItem} onValueChange={handleTipoItemChange} required disabled={isSaving}>
-                  <SelectTrigger id="item-tipo" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar tipo..." /></SelectTrigger>
-                  <SelectContent>{ALL_TIPOS_ITEM_EMPRESA.map(t => (<SelectItem key={t} value={t} className="text-base">{t}</SelectItem>))}</SelectContent>
-                </Select>
+                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem</Label>
+                 <Input id="item-tipo-fijo" value="Servicio" readOnly disabled className="bg-muted/70 font-semibold"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="item-nombre" className="text-base">Nombre del Ítem *</Label>
-              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Silla Tiffany, Servicio de DJ, Harina" className="text-base p-3" required disabled={isSaving}/>
+              <Label htmlFor="item-nombre" className="text-base">Nombre del Servicio *</Label>
+              <Input id="item-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Servicio de DJ, Fotografía Completa" className="text-base p-3" required disabled={isSaving}/>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -200,12 +175,11 @@ function NuevoItemInventarioContent() {
                         <SelectContent>{REPOSTERIA_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                     </Select>
                 ) : (
-                    <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Mobiliario, Sonido, Lácteos" className="text-base p-3" disabled={isSaving}/>
+                    <Input id="item-subcategoria" value={subcategoria} onChange={(e) => setSubcategoria(e.target.value)} placeholder="Ej: Música, Fotografía, Decoración" className="text-base p-3" disabled={isSaving}/>
                 )}
               </div>
             </div>
             
-            {isServicio ? (
               <div className="p-4 border rounded-lg bg-primary/5 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="calculation-method" className="text-base text-primary font-semibold">Método de Cálculo del Precio *</Label>
@@ -248,15 +222,9 @@ function NuevoItemInventarioContent() {
                 )}
 
                 <Separator/>
-                <div className="space-y-2"><Label htmlFor="item-costo-servicio" className="text-base flex items-center gap-2"><DollarSign className="w-5 h-5"/>Costo Estimado para la Empresa</Label><Input id="item-costo-servicio" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="item-costo-servicio" className="text-base flex items-center gap-2"><DollarSign className="w-5 h-5"/>Costo Estimado para la Empresa (Opcional)</Label><Input id="item-costo-servicio" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>
               </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label htmlFor="item-cantidad" className="text-base">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={cantidadDisponible} onChange={(e) => setCantidadDisponible(e.target.value)} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/></div>
-                    <div className="space-y-2"><Label htmlFor="item-valor-unitario" className="text-base">Valor Unitario (Costo UYU)</Label><Input id="item-valor-unitario" type="number" value={valorUnitarioEstimado} onChange={(e) => setValorUnitarioEstimado(e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/><p className="text-xs text-muted-foreground">Costo de reposición o valor actual por unidad.</p></div>
-                     <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={unidad} onValueChange={(value) => setUnidad(value as UnidadServicio | '')} disabled={isSaving} required={!isServicio}><SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..." /></SelectTrigger><SelectContent className="max-h-60">{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent></Select></div>
-                </div>
-            )}
+            
              <div className="space-y-2">
               <Label htmlFor="item-notas" className="text-base">Observaciones (Opcional)</Label>
               <Textarea id="item-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Detalles, proveedor preferido, etc." rows={3} disabled={isSaving}/>
@@ -265,7 +233,7 @@ function NuevoItemInventarioContent() {
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Ítem'}
+              {isSaving ? 'Guardando...' : 'Guardar Servicio'}
             </Button>
           </CardFooter>
         </form>
