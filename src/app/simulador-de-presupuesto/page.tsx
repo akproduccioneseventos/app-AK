@@ -139,11 +139,12 @@ export default function SimuladorDePresupuestoPage() {
             if (servicio.esRegalo) return;
             
             let costoServicio = 0;
-            const precioBaseCatalogo = serviciosCatalogo.find(s => s.id === servicio.id)?.precioVenta || 0;
+            const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
+            const precioBaseCatalogo = catalogService?.precioVenta || 0;
 
             switch(servicio.calculationMethod) {
                 case 'fijo': 
-                    costoServicio = servicio.precioBase ?? precioBaseCatalogo; 
+                    costoServicio = servicio.precioBase ?? precioBaseCatalogo ?? 0;
                     break;
                 case 'porPersona': 
                     costoServicio = (servicio.precioPorPersona ?? precioBaseCatalogo) * totalInvitados; 
@@ -158,7 +159,7 @@ export default function SimuladorDePresupuestoPage() {
                     const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
                     costoServicio = tramo?.precio || 0;
                     break;
-                default: // Fallback for legacy items or items without a specific method
+                default:
                     costoServicio = servicio.precioFijo ?? precioBaseCatalogo;
             }
             costo += costoServicio;
@@ -376,7 +377,8 @@ export default function SimuladorDePresupuestoPage() {
                     const giftServices = pkg.serviciosIncluidos.filter(s => s.esRegalo);
                     
                     const groupedRegular = regularServices.reduce((acc, service) => {
-                        const category = service.categoria || 'Otros servicios';
+                        const catalogService = serviciosCatalogo.find(vs => vs.id === service.id);
+                        const category = catalogService?.categoria || 'Otros servicios';
                         if (!acc[category]) {
                             acc[category] = [];
                         }

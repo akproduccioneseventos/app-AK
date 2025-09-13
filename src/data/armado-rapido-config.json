@@ -353,8 +353,8 @@
       ]
     },
     {
-      "id": "new_paquete_1757727349751",
-      "nombre": "Paquete Premium ",
+      "id": "new_paquete_1757728780615",
+      "nombre": "Paquete Premium",
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
@@ -559,7 +559,9 @@
           "categoria": "Servicio de decoración",
           "calculationMethod": "fijo",
           "esRegalo": false,
+          "precioFijo": 2900,
           "precioBase": 2900,
+          "precioPorPersona": 2900,
           "tramosDePrecio": []
         },
         {
@@ -574,15 +576,6 @@
           "tramosDePrecio": []
         },
         {
-          "id": "item_1757536022626_o6vi9hl",
-          "nombre": "Mesa de Glitter Bar",
-          "categoria": "Servicio de entretenimiento",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioPorPersona": 80,
-          "tramosDePrecio": []
-        },
-        {
           "id": "item_1757539285149_qrknudv",
           "nombre": "Fotografía de exteriores",
           "categoria": "Servicio de fotografía",
@@ -591,28 +584,6 @@
           "precioFijo": 3900,
           "precioBase": 3900,
           "precioPorPersona": 3900,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757456683585_bb9tztm",
-          "nombre": "Mesa de jugos naturales",
-          "categoria": "Servicio de bebidas",
-          "calculationMethod": "porPersona",
-          "esRegalo": false,
-          "precioFijo": 100,
-          "precioBase": 100,
-          "precioPorPersona": 100,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757539236109_vtqfjaz",
-          "nombre": "Lluvia de burbujas",
-          "categoria": "Servicio de discoteca",
-          "calculationMethod": "fijo",
-          "esRegalo": true,
-          "precioFijo": 0,
-          "precioBase": 0,
-          "precioPorPersona": 0,
           "tramosDePrecio": []
         }
       ]
