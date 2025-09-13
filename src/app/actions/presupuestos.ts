@@ -54,17 +54,50 @@ async function initializeLocalPresupuestosFile() {
 initializeLocalPresupuestosFile();
 
 
+// --- Helper function to recalculate costs based on logic from paso-2/paso-4
+function recalcularCostoTotalItems(items: ItemPresupuestado[], invitados: number): number {
+  return items.reduce((total, item) => {
+    if (item.esRegalo) return total;
+    
+    let itemTotal = 0;
+    switch (item.calculationMethod) {
+      case 'fijo':
+        itemTotal = item.precioBase ?? item.precioUnitario;
+        break;
+      case 'porPersona':
+        itemTotal = (item.precioPorPersona ?? item.precioUnitario) * invitados;
+        break;
+      case 'ratio':
+        const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
+        if (invitadosPorUnidadNum > 0) {
+          const basePrice = item.precioBase ?? item.precioUnitario;
+          itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+        }
+        break;
+      case 'tramos':
+        const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
+        itemTotal = tramo?.precio || 0;
+        break;
+      default: // Fallback to original simple calculation
+        itemTotal = item.cantidad * item.precioUnitario;
+    }
+    return total + itemTotal;
+  }, 0);
+}
+
+
 export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string }> {
   let presupuestos = await readPresupuestosFile();
   
   // Ensure all items have positive quantities and prices before saving
   const validItems = presupuestoData.itemsPresupuestados.filter(item => item.cantidad > 0 && item.precioUnitario >= 0);
   if(validItems.length !== presupuestoData.itemsPresupuestados.length) {
-    // Could return an error or just save valid items. For now, saving valid items.
     console.warn("Some items had invalid quantities or prices and were filtered out.");
   }
 
-  const costoTotalEstimadoRecalculado = validItems.reduce((sum, item) => sum + (item.cantidad * item.precioUnitario), 0);
+  // Recalculate total based on complex logic
+  const costoTotalEstimadoRecalculado = recalcularCostoTotalItems(validItems, presupuestoData.invitadosCantidad);
+
   let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
   let descuentoAplicado = 0;
 
@@ -112,7 +145,8 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
   const { id, ...dataToUpdate } = presupuestoData;
   
   const validItems = dataToUpdate.itemsPresupuestados.filter(item => item.cantidad > 0 && item.precioUnitario >= 0);
-  const costoTotalEstimadoRecalculado = validItems.reduce((sum, item) => sum + (item.cantidad * item.precioUnitario), 0);
+  const costoTotalEstimadoRecalculado = recalcularCostoTotalItems(validItems, dataToUpdate.invitadosCantidad);
+  
   let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
   let descuentoAplicado = 0;
 

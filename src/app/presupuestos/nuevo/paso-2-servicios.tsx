@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sparkles, Tag, Search, PackageSearch, Gift, Edit, Trash2, Settings2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
 import {
   Accordion,
@@ -26,6 +26,9 @@ import {
 } from "@/components/ui/collapsible";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -41,7 +44,8 @@ const formatCurrency = (amount?: number) => {
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo }: Paso2ServiciosProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Set<CategoriaServicio>>(new Set());
-
+  const { toast } = useToast();
+  
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
@@ -70,7 +74,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
   const handleServicioDetailChange = (
     servicioId: string,
-    field: 'cantidad' | 'precioUnitarioPresupuesto' | 'esRegalo' | 'calculationMethod' | 'precioBase' | 'precioPorPersona' | 'invitadosPorUnidad',
+    field: keyof Omit<NonNullable<PresupuestoFormData['serviciosSeleccionados']>[string], 'tramosDePrecio'>,
     value: string | number | boolean | undefined
   ) => {
     setFormData(prev => {
@@ -80,15 +84,22 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         let updatedServicio = { ...currentServicio };
 
         if (field === 'esRegalo') {
-            updatedServicio.esRegalo = !!value;
+            const esRegalo = !!value;
+            const catalogService = serviciosCatalogo.find(s => s.id === servicioId);
+            
+            updatedServicio.esRegalo = esRegalo;
+            if(esRegalo) {
+                updatedServicio.precioUnitarioPresupuesto = 0;
+            } else {
+                updatedServicio.precioUnitarioPresupuesto = catalogService?.precioVenta || 0;
+            }
         } else if (field === 'calculationMethod') {
             updatedServicio.calculationMethod = value as any;
-            // Reset prices when method changes to avoid inconsistencies
             const catalogService = serviciosCatalogo.find(s => s.id === servicioId);
-            updatedServicio.precioUnitarioPresupuesto = catalogService?.precioVenta || 0;
             updatedServicio.precioBase = catalogService?.precioBase;
             updatedServicio.precioPorPersona = catalogService?.precioPorPersona;
             updatedServicio.invitadosPorUnidad = catalogService?.invitadosPorUnidad;
+            updatedServicio.tramosDePrecio = catalogService?.tramosDePrecio?.map(t => ({...t}));
         } else if (typeof value === 'string' && (field === 'cantidad' || field === 'precioUnitarioPresupuesto' || field === 'precioBase' || field === 'precioPorPersona' || field === 'invitadosPorUnidad')) {
             const numericValue = parseFloat(value) || 0;
             updatedServicio[field] = numericValue;
@@ -156,7 +167,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                             s.categoria.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             (s.subcategoria && s.subcategoria.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(s.categoria);
-      return matchesSearch && matchesCategory && s.precioVenta !== undefined && s.precioVenta > 0;
+      return matchesSearch && matchesCategory && (s.tipoItem === 'Servicio'); // Only show 'Servicio' type items
     });
   }, [serviciosCatalogo, searchTerm, selectedCategories]);
   
@@ -218,7 +229,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   }, [formData.serviciosSeleccionados, formData.invitadosCantidad, serviciosCatalogo]);
   
   const uniqueCategoriesFromCatalog = useMemo(() => {
-    const cats = new Set(serviciosCatalogo.filter(s => s.precioVenta !== undefined && s.precioVenta > 0).map(s => s.categoria));
+    const cats = new Set(serviciosCatalogo.filter(s => s.tipoItem === 'Servicio').map(s => s.categoria));
     return Array.from(cats).sort();
   }, [serviciosCatalogo]);
 
@@ -353,4 +364,3 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
-

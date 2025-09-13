@@ -19,7 +19,14 @@ export interface ItemPresupuestado {
   precioUnitario: number;
   costoTotalItem: number;
   categoriaServicio?: string;
-  esRegalo?: boolean; // Nuevo campo para marcar como regalo
+  esRegalo?: boolean;
+  
+  // Overrides para este presupuesto específico
+  calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
+  precioBase?: number;
+  precioPorPersona?: number;
+  invitadosPorUnidad?: number;
+  tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
 }
 
 export interface Presupuesto {
@@ -43,10 +50,6 @@ export interface Presupuesto {
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
   invoiceId?: string; // ID de la factura si este presupuesto fue facturado
-  
-  // Legacy fields for migration, should not be used in new code
-  platosSeleccionados?: any[];
-  serviciosAdicionales?: any[];
 }
 
 
@@ -73,7 +76,7 @@ export interface PresupuestoFormData {
     unidad?: string;
     categoriaServicio?: string;
     esRegalo: boolean;
-    // Overrides for pricing logic, specific to this budget
+    // Overrides para este presupuesto específico
     calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
     precioBase?: number;
     precioPorPersona?: number;
