@@ -110,6 +110,14 @@
     "precioVenta": 100
   },
   {
+    "nombre": "Refrescos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 149,
+    "id": "item_1757733147509_dtykm4c"
+  },
+  {
     "id": "serv_1752489600038_arepven",
     "nombre": "Arepas venezolanas",
     "tipoItem": "Servicio",

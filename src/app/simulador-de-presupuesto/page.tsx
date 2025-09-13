@@ -131,45 +131,40 @@ export default function SimuladorDePresupuestoPage() {
         return costo;
     }, [entradasSeleccionadas, opcionesMenu, platoPrincipalId, menuInfantilId, numAdultos, numJovenesYNinos]);
 
-     const calcularCostoPaquete = useCallback((pkg: PaqueteArmadoRapido) => {
+    const calcularCostoPaquete = useCallback((pkg: PaqueteArmadoRapido) => {
         let costo = 0;
         const totalInvitados = numAdultos + numJovenesYNinos;
 
-        pkg.serviciosIncluidos.forEach(servicio => {
-            if (servicio.esRegalo) return;
-            
-            // Corrected: Find by ID, not by name
-            const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
-            if (!catalogService) return;
+        pkg.serviciosIncluidos.forEach(servicioEnPaquete => {
+            if (servicioEnPaquete.esRegalo) return;
+
+            const servicioDelCatalogo = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
+            if (!servicioDelCatalogo) return;
 
             let costoServicio = 0;
-            const method = servicio.calculationMethod || catalogService.calculationMethod;
+            const method = servicioDelCatalogo.calculationMethod || 'fijo';
             
-            // Robust price finding logic
-            const precioBaseCatalogo = catalogService.precioVenta ?? catalogService.precioBase ?? 0;
-            const precioPersonaCatalogo = catalogService.precioPorPersona ?? 0;
-
             switch(method) {
                 case 'fijo': 
-                    costoServicio = servicio.precioBase ?? servicio.precioFijo ?? precioBaseCatalogo;
+                    costoServicio = servicioDelCatalogo.precioVenta ?? servicioDelCatalogo.precioBase ?? 0;
                     break;
                 case 'porPersona': 
-                    costoServicio = (servicio.precioPorPersona ?? precioPersonaCatalogo) * totalInvitados; 
+                    costoServicio = (servicioDelCatalogo.precioPorPersona ?? 0) * totalInvitados; 
                     break;
                 case 'ratio': 
-                    const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad);
+                    const invitadosPorUnidadNum = Number(servicioDelCatalogo.invitadosPorUnidad);
                     if (invitadosPorUnidadNum > 0) {
-                        const basePrice = servicio.precioBase ?? precioBaseCatalogo;
+                        const basePrice = servicioDelCatalogo.precioBase ?? servicioDelCatalogo.precioVenta ?? 0;
                         costoServicio = Math.ceil(totalInvitados / invitadosPorUnidadNum) * basePrice;
                     }
                     break;
                 case 'tramos':
-                    const tramos = servicio.tramosDePrecio || catalogService.tramosDePrecio;
+                    const tramos = servicioDelCatalogo.tramosDePrecio;
                     const tramo = tramos?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
                     costoServicio = tramo?.precio || 0;
                     break;
                 default:
-                    costoServicio = servicio.precioFijo ?? precioBaseCatalogo;
+                    costoServicio = servicioDelCatalogo.precioVenta ?? 0;
             }
             costo += costoServicio;
         });
@@ -219,54 +214,51 @@ export default function SimuladorDePresupuestoPage() {
         subtotalServicios += costoCatering;
 
         if (paqueteActual) {
-            paqueteActual.serviciosIncluidos.forEach(servicio => {
-                const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
+            paqueteActual.serviciosIncluidos.forEach(servicioEnPaquete => {
+                const catalogService = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
                 if (!catalogService) return;
 
-                // Robust price finding logic for display
-                const precioBaseCatalogo = catalogService.precioVenta ?? catalogService.precioBase ?? 0;
-                const precioPersonaCatalogo = catalogService.precioPorPersona ?? 0;
-
-                if (servicio.esRegalo) {
-                    costoRegalos += precioBaseCatalogo; 
-                    resumenData.regalos.push({ desc: servicio.nombre, total: precioBaseCatalogo });
+                if (servicioEnPaquete.esRegalo) {
+                    const valorRegalo = catalogService.precioVenta ?? catalogService.precioBase ?? 0;
+                    costoRegalos += valorRegalo; 
+                    resumenData.regalos.push({ desc: servicioEnPaquete.nombre, total: valorRegalo });
                     return;
                 }
                 
                 let costoServicio = 0;
-                let descServicio = servicio.nombre;
+                let descServicio = servicioEnPaquete.nombre;
                 let cantidad = 1;
                 let precioUnitario = 0;
-                const method = servicio.calculationMethod || catalogService.calculationMethod;
+                const method = catalogService.calculationMethod || 'fijo';
 
                 switch(method) {
                     case 'fijo': 
-                        precioUnitario = servicio.precioBase ?? servicio.precioFijo ?? precioBaseCatalogo;
+                        precioUnitario = catalogService.precioVenta ?? catalogService.precioBase ?? 0;
                         costoServicio = precioUnitario;
                         break;
                     case 'porPersona': 
-                        precioUnitario = servicio.precioPorPersona ?? precioPersonaCatalogo;
+                        precioUnitario = catalogService.precioPorPersona ?? 0;
                         cantidad = totalInvitados;
                         costoServicio = precioUnitario * cantidad;
                         break;
                     case 'ratio': 
-                        const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad);
+                        const invitadosPorUnidadNum = Number(catalogService.invitadosPorUnidad);
                         if (invitadosPorUnidadNum > 0) {
                             cantidad = Math.ceil(totalInvitados / invitadosPorUnidadNum);
-                            precioUnitario = servicio.precioBase ?? precioBaseCatalogo;
+                            precioUnitario = catalogService.precioBase ?? catalogService.precioVenta ?? 0;
                             costoServicio = cantidad * precioUnitario;
-                            descServicio += ` (1 cada ${servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad} inv.)`;
+                            descServicio += ` (1 cada ${catalogService.invitadosPorUnidad} inv.)`;
                         }
                         break;
                     case 'tramos':
-                        const tramos = servicio.tramosDePrecio || catalogService.tramosDePrecio;
+                        const tramos = catalogService.tramosDePrecio;
                         const tramo = tramos?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
                         costoServicio = tramo?.precio || 0;
                         precioUnitario = costoServicio;
                         descServicio += ` (para ${totalInvitados} inv.)`;
                         break;
                     default: 
-                        precioUnitario = servicio.precioFijo ?? precioBaseCatalogo;
+                        precioUnitario = catalogService.precioVenta ?? 0;
                         costoServicio = precioUnitario;
                 }
                 subtotalServicios += costoServicio;
@@ -484,3 +476,5 @@ export default function SimuladorDePresupuestoPage() {
         </div>
     );
 }
+
+    
