@@ -662,26 +662,19 @@
     "precioVenta": 75
   },
   {
+    "id": "item_1757731376918_o82esnq",
+    "nombre": "Mural personalizado y Zona de fotografía con sillón diván",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 4990
+  },
+  {
     "id": "item_1757258437308_s0lgq1z",
     "nombre": "Servicio de decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "unidad": "Por evento",
     "precioVenta": 14500
-  },
-  {
-    "id": "item_1757730442435_l4y7805",
-    "nombre": "Zona de fotografía con sillón diván y mural",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 4990
-  },
-  {
-    "id": "item_1757537800722_u9hnkaw",
-    "nombre": "Zona para fotografía con sillón diván y mural personalizado",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 4900
   },
   {
     "id": "item_1757539236109_vtqfjaz",
@@ -746,19 +739,20 @@
     "precioVenta": 3000
   },
   {
-    "id": "item_1757730526614_jebslpx",
-    "nombre": "Fotografía de exteriores",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "precioVenta": 3890
-  },
-  {
     "id": "item_1757281980225_3x3nbzo",
     "nombre": "Fotografía de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 9000
+  },
+  {
+    "nombre": "Fotografía de los Exteriores",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "calculationMethod": "fijo",
+    "precioVenta": 3990,
+    "id": "item_1757731423758_g6mfo3q"
   },
   {
     "id": "item_1757285027582_71oyrff",

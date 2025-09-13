@@ -353,8 +353,8 @@
       ]
     },
     {
-      "id": "new_paquete_1757731007907",
-      "nombre": "Paquete Intermedio (Copia)",
+      "id": "new_paquete_1757731489999",
+      "nombre": "Paquete Premium",
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
@@ -565,19 +565,19 @@
           "tramosDePrecio": []
         },
         {
-          "id": "item_1757730526614_jebslpx",
-          "nombre": "Fotografía de exteriores",
-          "categoria": "Servicio de fotografía",
-          "esRegalo": false,
-          "precioFijo": 3890,
-          "tramosDePrecio": []
-        },
-        {
-          "id": "item_1757730442435_l4y7805",
-          "nombre": "Zona de fotografía con sillón diván y mural",
+          "id": "item_1757731376918_o82esnq",
+          "nombre": "Mural personalizado y Zona de fotografía con sillón diván",
           "categoria": "Servicio de decoración",
           "esRegalo": false,
           "precioFijo": 4990,
+          "tramosDePrecio": []
+        },
+        {
+          "id": "item_1757731423758_g6mfo3q",
+          "nombre": "Fotografía de los Exteriores",
+          "categoria": "Servicio de fotografía",
+          "esRegalo": false,
+          "precioFijo": 3990,
           "tramosDePrecio": []
         }
       ]

@@ -138,25 +138,30 @@ export default function SimuladorDePresupuestoPage() {
         pkg.serviciosIncluidos.forEach(servicio => {
             if (servicio.esRegalo) return;
             
-            let costoServicio = 0;
             const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
-            const precioBaseCatalogo = catalogService?.precioVenta || 0;
+            if (!catalogService) return;
 
-            switch(servicio.calculationMethod) {
+            let costoServicio = 0;
+            const method = servicio.calculationMethod || catalogService.calculationMethod;
+            const precioBaseCatalogo = catalogService.precioVenta || 0;
+
+            switch(method) {
                 case 'fijo': 
-                    costoServicio = servicio.precioBase ?? precioBaseCatalogo ?? 0;
+                    costoServicio = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
                     break;
                 case 'porPersona': 
-                    costoServicio = (servicio.precioPorPersona ?? precioBaseCatalogo) * totalInvitados; 
+                    costoServicio = (servicio.precioPorPersona ?? catalogService.precioPorPersona ?? precioBaseCatalogo) * totalInvitados; 
                     break;
                 case 'ratio': 
-                    const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
-                    if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
-                        costoServicio = Math.ceil(totalInvitados / invitadosPorUnidadNum) * (servicio.precioBase ?? precioBaseCatalogo);
+                    const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad);
+                    if (invitadosPorUnidadNum > 0) {
+                        const basePrice = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
+                        costoServicio = Math.ceil(totalInvitados / invitadosPorUnidadNum) * basePrice;
                     }
                     break;
                 case 'tramos':
-                    const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+                    const tramos = servicio.tramosDePrecio || catalogService.tramosDePrecio;
+                    const tramo = tramos?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
                     costoServicio = tramo?.precio || 0;
                     break;
                 default:
@@ -212,7 +217,9 @@ export default function SimuladorDePresupuestoPage() {
         if (paqueteActual) {
             paqueteActual.serviciosIncluidos.forEach(servicio => {
                 const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
-                const precioBaseCatalogo = catalogService?.precioVenta || 0;
+                if (!catalogService) return;
+
+                const precioBaseCatalogo = catalogService.precioVenta || 0;
                 
                 if (servicio.esRegalo) {
                     costoRegalos += precioBaseCatalogo; 
@@ -224,34 +231,36 @@ export default function SimuladorDePresupuestoPage() {
                 let descServicio = servicio.nombre;
                 let cantidad = 1;
                 let precioUnitario = 0;
+                const method = servicio.calculationMethod || catalogService.calculationMethod;
 
-                switch(servicio.calculationMethod) {
+                switch(method) {
                     case 'fijo': 
-                        precioUnitario = servicio.precioBase ?? precioBaseCatalogo ?? 0;
+                        precioUnitario = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
                         costoServicio = precioUnitario;
                         break;
                     case 'porPersona': 
-                        precioUnitario = servicio.precioPorPersona ?? precioBaseCatalogo ?? 0;
+                        precioUnitario = servicio.precioPorPersona ?? catalogService.precioPorPersona ?? precioBaseCatalogo;
                         cantidad = totalInvitados;
                         costoServicio = precioUnitario * cantidad;
                         break;
                     case 'ratio': 
-                        const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
-                        if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
+                        const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad);
+                        if (invitadosPorUnidadNum > 0) {
                             cantidad = Math.ceil(totalInvitados / invitadosPorUnidadNum);
-                            precioUnitario = servicio.precioBase ?? precioBaseCatalogo ?? 0;
+                            precioUnitario = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
                             costoServicio = cantidad * precioUnitario;
-                            descServicio += ` (1 cada ${servicio.invitadosPorUnidad} inv.)`;
+                            descServicio += ` (1 cada ${servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad} inv.)`;
                         }
                         break;
                     case 'tramos':
-                        const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+                        const tramos = servicio.tramosDePrecio || catalogService.tramosDePrecio;
+                        const tramo = tramos?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
                         costoServicio = tramo?.precio || 0;
                         precioUnitario = costoServicio;
                         descServicio += ` (para ${totalInvitados} inv.)`;
                         break;
                     default: 
-                        precioUnitario = servicio.precioFijo ?? precioBaseCatalogo ?? 0;
+                        precioUnitario = servicio.precioFijo ?? precioBaseCatalogo;
                         costoServicio = precioUnitario;
                 }
                 subtotalServicios += costoServicio;
