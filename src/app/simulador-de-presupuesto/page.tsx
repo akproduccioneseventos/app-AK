@@ -143,19 +143,22 @@ export default function SimuladorDePresupuestoPage() {
 
             let costoServicio = 0;
             const method = servicio.calculationMethod || catalogService.calculationMethod;
-            const precioBaseCatalogo = catalogService.precioVenta || 0;
+            
+            // Robust price finding logic
+            const precioBaseCatalogo = catalogService.precioVenta ?? catalogService.precioBase ?? 0;
+            const precioPersonaCatalogo = catalogService.precioPorPersona ?? 0;
 
             switch(method) {
                 case 'fijo': 
-                    costoServicio = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
+                    costoServicio = servicio.precioBase ?? servicio.precioFijo ?? precioBaseCatalogo;
                     break;
                 case 'porPersona': 
-                    costoServicio = (servicio.precioPorPersona ?? catalogService.precioPorPersona ?? precioBaseCatalogo) * totalInvitados; 
+                    costoServicio = (servicio.precioPorPersona ?? precioPersonaCatalogo) * totalInvitados; 
                     break;
                 case 'ratio': 
                     const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad);
                     if (invitadosPorUnidadNum > 0) {
-                        const basePrice = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
+                        const basePrice = servicio.precioBase ?? precioBaseCatalogo;
                         costoServicio = Math.ceil(totalInvitados / invitadosPorUnidadNum) * basePrice;
                     }
                     break;
@@ -219,8 +222,10 @@ export default function SimuladorDePresupuestoPage() {
                 const catalogService = serviciosCatalogo.find(s => s.id === servicio.id);
                 if (!catalogService) return;
 
-                const precioBaseCatalogo = catalogService.precioVenta || 0;
-                
+                // Robust price finding logic for display
+                const precioBaseCatalogo = catalogService.precioVenta ?? catalogService.precioBase ?? 0;
+                const precioPersonaCatalogo = catalogService.precioPorPersona ?? 0;
+
                 if (servicio.esRegalo) {
                     costoRegalos += precioBaseCatalogo; 
                     resumenData.regalos.push({ desc: servicio.nombre, total: precioBaseCatalogo });
@@ -235,11 +240,11 @@ export default function SimuladorDePresupuestoPage() {
 
                 switch(method) {
                     case 'fijo': 
-                        precioUnitario = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
+                        precioUnitario = servicio.precioBase ?? servicio.precioFijo ?? precioBaseCatalogo;
                         costoServicio = precioUnitario;
                         break;
                     case 'porPersona': 
-                        precioUnitario = servicio.precioPorPersona ?? catalogService.precioPorPersona ?? precioBaseCatalogo;
+                        precioUnitario = servicio.precioPorPersona ?? precioPersonaCatalogo;
                         cantidad = totalInvitados;
                         costoServicio = precioUnitario * cantidad;
                         break;
@@ -247,7 +252,7 @@ export default function SimuladorDePresupuestoPage() {
                         const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad);
                         if (invitadosPorUnidadNum > 0) {
                             cantidad = Math.ceil(totalInvitados / invitadosPorUnidadNum);
-                            precioUnitario = servicio.precioBase ?? catalogService.precioBase ?? precioBaseCatalogo;
+                            precioUnitario = servicio.precioBase ?? precioBaseCatalogo;
                             costoServicio = cantidad * precioUnitario;
                             descServicio += ` (1 cada ${servicio.invitadosPorUnidad || catalogService.invitadosPorUnidad} inv.)`;
                         }

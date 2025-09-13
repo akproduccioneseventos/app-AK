@@ -747,12 +747,11 @@
     "precioVenta": 9000
   },
   {
+    "id": "item_1757731423758_g6mfo3q",
     "nombre": "Fotografía de los Exteriores",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "calculationMethod": "fijo",
-    "precioVenta": 3990,
-    "id": "item_1757731423758_g6mfo3q"
+    "precioVenta": 3990
   },
   {
     "id": "item_1757285027582_71oyrff",
