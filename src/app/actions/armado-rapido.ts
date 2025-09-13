@@ -50,28 +50,10 @@ export async function saveArmadoRapidoConfig(
       ...newConfigData,
     };
     
-    const allServices = await getServiciosEmpresa();
-
-    // Sincroniza SOLO los paquetes, dejando los menús intactos
-    if (configToSave.paquetes) {
-      configToSave.paquetes.forEach(paquete => {
-        if(paquete.serviciosIncluidos){
-            paquete.serviciosIncluidos = paquete.serviciosIncluidos.map(s => {
-                const catalogService = allServices.find(cs => cs.id === s.id);
-                if (catalogService) {
-                return {
-                    ...s, 
-                    nombre: catalogService.nombre,
-                    // No sobreescribir la categoría del paquete
-                    // categoria: catalogService.categoria,
-                };
-                }
-                return s; 
-            });
-        }
-      });
-    }
-
+    // The faulty synchronization logic has been removed.
+    // The simulator now relies on the master catalog for pricing details at runtime.
+    // We just save the structure of the packages/menus.
+    
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
     return { success: true };
   } catch (error: any) {
