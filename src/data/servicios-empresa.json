@@ -110,12 +110,10 @@
     "precioVenta": 100
   },
   {
+    "id": "item_1757733147509_dtykm4c",
     "nombre": "Refrescos",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 149,
-    "id": "item_1757733147509_dtykm4c"
+    "categoria": "Servicio de bebidas"
   },
   {
     "id": "serv_1752489600038_arepven",
@@ -712,13 +710,6 @@
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
     "precioVenta": 3000
-  },
-  {
-    "id": "item_1757732521409_rrjkwnj",
-    "nombre": "Fotografía de exteriores",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "precioVenta": 3990
   },
   {
     "id": "item_1757281980225_3x3nbzo",
