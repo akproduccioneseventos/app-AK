@@ -113,7 +113,8 @@
     "id": "item_1757733147509_dtykm4c",
     "nombre": "Refrescos",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas"
+    "categoria": "Servicio de bebidas",
+    "precioVenta": 140
   },
   {
     "id": "serv_1752489600038_arepven",

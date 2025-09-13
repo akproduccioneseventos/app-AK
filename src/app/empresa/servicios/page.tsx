@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -41,6 +42,7 @@ export default function ServiciosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
+      // This page now shows ALL 'Servicio' type items, regardless of price fields
       const serviceItems = data.filter(s => s.tipoItem === 'Servicio');
       setAllItems(serviceItems);
       setFilteredItems(serviceItems);
@@ -83,11 +85,18 @@ export default function ServiciosPage() {
   };
 
   const getPriceDisplay = (item: ServicioEmpresa): string => {
-    if (item.precioVenta !== undefined) return formatCurrency(item.precioVenta);
-    if (item.precioPorPersona !== undefined) return `${formatCurrency(item.precioPorPersona)} p/p`;
-    if (item.precioBase !== undefined && item.invitadosPorUnidad) return `${formatCurrency(item.precioBase)} c/${item.invitadosPorUnidad}`;
-    if (item.calculationMethod === 'tramos') return 'Por Tramos';
-    return 'Precio no definido';
+    switch (item.calculationMethod) {
+        case 'fijo':
+            return formatCurrency(item.precioVenta ?? item.precioBase);
+        case 'porPersona':
+            return `${formatCurrency(item.precioPorPersona)} p/p`;
+        case 'ratio':
+            return `${formatCurrency(item.precioBase)} c/${item.invitadosPorUnidad || 'X'} inv.`;
+        case 'tramos':
+            return 'Por Tramos';
+        default:
+            return formatCurrency(item.precioVenta);
+    }
   };
 
   const itemsAgrupadosPorCategoria = useMemo(() => {

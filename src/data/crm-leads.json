@@ -1,5 +1,20 @@
 [
   {
+    "id": "lead_1757733050168_briyyzu",
+    "name": "nico",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedio (Copia)\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 81.438,50",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-13T03:10:50.168Z",
+    "updatedAt": "2025-09-13T03:10:50.168Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-13T03:10:50.168Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1757732650390_79ypsil",
     "name": "nico",
     "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedio (Copia)\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 74.426,00",
@@ -1530,17 +1545,17 @@
     ]
   },
   {
-    "id": "lead_1757733050168_briyyzu",
+    "id": "lead_1757733923939_d8rthlg",
     "name": "nico",
-    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedio (Copia)\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 81.438,50",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedio (Copia)\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 78.166,00",
     "currentStageId": "s3",
-    "createdAt": "2025-09-13T03:10:50.168Z",
-    "updatedAt": "2025-09-13T03:10:50.168Z",
+    "createdAt": "2025-09-13T03:25:23.939Z",
+    "updatedAt": "2025-09-13T03:25:23.939Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-09-13T03:10:50.168Z"
+        "timestamp": "2025-09-13T03:25:23.939Z"
       }
     ]
   }

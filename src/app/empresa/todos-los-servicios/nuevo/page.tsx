@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect, Suspense } from 'react';
@@ -53,15 +54,19 @@ function NuevoItemInventarioContent() {
       return;
     }
 
-     if (tipoItem === 'Servicio' && (calculationMethod === 'fijo' && !precioVenta) && (calculationMethod === 'porPersona' && !precioPorPersona)) {
-        toast({ title: "Precio Requerido", description: "Define un precio para el servicio.", variant: "destructive" });
+     if (tipoItem === 'Servicio' && calculationMethod === 'fijo' && !precioVenta) {
+        toast({ title: "Precio Requerido", description: "Define un precio para el servicio de tipo fijo.", variant: "destructive" });
+        return;
+    }
+     if (tipoItem === 'Servicio' && calculationMethod === 'porPersona' && !precioPorPersona) {
+        toast({ title: "Precio Requerido", description: "Define un precio para el servicio de tipo por persona.", variant: "destructive" });
         return;
     }
 
     setIsSaving(true);
     const itemData: Omit<ServicioEmpresa, 'id'> = {
       nombre: nombre.trim(),
-      tipoItem: tipoItem as TipoItemEmpresa,
+      tipoItem: tipoItem,
       categoria: categoria as CategoriaServicio,
       subcategoria: subcategoria.trim() || undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
