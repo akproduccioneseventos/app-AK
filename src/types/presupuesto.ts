@@ -1,4 +1,5 @@
 
+
 export type TipoEvento =
   | 'Boda'
   | 'XV años'
@@ -71,7 +72,13 @@ export interface PresupuestoFormData {
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
-    esRegalo: boolean; // Nuevo campo
+    esRegalo: boolean;
+    // Overrides for pricing logic, specific to this budget
+    calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
+    precioBase?: number;
+    precioPorPersona?: number;
+    invitadosPorUnidad?: number;
+    tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
   }>;
 
   // Paso 3 (Resumen) - Descuentos y Notas

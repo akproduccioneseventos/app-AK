@@ -1,14 +1,15 @@
 
+
 'use client';
 
 import type { PresupuestoFormData } from '@/types/presupuesto';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio, TramoDePrecio } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Tag, Search, PackageSearch, Gift } from 'lucide-react';
+import { Sparkles, Tag, Search, PackageSearch, Gift, Edit, Trash2, Settings2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -18,6 +19,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import Link from 'next/link';
 
 interface Paso2ServiciosProps {
@@ -48,7 +55,13 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           nombreServicio: servicio.nombre,
           unidad: servicio.unidad,
           categoriaServicio: servicio.categoria,
-          esRegalo: false, 
+          esRegalo: false,
+          // Initialize with catalog defaults
+          calculationMethod: servicio.calculationMethod,
+          precioBase: servicio.precioBase,
+          precioPorPersona: servicio.precioPorPersona,
+          invitadosPorUnidad: servicio.invitadosPorUnidad,
+          tramosDePrecio: servicio.tramosDePrecio?.map(t => ({...t})),
         });
       }
       return { ...prev, serviciosSeleccionados: newSelected };
@@ -57,8 +70,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
   const handleServicioDetailChange = (
     servicioId: string,
-    field: 'cantidad' | 'precioUnitarioPresupuesto' | 'esRegalo',
-    value: string | number | boolean
+    field: 'cantidad' | 'precioUnitarioPresupuesto' | 'esRegalo' | 'calculationMethod' | 'precioBase' | 'precioPorPersona' | 'invitadosPorUnidad',
+    value: string | number | boolean | undefined
   ) => {
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
@@ -68,18 +81,63 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
         if (field === 'esRegalo') {
             updatedServicio.esRegalo = !!value;
-        } else if (field === 'cantidad') {
-          const numericValue = Number(value);
-          updatedServicio.cantidad = isNaN(numericValue) || numericValue < 1 ? 1 : numericValue;
-        } else if (field === 'precioUnitarioPresupuesto') {
-          const numericValue = Number(value);
-          updatedServicio.precioUnitarioPresupuesto = isNaN(numericValue) || numericValue < 0 ? 0 : numericValue;
-          updatedServicio.esRegalo = false; // Unmark as gift if price is manually edited
+        } else if (field === 'calculationMethod') {
+            updatedServicio.calculationMethod = value as any;
+            // Reset prices when method changes to avoid inconsistencies
+            const catalogService = serviciosCatalogo.find(s => s.id === servicioId);
+            updatedServicio.precioUnitarioPresupuesto = catalogService?.precioVenta || 0;
+            updatedServicio.precioBase = catalogService?.precioBase;
+            updatedServicio.precioPorPersona = catalogService?.precioPorPersona;
+            updatedServicio.invitadosPorUnidad = catalogService?.invitadosPorUnidad;
+        } else if (typeof value === 'string' && (field === 'cantidad' || field === 'precioUnitarioPresupuesto' || field === 'precioBase' || field === 'precioPorPersona' || field === 'invitadosPorUnidad')) {
+            const numericValue = parseFloat(value) || 0;
+            updatedServicio[field] = numericValue;
+        } else {
+            updatedServicio[field as keyof typeof updatedServicio] = value as any;
         }
-        
+
         newSelected.set(servicioId, updatedServicio);
       }
       return { ...prev, serviciosSeleccionados: newSelected };
+    });
+  };
+
+  const handleTramoChange = (servicioId: string, tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
+    setFormData(prev => {
+        const newSelected = new Map(prev.serviciosSeleccionados);
+        const currentServicio = newSelected.get(servicioId);
+        if (currentServicio) {
+            const newTramos = (currentServicio.tramosDePrecio || []).map(t => {
+                if (t.id !== tramoId) return t;
+                const numericValue = parseInt(value, 10);
+                return { ...t, [field]: isNaN(numericValue) ? 0 : numericValue };
+            });
+            newSelected.set(servicioId, { ...currentServicio, tramosDePrecio: newTramos });
+        }
+        return { ...prev, serviciosSeleccionados: newSelected };
+    });
+  };
+
+  const addTramo = (serviceId: string) => {
+    const newTramo: TramoDePrecio = { id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0 };
+    setFormData(prev => {
+        const newSelected = new Map(prev.serviciosSeleccionados);
+        const currentServicio = newSelected.get(serviceId);
+        if (currentServicio) {
+            newSelected.set(serviceId, { ...currentServicio, tramosDePrecio: [...(currentServicio.tramosDePrecio || []), newTramo] });
+        }
+        return { ...prev, serviciosSeleccionados: newSelected };
+    });
+  };
+  
+  const removeTramo = (serviceId: string, tramoId: string) => {
+    setFormData(prev => {
+        const newSelected = new Map(prev.serviciosSeleccionados);
+        const currentServicio = newSelected.get(serviceId);
+        if (currentServicio) {
+            newSelected.set(serviceId, { ...currentServicio, tramosDePrecio: (currentServicio.tramosDePrecio || []).filter(t => t.id !== tramoId) });
+        }
+        return { ...prev, serviciosSeleccionados: newSelected };
     });
   };
   
@@ -125,13 +183,39 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
   const costoTotalServiciosSeleccionados = useMemo(() => {
     let total = 0;
-    formData.serviciosSeleccionados.forEach(item => {
-      if (!item.esRegalo) {
-        total += item.cantidad * item.precioUnitarioPresupuesto;
+    formData.serviciosSeleccionados.forEach((item, serviceId) => {
+      if (item.esRegalo) return;
+
+      const catalogService = serviciosCatalogo.find(s => s.id === serviceId);
+      if (!catalogService) return;
+
+      let itemTotal = 0;
+      const guests = formData.invitadosCantidad || 0;
+
+      switch (item.calculationMethod) {
+        case 'fijo':
+          itemTotal = item.precioBase ?? item.precioUnitarioPresupuesto;
+          break;
+        case 'porPersona':
+          itemTotal = (item.precioPorPersona ?? item.precioUnitarioPresupuesto) * guests;
+          break;
+        case 'ratio':
+          const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
+          if (invitadosPorUnidadNum && invitadosPorUnidadNum > 0) {
+            itemTotal = Math.ceil(guests / invitadosPorUnidadNum) * (item.precioBase ?? item.precioUnitarioPresupuesto);
+          }
+          break;
+        case 'tramos':
+          const tramo = item.tramosDePrecio?.find(t => guests >= t.desde && guests <= t.hasta);
+          itemTotal = tramo?.precio || 0;
+          break;
+        default:
+          itemTotal = item.cantidad * item.precioUnitarioPresupuesto;
       }
+      total += itemTotal;
     });
     return total;
-  }, [formData.serviciosSeleccionados]);
+  }, [formData.serviciosSeleccionados, formData.invitadosCantidad, serviciosCatalogo]);
   
   const uniqueCategoriesFromCatalog = useMemo(() => {
     const cats = new Set(serviciosCatalogo.filter(s => s.precioVenta !== undefined && s.precioVenta > 0).map(s => s.categoria));
@@ -183,7 +267,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         </div>
       </div>
       <Separator/>
-      <p className="text-sm text-muted-foreground">Selecciona servicios del catálogo. Puedes ajustar cantidad y precio para este presupuesto.</p>
+      <p className="text-sm text-muted-foreground">Selecciona servicios del catálogo. Puedes personalizar la cantidad y el precio para este presupuesto específico.</p>
       
       <ScrollArea className="h-[450px] pr-1">
         {categoriasOrdenadas.length > 0 ? (
@@ -205,7 +289,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                           {serviciosAgrupados[categoria][subcategoria].map(servicio => {
                             const isSelected = formData.serviciosSeleccionados.has(servicio.id);
                             const selectedInfo = formData.serviciosSeleccionados.get(servicio.id);
-                            const finalPrice = selectedInfo ? (selectedInfo.esRegalo ? 0 : selectedInfo.cantidad * selectedInfo.precioUnitarioPresupuesto) : 0;
                             return (
                               <li key={servicio.id} className={`p-3 border rounded-md transition-all ${isSelected ? 'bg-primary/10 ring-1 ring-primary/50' : 'bg-muted/20 hover:bg-muted/40'}`}>
                                 <div className="flex items-start gap-3">
@@ -218,23 +301,36 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                                   </div>
                                 </div>
                                 {isSelected && selectedInfo && (
-                                  <div className="mt-2 pt-2 border-t border-dashed space-y-2 pl-8">
-                                    <div className="grid grid-cols-2 gap-3 items-center">
-                                      <div className="space-y-0.5">
-                                        <Label htmlFor={`qty-${servicio.id}`} className="text-xs">Cant.</Label>
-                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm" required />
+                                  <Collapsible>
+                                    <CollapsibleTrigger asChild>
+                                      <Button variant="ghost" size="sm" className="w-full justify-start text-xs mt-2 gap-1 text-primary"><Settings2 className="w-3 h-3"/>Configurar Precio para este Presupuesto</Button>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent className="mt-2 pt-3 border-t border-dashed space-y-3 pl-8">
+                                       <div className="flex items-center space-x-2 pt-2">
+                                          <Checkbox id={`gift-${servicio.id}`} checked={selectedInfo.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(servicio.id, 'esRegalo', !!checked)}/>
+                                          <Label htmlFor={`gift-${servicio.id}`} className="text-xs font-normal flex items-center gap-1 text-primary"><Gift className="w-3 h-3"/>Marcar como Regalo (Precio = $0)</Label>
                                       </div>
-                                      <div className="space-y-0.5">
-                                        <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
-                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.esRegalo ? "REGALO" : selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" required disabled={selectedInfo.esRegalo} />
+
+                                      <div className="space-y-1">
+                                        <Label className="text-xs">Método de Cálculo (override)</Label>
+                                        <Select value={selectedInfo.calculationMethod || 'fijo'} onValueChange={(v) => handleServicioDetailChange(servicio.id, 'calculationMethod', v as 'fijo' | 'porPersona' | 'ratio' | 'tramos')} disabled={selectedInfo.esRegalo}>
+                                          <SelectTrigger className="h-8 text-xs"><SelectValue/></SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="fijo" className="text-xs">Precio Fijo</SelectItem>
+                                            <SelectItem value="porPersona" className="text-xs">Por Persona</SelectItem>
+                                            <SelectItem value="ratio" className="text-xs">Ratio (ej: 1 cada X personas)</SelectItem>
+                                            <SelectItem value="tramos" className="text-xs">Por Tramos de Invitados</SelectItem>
+                                          </SelectContent>
+                                        </Select>
                                       </div>
-                                    </div>
-                                    <div className="flex items-center space-x-2 pt-2">
-                                        <Checkbox id={`gift-${servicio.id}`} checked={selectedInfo.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(servicio.id, 'esRegalo', !!checked)}/>
-                                        <Label htmlFor={`gift-${servicio.id}`} className="text-xs font-normal flex items-center gap-1 text-primary"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
-                                    </div>
-                                    <p className="text-xs font-medium text-right pt-1">Subtotal Servicio: {selectedInfo.esRegalo ? <span className="text-primary font-semibold">Incluido</span> : formatCurrency(finalPrice)}</p>
-                                  </div>
+
+                                       {selectedInfo.calculationMethod === 'fijo' && (<div className="space-y-1"><Label className="text-xs">Precio Fijo ($)</Label><Input type="number" value={selectedInfo.precioBase ?? ''} onChange={e => handleServicioDetailChange(servicio.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={selectedInfo.esRegalo}/></div> )}
+                                       {selectedInfo.calculationMethod === 'porPersona' && (<div className="space-y-1"><Label className="text-xs">Precio por Persona ($)</Label><Input type="number" value={selectedInfo.precioPorPersona ?? ''} onChange={e => handleServicioDetailChange(servicio.id, 'precioPorPersona', e.target.value)} className="h-8 text-sm" disabled={selectedInfo.esRegalo}/></div> )}
+                                       {selectedInfo.calculationMethod === 'ratio' && ( <div className="grid grid-cols-2 gap-2"><div className="space-y-1"><Label className="text-xs">Precio/Unidad</Label><Input type="number" value={selectedInfo.precioBase ?? ''} onChange={e => handleServicioDetailChange(servicio.id, 'precioBase', e.target.value)} className="h-8 text-sm" disabled={selectedInfo.esRegalo}/></div><div className="space-y-1"><Label className="text-xs">Inv./Unidad</Label><Input type="number" value={selectedInfo.invitadosPorUnidad ?? ''} onChange={e => handleServicioDetailChange(servicio.id, 'invitadosPorUnidad', e.target.value)} className="h-8 text-sm"/></div></div> )}
+                                       {selectedInfo.calculationMethod === 'tramos' && ( <div className="space-y-2"> {(selectedInfo.tramosDePrecio || []).map((tramo) => ( <div key={tramo.id} className="flex gap-1 items-center"><Input type="number" placeholder="Desde" value={tramo.desde} onChange={e=>handleTramoChange(servicio.id,tramo.id,'desde', e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Hasta" value={tramo.hasta} onChange={e=>handleTramoChange(servicio.id,tramo.id,'hasta', e.target.value)} className="h-7 w-16 text-xs"/><Input type="number" placeholder="Precio" value={tramo.precio} onChange={e=>handleTramoChange(servicio.id,tramo.id,'precio', e.target.value)} className="h-7 w-20 text-sm" disabled={selectedInfo.esRegalo}/><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTramo(servicio.id, tramo.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div> ))} <Button type="button" size="sm" variant="outline" onClick={() => addTramo(servicio.id)} className="text-xs h-7">+ Añadir Tramo</Button></div> )}
+
+                                    </CollapsibleContent>
+                                  </Collapsible>
                                 )}
                               </li>
                             );
@@ -257,3 +353,4 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
+
