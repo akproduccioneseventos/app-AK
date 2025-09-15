@@ -1,3 +1,4 @@
+
 'use server';
 
 import fs from 'fs/promises';
@@ -11,7 +12,7 @@ const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
 const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 0,
   paquetes: [],
-  menus: [], // Although unused by the new system, kept for potential future features
+  menus: [],
 };
 
 async function ensureDataFileExists() {
@@ -25,10 +26,7 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
     const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
     const parsedConfig = fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
     // Merge with defaults to ensure all keys are present
-    const finalConfig = { ...defaultConfig, ...parsedConfig };
-    finalConfig.menus = finalConfig.menus || [];
-    finalConfig.paquetes = finalConfig.paquetes || [];
-    return finalConfig;
+    return { ...defaultConfig, ...parsedConfig };
   } catch (error) {
     console.error("Error reading armado-rapido-config.json, returning default. The file will NOT be overwritten.", error);
     return defaultConfig;
@@ -36,19 +34,15 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
 }
 
 // This function now ONLY saves the structure of packages and menus. 
-// Prices are no longer stored here, they are always fetched from the master catalog.
+// It strips away any pricing information to rely solely on the service catalog as the source of truth.
 export async function saveArmadoRapidoConfig(
-  newConfigData: Partial<ArmadoRapidoConfig>
+  newConfigData: ArmadoRapidoConfig
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
-    const existingConfig = await getArmadoRapidoConfig();
-    
-    // Create a config to save that ONLY contains the IDs and gift status, stripping any other data.
     const sanitizedConfig: ArmadoRapidoConfig = {
-      ...existingConfig,
       ...newConfigData,
-      paquetes: (newConfigData.paquetes || existingConfig.paquetes).map(pkg => ({
+      paquetes: (newConfigData.paquetes || []).map(pkg => ({
         id: pkg.id,
         nombre: pkg.nombre,
         descripcion: pkg.descripcion,
@@ -57,15 +51,14 @@ export async function saveArmadoRapidoConfig(
           esRegalo: serv.esRegalo || false,
         })),
       })),
-      // Menus are currently unused in the new system but we sanitize them anyway for consistency
-      menus: (newConfigData.menus || existingConfig.menus).map(menu => ({
+      menus: (newConfigData.menus || []).map(menu => ({
         id: menu.id,
         nombre: menu.nombre,
         descripcion: menu.descripcion,
         serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({
           id: serv.id,
           esRegalo: serv.esRegalo || false,
-          categoria: serv.categoria, // Keep category for menus
+          categoria: serv.categoria, 
         })),
       }))
     };
@@ -78,8 +71,6 @@ export async function saveArmadoRapidoConfig(
   }
 }
 
-// This function is no longer needed in the new system but kept for reference or potential re-use.
-// The new system does not generate leads from the simulator.
 export async function generateLeadFromQuickBudget(
   data: any
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
@@ -92,11 +83,17 @@ export async function generateLeadFromQuickBudget(
         return { success: false, error: "No hay etapas configuradas en el CRM." };
     }
     
-    const notes = `Generado desde SIMULADOR DE PRESUPUESTO.
-Paquete: "${data.nombrePaquete}"
-Catering: "${data.nombreMenu}"
+    let notes = `Generado desde SIMULADOR DE PRESUPUESTO.
+Menú: "${data.nombreMenu || 'No seleccionado'}"
+Paquete de Servicios: "${data.nombrePaquete || 'No seleccionado'}"
+Tipo: ${data.tipoEvento || 'Evento desde Simulador de Presupuesto'}
 Invitados: ${data.cantidadInvitados}
-Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
+Salón: ${data.salonFiestas || 'A confirmar'}
+Presupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
+    
+    if(data.nombrePaquete) {
+      notes += `\nPaquete de Servicios: "${data.nombrePaquete}"`;
+    }
     
     const leadResult = await addCrmLead({
       name: data.clienteNombre,

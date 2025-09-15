@@ -5,63 +5,202 @@
       "id": "new_paquete_1757286785711",
       "nombre": "Paquete Básico",
       "serviciosIncluidos": [
-        { "id": "item_1756940568854_u5m4prf", "esRegalo": true },
-        { "id": "item_1757177422000_4ru2piy", "esRegalo": true },
-        { "id": "item_1757282105396_39i6zkn", "esRegalo": true },
-        { "id": "serv_invitaciones_digitales", "esRegalo": true },
-        { "id": "item_1757258361278_fs8ba4x", "esRegalo": false },
-        { "id": "item_1757258437308_s0lgq1z", "esRegalo": false },
-        { "id": "serv_mozos", "esRegalo": false },
-        { "id": "serv_mozo_cocina", "esRegalo": false },
-        { "id": "item_1757281980225_3x3nbzo", "esRegalo": false },
-        { "id": "item_1757280489194_y9qozwm", "esRegalo": false }
+        {
+          "id": "item_1756940568854_u5m4prf",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757177422000_4ru2piy",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757282105396_39i6zkn",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757258361278_fs8ba4x",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757281980225_3x3nbzo",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757280489194_y9qozwm",
+          "esRegalo": false
+        }
       ]
     },
     {
       "id": "new_paquete_1757290579034",
       "nombre": "Paquete Intermedio",
       "serviciosIncluidos": [
-        { "id": "item_1756940568854_u5m4prf", "esRegalo": true },
-        { "id": "item_1757177422000_4ru2piy", "esRegalo": true },
-        { "id": "item_1757282105396_39i6zkn", "esRegalo": true },
-        { "id": "serv_invitaciones_digitales", "esRegalo": true },
-        { "id": "item_1757258361278_fs8ba4x", "esRegalo": false },
-        { "id": "item_1757258437308_s0lgq1z", "esRegalo": false },
-        { "id": "serv_mozos", "esRegalo": false },
-        { "id": "serv_mozo_cocina", "esRegalo": false },
-        { "id": "item_1757281980225_3x3nbzo", "esRegalo": false },
-        { "id": "item_1757280489194_y9qozwm", "esRegalo": false },
-        { "id": "serv_pantalla_proyector", "esRegalo": true },
-        { "id": "serv_video_vida", "esRegalo": true },
-        { "id": "item_1757284889281_ioj7571", "esRegalo": false },
-        { "id": "item_1757284864269_4d9w4ml", "esRegalo": false },
-        { "id": "item_1757285027582_71oyrff", "esRegalo": false },
-        { "id": "serv_1752489600086_barlib", "esRegalo": false },
-        { "id": "item_1757539461884_w7kfwsm", "esRegalo": false }
+        {
+          "id": "item_1756940568854_u5m4prf",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757177422000_4ru2piy",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757282105396_39i6zkn",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757258361278_fs8ba4x",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757281980225_3x3nbzo",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757280489194_y9qozwm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_pantalla_proyector",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_video_vida",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757284889281_ioj7571",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757284864269_4d9w4ml",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757285027582_71oyrff",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600086_barlib",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757539461884_w7kfwsm",
+          "esRegalo": false
+        }
       ]
     },
     {
       "id": "new_paquete_1757733251670",
       "nombre": "Paquete Premium",
       "serviciosIncluidos": [
-        { "id": "item_1756940568854_u5m4prf", "esRegalo": true },
-        { "id": "item_1757177422000_4ru2piy", "esRegalo": true },
-        { "id": "item_1757282105396_39i6zkn", "esRegalo": true },
-        { "id": "serv_invitaciones_digitales", "esRegalo": true },
-        { "id": "item_1757258361278_fs8ba4x", "esRegalo": false },
-        { "id": "item_1757258437308_s0lgq1z", "esRegalo": false },
-        { "id": "serv_mozos", "esRegalo": false },
-        { "id": "serv_mozo_cocina", "esRegalo": false },
-        { "id": "item_1757281980225_3x3nbzo", "esRegalo": false },
-        { "id": "item_1757280489194_y9qozwm", "esRegalo": false },
-        { "id": "serv_pantalla_proyector", "esRegalo": true },
-        { "id": "serv_video_vida", "esRegalo": true },
-        { "id": "item_1757284889281_ioj7571", "esRegalo": false },
-        { "id": "item_1757284864269_4d9w4ml", "esRegalo": false },
-        { "id": "item_1757285027582_71oyrff", "esRegalo": false },
-        { "id": "serv_1752489600086_barlib", "esRegalo": false },
-        { "id": "item_1757539461884_w7kfwsm", "esRegalo": false },
-        { "id": "item_1757733147509_dtykm4c", "esRegalo": false }
+        {
+          "id": "item_1756940568854_u5m4prf",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757177422000_4ru2piy",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757282105396_39i6zkn",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757258361278_fs8ba4x",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757281980225_3x3nbzo",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757280489194_y9qozwm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_pantalla_proyector",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_video_vida",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757284889281_ioj7571",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757284864269_4d9w4ml",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757285027582_71oyrff",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600086_barlib",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757539461884_w7kfwsm",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757733147509_dtykm4c",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1766023340003_refrescos",
+          "esRegalo": false
+        }
       ]
     }
   ],
@@ -71,45 +210,45 @@
       "nombre": "Opciones de Catering",
       "descripcion": "Lista de todos los servicios de catering disponibles para el Simulador de Presupuesto.",
       "serviciosIncluidos": [
-        { "id": "serv_1752489600027_arrprim", "esRegalo": false, "categoria": "Entrada", "precioFijo": 150 },
-        { "id": "serv_1752489600023_asadocom", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 645 },
-        { "id": "serv_1752489600021_bifech", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 480 },
-        { "id": "serv_1752489600029_plancal", "esRegalo": false, "categoria": "Entrada", "precioFijo": 150 },
-        { "id": "serv_1752489600036_calzita", "esRegalo": false, "categoria": "Entrada", "precioFijo": 200 },
-        { "id": "serv_cerdo_relleno", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 380 },
-        { "id": "serv_1752489600006_chivit", "esRegalo": false, "categoria": "Menú Adolescente / Niño", "precioFijo": 350 },
-        { "id": "serv_1752489600022_cordero", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 560 },
-        { "id": "serv_1752489600033_empcas", "esRegalo": false, "categoria": "Entrada", "precioFijo": 200 },
-        { "id": "serv_1752489600034_minichiv", "esRegalo": false, "categoria": "Entrada", "precioFijo": 180 },
-        { "id": "serv_1752489600039_minibro", "esRegalo": false, "categoria": "Entrada", "precioFijo": 200 },
-        { "id": "serv_1752489600009_noquis", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 390 },
-        { "id": "serv_1752489600040_piccal", "esRegalo": false, "categoria": "Entrada", "precioFijo": 220 },
-        { "id": "serv_picada_fiambres", "esRegalo": false, "categoria": "Entrada", "precioFijo": 120 },
-        { "id": "serv_1752489600028_picsna", "esRegalo": false, "categoria": "Entrada", "precioFijo": 150 },
-        { "id": "serv_1752489600035_pizzemp", "esRegalo": false, "categoria": "Entrada", "precioFijo": 180 },
-        { "id": "serv_1752489600007_pollarr", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 390 },
-        { "id": "serv_1752489600010_raviol", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 390 },
-        { "id": "serv_1752489600032_salpoll", "esRegalo": false, "categoria": "Entrada", "precioFijo": 150 },
-        { "id": "serv_1752489600044_sansal", "esRegalo": false, "categoria": "Entrada", "precioFijo": 220 },
-        { "id": "serv_1752489600056_showpiz", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 190 },
-        { "id": "serv_1752489600058_showpizarr", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 399 },
-        { "id": "serv_1752489600059_showpizbun", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 389 },
-        { "id": "serv_1752489600060_showpizcal", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 489 },
-        { "id": "serv_1752489600061_showpizmini", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 429 },
-        { "id": "serv_1752489600062_showpizpicfiam", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 419 },
-        { "id": "serv_1752489600063_showpizpicsna", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 419 },
-        { "id": "serv_1752489600064_showpizplancal", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 419 },
-        { "id": "serv_1752489600065_showpizsansal", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 469 },
-        { "id": "serv_1752489600066_showpiztacmex", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 489 },
-        { "id": "serv_1752489600057_showpizfai", "esRegalo": false, "categoria": "Show de Pizzas", "precioFijo": 389 },
-        { "id": "serv_1752489600013_sorren", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 420 },
-        { "id": "serv_1752489600019_strogon", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 420 },
-        { "id": "serv_1752489600045_shushi", "esRegalo": false, "categoria": "Entrada", "precioFijo": 250 },
-        { "id": "serv_1752489600018_sushi", "esRegalo": false, "categoria": "Plato Principal", "precioFijo": 400 },
-        { "id": "serv_1752489600046_tabgour", "esRegalo": false, "categoria": "Entrada", "precioFijo": 280 },
-        { "id": "serv_1752489600037_tacmex", "esRegalo": false, "categoria": "Entrada", "precioFijo": 240 },
-        { "id": "serv_1752489600026_tapsab", "esRegalo": false, "categoria": "Entrada", "precioFijo": 100 },
-        { "id": "serv_1752489600005_hambur", "esRegalo": false, "categoria": "Menú Adolescente / Niño", "precioFijo": 280 }
+        { "id": "serv_1752489600027_arrprim", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600023_asadocom", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600021_bifech", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600029_plancal", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600036_calzita", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_cerdo_relleno", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600006_chivit", "esRegalo": false, "categoria": "Menú Adolescente / Niño" },
+        { "id": "serv_1752489600022_cordero", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600033_empcas", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600034_minichiv", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600039_minibro", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600009_noquis", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600040_piccal", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_picada_fiambres", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600028_picsna", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600035_pizzemp", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600007_pollarr", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600010_raviol", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600032_salpoll", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600044_sansal", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600056_showpiz", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600058_showpizarr", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600059_showpizbun", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600060_showpizcal", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600061_showpizmini", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600062_showpizpicfiam", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600063_showpizpicsna", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600064_showpizplancal", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600065_showpizsansal", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600066_showpiztacmex", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600057_showpizfai", "esRegalo": false, "categoria": "Servicio Adicional" },
+        { "id": "serv_1752489600013_sorren", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600019_strogon", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600045_shushi", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600018_sushi", "esRegalo": false, "categoria": "Plato Principal" },
+        { "id": "serv_1752489600046_tabgour", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600037_tacmex", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600026_tapsab", "esRegalo": false, "categoria": "Entrada" },
+        { "id": "serv_1752489600005_hambur", "esRegalo": false, "categoria": "Menú Adolescente / Niño" }
       ]
     }
   ],

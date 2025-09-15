@@ -1,12 +1,13 @@
-// This type represents a service included in a package for the quick budget builder.
-// It mainly serves as a reference, as pricing logic now primarily resides in the main service catalog.
+
+
+// Represents a service included in a package for the quick budget builder.
+// The structure is simplified to only reference the service ID and its gift status.
 export interface ServicioIncluidoArmadoRapido {
   id: string; // Corresponds to ServicioEmpresa id
   esRegalo?: boolean;
-  // Deprecated fields, kept for potential data migration but not used by new logic.
-  nombre?: string;
-  categoria?: string;
-  precioFijo?: number;
+  // Deprecated fields are removed to enforce a single source of truth.
+  // The 'categoria' is kept for menus to allow UI grouping.
+  categoria?: 'Entrada' | 'Plato Principal' | 'Menú Adolescente / Niño' | 'Servicio Adicional';
 }
 
 export interface PaqueteArmadoRapido {

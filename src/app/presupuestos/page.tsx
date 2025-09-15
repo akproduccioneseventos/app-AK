@@ -96,7 +96,7 @@ export default function PresupuestosPage() {
             <Link href="/armado-rapido" passHref>
               <Button size="lg" variant="secondary" className="rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
                 <Wand2 className="w-7 h-7 mr-3" />
-                Mi Presupuesto al Instante
+                Ir al Simulador del Cliente
               </Button>
             </Link>
           </div>
