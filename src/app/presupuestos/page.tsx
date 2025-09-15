@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot, FileText } from 'lucide-react';
+import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot, FileText, Share2 } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -19,6 +19,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
+
 
 const ALL_PRESUPUESTO_ESTADOS: Presupuesto['estado'][] = ['Borrador', 'Enviado', 'Aceptado', 'Rechazado', 'Facturado'];
 
@@ -32,6 +34,15 @@ export default function PresupuestosPage() {
   const [statusFilter, setStatusFilter] = useState<Record<Presupuesto['estado'], boolean>>(
     ALL_PRESUPUESTO_ESTADOS.reduce((acc, status) => ({...acc, [status]: true }), {} as Record<Presupuesto['estado'], boolean>)
   );
+  const [simuladorLink, setSimuladorLink] = useState('');
+
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const origin = window.location.origin;
+      setSimuladorLink(`${origin}/simulador-de-presupuesto`);
+    }
+  }, []);
 
 
   const fetchData = useCallback(async () => {
@@ -86,20 +97,37 @@ export default function PresupuestosPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8 text-center bg-muted/20">
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Link href="/presupuestos/nuevo" passHref>
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
-                <PlusCircle className="w-7 h-7 mr-3" />
-                Crear Presupuesto Manual
-              </Button>
-            </Link>
-            <Link href="/armado-rapido" passHref>
-              <Button size="lg" variant="secondary" className="rounded-full px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto">
-                <Wand2 className="w-7 h-7 mr-3" />
-                Ir al Simulador del Cliente
-              </Button>
-            </Link>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="p-4 flex flex-col justify-between">
+                <div>
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2"><PlusCircle className="w-5 h-5"/>Presupuesto Manual</CardTitle>
+                  <CardDescription className="text-sm mt-1 mb-3">Para el Organizador. Control total sobre cada detalle.</CardDescription>
+                </div>
+                <Link href="/presupuestos/nuevo" passHref className="w-full"><Button className="w-full">Crear Manualmente</Button></Link>
+              </Card>
+
+              <Card className="p-4 flex flex-col justify-between">
+                <div>
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>Simulador para Cliente</CardTitle>
+                  <CardDescription className="text-sm mt-1 mb-3">El cliente elige un paquete predefinido y obtiene una cotización al instante.</CardDescription>
+                </div>
+                 <div className="flex gap-2">
+                  <Link href={simuladorLink} passHref className="flex-grow"><Button className="w-full" variant="secondary">Probar Simulador</Button></Link>
+                   <Link href="/settings/armado-rapido-config" passHref>
+                      <Button variant="outline" size="icon" title="Configurar Paquetes del Simulador">
+                        <SettingsIcon className="w-4 h-4"/>
+                      </Button>
+                    </Link>
+                  <ShareLinkDialog
+                      link={simuladorLink}
+                      title="Compartir Simulador de Presupuesto"
+                      description="Copia este enlace para que tu cliente cree un presupuesto rápido."
+                  >
+                      <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
+                  </ShareLinkDialog>
+                </div>
+              </Card>
+            </div>
         </CardContent>
       </Card>
 

@@ -16,7 +16,7 @@ interface Paso1Props {
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }
 
-export default function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
+export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
   
   const handleChange = (field: keyof PresupuestoFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));

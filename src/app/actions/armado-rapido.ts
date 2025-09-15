@@ -33,8 +33,6 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   }
 }
 
-// This function now ONLY saves the structure of packages and menus. 
-// It strips away any pricing information to rely solely on the service catalog as the source of truth.
 export async function saveArmadoRapidoConfig(
   newConfigData: ArmadoRapidoConfig
 ): Promise<{ success: boolean; error?: string }> {
@@ -58,7 +56,6 @@ export async function saveArmadoRapidoConfig(
         serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({
           id: serv.id,
           esRegalo: serv.esRegalo || false,
-          categoria: serv.categoria, 
         })),
       }))
     };
