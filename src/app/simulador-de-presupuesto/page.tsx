@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -139,15 +138,14 @@ export default function SimuladorDePresupuestoPage() {
             if (servicioEnPaquete.esRegalo) return;
 
             const servicioDelCatalogo = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
-            if (!servicioDelCatalogo) return; // Important: Skip if service not found
+            if (!servicioDelCatalogo) return; 
 
             let costoServicio = 0;
             const method = servicioDelCatalogo.calculationMethod || 'fijo';
             
             switch(method) {
                 case 'fijo': 
-                    // Robust check: prioritize precioBase, then precioVenta, then 0.
-                    costoServicio = servicioDelCatalogo.precioBase ?? servicioDelCatalogo.precioVenta ?? 0;
+                    costoServicio = servicioDelCatalogo.precioVenta ?? 0;
                     break;
                 case 'porPersona': 
                     costoServicio = (servicioDelCatalogo.precioPorPersona ?? 0) * totalInvitados; 
@@ -220,7 +218,7 @@ export default function SimuladorDePresupuestoPage() {
                 if (!catalogService) return;
 
                 if (servicioEnPaquete.esRegalo) {
-                    const valorRegalo = catalogService.precioBase ?? catalogService.precioVenta ?? 0;
+                    const valorRegalo = catalogService.precioVenta ?? 0;
                     costoRegalos += valorRegalo; 
                     resumenData.regalos.push({ desc: servicioEnPaquete.nombre, total: valorRegalo });
                     return;
@@ -234,7 +232,7 @@ export default function SimuladorDePresupuestoPage() {
 
                 switch(method) {
                     case 'fijo': 
-                        precioUnitario = catalogService.precioBase ?? catalogService.precioVenta ?? 0;
+                        precioUnitario = catalogService.precioVenta ?? 0;
                         costoServicio = precioUnitario;
                         break;
                     case 'porPersona': 

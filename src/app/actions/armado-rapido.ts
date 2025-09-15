@@ -43,16 +43,14 @@ export async function saveArmadoRapidoConfig(
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
-    // Lee la configuración existente para asegurarse de no perder datos
     const existingConfig = await getArmadoRapidoConfig();
     const configToSave: ArmadoRapidoConfig = {
       ...existingConfig,
       ...newConfigData,
     };
     
-    // The faulty synchronization logic has been removed.
-    // The simulator now relies on the master catalog for pricing details at runtime.
-    // We just save the structure of the packages/menus.
+    // The simulator relies on the master catalog for pricing details at runtime.
+    // We just save the structure of the packages/menus (which services are included).
     
     await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
     return { success: true };
@@ -68,14 +66,10 @@ export async function updateArmadoRapidoAndSyncServices(
   updatedServices: ServicioEmpresa[]
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // 1. Save all services that were modified in the master catalog
     for (const service of updatedServices) {
       await saveServicioEmpresa(service);
     }
-
-    // 2. Save the Armado Rapido config (which now doesn't store prices)
     await saveArmadoRapidoConfig(configToSave);
-
     return { success: true };
   } catch (error: any) {
     console.error("Error in updateArmadoRapidoAndSyncServices:", error);
@@ -89,15 +83,10 @@ export async function generateLeadFromQuickBudget(
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
     const allStages = await getCrmStages();
-    // Find the target stage, but handle the case where it might not exist.
     const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
-    
-    // If 'Con presupuesto' stage is not found, default to the first stage in the array.
-    // If no stages exist at all, this will be undefined.
     const targetStageId = targetStage?.id || allStages[0]?.id;
 
     if (!targetStageId) {
-        // This is a more critical error, as there are no stages to add the lead to.
         console.error("CRM has no stages configured. Cannot add lead.");
         return { success: false, error: "No hay etapas configuradas en el CRM para añadir el prospecto." };
     }
@@ -108,7 +97,7 @@ export async function generateLeadFromQuickBudget(
     const leadResult = await addCrmLead({
       name: data.clienteNombre,
       notes: notes,
-      currentStageId: targetStageId // Pass the specific stage ID here
+      currentStageId: targetStageId 
     });
 
     if (leadResult.success && leadResult.lead) {
