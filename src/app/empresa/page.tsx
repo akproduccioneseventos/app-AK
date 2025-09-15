@@ -37,13 +37,6 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'ESTE ES?',
   },
   {
-    title: 'Añadir Nuevo Servicio al Catálogo',
-    description: 'Crea un nuevo servicio (plato, decoración, etc.) para usar en tus presupuestos.',
-    href: '/presupuestos/nuevo', // Directs to the unified builder which has catalog management
-    icon: PlusCircle,
-    actionLabel: 'Añadir Servicio',
-  },
-  {
     title: 'Gestión de Activos Fijos',
     description: 'Gestiona tu inventario de activos de la empresa (mobiliario, equipo, etc.).',
     href: '/empresa/todos-los-servicios',
