@@ -5,24 +5,14 @@ import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'reac
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerDemo } from '@/components/date-picker-demo';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ArrowLeft, Save, Loader2, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Loader2, PlusCircle, Trash2, Tag, Percent, RotateCcw, Package, Search, Gift, Edit, FileText } from 'lucide-react';
-import type { PresupuestoFormData, ItemPresupuestado, TipoEvento, Presupuesto } from '@/types/presupuesto';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
-import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
+import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
+import type { ServicioEmpresa } from '@/types/empresa';
+import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
@@ -65,20 +55,22 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   if (item.esRegalo) return 0;
   
   let itemTotal = 0;
+  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+
   switch (item.calculationMethod) {
     case 'fijo':
-      itemTotal = item.precioBase ?? item.precioUnitarioPresupuesto;
+      itemTotal = item.precioBase ?? precioUnitario;
       break;
     case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? item.precioUnitarioPresupuesto) * invitados;
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        const basePrice = item.precioBase ?? item.precioUnitarioPresupuesto;
+        const basePrice = item.precioBase ?? precioUnitario;
         itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
       } else {
-        itemTotal = item.precioBase ?? item.precioUnitarioPresupuesto; // Fallback
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback
       }
       break;
     case 'tramos':
@@ -86,7 +78,7 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
       itemTotal = tramo?.precio || 0;
       break;
     default: // Fallback to simple calculation
-      itemTotal = item.cantidad * item.precioUnitarioPresupuesto;
+      itemTotal = item.cantidad * precioUnitario;
   }
   return itemTotal;
 }
@@ -113,12 +105,21 @@ function NuevoPresupuestoContent() {
         } catch (error) { console.warn("Could not save form state", error); }
     }, [formData]);
 
+    const fetchServicios = useCallback(async () => {
+        try {
+            const services = await getServiciosEmpresa();
+            setServiciosCatalogo(services.filter(s => s.tipoItem === 'Servicio'));
+        } catch (error) {
+            toast({ title: "Error", description: "No se pudo recargar el catálogo de servicios.", variant: "destructive" });
+        }
+    }, [toast]);
+
     useEffect(() => {
         const fetchInitialData = async () => {
             setIsLoadingInitialData(true);
             try {
-                const [services, armadoConfig] = await Promise.all([getServiciosEmpresa(), getArmadoRapidoConfig()]);
-                setServiciosCatalogo(services.filter(s => s.tipoItem === 'Servicio'));
+                const [armadoConfig] = await Promise.all([getArmadoRapidoConfig()]);
+                await fetchServicios();
                 setPaquetesBase(armadoConfig.paquetes || []);
                 const leadName = searchParams.get('leadName');
                 if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
@@ -131,7 +132,7 @@ function NuevoPresupuestoContent() {
             }
         };
         fetchInitialData();
-    }, [searchParams, toast]);
+    }, [searchParams, toast, fetchServicios]);
 
     const handleNext = () => {
         if (paso === 1) {
@@ -159,7 +160,7 @@ function NuevoPresupuestoContent() {
     }, [formData.serviciosSeleccionados, formData.invitadosCantidad]);
 
     const handleSave = async () => {
-        const presupuestoAGuardar: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'> = {
+        const presupuestoAGuardar = {
             clienteNombre: formData.clienteNombre,
             eventoTipo: formData.eventoTipo,
             eventoFecha: formData.eventoFecha?.toISOString() || '',
@@ -168,18 +169,27 @@ function NuevoPresupuestoContent() {
             protagonista1Nombre: formData.protagonista1Nombre,
             protagonista2Nombre: formData.protagonista2Nombre,
             nombreEmpresa: formData.nombreEmpresa,
-            itemsPresupuestados: Array.from(formData.serviciosSeleccionados.entries()).map(([id, serv]) => {
-              const itemDataForCalc: ItemPresupuestado = {
+            itemsPresupuestados: Array.from(formData.serviciosSeleccionados.entries()).map(([id, serv]) => ({
+              idServicioCatalogo: id,
+              nombreServicio: serv.nombreServicio,
+              cantidad: serv.cantidad,
+              unidad: serv.unidad,
+              precioUnitario: serv.precioUnitarioOriginal,
+              precioUnitarioPresupuesto: serv.precioUnitarioPresupuesto,
+              costoTotalItem: calcularCostoItem({
                   ...serv,
                   idServicioCatalogo: id,
                   precioUnitario: serv.precioUnitarioOriginal,
-                  costoTotalItem: 0 // will be recalculated
-              };
-              return {
-                ...itemDataForCalc,
-                costoTotalItem: calcularCostoItem(itemDataForCalc, formData.invitadosCantidad || 0)
-              };
-            }),
+                  costoTotalItem: 0 // placeholder for calc
+              }, formData.invitadosCantidad || 0),
+              esRegalo: serv.esRegalo,
+              categoriaServicio: serv.categoriaServicio,
+              calculationMethod: serv.calculationMethod,
+              precioBase: serv.precioBase,
+              precioPorPersona: serv.precioPorPersona,
+              invitadosPorUnidad: serv.invitadosPorUnidad,
+              tramosDePrecio: serv.tramosDePrecio,
+            })),
             costoTotalEstimado: totalCalculado,
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
@@ -219,7 +229,7 @@ function NuevoPresupuestoContent() {
                     {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
-                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} />}
+                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} onCatalogUpdate={fetchServicios}/>}
                             {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} />}
                         </>
                     )}
@@ -230,7 +240,7 @@ function NuevoPresupuestoContent() {
                     </Button>
                     {paso < 3 ? (
                         <Button onClick={handleNext} disabled={isSaving}>
-                            Siguiente <ArrowRight className="w-4 h-4 ml-2" />
+                            Siguiente 
                         </Button>
                     ) : (
                         <Button onClick={handleSave} disabled={isSaving}>

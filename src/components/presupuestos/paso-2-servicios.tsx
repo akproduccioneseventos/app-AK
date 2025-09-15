@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Tag, Search, PackageSearch, Gift } from 'lucide-react';
+import { Sparkles, Tag, Search, PackageSearch, Gift, Edit } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -19,11 +19,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Link from 'next/link';
+import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+import EditServicioForm from './EditServicioForm';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
   serviciosCatalogo: ServicioEmpresa[];
+  paquetesBase: PaqueteArmadoRapido[];
+  onCatalogUpdate: () => Promise<void>;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -31,9 +36,10 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo }: Paso2ServiciosProps) {
+export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, onCatalogUpdate }: Paso2ServiciosProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Set<CategoriaServicio>>(new Set());
+  const [isCatalogManagerOpen, setIsCatalogManagerOpen] = useState(false);
 
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
     setFormData(prev => {
@@ -48,7 +54,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           nombreServicio: servicio.nombre,
           unidad: servicio.unidad,
           categoriaServicio: servicio.categoria,
-          esRegalo: false, // Default value for new item
+          esRegalo: false,
+          calculationMethod: servicio.calculationMethod,
+          precioBase: servicio.precioBase,
+          precioPorPersona: servicio.precioPorPersona,
+          invitadosPorUnidad: servicio.invitadosPorUnidad,
+          tramosDePrecio: servicio.tramosDePrecio,
         });
       }
       return { ...prev, serviciosSeleccionados: newSelected };
@@ -69,7 +80,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             newSelected.set(servicioId, {
               ...currentServicio,
               esRegalo,
-              // Si es regalo, el precio del presupuesto es 0, si no, se restaura al original.
               precioUnitarioPresupuesto: esRegalo ? 0 : currentServicio.precioUnitarioOriginal,
             });
         } else {
@@ -82,7 +92,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             newSelected.set(servicioId, {
               ...currentServicio,
               [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-               esRegalo: false, // Desmarcar como regalo si se edita el precio manualmente
+               esRegalo: false,
             });
         }
       }
@@ -105,7 +115,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                             s.categoria.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             (s.subcategoria && s.subcategoria.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(s.categoria);
-      return matchesSearch && matchesCategory && s.precioVenta !== undefined && s.precioVenta > 0;
+      return matchesSearch && matchesCategory;
     });
   }, [serviciosCatalogo, searchTerm, selectedCategories]);
   
@@ -129,28 +139,43 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     return Object.keys(serviciosAgrupados).sort();
   }, [serviciosAgrupados]);
 
+  const handlePaqueteSelect = (paquete: PaqueteArmadoRapido | 'none') => {
+    const newSelected = new Map<string, typeof formData.serviciosSeleccionados.values().next().value>();
+    if (paquete !== 'none') {
+        paquete.serviciosIncluidos.forEach(servicioEnPaquete => {
+            const servicioCompleto = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
+            if (servicioCompleto) {
+                const esRegalo = servicioEnPaquete.esRegalo || false;
+                newSelected.set(servicioCompleto.id, {
+                    cantidad: 1,
+                    precioUnitarioOriginal: servicioCompleto.precioVenta || 0,
+                    precioUnitarioPresupuesto: esRegalo ? 0 : (servicioCompleto.precioVenta || 0),
+                    nombreServicio: servicioCompleto.nombre,
+                    unidad: servicioCompleto.unidad,
+                    categoriaServicio: servicioCompleto.categoria,
+                    esRegalo: esRegalo,
+                    calculationMethod: servicioCompleto.calculationMethod,
+                    precioBase: servicioCompleto.precioBase,
+                    precioPorPersona: servicioCompleto.precioPorPersona,
+                    invitadosPorUnidad: servicioCompleto.invitadosPorUnidad,
+                    tramosDePrecio: servicioCompleto.tramosDePrecio,
+                });
+            }
+        });
+    }
+    setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
+  };
 
-  const costoTotalServiciosSeleccionados = useMemo(() => {
-    let total = 0;
-    formData.serviciosSeleccionados.forEach(item => {
-      total += item.cantidad * item.precioUnitarioPresupuesto;
-    });
-    return total;
-  }, [formData.serviciosSeleccionados]);
-  
-  const uniqueCategoriesFromCatalog = useMemo(() => {
-    const cats = new Set(serviciosCatalogo.filter(s => s.precioVenta !== undefined && s.precioVenta > 0).map(s => s.categoria));
-    return Array.from(cats).sort();
-  }, [serviciosCatalogo]);
-
-
-  if (!serviciosCatalogo || serviciosCatalogo.length === 0) {
+  if (serviciosCatalogo.length === 0) {
     return (
       <div className="text-center py-10">
         <PackageSearch className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-        <p className="text-muted-foreground text-lg">No hay servicios definidos en el catálogo.</p>
+        <p className="text-muted-foreground text-lg">Tu catálogo de servicios está vacío.</p>
         <p className="text-sm text-muted-foreground">
-          Ve a <Link href="/empresa/todos-los-servicios" className="underline text-primary">Inventario General</Link> para añadir servicios.
+          <SheetTrigger asChild>
+            <Button variant="link" className="text-primary p-0 h-auto">Haz clic aquí para añadir tu primer servicio</Button>
+          </SheetTrigger>
+           y poder armar presupuestos.
         </p>
       </div>
     );
@@ -158,37 +183,45 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-grow space-y-2">
-            <Label htmlFor="search-servicios" className="text-base">Buscar Servicio</Label>
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="search-servicios" type="text" placeholder="Nombre, categoría o subcategoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base p-3"/>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+            <Label htmlFor="paquete-base" className="text-base">Arrancar con un Paquete Base (Opcional)</Label>
+            <Select onValueChange={(value) => handlePaqueteSelect(paquetesBase.find(p => p.id === value) || 'none')}>
+                <SelectTrigger id="paquete-base"><SelectValue placeholder="Ninguno (empezar de cero)"/></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="none">Ninguno</SelectItem>
+                    {paquetesBase.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>)}
+                </SelectContent>
+            </Select>
         </div>
-        <div className="space-y-2 sm:w-1/3">
-            <Label className="text-base block mb-1.5">Filtrar por Categoría</Label>
-            <Accordion type="single" collapsible className="w-full border rounded-md">
-              <AccordionItem value="filter-category" className="border-b-0">
-                <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline h-auto [&[data-state=open]>svg]:text-primary">
-                  {selectedCategories.size === 0 ? "Todas las Categorías" : `${selectedCategories.size} Seleccionada(s)`}
-                </AccordionTrigger>
-                <AccordionContent className="p-0">
-                  <ScrollArea className="h-auto max-h-48 p-2 border-t">
-                  {uniqueCategoriesFromCatalog.length > 0 ? uniqueCategoriesFromCatalog.map(cat => (
-                    <div key={cat} className="flex items-center space-x-2 py-1.5 px-1 hover:bg-muted/50 rounded-sm">
-                      <Checkbox id={`cat-filter-${cat}`} checked={selectedCategories.has(cat)} onCheckedChange={() => handleCategoryFilterToggle(cat)} />
-                      <Label htmlFor={`cat-filter-${cat}`} className="text-sm font-normal cursor-pointer flex-grow">{cat}</Label>
-                    </div>
-                  )) : <p className="text-xs text-muted-foreground p-2 text-center">No hay categorías con servicios costeables.</p>}
-                  </ScrollArea>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+        <div className="space-y-2 self-end">
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="secondary" className="w-full">
+                        <Sparkles className="w-4 h-4 mr-2"/>Gestionar Catálogo de Servicios
+                    </Button>
+                </SheetTrigger>
+                <SheetContent className="w-full max-w-none sm:max-w-2xl">
+                    <SheetHeader>
+                        <SheetTitle>Catálogo Maestro de Servicios</SheetTitle>
+                        <SheetDescription>Añade, edita o elimina los servicios que ofreces. Los cambios aquí se reflejarán en todos los presupuestos nuevos.</SheetDescription>
+                    </SheetHeader>
+                    <EditServicioForm onCatalogUpdate={onCatalogUpdate}/>
+                </SheetContent>
+            </Sheet>
         </div>
       </div>
       <Separator/>
-      <p className="text-sm text-muted-foreground">Selecciona servicios del catálogo. Puedes ajustar cantidad y precio para este presupuesto.</p>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-grow space-y-2">
+            <Label htmlFor="search-servicios">Buscar en Catálogo</Label>
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="search-servicios" type="text" placeholder="Nombre, categoría o subcategoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10"/>
+            </div>
+        </div>
+      </div>
       
       <ScrollArea className="h-[450px] pr-1">
         {categoriasOrdenadas.length > 0 ? (
@@ -196,10 +229,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             {categoriasOrdenadas.map(categoria => (
               <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-card overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-md font-medium text-primary hover:bg-muted/30 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <Tag className="w-5 h-5 text-primary/80" />
-                    {categoria}
-                  </div>
+                  <div className="flex items-center gap-2"><Tag className="w-5 h-5 text-primary/80" />{categoria}</div>
                 </AccordionTrigger>
                 <AccordionContent className="px-2 pt-0 pb-3">
                   <div className="space-y-2 pt-2">
@@ -209,37 +239,17 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                         <ul className="space-y-3">
                           {serviciosAgrupados[categoria][subcategoria].map(servicio => {
                             const isSelected = formData.serviciosSeleccionados.has(servicio.id);
-                            const selectedInfo = formData.serviciosSeleccionados.get(servicio.id);
                             return (
-                              <li key={servicio.id} className={`p-3 border rounded-md transition-all ${isSelected ? 'bg-primary/10 ring-1 ring-primary/50' : 'bg-muted/20 hover:bg-muted/40'}`}>
+                              <li key={servicio.id} className="p-3 border rounded-md transition-all bg-background">
                                 <div className="flex items-start gap-3">
                                   <Checkbox id={`s-${servicio.id}`} checked={isSelected} onCheckedChange={() => handleServicioToggle(servicio)} className="mt-1 w-5 h-5 shrink-0"/>
                                   <div className="flex-grow">
                                     <Label htmlFor={`s-${servicio.id}`} className="font-medium text-sm cursor-pointer">{servicio.nombre}</Label>
                                     <p className="text-xs text-muted-foreground">
-                                      Catálogo: {formatCurrency(servicio.precioVenta)} {servicio.unidad ? `/ ${servicio.unidad.toLowerCase()}` : ''}
+                                      {formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)} {servicio.calculationMethod === 'porPersona' ? 'p/p' : (servicio.unidad ? `/ ${servicio.unidad.toLowerCase()}` : '')}
                                     </p>
                                   </div>
                                 </div>
-                                {isSelected && selectedInfo && (
-                                  <div className="mt-2 pt-2 border-t border-dashed space-y-2 pl-8">
-                                    <div className="grid grid-cols-2 gap-3 items-center">
-                                      <div className="space-y-0.5">
-                                        <Label htmlFor={`qty-${servicio.id}`} className="text-xs">Cant.</Label>
-                                        <Input id={`qty-${servicio.id}`} type="number" value={selectedInfo.cantidad} onChange={(e) => handleServicioDetailChange(servicio.id, 'cantidad', e.target.value)} min="1" className="h-8 text-sm"/>
-                                      </div>
-                                      <div className="space-y-0.5">
-                                        <Label htmlFor={`price-${servicio.id}`} className="text-xs">P.Unit. (Presup.)</Label>
-                                        <Input id={`price-${servicio.id}`} type="number" value={selectedInfo.precioUnitarioPresupuesto} onChange={(e) => handleServicioDetailChange(servicio.id, 'precioUnitarioPresupuesto', e.target.value)} min="0" step="any" className="h-8 text-sm" disabled={selectedInfo.esRegalo}/>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center space-x-2 pt-2">
-                                        <Checkbox id={`gift-${servicio.id}`} checked={selectedInfo.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(servicio.id, 'esRegalo', !!checked)}/>
-                                        <Label htmlFor={`gift-${servicio.id}`} className="text-xs font-normal flex items-center gap-1 text-primary"><Gift className="w-3 h-3"/>Marcar como Regalo (Precio = $0)</Label>
-                                    </div>
-                                    <p className="text-xs font-medium text-right pt-1">Subtotal Servicio: {formatCurrency(selectedInfo.cantidad * selectedInfo.precioUnitarioPresupuesto)}</p>
-                                  </div>
-                                )}
                               </li>
                             );
                           })}
@@ -252,12 +262,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             ))}
           </Accordion>
         ) : (
-          <div className="text-center py-10 text-muted-foreground"><Search className="w-12 h-12 mx-auto mb-3 opacity-50"/>No hay servicios que coincidan o con precio de venta para mostrar.</div>
+          <div className="text-center py-10 text-muted-foreground"><Search className="w-12 h-12 mx-auto mb-3 opacity-50"/>No hay servicios que coincidan.</div>
         )}
       </ScrollArea>
-      <div className="mt-6 pt-4 border-t">
-        <p className="text-xl font-semibold text-right">Costo Total de Servicios Seleccionados: {formatCurrency(costoTotalServiciosSeleccionados)}</p>
-      </div>
     </div>
   );
 }
