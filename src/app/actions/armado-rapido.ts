@@ -1,12 +1,9 @@
-
 'use server';
 
 import fs from 'fs/promises';
 import path from 'path';
-import type { ArmadoRapidoConfig, LeadGenerationData } from '@/types/armado-rapido';
-import type { ServicioEmpresa } from '@/types/empresa';
-import { addCrmLead, getCrmStages } from './crm'; // Importar getCrmStages
-import { saveServicioEmpresa, getServiciosEmpresa } from './servicios-empresa';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
+import { addCrmLead, getCrmStages } from './crm';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
@@ -14,7 +11,7 @@ const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
 const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 0,
   paquetes: [],
-  menus: [],
+  menus: [], // Although unused by the new system, kept for potential future features
 };
 
 async function ensureDataFileExists() {
@@ -38,21 +35,42 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   }
 }
 
+// This function now ONLY saves the structure of packages and menus. 
+// Prices are no longer stored here, they are always fetched from the master catalog.
 export async function saveArmadoRapidoConfig(
   newConfigData: Partial<ArmadoRapidoConfig>
 ): Promise<{ success: boolean; error?: string }> {
   await ensureDataFileExists();
   try {
     const existingConfig = await getArmadoRapidoConfig();
-    const configToSave: ArmadoRapidoConfig = {
+    
+    // Create a config to save that ONLY contains the IDs and gift status, stripping any other data.
+    const sanitizedConfig: ArmadoRapidoConfig = {
       ...existingConfig,
       ...newConfigData,
+      paquetes: (newConfigData.paquetes || existingConfig.paquetes).map(pkg => ({
+        id: pkg.id,
+        nombre: pkg.nombre,
+        descripcion: pkg.descripcion,
+        serviciosIncluidos: pkg.serviciosIncluidos.map(serv => ({
+          id: serv.id,
+          esRegalo: serv.esRegalo || false,
+        })),
+      })),
+      // Menus are currently unused in the new system but we sanitize them anyway for consistency
+      menus: (newConfigData.menus || existingConfig.menus).map(menu => ({
+        id: menu.id,
+        nombre: menu.nombre,
+        descripcion: menu.descripcion,
+        serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({
+          id: serv.id,
+          esRegalo: serv.esRegalo || false,
+          categoria: serv.categoria, // Keep category for menus
+        })),
+      }))
     };
     
-    // The simulator relies on the master catalog for pricing details at runtime.
-    // We just save the structure of the packages/menus (which services are included).
-    
-    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(configToSave, null, 2), 'utf-8');
+    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(sanitizedConfig, null, 2), 'utf-8');
     return { success: true };
   } catch (error: any) {
     console.error("Error saving armado-rapido-config.json", error);
@@ -60,26 +78,10 @@ export async function saveArmadoRapidoConfig(
   }
 }
 
-
-export async function updateArmadoRapidoAndSyncServices(
-  configToSave: ArmadoRapidoConfig,
-  updatedServices: ServicioEmpresa[]
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    for (const service of updatedServices) {
-      await saveServicioEmpresa(service);
-    }
-    await saveArmadoRapidoConfig(configToSave);
-    return { success: true };
-  } catch (error: any) {
-    console.error("Error in updateArmadoRapidoAndSyncServices:", error);
-    return { success: false, error: error.message || "Error desconocido durante la sincronización." };
-  }
-}
-
-
+// This function is no longer needed in the new system but kept for reference or potential re-use.
+// The new system does not generate leads from the simulator.
 export async function generateLeadFromQuickBudget(
-  data: LeadGenerationData
+  data: any
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
     const allStages = await getCrmStages();
@@ -87,12 +89,14 @@ export async function generateLeadFromQuickBudget(
     const targetStageId = targetStage?.id || allStages[0]?.id;
 
     if (!targetStageId) {
-        console.error("CRM has no stages configured. Cannot add lead.");
-        return { success: false, error: "No hay etapas configuradas en el CRM para añadir el prospecto." };
+        return { success: false, error: "No hay etapas configuradas en el CRM." };
     }
     
-    let notes = `Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: "${data.nombreMenu}"\nPaquete de Servicios: "${data.nombrePaquete}"`;
-    notes += `\nTipo: ${data.tipoEvento}\nInvitados: ${data.cantidadInvitados}\nSalón: ${data.salon}\nPresupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
+    const notes = `Generado desde SIMULADOR DE PRESUPUESTO.
+Paquete: "${data.nombrePaquete}"
+Catering: "${data.nombreMenu}"
+Invitados: ${data.cantidadInvitados}
+Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
     
     const leadResult = await addCrmLead({
       name: data.clienteNombre,

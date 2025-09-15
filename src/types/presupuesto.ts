@@ -1,5 +1,3 @@
-
-
 export type TipoEvento =
   | 'Boda'
   | 'XV años'
@@ -16,12 +14,12 @@ export interface ItemPresupuestado {
   descripcionServicio?: string;
   cantidad: number;
   unidad?: string;
-  precioUnitario: number;
-  costoTotalItem: number;
+  precioUnitario: number; // The price used for calculation in this budget (can be overridden)
+  costoTotalItem: number; // Final calculated cost for this line item
   categoriaServicio?: string;
   esRegalo?: boolean;
   
-  // Overrides para este presupuesto específico
+  // Fields to support complex calculations, copied from catalog or overridden
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
   precioBase?: number;
   precioPorPersona?: number;
@@ -40,24 +38,20 @@ export interface Presupuesto {
   protagonista1Nombre?: string;
   protagonista2Nombre?: string;
   itemsPresupuestados: ItemPresupuestado[];
-  costoTotalEstimado: number; // Suma de itemsPresupuestados (subtotal ANTES de descuento)
+  costoTotalEstimado: number; // Sum of non-gift items (subtotal BEFORE discount)
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
-  descuentoValor?: number; // El valor numérico del descuento
-  totalConDescuento?: number; // Calculado: costoTotalEstimado - (descuento si aplica)
-  vigenciaPromocion?: string; // Ej: "Hasta 30/06/2024" o una fecha
+  descuentoValor?: number;
+  totalConDescuento?: number; // Calculated: costoTotalEstimado - discount
+  vigenciaPromocion?: string;
   timestamp: string; // ISO String
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
-  invoiceId?: string; // ID de la factura si este presupuesto fue facturado
+  invoiceId?: string;
 }
 
-
-// FormData para el proceso de creación de varios pasos.
+// FormData for the new unified builder.
 export interface PresupuestoFormData {
-  pasoActual: number;
-
-  // Paso 1
   clienteNombre: string;
   eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
@@ -67,16 +61,15 @@ export interface PresupuestoFormData {
   protagonista1Nombre?: string;
   protagonista2Nombre?: string;
 
-  // Paso 2 - Selección de Servicios
   serviciosSeleccionados: Map<string, {
     cantidad: number;
-    precioUnitarioOriginal: number;
-    precioUnitarioPresupuesto: number;
+    precioUnitarioOriginal: number; // Price from catalog, for reference
+    precioUnitarioPresupuesto: number; // Overridden price for this budget
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
     esRegalo: boolean;
-    // Overrides para este presupuesto específico
+    // Calculation details from catalog, can be overridden
     calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
     precioBase?: number;
     precioPorPersona?: number;
@@ -84,10 +77,9 @@ export interface PresupuestoFormData {
     tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
   }>;
 
-  // Paso 3 (Resumen) - Descuentos y Notas
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
-  descuentoValor?: string; // Como string para el input, se convierte a número al guardar/calcular
+  descuentoValor?: string;
   vigenciaPromocion?: string;
   notas: string;
 }

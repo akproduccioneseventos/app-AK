@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
@@ -34,7 +32,6 @@ async function readPresupuestosFile(): Promise<Presupuesto[]> {
   try {
     const fileContent = await fs.readFile(presupuestosFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
-    // The data is now in the correct format, no migration needed.
     return JSON.parse(fileContent) as Presupuesto[];
   } catch (error) {
     console.error('Error reading presupuestos file, returning empty array:', error);
@@ -54,49 +51,50 @@ async function initializeLocalPresupuestosFile() {
 initializeLocalPresupuestosFile();
 
 
-// --- Helper function to recalculate costs based on logic from paso-2/paso-4
-function recalcularCostoTotalItems(items: ItemPresupuestado[], invitados: number): number {
-  return items.reduce((total, item) => {
-    if (item.esRegalo) return total;
-    
-    let itemTotal = 0;
-    switch (item.calculationMethod) {
-      case 'fijo':
-        itemTotal = item.precioBase ?? item.precioUnitario;
-        break;
-      case 'porPersona':
-        itemTotal = (item.precioPorPersona ?? item.precioUnitario) * invitados;
-        break;
-      case 'ratio':
-        const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
-        if (invitadosPorUnidadNum > 0) {
-          const basePrice = item.precioBase ?? item.precioUnitario;
-          itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
-        }
-        break;
-      case 'tramos':
-        const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
-        itemTotal = tramo?.precio || 0;
-        break;
-      default: // Fallback to original simple calculation
-        itemTotal = item.cantidad * item.precioUnitario;
-    }
-    return total + itemTotal;
-  }, 0);
+// Helper function to recalculate costs based on complex logic for a single item
+function recalcularCostoItem(item: ItemPresupuestado, invitados: number): number {
+  if (item.esRegalo) return 0;
+  
+  let itemTotal = 0;
+  switch (item.calculationMethod) {
+    case 'fijo':
+      itemTotal = item.precioBase ?? item.precioUnitario;
+      break;
+    case 'porPersona':
+      itemTotal = (item.precioPorPersona ?? item.precioUnitario) * invitados;
+      break;
+    case 'ratio':
+      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
+      if (invitadosPorUnidadNum > 0) {
+        const basePrice = item.precioBase ?? item.precioUnitario;
+        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+      } else {
+        itemTotal = item.precioBase ?? item.precioUnitario; // Fallback for single unit
+      }
+      break;
+    case 'tramos':
+      const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
+      itemTotal = tramo?.precio || 0;
+      break;
+    default: // Fallback to original simple calculation
+      itemTotal = item.cantidad * item.precioUnitario;
+  }
+  return itemTotal;
 }
 
 
 export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string }> {
   let presupuestos = await readPresupuestosFile();
   
-  // Ensure all items have positive quantities and prices before saving
-  const validItems = presupuestoData.itemsPresupuestados.filter(item => item.cantidad > 0 && item.precioUnitario >= 0);
-  if(validItems.length !== presupuestoData.itemsPresupuestados.length) {
-    console.warn("Some items had invalid quantities or prices and were filtered out.");
-  }
+  // Recalculate all item costs and the grand total based on the final state of the items
+  const validItems = presupuestoData.itemsPresupuestados.map(item => {
+    const costoTotalItem = recalcularCostoItem(item, presupuestoData.invitadosCantidad);
+    return { ...item, costoTotalItem };
+  });
 
-  // Recalculate total based on complex logic
-  const costoTotalEstimadoRecalculado = recalcularCostoTotalItems(validItems, presupuestoData.invitadosCantidad);
+  const costoTotalEstimadoRecalculado = validItems
+    .filter(item => !item.esRegalo)
+    .reduce((sum, item) => sum + item.costoTotalItem, 0);
 
   let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
   let descuentoAplicado = 0;
@@ -110,12 +108,11 @@ export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 
     finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
   }
 
-
   const nuevoPresupuesto: Presupuesto = {
     ...presupuestoData,
-    itemsPresupuestados: validItems, // Use only valid items
-    costoTotalEstimado: costoTotalEstimadoRecalculado, // Base total before discount
-    totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined, // Final total after discount
+    itemsPresupuestados: validItems,
+    costoTotalEstimado: costoTotalEstimadoRecalculado,
+    totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
     id: `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     timestamp: new Date().toISOString(),
     estado: 'Borrador', 
@@ -142,36 +139,40 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     return { success: false, error: `Presupuesto con ID ${presupuestoData.id} no encontrado.` };
   }
 
-  const { id, ...dataToUpdate } = presupuestoData;
-  
-  const validItems = dataToUpdate.itemsPresupuestados.filter(item => item.cantidad > 0 && item.precioUnitario >= 0);
-  const costoTotalEstimadoRecalculado = recalcularCostoTotalItems(validItems, dataToUpdate.invitadosCantidad);
+  // Recalculate all item costs and the grand total based on the updated data
+  const validItems = presupuestoData.itemsPresupuestados.map(item => {
+    const costoTotalItem = recalcularCostoItem(item, presupuestoData.invitadosCantidad);
+    return { ...item, costoTotalItem };
+  });
+
+  const costoTotalEstimadoRecalculado = validItems
+    .filter(item => !item.esRegalo)
+    .reduce((sum, item) => sum + item.costoTotalItem, 0);
   
   let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
   let descuentoAplicado = 0;
 
-  if (dataToUpdate.descuentoTipo && dataToUpdate.descuentoValor && dataToUpdate.descuentoValor > 0) {
-    if (dataToUpdate.descuentoTipo === 'porcentaje') {
-      descuentoAplicado = (costoTotalEstimadoRecalculado * dataToUpdate.descuentoValor) / 100;
+  if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor && presupuestoData.descuentoValor > 0) {
+    if (presupuestoData.descuentoTipo === 'porcentaje') {
+      descuentoAplicado = (costoTotalEstimadoRecalculado * presupuestoData.descuentoValor) / 100;
     } else {
-      descuentoAplicado = dataToUpdate.descuentoValor;
+      descuentoAplicado = presupuestoData.descuentoValor;
     }
     finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
   }
   
-  const finalDataToUpdate: Omit<Presupuesto, 'id'> = {
-    ...dataToUpdate,
+  const updatedPresupuesto: Presupuesto = {
+    ...presupuestoData,
     itemsPresupuestados: validItems,
     costoTotalEstimado: costoTotalEstimadoRecalculado,
     totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
     timestamp: new Date().toISOString(), // Always update timestamp
   };
   
-  const updatedPresupuesto = { id, ...finalDataToUpdate };
   presupuestos[index] = updatedPresupuesto;
   await writePresupuestosFile(presupuestos);
 
-  // Fase 3: Sincronizar factura si el presupuesto está facturado
+  // Sync invoice if the budget is marked as 'Facturado'
   if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
     try {
       const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
@@ -179,7 +180,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         
         const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
         
-        // Reemplazar ítems existentes con un nuevo resumen para evitar duplicados.
         const summaryItem: Omit<InvoiceItem, 'id'> = {
             description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
             quantity: 1,
@@ -189,11 +189,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         
         const invoiceDataToUpdate: Invoice = {
             ...linkedInvoice,
-            // Reemplaza por completo los items. No se usa el spread de linkedInvoice.items
-            items: [{
-                ...summaryItem,
-                id: `item_${linkedInvoice.id}_summary_update_${Date.now()}`,
-            }],
+            items: [{ ...summaryItem, id: `item_summary_update_${Date.now()}` }],
             notes: updatedPresupuesto.notas || linkedInvoice.notes,
         };
 
