@@ -20,7 +20,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import {
@@ -314,7 +313,6 @@ export default function ArmadoRapidoSettingsPage() {
         item={currentItem as PaqueteArmadoRapido | null} 
         vendibleServices={vendibleServices} 
         onSave={handleSaveItem} 
-        onServiceDeleted={(deletedId: string) => setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId))}
         refreshCatalog={async () => {
             const services = await getServiciosEmpresa();
             setServiciosCatalogo(services);
@@ -323,7 +321,7 @@ export default function ArmadoRapidoSettingsPage() {
       />}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configurar Paquetes Base para Presupuestos</h1></div>
-        <Link href="/settings/budget-display" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        <Link href="/settings" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Ajustes</Button></Link>
       </div>
 
        <Card className="shadow-lg">
@@ -355,7 +353,7 @@ export default function ArmadoRapidoSettingsPage() {
                           <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="w-4 h-4"/></Button></AlertDialogTrigger>
                           <AlertDialogContent>
                               <AlertDialogHeader><AlertDialogTitle>¿Confirmar?</AlertDialogTitle><AlertDialogDescription>Se eliminará el paquete "{pkg.nombre}".</AlertDialogDescription></AlertDialogHeader>
-                              <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteItem('paquete', pkg.id)} className="bg-destructive">Eliminar</AlertDialogAction></AlertDialogFooter>
+                              <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteItem(pkg.id)} className="bg-destructive">Eliminar</AlertDialogAction></AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
                    </div>

@@ -96,7 +96,7 @@ export default function BudgetDisplaySettingsPage() {
         <div className="flex items-center gap-3">
           <SettingsIcon className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Configuración de Presupuestos y Cotizaciones
+            Configuración de Visualización de Presupuestos
           </h1>
         </div>
         <Link href="/settings" passHref>
@@ -107,22 +107,15 @@ export default function BudgetDisplaySettingsPage() {
         </Link>
       </div>
       
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Simulador de Presupuesto</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Configura los paquetes predefinidos que los clientes pueden usar para obtener una cotización instantánea.
-                </p>
-                <Link href="/settings/simulador-config" passHref className="w-full">
-                     <Button variant="outline" className="w-full">Configurar Paquetes</Button>
-                </Link>
-            </CardContent>
-          </Card>
-        </div>
-
+       <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/30">
+          <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"/>
+              <div className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="font-semibold">La configuración de Paquetes Base se ha movido.</p>
+                  <p>Ahora puedes crear y editar tus paquetes directamente desde la <Link href="/presupuestos/nuevo" className="font-bold underline">nueva Central de Presupuestos</Link>, haciendo clic en "Gestionar Catálogo de Servicios" en el paso 2.</p>
+              </div>
+          </div>
+      </div>
 
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">

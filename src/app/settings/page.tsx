@@ -8,13 +8,6 @@ import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainC
 
 const settingsCards = [
    {
-    title: "Configuración de Presupuestos",
-    description: "Personaliza el PDF y la herramienta 'Mi Presupuesto al Instante'.",
-    href: "/settings/budget-display", 
-    icon: FileText,
-    buttonLabel: "Configurar Presupuestos"
-  },
-  {
     title: "Información de la Empresa",
     description: "Actualiza los datos fiscales y de contactode tu empresa.",
     href: "/settings/company", 
