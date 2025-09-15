@@ -30,11 +30,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Proveedores',
   },
   {
-    title: 'Presupuestos, Facturas y CRM',
-    description: 'Accede a la central de cotizaciones, facturas, pagos y clientes.',
+    title: 'Presupuestos y CRM',
+    description: 'Accede a la central de cotizaciones, clientes potenciales y facturas.',
     href: '/presupuestos',
     icon: CircleDollarSign,
-    actionLabel: 'ESTE ES?',
+    actionLabel: 'Ir a Central',
   },
   {
     title: 'Gestión de Activos Fijos',
