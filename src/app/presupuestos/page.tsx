@@ -80,7 +80,7 @@ export default function PresupuestosPage() {
             <CalendarDays className="w-12 h-12 text-primary opacity-80" />
           </div>
           <CardTitle className="text-4xl font-bold tracking-tight font-headline text-primary">
-            Central de Presupuestos
+            ESTE ES LA CENTRAL DE PRESUPUESTO?
           </CardTitle>
           <CardDescription className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
             Crea, gestiona y configura todas tus cotizaciones desde un solo lugar.
