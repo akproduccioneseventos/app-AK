@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -6,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot, FileText, Share2 } from 'lucide-react';
+import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestos, deletePresupuesto } from '@/app/actions/presupuestos';
@@ -19,8 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
-
 
 const ALL_PRESUPUESTO_ESTADOS: Presupuesto['estado'][] = ['Borrador', 'Enviado', 'Aceptado', 'Rechazado', 'Facturado'];
 
@@ -65,36 +62,29 @@ export default function PresupuestosPage() {
   }, [searchTerm, allPresupuestos, statusFilter]);
 
   const handleStatusFilterChange = (status: Presupuesto['estado']) => {
-    setStatusFilter(prev => ({ ...prev, [tipo]: !prev[tipo]}));
+    setStatusFilter(prev => ({ ...prev, [status]: !prev[status]}));
   }
 
   const anyStatusFilterActive = ALL_PRESUPUESTO_ESTADOS.some(status => !statusFilter[status]);
   
   return (
     <div className="space-y-8">
-      <Card className="shadow-xl overflow-hidden bg-gradient-to-br from-primary/20 via-background to-accent/10">
-        <CardHeader className="p-6 md:p-8 text-center">
-           <div className="mb-6 flex justify-center space-x-4">
-            <Coins className="w-12 h-12 text-primary opacity-80" />
-            <FileText className="w-12 h-12 text-primary opacity-80" />
-            <CalendarDays className="w-12 h-12 text-primary opacity-80" />
-          </div>
-          <CardTitle className="text-4xl font-bold tracking-tight font-headline text-primary">
-            Central de Presupuestos
-          </CardTitle>
-          <CardDescription className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Crea, gestiona y configura todas tus cotizaciones desde un solo lugar.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 md:p-8 text-center bg-muted/20">
-            <Link href="/presupuestos/nuevo" passHref className="w-full">
-                <Button className="w-full max-w-sm mx-auto" size="lg">
-                    <PlusCircle className="w-5 h-5 mr-2"/>
-                    Crear Nuevo Presupuesto
-                </Button>
-            </Link>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold tracking-tight font-headline">
+          Central de Presupuestos
+        </h1>
+        <div className="flex gap-2 flex-wrap">
+          <Link href="/settings/budget-display" passHref>
+            <Button variant="outline"><SettingsIcon className="w-4 h-4 mr-2"/>Config. de Presupuestos</Button>
+          </Link>
+          <Link href="/presupuestos/nuevo" passHref>
+            <Button>
+              <PlusCircle className="w-5 h-5 mr-2" />
+              Crear Nuevo Presupuesto
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       <Card className="shadow-lg">
           <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -102,7 +92,7 @@ export default function PresupuestosPage() {
                 <History className="w-7 h-7 text-primary" />
                 <div>
                 <CardTitle className="font-headline text-2xl">Historial de Presupuestos</CardTitle>
-                <CardDescription>Revisá, gestioná y asigná presupuestos a tu fiesta actual.</CardDescription>
+                <CardDescription>Revisá y gestioná todas tus cotizaciones.</CardDescription>
                 </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -179,5 +169,3 @@ export default function PresupuestosPage() {
     </div>
   );
 }
-
-    

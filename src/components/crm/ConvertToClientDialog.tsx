@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
@@ -28,9 +27,7 @@ interface ConvertToClientDialogProps {
 
 export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, onClose }: ConvertToClientDialogProps) {
   const [contractFile, setContractFile] = useState<File | null>(null);
-  // Client email state removed
   const [clientPhone, setClientPhone] = useState(lead.phone || '');
-  // Add other client fields as needed: companyName, taxId, street
   const [companyName, setCompanyName] = useState('');
   const [taxId, setTaxId] = useState('');
   const [street, setStreet] = useState('');
@@ -41,7 +38,6 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
   useEffect(() => {
     // Reset form when lead changes or dialog reopens
     if (isOpen) {
-      // Client email reset removed
       setClientPhone(lead.phone || '');
       setCompanyName('');
       setTaxId('');
@@ -72,7 +68,6 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
     setIsSaving(true);
     const formData = new FormData();
     formData.append('contract', contractFile);
-    // formData.append('email', clientEmail); // Removed email append
     formData.append('phone', clientPhone);
     if (companyName.trim()) formData.append('companyName', companyName.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
@@ -105,7 +100,6 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
             {lead.phone && <p className="text-xs text-muted-foreground">Tel. Prospecto: {lead.phone}</p>}
           </div>
           
-          {/* Client email field and label removed */}
 
           <div className="space-y-1">
             <Label htmlFor="client-phone">Teléfono del Cliente (Opcional)</Label>
