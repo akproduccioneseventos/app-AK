@@ -65,8 +65,8 @@ export default function PresupuestosPage() {
   }, [searchTerm, allPresupuestos, statusFilter]);
 
   const handleStatusFilterChange = (status: Presupuesto['estado']) => {
-    setStatusFilter(prev => ({ ...prev, [status]: !prev[status]}));
-  };
+    setStatusFilter(prev => ({ ...prev, [tipo]: !prev[tipo]}));
+  }
 
   const anyStatusFilterActive = ALL_PRESUPUESTO_ESTADOS.some(status => !statusFilter[status]);
   
@@ -80,7 +80,7 @@ export default function PresupuestosPage() {
             <CalendarDays className="w-12 h-12 text-primary opacity-80" />
           </div>
           <CardTitle className="text-4xl font-bold tracking-tight font-headline text-primary">
-            ESTE ES LA CENTRAL DE PRESUPUESTO?
+            Central de Presupuestos
           </CardTitle>
           <CardDescription className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
             Crea, gestiona y configura todas tus cotizaciones desde un solo lugar.
@@ -179,3 +179,5 @@ export default function PresupuestosPage() {
     </div>
   );
 }
+
+    
