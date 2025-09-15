@@ -40,7 +40,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/video-vida',
       '/feedback',
       '/portal',
-      '/simulador-de-presupuesto',
+      // The new unified budget builder can be public if desired, or protected.
+      // Keeping it protected for now as it's an internal tool.
+      // If the `/presupuestos/nuevo` is to be used by clients, add it here.
     ];
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));

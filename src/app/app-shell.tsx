@@ -43,7 +43,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'customers' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Cliente`;
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
-  if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores';
@@ -103,8 +102,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
-  if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
-  
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
   if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
@@ -156,7 +153,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   }
 
   if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/servicios') return Sparkles;
   if (pathname === '/empresa/contabilidad') return BarChart3; 
   if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
   if (pathname === '/empresa/todos-los-servicios') return Package; 
@@ -194,9 +190,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
   
-  if (pathname === '/armado-rapido') return Wand2;
-  
-
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
   if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
@@ -236,8 +229,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
-  const isClientFacingTool = pathname === '/armado-rapido';
-
+  
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
   
@@ -248,7 +240,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isSpecialRender = 
     isAuthPage || 
     isPublicEventPage || 
-    isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
     isInvoiceViewPage;
@@ -279,7 +270,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   ) : logoUrl ? (
                     <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
                   ) : (
-                    <AvatarFallback className="bg-primary text-primary-foreground font-headline">AK</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground">AK</AvatarFallback>
                   )}
                 </Avatar>
               </Button>
@@ -306,7 +297,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DropdownMenu>
         </div>
       </header>
-      <main className="flex-1 p-4 md:p-6 bg-background">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
         {children}
       </main>
     </div>

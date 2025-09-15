@@ -22,7 +22,7 @@ interface ModuleCardProps {
 
 const modules: ModuleCardProps[] = [
   { title: "Gestor de Eventos", description: "Visualiza y organiza todos tus eventos, el actual y los pasados.", href: "/eventos", icon: CalendarDays },
-  { title: "Contabilidad y CRM", description: "Gestiona presupuestos, facturas, pagos y tu embudo de ventas.", href: "/empresa/contabilidad", icon: CircleDollarSign },
+  { title: "Central de Presupuestos y CRM", description: "Crea cotizaciones, gestiona facturas, pagos y tu embudo de ventas.", href: "/presupuestos", icon: CircleDollarSign },
   { title: "Gestión de Empresa", description: "Administra personal, proveedores y tu catálogo de servicios.", href: "/empresa", icon: Building2 },
   { title: "Configuración General", description: "Ajusta las preferencias de la aplicación y plantillas de documentos.", href: "/settings", icon: Settings },
 ];
@@ -79,7 +79,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
-      setSimuladorLink(`${origin}/simulador-de-presupuesto`);
+      // Actualizado para apuntar a la nueva central unificada, aunque el enlace se pueda usar para el cliente.
+      setSimuladorLink(`${origin}/presupuestos/nuevo`);
     }
   }, []);
 
@@ -120,44 +121,6 @@ export default function DashboardPage() {
         </Button>
       </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Creación de Presupuestos</CardTitle>
-          <CardDescription>Elige el método que mejor se adapte a tus necesidades y las de tu cliente.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="p-4 flex flex-col justify-between">
-            <div>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2"><PlusCircle className="w-5 h-5"/>Presupuesto Manual</CardTitle>
-              <CardDescription className="text-sm mt-1 mb-3">Para el Organizador. Control total sobre cada detalle.</CardDescription>
-            </div>
-            <Link href="/presupuestos/nuevo" passHref className="w-full"><Button className="w-full">Crear Manualmente</Button></Link>
-          </Card>
-
-          <Card className="p-4 flex flex-col justify-between">
-            <div>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>SIMULADOR DE PRESUPUESTO</CardTitle>
-              <CardDescription className="text-sm mt-1 mb-3">El cliente elige un paquete predefinido y obtiene una cotización al instante.</CardDescription>
-            </div>
-             <div className="flex gap-2">
-              <Link href={simuladorLink} passHref className="flex-grow"><Button className="w-full">Probar</Button></Link>
-               <Link href="/settings/simulador-config" passHref>
-                  <Button variant="outline" size="icon" title="Configurar Simulador de Presupuesto">
-                    <Settings className="w-4 h-4"/>
-                  </Button>
-                </Link>
-              <ShareLinkDialog
-                  link={simuladorLink}
-                  title="Compartir Simulador de Presupuesto"
-                  description="Copia este enlace para que tu cliente cree un presupuesto rápido."
-              >
-                  <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
-              </ShareLinkDialog>
-            </div>
-          </Card>
-        </CardContent>
-      </Card>
-      
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <KpiCard title="Clientes Activos" value={kpiData.clientesActivos} icon={Users} isLoading={isLoading} description="Clientes con estado 'Actual'." />
         <KpiCard title="Prospectos Activos" value={kpiData.prospectosActivos} icon={Briefcase} isLoading={isLoading} description="Presupuestos enviados o en borrador." />
@@ -179,4 +142,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

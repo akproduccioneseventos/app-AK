@@ -30,25 +30,18 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Proveedores',
   },
   {
-    title: 'Contabilidad',
-    description: 'Accede a presupuestos, facturas, pagos y clientes.',
-    href: '/empresa/contabilidad',
+    title: 'Presupuestos, Facturas y CRM',
+    description: 'Accede a la central de cotizaciones, facturas, pagos y clientes.',
+    href: '/presupuestos',
     icon: CircleDollarSign,
-    actionLabel: 'Ir a Contabilidad',
+    actionLabel: 'Ir a Central',
   },
   {
     title: 'Añadir Nuevo Servicio al Catálogo',
     description: 'Crea un nuevo servicio (plato, decoración, etc.) para usar en tus presupuestos.',
-    href: '/empresa/todos-los-servicios/nuevo?type=servicio',
+    href: '/presupuestos/nuevo', // Directs to the unified builder which has catalog management
     icon: PlusCircle,
     actionLabel: 'Añadir Servicio',
-  },
-  {
-    title: 'Catálogo de Servicios para Venta',
-    description: 'Gestiona los servicios que ofreces en los presupuestos, con sus precios.',
-    href: '/empresa/servicios',
-    icon: Server,
-    actionLabel: 'Gestionar Servicios',
   },
   {
     title: 'Gestión de Activos Fijos',
