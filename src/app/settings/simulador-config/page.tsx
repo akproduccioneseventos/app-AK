@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -67,7 +67,6 @@ function AddOrEditPackageDialog({
     onSave,
     item: initialItem,
     vendibleServices: initialVendibleServices,
-    onServiceDeleted,
     refreshCatalog
 }: {
     isOpen: boolean;
@@ -75,14 +74,11 @@ function AddOrEditPackageDialog({
     onSave: (item: PaqueteArmadoRapido) => void;
     item: PaqueteArmadoRapido | null;
     vendibleServices: ServicioEmpresa[];
-    onServiceDeleted: (deletedId: string) => void;
     refreshCatalog: () => Promise<void>;
 }) {
     const [localItem, setLocalItem] = useState<PaqueteArmadoRapido | null>(null);
     const [vendibleServices, setVendibleServices] = useState<ServicioEmpresa[]>(initialVendibleServices);
     const [searchTerm, setSearchTerm] = useState('');
-    const { toast } = useToast();
-    
     const sensors = useSensors(useSensor(PointerSensor));
 
     useEffect(() => {
@@ -94,19 +90,6 @@ function AddOrEditPackageDialog({
             setLocalItem(JSON.parse(JSON.stringify(initialItem)));
         }
     }, [isOpen, initialItem]);
-    
-    const groupedServices = useMemo(() => {
-        if (!localItem) return {};
-        const includedIds = new Set(localItem.serviciosIncluidos.map(s => s.id));
-        return initialVendibleServices.filter(s => includedIds.has(s.id)).reduce((acc, service) => {
-            const category = service.categoria || 'Otros servicios';
-            if (!acc[category]) {
-                acc[category] = [];
-            }
-            acc[category].push(service);
-            return acc;
-        }, {} as Record<string, ServicioEmpresa[]>);
-    }, [localItem, initialVendibleServices]);
 
     const filteredCatalog = useMemo(() => {
         if (!searchTerm) return vendibleServices;
@@ -139,10 +122,27 @@ function AddOrEditPackageDialog({
        })
     }
 
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (localItem && over && active.id !== over.id) {
+            setLocalItem(prev => {
+                if (!prev) return null;
+                const oldIndex = prev.serviciosIncluidos.findIndex(s => s.id === active.id);
+                const newIndex = prev.serviciosIncluidos.findIndex(s => s.id === over.id);
+                return { ...prev, serviciosIncluidos: arrayMove(prev.serviciosIncluidos, oldIndex, newIndex) };
+            });
+        }
+    };
+
     const handleSaveAndExit = () => {
         if (!localItem) return;
         onSave(localItem);
     };
+
+    const includedServiceDetails = localItem.serviciosIncluidos.map(incServ => ({
+        ...incServ,
+        details: vendibleServices.find(s => s.id === incServ.id)
+    })).filter(item => item.details);
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -159,25 +159,20 @@ function AddOrEditPackageDialog({
                         <div className="space-y-1 flex-grow flex flex-col min-h-0">
                             <Label>Servicios Incluidos ({localItem.serviciosIncluidos.length})</Label>
                             <ScrollArea className="h-full border rounded-md p-2">
-                                {Object.keys(groupedServices).sort().length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> : (
-                                    <div className="space-y-2">
-                                    {Object.entries(groupedServices).sort(([catA], [catB]) => catA.localeCompare(catB)).map(([category, services]) => (
-                                        <div key={category}>
-                                            <h4 className='font-semibold text-sm my-2 border-b text-primary'>{category}</h4>
-                                            {services.map(service => {
-                                                const includedService = localItem.serviciosIncluidos.find(s => s.id === service.id);
-                                                return (
-                                                <div key={service.id} className="flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/50">
-                                                    <Checkbox id={`gift-${service.id}`} checked={includedService?.esRegalo} onCheckedChange={() => handleToggleGift(service.id)}>
-                                                        <Gift className="w-4 h-4"/>
-                                                    </Checkbox>
-                                                    <Label htmlFor={`gift-${service.id}`} className="flex-grow cursor-pointer text-sm">{service.nombre}</Label>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleToggleService(service, false)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                                                </div>
-                                            )})}
-                                        </div>
-                                    ))}
-                                    </div>
+                                {includedServiceDetails.length === 0 ? <p className="text-sm text-center text-muted-foreground py-4">Añade servicios desde el catálogo.</p> : (
+                                    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+                                        <SortableContext items={localItem.serviciosIncluidos} strategy={verticalListSortingStrategy}>
+                                            {includedServiceDetails.map(service => (
+                                                <SortableServiceItem key={service.id} service={service}>
+                                                    <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/50 w-full">
+                                                        <Checkbox id={`gift-${service.id}`} checked={service.esRegalo} onCheckedChange={() => handleToggleGift(service.id)}/>
+                                                        <Label htmlFor={`gift-${service.id}`} className="flex-grow cursor-pointer text-sm">{service.details?.nombre}</Label>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleToggleService(service.details!, false)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                                    </div>
+                                                </SortableServiceItem>
+                                            ))}
+                                        </SortableContext>
+                                    </DndContext>
                                 )}
                             </ScrollArea>
                         </div>
@@ -207,7 +202,7 @@ function AddOrEditPackageDialog({
                 </div>
                  <DialogFooter className="flex-shrink-0 pt-4 border-t">
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                    <Button onClick={handleSaveAndExit}>Guardar</Button>
+                    <Button onClick={handleSaveAndExit}>Guardar Paquete</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -220,9 +215,8 @@ export default function ArmadoRapidoSettingsPage() {
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  const [currentItem, setCurrentItem] = useState<MenuArmadoRapido | PaqueteArmadoRapido | null>(null);
+  const [currentItem, setCurrentItem] = useState<PaqueteArmadoRapido | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'menu' | 'paquete'>('paquete');
 
   const loadData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
@@ -231,7 +225,6 @@ export default function ArmadoRapidoSettingsPage() {
       setConfig({
         ...fetchedConfig,
         paquetes: fetchedConfig.paquetes || [],
-        menus: fetchedConfig.menus || [],
       });
       setServiciosCatalogo(fetchedServices);
     } catch (err: any) {
@@ -257,12 +250,10 @@ export default function ArmadoRapidoSettingsPage() {
     }
   }, [loadData, toast]);
 
-  const handleSaveItem = useCallback(async (itemToSave: MenuArmadoRapido | PaqueteArmadoRapido) => {
+  const handleSaveItem = useCallback(async (itemToSave: PaqueteArmadoRapido) => {
     if (!config) return;
     
     let newConfig: ArmadoRapidoConfig;
-    // The logic for menus is now simplified or could be removed if menus are not used in this way.
-    // Focusing on packages as requested.
     const list = [...(config.paquetes || [])];
     const existingIndex = list.findIndex(i => i.id === itemToSave.id);
     if (existingIndex > -1) {
@@ -275,15 +266,14 @@ export default function ArmadoRapidoSettingsPage() {
     await handleSaveConfig(newConfig);
     setIsModalOpen(false);
 
-  }, [config, modalMode, handleSaveConfig]);
+  }, [config, handleSaveConfig]);
 
-  const openDialog = (mode: 'paquete', item?: PaqueteArmadoRapido) => {
-    setModalMode(mode);
-    setCurrentItem(item || { id: `new_${mode}_${Date.now()}`, nombre: `Nuevo Paquete`, serviciosIncluidos: [] });
+  const openDialog = (item?: PaqueteArmadoRapido) => {
+    setCurrentItem(item || { id: `new_paquete_${Date.now()}`, nombre: `Nuevo Paquete`, serviciosIncluidos: [] });
     setIsModalOpen(true);
   }
     
-  const handleDeleteItem = useCallback(async (type: 'paquete', id: string) => {
+  const handleDeleteItem = useCallback(async (id: string) => {
       if (!config) return;
       const newConfig = { ...config, paquetes: config.paquetes.filter(i => i.id !== id) };
       await handleSaveConfig(newConfig);
@@ -317,15 +307,14 @@ export default function ArmadoRapidoSettingsPage() {
   const sortedPaquetes = [...(config.paquetes || [])].sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
       {isModalOpen && <AddOrEditPackageDialog 
         isOpen={isModalOpen} 
         onOpenChange={setIsModalOpen} 
         item={currentItem as PaqueteArmadoRapido | null} 
         vendibleServices={vendibleServices} 
-        mode={modalMode} 
         onSave={handleSaveItem} 
-        onServiceDeleted={(deletedId) => setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId))}
+        onServiceDeleted={(deletedId: string) => setServiciosCatalogo(prev => prev.filter(s => s.id !== deletedId))}
         refreshCatalog={async () => {
             const services = await getServiciosEmpresa();
             setServiciosCatalogo(services);
@@ -333,19 +322,19 @@ export default function ArmadoRapidoSettingsPage() {
         }}
       />}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Creador de Presupuestos</h1></div>
+        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configurar Paquetes Base para Presupuestos</h1></div>
         <Link href="/settings/budget-display" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
       </div>
 
        <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes Base</CardTitle>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios</CardTitle>
           <CardDescription>
-            Crea y gestiona los paquetes de servicios (Básico, Premium, etc.) que se usarán como punto de partida en el creador de presupuestos manual.
+            Crea y gestiona los paquetes (Básico, Premium, etc.) que se usarán como punto de partida en el creador de presupuestos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-           <Button onClick={() => openDialog('paquete')} className="w-full sm:w-auto"><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Paquete</Button>
+           <Button onClick={() => openDialog()} className="w-full sm:w-auto"><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Paquete</Button>
            <Separator/>
            <div className="space-y-3">
             {sortedPaquetes.map(pkg => {
@@ -361,7 +350,7 @@ export default function ArmadoRapidoSettingsPage() {
                  <CollapsibleContent className="p-3 border-t">
                     <div className="flex justify-end gap-1 mb-2">
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="Duplicar Paquete" onClick={() => handleDuplicatePackage(pkg.id)}><Copy className="w-4 h-4"/></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog('paquete', pkg)}><Settings className="w-4 h-4"/></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDialog(pkg)}><Settings className="w-4 h-4"/></Button>
                       <AlertDialog>
                           <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="w-4 h-4"/></Button></AlertDialogTrigger>
                           <AlertDialogContent>
@@ -372,7 +361,7 @@ export default function ArmadoRapidoSettingsPage() {
                    </div>
                     {pkg.serviciosIncluidos.length > 0 ? (
                         <ul className="text-sm space-y-1">
-                          {pkg.serviciosIncluidos.map(s => <li key={s.id} className="flex items-center gap-1.5">{s.esRegalo ? <Gift className="w-3.5 h-3.5 text-primary"/> : <Check className="w-3.5 h-3.5 text-green-500"/>}{s.nombre || vendibleServices.find(vs => vs.id === s.id)?.nombre || s.id}</li>)}
+                          {pkg.serviciosIncluidos.map(s => <li key={s.id} className="flex items-center gap-1.5">{s.esRegalo ? <Gift className="w-3.5 h-3.5 text-primary"/> : <Check className="w-3.5 h-3.5 text-green-500"/>}{vendibleServices.find(vs => vs.id === s.id)?.nombre || s.id}</li>)}
                         </ul>
                     ) : <p className="text-sm text-muted-foreground">Este paquete no tiene servicios.</p>}
                  </CollapsibleContent>
