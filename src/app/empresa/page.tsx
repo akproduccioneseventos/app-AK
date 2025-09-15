@@ -34,7 +34,7 @@ const empresaHubItems: HubItem[] = [
     description: 'Accede a la central de cotizaciones, facturas, pagos y clientes.',
     href: '/presupuestos',
     icon: CircleDollarSign,
-    actionLabel: 'Ir a Central',
+    actionLabel: 'ESTE ES?',
   },
   {
     title: 'Añadir Nuevo Servicio al Catálogo',
