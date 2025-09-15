@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PlusCircle, CheckSquare, CalendarDays, Coins, History, Loader2, Search, AlertTriangle, Filter, Settings as SettingsIcon, Wand2, Bot, FileText, Share2 } from 'lucide-react';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getPresupuestos } from '@/app/actions/presupuestos';
+import { getPresupuestos, deletePresupuesto } from '@/app/actions/presupuestos';
 import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
@@ -34,16 +34,6 @@ export default function PresupuestosPage() {
   const [statusFilter, setStatusFilter] = useState<Record<Presupuesto['estado'], boolean>>(
     ALL_PRESUPUESTO_ESTADOS.reduce((acc, status) => ({...acc, [status]: true }), {} as Record<Presupuesto['estado'], boolean>)
   );
-  const [simuladorLink, setSimuladorLink] = useState('');
-
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const origin = window.location.origin;
-      setSimuladorLink(`${origin}/simulador-de-presupuesto`);
-    }
-  }, []);
-
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -93,41 +83,16 @@ export default function PresupuestosPage() {
             Central de Presupuestos
           </CardTitle>
           <CardDescription className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Crea, gestiona y configura todas tus herramientas de cotización desde un solo lugar.
+            Crea, gestiona y configura todas tus cotizaciones desde un solo lugar.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8 text-center bg-muted/20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="p-4 flex flex-col justify-between">
-                <div>
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2"><PlusCircle className="w-5 h-5"/>Presupuesto Manual</CardTitle>
-                  <CardDescription className="text-sm mt-1 mb-3">Para el Organizador. Control total sobre cada detalle.</CardDescription>
-                </div>
-                <Link href="/presupuestos/nuevo" passHref className="w-full"><Button className="w-full">Crear Manualmente</Button></Link>
-              </Card>
-
-              <Card className="p-4 flex flex-col justify-between">
-                <div>
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5"/>Simulador para Cliente</CardTitle>
-                  <CardDescription className="text-sm mt-1 mb-3">El cliente elige un paquete predefinido y obtiene una cotización al instante.</CardDescription>
-                </div>
-                 <div className="flex gap-2">
-                  <Link href={simuladorLink} passHref className="flex-grow"><Button className="w-full" variant="secondary">Probar Simulador</Button></Link>
-                   <Link href="/settings/armado-rapido-config" passHref>
-                      <Button variant="outline" size="icon" title="Configurar Paquetes del Simulador">
-                        <SettingsIcon className="w-4 h-4"/>
-                      </Button>
-                    </Link>
-                  <ShareLinkDialog
-                      link={simuladorLink}
-                      title="Compartir Simulador de Presupuesto"
-                      description="Copia este enlace para que tu cliente cree un presupuesto rápido."
-                  >
-                      <Button variant="outline" size="icon"><Share2 className="w-4 h-4"/></Button>
-                  </ShareLinkDialog>
-                </div>
-              </Card>
-            </div>
+            <Link href="/presupuestos/nuevo" passHref className="w-full">
+                <Button className="w-full max-w-sm mx-auto" size="lg">
+                    <PlusCircle className="w-5 h-5 mr-2"/>
+                    Crear Nuevo Presupuesto
+                </Button>
+            </Link>
         </CardContent>
       </Card>
 
@@ -194,6 +159,7 @@ export default function PresupuestosPage() {
                   <PresupuestoCard 
                     key={presupuesto.id} 
                     presupuesto={presupuesto}
+                    onDelete={() => fetchData()}
                   />
                 ))}
               </div>

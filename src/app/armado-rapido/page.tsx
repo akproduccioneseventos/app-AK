@@ -12,7 +12,8 @@ export default function ArmadoRapidoObsoletoPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/simulador-de-presupuesto');
+        // This page is obsolete, redirect to the new unified builder.
+        router.replace('/presupuestos/nuevo');
     }, [router]);
     
     return (
@@ -24,11 +25,11 @@ export default function ArmadoRapidoObsoletoPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground">
-                        Esta página ha sido actualizada. Serás redirigido al nuevo "Simulador de Presupuesto".
+                        Esta página ha sido actualizada. Serás redirigido al nuevo Creador de Presupuestos.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/simulador-de-presupuesto" passHref>
+                    <Link href="/presupuestos/nuevo" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
