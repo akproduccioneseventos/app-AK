@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
-import EditServicioForm from './EditServicioForm';
+import EditServicioForm from '@/components/presupuestos/EditServicioForm';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -39,8 +39,8 @@ const formatCurrency = (amount?: number) => {
 // Define the type for the value part of the map
 type ServicioSeleccionadoValue = {
     cantidad: number;
-    precioUnitarioOriginal: number;
-    precioUnitarioPresupuesto: number;
+    precioUnitarioOriginal: number; // Price from catalog, for reference
+    precioUnitarioPresupuesto: number; // Overridden price for this budget
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
@@ -66,8 +66,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       } else {
         newSelected.set(servicio.id, {
           cantidad: 1, 
-          precioUnitarioOriginal: servicio.precioVenta || 0,
-          precioUnitarioPresupuesto: servicio.precioVenta || 0,
+          precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+          precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
           nombreServicio: servicio.nombre,
           unidad: servicio.unidad,
           categoriaServicio: servicio.categoria,
@@ -165,8 +165,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 const esRegalo = servicioEnPaquete.esRegalo || false;
                 newSelected.set(servicioCompleto.id, {
                     cantidad: 1,
-                    precioUnitarioOriginal: servicioCompleto.precioVenta || 0,
-                    precioUnitarioPresupuesto: esRegalo ? 0 : (servicioCompleto.precioVenta || 0),
+                    precioUnitarioOriginal: servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0,
+                    precioUnitarioPresupuesto: esRegalo ? 0 : (servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0),
                     nombreServicio: servicioCompleto.nombre,
                     unidad: servicioCompleto.unidad,
                     categoriaServicio: servicioCompleto.categoria,
