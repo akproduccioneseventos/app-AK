@@ -8,26 +8,46 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2 } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import { getBudgetDisplaySettings, saveBudgetDisplaySettings } from '@/app/actions/settings';
+import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
+import type { PaqueteArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
+import type { ServicioEmpresa } from '@/types/empresa';
+
 
 export default function BudgetDisplaySettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<BudgetDisplaySettings>(defaultBudgetDisplaySettings);
+  const [paquetes, setPaquetes] = useState<PaqueteArmadoRapido[]>([]);
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPaquete, setCurrentPaquete] = useState<Partial<PaqueteArmadoRapido> | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadSettings = useCallback(async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const fetchedSettings = await getBudgetDisplaySettings();
+      const [fetchedSettings, armadoConfig, catalogo] = await Promise.all([
+        getBudgetDisplaySettings(),
+        getArmadoRapidoConfig(),
+        getServiciosEmpresa(),
+      ]);
       setSettings(fetchedSettings);
+      setPaquetes(armadoConfig.paquetes || []);
+      setServiciosCatalogo(catalogo.filter(s => s.tipoItem === 'Servicio'));
     } catch (err: any) {
       setError("No se pudieron cargar las configuraciones.");
       toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
@@ -37,142 +57,162 @@ export default function BudgetDisplaySettingsPage() {
   }, [toast]);
 
   useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
+    loadData();
+  }, [loadData]);
 
-  const handleSettingChange = (key: keyof BudgetDisplaySettings, value: boolean | number | undefined | any[]) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSavePaquete = async (e: FormEvent) => {
     e.preventDefault();
+    if (!currentPaquete || !currentPaquete.nombre?.trim() || !currentPaquete.serviciosIncluidos?.length) {
+      toast({ title: "Datos incompletos", description: "El paquete debe tener un nombre y al menos un servicio.", variant: "destructive" });
+      return;
+    }
     setIsSaving(true);
+    const newPaquetes = [...paquetes];
+    if (currentPaquete.id) {
+      const index = newPaquetes.findIndex(p => p.id === currentPaquete.id);
+      if (index > -1) newPaquetes[index] = currentPaquete as PaqueteArmadoRapido;
+      else newPaquetes.push({ ...currentPaquete, id: `pkg_${Date.now()}` } as PaqueteArmadoRapido);
+    } else {
+      newPaquetes.push({ ...currentPaquete, id: `pkg_${Date.now()}` } as PaqueteArmadoRapido);
+    }
+
     try {
-      const result = await saveBudgetDisplaySettings(settings);
-      if (result.success && result.settings) {
-        setSettings(result.settings);
-        toast({ title: "Configuración Guardada", description: "Las preferencias de visualización del presupuesto han sido actualizadas." });
+      const result = await saveArmadoRapidoConfig({ ...await getArmadoRapidoConfig(), paquetes: newPaquetes });
+      if(result.success) {
+        toast({title: "Paquete Guardado"});
+        setIsModalOpen(false);
+        await loadData();
       } else {
-        throw new Error(result.error || "No se pudo guardar la configuración.");
+        throw new Error(result.error);
       }
     } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+      toast({ title: "Error al guardar paquete", description: err.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Cargando configuración...</p>
-      </div>
-    );
+  
+  const handleOpenModal = (paquete?: PaqueteArmadoRapido) => {
+    if(paquete) {
+      setCurrentPaquete(JSON.parse(JSON.stringify(paquete))); // Deep copy to avoid direct state mutation
+    } else {
+      setCurrentPaquete({ nombre: '', serviciosIncluidos: [] });
+    }
+    setIsModalOpen(true);
   }
 
-  if (error) {
-    return (
-      <div className="text-center text-destructive py-10">
-        <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
-        <p className="font-semibold text-lg">{error}</p>
-        <Button onClick={loadSettings} className="mt-4" variant="outline">Reintentar</Button>
-      </div>
-    );
+  const handleDeletePaquete = async (id: string) => {
+    const newPaquetes = paquetes.filter(p => p.id !== id);
+    setIsSaving(true);
+    try {
+      const result = await saveArmadoRapidoConfig({ ...await getArmadoRapidoConfig(), paquetes: newPaquetes });
+      if (result.success) {
+        toast({ title: "Paquete Eliminado", variant: "destructive" });
+        await loadData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch(err:any){
+      toast({ title: "Error al eliminar", description: err.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
   }
   
-  const settingsOptions = [
-    { id: "showCompanyLogo", label: "Mostrar logo de la empresa", description: "Incluye el logo de tu empresa en la parte superior." },
-    { id: "showClientData", label: "Mostrar datos del cliente", description: "Incluye el nombre y detalles del cliente." },
-    { id: "showEventTypeAndDate", label: "Mostrar tipo y fecha de la fiesta", description: "Muestra la información básica del evento." },
-    { id: "showPriceBreakdown", label: "Mostrar desglose de precios por servicio", description: "Muestra la tabla detallada de servicios con sus costos individuales." },
-    { id: "showPaymentMethodNotes", label: "Incluir observaciones o notas finales", description: "Muestra la sección de notas y condiciones (donde podría ir la forma de pago)." },
-  ] as const;
+  const handleServicioPaqueteChange = (servicioId: string, checked: boolean) => {
+    setCurrentPaquete(prev => {
+      if(!prev) return null;
+      const servicios = prev.serviciosIncluidos || [];
+      if(checked) {
+        if(!servicios.some(s => s.id === servicioId)) {
+          return { ...prev, serviciosIncluidos: [...servicios, { id: servicioId, esRegalo: false }] };
+        }
+      } else {
+        return { ...prev, serviciosIncluidos: servicios.filter(s => s.id !== servicioId) };
+      }
+      return prev;
+    });
+  };
+  
+  const handleRegaloPaqueteChange = (servicioId: string, esRegalo: boolean) => {
+     setCurrentPaquete(prev => {
+      if(!prev) return null;
+      return { ...prev, serviciosIncluidos: (prev.serviciosIncluidos || []).map(s => s.id === servicioId ? {...s, esRegalo} : s) };
+    });
+  }
 
-
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
+  }
+  if (error) {
+    return <div className="text-center text-destructive py-10"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold text-lg">{error}</p><Button onClick={loadData} className="mt-4" variant="outline">Reintentar</Button></div>;
+  }
+  
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader><DialogTitle className="font-headline">{currentPaquete?.id ? 'Editar' : 'Nuevo'} Paquete</DialogTitle></DialogHeader>
+          {currentPaquete && (
+            <form onSubmit={handleSavePaquete}>
+              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
+                <div className="space-y-1"><Label htmlFor="pkg-name">Nombre del Paquete</Label><Input id="pkg-name" value={currentPaquete.nombre} onChange={e => setCurrentPaquete(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
+                <Separator/>
+                <Label>Servicios Incluidos</Label>
+                <div className="space-y-2">
+                  {serviciosCatalogo.map(servicio => {
+                    const isInPaquete = currentPaquete.serviciosIncluidos?.some(s => s.id === servicio.id);
+                    const isRegalo = currentPaquete.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
+                    return (
+                      <div key={servicio.id} className="flex items-center justify-between p-2 border rounded-md">
+                        <div className="flex items-center gap-3">
+                          <Checkbox id={`serv-${servicio.id}`} checked={isInPaquete} onCheckedChange={(checked) => handleServicioPaqueteChange(servicio.id, !!checked)}/>
+                          <Label htmlFor={`serv-${servicio.id}`} className="text-sm font-medium">{servicio.nombre}</Label>
+                        </div>
+                        {isInPaquete && <div className="flex items-center gap-2">
+                          <Checkbox id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloPaqueteChange(servicio.id, !!checked)}/>
+                          <Label htmlFor={`gift-${servicio.id}`} className="text-xs">Es Regalo</Label>
+                        </div>}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : null} Guardar Paquete</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <SettingsIcon className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Configuración de Visualización de Presupuestos
-          </h1>
-        </div>
-        <Link href="/settings" passHref>
-          <Button variant="outline" disabled={isSaving}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3"><SettingsIcon className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
+        <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
       
-       <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/30">
-          <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"/>
-              <div className="text-sm text-blue-800 dark:text-blue-200">
-                  <p className="font-semibold">La configuración de Paquetes Base se ha movido.</p>
-                  <p>Ahora puedes crear y editar tus paquetes directamente desde la <Link href="/presupuestos/nuevo" className="font-bold underline">nueva Central de Presupuestos</Link>, haciendo clic en "Gestionar Catálogo de Servicios" en el paso 2.</p>
-              </div>
-          </div>
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        <Card className="shadow-lg">
+       <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl">Opciones de Contenido del PDF</CardTitle>
-            <CardDescription>
-              Selecciona qué elementos quieres que aparezcan al imprimir o compartir tus presupuestos.
-            </CardDescription>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes Base</CardTitle>
+            <CardDescription>Crea y gestiona paquetes de servicios predefinidos para agilizar la creación de presupuestos en el simulador y la central.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {settingsOptions.map((option, index) => (
-              <React.Fragment key={option.id}>
-                {index > 0 && <Separator />}
-                <div className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/20 transition-colors">
-                  <div>
-                    <Label htmlFor={option.id} className="text-base font-medium">{option.label}</Label>
-                    <p className="text-sm text-muted-foreground">{option.description}</p>
+          <CardContent className="space-y-3">
+            <Button onClick={() => handleOpenModal()}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
+            <Separator/>
+            <div className="space-y-2">
+              {paquetes.map(pkg => (
+                <div key={pkg.id} className="flex justify-between items-center p-3 border rounded-md">
+                  <p className="font-semibold text-sm">{pkg.nombre}</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleOpenModal(pkg)}>Editar</Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeletePaquete(pkg.id)} disabled={isSaving}>Eliminar</Button>
                   </div>
-                  <Switch
-                    id={option.id}
-                    checked={settings[option.id]}
-                    onCheckedChange={(value) => handleSettingChange(option.id, value)}
-                    disabled={isSaving}
-                  />
                 </div>
-              </React.Fragment>
-            ))}
-            <Separator />
-             <div className="space-y-3 p-3 border rounded-md hover:bg-muted/20 transition-colors">
-                <Label htmlFor="annualAdjustmentPercentage" className="text-base font-medium flex items-center gap-2">
-                    <Percent className="w-5 h-5 text-primary/80"/> Ajuste Anual Automático (%)
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                    Define un porcentaje de ajuste que se podría aplicar a presupuestos para eventos en años futuros. Se indicará en el presupuesto si aplica y se calcularía al momento de facturar.
-                </p>
-                <Input
-                    id="annualAdjustmentPercentage"
-                    type="number"
-                    value={settings.annualAdjustmentPercentage ?? ''}
-                    onChange={(e) => handleSettingChange('annualAdjustmentPercentage', e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                    placeholder="Ej: 15 para 15%"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    disabled={isSaving}
-                    className="max-w-xs"
-                />
+              ))}
             </div>
           </CardContent>
-          <CardFooter className="border-t pt-6">
-            <Button type="submit" disabled={isSaving || isLoading}>
-              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              {isSaving ? "Guardando..." : "Guardar Configuración de Visualización"}
-            </Button>
-          </CardFooter>
-        </Card>
-      </form>
+      </Card>
+      
     </div>
   );
 }

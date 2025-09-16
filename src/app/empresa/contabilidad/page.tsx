@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote, Sparkles } from 'lucide-react';
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote, Sparkles, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invoice } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
@@ -18,6 +18,7 @@ import type { PaymentPieChartData } from '@/components/charts/PaymentStatusPieCh
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getInvoices } from '@/app/actions/invoices';
+import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
 
 
 const MonthlySalesChart = dynamic(() => 
@@ -68,7 +69,7 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     description: 'Crea, gestiona y envía presupuestos detallados a tus clientes.',
     href: '/presupuestos/nuevo',
     icon: ListChecks,
-    actionLabel: 'Crear Presupuesto',
+    actionLabel: 'Ir a Central de Presupuestos',
   },
   {
     title: 'Gestión de Facturas',
@@ -105,6 +106,13 @@ export default function ContabilidadDashboardPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [simuladorLink, setSimuladorLink] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSimuladorLink(`${window.location.origin}/armado-rapido`);
+    }
+  }, []);
 
   // KPIs States
   const [kpiData, setKpiData] = useState<any>(null);
@@ -267,6 +275,17 @@ export default function ContabilidadDashboardPage() {
                 </CardContent>
             </Card>
             ))}
+             <Card className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 border-dashed border-primary/50">
+                <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
+                    <div className="p-3 bg-primary/10 rounded-lg"><Wand2 className="w-7 h-7 text-primary"/></div>
+                    <div><CardTitle className="font-headline text-lg mb-1">Simulador para Clientes</CardTitle></div>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
+                <CardContent className="pt-2 flex flex-col sm:flex-row gap-2">
+                    <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
+                    <ShareLinkDialog link={simuladorLink} title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado."><Button variant="default" className="flex-1">Compartir Enlace</Button></ShareLinkDialog>
+                </CardContent>
+             </Card>
         </div>
       </div>
     </div>
