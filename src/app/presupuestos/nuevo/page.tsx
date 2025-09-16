@@ -218,8 +218,8 @@ function NuevoPresupuestoContent() {
     return (
         <div className="max-w-4xl mx-auto space-y-6">
              <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight font-headline">Nueva Cotización Manual</h1>
-                <Link href="/presupuestos" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Central</Button></Link>
+                <h1 className="text-3xl font-bold tracking-tight font-headline">Central de Presupuestos</h1>
+                <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
             </div>
             <Card className="shadow-lg">
                 <CardHeader>
