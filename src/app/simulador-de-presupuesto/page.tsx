@@ -15,7 +15,7 @@ export default function SimuladorObsoletoPage() {
 
     useEffect(() => {
         // Redirect to the new unified builder page or the list page.
-        router.replace('/presupuestos');
+        router.replace('/presupuestos/nuevo');
     }, [router]);
     
     return (
@@ -31,7 +31,7 @@ export default function SimuladorObsoletoPage() {
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/presupuestos" passHref>
+                    <Link href="/presupuestos/nuevo" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

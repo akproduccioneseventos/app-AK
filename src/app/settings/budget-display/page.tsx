@@ -187,14 +187,14 @@ export default function BudgetDisplaySettingsPage() {
         </DialogContent>
       </Dialog>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><SettingsIcon className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
-        <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <div className="flex items-center gap-3"><SettingsIcon className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de Paquetes y Simulador</h1></div>
+        <Link href="/settings" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
       
        <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes Base</CardTitle>
-            <CardDescription>Crea y gestiona paquetes de servicios predefinidos para agilizar la creación de presupuestos en el simulador y la central.</CardDescription>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes Base para Presupuestos</CardTitle>
+            <CardDescription>Crea y gestiona paquetes de servicios predefinidos para agilizar la creación de presupuestos en la Central de Presupuestos y el simulador de clientes.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button onClick={() => handleOpenModal()}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>

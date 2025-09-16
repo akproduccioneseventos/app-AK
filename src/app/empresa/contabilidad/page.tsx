@@ -266,13 +266,13 @@ export default function ContabilidadDashboardPage() {
                 <CardContent className="flex-grow space-y-2">
                 <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
                 </CardContent>
-                <CardContent className="pt-2">
+                <CardFooter className="pt-2">
                 <Link href={item.href} passHref className="w-full">
                     <Button variant="default" className="w-full">
                     {item.actionLabel} <ArrowRight className="w-4 h-4 ml-2"/>
                     </Button>
                 </Link>
-                </CardContent>
+                </CardFooter>
             </Card>
             ))}
              <Card className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 border-dashed border-primary/50">
