@@ -27,13 +27,11 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/') return 'Menú Principal';
 
-  if (pathname === '/presupuestos') return 'Central de Presupuestos';
-  if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
+  if (pathname.startsWith('/presupuestos/nuevo')) return 'Nueva Cotización';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
 
-  if (pathname === '/invoices') return 'Gestión de Facturas';
-  if (pathname === '/invoices/new') return 'Nueva Factura';
+  if (pathname.startsWith('/invoices/new')) return 'Nueva Factura';
   if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${idSegment}`;
   if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Factura #${idSegment}`;
 
@@ -176,8 +174,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/login') return LogInIcon;
 
-  if (pathname === '/presupuestos') return ListChecks;
-  if (pathname === '/invoices') return FileText;
+  if (pathname.startsWith('/presupuestos')) return ListChecks;
+  if (pathname.startsWith('/invoices')) return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
 
   if (pathname === '/settings') return SettingsIcon;
