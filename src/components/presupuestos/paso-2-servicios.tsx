@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { PresupuestoFormData } from '@/types/presupuesto';
+import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -35,6 +35,23 @@ const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
+
+// Define the type for the value part of the map
+type ServicioSeleccionadoValue = {
+    cantidad: number;
+    precioUnitarioOriginal: number;
+    precioUnitarioPresupuesto: number;
+    nombreServicio: string;
+    unidad?: string;
+    categoriaServicio?: string;
+    esRegalo: boolean;
+    calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
+    precioBase?: number;
+    precioPorPersona?: number;
+    invitadosPorUnidad?: number;
+    tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
+};
+
 
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, onCatalogUpdate }: Paso2ServiciosProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -140,7 +157,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   }, [serviciosAgrupados]);
 
   const handlePaqueteSelect = (paquete: PaqueteArmadoRapido | 'none') => {
-    const newSelected = new Map<string, typeof formData.serviciosSeleccionados.values().next().value>();
+    const newSelected = new Map<string, ServicioSeleccionadoValue>();
     if (paquete !== 'none') {
         paquete.serviciosIncluidos.forEach(servicioEnPaquete => {
             const servicioCompleto = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
@@ -172,9 +189,18 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         <PackageSearch className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
         <p className="text-muted-foreground text-lg">Tu catálogo de servicios está vacío.</p>
         <p className="text-sm text-muted-foreground">
-          <SheetTrigger asChild>
-            <Button variant="link" className="text-primary p-0 h-auto">Haz clic aquí para añadir tu primer servicio</Button>
-          </SheetTrigger>
+          <Sheet open={isCatalogManagerOpen} onOpenChange={setIsCatalogManagerOpen}>
+            <SheetTrigger asChild>
+              <Button variant="link" className="text-primary p-0 h-auto">Haz clic aquí para añadir tu primer servicio</Button>
+            </SheetTrigger>
+            <SheetContent className="w-full max-w-none sm:max-w-2xl">
+              <SheetHeader>
+                  <SheetTitle>Catálogo Maestro de Servicios</SheetTitle>
+                  <SheetDescription>Añade, edita o elimina los servicios que ofreces. Los cambios aquí se reflejarán en todos los presupuestos nuevos.</SheetDescription>
+              </SheetHeader>
+              <EditServicioForm onCatalogUpdate={onCatalogUpdate}/>
+            </SheetContent>
+          </Sheet>
            y poder armar presupuestos.
         </p>
       </div>
@@ -195,7 +221,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             </Select>
         </div>
         <div className="space-y-2 self-end">
-            <Sheet>
+            <Sheet open={isCatalogManagerOpen} onOpenChange={setIsCatalogManagerOpen}>
                 <SheetTrigger asChild>
                     <Button variant="secondary" className="w-full">
                         <Sparkles className="w-4 h-4 mr-2"/>Gestionar Catálogo de Servicios
