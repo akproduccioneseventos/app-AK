@@ -39,7 +39,13 @@ async function readServiciosFile(): Promise<ServicioEmpresa[]> {
       valorUnitarioEstimado: item.valorUnitarioEstimado === undefined ? undefined : Number(item.valorUnitarioEstimado),
       unidad: item.unidad,
       notas: item.notas || undefined,
+      // Pricing fields
       precioVenta: item.precioVenta === undefined ? undefined : Number(item.precioVenta),
+      calculationMethod: item.calculationMethod,
+      precioBase: item.precioBase === undefined ? undefined : Number(item.precioBase),
+      precioPorPersona: item.precioPorPersona === undefined ? undefined : Number(item.precioPorPersona),
+      invitadosPorUnidad: item.invitadosPorUnidad === undefined ? undefined : Number(item.invitadosPorUnidad),
+      tramosDePrecio: item.tramosDePrecio || undefined,
     }));
   } catch (error) {
     console.error('Error reading inventory file, returning empty array:', error);
@@ -85,21 +91,24 @@ export async function saveServicioEmpresa(
     valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined ? Number(itemData.valorUnitarioEstimado) : undefined,
     cantidadDisponible: itemData.cantidadDisponible !== undefined ? Number(itemData.cantidadDisponible) : undefined,
     precioVenta: itemData.precioVenta !== undefined ? Number(itemData.precioVenta) : undefined,
+    precioBase: itemData.precioBase !== undefined ? Number(itemData.precioBase) : undefined,
+    precioPorPersona: itemData.precioPorPersona !== undefined ? Number(itemData.precioPorPersona) : undefined,
+    invitadosPorUnidad: itemData.invitadosPorUnidad !== undefined ? Number(itemData.invitadosPorUnidad) : undefined,
+    tramosDePrecio: itemData.tramosDePrecio || undefined,
     tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
     subcategoria: itemData.subcategoria?.trim() || undefined,
     notas: (itemData as any).notas?.trim() || undefined,
   };
 
   // Clean out undefined or NaN values for number fields
-  if (dataWithParsedNumbers.valorUnitarioEstimado === undefined || isNaN(dataWithParsedNumbers.valorUnitarioEstimado)) {
-      delete dataWithParsedNumbers.valorUnitarioEstimado;
-  }
-  if (dataWithParsedNumbers.cantidadDisponible === undefined || isNaN(dataWithParsedNumbers.cantidadDisponible)) {
-      delete dataWithParsedNumbers.cantidadDisponible;
-  }
-   if (dataWithParsedNumbers.precioVenta === undefined || isNaN(dataWithParsedNumbers.precioVenta)) {
-      delete dataWithParsedNumbers.precioVenta;
-  }
+  const numberFields: (keyof ServicioEmpresa)[] = ['valorUnitarioEstimado', 'cantidadDisponible', 'precioVenta', 'precioBase', 'precioPorPersona', 'invitadosPorUnidad'];
+  numberFields.forEach(field => {
+      const value = dataWithParsedNumbers[field] as number | undefined;
+      if (value === undefined || isNaN(value)) {
+          delete dataWithParsedNumbers[field];
+      }
+  });
+
 
   // Basic validation
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") {
