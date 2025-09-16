@@ -73,7 +73,7 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
   {
     title: 'Facturas',
     description: 'Genera y administra facturas para tus servicios y eventos.',
-    href: '/invoices/new',
+    href: '/invoices',
     icon: FileTextIcon,
     actionLabel: 'Ir a Facturas',
   },

@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { FiestaEnPlanificacion } from '@/types/fiesta';
 
 interface InvoiceListItemProps {
   invoice: Invoice;
@@ -24,6 +25,7 @@ interface InvoiceListItemProps {
   isAssignedToCurrentFiesta?: boolean;
   onToggleAssign?: () => void;
   isAssigning?: boolean;
+  fiestaActual?: FiestaEnPlanificacion | null;
 }
 
 export function InvoiceListItem({ 
@@ -32,7 +34,8 @@ export function InvoiceListItem({
   isDeleting,
   isAssignedToCurrentFiesta,
   onToggleAssign,
-  isAssigning 
+  isAssigning,
+  fiestaActual
 }: InvoiceListItemProps) {
   const formatDate = (dateString: string) => {
     try {
