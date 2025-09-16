@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, CircleDollarSign, Building2, Package, Sparkles, Server, PlusCircle } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -30,11 +30,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Proveedores',
   },
   {
-    title: 'Presupuestos y CRM',
-    description: 'Accede a la central de cotizaciones, clientes potenciales y facturas.',
-    href: '/presupuestos',
-    icon: CircleDollarSign,
-    actionLabel: 'Ir a Central',
+    title: 'Panel Contable y Financiero',
+    description: 'Accede a la central de CRM, presupuestos, facturas y reportes.',
+    href: '/empresa/contabilidad',
+    icon: BarChart3,
+    actionLabel: 'Ir al Panel',
   },
   {
     title: 'Gestión de Activos Fijos',

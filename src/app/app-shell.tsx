@@ -43,6 +43,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'customers' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Cliente`;
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
+  if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores';
@@ -153,6 +154,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   }
 
   if (pathname === '/empresa') return Building2;
+  if (pathname === '/empresa/servicios') return Sparkles;
   if (pathname === '/empresa/contabilidad') return BarChart3; 
   if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
   if (pathname === '/empresa/todos-los-servicios') return Package; 
