@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote } from 'lucide-react';
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invoice } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
@@ -68,7 +68,7 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     description: 'Crea, gestiona y envía presupuestos detallados a tus clientes.',
     href: '/presupuestos/nuevo',
     icon: ListChecks,
-    actionLabel: 'Ir a Central de Presupuestos',
+    actionLabel: 'Crear Presupuesto',
   },
   {
     title: 'Gestión de Facturas',
@@ -85,6 +85,13 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     actionLabel: 'Ir a Clientes',
   },
    {
+    title: 'Catálogo de Servicios y Precios',
+    description: 'Define y gestiona los servicios que ofreces en los presupuestos.',
+    href: '/empresa/servicios',
+    icon: Sparkles,
+    actionLabel: 'Gestionar Catálogo',
+  },
+  {
     title: 'Reporte de Ganancias y Pérdidas',
     description: 'Analiza ingresos, costos y rentabilidad en rangos de fechas.',
     href: '/empresa/contabilidad/reportes',
