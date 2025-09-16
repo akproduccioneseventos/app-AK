@@ -66,14 +66,14 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
   {
     title: 'Central de Presupuestos',
     description: 'Crea, gestiona y envía presupuestos detallados a tus clientes.',
-    href: '/presupuestos',
+    href: '/presupuestos/nuevo',
     icon: ListChecks,
     actionLabel: 'Ir a Presupuestos',
   },
   {
     title: 'Facturas',
     description: 'Genera y administra facturas para tus servicios y eventos.',
-    href: '/invoices',
+    href: '/invoices/new',
     icon: FileTextIcon,
     actionLabel: 'Ir a Facturas',
   },
