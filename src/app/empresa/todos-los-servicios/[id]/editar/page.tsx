@@ -11,11 +11,23 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, StickyNote, DollarSign, PlusCircle, Trash2, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveServicioEmpresa, getServicioEmpresaById } from '@/app/actions/servicios-empresa';
+import { saveServicioEmpresa, getServicioEmpresaById, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
@@ -31,6 +43,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
   
   const itemIdFromParams = params.id;
@@ -154,6 +167,25 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     }
   };
 
+  const handleDelete = async () => {
+    if (!item) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteServicioEmpresa(item.id);
+      if (result.success) {
+        toast({ title: "Ítem Eliminado", variant: "destructive" });
+        router.push(item.tipoItem === 'Servicio' ? '/empresa/servicios' : '/empresa/todos-los-servicios');
+      } else {
+        throw new Error(result.error || "No se pudo eliminar el ítem.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
 
@@ -275,11 +307,34 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
               <Textarea id="item-notas" value={formData.notas || ''} onChange={(e) => handleFormChange('notas', e.target.value)} rows={3} disabled={isSaving}/>
             </div>
           </CardContent>
-          <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
+          <CardFooter className="border-t pt-6 flex justify-between items-center">
+            <Button type="submit" className="w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
               Guardar Cambios
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" type="button" className="w-auto" disabled={isSaving || isDeleting}>
+                  {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
+                  Eliminar Ítem
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. El ítem "{item?.nombre}" será eliminado permanentemente del catálogo.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                    {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    Sí, eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardFooter>
         </form>
       </Card>

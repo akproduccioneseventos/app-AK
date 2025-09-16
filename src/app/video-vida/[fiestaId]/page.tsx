@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowUpFromLine, Camera, CheckCircle, Image as ImageIcon, Info, Loader2, Trash2, Music2, Type, PlusCircle, AlertTriangle } from 'lucide-react';
+import { Camera, CheckCircle, Info, Loader2, PlusCircle, Trash2, Music2, Type, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { saveLifeStoryVideoPhotos } from '@/app/actions/video-vida';
 import NextImage from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
@@ -155,10 +154,7 @@ export default function PhotoUploadPage({ params: paramsProp }: { params: Promis
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
     
-    // Append files in order of the array, ensuring correct naming on the backend
     photos.forEach(file => {
-      // The backend will process the array sequentially. We send empty placeholders for nulls
-      // to maintain order, or simply filter. Let's filter.
       if (file) {
           formData.append('photos', file);
       }
