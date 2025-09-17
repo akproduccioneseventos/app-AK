@@ -79,8 +79,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
-      // Actualizado para apuntar a la nueva central unificada, aunque el enlace se pueda usar para el cliente.
-      setSimuladorLink(`${origin}/presupuestos/nuevo`);
+      setSimuladorLink(`${origin}/armado-rapido`);
     }
   }, []);
 

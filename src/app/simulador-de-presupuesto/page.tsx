@@ -8,14 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// This page is obsolete as its functionality has been merged into the new budget builder.
-// It now redirects to the main budget list page.
+// This page is now obsolete as its functionality has been moved.
+// It now redirects to the new public-facing simulator page.
 export default function SimuladorObsoletoPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Redirect to the new unified builder page or the list page.
-        router.replace('/presupuestos/nuevo');
+        // Redirect to the new public simulator page.
+        router.replace('/armado-rapido');
     }, [router]);
     
     return (
@@ -27,11 +27,11 @@ export default function SimuladorObsoletoPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground">
-                        El simulador de presupuestos ha sido integrado en nuestra nueva Central de Presupuestos. Serás redirigido.
+                        Esta página ha sido movida. Serás redirigido al nuevo simulador de presupuestos.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/presupuestos/nuevo" passHref>
+                    <Link href="/armado-rapido" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
@@ -41,5 +41,3 @@ export default function SimuladorObsoletoPage() {
         </div>
     );
 }
-
-    
