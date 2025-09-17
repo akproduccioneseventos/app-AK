@@ -32,6 +32,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
+    // Define public paths that don't require authentication
     const publicPaths = [
       '/login',
       '/evento/actual',
@@ -39,7 +40,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/video-vida',
       '/feedback',
       '/portal',
-      '/armado-rapido', 
+      '/armado-rapido',
       '/acceso-personal',
     ];
     
@@ -53,6 +54,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   }, [pathname, router]);
 
   if (!isVerified) {
+    // Render a loading state to avoid flashes of content
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
