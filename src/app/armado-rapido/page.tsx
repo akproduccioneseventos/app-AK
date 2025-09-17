@@ -139,7 +139,7 @@ export default function ArmadoRapidoPage() {
         return { costoEstimado: costoTotal, serviciosIncluidos: includedServicesList };
     }, [config, serviciosCatalogo, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
     
-     const generateWhatsAppMessage = () => {
+     const generateWhatsAppMessage = useCallback(() => {
         const paquete = config?.paquetes.find(p => p.id === selectedPaqueteId);
         let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
         message += `Hola *${clienteNombre}*,\n\n`;
@@ -156,21 +156,26 @@ export default function ArmadoRapidoPage() {
         message += `------------------------------------\n\n`;
         message += `Este es un costo aproximado. ¡Nos pondremos en contacto contigo para afinar los detalles!\n\n`;
         message += `*El equipo de AK Producciones*`;
-        return encodeURIComponent(message);
-    };
+        return message;
+    }, [clienteNombre, adultos, ninos, serviciosIncluidos, costoEstimado, config, selectedPaqueteId]);
 
     const handleShareWhatsApp = () => {
-        const whatsAppUrl = `https://wa.me/?text=${generateWhatsAppMessage()}`;
+        const message = generateWhatsAppMessage();
+        const whatsAppUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsAppUrl, '_blank');
     };
 
     const handleCopyToClipboard = () => {
-        const textToCopy = generateWhatsAppMessage().replace(/\*/g, '').replace(/%0A/g, '\n');
-        navigator.clipboard.writeText(decodeURIComponent(textToCopy));
+        const textToCopy = generateWhatsAppMessage();
+        navigator.clipboard.writeText(textToCopy);
         toast({ title: "¡Copiado!", description: "El resumen del presupuesto ha sido copiado." });
     };
 
     const handleGenerateLead = async () => {
+        if (!clienteNombre.trim() || !clienteContacto.trim()) {
+            toast({ title: "Datos incompletos", description: "Por favor, completa tu nombre y contacto para solicitar el presupuesto.", variant: "destructive" });
+            return;
+        }
         setIsGeneratingLead(true);
         const data = {
             clienteNombre,
@@ -304,5 +309,3 @@ export default function ArmadoRapidoPage() {
     );
 }
   
-
-    
