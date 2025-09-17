@@ -48,7 +48,7 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: number): number {
-  if (!servicio || cantidadInvitados <= 0) return 0;
+  if (!servicio || cantidadInvitados < 0) return 0;
   
   switch (servicio.calculationMethod) {
     case 'porPersona':
@@ -76,7 +76,7 @@ interface ServicioDetallado {
   categoria: string;
   precioUnitario: number;
   cantidad: number;
-  unidad?: string;
+  unidad: string;
 }
 
 export default function ArmadoRapidoPage() {
@@ -145,7 +145,7 @@ export default function ArmadoRapidoPage() {
 
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
             if (!servicio) return;
-            const cantidadParaCalculo = (servicio.calculationMethod === 'fijo' || servicio.calculationMethod === 'tramos') ? 1 : totalInvitados;
+            const cantidadParaCalculo = servicio.calculationMethod === 'fijo' ? 1 : totalInvitados;
             const costoItem = calcularCostoServicio(servicio, totalInvitados);
             
             if (!esRegalo) {
@@ -153,16 +153,23 @@ export default function ArmadoRapidoPage() {
             } else {
                 calculatedTotalRegalos += costoItem;
             }
+            
+            let unidadDisplay = 'evento';
+            if (servicio.calculationMethod === 'porPersona') {
+                unidadDisplay = 'persona';
+            } else if (servicio.calculationMethod === 'ratio' && servicio.unidad) {
+                unidadDisplay = servicio.unidad;
+            }
+
             includedServicesList.push({ 
                 id: servicio.id,
                 nombre: servicio.nombre + (nota ? ` ${nota}` : ''), 
                 esRegalo, 
                 costo: costoItem,
                 categoria: servicio.categoria || 'Varios',
-                // For display purposes in the table
                 precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
                 cantidad: cantidadParaCalculo,
-                unidad: servicio.calculationMethod === 'fijo' ? 'evento' : 'persona'
+                unidad: unidadDisplay
             });
         };
         
@@ -241,13 +248,13 @@ export default function ArmadoRapidoPage() {
         
         message += `------------------------------------\n`;
         if (descuento > 0) {
-          message += `SUBTOTAL: ${formatCurrency(subtotal)}\n`;
-          message += `DESCUENTO (${config?.descuentoGeneral}%): -${formatCurrency(descuento)}\n`;
+          message += `SUBTOTAL: ${formatCurrency(subtotal, true)}\n`;
+          message += `DESCUENTO (${config?.descuentoGeneral}%): -${formatCurrency(descuento, true)}\n`;
         }
         if (totalRegalos > 0) {
-            message += `AHORRO EN REGALOS: ${formatCurrency(totalRegalos)}\n`;
+            message += `AHORRO EN REGALOS: ${formatCurrency(totalRegalos, true)}\n`;
         }
-        message += `💰 *COSTO TOTAL ESTIMADO: ${formatCurrency(costoTotal)}*\n`;
+        message += `💰 *COSTO TOTAL ESTIMADO: ${formatCurrency(costoTotal, true)}*\n`;
         message += `------------------------------------\n\n`;
         message += `Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.\n\n`;
         message += `¡Nos pondremos en contacto contigo para afinar los detalles!\n\n`;
@@ -450,7 +457,7 @@ export default function ArmadoRapidoPage() {
                                                                 {item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}
                                                                 {item.nombre}
                                                             </TableCell>
-                                                            <TableCell>{item.cantidad} {item.unidad}</TableCell>
+                                                            <TableCell>x {item.cantidad} {item.unidad}</TableCell>
                                                             <TableCell>{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitario)}</TableCell>
                                                             <TableCell className="text-right font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</TableCell>
                                                         </TableRow>
@@ -488,7 +495,7 @@ export default function ArmadoRapidoPage() {
                             Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (
-                        <Button onClick={handleGenerateLead} disabled={isGeneratingLead || !costoTotal}>
+                         <Button onClick={handleGenerateLead} disabled={isGeneratingLead || !costoTotal}>
                             {isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2"/>}
                             Solicitar Presupuesto Detallado
                         </Button>
