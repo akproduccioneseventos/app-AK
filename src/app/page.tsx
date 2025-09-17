@@ -134,28 +134,10 @@ export default function DashboardPage() {
 
       <div className="pt-4">
         <h3 className="text-2xl font-semibold text-foreground mb-4 font-headline text-center">Módulos Principales</h3>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
           {modules.map((module) => (
             <ModuleCard key={module.title} {...module} />
           ))}
-           <Card className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 border-dashed border-primary/50">
-                <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-                    <div className="p-3 bg-primary/10 rounded-lg"><Wand2 className="w-7 h-7 text-primary"/></div>
-                    <div><CardTitle className="font-headline text-lg mb-1">Simulador para Clientes</CardTitle></div>
-                </CardHeader>
-                <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Una herramienta pública para que tus clientes armen un presupuesto estimado.</p></CardContent>
-                <CardFooter className="pt-2 flex flex-col gap-2">
-                   <Link href="/armado-rapido" passHref className="w-full" target="_blank">
-                      <Button variant="default" className="w-full"><Eye className="w-4 h-4 mr-2"/>Ir al Simulador</Button>
-                   </Link>
-                   <div className="flex gap-2 w-full">
-                    <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
-                    <ShareLinkDialog link={simuladorLink} title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
-                        <Button variant="outline" className="w-full">Compartir</Button>
-                    </ShareLinkDialog>
-                   </div>
-                </CardFooter>
-            </Card>
         </div>
       </div>
     </div>
