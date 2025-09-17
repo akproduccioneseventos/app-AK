@@ -135,7 +135,8 @@ export default function DashboardPage() {
         <CardFooter className="flex flex-col sm:flex-row gap-2">
             <Button asChild className="w-full">
               <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer">
-                <Eye className="w-4 h-4 mr-2"/> Ir al Simulador Público
+                <Eye className="w-4 h-4 mr-2"/>
+                Ir al Simulador Público
               </Link>
             </Button>
              <ShareLinkDialog relativePath="/armado-rapido" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
