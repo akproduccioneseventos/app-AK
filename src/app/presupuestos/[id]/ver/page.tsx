@@ -44,7 +44,7 @@ const formatDate = (dateString?: string, shortMonth = false) => {
   }
 };
 
-const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos";
+const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
 const COMPANY_ADDRESS_LINE1_PDF = "Salto";
@@ -54,7 +54,7 @@ const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const COMPANY_LOGO_URL_PDF = "https://placehold.co/120x120/EF4444/FFFFFF.png?text=AK&font=montserrat"; 
 const COMPANY_LOGO_AI_HINT_PDF = "company logo AK circle red";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
-const BUDGET_DEPOSIT_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
+const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
 export default function VerPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
   const params = React.use(paramsProp);
@@ -209,7 +209,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   }
   if (error || !presupuesto) {
-    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado."}</p><Link href="/presupuestos" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
+    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
   }
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
@@ -258,12 +258,10 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
           </div>
         </header>
 
-        {displaySettings.showClientData && displaySettings.showEventTypeAndDate && (
-            <section className="my-4 print:my-2 text-sm print:text-[9pt] text-center">
-                <p>
-                <span className="font-semibold">{presupuesto.clienteNombre}</span> {presupuesto.eventoTipo ? ` ${presupuesto.eventoTipo}` : ''}{presupuesto.eventoFecha ? ` - ${formatDate(presupuesto.eventoFecha, true)}` : ''}
-                </p>
-            </section>
+        {displaySettings.showClientData && (
+          <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-1 print:py-0.5">
+            <p className="font-semibold">{presupuesto.clienteNombre}</p>
+          </section>
         )}
         
         <section className="mb-6 print:mb-3">
@@ -291,44 +289,41 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
 
         {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
           <section className="mb-6 print:mb-3">
-            {Object.entries(itemsAgrupados).map(([categoria, items]) => (
-                <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
-                    <h3 className={`font-bold text-sm mb-1 p-1 print:text-[8pt] ${categoria === 'Regalos Incluidos' ? 'bg-red-100 text-red-800' : 'bg-gray-100'}`}>
-                        {categoria === 'Regalos Incluidos' ? <span className="flex items-center gap-1"><Gift className="w-4 h-4"/>{categoria}</span> : categoria}
-                      </h3>
-                    <table className="w-full text-xs print:text-[7pt] border-collapse">
-                        <thead className="print:bg-gray-100">
-                        <tr>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {items.map((item) => (
-                            <tr key={item.idServicioCatalogo}>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                                  {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
-                                </td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(item.precioUnitario, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="font-semibold text-primary">Incluido</span> : formatCurrency(item.costoTotalItem, false)}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            ))}
+              <table className="w-full text-xs print:text-[7pt] border-collapse">
+                  <thead className="print:bg-gray-100">
+                  <tr>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Unidad</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
+                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {presupuesto.itemsPresupuestados.map((item) => (
+                      <tr key={item.idServicioCatalogo}>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
+                        {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO EXCLUSIVO)</span> : item.nombreServicio}
+                      </td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">$</td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(item.precioUnitario, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.esRegalo ? '100%' : (presupuesto.descuentoTipo === 'porcentaje' ? `${presupuesto.descuentoValor || 0}%` : '')}</td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                      </tr>
+                  ))}
+                  </tbody>
+              </table>
           </section>
         )}
         
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
-            <div className="flex justify-between"><span>Subtotal Bruto:</span><span>{formatCurrency(subtotalBruto)}</span></div>
-            {costoTotalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro por Regalos:</span><span>-{formatCurrency(costoTotalRegalos)}</span></div>}
-            {descuentoPromocional > 0 && <div className="flex justify-between text-red-600"><span>Descuento Promocional:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}
-            <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500"><span className="text-base">TOTAL A PAGAR:</span><span className="text-base">{formatCurrency(totalFinal)}</span></div>
+            <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
+              <span className="text-base">Importe total</span>
+              <span className="text-base">{formatCurrency(totalFinal, true)}</span>
+            </div>
           </div>
         </section>
         
@@ -341,3 +336,5 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     </div>
   );
 }
+
+    
