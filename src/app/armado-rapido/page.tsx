@@ -133,6 +133,17 @@ export default function ArmadoRapidoPage() {
                 cantidad: cantidad,
             });
         };
+        
+        selectedEntradas.forEach(id => {
+            addServicio(serviciosCatalogo.find(s => s.id === id), false, adultos);
+        });
+
+        if (selectedPrincipal) {
+            addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false, adultos, `(x${adultos})`);
+        }
+        if (selectedMenuNino && ninos > 0) {
+            addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, ninos, `(x${ninos})`);
+        }
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
@@ -154,10 +165,11 @@ export default function ArmadoRapidoPage() {
     const serviciosAgrupados = useMemo(() => {
         const serviciosOrdenados = [...serviciosDetallados].sort((a,b) => (a.esRegalo ? 1 : 0) - (b.esRegalo ? 1 : 0));
         return serviciosOrdenados.reduce((acc, servicio) => {
-            if (!acc[servicio.categoria]) {
-                acc[servicio.categoria] = [];
+            const categoria = servicio.categoria || 'Otros Servicios';
+            if (!acc[categoria]) {
+                acc[categoria] = [];
             }
-            acc[servicio.categoria].push(servicio);
+            acc[categoria].push(servicio);
             return acc;
         }, {} as Record<string, ServicioDetallado[]>);
     }, [serviciosDetallados]);
@@ -309,7 +321,7 @@ export default function ArmadoRapidoPage() {
                                                     <>
                                                         <Separator className="my-2"/>
                                                         <ul className="text-xs list-disc pl-4 space-y-1">
-                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{serv.nombre} (REGALO)</li> })}
+                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{serv.nombre}</li> })}
                                                         </ul>
                                                     </>
                                                 )}
@@ -339,7 +351,7 @@ export default function ArmadoRapidoPage() {
                                                     <TableRow><TableCell colSpan={2} className="font-bold text-primary bg-primary/5">{categoria}</TableCell></TableRow>
                                                     {items.map((item) => (
                                                         <TableRow key={item.id}>
-                                                            <TableCell className="font-medium">{item.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{item.nombre} (REGALO)</span> : item.nombre}</TableCell>
+                                                            <TableCell className="font-medium">{item.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{item.nombre}</span> : item.nombre}</TableCell>
                                                             <TableCell className="text-right">{item.esRegalo ? <span className="line-through text-muted-foreground">{formatCurrency(item.costo)}</span> : formatCurrency(item.costo)}</TableCell>
                                                         </TableRow>
                                                     ))}
@@ -385,3 +397,4 @@ export default function ArmadoRapidoPage() {
 }
 
     
+
