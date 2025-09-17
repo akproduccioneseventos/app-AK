@@ -8,11 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// This page is obsolete and redirects to the new unified builder.
+// This page is now obsolete and redirects to the new unified budget builder/dashboard.
 export default function PresupuestosListPage() {
     const router = useRouter();
 
     useEffect(() => {
+        // Redirect to the new unified page
         router.replace('/presupuestos/nuevo');
     }, [router]);
     
@@ -21,7 +22,7 @@ export default function PresupuestosListPage() {
             <Card className="max-w-xl text-center">
                 <CardHeader>
                     <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
-                    <CardTitle className="font-headline text-2xl mt-4">Redirigiendo...</CardTitle>
+                    <CardTitle className="font-headline text-2xl mt-4">Página Actualizada</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground">

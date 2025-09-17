@@ -214,8 +214,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
-
-  const eventYear = new Date(presupuesto.eventoFecha).getFullYear();
+  
+  const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
   const currentYear = new Date().getFullYear();
   const showAnnualAdjustmentLegend = 
     displaySettings?.annualAdjustmentPercentage && 
@@ -227,7 +227,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     <div className="max-w-4xl mx-auto bg-white print:bg-white font-sans text-gray-800 print:text-black">
       <div className="p-4 md:p-8 print:p-2">
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
-          <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
+          <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
             <Button variant="outline" size="sm" onClick={handleShare}><Share2 className="mr-2 h-4 w-4"/>Compartir</Button>
             <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
