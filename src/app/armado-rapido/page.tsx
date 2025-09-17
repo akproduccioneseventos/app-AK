@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -95,7 +96,7 @@ export default function ArmadoRapidoPage() {
         allServiciosIds.forEach(servicioInfo => {
             const servicio = servicios.find(s => s.id === servicioInfo.id);
             if (servicio) {
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo });
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo || false });
                 if (!servicioInfo.esRegalo) {
                     costoTotal += calcularCostoServicio(servicio, cantidadInvitados);
                 }
