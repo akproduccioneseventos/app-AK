@@ -43,8 +43,6 @@ const COMPANY_ADDRESS_LINE1_PDF = "Salto";
 const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
 const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
-const COMPANY_LOGO_URL_PDF = "https://placehold.co/100x100/EF4444/FFFFFF.png?text=AK&font=montserrat";
-const COMPANY_LOGO_AI_HINT_PDF = "AK Producciones logo";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
@@ -147,9 +145,8 @@ export default function ArmadoRapidoPage() {
 
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
             if (!servicio) return;
-            // Determine the quantity for calculation based on the method
-            const cantidadParaCalculo = servicio.calculationMethod === 'fijo' ? 1 : totalInvitados;
-            const costoItem = calcularCostoServicio(servicio, cantidadParaCalculo);
+            const cantidadParaCalculo = (servicio.calculationMethod === 'fijo' || servicio.calculationMethod === 'tramos') ? 1 : totalInvitados;
+            const costoItem = calcularCostoServicio(servicio, totalInvitados);
             
             if (!esRegalo) {
                 calculatedSubtotal += costoItem;
@@ -164,7 +161,7 @@ export default function ArmadoRapidoPage() {
                 categoria: servicio.categoria || 'Varios',
                 // For display purposes in the table
                 precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-                cantidad: servicio.calculationMethod === 'fijo' ? 1 : cantidadParaCalculo,
+                cantidad: cantidadParaCalculo,
                 unidad: servicio.calculationMethod === 'fijo' ? 'evento' : 'persona'
             });
         };
@@ -405,7 +402,7 @@ export default function ArmadoRapidoPage() {
                                     </div>
                                     {logoUrl && (
                                         <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-                                            <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo ak producciones"/>
+                                            <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
                                         </div>
                                     )}
                                 </div>
