@@ -12,14 +12,13 @@ import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, Che
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 
@@ -44,9 +43,13 @@ function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: num
 }
 
 interface ServicioDetallado {
+  id: string;
   nombre: string;
   esRegalo: boolean;
   costo: number;
+  categoria: string;
+  precioUnitario: number;
+  cantidad: number;
 }
 
 export default function ArmadoRapidoPage() {
@@ -103,44 +106,34 @@ export default function ArmadoRapidoPage() {
         const totalInvitados = adultos + ninos;
         const includedServicesList: ServicioDetallado[] = [];
 
-        // Gastronomía
-        selectedEntradas.forEach(id => {
-            const servicio = serviciosCatalogo.find(s => s.id === id);
-            if(servicio) {
-                const costoItem = calcularCostoServicio(servicio, totalInvitados);
+        // Helper to add a service to the list
+        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, cantidad: number, nota?: string) => {
+            if (!servicio) return;
+            const costoItem = calcularCostoServicio(servicio, cantidad);
+            if (!esRegalo) {
                 calculatedSubtotal += costoItem;
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem });
             }
-        });
-        if(selectedPrincipal) {
-            const servicio = serviciosCatalogo.find(s => s.id === selectedPrincipal);
-            if(servicio) {
-                const costoItem = calcularCostoServicio(servicio, adultos); // Principal solo para adultos
-                calculatedSubtotal += costoItem;
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem });
-            }
-        }
-        if(selectedMenuNino && ninos > 0) {
-            const servicio = serviciosCatalogo.find(s => s.id === selectedMenuNino);
-            if(servicio) {
-                const costoItem = calcularCostoServicio(servicio, ninos); // Menú niños
-                calculatedSubtotal += costoItem;
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem });
-            }
-        }
+            includedServicesList.push({ 
+                id: servicio.id,
+                nombre: servicio.nombre + (nota ? ` ${nota}` : ''), 
+                esRegalo, 
+                costo: costoItem,
+                categoria: servicio.categoria || 'Varios',
+                precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+                cantidad: cantidad,
+            });
+        };
 
+        // Gastronomía
+        selectedEntradas.forEach(id => addServicio(serviciosCatalogo.find(s => s.id === id), false, totalInvitados));
+        if (selectedPrincipal) addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false, adultos, `(x${adultos} adultos)`);
+        if (selectedMenuNino && ninos > 0) addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, ninos, `(x${ninos} niños)`);
+        
         // Paquete de Servicios
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
             paqueteSeleccionado.serviciosIncluidos.forEach(servicioInfo => {
-                const servicio = serviciosCatalogo.find(s => s.id === servicioInfo.id);
-                if (servicio) {
-                    const costoItem = calcularCostoServicio(servicio, totalInvitados);
-                    includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo || false, costo: costoItem });
-                    if (!servicioInfo.esRegalo) {
-                        calculatedSubtotal += costoItem;
-                    }
-                }
+                addServicio(serviciosCatalogo.find(s => s.id === servicioInfo.id), servicioInfo.esRegalo || false, totalInvitados);
             });
         }
         
@@ -153,7 +146,17 @@ export default function ArmadoRapidoPage() {
 
         return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList };
     }, [config, serviciosCatalogo, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
-    
+
+    const serviciosAgrupados = useMemo(() => {
+        return serviciosDetallados.reduce((acc, servicio) => {
+            if (!acc[servicio.categoria]) {
+                acc[servicio.categoria] = [];
+            }
+            acc[servicio.categoria].push(servicio);
+            return acc;
+        }, {} as Record<string, ServicioDetallado[]>);
+    }, [serviciosDetallados]);
+
      const generateWhatsAppMessage = useCallback(() => {
         let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
         message += `Hola *${clienteNombre || 'Cliente'}*,\n\n`;
@@ -267,26 +270,40 @@ export default function ArmadoRapidoPage() {
                             </div>
                         </div>
                     )}
-                    {step === 3 && (
+                     {step === 3 && (
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><Package className="text-primary w-5 h-5"/>Elige tu Paquete de Servicios</h3>
                             <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {config?.paquetes.map(p => (
-                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                                {config?.paquetes.map(p => {
+                                    const servicios = p.serviciosIncluidos.filter(s => !s.esRegalo);
+                                    const regalos = p.serviciosIncluidos.filter(s => s.esRegalo);
+                                    return (
+                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-primary/5 flex flex-col">
                                         <div className="flex items-start gap-4">
                                             <RadioGroupItem value={p.id} id={`pkg-${p.id}`} className="mt-1"/>
-                                            <div>
+                                            <div className="flex-grow">
                                                 <p className="font-semibold">{p.nombre}</p>
-                                                <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2">
-                                                    {p.serviciosIncluidos.map(s => {
+                                                <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2 space-y-1">
+                                                    {servicios.map(s => {
                                                         const serv = serviciosCatalogo.find(sc => sc.id === s.id);
-                                                        return serv && <li key={s.id} className={s.esRegalo ? 'text-green-600 font-medium' : ''}>{serv.nombre}{s.esRegalo && ' (REGALO)'}</li>
+                                                        return serv && <li key={s.id}>{serv.nombre}</li>
                                                     })}
                                                 </ul>
+                                                {regalos.length > 0 && (
+                                                    <>
+                                                        <Separator className="my-2"/>
+                                                        <ul className="text-xs list-disc pl-4 space-y-1">
+                                                        {regalos.map(s => {
+                                                            const serv = serviciosCatalogo.find(sc => sc.id === s.id);
+                                                            return serv && <li key={s.id} className="text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{serv.nombre} (REGALO)</li>
+                                                        })}
+                                                        </ul>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     </Label>
-                                ))}
+                                )})}
                             </RadioGroup>
                         </div>
                     )}
@@ -296,18 +313,32 @@ export default function ArmadoRapidoPage() {
                              {costoTotal > 0 ? (
                                 <div className="p-4 bg-muted/10 rounded-lg border">
                                     <Table>
+                                        <TableCaption className="text-left mt-4">
+                                          Este es un precio estimado. Incluye un {config?.descuentoGeneral || 0}% de descuento promocional.
+                                        </TableCaption>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>Servicio</TableHead>
-                                                <TableHead className="text-right">Costo</TableHead>
+                                                <TableHead>Servicio / Ítem</TableHead>
+                                                <TableHead className="text-right">Precio</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {serviciosDetallados.map((s, i) => (
-                                            <TableRow key={i}>
-                                                <TableCell className="font-medium">{s.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{s.nombre} (REGALO)</span> : s.nombre}</TableCell>
-                                                <TableCell className="text-right">{s.esRegalo ? <span className="line-through text-muted-foreground">{formatCurrency(s.costo)}</span> : formatCurrency(s.costo)}</TableCell>
-                                            </TableRow>
+                                            {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
+                                                <React.Fragment key={categoria}>
+                                                    <TableRow>
+                                                        <TableCell colSpan={2} className="font-bold text-primary bg-primary/5">{categoria}</TableCell>
+                                                    </TableRow>
+                                                    {items.map((item) => (
+                                                        <TableRow key={item.id}>
+                                                            <TableCell className="font-medium">
+                                                                {item.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{item.nombre} (REGALO)</span> : item.nombre}
+                                                            </TableCell>
+                                                            <TableCell className="text-right">
+                                                                {item.esRegalo ? <span className="line-through text-muted-foreground">{formatCurrency(item.costo)}</span> : formatCurrency(item.costo)}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </React.Fragment>
                                             ))}
                                         </TableBody>
                                     </Table>
