@@ -258,7 +258,7 @@ export default function ArmadoRapidoPage() {
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu Gastronomía</h3>
-                            <div className="space-y-4"><Label>Entradas (puedes elegir varias)</Label>
+                            <div className="space-y-4"><Label>Entradas (debe elegir al menos 2)</Label>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => setSelectedEntradas(p => checked ? [...p, s.id] : p.filter(id => id !== s.id))}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre}</Label></div>))}</div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -332,7 +332,7 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !clienteContacto.trim() || adultos <= 0)) || (step === 2 && !selectedPrincipal)}>
+                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !clienteContacto.trim() || adultos <= 0)) || (step === 2 && (!selectedPrincipal || selectedEntradas.length < 2))}>
                             Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (
@@ -346,3 +346,4 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
