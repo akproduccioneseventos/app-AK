@@ -281,10 +281,10 @@ export default function ContabilidadDashboardPage() {
                     <div><CardTitle className="font-headline text-lg mb-1">Simulador para Clientes</CardTitle></div>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
-                <CardFooter className="pt-2 flex flex-col gap-2">
-                   <Link href="/armado-rapido" passHref className="w-full" target="_blank">
-                      <Button variant="outline" className="w-full"><Eye className="w-4 h-4 mr-2"/>Vista Previa</Button>
-                   </Link>
+                <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
+                   <Button variant="outline" className="w-full" onClick={() => window.open('/armado-rapido', '_blank')}>
+                        <Eye className="w-4 h-4 mr-2"/>Vista Previa
+                    </Button>
                    <div className="flex gap-2 w-full">
                     <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
                     <ShareLinkDialog link={simuladorLink} title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
