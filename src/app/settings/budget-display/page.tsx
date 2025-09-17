@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,7 +63,7 @@ export default function BudgetDisplaySettingsPage() {
   
   const handleOpenModal = (type: 'paquete' | 'menu', item?: PaqueteArmadoRapido | MenuArmadoRapido) => {
     setModalType(type);
-    setCurrentItem(item ? {...item} : { nombre: '', serviciosIncluidos: [] });
+    setCurrentItem(item ? {...item, serviciosIncluidos: item.serviciosIncluidos || []} : { nombre: '', serviciosIncluidos: [] });
     setIsModalOpen(true);
   };
   
@@ -159,7 +159,7 @@ export default function BudgetDisplaySettingsPage() {
     });
   };
   
-  const serviciosAgrupados = React.useMemo(() => {
+ const serviciosAgrupadosParaPaquetes = React.useMemo(() => {
     return serviciosCatalogo.reduce((acc, servicio) => {
         const categoria = servicio.categoria || 'Otros';
         if (!acc[categoria]) acc[categoria] = [];
@@ -167,7 +167,19 @@ export default function BudgetDisplaySettingsPage() {
         return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
   }, [serviciosCatalogo]);
-  const categoriasOrdenadas = Object.keys(serviciosAgrupados).sort();
+  const categoriasOrdenadasParaPaquetes = Object.keys(serviciosAgrupadosParaPaquetes).sort();
+  
+  const serviciosAgrupadosParaMenus = React.useMemo(() => {
+    const serviciosDeCatering = serviciosCatalogo.filter(s => s.categoria === 'Servicio de catering');
+    return serviciosDeCatering.reduce((acc, servicio) => {
+      const subcategoria = servicio.subcategoria || 'General';
+      if (!acc[subcategoria]) acc[subcategoria] = [];
+      acc[subcategoria].push(servicio);
+      return acc;
+    }, {} as Record<string, ServicioEmpresa[]>);
+  }, [serviciosCatalogo]);
+  const categoriasOrdenadasParaMenus = Object.keys(serviciosAgrupadosParaMenus).sort();
+
 
   if (isLoading || !config) {
     return <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
@@ -184,16 +196,17 @@ export default function BudgetDisplaySettingsPage() {
           {currentItem && (
             <form onSubmit={handleSaveItem}>
               <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
-                <div className="space-y-1"><Label htmlFor="item-name">Nombre</Label><Input id="item-name" value={currentItem.nombre} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
+                <div className="space-y-1"><Label htmlFor="item-name">Nombre</Label><Input id="item-name" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
                 <Separator/>
                 <Label>Servicios Incluidos</Label>
-                 <Accordion type="multiple" className="w-full space-y-2">
-                    {categoriasOrdenadas.map(categoria => (
+                 <Accordion type="multiple" className="w-full space-y-2" defaultValue={modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus}>
+                    {modalType === 'paquete' ? (
+                      categoriasOrdenadasParaPaquetes.map(categoria => (
                         <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
                             <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
                             <AccordionContent className="px-3 pt-0 pb-2">
                                 <div className="space-y-2 pt-2 border-t">
-                                 {serviciosAgrupados[categoria].map(servicio => {
+                                 {serviciosAgrupadosParaPaquetes[categoria].map(servicio => {
                                     const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
                                     const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
                                     return (
@@ -212,7 +225,34 @@ export default function BudgetDisplaySettingsPage() {
                                  </div>
                             </AccordionContent>
                         </AccordionItem>
-                    ))}
+                      ))
+                    ) : (
+                       categoriasOrdenadasParaMenus.map(subcategoria => (
+                        <AccordionItem key={subcategoria} value={subcategoria} className="border rounded-md shadow-sm bg-muted/20">
+                            <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{subcategoria}</AccordionTrigger>
+                            <AccordionContent className="px-3 pt-0 pb-2">
+                                <div className="space-y-2 pt-2 border-t">
+                                 {serviciosAgrupadosParaMenus[subcategoria].map(servicio => {
+                                    const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
+                                    const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
+                                    return (
+                                        <div key={servicio.id} className="flex items-center justify-between p-2 border rounded-md bg-background">
+                                            <div className="flex items-center gap-3">
+                                                <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)}/>
+                                                <Label htmlFor={`serv-${servicio.id}`} className="text-xs font-normal">{servicio.nombre}</Label>
+                                            </div>
+                                            {isInItem && <div className="flex items-center gap-2">
+                                                <Switch id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)}/>
+                                                <Label htmlFor={`gift-${servicio.id}`} className="text-xs text-green-600 font-medium">Regalo</Label>
+                                            </div>}
+                                        </div>
+                                    )
+                                 })}
+                                 </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                      ))
+                    )}
                  </Accordion>
               </div>
               <DialogFooter>
@@ -238,15 +278,15 @@ export default function BudgetDisplaySettingsPage() {
             <Separator/>
             <Accordion type="multiple" className="w-full space-y-3">
               {config.paquetes.map(pkg => (
-                <AccordionItem key={pkg.id} value={pkg.id}>
-                    <div className="flex items-center p-3 border rounded-md font-semibold text-sm hover:bg-muted/50 data-[state=open]:rounded-b-none">
+                <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-md shadow-sm">
+                    <div className="flex items-center p-3 font-semibold text-sm hover:bg-muted/50 data-[state=open]:rounded-b-none">
                         <AccordionTrigger className="hover:no-underline flex-1 text-left">{pkg.nombre}</AccordionTrigger>
-                        <div className="flex gap-2 pl-2" onClick={e => e.stopPropagation()}>
+                        <div className="flex gap-2 pl-2">
                            <Button variant="outline" size="sm" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
                            <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('paquete', pkg.id)} disabled={isSaving}>Eliminar</Button>
                         </div>
                     </div>
-                    <AccordionContent className="p-3 border border-t-0 rounded-b-md">
+                    <AccordionContent className="p-3 border-t">
                         <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
                             {(pkg.serviciosIncluidos || []).map(servicio => {
                                 const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
@@ -275,15 +315,15 @@ export default function BudgetDisplaySettingsPage() {
             <Separator/>
             <Accordion type="multiple" className="w-full space-y-3">
              {config.menus.map(menu => (
-                <AccordionItem key={menu.id} value={menu.id}>
-                    <div className="flex items-center p-3 border rounded-md font-semibold text-sm hover:bg-muted/50 data-[state=open]:rounded-b-none">
+                <AccordionItem key={menu.id} value={menu.id} className="border rounded-md shadow-sm">
+                    <div className="flex items-center p-3 font-semibold text-sm hover:bg-muted/50 data-[state=open]:rounded-b-none">
                         <AccordionTrigger className="hover:no-underline flex-1 text-left">{menu.nombre}</AccordionTrigger>
-                        <div className="flex gap-2 pl-2" onClick={e => e.stopPropagation()}>
+                        <div className="flex gap-2 pl-2">
                            <Button variant="outline" size="sm" onClick={() => handleOpenModal('menu', menu)}>Editar</Button>
                            <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('menu', menu.id)} disabled={isSaving}>Eliminar</Button>
                         </div>
                     </div>
-                    <AccordionContent className="p-3 border border-t-0 rounded-b-md">
+                    <AccordionContent className="p-3 border-t">
                         <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
                             {(menu.serviciosIncluidos || []).map(servicio => {
                                 const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
