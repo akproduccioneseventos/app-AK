@@ -277,7 +277,7 @@ export default function ContabilidadDashboardPage() {
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
                   <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer" className="w-full">
                       <Button variant="outline" className="w-full">
-                        <Eye className="w-4 h-4 mr-2"/>Vista Previa
+                        <Eye className="w-4 h-4 mr-2"/>Abrir Simulador
                       </Button>
                   </Link>
                   <div className="flex gap-2 w-full">
