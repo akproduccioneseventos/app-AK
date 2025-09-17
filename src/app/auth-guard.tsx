@@ -32,6 +32,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
+    // If user is authenticated and tries to visit /login, redirect them to home.
+    if (isAuthenticated && pathname === '/login') {
+      router.push('/');
+      return; // Stop further execution in this effect run
+    }
+    
     // Define public paths that don't require authentication
     const publicPaths = [
       '/login',
@@ -40,7 +46,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/video-vida',
       '/feedback',
       '/portal',
-      '/armado-rapido', // Make the customer-facing simulator public
+      '/armado-rapido', 
     ];
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
