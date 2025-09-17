@@ -47,6 +47,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/feedback',
       '/portal',
       '/armado-rapido', 
+      '/acceso-personal',
     ];
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
