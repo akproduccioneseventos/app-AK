@@ -47,8 +47,6 @@ interface ServicioDetallado {
   nombre: string;
   esRegalo: boolean;
   costo: number;
-  precioUnitario: number;
-  calculationMethod?: string;
 }
 
 export default function ArmadoRapidoPage() {
@@ -111,7 +109,7 @@ export default function ArmadoRapidoPage() {
             if(servicio) {
                 const costoItem = calcularCostoServicio(servicio, totalInvitados);
                 calculatedSubtotal += costoItem;
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem });
             }
         });
         if(selectedPrincipal) {
@@ -119,7 +117,7 @@ export default function ArmadoRapidoPage() {
             if(servicio) {
                 const costoItem = calcularCostoServicio(servicio, adultos); // Principal solo para adultos
                 calculatedSubtotal += costoItem;
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem });
             }
         }
         if(selectedMenuNino && ninos > 0) {
@@ -127,7 +125,7 @@ export default function ArmadoRapidoPage() {
             if(servicio) {
                 const costoItem = calcularCostoServicio(servicio, ninos); // Menú niños
                 calculatedSubtotal += costoItem;
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem });
             }
         }
 
@@ -138,7 +136,7 @@ export default function ArmadoRapidoPage() {
                 const servicio = serviciosCatalogo.find(s => s.id === servicioInfo.id);
                 if (servicio) {
                     const costoItem = calcularCostoServicio(servicio, totalInvitados);
-                    includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo || false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
+                    includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo || false, costo: costoItem });
                     if (!servicioInfo.esRegalo) {
                         calculatedSubtotal += costoItem;
                     }
@@ -158,7 +156,7 @@ export default function ArmadoRapidoPage() {
     
      const generateWhatsAppMessage = useCallback(() => {
         let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
-        message += `Hola *${clienteNombre}*,\n\n`;
+        message += `Hola *${clienteNombre || 'Cliente'}*,\n\n`;
         message += `Gracias por tu interés. Aquí tienes un resumen de tu simulación:\n\n`;
         message += `*Invitados:* ${adultos} Adultos, ${ninos} Niños/Adolescentes\n\n`;
         message += `*Servicios Incluidos:*\n`;
@@ -178,12 +176,14 @@ export default function ArmadoRapidoPage() {
     }, [clienteNombre, adultos, ninos, serviciosDetallados, subtotal, descuento, costoTotal, config]);
 
     const handleShareWhatsApp = () => {
+        if (typeof window === 'undefined') return;
         const message = generateWhatsAppMessage();
         const whatsAppUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsAppUrl, '_blank');
     };
 
     const handleCopyToClipboard = () => {
+        if (typeof window === 'undefined') return;
         const textToCopy = generateWhatsAppMessage();
         navigator.clipboard.writeText(textToCopy);
         toast({ title: "¡Copiado!", description: "El resumen del presupuesto ha sido copiado." });
