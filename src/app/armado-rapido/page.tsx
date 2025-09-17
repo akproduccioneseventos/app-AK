@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, Drumstick, Soup, Share2, ClipboardCopy, Trash2, Printer, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -356,7 +356,7 @@ export default function ArmadoRapidoPage() {
                                      </div>
                                 </div>
                             ) : (<p className="text-muted-foreground py-8 text-center">Completa los pasos anteriores para ver la estimación.</p>)}
-                            <div className="flex flex-col sm:flex-row gap-2 justify-center pt-4 print:hidden">
+                             <div className="flex flex-col sm:flex-row gap-2 justify-center pt-4 print:hidden">
                                 <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar por WhatsApp</Button>
                                 <Button type="button" onClick={handleShareWhatsApp} variant="outline"><Share2 className="w-4 h-4 mr-2"/>Compartir Resumen</Button>
                                 <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar PDF</Button>
