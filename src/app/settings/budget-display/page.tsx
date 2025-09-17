@@ -239,15 +239,13 @@ export default function BudgetDisplaySettingsPage() {
             <Accordion type="multiple" className="w-full space-y-3">
               {config.paquetes.map(pkg => (
                 <AccordionItem key={pkg.id} value={pkg.id}>
-                    <AccordionTrigger className="p-3 border rounded-md font-semibold text-sm hover:no-underline hover:bg-muted/50 data-[state=open]:rounded-b-none">
-                       <div className="flex justify-between items-center w-full">
-                         {pkg.nombre}
-                         <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center p-3 border rounded-md font-semibold text-sm hover:bg-muted/50 data-[state=open]:rounded-b-none">
+                        <AccordionTrigger className="hover:no-underline flex-1 text-left">{pkg.nombre}</AccordionTrigger>
+                        <div className="flex gap-2 pl-2" onClick={e => e.stopPropagation()}>
                            <Button variant="outline" size="sm" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
                            <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('paquete', pkg.id)} disabled={isSaving}>Eliminar</Button>
-                         </div>
-                       </div>
-                    </AccordionTrigger>
+                        </div>
+                    </div>
                     <AccordionContent className="p-3 border border-t-0 rounded-b-md">
                         <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
                             {(pkg.serviciosIncluidos || []).map(servicio => {
@@ -278,15 +276,13 @@ export default function BudgetDisplaySettingsPage() {
             <Accordion type="multiple" className="w-full space-y-3">
              {config.menus.map(menu => (
                 <AccordionItem key={menu.id} value={menu.id}>
-                    <AccordionTrigger className="p-3 border rounded-md font-semibold text-sm hover:no-underline hover:bg-muted/50 data-[state=open]:rounded-b-none">
-                       <div className="flex justify-between items-center w-full">
-                         {menu.nombre}
-                         <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center p-3 border rounded-md font-semibold text-sm hover:bg-muted/50 data-[state=open]:rounded-b-none">
+                        <AccordionTrigger className="hover:no-underline flex-1 text-left">{menu.nombre}</AccordionTrigger>
+                        <div className="flex gap-2 pl-2" onClick={e => e.stopPropagation()}>
                            <Button variant="outline" size="sm" onClick={() => handleOpenModal('menu', menu)}>Editar</Button>
                            <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('menu', menu.id)} disabled={isSaving}>Eliminar</Button>
-                         </div>
-                       </div>
-                    </AccordionTrigger>
+                        </div>
+                    </div>
                     <AccordionContent className="p-3 border border-t-0 rounded-b-md">
                         <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
                             {(menu.serviciosIncluidos || []).map(servicio => {
