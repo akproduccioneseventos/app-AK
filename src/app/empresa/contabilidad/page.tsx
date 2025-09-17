@@ -137,19 +137,19 @@ export default function ContabilidadDashboardPage() {
       const today = new Date();
       for (let i = 11; i >= 0; i--) {
         const month = new Date(today.getFullYear(), today.getMonth() - i, 1);
-        const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+        const monthKey = `${''}${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
         salesByMonth[monthKey] = { sales: 0, payments: 0 };
       }
 
       invoicesData.forEach(inv => {
         const issueMonth = new Date(inv.issueDate);
-        const monthKey = `${issueMonth.getFullYear()}-${String(issueMonth.getMonth() + 1).padStart(2, '0')}`;
+        const monthKey = `${''}${issueMonth.getFullYear()}-${String(issueMonth.getMonth() + 1).padStart(2, '0')}`;
         if (salesByMonth[monthKey]) {
           salesByMonth[monthKey].sales += inv.totalAmount;
         }
         inv.payments?.forEach(p => {
           const paymentMonth = new Date(p.paymentDate);
-          const paymentMonthKey = `${paymentMonth.getFullYear()}-${String(paymentMonth.getMonth() + 1).padStart(2, '0')}`;
+          const paymentMonthKey = `${''}${paymentMonth.getFullYear()}-${String(paymentMonth.getMonth() + 1).padStart(2, '0')}`;
            if (salesByMonth[paymentMonthKey]) {
             salesByMonth[paymentMonthKey].payments += p.amount;
           }
@@ -157,7 +157,7 @@ export default function ContabilidadDashboardPage() {
       });
       
       const formattedMonthlyData = Object.entries(salesByMonth).map(([month, data]) => ({
-        month: new Date(month + '-01').toLocaleString('es-UY', { month: 'short', year: '2-digit' }),
+        month: new Date(`${month}-01T00:00:00`).toLocaleString('es-UY', { month: 'short', year: '2-digit' }),
         ventas: data.sales,
         pagos: data.payments,
       }));
@@ -275,10 +275,10 @@ export default function ContabilidadDashboardPage() {
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
-                  <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" className="w-full">
+                  <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer" className="w-full">
+                      <Button variant="outline" className="w-full">
                         <Eye className="w-4 h-4 mr-2"/>Vista Previa
-                    </Button>
+                      </Button>
                   </Link>
                   <div className="flex gap-2 w-full">
                     <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
