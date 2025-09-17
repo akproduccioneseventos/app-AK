@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getSocialConnections } from '@/app/actions/social-connections';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { SocialConnection } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -20,8 +21,18 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
+import Image from 'next/image';
 
-const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+const formatCurrency = (amount: number, includeSymbol = true) => {
+    if (isNaN(amount)) return 'N/A';
+    const options = { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    const formatted = new Intl.NumberFormat('es-UY', options).format(amount);
+    return includeSymbol ? `$ ${formatted}` : formatted;
+};
+
+const formatDate = (date = new Date()) => {
+  return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
 
 function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: number): number {
   if (!servicio || cantidadInvitados <= 0) return 0;
@@ -51,6 +62,7 @@ interface ServicioDetallado {
   categoria: string;
   precioUnitario: number;
   cantidad: number;
+  unidad?: string;
 }
 
 export default function ArmadoRapidoPage() {
@@ -61,6 +73,7 @@ export default function ArmadoRapidoPage() {
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [whatsappNumber, setWhatsappNumber] = useState<string>('');
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
     
     // Form state
     const [clienteNombre, setClienteNombre] = useState('');
@@ -86,10 +99,11 @@ export default function ArmadoRapidoPage() {
         const loadInitialData = async () => {
             setIsLoading(true);
             try {
-                const [armadoConfig, serviciosData, socialConnections] = await Promise.all([
+                const [armadoConfig, serviciosData, socialConnections, templateSettings] = await Promise.all([
                     getArmadoRapidoConfig(),
                     getServiciosEmpresa(),
-                    getSocialConnections()
+                    getSocialConnections(),
+                    getInvoiceTemplateSettings()
                 ]);
                 setConfig(armadoConfig);
                 setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
@@ -97,6 +111,7 @@ export default function ArmadoRapidoPage() {
                 if (whatsappConnection?.phoneNumber) {
                     setWhatsappNumber(whatsappConnection.phoneNumber);
                 }
+                setLogoUrl(templateSettings.logoUrl || null);
             } catch (error) {
                 toast({ title: "Error", description: "No se pudieron cargar las configuraciones.", variant: "destructive" });
             } finally {
@@ -130,6 +145,7 @@ export default function ArmadoRapidoPage() {
                 categoria: servicio.categoria || 'Varios',
                 precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
                 cantidad: cantidad,
+                unidad: servicio.unidad
             });
         };
         
@@ -138,10 +154,10 @@ export default function ArmadoRapidoPage() {
         });
 
         if (selectedPrincipal) {
-            addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false, adultos, `(x${adultos})`);
+            addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false, adultos);
         }
         if (selectedMenuNino && ninos > 0) {
-            addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, ninos, `(x${ninos})`);
+            addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, ninos);
         }
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
@@ -162,9 +178,6 @@ export default function ArmadoRapidoPage() {
     }, [config, serviciosCatalogo, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
 
     const serviciosAgrupados = useMemo(() => {
-        const serviciosNormales = serviciosDetallados.filter(s => !s.esRegalo);
-        const serviciosRegalo = serviciosDetallados.filter(s => s.esRegalo);
-
         const agrupar = (servs: ServicioDetallado[]) => servs.reduce((acc, servicio) => {
             const categoria = servicio.categoria || 'Otros Servicios';
             if (!acc[categoria]) {
@@ -174,47 +187,39 @@ export default function ArmadoRapidoPage() {
             return acc;
         }, {} as Record<string, ServicioDetallado[]>);
 
-        return {
-            normales: agrupar(serviciosNormales),
-            regalos: agrupar(serviciosRegalo)
-        };
+        return agrupar(serviciosDetallados);
     }, [serviciosDetallados]);
 
      const generateWhatsAppMessage = useCallback(() => {
         let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
-        message += `Hola *${clienteNombre || 'Cliente'}*,\n\n`;
+        message += `Estimado/a *${clienteNombre || 'Cliente'}*,\n\n`;
         message += `Gracias por tu interés. Aquí tienes un resumen de tu simulación:\n\n`;
         message += `*Invitados:* ${adultos} Adultos, ${ninos} Niños/Adolescentes\n\n`;
         
-        Object.entries(serviciosAgrupados.normales).forEach(([categoria, items]) => {
+        Object.entries(serviciosAgrupados).forEach(([categoria, items]) => {
             message += `*${categoria}*\n`;
             items.forEach(s => {
-                message += `  • ${s.nombre}\n`;
+                if (s.esRegalo) {
+                    message += `  🎁 • ${s.nombre} (REGALO)\n`;
+                } else {
+                    message += `  • ${s.nombre}\n`;
+                }
             });
             message += `\n`;
         });
         
-        if (Object.keys(serviciosAgrupados.regalos).length > 0) {
-            message += `🎁 *REGALOS INCLUIDOS*\n`;
-             Object.entries(serviciosAgrupados.regalos).forEach(([categoria, items]) => {
-                items.forEach(s => {
-                    message += `  • ${s.nombre}\n`;
-                });
-            });
-            message += `\n`;
-        }
-
         message += `------------------------------------\n`;
         if (descuento > 0) {
           message += `SUBTOTAL: ${formatCurrency(subtotal)}\n`;
           message += `DESCUENTO (${config?.descuentoGeneral}%): -${formatCurrency(descuento)}\n`;
         }
         if (totalRegalos > 0) {
-            message += `VALOR REGALOS: ${formatCurrency(totalRegalos)}\n`;
+            message += `AHORRO EN REGALOS: ${formatCurrency(totalRegalos)}\n`;
         }
         message += `💰 *COSTO TOTAL ESTIMADO: ${formatCurrency(costoTotal)}*\n`;
         message += `------------------------------------\n\n`;
-        message += `Este es un costo aproximado. ¡Nos pondremos en contacto contigo para afinar los detalles!\n\n`;
+        message += `Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.\n\n`;
+        message += `¡Nos pondremos en contacto contigo para afinar los detalles!\n\n`;
         message += `*El equipo de AK Producciones*`;
         return message;
     }, [clienteNombre, adultos, ninos, serviciosAgrupados, subtotal, descuento, costoTotal, config?.descuentoGeneral, totalRegalos]);
@@ -281,6 +286,10 @@ export default function ArmadoRapidoPage() {
         </div>
       )
     }
+
+    const today = new Date();
+    const validUntil = new Date(today);
+    validUntil.setDate(today.getDate() + 30);
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
@@ -349,50 +358,87 @@ export default function ArmadoRapidoPage() {
                         </div>
                     )}
                     {step === 4 && (
-                        <div className="space-y-6 animate-in fade-in-20">
-                             <h3 className="font-semibold text-lg flex items-center justify-center gap-2"><FileText className="text-primary w-5 h-5"/>Tu Presupuesto Estimado</h3>
+                        <div className="space-y-4 animate-in fade-in-20">
+                            <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
+                                <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">Presupuesto para fiestas o eventos - AK PRODUCCIONES</h1>
+                                <div className="flex justify-between items-start text-xs print:text-[8pt]">
+                                    <div className="space-y-px text-left">
+                                        <p className="font-semibold">SR. Alexander Knuth</p>
+                                        <p>Salto</p>
+                                        <p>50000 Salto</p>
+                                        <p>akproduccionessalto@gmail.com</p>
+                                        <p>www.akproduccioneseventos.com</p>
+                                    </div>
+                                    {logoUrl && (
+                                        <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
+                                            <Image src={logoUrl} alt="AK Producciones Logo" width={80} height={80} className="object-contain" data-ai-hint="company logo ak producciones"/>
+                                        </div>
+                                    )}
+                                </div>
+                                <Separator className="my-3"/>
+                                <p className="text-left font-semibold text-sm">{clienteNombre}</p>
+                            </header>
+                            
+                             <table className="w-full text-xs print:text-[7pt] border-collapse mb-4">
+                                <thead className="print:bg-gray-100">
+                                    <tr>
+                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de cliente</th>
+                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
+                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">N/A</td>
+                                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(today)}</td>
+                                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(validUntil)}</td>
+                                    </tr>
+                                </tbody>
+                             </table>
+
                              {costoTotal > 0 ? (
-                                <div className="p-4 bg-muted/10 rounded-lg border">
+                                <div className="p-0 border-none print:p-0">
                                     <Table>
-                                        <TableCaption className="text-left mt-4 text-xs print:hidden">Este es un precio estimado. Incluye un {config?.descuentoGeneral || 0}% de descuento promocional.</TableCaption>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>Servicio / Ítem</TableHead>
-                                                <TableHead className="text-right">Costo</TableHead>
+                                                <TableHead>Artículo</TableHead>
+                                                <TableHead>Cantidad</TableHead>
+                                                <TableHead>Unidad</TableHead>
+                                                <TableHead>Precio</TableHead>
+                                                <TableHead>Desc.%</TableHead>
+                                                <TableHead className="text-right">Importe total</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {Object.entries(serviciosAgrupados.normales).map(([categoria, items]) => (
+                                            {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
                                                 <React.Fragment key={categoria}>
-                                                    <TableRow><TableCell colSpan={2} className="font-bold text-primary bg-primary/5">{categoria}</TableCell></TableRow>
+                                                    <TableRow className="bg-muted/30 print:bg-gray-50">
+                                                        <TableCell colSpan={6} className="font-bold text-primary">{categoria}</TableCell>
+                                                    </TableRow>
                                                     {items.map((item) => (
                                                         <TableRow key={item.id}>
                                                             <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                            <TableCell className="text-right">{formatCurrency(item.costo)}</TableCell>
+                                                            <TableCell>{item.cantidad}</TableCell>
+                                                            <TableCell>$</TableCell>
+                                                            <TableCell>{formatCurrency(item.precioUnitario, false)}</TableCell>
+                                                            <TableCell>{item.esRegalo ? '100%' : (config?.descuentoGeneral ? `${config.descuentoGeneral}%` : '0%')}</TableCell>
+                                                            <TableCell className="text-right font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </React.Fragment>
                                             ))}
-                                            {Object.keys(serviciosAgrupados.regalos).length > 0 && (
-                                                <React.Fragment>
-                                                    <TableRow><TableCell colSpan={2} className="font-bold text-green-600 bg-green-50/50"><Gift className="w-4 h-4 inline-block mr-2"/>Regalos Incluidos</TableCell></TableRow>
-                                                    {Object.values(serviciosAgrupados.regalos).flat().map((item) => (
-                                                        <TableRow key={item.id}>
-                                                            <TableCell className="font-medium text-green-700">{item.nombre}</TableCell>
-                                                            <TableCell className="text-right"><span className="line-through text-muted-foreground">{formatCurrency(item.costo)}</span></TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </React.Fragment>
-                                            )}
                                         </TableBody>
                                     </Table>
                                     <Separator className="my-4"/>
-                                     <div className="space-y-2 text-right">
-                                        {descuento > 0 && <p className="text-sm">Subtotal: {formatCurrency(subtotal)}</p>}
-                                        {totalRegalos > 0 && <p className="text-sm text-green-600">Ahorro en Regalos: {formatCurrency(totalRegalos)}</p>}
-                                        {descuento > 0 && <p className="text-sm text-destructive">Descuento ({config?.descuentoGeneral}%): -{formatCurrency(descuento)}</p>}
-                                        <p className="text-2xl font-bold">Total Estimado: <span className="text-primary">{formatCurrency(costoTotal)}</span></p>
-                                     </div>
+                                    <div className="w-full max-w-xs ml-auto space-y-1 text-sm">
+                                        {descuento > 0 && <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>}
+                                        {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
+                                        {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-{formatCurrency(descuento)}</span></div>}
+                                        <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
+                                    </div>
+                                    <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
+                                      <p>Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.</p>
+                                    </footer>
                                 </div>
                             ) : (<p className="text-muted-foreground py-8 text-center">Completa los pasos anteriores para ver la estimación.</p>)}
                              <div className="flex flex-col sm:flex-row gap-2 justify-center pt-4 print:hidden">
