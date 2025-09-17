@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,23 +19,32 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ShareLinkDialogProps {
   children: React.ReactNode;
-  link: string;
+  relativePath: string;
   title: string;
   description: string;
 }
 
-export function ShareLinkDialog({ children, link, title, description }: ShareLinkDialogProps) {
+export function ShareLinkDialog({ children, relativePath, title, description }: ShareLinkDialogProps) {
   const { toast } = useToast();
+  const [fullLink, setFullLink] = useState('');
+
+  useEffect(() => {
+    // This effect runs only on the client side, ensuring window is available.
+    if (typeof window !== 'undefined') {
+      const origin = window.location.origin;
+      setFullLink(`${origin}${relativePath}`);
+    }
+  }, [relativePath]);
 
   const handleCopyToClipboard = () => {
-    if (!link) return;
-    navigator.clipboard.writeText(link);
+    if (!fullLink) return;
+    navigator.clipboard.writeText(fullLink);
     toast({ title: "Enlace Copiado", description: "El enlace se ha copiado al portapapeles." });
   };
 
   const handleWhatsAppSend = () => {
-    if (!link) return;
-    const message = `¡Hola! Te comparto este enlace para que puedas armar un presupuesto para tu evento:\n\n${link}`;
+    if (!fullLink) return;
+    const message = `¡Hola! Te comparto este enlace para que puedas armar un presupuesto para tu evento:\n\n${fullLink}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -50,18 +59,18 @@ export function ShareLinkDialog({ children, link, title, description }: ShareLin
         <div className="flex items-center space-x-2">
           <div className="grid flex-1 gap-2">
             <Label htmlFor="link" className="sr-only">Enlace</Label>
-            {link ? (
-               <Input id="link" value={link} readOnly />
+            {fullLink ? (
+               <Input id="link" value={fullLink} readOnly />
             ) : (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin"/>Cargando enlace...</div>
             )}
           </div>
-          <Button type="button" size="icon" className="px-3" onClick={handleCopyToClipboard} disabled={!link}>
+          <Button type="button" size="icon" className="px-3" onClick={handleCopyToClipboard} disabled={!fullLink}>
             <ClipboardCopy className="h-4 w-4" />
           </Button>
         </div>
         <DialogFooter className="sm:justify-start">
-          <Button type="button" onClick={handleWhatsAppSend} className="w-full sm:w-auto bg-green-500 hover:bg-green-600" disabled={!link}>
+          <Button type="button" onClick={handleWhatsAppSend} className="w-full sm:w-auto bg-green-500 hover:bg-green-600" disabled={!fullLink}>
             <Send className="w-4 h-4 mr-2" />
             Enviar por WhatsApp
           </Button>

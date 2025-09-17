@@ -106,15 +106,6 @@ export default function ContabilidadDashboardPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [simuladorLink, setSimuladorLink] = useState('');
-
-  useEffect(() => {
-    // This effect runs only on the client side
-    if (typeof window !== 'undefined') {
-      const origin = window.location.origin;
-      setSimuladorLink(`${origin}/armado-rapido`);
-    }
-  }, []);
 
   // KPIs States
   const [kpiData, setKpiData] = useState<any>(null);
@@ -284,14 +275,14 @@ export default function ContabilidadDashboardPage() {
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
-                  <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer" className="w-full">
-                      <Button variant="outline" className="w-full">
+                  <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" className="w-full">
                         <Eye className="w-4 h-4 mr-2"/>Vista Previa
-                      </Button>
+                    </Button>
                   </Link>
                   <div className="flex gap-2 w-full">
                     <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
-                    <ShareLinkDialog link={simuladorLink} title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
+                    <ShareLinkDialog relativePath="/armado-rapido" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
                         <Button variant="outline" className="w-full">Compartir</Button>
                     </ShareLinkDialog>
                   </div>
