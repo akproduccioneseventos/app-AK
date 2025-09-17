@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, Drumstick, Soup, Share2, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, Drumstick, Soup, Share2, ClipboardCopy, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -18,6 +18,8 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 
@@ -39,6 +41,14 @@ function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: num
     default:
       return servicio.precioVenta || servicio.precioBase || 0;
   }
+}
+
+interface ServicioDetallado {
+  nombre: string;
+  esRegalo: boolean;
+  costo: number;
+  precioUnitario: number;
+  calculationMethod?: string;
 }
 
 export default function ArmadoRapidoPage() {
@@ -88,33 +98,36 @@ export default function ArmadoRapidoPage() {
         loadInitialData();
     }, [toast]);
     
-    const { costoEstimado, serviciosIncluidos } = useMemo(() => {
-        if (!config || !serviciosCatalogo.length) return { costoEstimado: 0, serviciosIncluidos: [] };
+    const { costoTotal, subtotal, descuento, serviciosDetallados } = useMemo(() => {
+        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, descuento: 0, serviciosDetallados: [] };
         
-        let costoTotal = 0;
+        let calculatedSubtotal = 0;
         const totalInvitados = adultos + ninos;
-        const includedServicesList: { nombre: string, esRegalo: boolean }[] = [];
+        const includedServicesList: ServicioDetallado[] = [];
 
         // Gastronomía
         selectedEntradas.forEach(id => {
             const servicio = serviciosCatalogo.find(s => s.id === id);
             if(servicio) {
-                costoTotal += calcularCostoServicio(servicio, totalInvitados);
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false });
+                const costoItem = calcularCostoServicio(servicio, totalInvitados);
+                calculatedSubtotal += costoItem;
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
             }
         });
         if(selectedPrincipal) {
             const servicio = serviciosCatalogo.find(s => s.id === selectedPrincipal);
             if(servicio) {
-                costoTotal += calcularCostoServicio(servicio, adultos); // Principal solo para adultos
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false });
+                const costoItem = calcularCostoServicio(servicio, adultos); // Principal solo para adultos
+                calculatedSubtotal += costoItem;
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
             }
         }
         if(selectedMenuNino && ninos > 0) {
             const servicio = serviciosCatalogo.find(s => s.id === selectedMenuNino);
             if(servicio) {
-                costoTotal += calcularCostoServicio(servicio, ninos); // Menú niños
-                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false });
+                const costoItem = calcularCostoServicio(servicio, ninos); // Menú niños
+                calculatedSubtotal += costoItem;
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
             }
         }
 
@@ -124,40 +137,45 @@ export default function ArmadoRapidoPage() {
             paqueteSeleccionado.serviciosIncluidos.forEach(servicioInfo => {
                 const servicio = serviciosCatalogo.find(s => s.id === servicioInfo.id);
                 if (servicio) {
-                    includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo || false });
+                    const costoItem = calcularCostoServicio(servicio, totalInvitados);
+                    includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo || false, costo: costoItem, precioUnitario: servicio.precioVenta || servicio.precioPorPersona || 0, calculationMethod: servicio.calculationMethod });
                     if (!servicioInfo.esRegalo) {
-                        costoTotal += calcularCostoServicio(servicio, totalInvitados);
+                        calculatedSubtotal += costoItem;
                     }
                 }
             });
         }
         
+        let calculatedDescuento = 0;
         if (config.descuentoGeneral && config.descuentoGeneral > 0) {
-            costoTotal *= (1 - (config.descuentoGeneral / 100));
+            calculatedDescuento = calculatedSubtotal * (config.descuentoGeneral / 100);
         }
 
-        return { costoEstimado: costoTotal, serviciosIncluidos: includedServicesList };
+        const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
+
+        return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList };
     }, [config, serviciosCatalogo, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
     
      const generateWhatsAppMessage = useCallback(() => {
-        const paquete = config?.paquetes.find(p => p.id === selectedPaqueteId);
         let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
         message += `Hola *${clienteNombre}*,\n\n`;
         message += `Gracias por tu interés. Aquí tienes un resumen de tu simulación:\n\n`;
-        message += `*Invitados:* ${adultos} Adultos, ${ninos} Niños/Adolescentes\n`;
+        message += `*Invitados:* ${adultos} Adultos, ${ninos} Niños/Adolescentes\n\n`;
         message += `*Servicios Incluidos:*\n`;
-        serviciosIncluidos.forEach(s => {
+        serviciosDetallados.forEach(s => {
             message += s.esRegalo ? `  🎁 ${s.nombre} (REGALO)\n` : `  • ${s.nombre}\n`;
         });
-        if (paquete) message += `\n*Paquete:* ${paquete.nombre}\n`;
         message += `\n------------------------------------\n`;
-        message += `💰 *COSTO TOTAL ESTIMADO:* ${formatCurrency(costoEstimado)}\n`;
-        if (config?.descuentoGeneral) message += `_(Incluye ${config.descuentoGeneral}% de descuento promocional)_\n`;
+        if (descuento > 0) {
+          message += `SUBTOTAL: ${formatCurrency(subtotal)}\n`;
+          message += `DESCUENTO (${config?.descuentoGeneral}%): -${formatCurrency(descuento)}\n`;
+        }
+        message += `💰 *COSTO TOTAL ESTIMADO: ${formatCurrency(costoTotal)}*\n`;
         message += `------------------------------------\n\n`;
         message += `Este es un costo aproximado. ¡Nos pondremos en contacto contigo para afinar los detalles!\n\n`;
         message += `*El equipo de AK Producciones*`;
         return message;
-    }, [clienteNombre, adultos, ninos, serviciosIncluidos, costoEstimado, config, selectedPaqueteId]);
+    }, [clienteNombre, adultos, ninos, serviciosDetallados, subtotal, descuento, costoTotal, config]);
 
     const handleShareWhatsApp = () => {
         const message = generateWhatsAppMessage();
@@ -182,8 +200,8 @@ export default function ArmadoRapidoPage() {
             clienteContacto,
             adultos,
             ninos,
-            costoEstimado,
-            serviciosIncluidos: serviciosIncluidos.map(s => `${s.nombre}${s.esRegalo ? ' (REGALO)' : ''}`),
+            costoEstimado: costoTotal,
+            serviciosIncluidos: serviciosDetallados.map(s => `${s.nombre}${s.esRegalo ? ' (REGALO)' : ''}`),
             paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
         };
 
@@ -275,11 +293,31 @@ export default function ArmadoRapidoPage() {
                     {step === 4 && (
                         <div className="space-y-6 animate-in fade-in-20">
                              <h3 className="font-semibold text-lg flex items-center justify-center gap-2"><FileText className="text-primary w-5 h-5"/>Tu Presupuesto Estimado</h3>
-                             {costoEstimado > 0 ? (
-                                <>
-                                <div className="p-4 bg-primary/5 rounded-lg text-center"><p className="text-lg text-muted-foreground">Costo Total Estimado</p><p className="text-5xl font-bold text-primary tracking-tight my-2">{formatCurrency(costoEstimado)}</p>{config?.descuentoGeneral && <p className="text-sm text-muted-foreground">Incluye un {config.descuentoGeneral}% de descuento promocional.</p>}</div>
-                                <div className="space-y-2 text-sm max-h-40 overflow-y-auto"><h4 className="font-medium">Servicios Incluidos:</h4><ul className="list-disc pl-5 text-muted-foreground grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">{serviciosIncluidos.map((s, i) => (<li key={i} className={s.esRegalo ? 'text-green-600 font-medium' : ''}>{s.esRegalo && <Gift className="inline-block w-4 h-4 mr-1.5"/>}{s.nombre}</li>))}</ul></div>
-                                </>
+                             {costoTotal > 0 ? (
+                                <div className="p-4 bg-muted/10 rounded-lg border">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Servicio</TableHead>
+                                                <TableHead className="text-right">Costo</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {serviciosDetallados.map((s, i) => (
+                                            <TableRow key={i}>
+                                                <TableCell className="font-medium">{s.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{s.nombre} (REGALO)</span> : s.nombre}</TableCell>
+                                                <TableCell className="text-right">{s.esRegalo ? <span className="line-through text-muted-foreground">{formatCurrency(s.costo)}</span> : formatCurrency(s.costo)}</TableCell>
+                                            </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    <Separator className="my-4"/>
+                                     <div className="space-y-2 text-right">
+                                        {descuento > 0 && <p className="text-sm">Subtotal: {formatCurrency(subtotal)}</p>}
+                                        {descuento > 0 && <p className="text-sm text-destructive">Descuento ({config?.descuentoGeneral}%): -{formatCurrency(descuento)}</p>}
+                                        <p className="text-2xl font-bold">Total Estimado: <span className="text-primary">{formatCurrency(costoTotal)}</span></p>
+                                     </div>
+                                </div>
                             ) : (<p className="text-muted-foreground py-8 text-center">Completa los pasos anteriores para ver la estimación.</p>)}
                             <p className="text-xs text-muted-foreground text-center pt-2">Este es un precio estimado. Para solicitar un presupuesto detallado y que nos pongamos en contacto, haz clic en el botón.</p>
                              <div className="flex flex-col sm:flex-row gap-2 justify-center pt-4">
@@ -298,7 +336,7 @@ export default function ArmadoRapidoPage() {
                             Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (
-                        <Button onClick={handleGenerateLead} disabled={isGeneratingLead || !costoEstimado}>
+                        <Button onClick={handleGenerateLead} disabled={isGeneratingLead || !costoTotal}>
                             {isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2"/>}
                             Solicitar Presupuesto Detallado
                         </Button>
@@ -308,4 +346,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-  
