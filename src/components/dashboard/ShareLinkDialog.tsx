@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ClipboardCopy, Send } from 'lucide-react';
+import { ClipboardCopy, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ShareLinkDialogProps {
@@ -27,11 +28,13 @@ export function ShareLinkDialog({ children, link, title, description }: ShareLin
   const { toast } = useToast();
 
   const handleCopyToClipboard = () => {
+    if (!link) return;
     navigator.clipboard.writeText(link);
     toast({ title: "Enlace Copiado", description: "El enlace se ha copiado al portapapeles." });
   };
 
   const handleWhatsAppSend = () => {
+    if (!link) return;
     const message = `¡Hola! Te comparto este enlace para que puedas armar un presupuesto para tu evento:\n\n${link}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -47,14 +50,18 @@ export function ShareLinkDialog({ children, link, title, description }: ShareLin
         <div className="flex items-center space-x-2">
           <div className="grid flex-1 gap-2">
             <Label htmlFor="link" className="sr-only">Enlace</Label>
-            <Input id="link" value={link} readOnly />
+            {link ? (
+               <Input id="link" value={link} readOnly />
+            ) : (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin"/>Cargando enlace...</div>
+            )}
           </div>
-          <Button type="button" size="icon" className="px-3" onClick={handleCopyToClipboard}>
+          <Button type="button" size="icon" className="px-3" onClick={handleCopyToClipboard} disabled={!link}>
             <ClipboardCopy className="h-4 w-4" />
           </Button>
         </div>
         <DialogFooter className="sm:justify-start">
-          <Button type="button" onClick={handleWhatsAppSend} className="w-full sm:w-auto bg-green-500 hover:bg-green-600">
+          <Button type="button" onClick={handleWhatsAppSend} className="w-full sm:w-auto bg-green-500 hover:bg-green-600" disabled={!link}>
             <Send className="w-4 h-4 mr-2" />
             Enviar por WhatsApp
           </Button>

@@ -109,8 +109,10 @@ export default function ContabilidadDashboardPage() {
   const [simuladorLink, setSimuladorLink] = useState('');
 
   useEffect(() => {
+    // This effect runs only on the client side
     if (typeof window !== 'undefined') {
-      setSimuladorLink(`${window.location.origin}/armado-rapido`);
+      const origin = window.location.origin;
+      setSimuladorLink(`${origin}/armado-rapido`);
     }
   }, []);
 
