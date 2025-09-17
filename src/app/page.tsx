@@ -146,9 +146,8 @@ export default function DashboardPage() {
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
                     <Link href="/settings/budget-display" passHref className="w-full"><Button variant="secondary" className="w-full">Configurar</Button></Link>
-                    <Link href="/armado-rapido" passHref target="_blank" className="w-full"><Button variant="outline" className="w-full"><Eye className="w-4 h-4 mr-2"/>Vista Previa</Button></Link>
                     <ShareLinkDialog link={simuladorLink} title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
-                        <Button variant="default" className="w-full"><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
+                        <Button variant="default" className="w-full">Compartir Enlace</Button>
                     </ShareLinkDialog>
                 </CardFooter>
             </Card>
