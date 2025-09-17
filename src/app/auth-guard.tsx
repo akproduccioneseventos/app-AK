@@ -31,13 +31,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
-    // If user is authenticated and tries to visit /login, redirect them to home.
     if (isAuthenticated && pathname === '/login') {
       router.push('/');
-      return; // Stop further execution in this effect run
+      return; 
     }
     
-    // Define public paths that don't require authentication
     const publicPaths = [
       '/login',
       '/evento/actual',
@@ -59,7 +57,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
   }, [pathname, router]);
 
   if (!isVerified) {
-    // Render a loading state to avoid flashes of content
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -69,3 +66,5 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   return <>{children}</>;
 }
+
+  

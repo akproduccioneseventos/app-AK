@@ -1,9 +1,8 @@
-
 'use server';
 
 import fs from 'fs/promises';
 import path from 'path';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, LeadFromQuickBudget } from '@/types/armado-rapido';
 import { addCrmLead, getCrmStages } from './crm';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -69,14 +68,7 @@ export async function saveArmadoRapidoConfig(
 }
 
 export async function generateLeadFromQuickBudget(
-  data: {
-    clienteNombre: string;
-    cantidadInvitados: number;
-    costoEstimado: number;
-    nombrePaquete?: string;
-    nombreMenu?: string;
-    serviciosIncluidos: { nombre: string; esRegalo: boolean }[];
-  }
+  data: LeadFromQuickBudget
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
     const allStages = await getCrmStages();
@@ -87,24 +79,22 @@ export async function generateLeadFromQuickBudget(
         return { success: false, error: "No hay etapas configuradas en el CRM." };
     }
     
-    let notes = `Generado desde SIMULADOR DE PRESUPUESTO.
-- Cliente: ${data.clienteNombre}
-- Invitados: ${data.cantidadInvitados}
+    let notes = `Generado desde SIMULADOR DE PRESUPUESTO v2.
+- Invitados: ${data.adultos} Adultos, ${data.ninos} Niños/Adol.
 - Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
 
-    if (data.nombrePaquete) {
-      notes += `\n- Paquete de Servicios: "${data.nombrePaquete}"`;
+    if (data.paqueteNombre) {
+      notes += `\n- Paquete de Servicios: "${data.paqueteNombre}"`;
     }
-    if (data.nombreMenu) {
-      notes += `\n- Menú de Catering: "${data.nombreMenu}"`;
-    }
+    
     if (data.serviciosIncluidos && data.serviciosIncluidos.length > 0) {
         notes += `\n- Servicios Incluidos:\n`;
-        notes += data.serviciosIncluidos.map((s: any) => `  • ${s.nombre}${s.esRegalo ? ' (REGALO)' : ''}`).join('\n');
+        notes += data.serviciosIncluidos.map(s => `  • ${s}`).join('\n');
     }
     
     const leadResult = await addCrmLead({
       name: data.clienteNombre,
+      phone: data.clienteContacto,
       notes: notes,
       currentStageId: targetStageId 
     });
@@ -118,3 +108,4 @@ export async function generateLeadFromQuickBudget(
     return { success: false, error: error.message || "Error al generar el prospecto." };
   }
 }
+  

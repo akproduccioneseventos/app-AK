@@ -1,4 +1,3 @@
-
 import type { ServicioEmpresa } from './empresa';
 
 export interface ServicioIncluidoArmadoRapido {
@@ -27,3 +26,15 @@ export interface ArmadoRapidoConfig {
   descuentoGeneral?: number; 
   mostrarPrecios?: boolean;
 }
+
+export interface LeadFromQuickBudget {
+  clienteNombre: string;
+  clienteContacto?: string;
+  adultos: number;
+  ninos: number;
+  costoEstimado: number;
+  serviciosIncluidos: string[];
+  paqueteNombre?: string;
+}
+
+  
