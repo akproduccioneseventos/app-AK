@@ -275,7 +275,7 @@ export default function ContabilidadDashboardPage() {
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
-                  <Button asChild className="w-full">
+                   <Button asChild className="w-full">
                     <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer">
                         <Eye className="w-4 h-4 mr-2"/>Abrir Simulador
                     </Link>

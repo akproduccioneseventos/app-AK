@@ -133,7 +133,7 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardFooter className="flex flex-col sm:flex-row gap-2">
-          <Button asChild className="w-full">
+           <Button asChild className="w-full">
             <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer">
               <Eye className="w-4 h-4 mr-2"/> Ir al Simulador Público
             </Link>
