@@ -163,8 +163,10 @@ export default function ArmadoRapidoPage() {
     }, [config, serviciosCatalogo, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
 
     const serviciosAgrupados = useMemo(() => {
-        const serviciosOrdenados = [...serviciosDetallados].sort((a,b) => (a.esRegalo ? 1 : 0) - (b.esRegalo ? 1 : 0));
-        return serviciosOrdenados.reduce((acc, servicio) => {
+        const serviciosNormales = serviciosDetallados.filter(s => !s.esRegalo);
+        const serviciosRegalo = serviciosDetallados.filter(s => s.esRegalo);
+
+        const agrupar = (servs: ServicioDetallado[]) => servs.reduce((acc, servicio) => {
             const categoria = servicio.categoria || 'Otros Servicios';
             if (!acc[categoria]) {
                 acc[categoria] = [];
@@ -172,6 +174,11 @@ export default function ArmadoRapidoPage() {
             acc[categoria].push(servicio);
             return acc;
         }, {} as Record<string, ServicioDetallado[]>);
+
+        return {
+            normales: agrupar(serviciosNormales),
+            regalos: agrupar(serviciosRegalo)
+        };
     }, [serviciosDetallados]);
 
      const generateWhatsAppMessage = useCallback(() => {
@@ -180,13 +187,23 @@ export default function ArmadoRapidoPage() {
         message += `Gracias por tu interés. Aquí tienes un resumen de tu simulación:\n\n`;
         message += `*Invitados:* ${adultos} Adultos, ${ninos} Niños/Adolescentes\n\n`;
         
-        Object.entries(serviciosAgrupados).forEach(([categoria, items]) => {
+        Object.entries(serviciosAgrupados.normales).forEach(([categoria, items]) => {
             message += `*${categoria}*\n`;
             items.forEach(s => {
-                message += s.esRegalo ? `  🎁 ${s.nombre} (REGALO)\n` : `  • ${s.nombre}\n`;
+                message += `  • ${s.nombre}\n`;
             });
             message += `\n`;
         });
+        
+        if (Object.keys(serviciosAgrupados.regalos).length > 0) {
+            message += `🎁 *REGALOS INCLUIDOS*\n`;
+             Object.entries(serviciosAgrupados.regalos).forEach(([categoria, items]) => {
+                items.forEach(s => {
+                    message += `  • ${s.nombre}\n`;
+                });
+            });
+            message += `\n`;
+        }
 
         message += `------------------------------------\n`;
         if (descuento > 0) {
@@ -346,17 +363,28 @@ export default function ArmadoRapidoPage() {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
+                                            {Object.entries(serviciosAgrupados.normales).map(([categoria, items]) => (
                                                 <React.Fragment key={categoria}>
                                                     <TableRow><TableCell colSpan={2} className="font-bold text-primary bg-primary/5">{categoria}</TableCell></TableRow>
                                                     {items.map((item) => (
                                                         <TableRow key={item.id}>
-                                                            <TableCell className="font-medium">{item.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{item.nombre}</span> : item.nombre}</TableCell>
-                                                            <TableCell className="text-right">{item.esRegalo ? <span className="line-through text-muted-foreground">{formatCurrency(item.costo)}</span> : formatCurrency(item.costo)}</TableCell>
+                                                            <TableCell className="font-medium">{item.nombre}</TableCell>
+                                                            <TableCell className="text-right">{formatCurrency(item.costo)}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </React.Fragment>
                                             ))}
+                                            {Object.keys(serviciosAgrupados.regalos).length > 0 && (
+                                                <React.Fragment>
+                                                    <TableRow><TableCell colSpan={2} className="font-bold text-green-600 bg-green-50/50"><Gift className="w-4 h-4 inline-block mr-2"/>Regalos Incluidos</TableCell></TableRow>
+                                                    {Object.values(serviciosAgrupados.regalos).flat().map((item) => (
+                                                        <TableRow key={item.id}>
+                                                            <TableCell className="font-medium text-green-700">{item.nombre}</TableCell>
+                                                            <TableCell className="text-right"><span className="line-through text-muted-foreground">{formatCurrency(item.costo)}</span></TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </React.Fragment>
+                                            )}
                                         </TableBody>
                                     </Table>
                                     <Separator className="my-4"/>
@@ -395,6 +423,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
-
