@@ -62,7 +62,9 @@ export function ShareLinkDialog({ children, relativePath, title, description }: 
             {fullLink ? (
                <Input id="link" value={fullLink} readOnly />
             ) : (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin"/>Cargando enlace...</div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground h-10 px-3">
+                    <Loader2 className="w-4 h-4 animate-spin"/>Cargando enlace...
+                </div>
             )}
           </div>
           <Button type="button" size="icon" className="px-3" onClick={handleCopyToClipboard} disabled={!fullLink}>
