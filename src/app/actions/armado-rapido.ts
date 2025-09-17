@@ -69,7 +69,14 @@ export async function saveArmadoRapidoConfig(
 }
 
 export async function generateLeadFromQuickBudget(
-  data: any
+  data: {
+    clienteNombre: string;
+    cantidadInvitados: number;
+    costoEstimado: number;
+    nombrePaquete?: string;
+    nombreMenu?: string;
+    serviciosIncluidos: { nombre: string; esRegalo: boolean }[];
+  }
 ): Promise<{ success: boolean; leadId?: string; error?: string }> {
   try {
     const allStages = await getCrmStages();
