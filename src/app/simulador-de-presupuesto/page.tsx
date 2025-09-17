@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -34,6 +35,20 @@ const formatDate = (date = new Date()) => {
   return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
+// CONSTANTS FROM PDF - To be moved to a settings file eventually
+const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
+const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
+const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
+const COMPANY_ADDRESS_LINE1_PDF = "Salto";
+const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
+const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
+const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
+const COMPANY_LOGO_URL_PDF = "https://placehold.co/100x100/EF4444/FFFFFF.png?text=AK&font=montserrat";
+const COMPANY_LOGO_AI_HINT_PDF = "AK Producciones logo";
+const BUDGET_VALIDITY_DAYS_PDF = 30;
+const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
+
+
 function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: number): number {
   if (!servicio || cantidadInvitados <= 0) return 0;
   
@@ -53,6 +68,7 @@ function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: num
       return servicio.precioVenta || servicio.precioBase || 0;
   }
 }
+
 
 interface ServicioDetallado {
   id: string;
@@ -129,9 +145,12 @@ export default function ArmadoRapidoPage() {
         const totalInvitados = adultos + ninos;
         const includedServicesList: ServicioDetallado[] = [];
 
-        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, cantidad: number, nota?: string) => {
+        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
             if (!servicio) return;
-            const costoItem = calcularCostoServicio(servicio, cantidad);
+            // Determine the quantity for calculation based on the method
+            const cantidadParaCalculo = servicio.calculationMethod === 'fijo' ? 1 : totalInvitados;
+            const costoItem = calcularCostoServicio(servicio, cantidadParaCalculo);
+            
             if (!esRegalo) {
                 calculatedSubtotal += costoItem;
             } else {
@@ -143,27 +162,42 @@ export default function ArmadoRapidoPage() {
                 esRegalo, 
                 costo: costoItem,
                 categoria: servicio.categoria || 'Varios',
+                // For display purposes in the table
                 precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-                cantidad: cantidad,
-                unidad: servicio.unidad
+                cantidad: servicio.calculationMethod === 'fijo' ? 1 : cantidadParaCalculo,
+                unidad: servicio.calculationMethod === 'fijo' ? 'evento' : 'persona'
             });
         };
         
         selectedEntradas.forEach(id => {
-            addServicio(serviciosCatalogo.find(s => s.id === id), false, adultos);
+            addServicio(serviciosCatalogo.find(s => s.id === id), false);
         });
 
         if (selectedPrincipal) {
-            addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false, adultos);
+            addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false);
         }
         if (selectedMenuNino && ninos > 0) {
-            addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, ninos);
+            const menuNinoServicio = serviciosCatalogo.find(s => s.id === selectedMenuNino);
+             if (menuNinoServicio) {
+                const costoItemNino = calcularCostoServicio(menuNinoServicio, ninos);
+                calculatedSubtotal += costoItemNino;
+                includedServicesList.push({
+                    id: menuNinoServicio.id,
+                    nombre: menuNinoServicio.nombre,
+                    esRegalo: false,
+                    costo: costoItemNino,
+                    categoria: menuNinoServicio.categoria || 'Catering',
+                    precioUnitario: menuNinoServicio.precioPorPersona || 0,
+                    cantidad: ninos,
+                    unidad: 'niño/adol.'
+                });
+             }
         }
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
             paqueteSeleccionado.serviciosIncluidos.forEach(servicioInfo => {
-                addServicio(serviciosCatalogo.find(s => s.id === servicioInfo.id), servicioInfo.esRegalo || false, totalInvitados);
+                addServicio(serviciosCatalogo.find(s => s.id === servicioInfo.id), servicioInfo.esRegalo || false);
             });
         }
         
@@ -360,18 +394,18 @@ export default function ArmadoRapidoPage() {
                     {step === 4 && (
                         <div className="space-y-4 animate-in fade-in-20">
                             <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
-                                <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">Presupuesto para fiestas o eventos - AK PRODUCCIONES</h1>
+                                <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
                                 <div className="flex justify-between items-start text-xs print:text-[8pt]">
                                     <div className="space-y-px text-left">
-                                        <p className="font-semibold">SR. Alexander Knuth</p>
-                                        <p>Salto</p>
-                                        <p>50000 Salto</p>
-                                        <p>akproduccionessalto@gmail.com</p>
-                                        <p>www.akproduccioneseventos.com</p>
+                                        <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
+                                        <p>{COMPANY_ADDRESS_LINE1_PDF}</p>
+                                        <p>{COMPANY_ADDRESS_LINE2_PDF}</p>
+                                        <p>{COMPANY_CONTACT_EMAIL_PDF}</p>
+                                        <p>{COMPANY_WEBSITE_PDF}</p>
                                     </div>
                                     {logoUrl && (
                                         <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-                                            <Image src={logoUrl} alt="AK Producciones Logo" width={80} height={80} className="object-contain" data-ai-hint="company logo ak producciones"/>
+                                            <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo ak producciones"/>
                                         </div>
                                     )}
                                 </div>
@@ -403,25 +437,24 @@ export default function ArmadoRapidoPage() {
                                             <TableRow>
                                                 <TableHead>Artículo</TableHead>
                                                 <TableHead>Cantidad</TableHead>
-                                                <TableHead>Unidad</TableHead>
-                                                <TableHead>Precio</TableHead>
-                                                <TableHead>Desc.%</TableHead>
-                                                <TableHead className="text-right">Importe total</TableHead>
+                                                <TableHead>P. Unitario</TableHead>
+                                                <TableHead className="text-right">Importe</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
                                                 <React.Fragment key={categoria}>
                                                     <TableRow className="bg-muted/30 print:bg-gray-50">
-                                                        <TableCell colSpan={6} className="font-bold text-primary">{categoria}</TableCell>
+                                                        <TableCell colSpan={4} className="font-bold text-primary">{categoria}</TableCell>
                                                     </TableRow>
                                                     {items.map((item) => (
                                                         <TableRow key={item.id}>
-                                                            <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                            <TableCell>{item.cantidad}</TableCell>
-                                                            <TableCell>$</TableCell>
-                                                            <TableCell>{formatCurrency(item.precioUnitario, false)}</TableCell>
-                                                            <TableCell>{item.esRegalo ? '100%' : (config?.descuentoGeneral ? `${config.descuentoGeneral}%` : '0%')}</TableCell>
+                                                            <TableCell className={`font-medium ${item.esRegalo ? 'text-green-600' : ''}`}>
+                                                                {item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}
+                                                                {item.nombre}
+                                                            </TableCell>
+                                                            <TableCell>{item.cantidad} {item.unidad}</TableCell>
+                                                            <TableCell>{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitario)}</TableCell>
                                                             <TableCell className="text-right font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</TableCell>
                                                         </TableRow>
                                                     ))}
@@ -437,7 +470,7 @@ export default function ArmadoRapidoPage() {
                                         <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                                     </div>
                                     <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
-                                      <p>Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.</p>
+                                      <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
                                     </footer>
                                 </div>
                             ) : (<p className="text-muted-foreground py-8 text-center">Completa los pasos anteriores para ver la estimación.</p>)}
