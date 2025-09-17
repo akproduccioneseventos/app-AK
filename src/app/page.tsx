@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -134,11 +133,11 @@ export default function DashboardPage() {
         </CardHeader>
         <CardFooter className="flex flex-col sm:flex-row gap-2">
             <Button asChild className="w-full">
-              <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer">
+              <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer">
                 <Eye className="w-4 h-4 mr-2"/> Ir al Simulador Público
               </Link>
             </Button>
-             <ShareLinkDialog relativePath="/armado-rapido" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
+             <ShareLinkDialog relativePath="/simulador-de-presupuesto" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
                 <Button variant="outline" className="w-full sm:w-auto">
                     <Share2 className="w-4 h-4 mr-2"/>Compartir Enlace
                 </Button>

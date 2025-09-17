@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
@@ -27,8 +26,7 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/') return 'Menú Principal';
 
-  if (pathname === '/presupuestos') return 'Central de Presupuestos';
-  if (pathname === '/presupuestos/nuevo') return 'Nuevo Presupuesto';
+  if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
 
@@ -103,7 +101,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
-  if (pathname === '/armado-rapido') return 'Armado Rápido de Presupuesto';
+  if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -178,7 +176,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/login') return LogInIcon;
 
-  if (pathname === '/presupuestos') return ListChecks;
+  if (pathname === '/presupuestos/nuevo') return ListChecks;
+  if (pathname.startsWith('/presupuestos')) return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
 
@@ -194,7 +193,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
   
-  if (pathname === '/armado-rapido') return Wand2;
+  if (pathname === '/simulador-de-presupuesto') return Wand2;
   
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
@@ -236,7 +235,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
-  const isClientFacingTool = pathname === '/armado-rapido';
+  const isClientFacingTool = pathname === '/simulador-de-presupuesto';
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');

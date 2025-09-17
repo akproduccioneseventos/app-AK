@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
@@ -41,6 +40,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/feedback',
       '/portal',
       '/simulador-de-presupuesto',
+      '/acceso-personal',
     ];
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
