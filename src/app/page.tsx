@@ -132,6 +132,30 @@ export default function DashboardPage() {
       
       <Separator />
 
+      <Card className="shadow-lg border-2 border-primary/40 bg-primary/5">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+              <Wand2 className="w-8 h-8 text-primary"/>
+              <div>
+                <CardTitle className="font-headline text-xl">Simulador de Presupuesto Público</CardTitle>
+                <CardDescription>Comparte este enlace con tus clientes para que puedan generar un presupuesto estimado al instante.</CardDescription>
+              </div>
+          </div>
+        </CardHeader>
+        <CardFooter className="flex flex-col sm:flex-row gap-2">
+            <Link href="/armado-rapido" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                <Button className="w-full">
+                  <Eye className="w-4 h-4 mr-2"/> Ir al Simulador Público
+                </Button>
+            </Link>
+             <ShareLinkDialog relativePath="/armado-rapido" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
+                <Button variant="outline" className="w-full sm:w-auto">
+                    <Share2 className="w-4 h-4 mr-2"/>Compartir Enlace
+                </Button>
+            </ShareLinkDialog>
+        </CardFooter>
+      </Card>
+      
       <div className="pt-4">
         <h3 className="text-2xl font-semibold text-foreground mb-4 font-headline text-center">Módulos Principales</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">

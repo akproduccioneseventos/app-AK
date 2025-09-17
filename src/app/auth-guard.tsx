@@ -32,11 +32,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
-    if (isAuthenticated && pathname === '/login') {
-      router.push('/');
-      return; 
-    }
-    
     const publicPaths = [
       '/login',
       '/evento/actual',
@@ -67,5 +62,3 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   return <>{children}</>;
 }
-
-    
