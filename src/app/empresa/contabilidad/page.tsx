@@ -69,7 +69,7 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     description: 'Crea, gestiona y envía presupuestos detallados a tus clientes.',
     href: '/presupuestos/nuevo',
     icon: ListChecks,
-    actionLabel: 'Ir a Presupuestos',
+    actionLabel: 'Ir a Central de Presupuestos',
   },
   {
     title: 'Gestión de Facturas',
@@ -282,15 +282,17 @@ export default function ContabilidadDashboardPage() {
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
-                   <Button variant="outline" className="w-full" onClick={() => window.open('/armado-rapido', '_blank')}>
-                        <Eye className="w-4 h-4 mr-2"/>Vista Previa
+                  <Link href="/armado-rapido" passHref target="_blank" rel="noopener noreferrer" className="w-full">
+                    <Button variant="outline" className="w-full">
+                      <Eye className="w-4 h-4 mr-2"/>Vista Previa
                     </Button>
-                   <div className="flex gap-2 w-full">
+                  </Link>
+                  <div className="flex gap-2 w-full">
                     <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
                     <ShareLinkDialog link={simuladorLink} title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
                         <Button variant="outline" className="w-full">Compartir</Button>
                     </ShareLinkDialog>
-                   </div>
+                  </div>
                 </CardFooter>
             </Card>
         </div>
