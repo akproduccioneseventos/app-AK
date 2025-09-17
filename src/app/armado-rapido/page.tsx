@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -8,11 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, Drumstick, Soup, Share2, ClipboardCopy, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, Drumstick, Soup, Share2, ClipboardCopy, Trash2, Printer, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
+import { getSocialConnections } from '@/app/actions/social-connections';
+import type { SocialConnection } from '@/types/settings';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
@@ -59,6 +60,7 @@ export default function ArmadoRapidoPage() {
 
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+    const [whatsappNumber, setWhatsappNumber] = useState<string>('');
     
     // Form state
     const [clienteNombre, setClienteNombre] = useState('');
@@ -84,12 +86,17 @@ export default function ArmadoRapidoPage() {
         const loadInitialData = async () => {
             setIsLoading(true);
             try {
-                const [armadoConfig, serviciosData] = await Promise.all([
+                const [armadoConfig, serviciosData, socialConnections] = await Promise.all([
                     getArmadoRapidoConfig(),
                     getServiciosEmpresa(),
+                    getSocialConnections()
                 ]);
                 setConfig(armadoConfig);
                 setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
+                const whatsappConnection = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
+                if (whatsappConnection?.phoneNumber) {
+                    setWhatsappNumber(whatsappConnection.phoneNumber);
+                }
             } catch (error) {
                 toast({ title: "Error", description: "No se pudieron cargar las configuraciones.", variant: "destructive" });
             } finally {
@@ -99,19 +106,21 @@ export default function ArmadoRapidoPage() {
         loadInitialData();
     }, [toast]);
     
-    const { costoTotal, subtotal, descuento, serviciosDetallados } = useMemo(() => {
-        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, descuento: 0, serviciosDetallados: [] };
+    const { costoTotal, subtotal, descuento, serviciosDetallados, totalRegalos } = useMemo(() => {
+        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, descuento: 0, serviciosDetallados: [], totalRegalos: 0 };
         
         let calculatedSubtotal = 0;
+        let calculatedTotalRegalos = 0;
         const totalInvitados = adultos + ninos;
         const includedServicesList: ServicioDetallado[] = [];
 
-        // Helper to add a service to the list
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, cantidad: number, nota?: string) => {
             if (!servicio) return;
             const costoItem = calcularCostoServicio(servicio, cantidad);
             if (!esRegalo) {
                 calculatedSubtotal += costoItem;
+            } else {
+                calculatedTotalRegalos += costoItem;
             }
             includedServicesList.push({ 
                 id: servicio.id,
@@ -124,12 +133,6 @@ export default function ArmadoRapidoPage() {
             });
         };
 
-        // Gastronomía
-        selectedEntradas.forEach(id => addServicio(serviciosCatalogo.find(s => s.id === id), false, totalInvitados));
-        if (selectedPrincipal) addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false, adultos, `(x${adultos} adultos)`);
-        if (selectedMenuNino && ninos > 0) addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, ninos, `(x${ninos} niños)`);
-        
-        // Paquete de Servicios
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
             paqueteSeleccionado.serviciosIncluidos.forEach(servicioInfo => {
@@ -144,11 +147,12 @@ export default function ArmadoRapidoPage() {
 
         const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
 
-        return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList };
+        return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
     }, [config, serviciosCatalogo, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
 
     const serviciosAgrupados = useMemo(() => {
-        return serviciosDetallados.reduce((acc, servicio) => {
+        const serviciosOrdenados = [...serviciosDetallados].sort((a,b) => (a.esRegalo ? 1 : 0) - (b.esRegalo ? 1 : 0));
+        return serviciosOrdenados.reduce((acc, servicio) => {
             if (!acc[servicio.categoria]) {
                 acc[servicio.categoria] = [];
             }
@@ -162,21 +166,29 @@ export default function ArmadoRapidoPage() {
         message += `Hola *${clienteNombre || 'Cliente'}*,\n\n`;
         message += `Gracias por tu interés. Aquí tienes un resumen de tu simulación:\n\n`;
         message += `*Invitados:* ${adultos} Adultos, ${ninos} Niños/Adolescentes\n\n`;
-        message += `*Servicios Incluidos:*\n`;
-        serviciosDetallados.forEach(s => {
-            message += s.esRegalo ? `  🎁 ${s.nombre} (REGALO)\n` : `  • ${s.nombre}\n`;
+        
+        Object.entries(serviciosAgrupados).forEach(([categoria, items]) => {
+            message += `*${categoria}*\n`;
+            items.forEach(s => {
+                message += s.esRegalo ? `  🎁 ${s.nombre} (REGALO)\n` : `  • ${s.nombre}\n`;
+            });
+            message += `\n`;
         });
-        message += `\n------------------------------------\n`;
+
+        message += `------------------------------------\n`;
         if (descuento > 0) {
           message += `SUBTOTAL: ${formatCurrency(subtotal)}\n`;
           message += `DESCUENTO (${config?.descuentoGeneral}%): -${formatCurrency(descuento)}\n`;
+        }
+        if (totalRegalos > 0) {
+            message += `VALOR REGALOS: ${formatCurrency(totalRegalos)}\n`;
         }
         message += `💰 *COSTO TOTAL ESTIMADO: ${formatCurrency(costoTotal)}*\n`;
         message += `------------------------------------\n\n`;
         message += `Este es un costo aproximado. ¡Nos pondremos en contacto contigo para afinar los detalles!\n\n`;
         message += `*El equipo de AK Producciones*`;
         return message;
-    }, [clienteNombre, adultos, ninos, serviciosDetallados, subtotal, descuento, costoTotal, config]);
+    }, [clienteNombre, adultos, ninos, serviciosAgrupados, subtotal, descuento, costoTotal, config?.descuentoGeneral, totalRegalos]);
 
     const handleShareWhatsApp = () => {
         if (typeof window === 'undefined') return;
@@ -185,11 +197,17 @@ export default function ArmadoRapidoPage() {
         window.open(whatsAppUrl, '_blank');
     };
 
-    const handleCopyToClipboard = () => {
-        if (typeof window === 'undefined') return;
-        const textToCopy = generateWhatsAppMessage();
-        navigator.clipboard.writeText(textToCopy);
-        toast({ title: "¡Copiado!", description: "El resumen del presupuesto ha sido copiado." });
+    const handleContactWhatsApp = () => {
+        if (!whatsappNumber) {
+            toast({title: "Número no configurado", description: "El número de WhatsApp no ha sido configurado en los ajustes.", variant: "destructive"});
+            return;
+        }
+        const message = `Hola, he generado un presupuesto estimado a través del simulador y quisiera más información.`;
+        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    const handleDownloadPdf = () => {
+        window.print();
     };
 
     const handleGenerateLead = async () => {
@@ -236,15 +254,15 @@ export default function ArmadoRapidoPage() {
     }
 
     return (
-        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
-            <Card className="w-full max-w-3xl shadow-xl">
-                <CardHeader className="text-center">
+        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
+            <Card className="w-full max-w-3xl shadow-xl print:shadow-none print:border-none">
+                <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
                     <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Gastronomía', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                     <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
-                <CardContent className="min-h-[350px] py-6 px-8">
+                <CardContent className="min-h-[350px] py-6 px-8 print:p-2">
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><User className="text-primary w-5 h-5"/>Define tu evento</h3>
@@ -284,19 +302,13 @@ export default function ArmadoRapidoPage() {
                                             <div className="flex-grow">
                                                 <p className="font-semibold">{p.nombre}</p>
                                                 <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2 space-y-1">
-                                                    {servicios.map(s => {
-                                                        const serv = serviciosCatalogo.find(sc => sc.id === s.id);
-                                                        return serv && <li key={s.id}>{serv.nombre}</li>
-                                                    })}
+                                                    {servicios.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id}>{serv.nombre}</li> })}
                                                 </ul>
                                                 {regalos.length > 0 && (
                                                     <>
                                                         <Separator className="my-2"/>
                                                         <ul className="text-xs list-disc pl-4 space-y-1">
-                                                        {regalos.map(s => {
-                                                            const serv = serviciosCatalogo.find(sc => sc.id === s.id);
-                                                            return serv && <li key={s.id} className="text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{serv.nombre} (REGALO)</li>
-                                                        })}
+                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{serv.nombre} (REGALO)</li> })}
                                                         </ul>
                                                     </>
                                                 )}
@@ -313,29 +325,21 @@ export default function ArmadoRapidoPage() {
                              {costoTotal > 0 ? (
                                 <div className="p-4 bg-muted/10 rounded-lg border">
                                     <Table>
-                                        <TableCaption className="text-left mt-4">
-                                          Este es un precio estimado. Incluye un {config?.descuentoGeneral || 0}% de descuento promocional.
-                                        </TableCaption>
+                                        <TableCaption className="text-left mt-4 text-xs print:hidden">Este es un precio estimado. Incluye un {config?.descuentoGeneral || 0}% de descuento promocional.</TableCaption>
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead>Servicio / Ítem</TableHead>
-                                                <TableHead className="text-right">Precio</TableHead>
+                                                <TableHead className="text-right">Costo</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
                                                 <React.Fragment key={categoria}>
-                                                    <TableRow>
-                                                        <TableCell colSpan={2} className="font-bold text-primary bg-primary/5">{categoria}</TableCell>
-                                                    </TableRow>
+                                                    <TableRow><TableCell colSpan={2} className="font-bold text-primary bg-primary/5">{categoria}</TableCell></TableRow>
                                                     {items.map((item) => (
                                                         <TableRow key={item.id}>
-                                                            <TableCell className="font-medium">
-                                                                {item.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{item.nombre} (REGALO)</span> : item.nombre}
-                                                            </TableCell>
-                                                            <TableCell className="text-right">
-                                                                {item.esRegalo ? <span className="line-through text-muted-foreground">{formatCurrency(item.costo)}</span> : formatCurrency(item.costo)}
-                                                            </TableCell>
+                                                            <TableCell className="font-medium">{item.esRegalo ? <span className="text-green-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>{item.nombre} (REGALO)</span> : item.nombre}</TableCell>
+                                                            <TableCell className="text-right">{item.esRegalo ? <span className="line-through text-muted-foreground">{formatCurrency(item.costo)}</span> : formatCurrency(item.costo)}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </React.Fragment>
@@ -345,20 +349,21 @@ export default function ArmadoRapidoPage() {
                                     <Separator className="my-4"/>
                                      <div className="space-y-2 text-right">
                                         {descuento > 0 && <p className="text-sm">Subtotal: {formatCurrency(subtotal)}</p>}
+                                        {totalRegalos > 0 && <p className="text-sm text-green-600">Ahorro en Regalos: {formatCurrency(totalRegalos)}</p>}
                                         {descuento > 0 && <p className="text-sm text-destructive">Descuento ({config?.descuentoGeneral}%): -{formatCurrency(descuento)}</p>}
                                         <p className="text-2xl font-bold">Total Estimado: <span className="text-primary">{formatCurrency(costoTotal)}</span></p>
                                      </div>
                                 </div>
                             ) : (<p className="text-muted-foreground py-8 text-center">Completa los pasos anteriores para ver la estimación.</p>)}
-                            <p className="text-xs text-muted-foreground text-center pt-2">Este es un precio estimado. Para solicitar un presupuesto detallado y que nos pongamos en contacto, haz clic en el botón.</p>
-                             <div className="flex flex-col sm:flex-row gap-2 justify-center pt-4">
-                                <Button type="button" onClick={handleShareWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><Send className="w-4 h-4 mr-2"/>Compartir por WhatsApp</Button>
-                                <Button type="button" onClick={handleCopyToClipboard} variant="outline"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
+                            <div className="flex flex-col sm:flex-row gap-2 justify-center pt-4 print:hidden">
+                                <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar por WhatsApp</Button>
+                                <Button type="button" onClick={handleShareWhatsApp} variant="outline"><Share2 className="w-4 h-4 mr-2"/>Compartir Resumen</Button>
+                                <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar PDF</Button>
                              </div>
                         </div>
                     )}
                 </CardContent>
-                <CardFooter className="flex justify-between border-t pt-4">
+                <CardFooter className="flex justify-between border-t pt-4 print:hidden">
                     <Button variant="outline" onClick={prevStep} disabled={step === 1}>
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
@@ -377,4 +382,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
