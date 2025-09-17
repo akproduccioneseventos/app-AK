@@ -210,45 +210,162 @@
       "nombre": "Opciones de Catering",
       "descripcion": "Lista de todos los servicios de catering disponibles para el Simulador de Presupuesto.",
       "serviciosIncluidos": [
-        { "id": "serv_1752489600027_arrprim", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600023_asadocom", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600021_bifech", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600029_plancal", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600036_calzita", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_cerdo_relleno", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600006_chivit", "esRegalo": false, "categoria": "Menú Adolescente / Niño" },
-        { "id": "serv_1752489600022_cordero", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600033_empcas", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600034_minichiv", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600039_minibro", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600009_noquis", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600040_piccal", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_picada_fiambres", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600028_picsna", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600035_pizzemp", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600007_pollarr", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600010_raviol", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600032_salpoll", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600044_sansal", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600056_showpiz", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600058_showpizarr", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600059_showpizbun", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600060_showpizcal", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600061_showpizmini", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600062_showpizpicfiam", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600063_showpizpicsna", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600064_showpizplancal", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600065_showpizsansal", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600066_showpiztacmex", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600057_showpizfai", "esRegalo": false, "categoria": "Servicio Adicional" },
-        { "id": "serv_1752489600013_sorren", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600019_strogon", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600045_shushi", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600018_sushi", "esRegalo": false, "categoria": "Plato Principal" },
-        { "id": "serv_1752489600046_tabgour", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600037_tacmex", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600026_tapsab", "esRegalo": false, "categoria": "Entrada" },
-        { "id": "serv_1752489600005_hambur", "esRegalo": false, "categoria": "Menú Adolescente / Niño" }
+        {
+          "id": "serv_1752489600027_arrprim",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600023_asadocom",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600021_bifech",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600029_plancal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600036_calzita",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_cerdo_relleno",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600006_chivit",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600022_cordero",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600033_empcas",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600034_minichiv",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600039_minibro",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600009_noquis",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600040_piccal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_picada_fiambres",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600028_picsna",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600035_pizzemp",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600007_pollarr",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600010_raviol",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600032_salpoll",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600044_sansal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600056_showpiz",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600058_showpizarr",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600059_showpizbun",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600060_showpizcal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600061_showpizmini",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600062_showpizpicfiam",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600063_showpizpicsna",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600064_showpizplancal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600065_showpizsansal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600066_showpiztacmex",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600057_showpizfai",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600013_sorren",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600019_strogon",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600045_shushi",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600018_sushi",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600046_tabgour",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600037_tacmex",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600026_tapsab",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600005_hambur",
+          "esRegalo": false
+        }
       ]
     }
   ],

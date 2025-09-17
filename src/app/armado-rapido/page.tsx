@@ -17,6 +17,28 @@ import type { ServicioEmpresa } from '@/types/empresa';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 
+// Helper function to calculate the cost of a single service based on its method
+function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: number): number {
+  if (!servicio || cantidadInvitados <= 0) return 0;
+  
+  switch (servicio.calculationMethod) {
+    case 'porPersona':
+      return (servicio.precioPorPersona || 0) * cantidadInvitados;
+    case 'ratio':
+      if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0 && servicio.precioBase) {
+        return Math.ceil(cantidadInvitados / servicio.invitadosPorUnidad) * servicio.precioBase;
+      }
+      return servicio.precioBase || 0;
+    case 'tramos':
+      const tramo = servicio.tramosDePrecio?.find(t => cantidadInvitados >= t.desde && cantidadInvitados <= t.hasta);
+      return tramo?.precio || 0;
+    case 'fijo':
+    default:
+      return servicio.precioVenta || servicio.precioBase || 0;
+  }
+}
+
+
 export default function ArmadoRapidoPage() {
     const router = useRouter();
     const { toast } = useToast();
@@ -53,33 +75,35 @@ export default function ArmadoRapidoPage() {
     }, [toast]);
     
     const calcularCosto = useCallback(() => {
-        if (!config || !servicios.length) return 0;
+        if (!config || !servicios.length || cantidadInvitados <= 0) return 0;
         
         let costoTotal = 0;
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         const menuSeleccionado = config.menus.find(m => m.id === selectedMenuId);
 
         const allServiciosIds = new Set<string>();
+        const serviciosRegaloIds = new Set<string>();
 
         if (paqueteSeleccionado) {
             paqueteSeleccionado.serviciosIncluidos.forEach(s => {
-                if (!s.esRegalo) allServiciosIds.add(s.id);
+                allServiciosIds.add(s.id);
+                if (s.esRegalo) serviciosRegaloIds.add(s.id);
             });
         }
         if (menuSeleccionado) {
              menuSeleccionado.serviciosIncluidos.forEach(s => {
-                if (!s.esRegalo) allServiciosIds.add(s.id);
+                allServiciosIds.add(s.id);
+                if (s.esRegalo) serviciosRegaloIds.add(s.id);
             });
         }
 
         allServiciosIds.forEach(servicioId => {
+            if (serviciosRegaloIds.has(servicioId)) {
+                return; // Skip cost calculation for gifts
+            }
             const servicio = servicios.find(s => s.id === servicioId);
             if (servicio) {
-                if (servicio.calculationMethod === 'porPersona' && servicio.precioPorPersona) {
-                    costoTotal += servicio.precioPorPersona * cantidadInvitados;
-                } else {
-                    costoTotal += servicio.precioVenta || servicio.precioBase || 0;
-                }
+                costoTotal += calcularCostoServicio(servicio, cantidadInvitados);
             }
         });
         
@@ -173,11 +197,11 @@ export default function ArmadoRapidoPage() {
                         <Input id="cantidad-invitados" type="number" value={cantidadInvitados} onChange={e => setCantidadInvitados(Number(e.target.value) || 0)} min="1"/>
                     </div>
 
-                    {costoEstimado !== null && config?.mostrarPrecios && (
+                    {costoEstimado !== null && (config?.mostrarPrecios ?? true) && (
                         <Card className="text-center p-4 bg-primary/5">
                             <CardDescription>Costo Total Estimado</CardDescription>
                             <p className="text-4xl font-bold text-primary">{formatCurrency(costoEstimado)}</p>
-                            {config.descuentoGeneral && <CardDescription>Incluye un {config.descuentoGeneral}% de descuento general.</CardDescription>}
+                            {config?.descuentoGeneral && <CardDescription>Incluye un {config.descuentoGeneral}% de descuento general.</CardDescription>}
                         </Card>
                     )}
                 </CardContent>
