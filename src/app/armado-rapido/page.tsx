@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 
@@ -74,34 +75,31 @@ export default function ArmadoRapidoPage() {
         loadInitialData();
     }, [toast]);
     
-    const costoEstimado = useMemo(() => {
-        if (!config || !servicios.length || cantidadInvitados <= 0) return 0;
+    const { costoEstimado, serviciosIncluidos } = useMemo(() => {
+        if (!config || !servicios.length || cantidadInvitados <= 0) return { costoEstimado: 0, serviciosIncluidos: [] };
         
         let costoTotal = 0;
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         const menuSeleccionado = config.menus.find(m => m.id === selectedMenuId);
 
-        const allServiciosIds = new Set<string>();
-        const serviciosRegaloIds = new Set<string>();
+        const allServiciosIds = new Map<string, { id: string, esRegalo: boolean }>();
 
         if (paqueteSeleccionado) {
-            paqueteSeleccionado.serviciosIncluidos.forEach(s => {
-                allServiciosIds.add(s.id);
-                if (s.esRegalo) serviciosRegaloIds.add(s.id);
-            });
+            paqueteSeleccionado.serviciosIncluidos.forEach(s => allServiciosIds.set(s.id, s));
         }
         if (menuSeleccionado) {
-             menuSeleccionado.serviciosIncluidos.forEach(s => {
-                allServiciosIds.add(s.id);
-                if (s.esRegalo) serviciosRegaloIds.add(s.id);
-            });
+             menuSeleccionado.serviciosIncluidos.forEach(s => allServiciosIds.set(s.id, s));
         }
 
-        allServiciosIds.forEach(servicioId => {
-            if (serviciosRegaloIds.has(servicioId)) return;
-            const servicio = servicios.find(s => s.id === servicioId);
+        const includedServicesList: { nombre: string, esRegalo: boolean }[] = [];
+        
+        allServiciosIds.forEach(servicioInfo => {
+            const servicio = servicios.find(s => s.id === servicioInfo.id);
             if (servicio) {
-                costoTotal += calcularCostoServicio(servicio, cantidadInvitados);
+                includedServicesList.push({ nombre: servicio.nombre, esRegalo: servicioInfo.esRegalo });
+                if (!servicioInfo.esRegalo) {
+                    costoTotal += calcularCostoServicio(servicio, cantidadInvitados);
+                }
             }
         });
         
@@ -109,7 +107,7 @@ export default function ArmadoRapidoPage() {
             costoTotal *= (1 - (config.descuentoGeneral / 100));
         }
 
-        return costoTotal;
+        return { costoEstimado: costoTotal, serviciosIncluidos: includedServicesList };
     }, [config, servicios, selectedPaqueteId, selectedMenuId, cantidadInvitados]);
     
     const handleGenerateLead = async () => {
@@ -127,8 +125,7 @@ export default function ArmadoRapidoPage() {
             nombrePaquete: paquete?.nombre,
             nombreMenu: menu?.nombre,
             costoEstimado,
-            tipoEvento: 'Evento desde Simulador de Presupuesto',
-            salonFiestas: 'A confirmar'
+            serviciosIncluidos,
         };
 
         try {
@@ -175,14 +172,14 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    <CardDescription className="text-lg">Sigue los pasos para obtener una cotización estimada para tu evento.</CardDescription>
+                    <CardDescription className="text-lg">Paso {step} de 3: {step === 1 ? 'Tu Evento' : step === 2 ? 'Elige tu Paquete' : 'Resumen'}</CardDescription>
                     <Progress value={(step / 3) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
                 
                 <CardContent className="min-h-[300px] py-6 px-8">
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in-20">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><Users className="text-primary w-5 h-5"/>Paso 1: Tu Evento</h3>
+                            <h3 className="font-semibold text-lg flex items-center gap-2"><Users className="text-primary w-5 h-5"/>Define tu evento</h3>
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="cliente-nombre">Tu Nombre Completo *</Label>
@@ -197,7 +194,7 @@ export default function ArmadoRapidoPage() {
                     )}
                     {step === 2 && (
                          <div className="space-y-6 animate-in fade-in-20">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><Package className="text-primary w-5 h-5"/>Paso 2: Elige tu Paquete</h3>
+                            <h3 className="font-semibold text-lg flex items-center gap-2"><Package className="text-primary w-5 h-5"/>Elige tus Paquetes</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="paquete-select">Paquete de Servicios</Label>
@@ -217,18 +214,32 @@ export default function ArmadoRapidoPage() {
                         </div>
                     )}
                     {step === 3 && (
-                        <div className="space-y-6 text-center animate-in fade-in-20">
-                             <h3 className="font-semibold text-lg flex items-center justify-center gap-2"><FileText className="text-primary w-5 h-5"/>Paso 3: Tu Presupuesto Estimado</h3>
-                             {(costoEstimado > 0 && config?.mostrarPrecios) ? (
-                                <div className="p-6 bg-primary/5 rounded-lg">
+                        <div className="space-y-6 animate-in fade-in-20">
+                             <h3 className="font-semibold text-lg flex items-center justify-center gap-2"><FileText className="text-primary w-5 h-5"/>Tu Presupuesto Estimado</h3>
+                             {(costoEstimado > 0) ? (
+                                <>
+                                <div className="p-4 bg-primary/5 rounded-lg text-center">
                                     <p className="text-lg text-muted-foreground">Costo Total Estimado</p>
                                     <p className="text-5xl font-bold text-primary tracking-tight my-2">{formatCurrency(costoEstimado)}</p>
                                     {config?.descuentoGeneral && <p className="text-sm text-muted-foreground">Incluye un {config.descuentoGeneral}% de descuento promocional.</p>}
                                 </div>
+                                <Separator />
+                                <div className="space-y-2 text-sm">
+                                    <h4 className="font-medium">Servicios Incluidos:</h4>
+                                    <ul className="list-disc pl-5 text-muted-foreground grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                                        {serviciosIncluidos.map((s, i) => (
+                                            <li key={i} className={s.esRegalo ? 'text-green-600 font-medium' : ''}>
+                                                {s.esRegalo && <Gift className="inline-block w-4 h-4 mr-1.5"/>}
+                                                {s.nombre}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                </>
                             ) : (
-                                <p className="text-muted-foreground py-8">Selecciona un paquete y un menú para ver la estimación.</p>
+                                <p className="text-muted-foreground py-8 text-center">Selecciona un paquete y/o menú para ver la estimación.</p>
                             )}
-                            <p className="text-xs text-muted-foreground">Este es un precio estimado y puede variar. Para continuar, haz clic en "Solicitar Presupuesto".</p>
+                            <p className="text-xs text-muted-foreground text-center pt-2">Este es un precio estimado y puede variar. Para continuar, haz clic en "Solicitar Presupuesto".</p>
                         </div>
                     )}
                 </CardContent>
@@ -238,7 +249,7 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 3 ? (
-                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || cantidadInvitados <= 0)) || (step === 2 && !selectedPaqueteId && !selectedMenuId)}>
+                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || cantidadInvitados <= 0))}>
                             Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -216,11 +216,7 @@ export default function BudgetDisplaySettingsPage() {
                     <SheetDescription>Los cambios se guardarán en el catálogo maestro y afectarán a todos los presupuestos futuros.</SheetDescription>
                 </SheetHeader>
                 {editingServicioId && (
-                  // The EditServicioForm is not available in this context, we will have to build a simplified one.
-                  <div className="py-4">
-                    <p>Formulario de edición para el servicio ID: {editingServicioId}</p>
-                    <p>Este formulario se implementará en una futura versión.</p>
-                  </div>
+                  <EditServicioForm onCatalogUpdate={loadData}/>
                 )}
             </SheetContent>
             <DialogHeader>
@@ -295,8 +291,8 @@ export default function BudgetDisplaySettingsPage() {
             <Accordion type="multiple" className="w-full space-y-3">
               {config.paquetes.map(pkg => (
                 <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-md shadow-sm">
-                    <div className="flex items-center p-3 font-semibold text-sm">
-                        <AccordionTrigger className="hover:no-underline flex-1 text-left">{pkg.nombre}</AccordionTrigger>
+                    <div className="flex items-center p-3">
+                        <AccordionTrigger className="hover:no-underline flex-1 text-left font-semibold text-sm">{pkg.nombre}</AccordionTrigger>
                         <div className="flex gap-2 pl-2">
                            <Button variant="outline" size="sm" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
                            <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('paquete', pkg.id)} disabled={isSaving}>Eliminar</Button>
@@ -357,8 +353,6 @@ export default function BudgetDisplaySettingsPage() {
             </Accordion>
           </CardContent>
       </Card>
-      
     </div>
   );
 }
-

@@ -81,15 +81,19 @@ export async function generateLeadFromQuickBudget(
     }
     
     let notes = `Generado desde SIMULADOR DE PRESUPUESTO.
-Menú: "${data.nombreMenu || 'No seleccionado'}"
-Paquete de Servicios: "${data.nombrePaquete || 'No seleccionado'}"
-Tipo: ${data.tipoEvento || 'Evento desde Simulador de Presupuesto'}
-Invitados: ${data.cantidadInvitados}
-Salón: ${data.salonFiestas || 'A confirmar'}
-Presupuesto Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
-    
-    if(data.nombrePaquete) {
-      notes += `\nPaquete de Servicios: "${data.nombrePaquete}"`;
+- Cliente: ${data.clienteNombre}
+- Invitados: ${data.cantidadInvitados}
+- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
+
+    if (data.nombrePaquete) {
+      notes += `\n- Paquete de Servicios: "${data.nombrePaquete}"`;
+    }
+    if (data.nombreMenu) {
+      notes += `\n- Menú de Catering: "${data.nombreMenu}"`;
+    }
+    if (data.serviciosIncluidos && data.serviciosIncluidos.length > 0) {
+        notes += `\n- Servicios Incluidos:\n`;
+        notes += data.serviciosIncluidos.map((s: any) => `  • ${s.nombre}${s.esRegalo ? ' (REGALO)' : ''}`).join('\n');
     }
     
     const leadResult = await addCrmLead({
