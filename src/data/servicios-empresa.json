@@ -27,14 +27,24 @@
     "nombre": "Mozo",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "precioVenta": 2900
+    "valorUnitarioEstimado": 2900,
+    "precioVenta": 2900,
+    "calculationMethod": "ratio",
+    "precioBase": 2900,
+    "invitadosPorUnidad": 25,
+    "tramosDePrecio": []
   },
   {
     "id": "serv_mozo_cocina",
     "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "precioVenta": 2900
+    "valorUnitarioEstimado": 2900,
+    "precioVenta": 2900,
+    "calculationMethod": "ratio",
+    "precioBase": 2900,
+    "invitadosPorUnidad": 25,
+    "tramosDePrecio": []
   },
   {
     "id": "item_1756940568854_u5m4prf",
@@ -662,8 +672,30 @@
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
+    "valorUnitarioEstimado": 3000,
     "unidad": "Por evento",
-    "precioVenta": 9000
+    "precioVenta": 9000,
+    "calculationMethod": "tramos",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1758224519401",
+        "desde": 1,
+        "hasta": 80,
+        "precio": 9000
+      },
+      {
+        "id": "tramo_1758224542306",
+        "desde": 81,
+        "hasta": 130,
+        "precio": 15000
+      },
+      {
+        "id": "tramo_1758224566309",
+        "desde": 131,
+        "hasta": 250,
+        "precio": 25000
+      }
+    ]
   },
   {
     "id": "item_1757281679718_anst4pv",
