@@ -10,7 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tag, Percent } from 'lucide-react';
-import type { Dispatch, SetStateAction, useMemo } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useMemo } from 'react';
 
 interface Paso3ResumenProps {
   formData: PresupuestoFormData;
@@ -55,7 +56,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado }: 
             newSelected.set(servicioId, {
               ...currentServicio,
               [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-              esRegalo: false, // Un-mark as gift if price/qty is changed
+               esRegalo: false,
             });
         }
       }
@@ -113,6 +114,8 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado }: 
             <div className="p-4 border rounded-md bg-muted/40 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><Label htmlFor="promo-nombre">Nombre Promoción</Label><Input id="promo-nombre" value={formData.nombrePromocion || ''} onChange={e => handleDiscountChange('nombrePromocion', e.target.value)} placeholder="Ej: Descuento Amigos"/></div>
                 <div className="space-y-1"><Label htmlFor="promo-vigencia">Vigencia</Label><Input id="promo-vigencia" value={formData.vigenciaPromocion || ''} onChange={e => handleDiscountChange('vigenciaPromocion', e.target.value)} placeholder="Ej: Hasta 31/12"/></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <Label htmlFor="descuento-tipo">Tipo Descuento</Label>
                   <Select value={formData.descuentoTipo || ''} onValueChange={val => handleDiscountChange('descuentoTipo', val as PresupuestoFormData['descuentoTipo'])}>
@@ -127,8 +130,8 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado }: 
                   </Label>
                   <Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} min="0" step="any" disabled={!formData.descuentoTipo} placeholder="Ej: 10 o 5000"/>
                 </div>
+              </div>
             </div>
-        </div>
 
         <Separator/>
 
@@ -151,4 +154,3 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado }: 
   );
 }
 
-    
