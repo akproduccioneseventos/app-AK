@@ -1,3 +1,4 @@
+
 'use server';
 
 import fs from 'fs/promises';
@@ -79,7 +80,7 @@ export async function generateLeadFromQuickBudget(
         return { success: false, error: "No hay etapas configuradas en el CRM." };
     }
     
-    let notes = `Generado desde SIMULADOR DE PRESUPUESTO v2.
+    let notes = `Generado desde el Simulador/Creador de Presupuestos.
 - Invitados: ${data.adultos} Adultos, ${data.ninos} Niños/Adol.
 - Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
 

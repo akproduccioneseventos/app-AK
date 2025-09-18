@@ -163,6 +163,14 @@ function NuevoPresupuestoContent() {
     }, [formData.serviciosSeleccionados, formData.invitadosCantidad]);
 
     const handleSave = async () => {
+        const descuentoValorNum = parseFloat(formData.descuentoValor || '0') || 0;
+        let descuentoAplicado = 0;
+        if (formData.descuentoTipo && descuentoValorNum > 0) {
+            descuentoAplicado = formData.descuentoTipo === 'porcentaje' ? (totalCalculado * descuentoValorNum) / 100 : descuentoValorNum;
+        }
+        const totalFinalConDescuento = totalCalculado - descuentoAplicado;
+
+
         const presupuestoAGuardar = {
             clienteNombre: formData.clienteNombre,
             eventoTipo: formData.eventoTipo,
@@ -196,7 +204,8 @@ function NuevoPresupuestoContent() {
             costoTotalEstimado: totalCalculado,
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
-            descuentoValor: parseFloat(formData.descuentoValor || '0') || undefined,
+            descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
+            totalConDescuento: descuentoAplicado > 0 ? totalFinalConDescuento : undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
             timestamp: new Date().toISOString(),
             notas: formData.notas
@@ -211,12 +220,12 @@ function NuevoPresupuestoContent() {
             await generateLeadFromQuickBudget({
                 clienteNombre: presupuestoAGuardar.clienteNombre,
                 adultos: presupuestoAGuardar.invitadosCantidad,
-                ninos: 0,
-                costoEstimado: presupuestoAGuardar.costoTotalEstimado,
+                ninos: 0, // Placeholder, can be improved later
+                costoEstimado: totalFinalConDescuento,
                 serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio)
             });
 
-            toast({ title: "¡Presupuesto Guardado!", description: `Se ha creado el presupuesto para ${presupuestoAGuardar.clienteNombre}.` });
+            toast({ title: "¡Presupuesto Guardado!", description: `Se ha creado el presupuesto y se ha añadido un prospecto al CRM.` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push('/presupuestos');
           } else { throw new Error(result.error || "Error al guardar"); }
