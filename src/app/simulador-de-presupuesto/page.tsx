@@ -145,7 +145,7 @@ export default function ArmadoRapidoPage() {
 
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
             if (!servicio) return;
-            const cantidadParaCalculo = servicio.calculationMethod === 'fijo' ? 1 : totalInvitados;
+            const cantidadParaCalculo = servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio' ? totalInvitados : 1;
             const costoItem = calcularCostoServicio(servicio, totalInvitados);
             
             if (!esRegalo) {
@@ -338,7 +338,7 @@ export default function ArmadoRapidoPage() {
                     <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Gastronomía', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                     <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
-                <CardContent className="min-h-[350px] py-6 px-8 print:p-2">
+                <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><User className="text-primary w-5 h-5"/>Define tu evento</h3>
@@ -399,13 +399,11 @@ export default function ArmadoRapidoPage() {
                         <div className="space-y-4 animate-in fade-in-20">
                             <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
                                 <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
-                                <div className="flex justify-between items-start text-xs print:text-[8pt]">
-                                    <div className="space-y-px text-left">
+                                <div className="flex flex-col md:flex-row justify-between items-center text-xs print:text-[8pt] gap-2">
+                                    <div className="space-y-px text-center md:text-left">
                                         <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-                                        <p>{COMPANY_ADDRESS_LINE1_PDF}</p>
-                                        <p>{COMPANY_ADDRESS_LINE2_PDF}</p>
-                                        <p>{COMPANY_CONTACT_EMAIL_PDF}</p>
-                                        <p>{COMPANY_WEBSITE_PDF}</p>
+                                        <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+                                        <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
                                     </div>
                                     {logoUrl && (
                                         <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
@@ -433,56 +431,69 @@ export default function ArmadoRapidoPage() {
                                     </tr>
                                 </tbody>
                              </table>
-
-                             {costoTotal > 0 ? (
-                                <div className="p-0 border-none print:p-0">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Artículo</TableHead>
-                                                <TableHead>Cantidad</TableHead>
-                                                <TableHead>P. Unitario</TableHead>
-                                                <TableHead className="text-right">Importe</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
-                                                <React.Fragment key={categoria}>
-                                                    <TableRow className="bg-muted/30 print:bg-gray-50">
-                                                        <TableCell colSpan={4} className="font-bold text-primary">{categoria}</TableCell>
-                                                    </TableRow>
-                                                    {items.map((item) => (
-                                                        <TableRow key={item.id}>
-                                                            <TableCell className={`font-medium ${item.esRegalo ? 'text-green-600' : ''}`}>
-                                                                {item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}
-                                                                {item.nombre}
-                                                            </TableCell>
-                                                            <TableCell>x {item.cantidad} {item.unidad}</TableCell>
-                                                            <TableCell>{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitario)}</TableCell>
-                                                            <TableCell className="text-right font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </React.Fragment>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    <Separator className="my-4"/>
-                                    <div className="w-full max-w-xs ml-auto space-y-1 text-sm">
-                                        {descuento > 0 && <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>}
-                                        {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
-                                        {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-{formatCurrency(descuento)}</span></div>}
-                                        <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
+                             
+                             <div className="md:hidden space-y-3">
+                                {Object.entries(serviciosAgrupados).map(([categoria, items]) =>(
+                                    <div key={categoria}>
+                                        <h4 className="font-bold text-primary border-b pb-1 mb-2">{categoria}</h4>
+                                        {items.map(item => (
+                                            <div key={item.id} className="p-2 border-b text-sm">
+                                                <div className={`flex justify-between font-medium ${item.esRegalo ? 'text-green-600' : ''}`}>
+                                                    <span>{item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}{item.nombre}</span>
+                                                    <span>{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</span>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    {item.cantidad} {item.unidad} x {formatCurrency(item.precioUnitario)}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
-                                      <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
-                                    </footer>
-                                </div>
-                            ) : (<p className="text-muted-foreground py-8 text-center">Completa los pasos anteriores para ver la estimación.</p>)}
-                             <div className="flex flex-col sm:flex-row gap-2 justify-center pt-4 print:hidden">
-                                <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar por WhatsApp</Button>
-                                <Button type="button" onClick={handleShareWhatsApp} variant="outline"><Share2 className="w-4 h-4 mr-2"/>Compartir Resumen</Button>
-                                <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar PDF</Button>
+                                ))}
                              </div>
+
+                             <div className="hidden md:block">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Artículo</TableHead>
+                                            <TableHead className="text-center">Cantidad</TableHead>
+                                            <TableHead className="text-right">P. Unitario</TableHead>
+                                            <TableHead className="text-right">Importe</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
+                                            <React.Fragment key={categoria}>
+                                                <TableRow className="bg-muted/30 print:bg-gray-50">
+                                                    <TableCell colSpan={4} className="font-bold text-primary">{categoria}</TableCell>
+                                                </TableRow>
+                                                {items.map((item) => (
+                                                    <TableRow key={item.id}>
+                                                        <TableCell className={`font-medium ${item.esRegalo ? 'text-green-600' : ''}`}>
+                                                            {item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}
+                                                            {item.nombre}
+                                                        </TableCell>
+                                                        <TableCell className="text-center">{item.cantidad} {item.unidad}</TableCell>
+                                                        <TableCell className="text-right">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitario)}</TableCell>
+                                                        <TableCell className="text-right font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </React.Fragment>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                             </div>
+
+                            <Separator className="my-4"/>
+                            <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
+                                {descuento > 0 && <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>}
+                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
+                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-{formatCurrency(descuento)}</span></div>}
+                                <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
+                            </div>
+                            <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
+                              <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
+                            </footer>
                         </div>
                     )}
                 </CardContent>
@@ -495,10 +506,10 @@ export default function ArmadoRapidoPage() {
                             Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (
-                         <Button onClick={handleGenerateLead} disabled={isGeneratingLead || !costoTotal}>
-                            {isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2"/>}
-                            Solicitar Presupuesto Detallado
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                             <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar</Button>
+                             <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar</Button>
+                        </div>
                     )}
                 </CardFooter>
             </Card>
