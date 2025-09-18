@@ -65,11 +65,11 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     actionLabel: 'Ir al CRM',
   },
   {
-    title: 'Central de Presupuestos',
+    title: 'Crear Presupuestos',
     description: 'Crea, gestiona y envía presupuestos detallados a tus clientes.',
     href: '/presupuestos/nuevo',
     icon: ListChecks,
-    actionLabel: 'Ir a Central de Presupuestos',
+    actionLabel: 'Crear Nuevo Presupuesto',
   },
   {
     title: 'Gestión de Facturas',
@@ -275,10 +275,10 @@ export default function ContabilidadDashboardPage() {
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">
-                   <Button asChild className="w-full">
-                    <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer">
+                   <Button asChild className="w-full" variant="default">
+                      <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer">
                         <Eye className="w-4 h-4 mr-2"/>Abrir Simulador
-                    </Link>
+                      </Link>
                   </Button>
                   <div className="flex gap-2 w-full">
                     <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
