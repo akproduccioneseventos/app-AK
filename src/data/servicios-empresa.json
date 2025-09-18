@@ -5,7 +5,8 @@
     "nombre": "Invitaciones digitales",
     "tipoItem": "Servicio",
     "categoria": "Otros servicios",
-    "precioVenta": 1500
+    "precioVenta": 1500,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600004_pchef",
@@ -13,7 +14,8 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "unidad": "Por evento",
-    "precioVenta": 3500
+    "precioVenta": 3500,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600003_pmetr",
@@ -21,7 +23,8 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "unidad": "Por evento",
-    "precioVenta": 3500
+    "precioVenta": 3500,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_mozos",
@@ -53,21 +56,24 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "unidad": "Por evento",
-    "precioVenta": 8000
+    "precioVenta": 8000,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_pantalla_proyector",
     "nombre": "Pantalla gigante y proyector",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "precioVenta": 2000
+    "precioVenta": 2000,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_video_vida",
     "nombre": "Video de vida",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "precioVenta": 1900
+    "precioVenta": 1900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600084_barlic",
@@ -76,7 +82,9 @@
     "categoria": "Servicio de bebidas",
     "subcategoria": "Barras",
     "unidad": "Por persona",
-    "precioVenta": 199
+    "precioVenta": 199,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 199
   },
   {
     "id": "serv_1752489600086_barlib",
@@ -85,7 +93,9 @@
     "categoria": "Servicio de bebidas",
     "subcategoria": "Barras",
     "unidad": "Por persona",
-    "precioVenta": 350
+    "precioVenta": 350,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 350
   },
   {
     "id": "serv_1752489600087_bebidjug",
@@ -94,7 +104,9 @@
     "categoria": "Servicio de bebidas",
     "subcategoria": "Bebidas sin Alcohol",
     "unidad": "Por persona",
-    "precioVenta": 70
+    "precioVenta": 70,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 70
   },
   {
     "id": "serv_1752489600090_coctel",
@@ -103,7 +115,8 @@
     "categoria": "Servicio de bebidas",
     "subcategoria": "Bebidas con Alcohol",
     "unidad": "Unidad",
-    "precioVenta": 6000
+    "precioVenta": 6000,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757177422000_4ru2piy",
@@ -111,21 +124,26 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
     "unidad": "Por evento",
-    "precioVenta": 3000
+    "precioVenta": 3000,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757456683585_bb9tztm",
     "nombre": "Mesa de jugos naturales",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "precioVenta": 100
+    "precioVenta": 100,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
   },
   {
     "id": "item_1757733147509_dtykm4c",
     "nombre": "Refrescos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "precioVenta": 140
+    "precioVenta": 140,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 140
   },
   {
     "id": "serv_1752489600038_arepven",
@@ -133,8 +151,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 200,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 200
   },
   {
     "id": "serv_1752489600027_arrprim",
@@ -142,8 +160,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 150,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 150
   },
   {
     "id": "serv_1752489600023_asadocom",
@@ -151,8 +169,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 645,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 645
   },
   {
     "id": "serv_1752489600014_bauru",
@@ -160,8 +178,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 390,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 390
   },
   {
     "id": "serv_1752489600021_bifech",
@@ -169,8 +187,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 480,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 480
   },
   {
     "id": "serv_1752489600016_brochet",
@@ -178,8 +196,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 380,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 380
   },
   {
     "id": "serv_1752489600024_bunalga",
@@ -187,8 +205,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 120,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 120
   },
   {
     "id": "serv_1752489600036_calzita",
@@ -196,8 +214,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 200,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 200
   },
   {
     "id": "serv_cerdo_relleno",
@@ -205,8 +223,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 380,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 380
   },
   {
     "id": "serv_1752489600006_chivit",
@@ -214,8 +232,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 350,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 350
   },
   {
     "id": "serv_1752489600022_cordero",
@@ -223,8 +241,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 560,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 560
   },
   {
     "id": "serv_1752489600033_empcas",
@@ -232,8 +250,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 200,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 200
   },
   {
     "id": "serv_1752489600025_faina",
@@ -241,8 +259,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 100,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
   },
   {
     "id": "serv_1752489600005_hambur",
@@ -250,8 +268,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 280,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 280
   },
   {
     "id": "serv_1752489600030_kebabs",
@@ -259,8 +277,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 130,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 130
   },
   {
     "id": "item_1757176691814_wkx7uiy",
@@ -268,8 +286,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 230,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 230
   },
   {
     "id": "serv_1752489600047_mencel",
@@ -277,8 +295,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 700,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 700
   },
   {
     "id": "serv_1752489600048_mensorr",
@@ -286,8 +304,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 700,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 700
   },
   {
     "id": "serv_1752489600055_menninchiv",
@@ -295,8 +313,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 300,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 300
   },
   {
     "id": "serv_menu_ninos_panchos",
@@ -304,8 +322,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 165,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 165
   },
   {
     "id": "serv_1752489600054_menninpanm",
@@ -313,8 +331,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 300,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 300
   },
   {
     "id": "serv_1752489600049_mennin1",
@@ -322,8 +340,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 320,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 320
   },
   {
     "id": "serv_1752489600050_mennin2",
@@ -331,8 +349,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 349,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 349
   },
   {
     "id": "serv_1752489600051_menveg",
@@ -340,8 +358,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 350,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 350
   },
   {
     "id": "serv_1752489600020_merluz",
@@ -349,8 +367,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 450,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 450
   },
   {
     "id": "serv_1752489600039_minibro",
@@ -358,8 +376,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 200,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 200
   },
   {
     "id": "serv_1752489600034_minichiv",
@@ -367,8 +385,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 180,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 180
   },
   {
     "id": "serv_1752489600009_noquis",
@@ -376,8 +394,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 390,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 390
   },
   {
     "id": "serv_1752489600040_piccal",
@@ -385,8 +403,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 220,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 220
   },
   {
     "id": "serv_1752489600041_piccrio",
@@ -394,8 +412,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 220,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 220
   },
   {
     "id": "serv_1752489600042_picmar",
@@ -403,8 +421,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 210,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 210
   },
   {
     "id": "serv_1752489600043_picprem",
@@ -412,8 +430,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 200,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 200
   },
   {
     "id": "serv_1752489600028_picsna",
@@ -421,8 +439,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 150,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 150
   },
   {
     "id": "serv_1752489600035_pizzemp",
@@ -430,8 +448,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 180,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 180
   },
   {
     "id": "serv_1752489600029_plancal",
@@ -439,8 +457,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 150,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 150
   },
   {
     "id": "serv_1752489600007_pollarr",
@@ -448,8 +466,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 390,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 390
   },
   {
     "id": "serv_1752489600010_raviol",
@@ -457,8 +475,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 390,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 390
   },
   {
     "id": "serv_1752489600032_salpoll",
@@ -466,8 +484,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 150,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 150
   },
   {
     "id": "serv_1752489600044_sansal",
@@ -475,8 +493,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 220,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 220
   },
   {
     "id": "serv_1752489600056_showpiz",
@@ -484,8 +502,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 190,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 190
   },
   {
     "id": "serv_1752489600058_showpizarr",
@@ -493,8 +511,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 399,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 399
   },
   {
     "id": "serv_1752489600059_showpizbun",
@@ -502,8 +520,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 389,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 389
   },
   {
     "id": "serv_1752489600060_showpizcal",
@@ -511,8 +529,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 489,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 489
   },
   {
     "id": "serv_1752489600061_showpizmini",
@@ -520,8 +538,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 429,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 429
   },
   {
     "id": "serv_1752489600062_showpizpicfiam",
@@ -529,8 +547,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 419,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 419
   },
   {
     "id": "serv_1752489600063_showpizpicsna",
@@ -538,8 +556,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 419,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 419
   },
   {
     "id": "serv_1752489600064_showpizplancal",
@@ -547,8 +565,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 419,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 419
   },
   {
     "id": "serv_1752489600065_showpizsansal",
@@ -556,8 +574,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 469,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 469
   },
   {
     "id": "serv_1752489600066_showpiztacmex",
@@ -565,8 +583,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 489,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 489
   },
   {
     "id": "serv_1752489600057_showpizfai",
@@ -574,8 +592,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 389,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 389
   },
   {
     "id": "serv_1752489600013_sorren",
@@ -583,8 +601,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 420,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 420
   },
   {
     "id": "serv_1752489600019_strogon",
@@ -592,8 +610,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 420,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 420
   },
   {
     "id": "serv_1752489600045_shushi",
@@ -601,8 +619,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 250,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 250
   },
   {
     "id": "serv_1752489600018_sushi",
@@ -610,8 +628,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 400,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 400
   },
   {
     "id": "serv_1752489600046_tabgour",
@@ -619,8 +637,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 280,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 280
   },
   {
     "id": "serv_1752489600037_tacmex",
@@ -628,8 +646,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 240,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 240
   },
   {
     "id": "serv_1752489600026_tapsab",
@@ -637,8 +655,17 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "subcategoria": "Menu",
-    "precioPorPersona": 100,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
+  },
+  {
+    "id": "serv_1752489600005_hambur",
+    "nombre": "Hamburguesa completa c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menu",
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 280
   },
   {
     "id": "item_1757539461884_w7kfwsm",
@@ -646,7 +673,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 1400,
-    "precioVenta": 2900
+    "precioVenta": 2900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_manteleria_completa",
@@ -654,7 +682,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "subcategoria": "Textiles",
-    "precioVenta": 75
+    "precioVenta": 75,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 75
   },
   {
     "id": "item_1757258437308_s0lgq1z",
@@ -662,14 +692,16 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "unidad": "Por evento",
-    "precioVenta": 14500
+    "precioVenta": 14500,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757539236109_vtqfjaz",
     "nombre": "Lluvia de burbujas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
-    "precioVenta": 1500
+    "precioVenta": 1500,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757258361278_fs8ba4x",
@@ -707,7 +739,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "precioVenta": 3900
+    "precioVenta": 3900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757281594479_qby7zsw",
@@ -715,7 +748,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "precioVenta": 3900
+    "precioVenta": 3900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757284864269_4d9w4ml",
@@ -723,14 +757,17 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "precioVenta": 2900
+    "precioVenta": 2900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757536022626_o6vi9hl",
     "nombre": "Mesa de Glitter Bar",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "precioVenta": 80
+    "precioVenta": 80,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 80
   },
   {
     "id": "item_1757284889281_ioj7571",
@@ -738,7 +775,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "unidad": "Por evento",
-    "precioVenta": 3900
+    "precioVenta": 3900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757282105396_39i6zkn",
@@ -746,7 +784,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
-    "precioVenta": 3000
+    "precioVenta": 3000,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757281980225_3x3nbzo",
@@ -754,7 +793,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "unidad": "Por evento",
-    "precioVenta": 9000
+    "precioVenta": 9000,
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757285027582_71oyrff",
@@ -762,7 +802,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "unidad": "Por evento",
-    "precioVenta": 120
+    "precioVenta": 120,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 120
   },
   {
     "id": "item_1757280489194_y9qozwm",
@@ -770,6 +812,8 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "unidad": "Por evento",
-    "precioVenta": 100
+    "precioVenta": 100,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
   }
 ]
