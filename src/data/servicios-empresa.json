@@ -263,15 +263,6 @@
     "precioPorPersona": 100
   },
   {
-    "id": "serv_1752489600005_hambur",
-    "nombre": "Hamburguesa completa c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 280
-  },
-  {
     "id": "serv_1752489600030_kebabs",
     "nombre": "Kebabs",
     "tipoItem": "Servicio",
