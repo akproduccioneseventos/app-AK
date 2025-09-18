@@ -83,40 +83,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       return { ...prev, serviciosSeleccionados: newSelected };
     });
   };
-
-  const handleServicioDetailChange = (
-    servicioId: string,
-    field: 'cantidad' | 'precioUnitarioPresupuesto' | 'esRegalo',
-    value: string | number | boolean
-  ) => {
-    setFormData(prev => {
-      const newSelected = new Map(prev.serviciosSeleccionados);
-      const currentServicio = newSelected.get(servicioId);
-      if (currentServicio) {
-        if (field === 'esRegalo') {
-            const esRegalo = !!value;
-            newSelected.set(servicioId, {
-              ...currentServicio,
-              esRegalo,
-              precioUnitarioPresupuesto: esRegalo ? 0 : currentServicio.precioUnitarioOriginal,
-            });
-        } else {
-            let numericValue = Number(value);
-            if (field === 'cantidad') {
-                numericValue = Math.max(1, Math.floor(numericValue));
-            } else if (field === 'precioUnitarioPresupuesto') {
-                numericValue = Math.max(0, numericValue);
-            }
-            newSelected.set(servicioId, {
-              ...currentServicio,
-              [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-               esRegalo: false,
-            });
-        }
-      }
-      return { ...prev, serviciosSeleccionados: newSelected };
-    });
-  };
   
   const handleCategoryFilterToggle = (category: CategoriaServicio) => {
     setSelectedCategories(prev => {

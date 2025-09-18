@@ -18,6 +18,8 @@ import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento'
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
 import { Progress } from '@/components/ui/progress';
+import { generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
+
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -204,6 +206,16 @@ function NuevoPresupuestoContent() {
         try {
           const result = await savePresupuesto(presupuestoAGuardar);
           if (result.success && result.id) {
+            
+             // Create a lead in CRM
+            await generateLeadFromQuickBudget({
+                clienteNombre: presupuestoAGuardar.clienteNombre,
+                adultos: presupuestoAGuardar.invitadosCantidad,
+                ninos: 0,
+                costoEstimado: presupuestoAGuardar.costoTotalEstimado,
+                serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio)
+            });
+
             toast({ title: "¡Presupuesto Guardado!", description: `Se ha creado el presupuesto para ${presupuestoAGuardar.clienteNombre}.` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push('/presupuestos');
