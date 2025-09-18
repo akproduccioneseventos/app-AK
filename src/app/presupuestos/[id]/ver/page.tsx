@@ -151,21 +151,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
       .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
   };
   
-  const handleShare = async () => {
-    const shareData = {
-      title: `Presupuesto para ${presupuesto?.clienteNombre}`,
-      text: `Aquí está el presupuesto para tu ${presupuesto?.eventoTipo}.`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error('Share API not supported');
-      }
-    } catch (err) {
-      handleCopyToClipboard(); // Fallback to copy link
-    }
+  const handleShareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   };
 
   const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal } = useMemo(() => {
@@ -227,9 +214,9 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     <div className="max-w-4xl mx-auto bg-white print:bg-white font-sans text-gray-800 print:text-black">
       <div className="p-4 md:p-8 print:p-2">
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
-          <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
+          <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
-            <Button variant="outline" size="sm" onClick={handleShare}><Share2 className="mr-2 h-4 w-4"/>Compartir</Button>
+            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><MessageSquare className="mr-2 h-4 w-4"/>Compartir por WhatsApp</Button>
             <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             {presupuesto.estado !== 'Facturado' ? 
               (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
@@ -320,6 +307,18 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
+            {descuentoPromocional > 0 && displaySettings.showPriceBreakdown && ( 
+                <>
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>{formatCurrency(subtotalBruto, true, true)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-red-600">Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                    <span className="text-red-600">-{formatCurrency(descuentoPromocional, true, true)}</span>
+                  </div>
+                </>
+              )}
             <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
               <span className="text-base">Importe total</span>
               <span className="text-base">{formatCurrency(totalFinal, true)}</span>
