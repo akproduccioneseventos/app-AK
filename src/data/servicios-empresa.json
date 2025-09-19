@@ -668,6 +668,15 @@
     "precioPorPersona": 100
   },
   {
+    "nombre": "Vajilla completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 20,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 70,
+    "id": "item_1758319656786_6sjl431"
+  },
+  {
     "id": "item_1757539461884_w7kfwsm",
     "nombre": "Cuadro de firmas",
     "tipoItem": "Servicio",
