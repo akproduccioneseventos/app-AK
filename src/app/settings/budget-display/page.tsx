@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -58,6 +58,8 @@ export default function BudgetDisplaySettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [servicioSearchTerm, setServicioSearchTerm] = useState('');
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -82,6 +84,7 @@ export default function BudgetDisplaySettingsPage() {
   const handleOpenModal = (type: 'paquete' | 'menu', item?: PaqueteArmadoRapido | MenuArmadoRapido) => {
     setModalType(type);
     setCurrentItem(item ? {...item, serviciosIncluidos: item.serviciosIncluidos || []} : { nombre: '', serviciosIncluidos: [] });
+    setServicioSearchTerm(''); // Reset search on modal open
     setIsModalOpen(true);
   };
   
@@ -177,25 +180,35 @@ export default function BudgetDisplaySettingsPage() {
     });
   };
   
+  const serviciosFiltrados = useMemo(() => {
+    if (!servicioSearchTerm) return serviciosCatalogo;
+    const lowerCaseSearch = servicioSearchTerm.toLowerCase();
+    return serviciosCatalogo.filter(s =>
+      s.nombre.toLowerCase().includes(lowerCaseSearch) ||
+      s.categoria?.toLowerCase().includes(lowerCaseSearch) ||
+      s.subcategoria?.toLowerCase().includes(lowerCaseSearch)
+    );
+  }, [servicioSearchTerm, serviciosCatalogo]);
+  
  const serviciosAgrupadosParaPaquetes = React.useMemo(() => {
-    return serviciosCatalogo.reduce((acc, servicio) => {
+    return serviciosFiltrados.reduce((acc, servicio) => {
         const categoria = servicio.categoria || 'Otros';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(servicio);
         return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
-  }, [serviciosCatalogo]);
+  }, [serviciosFiltrados]);
   const categoriasOrdenadasParaPaquetes = Object.keys(serviciosAgrupadosParaPaquetes).sort();
   
   const serviciosAgrupadosParaMenus = React.useMemo(() => {
-    const serviciosDeCatering = serviciosCatalogo.filter(s => s.categoria === 'Servicio de catering');
+    const serviciosDeCatering = serviciosFiltrados.filter(s => s.categoria === 'Servicio de catering');
     return serviciosDeCatering.reduce((acc, servicio) => {
       const subcategoria = servicio.subcategoria || 'General';
       if (!acc[subcategoria]) acc[subcategoria] = [];
       acc[subcategoria].push(servicio);
       return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
-  }, [serviciosCatalogo]);
+  }, [serviciosFiltrados]);
   const categoriasOrdenadasParaMenus = Object.keys(serviciosAgrupadosParaMenus).sort();
 
 
@@ -232,8 +245,18 @@ export default function BudgetDisplaySettingsPage() {
                     <div className="space-y-1"><Label htmlFor="item-name">Nombre</Label><Input id="item-name" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
                     <Separator/>
                     <Label>Servicios Incluidos</Label>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                        <Input 
+                            placeholder="Buscar servicios..."
+                            value={servicioSearchTerm}
+                            onChange={(e) => setServicioSearchTerm(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
                     <Accordion type="multiple" className="w-full space-y-2" defaultValue={modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus}>
                         {(modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus).map(categoria => (
+                            (serviciosAgrupadosParaPaquetes[categoria] || serviciosAgrupadosParaMenus[categoria]) &&
                             <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
                                 <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
                                 <AccordionContent className="px-3 pt-0 pb-2">
@@ -360,5 +383,3 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
-
-    

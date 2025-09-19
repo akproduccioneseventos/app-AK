@@ -681,8 +681,10 @@
     "nombre": "Decoración Básica",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "precioVenta": 2000,
-    "calculationMethod": "fijo"
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 8000,
+    "calculationMethod": "fijo",
+    "tramosDePrecio": []
   },
   {
     "id": "item_1757258437308_s0lgq1z",
