@@ -1,4 +1,3 @@
-
 {
   "descuentoGeneral": 15,
   "paquetes": [
@@ -204,6 +203,30 @@
         },
         {
           "id": "item_1757539461884_w7kfwsm",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757539236109_vtqfjaz",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1758320726157_k2ts7sy",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1758319656786_6sjl431",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758320278460_yqzpq1h",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757456683585_bb9tztm",
           "esRegalo": false
         }
       ]

@@ -12,7 +12,7 @@ import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Perc
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -62,7 +62,7 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
         if (!servicio) return;
         setIsSaving(true);
         try {
-            const result = await saveServicioEmpresa(servicio as ServicioEmpresa);
+            const result = await saveServicioEmpresaAction(servicio as ServicioEmpresa);
             if (result.success) {
                 toast({ title: "Servicio actualizado" });
                 onUpdate(); // This should trigger a refresh in the parent
@@ -275,6 +275,30 @@ export default function BudgetDisplaySettingsPage() {
     return <div className="text-center text-destructive py-10"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold text-lg">{error}</p><Button onClick={loadData} className="mt-4" variant="outline">Reintentar</Button></div>;
   }
   
+  const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[]) => {
+    const grouped = servicios.reduce((acc, s) => {
+      const fullServicio = serviciosCatalogo.find(sc => sc.id === s.id);
+      if (fullServicio) {
+        const categoria = fullServicio.categoria || 'Otros Servicios';
+        if (!acc[categoria]) {
+          acc[categoria] = [];
+        }
+        acc[categoria].push(fullServicio);
+      }
+      return acc;
+    }, {} as Record<string, ServicioEmpresa[]>);
+
+    return Object.keys(grouped).sort().map(categoria => (
+      <div key={categoria} className="mb-2">
+        <h5 className="font-semibold text-xs uppercase text-muted-foreground">{categoria}</h5>
+        <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1 mt-1">
+          {grouped[categoria].map(servicio => <li key={servicio.id}>{servicio.nombre}</li>)}
+        </ul>
+      </div>
+    ));
+  };
+
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -287,12 +311,12 @@ export default function BudgetDisplaySettingsPage() {
             </DialogHeader>
             <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
                 <SheetContent className="w-full max-w-none sm:max-w-lg">
-                    <SheetHeader>
-                        <SheetTitle>Editar Servicio</SheetTitle>
-                        <SheetDescription>
-                            Realiza cambios en el catálogo maestro. Esto afectará a futuros presupuestos.
-                        </SheetDescription>
-                    </SheetHeader>
+                  <DialogHeader>
+                    <DialogTitle>Editar Servicio</DialogTitle>
+                    <DialogDescription>
+                      Realiza cambios en el catálogo maestro. Esto afectará a futuros presupuestos.
+                    </DialogDescription>
+                  </DialogHeader>
                     {editingServicioId && (
                         <EditServicioForm 
                           servicioId={editingServicioId}
@@ -378,7 +402,10 @@ export default function BudgetDisplaySettingsPage() {
             <Button onClick={() => handleOpenModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
             <Separator/>
             <Accordion type="multiple" className="w-full space-y-3">
-              {config.paquetes.map(pkg => (
+              {config.paquetes.map(pkg => {
+                const serviciosNormales = (pkg.serviciosIncluidos || []).filter(s => !s.esRegalo);
+                const serviciosRegalo = (pkg.serviciosIncluidos || []).filter(s => s.esRegalo);
+                return (
                 <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-md shadow-sm">
                     <div className="flex items-center p-3">
                         <AccordionTrigger className="hover:no-underline flex-1 text-left font-semibold text-sm">{pkg.nombre}</AccordionTrigger>
@@ -388,21 +415,23 @@ export default function BudgetDisplaySettingsPage() {
                         </div>
                     </div>
                     <AccordionContent className="p-3 border-t">
-                        <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-                            {(pkg.serviciosIncluidos || []).filter(s => !s.esRegalo).map(servicio => {
+                      {renderServiciosList(serviciosNormales)}
+                      {serviciosRegalo.length > 0 && (
+                        <>
+                          <Separator className="my-2" />
+                          <h5 className="font-semibold text-xs uppercase text-green-600 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>Regalos</h5>
+                          <ul className="text-xs text-green-700 list-disc pl-5 space-y-1 mt-1">
+                            {serviciosRegalo.map(servicio => {
                                 const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
+                                return <li key={servicio.id} className="font-medium">{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
                             })}
-                        </ul>
-                        <ul className="text-xs text-red-600 list-disc pl-5 space-y-1 mt-2">
-                            {(pkg.serviciosIncluidos || []).filter(s => s.esRegalo).map(servicio => {
-                                const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return <li key={servicio.id} className="font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
-                            })}
-                        </ul>
+                          </ul>
+                        </>
+                      )}
                     </AccordionContent>
                 </AccordionItem>
-              ))}
+                )
+              })}
             </Accordion>
           </CardContent>
       </Card>
@@ -426,18 +455,19 @@ export default function BudgetDisplaySettingsPage() {
                         </div>
                     </div>
                     <AccordionContent className="p-3 border-t">
-                        <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-                           {(menu.serviciosIncluidos || []).filter(s => !s.esRegalo).map(servicio => {
-                                const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
-                            })}
-                        </ul>
-                         <ul className="text-xs text-red-600 list-disc pl-5 space-y-1 mt-2">
+                      {renderServiciosList((menu.serviciosIncluidos || []).filter(s => !s.esRegalo))}
+                      {(menu.serviciosIncluidos || []).some(s => s.esRegalo) && (
+                        <>
+                          <Separator className="my-2"/>
+                          <h5 className="font-semibold text-xs uppercase text-green-600 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>Regalos</h5>
+                          <ul className="text-xs text-green-700 list-disc pl-5 space-y-1 mt-1">
                             {(menu.serviciosIncluidos || []).filter(s => s.esRegalo).map(servicio => {
                                 const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return <li key={servicio.id} className="font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
+                                return <li key={servicio.id} className="font-medium">{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
                             })}
-                        </ul>
+                          </ul>
+                        </>
+                      )}
                     </AccordionContent>
                 </AccordionItem>
               ))}

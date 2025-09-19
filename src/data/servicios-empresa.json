@@ -1,5 +1,14 @@
 [
   {
+    "nombre": "Fuegos frios",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 800,
+    "calculationMethod": "fijo",
+    "precioVenta": 3000,
+    "id": "item_1758320726157_k2ts7sy"
+  },
+  {
     "id": "serv_invitaciones_digitales",
     "nombre": "Invitaciones digitales",
     "tipoItem": "Servicio",
@@ -814,13 +823,13 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "item_1758320278460_yqzpq1h",
     "nombre": "Fotografía de exteriores",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "valorUnitarioEstimado": 2000,
-    "calculationMethod": "fijo",
     "precioVenta": 3900,
-    "id": "item_1758320278460_yqzpq1h"
+    "calculationMethod": "fijo"
   },
   {
     "id": "item_1757281980225_3x3nbzo",
