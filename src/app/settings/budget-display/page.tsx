@@ -23,6 +23,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import EditServicioForm from '@/components/presupuestos/EditServicioForm';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 const formatCurrency = (amount?: number) => {
@@ -209,6 +210,12 @@ export default function BudgetDisplaySettingsPage() {
     <div className="max-w-3xl mx-auto space-y-6">
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-xl">
+           <DialogHeader>
+                <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
+                <DialogDescription>
+                    Define el nombre y los servicios que se incluirán.
+                </DialogDescription>
+            </DialogHeader>
           <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
             <SheetContent className="w-full max-w-none sm:max-w-lg">
                 <SheetHeader>
@@ -219,12 +226,6 @@ export default function BudgetDisplaySettingsPage() {
                   <EditServicioForm onCatalogUpdate={loadData}/>
                 )}
             </SheetContent>
-            <DialogHeader>
-                <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
-                 <DialogDescription>
-                    Define el nombre y los servicios que se incluirán.
-                </DialogDescription>
-            </DialogHeader>
             {currentItem && (
                 <form onSubmit={handleSaveItem}>
                 <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
@@ -359,3 +360,5 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
+
+    
