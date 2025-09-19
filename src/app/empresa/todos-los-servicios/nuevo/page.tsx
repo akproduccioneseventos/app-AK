@@ -31,7 +31,6 @@ function NuevoItemInventarioContent() {
   const [tipoItem, setTipoItem] = useState<TipoItemEmpresa>('Servicio');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
-  const [notas, setNotas] = useState('');
   const [subcategoria, setSubcategoria] = useState('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
@@ -81,7 +80,6 @@ function NuevoItemInventarioContent() {
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
       unidad: tipoItem === 'Servicio' ? undefined : unidad as UnidadServicio,
-      notas: notas.trim() || undefined,
       
       calculationMethod: tipoItem === 'Servicio' ? calculationMethod : undefined,
       precioVenta: (calculationMethod === 'fijo' && precioVenta) ? parseFloat(precioVenta) : undefined,
@@ -246,10 +244,6 @@ function NuevoItemInventarioContent() {
                 </div>
             )}
             
-            <div className="space-y-2">
-              <Label htmlFor="item-notas" className="text-base">Observaciones (Opcional)</Label>
-              <Textarea id="item-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Detalles, proveedor preferido, etc." rows={3} disabled={isSaving}/>
-            </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
@@ -270,3 +264,5 @@ export default function NuevoItemInventarioPage() {
         </Suspense>
     )
 }
+
+    
