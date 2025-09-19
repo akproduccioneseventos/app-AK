@@ -222,7 +222,8 @@ function NuevoPresupuestoContent() {
                 adultos: presupuestoAGuardar.invitadosCantidad,
                 ninos: 0, // Placeholder, can be improved later
                 costoEstimado: totalFinalConDescuento,
-                serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio)
+                serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio),
+                paqueteNombre: undefined
             });
 
             toast({ title: "¡Presupuesto Guardado!", description: `Se ha creado el presupuesto y se ha añadido un prospecto al CRM.` });

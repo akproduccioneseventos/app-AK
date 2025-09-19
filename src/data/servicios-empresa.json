@@ -677,6 +677,14 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "item_1758319049180_rrpf3lf",
+    "nombre": "Decoración Básica",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 2000,
+    "calculationMethod": "fijo"
+  },
+  {
     "id": "item_1757258437308_s0lgq1z",
     "nombre": "Servicio de decoración",
     "tipoItem": "Servicio",
