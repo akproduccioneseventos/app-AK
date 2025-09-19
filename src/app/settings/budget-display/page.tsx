@@ -221,6 +221,9 @@ export default function BudgetDisplaySettingsPage() {
             </SheetContent>
             <DialogHeader>
                 <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
+                 <DialogDescription>
+                    Define el nombre y los servicios que se incluirán.
+                </DialogDescription>
             </DialogHeader>
             {currentItem && (
                 <form onSubmit={handleSaveItem}>
