@@ -22,7 +22,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import EditServicioForm from '@/components/presupuestos/EditServicioForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
@@ -40,6 +39,63 @@ const getCalculationMethodLabel = (method?: string): string => {
         default: return 'No definido';
     }
 }
+
+// Sub-component for editing a single service, to be used inside the Sheet
+const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => void, onClose: () => void }> = ({ servicioId, onUpdate, onClose }) => {
+    const { toast } = useToast();
+    const [servicio, setServicio] = useState<Partial<ServicioEmpresa> | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (servicioId) {
+            getServiciosEmpresa().then(servicios => {
+                const s = servicios.find(s => s.id === servicioId);
+                if (s) setServicio(s);
+            });
+        } else {
+            setServicio(null);
+        }
+    }, [servicioId]);
+    
+    const handleSaveServicio = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!servicio) return;
+        setIsSaving(true);
+        try {
+            const result = await saveServicioEmpresa(servicio as ServicioEmpresa);
+            if (result.success) {
+                toast({ title: "Servicio actualizado" });
+                onUpdate(); // This should trigger a refresh in the parent
+                onClose();
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+    
+    if (!servicio) return <div className="p-4"><Loader2 className="w-5 h-5 animate-spin"/></div>;
+
+    return (
+        <form onSubmit={handleSaveServicio} className="py-4 space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="edit-servicio-nombre">Nombre</Label>
+              <Input id="edit-servicio-nombre" value={servicio.nombre || ''} onChange={e => setServicio(s => s ? {...s, nombre: e.target.value} : null)}/>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-servicio-precio">Precio de Venta (Fijo/Por Persona/Base)</Label>
+              <Input id="edit-servicio-precio" type="number" value={servicio.precioVenta ?? servicio.precioPorPersona ?? servicio.precioBase ?? ''} onChange={e => {
+                  const val = Number(e.target.value);
+                  setServicio(s => s ? { ...s, precioVenta: val, precioPorPersona: val, precioBase: val } : null);
+              }}/>
+            </div>
+             <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Guardar Servicio'}</Button>
+        </form>
+    );
+};
 
 
 export default function BudgetDisplaySettingsPage() {
@@ -229,77 +285,83 @@ export default function BudgetDisplaySettingsPage() {
                     Define el nombre y los servicios que se incluirán.
                 </DialogDescription>
             </DialogHeader>
-          <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
-            <SheetContent className="w-full max-w-none sm:max-w-lg">
-                <SheetHeader>
-                    <SheetTitle>Editar Servicio del Catálogo</SheetTitle>
-                    <SheetDescription>Los cambios se guardarán en el catálogo maestro y afectarán a todos los presupuestos futuros.</SheetDescription>
-                </SheetHeader>
-                {editingServicioId && (
-                  <EditServicioForm onCatalogUpdate={loadData}/>
-                )}
-            </SheetContent>
-            {currentItem && (
-                <form onSubmit={handleSaveItem}>
-                <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
-                    <div className="space-y-1"><Label htmlFor="item-name">Nombre</Label><Input id="item-name" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
-                    <Separator/>
-                    <Label>Servicios Incluidos</Label>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                        <Input 
-                            placeholder="Buscar servicios..."
-                            value={servicioSearchTerm}
-                            onChange={(e) => setServicioSearchTerm(e.target.value)}
-                            className="pl-9"
+            <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
+                <SheetContent className="w-full max-w-none sm:max-w-lg">
+                    <SheetHeader>
+                        <SheetTitle>Editar Servicio</SheetTitle>
+                        <SheetDescription>
+                            Realiza cambios en el catálogo maestro. Esto afectará a futuros presupuestos.
+                        </SheetDescription>
+                    </SheetHeader>
+                    {editingServicioId && (
+                        <EditServicioForm 
+                          servicioId={editingServicioId}
+                          onUpdate={async () => {
+                              await loadData(); // Refresh all data in parent
+                          }}
+                          onClose={() => setEditingServicioId(null)}
                         />
-                    </div>
-                    <Accordion type="multiple" className="w-full space-y-2" defaultValue={modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus}>
-                        {(modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus).map(categoria => (
-                            (serviciosAgrupadosParaPaquetes[categoria] || serviciosAgrupadosParaMenus[categoria]) &&
-                            <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
-                                <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
-                                <AccordionContent className="px-3 pt-0 pb-2">
-                                    <div className="space-y-2 pt-2 border-t">
-                                    {(modalType === 'paquete' ? serviciosAgrupadosParaPaquetes[categoria] : serviciosAgrupadosParaMenus[categoria]).map(servicio => {
-                                        const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
-                                        const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
-                                        return (
-                                            <div key={servicio.id} className="p-2 border rounded-md bg-background">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex items-start gap-3">
-                                                        <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)} className="mt-1"/>
-                                                        <div>
-                                                            <Label htmlFor={`serv-${servicio.id}`} className="font-normal">{servicio.nombre}</Label>
-                                                            <p className="text-xs text-muted-foreground">{getCalculationMethodLabel(servicio.calculationMethod)}: {formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)}</p>
+                    )}
+                </SheetContent>
+                {currentItem && (
+                    <form onSubmit={handleSaveItem}>
+                    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
+                        <div className="space-y-1"><Label htmlFor="item-name">Nombre</Label><Input id="item-name" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
+                        <Separator/>
+                        <Label>Servicios Incluidos</Label>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                            <Input 
+                                placeholder="Buscar servicios..."
+                                value={servicioSearchTerm}
+                                onChange={(e) => setServicioSearchTerm(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
+                        <Accordion type="multiple" className="w-full space-y-2" defaultValue={modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus}>
+                            {(modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus).map(categoria => (
+                                (serviciosAgrupadosParaPaquetes[categoria] || serviciosAgrupadosParaMenus[categoria]) &&
+                                <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
+                                    <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
+                                    <AccordionContent className="px-3 pt-0 pb-2">
+                                        <div className="space-y-2 pt-2 border-t">
+                                        {(modalType === 'paquete' ? serviciosAgrupadosParaPaquetes[categoria] : serviciosAgrupadosParaMenus[categoria]).map(servicio => {
+                                            const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
+                                            const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
+                                            return (
+                                                <div key={servicio.id} className="p-2 border rounded-md bg-background">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-start gap-3">
+                                                            <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)} className="mt-1"/>
+                                                            <div>
+                                                                <Label htmlFor={`serv-${servicio.id}`} className="font-normal">{servicio.nombre}</Label>
+                                                                <p className="text-xs text-muted-foreground">{getCalculationMethodLabel(servicio.calculationMethod)}: {formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)}</p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                     <SheetTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingServicioId(servicio.id)}>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7" type="button" onClick={() => setEditingServicioId(servicio.id)}>
                                                             <Edit className="w-3.5 h-3.5"/>
                                                         </Button>
-                                                     </SheetTrigger>
+                                                    </div>
+                                                    {isInItem && <div className="flex items-center gap-2 pl-7 pt-2 mt-2 border-t">
+                                                        <Switch id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)}/>
+                                                        <Label htmlFor={`gift-${servicio.id}`} className="text-xs text-green-600 font-medium flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
+                                                    </div>}
                                                 </div>
-                                                {isInItem && <div className="flex items-center gap-2 pl-7 pt-2 mt-2 border-t">
-                                                    <Switch id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)}/>
-                                                    <Label htmlFor={`gift-${servicio.id}`} className="text-xs text-green-600 font-medium flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
-                                                </div>}
-                                            </div>
-                                        )
-                                    })}
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
-                </div>
-                <DialogFooter>
-                    <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-                    <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar</Button>
-                </DialogFooter>
-                </form>
-            )}
-          </Sheet>
+                                            )
+                                        })}
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                        <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar</Button>
+                    </DialogFooter>
+                    </form>
+                )}
+              </Sheet>
         </DialogContent>
       </Dialog>
       <div className="flex items-center justify-between">
@@ -327,14 +389,15 @@ export default function BudgetDisplaySettingsPage() {
                     </div>
                     <AccordionContent className="p-3 border-t">
                         <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-                            {(pkg.serviciosIncluidos || []).map(servicio => {
+                            {(pkg.serviciosIncluidos || []).filter(s => !s.esRegalo).map(servicio => {
                                 const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return (
-                                    <li key={servicio.id} className={servicio.esRegalo ? 'text-green-600 font-medium' : ''}>
-                                        {fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}
-                                        {servicio.esRegalo && ' (Regalo)'}
-                                    </li>
-                                );
+                                return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
+                            })}
+                        </ul>
+                        <ul className="text-xs text-red-600 list-disc pl-5 space-y-1 mt-2">
+                            {(pkg.serviciosIncluidos || []).filter(s => s.esRegalo).map(servicio => {
+                                const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
+                                return <li key={servicio.id} className="font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
                             })}
                         </ul>
                     </AccordionContent>
@@ -364,14 +427,15 @@ export default function BudgetDisplaySettingsPage() {
                     </div>
                     <AccordionContent className="p-3 border-t">
                         <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-                            {(menu.serviciosIncluidos || []).map(servicio => {
+                           {(menu.serviciosIncluidos || []).filter(s => !s.esRegalo).map(servicio => {
                                 const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return (
-                                    <li key={servicio.id} className={servicio.esRegalo ? 'text-green-600 font-medium' : ''}>
-                                        {fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}
-                                        {servicio.esRegalo && ' (Regalo)'}
-                                    </li>
-                                );
+                                return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
+                            })}
+                        </ul>
+                         <ul className="text-xs text-red-600 list-disc pl-5 space-y-1 mt-2">
+                            {(menu.serviciosIncluidos || []).filter(s => s.esRegalo).map(servicio => {
+                                const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
+                                return <li key={servicio.id} className="font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
                             })}
                         </ul>
                     </AccordionContent>

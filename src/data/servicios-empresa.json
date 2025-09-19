@@ -398,6 +398,15 @@
     "precioPorPersona": 180
   },
   {
+    "nombre": "Mobiliario Completo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 20,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 70,
+    "id": "item_1758319878111_6ls6lm3"
+  },
+  {
     "id": "serv_1752489600009_noquis",
     "nombre": "Ñoquis al queso",
     "tipoItem": "Servicio",
@@ -668,13 +677,13 @@
     "precioPorPersona": 100
   },
   {
+    "id": "item_1758319656786_6sjl431",
     "nombre": "Vajilla completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "valorUnitarioEstimado": 20,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 70,
-    "id": "item_1758319656786_6sjl431"
+    "precioPorPersona": 70
   },
   {
     "id": "item_1757539461884_w7kfwsm",

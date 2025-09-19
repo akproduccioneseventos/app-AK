@@ -10,10 +10,6 @@
           "esRegalo": true
         },
         {
-          "id": "item_1757177422000_4ru2piy",
-          "esRegalo": true
-        },
-        {
           "id": "item_1757282105396_39i6zkn",
           "esRegalo": true
         },
@@ -43,6 +39,18 @@
         },
         {
           "id": "item_1758319049180_rrpf3lf",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758319656786_6sjl431",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758319878111_6ls6lm3",
           "esRegalo": false
         }
       ]
