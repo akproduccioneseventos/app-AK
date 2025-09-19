@@ -1,3 +1,4 @@
+
 {
   "descuentoGeneral": 15,
   "paquetes": [
@@ -47,10 +48,6 @@
         },
         {
           "id": "serv_manteleria_completa",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1758319878111_6ls6lm3",
           "esRegalo": false
         }
       ]
@@ -108,10 +105,6 @@
           "esRegalo": true
         },
         {
-          "id": "item_1757284889281_ioj7571",
-          "esRegalo": false
-        },
-        {
           "id": "item_1757284864269_4d9w4ml",
           "esRegalo": false
         },
@@ -125,6 +118,18 @@
         },
         {
           "id": "item_1757539461884_w7kfwsm",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758319656786_6sjl431",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758320278460_yqzpq1h",
           "esRegalo": false
         }
       ]
@@ -199,14 +204,6 @@
         },
         {
           "id": "item_1757539461884_w7kfwsm",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1757733147509_dtykm4c",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1766023340003_refrescos",
           "esRegalo": false
         }
       ]

@@ -398,13 +398,13 @@
     "precioPorPersona": 180
   },
   {
+    "id": "item_1758319878111_6ls6lm3",
     "nombre": "Mobiliario Completo",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "valorUnitarioEstimado": 20,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 70,
-    "id": "item_1758319878111_6ls6lm3"
+    "precioPorPersona": 70
   },
   {
     "id": "serv_1752489600009_noquis",
@@ -812,6 +812,15 @@
     "unidad": "Por evento",
     "precioVenta": 3000,
     "calculationMethod": "fijo"
+  },
+  {
+    "nombre": "Fotografía de exteriores",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 2000,
+    "calculationMethod": "fijo",
+    "precioVenta": 3900,
+    "id": "item_1758320278460_yqzpq1h"
   },
   {
     "id": "item_1757281980225_3x3nbzo",
