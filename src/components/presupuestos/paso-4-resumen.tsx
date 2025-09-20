@@ -23,7 +23,7 @@ const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
 const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
-const BUDGET_DEPOSIT_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
+const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
 
 interface Paso4ResumenProps {
