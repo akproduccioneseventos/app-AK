@@ -10,7 +10,7 @@ import { ArrowLeft, Save, Loader2, PlusCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
-import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
+import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -36,6 +36,9 @@ const initialFormData: PresupuestoFormData = {
   protagonista2Nombre: '',
   nombreEmpresa: '',
   serviciosSeleccionados: new Map(),
+  selectedEntradas: [],
+  selectedPrincipal: '',
+  selectedMenuNino: '',
   nombrePromocion: '',
   descuentoTipo: undefined,
   descuentoValor: '',
@@ -98,6 +101,7 @@ function NuevoPresupuestoContent() {
     const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [paquetesBase, setPaquetesBase] = useState<PaqueteArmadoRapido[]>([]);
+    const [menusArmadoRapido, setMenusArmadoRapido] = useState<MenuArmadoRapido[]>([]);
     const [paso, setPaso] = useState(1);
     
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
@@ -128,6 +132,7 @@ function NuevoPresupuestoContent() {
                 const [armadoConfig] = await Promise.all([getArmadoRapidoConfig()]);
                 await fetchServicios();
                 setPaquetesBase(armadoConfig.paquetes || []);
+                setMenusArmadoRapido(armadoConfig.menus || []);
                 const leadName = searchParams.get('leadName');
                 if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
                     setFormData(prev => ({ ...prev, clienteNombre: leadName }));
@@ -268,7 +273,7 @@ function NuevoPresupuestoContent() {
                         {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                             <>
                                 {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
-                                {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados}/>}
+                                {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} menusArmadoRapido={menusArmadoRapido} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados}/>}
                             </>
                         )}
                     </CardContent>

@@ -1,4 +1,6 @@
 
+import type { ServicioEmpresa } from './empresa';
+
 export type TipoEvento =
   | 'Boda'
   | 'XV años'
@@ -83,6 +85,11 @@ export interface PresupuestoFormData {
     invitadosPorUnidad?: number;
     tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
   }>;
+  
+  // Gastronomic selections
+  selectedEntradas?: string[];
+  selectedPrincipal?: string;
+  selectedMenuNino?: string;
 
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';
