@@ -27,8 +27,6 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 interface Paso4ResumenProps {
   presupuesto: Presupuesto;
-  formData: PresupuestoFormData;
-  setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
 }
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
@@ -59,7 +57,7 @@ const formatDate = (dateString?: string, shortMonth = false) => {
   }
 };
 
-export default function Paso4Resumen({ presupuesto, formData, setFormData }: Paso4ResumenProps) {
+export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const { toast } = useToast();
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -121,45 +119,15 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
 
   }, [presupuesto]);
   
-  const generarTextoWhatsApp = () => {
-    if (!presupuesto || !displaySettings) return '';
-    let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
-    texto += `Estimado/a *${presupuesto.clienteNombre}*,\n\n`;
-    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}* para tu *${presupuesto.eventoTipo}*.\n`;
-    if (displaySettings.showClientData) {
-      texto += `*Salón:* ${presupuesto.salonFiestas}\n`;
-    }
-    if (displaySettings.showEventTypeAndDate) {
-      texto += `*Fecha del Evento:* ${formatDate(presupuesto.eventoFecha)}\n`;
-      texto += `*Cantidad de Invitados:* ${presupuesto.invitadosCantidad}\n`;
-    }
-    texto += `\n`;
-    if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
-      texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-      Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
-        texto += `*${categoria}*\n`;
-        items.forEach(item => {
-           if (item.esRegalo) {
-             const valorRegalo = item.precioUnitario * item.cantidad;
-             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
-           } else {
-            texto += `  • ${item.nombreServicio}: *${formatCurrency(item.costoTotalItem)}*\n`;
-           }
-        });
-        texto += `\n`;
-      });
-      texto += `  SUBTOTAL: *${formatCurrency(subtotalBruto)}*\n\n`;
-    }
-    if (descuentoPromocional > 0 && presupuesto.nombrePromocion) {
-      texto += `🎁 *Promoción Aplicada: ${presupuesto.nombrePromocion}*\n`;
-      if (presupuesto.descuentoTipo === 'porcentaje') texto += `  Descuento: ${presupuesto.descuentoValor}% (-${formatCurrency(descuentoPromocional)})\n`;
-      else texto += `  Descuento: -${formatCurrency(descuentoPromocional)}\n`;
-      if (presupuesto.vigenciaPromocion) texto += `  Válido hasta: ${presupuesto.vigenciaPromocion}\n`;
-      texto += `\n`;
-    }
-    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinal, true, true)}*\n\n`;
-    if(presupuesto.notas && presupuesto.notas.trim() !== '' && displaySettings.showPaymentMethodNotes){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
-    texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
+ const generarTextoWhatsApp = () => {
+    if (!presupuesto) return '';
+    const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
+    let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
+    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
+    texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
+    texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
+    texto += pageUrl;
+    texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
   };
   

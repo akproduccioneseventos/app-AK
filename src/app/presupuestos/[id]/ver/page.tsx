@@ -15,6 +15,7 @@ import type { BudgetDisplaySettings } from '@/types/settings';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -51,8 +52,6 @@ const COMPANY_ADDRESS_LINE1_PDF = "Salto";
 const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
 const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
-const COMPANY_LOGO_URL_PDF = "https://placehold.co/120x120/EF4444/FFFFFF.png?text=AK&font=montserrat"; 
-const COMPANY_LOGO_AI_HINT_PDF = "company logo AK circle red";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
@@ -64,6 +63,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,11 +71,13 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     if (!presupuestoId) { setError("ID de presupuesto no válido."); setIsLoading(false); return; }
     setIsLoading(true); setError(null);
     try {
-      const [fetchedPresupuesto, fetchedSettings] = await Promise.all([
+      const [fetchedPresupuesto, fetchedSettings, templateSettings] = await Promise.all([
         getPresupuestoById(presupuestoId),
-        getBudgetDisplaySettings()
+        getBudgetDisplaySettings(),
+        getInvoiceTemplateSettings()
       ]);
       setDisplaySettings(fetchedSettings);
+      setLogoUrl(templateSettings.logoUrl);
       if (fetchedPresupuesto) {
         setPresupuesto(fetchedPresupuesto);
       } else {
@@ -103,45 +105,14 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   };
   
   const generarTextoWhatsApp = () => {
-    if (!presupuesto || !displaySettings) return '';
-    const totalFinalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-    let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
-    texto += `Estimado/a *${presupuesto.clienteNombre}*,\n\n`;
-    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}* para tu *${presupuesto.eventoTipo}*.\n`;
-    if (displaySettings.showClientData) {
-      texto += `*Salón:* ${presupuesto.salonFiestas}\n`;
-    }
-    if (displaySettings.showEventTypeAndDate) {
-      texto += `*Fecha del Evento:* ${formatDate(presupuesto.eventoFecha)}\n`;
-      texto += `*Cantidad de Invitados:* ${presupuesto.invitadosCantidad}\n`;
-    }
-    texto += `\n`;
-    if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
-      texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-      itemsAgrupados && Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
-        texto += `*${categoria}*\n`;
-        items.forEach(item => {
-           if (item.esRegalo) {
-             const valorRegalo = item.precioUnitario * item.cantidad;
-             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
-           } else {
-            texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-           }
-        });
-        texto += `\n`;
-      });
-      texto += `  SUBTOTAL: *${formatCurrency(subtotalBruto)}*\n\n`;
-    }
-    if (descuentoPromocional > 0 && presupuesto.nombrePromocion) {
-      texto += `🎁 *Promoción Aplicada: ${presupuesto.nombrePromocion}*\n`;
-      if (presupuesto.descuentoTipo === 'porcentaje') texto += `  Descuento: ${presupuesto.descuentoValor}% (${formatCurrency(descuentoPromocional)})\n`;
-      else texto += `  Descuento: ${formatCurrency(descuentoPromocional)}\n`;
-      if (presupuesto.vigenciaPromocion) texto += `  Válido hasta: ${presupuesto.vigenciaPromocion}\n`;
-      texto += `\n`;
-    }
-    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinal, true, true)}*\n\n`;
-    if(presupuesto.notas && presupuesto.notas.trim() !== '' && displaySettings.showPaymentMethodNotes){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
-    texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
+    if (!presupuesto) return '';
+    const pageUrl = window.location.href;
+    let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
+    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
+    texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
+    texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
+    texto += pageUrl;
+    texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
   };
 
@@ -216,7 +187,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
           <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
-            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><MessageSquare className="mr-2 h-4 w-4"/>Compartir por WhatsApp</Button>
+            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
             <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             {presupuesto.estado !== 'Facturado' ? 
               (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
@@ -232,14 +203,12 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
           <div className="flex justify-between items-start text-xs print:text-[8pt]">
             <div className="space-y-px">
               <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-              <p>{COMPANY_ADDRESS_LINE1_PDF}</p>
-              <p>{COMPANY_ADDRESS_LINE2_PDF}</p>
-              <p>{COMPANY_CONTACT_EMAIL_PDF}</p>
-              <p>{COMPANY_WEBSITE_PDF}</p>
+              <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+              <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
             </div>
-            {displaySettings.showCompanyLogo && (
+            {displaySettings.showCompanyLogo && logoUrl && (
                 <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-                    <Image src={COMPANY_LOGO_URL_PDF} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT_PDF}/>
+                    <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
           </div>
@@ -255,8 +224,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
           <table className="w-full text-xs print:text-[7pt] border-collapse">
             <thead className="print:bg-gray-100">
               <tr>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Número de cliente</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Número de Documento</th>
+                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Número de presupuesto</th>
                 <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Página</th>
                 <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Fecha</th>
                 <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
@@ -264,7 +232,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
             </thead>
             <tbody>
               <tr>
-                <td className="border border-gray-300 print:border-gray-400 px-2 py-1">{presupuesto.id.split('_')[1]?.substring(0,4) || 'N/A'}</td>
                 <td className="border border-gray-300 print:border-gray-400 px-2 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
                 <td className="border border-gray-300 print:border-gray-400 px-2 py-1">1/1</td>
                 <td className="border border-gray-300 print:border-gray-400 px-2 py-1">{formatDate(presupuesto.timestamp, true)}</td>
@@ -279,26 +246,27 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
               <table className="w-full text-xs print:text-[7pt] border-collapse">
                   <thead className="print:bg-gray-100">
                   <tr>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Unidad</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
-                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
                   </tr>
                   </thead>
                   <tbody>
-                  {presupuesto.itemsPresupuestados.map((item) => (
-                      <tr key={item.idServicioCatalogo}>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                        {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO EXCLUSIVO)</span> : item.nombreServicio}
-                      </td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">$</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <s className="text-muted-foreground">{formatCurrency(item.precioUnitario, false)}</s> : formatCurrency(item.precioUnitario, false)}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.esRegalo ? '100%' : (presupuesto.descuentoTipo === 'porcentaje' ? `${presupuesto.descuentoValor || 0}%` : '')}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
-                      </tr>
+                  {Object.entries(itemsAgrupados).map(([categoria, items]) => (
+                     <React.Fragment key={categoria}>
+                        <tr className="bg-gray-50 print:bg-gray-100">
+                          <td colSpan={3} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
+                        </tr>
+                        {items.map((item) => (
+                            <tr key={item.idServicioCatalogo}>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
+                                  {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
+                                </td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitario, true)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
+                            </tr>
+                        ))}
+                     </React.Fragment>
                   ))}
                   </tbody>
               </table>
@@ -306,24 +274,30 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         )}
         
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
-          <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
-            {descuentoPromocional > 0 && displaySettings.showPriceBreakdown && ( 
+          <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
+              {descuentoPromocional > 0 && displaySettings.showPriceBreakdown && ( 
                 <>
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
                     <span>{formatCurrency(subtotalBruto, true, true)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-red-600">Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                    <span className="text-red-600">-{formatCurrency(descuentoPromocional, true, true)}</span>
+                  <div className="flex justify-between text-destructive">
+                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                    <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
                 </>
               )}
-            <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
-              <span className="text-base">Importe total</span>
-              <span className="text-base">{formatCurrency(totalFinal, true)}</span>
+               {costoTotalRegalos > 0 && (
+                 <div className="flex justify-between text-green-600">
+                    <span>Ahorro en Regalos:</span>
+                    <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
+                  </div>
+               )}
+              <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
+                <span className="text-base">Importe total</span>
+                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
+              </div>
             </div>
-          </div>
         </section>
         
         <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
@@ -335,5 +309,3 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     </div>
   );
 }
-
-    

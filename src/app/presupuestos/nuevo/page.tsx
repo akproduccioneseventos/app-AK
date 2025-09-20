@@ -157,19 +157,19 @@ function NuevoPresupuestoContent() {
             await handleSaveAndProceed();
             return;
         }
-        setPaso(p => p < 3 ? p + 1 : p);
+        setPaso(p => p < 2 ? p + 1 : p);
     };
 
     const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
 
     const totalCalculado = useMemo(() => {
       let total = 0;
-      formData.serviciosSeleccionados.forEach(item => {
+      formData.serviciosSeleccionados.forEach((item, id) => {
         const itemDataForCalc: ItemPresupuestado = {
+          idServicioCatalogo: id,
           ...item,
-          idServicioCatalogo: '', // dummy
           precioUnitario: item.precioUnitarioOriginal,
-          costoTotalItem: 0 // Will be calculated
+          costoTotalItem: 0 // Will be calculated in function
         };
         total += calcularCostoItem(itemDataForCalc, totalInvitados);
       });
@@ -233,7 +233,6 @@ function NuevoPresupuestoContent() {
         try {
           const result = await savePresupuesto(presupuestoAGuardar);
           if (result.success && result.id) {
-            setFinalPresupuestoData({ ...presupuestoAGuardar, id: result.id });
              // Create a lead in CRM
             await generateLeadFromQuickBudget({
                 clienteNombre: presupuestoAGuardar.clienteNombre,
@@ -247,7 +246,7 @@ function NuevoPresupuestoContent() {
 
             toast({ title: "Presupuesto Guardado", description: `Se creó el presupuesto y un prospecto en el CRM.` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
-            setPaso(3); // Proceed to final summary step
+            router.push(`/presupuestos/${result.id}/ver`); // Redirect to the professional view
           } else { throw new Error(result.error || "Error al guardar"); }
         } catch (error: any) {
           toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
@@ -282,7 +281,7 @@ function NuevoPresupuestoContent() {
                         </Button>
                         <Button onClick={handleNext} disabled={isSaving}>
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : (paso < 2 ? <ArrowRight className="w-4 h-4 ml-2" /> : <Save className="w-4 h-4 mr-2" />)}
-                            {isSaving ? 'Guardando...' : (paso < 2 ? 'Siguiente' : 'Guardar y Generar Resumen')}
+                            {isSaving ? 'Guardando...' : (paso < 2 ? 'Siguiente' : 'Finalizar y Generar Presupuesto')}
                         </Button>
                     </CardFooter>
                 </Card>
