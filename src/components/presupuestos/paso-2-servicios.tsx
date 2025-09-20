@@ -1,28 +1,22 @@
 
 'use client';
 
-import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { PresupuestoFormData } from '@/types/presupuesto';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Tag, Search, PackageSearch, Gift, Edit } from 'lucide-react';
+import { Sparkles, PackageSearch, PlusCircle, Search, Trash2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import Link from 'next/link';
 import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
 import EditServicioForm from '@/components/presupuestos/EditServicioForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -30,6 +24,7 @@ interface Paso2ServiciosProps {
   serviciosCatalogo: ServicioEmpresa[];
   paquetesBase: PaqueteArmadoRapido[];
   onCatalogUpdate: () => Promise<void>;
+  totalInvitados: number;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -37,27 +32,12 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-// Define the type for the value part of the map
-type ServicioSeleccionadoValue = {
-    cantidad: number;
-    precioUnitarioOriginal: number; // Price from catalog, for reference
-    precioUnitarioPresupuesto: number; // Overridden price for this budget
-    nombreServicio: string;
-    unidad?: string;
-    categoriaServicio?: string;
-    esRegalo: boolean;
-    calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
-    precioBase?: number;
-    precioPorPersona?: number;
-    invitadosPorUnidad?: number;
-    tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
-};
+type ServicioSeleccionadoValue = PresupuestoFormData['serviciosSeleccionados'] extends Map<any, infer V> ? V : never;
 
-
-export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, onCatalogUpdate }: Paso2ServiciosProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<Set<CategoriaServicio>>(new Set());
+export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [isCatalogManagerOpen, setIsCatalogManagerOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
     setFormData(prev => {
@@ -66,7 +46,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         newSelected.delete(servicio.id);
       } else {
         newSelected.set(servicio.id, {
-          cantidad: 1, 
+          cantidad: 1,
           precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
           precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
           nombreServicio: servicio.nombre,
@@ -82,46 +62,16 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       }
       return { ...prev, serviciosSeleccionados: newSelected };
     });
+    // Don't close modal, allow multiple selections
   };
   
-  const handleCategoryFilterToggle = (category: CategoriaServicio) => {
-    setSelectedCategories(prev => {
-      const newSelected = new Set(prev);
-      if (newSelected.has(category)) newSelected.delete(category);
-      else newSelected.add(category);
-      return newSelected;
+  const handleRemoveServicio = (servicioId: string) => {
+    setFormData(prev => {
+      const newSelected = new Map(prev.serviciosSeleccionados);
+      newSelected.delete(servicioId);
+      return {...prev, serviciosSeleccionados: newSelected};
     });
   };
-
-  const filteredServicios = useMemo(() => {
-    return serviciosCatalogo.filter(s => {
-      const matchesSearch = s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            s.categoria.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            (s.subcategoria && s.subcategoria.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(s.categoria);
-      return matchesSearch && matchesCategory;
-    });
-  }, [serviciosCatalogo, searchTerm, selectedCategories]);
-  
-  const serviciosAgrupados = useMemo(() => {
-    return filteredServicios.reduce((acc, servicio) => {
-        const categoria = servicio.categoria || 'Otros';
-        const subcategoria = servicio.subcategoria || 'General';
-        
-        if (!acc[categoria]) {
-            acc[categoria] = {};
-        }
-        if (!acc[categoria][subcategoria]) {
-            acc[categoria][subcategoria] = [];
-        }
-        acc[categoria][subcategoria].push(servicio);
-        return acc;
-    }, {} as Record<string, Record<string, ServicioEmpresa[]>>);
-  }, [filteredServicios]);
-
-  const categoriasOrdenadas = useMemo(() => {
-    return Object.keys(serviciosAgrupados).sort();
-  }, [serviciosAgrupados]);
 
   const handlePaqueteSelect = (paquete: PaqueteArmadoRapido | 'none') => {
     const newSelected = new Map<string, ServicioSeleccionadoValue>();
@@ -149,115 +99,122 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     }
     setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
   };
-
-  if (serviciosCatalogo.length === 0) {
-    return (
-      <div className="text-center py-10">
-        <PackageSearch className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-        <p className="text-muted-foreground text-lg">Tu catálogo de servicios está vacío.</p>
-        <p className="text-sm text-muted-foreground">
-          <Sheet open={isCatalogManagerOpen} onOpenChange={setIsCatalogManagerOpen}>
-            <SheetTrigger asChild>
-              <Button variant="link" className="text-primary p-0 h-auto">Haz clic aquí para añadir tu primer servicio</Button>
-            </SheetTrigger>
-            <SheetContent className="w-full max-w-none sm:max-w-2xl">
-              <SheetHeader>
-                  <SheetTitle>Catálogo Maestro de Servicios</SheetTitle>
-                  <SheetDescription>Añade, edita o elimina los servicios que ofreces. Los cambios aquí se reflejarán en todos los presupuestos nuevos.</SheetDescription>
-              </SheetHeader>
-              <EditServicioForm onCatalogUpdate={onCatalogUpdate}/>
-            </SheetContent>
-          </Sheet>
-           y poder armar presupuestos.
-        </p>
-      </div>
-    );
-  }
   
+  const serviciosFiltrados = useMemo(() => {
+    return serviciosCatalogo.filter(s => 
+      s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      s.categoria?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [serviciosCatalogo, searchTerm]);
+
+  const serviciosAgrupados = useMemo(() => {
+    return serviciosFiltrados.reduce((acc, servicio) => {
+        const categoria = servicio.categoria || 'Otros';
+        if (!acc[categoria]) {
+            acc[categoria] = [];
+        }
+        acc[categoria].push(servicio);
+        return acc;
+    }, {} as Record<string, ServicioEmpresa[]>);
+  }, [serviciosFiltrados]);
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-            <Label htmlFor="paquete-base" className="text-base">Arrancar con un Paquete Base (Opcional)</Label>
-            <Select onValueChange={(value) => handlePaqueteSelect(paquetesBase.find(p => p.id === value) || 'none')}>
-                <SelectTrigger id="paquete-base"><SelectValue placeholder="Ninguno (empezar de cero)"/></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="none">Ninguno</SelectItem>
-                    {paquetesBase.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>)}
-                </SelectContent>
-            </Select>
-        </div>
-        <div className="space-y-2 self-end">
-            <Sheet open={isCatalogManagerOpen} onOpenChange={setIsCatalogManagerOpen}>
-                <SheetTrigger asChild>
-                    <Button variant="secondary" className="w-full">
-                        <Sparkles className="w-4 h-4 mr-2"/>Gestionar Catálogo de Servicios
-                    </Button>
-                </SheetTrigger>
-                <SheetContent className="w-full max-w-none sm:max-w-2xl">
-                    <SheetHeader>
-                        <SheetTitle>Catálogo Maestro de Servicios</SheetTitle>
-                        <SheetDescription>Añade, edita o elimina los servicios que ofreces. Los cambios aquí se reflejarán en todos los presupuestos nuevos.</SheetDescription>
-                    </SheetHeader>
-                    <EditServicioForm onCatalogUpdate={onCatalogUpdate}/>
-                </SheetContent>
-            </Sheet>
-        </div>
+       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Añadir Servicio desde Catálogo</DialogTitle>
+          </DialogHeader>
+          <div className="py-2 space-y-3">
+            <Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            <ScrollArea className="h-72 border rounded-md">
+              <Accordion type="multiple" className="w-full" defaultValue={Object.keys(serviciosAgrupados)}>
+                {Object.keys(serviciosAgrupados).sort().map(categoria => (
+                  <AccordionItem value={categoria} key={categoria}>
+                    <AccordionTrigger className="px-3 py-2 text-sm">{categoria}</AccordionTrigger>
+                    <AccordionContent className="px-3">
+                      {serviciosAgrupados[categoria].map(servicio => {
+                        const isSelected = formData.serviciosSeleccionados.has(servicio.id);
+                        return (
+                          <div key={servicio.id} className="flex items-center space-x-2 py-1.5 border-b last:border-b-0">
+                            <Checkbox id={`modal-serv-${servicio.id}`} checked={isSelected} onCheckedChange={() => handleServicioToggle(servicio)}/>
+                            <Label htmlFor={`modal-serv-${servicio.id}`} className="text-sm font-normal flex-grow cursor-pointer">{servicio.nombre}</Label>
+                            <span className="text-xs text-muted-foreground">{formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)}</span>
+                          </div>
+                        )
+                      })}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </ScrollArea>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <div className="space-y-2">
+        <Label htmlFor="paquete-base" className="text-base">Arrancar con un Paquete Base (Opcional)</Label>
+        <Select onValueChange={(value) => handlePaqueteSelect(paquetesBase.find(p => p.id === value) || 'none')}>
+            <SelectTrigger id="paquete-base"><SelectValue placeholder="Ninguno (empezar de cero)"/></SelectTrigger>
+            <SelectContent>
+                <SelectItem value="none">Ninguno</SelectItem>
+                {paquetesBase.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>)}
+            </SelectContent>
+        </Select>
       </div>
-      <Separator/>
+      <Separator />
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-grow space-y-2">
-            <Label htmlFor="search-servicios">Buscar en Catálogo</Label>
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="search-servicios" type="text" placeholder="Nombre, categoría o subcategoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10"/>
-            </div>
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium font-headline text-primary">Servicios Seleccionados</h3>
+          <Button type="button" onClick={() => setIsCatalogModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio desde Catálogo</Button>
         </div>
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            {formData.serviciosSeleccionados.size > 0 ? (
+                Array.from(formData.serviciosSeleccionados.values()).map(servicio => {
+                    const servicioOriginal = serviciosCatalogo.find(s => s.nombre === servicio.nombreServicio);
+                    const item: ItemPresupuestado = {
+                        idServicioCatalogo: servicioOriginal?.id || '',
+                        ...servicio,
+                        precioUnitario: servicio.precioUnitarioOriginal,
+                        costoTotalItem: 0 // Will be calculated in parent
+                    };
+                    const costoItem = calcularCostoItem(item, totalInvitados);
+                    return (
+                        <div key={servicio.nombreServicio} className="flex justify-between items-center p-2 border-b last:border-b-0">
+                           <div className="flex-grow">
+                                <p className="font-semibold text-sm">{servicio.nombreServicio}</p>
+                                <p className="text-xs text-muted-foreground">{formatCurrency(costoItem)}</p>
+                           </div>
+                           <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveServicio(servicioOriginal?.id || '')}>
+                                <Trash2 className="w-4 h-4" />
+                           </Button>
+                        </div>
+                    );
+                })
+            ) : (
+                <p className="text-center text-muted-foreground py-4">No hay servicios seleccionados.</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
-      
-      <ScrollArea className="h-[450px] pr-1">
-        {categoriasOrdenadas.length > 0 ? (
-          <Accordion type="multiple" className="w-full space-y-2" defaultValue={categoriasOrdenadas}>
-            {categoriasOrdenadas.map(categoria => (
-              <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-card overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-md font-medium text-primary hover:bg-muted/30 hover:no-underline">
-                  <div className="flex items-center gap-2"><Tag className="w-5 h-5 text-primary/80" />{categoria}</div>
-                </AccordionTrigger>
-                <AccordionContent className="px-2 pt-0 pb-3">
-                  <div className="space-y-2 pt-2">
-                    {Object.keys(serviciosAgrupados[categoria]).sort().map(subcategoria => (
-                      <div key={subcategoria} className="ml-2 pl-3 border-l-2">
-                        <h4 className="text-sm font-semibold text-muted-foreground mb-2">{subcategoria}</h4>
-                        <ul className="space-y-3">
-                          {serviciosAgrupados[categoria][subcategoria].map(servicio => {
-                            const isSelected = formData.serviciosSeleccionados.has(servicio.id);
-                            return (
-                              <li key={servicio.id} className="p-3 border rounded-md transition-all bg-background">
-                                <div className="flex items-start gap-3">
-                                  <Checkbox id={`s-${servicio.id}`} checked={isSelected} onCheckedChange={() => handleServicioToggle(servicio)} className="mt-1 w-5 h-5 shrink-0"/>
-                                  <div className="flex-grow">
-                                    <Label htmlFor={`s-${servicio.id}`} className="font-medium text-sm cursor-pointer">{servicio.nombre}</Label>
-                                    <p className="text-xs text-muted-foreground">
-                                      {formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)} {servicio.calculationMethod === 'porPersona' ? 'p/p' : (servicio.unidad ? `/ ${servicio.unidad.toLowerCase()}` : '')}
-                                    </p>
-                                  </div>
-                                </div>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        ) : (
-          <div className="text-center py-10 text-muted-foreground"><Search className="w-12 h-12 mx-auto mb-3 opacity-50"/>No hay servicios que coincidan.</div>
-        )}
-      </ScrollArea>
+      <div className="pt-4 mt-4 border-t text-right">
+        <p className="text-sm text-muted-foreground">Subtotal de Servicios</p>
+        <p className="text-2xl font-bold text-primary">{formatCurrency(Array.from(formData.serviciosSeleccionados.values()).reduce((sum, servicio) => {
+            const servicioOriginal = serviciosCatalogo.find(s => s.nombre === servicio.nombreServicio);
+            if (!servicioOriginal) return sum;
+            const item: ItemPresupuestado = {
+                idServicioCatalogo: servicioOriginal?.id || '',
+                ...servicio,
+                precioUnitario: servicio.precioUnitarioOriginal,
+                costoTotalItem: 0
+            };
+            return sum + calcularCostoItem(item, totalInvitados);
+        }, 0))}</p>
+      </div>
     </div>
   );
 }

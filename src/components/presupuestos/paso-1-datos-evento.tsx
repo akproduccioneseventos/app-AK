@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import type { Dispatch, SetStateAction } from 'react';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 
 interface Paso1Props {
@@ -18,6 +18,14 @@ interface Paso1Props {
 
 export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
   
+  useEffect(() => {
+    // Update total guest count whenever adults or ninos change
+    const total = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
+    if (formData.invitadosCantidad !== total) {
+      setFormData(prev => ({...prev, invitadosCantidad: total}));
+    }
+  }, [formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosCantidad, setFormData]);
+
   const handleChange = (field: keyof PresupuestoFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -159,7 +167,7 @@ export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
       <Separator className="my-4" />
 
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-2">
           <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento*</Label>
           <DatePickerDemo
@@ -168,16 +176,28 @@ export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="invitadosCantidad" className="text-base">Cantidad Estimada de Invitados*</Label>
+          <Label htmlFor="invitadosAdultos" className="text-base">Nº Adultos*</Label>
           <Input
-            id="invitadosCantidad"
+            id="invitadosAdultos"
             type="number"
             placeholder="Ej: 50"
-            value={formData.invitadosCantidad ?? ''}
-            onChange={(e) => handleChange('invitadosCantidad', e.target.value ? parseInt(e.target.value) : null)}
-            min="1"
+            value={formData.invitadosAdultos ?? ''}
+            onChange={(e) => handleChange('invitadosAdultos', e.target.value ? parseInt(e.target.value) : null)}
+            min="0"
             className="text-base p-3"
             required
+          />
+        </div>
+         <div className="space-y-2">
+          <Label htmlFor="invitadosNinos" className="text-base">Nº Niños/Adol.</Label>
+          <Input
+            id="invitadosNinos"
+            type="number"
+            placeholder="Ej: 10"
+            value={formData.invitadosNinos ?? ''}
+            onChange={(e) => handleChange('invitadosNinos', e.target.value ? parseInt(e.target.value) : null)}
+            min="0"
+            className="text-base p-3"
           />
         </div>
       </div>

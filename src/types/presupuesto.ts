@@ -32,7 +32,9 @@ export interface Presupuesto {
   clienteNombre: string;
   eventoTipo: TipoEvento | string;
   eventoFecha: string; // ISO String
-  invitadosCantidad: number;
+  invitadosCantidad: number; // Total de invitados (adultos + ninos)
+  invitadosAdultos?: number;
+  invitadosNinos?: number;
   salonFiestas: string;
   nombreEmpresa?: string;
   protagonista1Nombre?: string;
@@ -55,7 +57,9 @@ export interface PresupuestoFormData {
   clienteNombre: string;
   eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
-  invitadosCantidad: number | null;
+  invitadosCantidad: number | null; // Total, se mantiene para consistencia general
+  invitadosAdultos: number | null;
+  invitadosNinos: number | null;
   salonFiestas: string;
   nombreEmpresa?: string;
   protagonista1Nombre?: string;

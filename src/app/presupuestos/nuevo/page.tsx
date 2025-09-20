@@ -28,6 +28,8 @@ const initialFormData: PresupuestoFormData = {
   eventoTipo: '',
   eventoFecha: undefined,
   invitadosCantidad: 50,
+  invitadosAdultos: 50,
+  invitadosNinos: 0,
   salonFiestas: '',
   protagonista1Nombre: '',
   protagonista2Nombre: '',
@@ -139,17 +141,18 @@ function NuevoPresupuestoContent() {
 
     const handleNext = () => {
         if (paso === 1) {
-             if (!formData.clienteNombre.trim() || !formData.eventoTipo.trim() || !formData.salonFiestas.trim() || !formData.eventoFecha || (formData.invitadosCantidad || 0) <= 0) {
-                 toast({ title: "Requerido", description: "Por favor, completa Cliente, Salón, Tipo de Evento, Fecha y Nº de Invitados.", variant: "destructive" });
+             if (!formData.clienteNombre.trim() || !formData.eventoTipo.trim() || !formData.salonFiestas.trim() || !formData.eventoFecha || (formData.invitadosAdultos ?? 0) < 0) {
+                 toast({ title: "Requerido", description: "Por favor, completa Cliente, Salón, Tipo de Evento, Fecha y Nº de Adultos.", variant: "destructive" });
                  return;
              }
         }
         setPaso(p => p < 3 ? p + 1 : p);
     };
 
+    const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
+
     const totalCalculado = useMemo(() => {
       let total = 0;
-      const invitados = formData.invitadosCantidad || 0;
       formData.serviciosSeleccionados.forEach(item => {
         const itemDataForCalc: ItemPresupuestado = {
           ...item,
@@ -157,10 +160,10 @@ function NuevoPresupuestoContent() {
           precioUnitario: item.precioUnitarioOriginal,
           costoTotalItem: 0 // Will be calculated
         };
-        total += calcularCostoItem(itemDataForCalc, invitados);
+        total += calcularCostoItem(itemDataForCalc, totalInvitados);
       });
       return total;
-    }, [formData.serviciosSeleccionados, formData.invitadosCantidad]);
+    }, [formData.serviciosSeleccionados, totalInvitados]);
 
     const handleSave = async () => {
         const descuentoValorNum = parseFloat(formData.descuentoValor || '0') || 0;
@@ -175,7 +178,9 @@ function NuevoPresupuestoContent() {
             clienteNombre: formData.clienteNombre,
             eventoTipo: formData.eventoTipo,
             eventoFecha: formData.eventoFecha?.toISOString() || '',
-            invitadosCantidad: formData.invitadosCantidad || 0,
+            invitadosCantidad: totalInvitados,
+            invitadosAdultos: formData.invitadosAdultos || 0,
+            invitadosNinos: formData.invitadosNinos || 0,
             salonFiestas: formData.salonFiestas,
             protagonista1Nombre: formData.protagonista1Nombre,
             protagonista2Nombre: formData.protagonista2Nombre,
@@ -192,7 +197,7 @@ function NuevoPresupuestoContent() {
                   idServicioCatalogo: id,
                   precioUnitario: serv.precioUnitarioOriginal,
                   costoTotalItem: 0 // placeholder for calc
-              }, formData.invitadosCantidad || 0),
+              }, totalInvitados),
               esRegalo: serv.esRegalo,
               categoriaServicio: serv.categoriaServicio,
               calculationMethod: serv.calculationMethod,
@@ -219,8 +224,8 @@ function NuevoPresupuestoContent() {
              // Create a lead in CRM
             await generateLeadFromQuickBudget({
                 clienteNombre: presupuestoAGuardar.clienteNombre,
-                adultos: presupuestoAGuardar.invitadosCantidad,
-                ninos: 0, // Placeholder, can be improved later
+                adultos: presupuestoAGuardar.invitadosAdultos || 0,
+                ninos: presupuestoAGuardar.invitadosNinos || 0,
                 costoEstimado: totalFinalConDescuento,
                 serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio),
                 paqueteNombre: undefined
@@ -245,15 +250,15 @@ function NuevoPresupuestoContent() {
             </div>
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {paso === 1 ? 'Datos del Evento' : paso === 2 ? 'Selección de Servicios' : 'Resumen y Descuentos'}</CardTitle>
+                    <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {['Datos del Evento', 'Selección de Servicios', 'Resumen y Descuentos'][paso-1]}</CardTitle>
                      <Progress value={(paso / 3) * 100} className="w-full h-2 mt-2" />
                 </CardHeader>
                 <CardContent>
                     {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
-                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} onCatalogUpdate={fetchServicios}/>}
-                            {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} />}
+                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados}/>}
+                            {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados}/>}
                         </>
                     )}
                 </CardContent>
