@@ -16,6 +16,7 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido'; // Importar config del simulador
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -63,6 +64,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
+  const [armadoRapidoConfig, setArmadoRapidoConfig] = useState<{ descuentoGeneral?: number } | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,13 +73,15 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     if (!presupuestoId) { setError("ID de presupuesto no válido."); setIsLoading(false); return; }
     setIsLoading(true); setError(null);
     try {
-      const [fetchedPresupuesto, fetchedSettings, templateSettings] = await Promise.all([
+      const [fetchedPresupuesto, fetchedSettings, templateSettings, armadoConfig] = await Promise.all([
         getPresupuestoById(presupuestoId),
         getBudgetDisplaySettings(),
-        getInvoiceTemplateSettings()
+        getInvoiceTemplateSettings(),
+        getArmadoRapidoConfig()
       ]);
       setDisplaySettings(fetchedSettings);
       setLogoUrl(templateSettings.logoUrl);
+      setArmadoRapidoConfig(armadoConfig);
       if (fetchedPresupuesto) {
         setPresupuesto(fetchedPresupuesto);
       } else {
@@ -151,17 +155,19 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     const bruto = presupuesto.costoTotalEstimado;
-    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+    
+    const descuentoPorcentaje = armadoRapidoConfig?.descuentoGeneral ?? 0;
+    const descPromo = (bruto * descuentoPorcentaje) / 100;
     
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),
-      totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+      totalFinal: bruto - descPromo
     };
 
-  }, [presupuesto]);
+  }, [presupuesto, armadoRapidoConfig]);
 
   if (isLoading || !displaySettings) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
@@ -188,7 +194,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
           <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
             <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
-            <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+            <Button variant="outline" size="sm" onClick={handleCopyToClipboard}><ClipboardCopy className="mr-2 h-4 w-4"/>Copiar</Button>
+            <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             {presupuesto.estado !== 'Facturado' ? 
               (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
               presupuesto.invoiceId ? 
@@ -215,30 +222,31 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
 
         {displaySettings.showClientData && (
           <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-1 print:py-0.5">
-            <p className="font-semibold">{presupuesto.clienteNombre}</p>
+            <p><span className="font-semibold">Cliente:</span> {presupuesto.clienteNombre}</p>
+            {presupuesto.clienteContacto && <p><span className="font-semibold">Contacto:</span> {presupuesto.clienteContacto}</p>}
           </section>
         )}
         
-        <section className="mb-6 print:mb-3">
-          <table className="w-full text-xs print:text-[7pt] border-collapse">
-            <thead className="print:bg-gray-100">
-              <tr>
-                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de presupuesto</th>
-                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Página</th>
-                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
-                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
-                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">1/1</td>
-                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
-                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
-              </tr>
-            </tbody>
-          </table>
-           <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
+           <section className="mb-4 print:mb-2">
+            <table className="w-full text-xs print:text-[7pt] border-collapse">
+                <thead className="print:bg-gray-100">
+                    <tr>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Documento</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Página</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">1/1</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
+                    </tr>
+                </tbody>
+             </table>
+             <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
                 <thead className="print:bg-gray-100">
                     <tr>
                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
@@ -256,14 +264,15 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                     </tr>
                 </tbody>
              </table>
-        </section>
+          </section>
 
         {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
           <section className="mb-6 print:mb-3">
               <table className="w-full text-xs print:text-[7pt] border-collapse">
                   <thead className="print:bg-gray-100">
                   <tr>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50">Cantidad</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
                   </tr>
@@ -272,13 +281,14 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                   {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                      <React.Fragment key={categoria}>
                         <tr className="bg-gray-50 print:bg-gray-100">
-                          <td colSpan={3} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
+                          <td colSpan={4} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
                         </tr>
                         {items.map((item) => (
                             <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad} {item.unidad && `(${item.unidad})`}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitario, true)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                             </tr>
@@ -298,7 +308,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
               </div>
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                    <span>Descuento Promocional ({armadoRapidoConfig?.descuentoGeneral}%):</span>
                     <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
               )}
