@@ -224,14 +224,14 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
         <header className="mb-6 print:mb-4">
           <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
-          <div className="flex justify-between items-start text-xs print:text-[8pt]">
-            <div className="space-y-px">
+          <div className="flex flex-col md:flex-row justify-between items-start text-xs print:text-[8pt] gap-2">
+            <div className="space-y-px text-center md:text-left">
               <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
               <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
               <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
             </div>
             {displaySettings.showCompanyLogo && logoUrl && (
-                <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
+                <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0 self-center md:self-start">
                     <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
@@ -256,7 +256,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {presupuesto.id.substring(presupuesto.id.length - 5)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
@@ -352,4 +352,3 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     </div>
   );
 }
-
