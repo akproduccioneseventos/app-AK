@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -12,6 +13,15 @@ import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
 import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
 import { ConvertToClientDialog } from '@/components/crm/ConvertToClientDialog';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 
 export default function CrmPage() {
   const [stages, setStages] = useState<CrmStage[]>([]);
@@ -23,6 +33,9 @@ export default function CrmPage() {
   
   const [leadToConvert, setLeadToConvert] = useState<CrmLead | null>(null);
   const [isConvertToClientModalOpen, setIsConvertToClientModalOpen] = useState(false);
+
+  const isMobile = useIsMobile();
+  const [mobileVisibleStageId, setMobileVisibleStageId] = useState<string | null>(null);
   
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -36,6 +49,9 @@ export default function CrmPage() {
       ]);
       setStages(stagesData);
       setLeads(leadsData);
+      if(stagesData.length > 0 && !mobileVisibleStageId) {
+        setMobileVisibleStageId(stagesData[0].id);
+      }
     } catch (err: any) {
       console.error("Error fetching CRM data:", err);
       setError("No se pudieron cargar los datos del CRM.");
@@ -43,7 +59,7 @@ export default function CrmPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, mobileVisibleStageId]);
 
   useEffect(() => {
     fetchData();
@@ -177,6 +193,20 @@ export default function CrmPage() {
             </Link>
           </div>
         </div>
+        
+        {isMobile && mobileVisibleStageId && (
+            <div className="mb-4">
+                <Label htmlFor="stage-selector">Seleccionar Etapa</Label>
+                <Select value={mobileVisibleStageId} onValueChange={setMobileVisibleStageId}>
+                    <SelectTrigger id="stage-selector"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        {stages.map(stage => (
+                            <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+        )}
 
         {stages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-10">
@@ -184,6 +214,18 @@ export default function CrmPage() {
               <p className="text-lg text-muted-foreground">No hay etapas definidas en el CRM.</p>
               <p className="text-sm text-muted-foreground">Verifica la configuración en `src/app/actions/crm.ts`.</p>
           </div>
+        ) : isMobile ? (
+             <div className="flex-1 min-h-0">
+                {stages.filter(s => s.id === mobileVisibleStageId).map(stage => (
+                  <CrmStageColumn
+                      key={stage.id}
+                      stage={stage}
+                      leads={leadsByStage[stage.id] || []}
+                      onDeleteLead={handleDeleteLead}
+                      deletingLeadId={deletingLeadId}
+                  />
+                ))}
+             </div>
         ) : (
           <ScrollArea className="w-full whitespace-nowrap pb-4">
               <div className="flex gap-4">

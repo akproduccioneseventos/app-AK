@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -40,7 +41,6 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    width: '100%',
   };
   
   const handleDelete = () => {
@@ -49,7 +49,8 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   
   const getDisplayNotes = (notes: string | undefined): { type: 'badge' | 'text', content: string } | null => {
     if (!notes) return null;
-    if (notes.includes('Generado desde SIMULADOR DE PRESUPUESTO')) {
+    // Updated keyword to match the new one from armado-rapido action
+    if (notes.includes('Generado desde el Simulador/Creador de Presupuestos')) {
         return { type: 'badge', content: 'Presupuesto al Instante' };
     }
     return { type: 'text', content: notes };
@@ -59,7 +60,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-full min-h-[120px]">
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-[180px]">
         <CardHeader 
           {...attributes} 
           {...listeners} 
@@ -68,7 +69,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
         >
            <GripVertical className="w-5 h-5 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
             <div className="flex-grow min-w-0">
-               <p className="font-semibold text-sm break-words" title={lead.name}>{lead.name}</p>
+               <p className="font-semibold text-sm break-words line-clamp-2" title={lead.name}>{lead.name}</p>
             </div>
         </CardHeader>
         <CardContent className="p-2 flex-grow min-h-0">
