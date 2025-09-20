@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Copy, Gift, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift, ClipboardCopy } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
@@ -16,7 +16,7 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido'; // Importar config del simulador
+import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido'; 
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -119,12 +119,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     texto += `\n\n¡Esperamos tu consulta!\n*El equipo de AK PRODUCCIONES*`;
     return texto;
   };
-
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(generarTextoWhatsApp())
-      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
-      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
-  };
   
   const handleShareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
@@ -194,7 +188,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
           <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
             <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
-            <Button variant="outline" size="sm" onClick={handleCopyToClipboard}><ClipboardCopy className="mr-2 h-4 w-4"/>Copiar</Button>
             <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             {presupuesto.estado !== 'Facturado' ? 
               (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
@@ -325,7 +318,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
             </div>
         </section>
         
-        <footer className="mt-8 pt-4 text-xs print:text-[8pt] text-gray-600 print:text-black">
+        <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
           {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
