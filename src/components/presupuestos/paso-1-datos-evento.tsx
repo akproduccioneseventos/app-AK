@@ -73,6 +73,17 @@ export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
           />
         </div>
         <div className="space-y-2">
+          <Label htmlFor="clienteContacto" className="text-base">Nº de Contacto</Label>
+           <Input
+            id="clienteContacto"
+            placeholder="Teléfono o Email"
+            value={formData.clienteContacto || ''}
+            onChange={(e) => handleChange('clienteContacto', e.target.value)}
+            className="text-base p-3"
+          />
+        </div>
+      </div>
+       <div className="space-y-2">
           <Label htmlFor="salonFiestas" className="text-base">Salón de Fiestas*</Label>
           <Input
             id="salonFiestas"
@@ -83,7 +94,6 @@ export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
             required
           />
         </div>
-      </div>
 
       <div className="space-y-2">
         <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento*</Label>

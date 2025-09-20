@@ -220,9 +220,10 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           </div>
         </CardHeader>
         <CardContent className="p-4 md:p-6 print:p-2 space-y-4 print:space-y-2">
-           {displaySettings.showClientData && (
-            <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-1 print:py-0.5">
-              <p className="font-semibold">{presupuesto.clienteNombre}</p>
+          {displaySettings.showClientData && (
+            <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-2 print:py-1">
+              <p><span className="font-semibold">Cliente:</span> {presupuesto.clienteNombre}</p>
+              {presupuesto.clienteContacto && <p><span className="font-semibold">Contacto:</span> {presupuesto.clienteContacto}</p>}
             </section>
           )}
           
@@ -230,23 +231,37 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
             <table className="w-full text-xs print:text-[7pt] border-collapse">
               <thead className="print:bg-gray-100">
                 <tr>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de cliente</th>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Documento</th>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Página</th>
+                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Presupuesto</th>
                   <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
                   <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_')[1]?.substring(0,4) || 'N/A'}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">1/1</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
               </tbody>
             </table>
+             <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
+                <thead className="print:bg-gray-100">
+                    <tr>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.eventoFecha)}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.salonFiestas}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
+                    </tr>
+                </tbody>
+             </table>
           </section>
 
           {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
@@ -255,7 +270,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                   <thead className="print:bg-gray-100">
                   <tr>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50">Cantidad</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
                   </tr>
@@ -264,16 +278,15 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                   {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                      <React.Fragment key={categoria}>
                         <tr className="bg-gray-50 print:bg-gray-100">
-                          <td colSpan={4} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
+                          <td colSpan={3} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
                         </tr>
                         {items.map((item) => (
                             <tr key={item.idServicioCatalogo}>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad} {item.unidad && item.calculationMethod !== 'fijo' ? item.unidad : ''}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitario, true)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                             </tr>
                         ))}
                      </React.Fragment>

@@ -1,3 +1,4 @@
+
 export type TipoEvento =
   | 'Boda'
   | 'XV años'
@@ -30,6 +31,7 @@ export interface ItemPresupuestado {
 export interface Presupuesto {
   id: string;
   clienteNombre: string;
+  clienteContacto?: string;
   eventoTipo: TipoEvento | string;
   eventoFecha: string; // ISO String
   invitadosCantidad: number; // Total de invitados (adultos + ninos)
@@ -55,6 +57,7 @@ export interface Presupuesto {
 // FormData for the new unified builder.
 export interface PresupuestoFormData {
   clienteNombre: string;
+  clienteContacto?: string;
   eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null; // Total, se mantiene para consistencia general

@@ -25,6 +25,7 @@ const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
 const initialFormData: PresupuestoFormData = {
   clienteNombre: '',
+  clienteContacto: '',
   eventoTipo: '',
   eventoFecha: undefined,
   invitadosCantidad: 50,
@@ -182,6 +183,7 @@ function NuevoPresupuestoContent() {
 
         const presupuestoAGuardar: Omit<Presupuesto, 'id'> = {
             clienteNombre: formData.clienteNombre,
+            clienteContacto: formData.clienteContacto,
             eventoTipo: formData.eventoTipo,
             eventoFecha: formData.eventoFecha?.toISOString() || '',
             invitadosCantidad: totalInvitados,
@@ -231,6 +233,7 @@ function NuevoPresupuestoContent() {
              // Create a lead in CRM
             await generateLeadFromQuickBudget({
                 clienteNombre: presupuestoAGuardar.clienteNombre,
+                clienteContacto: presupuestoAGuardar.clienteContacto,
                 adultos: presupuestoAGuardar.invitadosAdultos || 0,
                 ninos: presupuestoAGuardar.invitadosNinos || 0,
                 costoEstimado: totalFinalConDescuento,
