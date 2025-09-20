@@ -6,7 +6,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, PackageSearch, PlusCircle, Search, Trash2, ChefHat, RadioGroup, RadioGroupItem } from 'lucide-react';
+import { Sparkles, PackageSearch, PlusCircle, Search, Trash2, ChefHat } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
 interface Paso2ServiciosProps {
@@ -285,7 +286,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 {(formData.invitadosNinos ?? 0) > 0 && (
                     <div className="space-y-2">
                         <Label className="font-semibold">Menú Niños/Adolescentes (Elige 1)</Label>
-                        <Select value={formData.selectedMenuNino} onValueChange={(val) => setFormData(p => ({...p, selectedMenuNino: val}))}><SelectTrigger><SelectValue placeholder="Seleccionar menú..."/></SelectTrigger><SelectContent>{menusNinoDisponibles.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</SelectItem>)}</SelectContent></Select>
+                        <Select value={formData.selectedMenuNino} onValueChange={(val) => setFormData(p => ({...p, selectedMenuNino: val}))}><SelectTrigger><SelectValue placeholder={(formData.invitadosNinos || 0) > 0 ? "Selecciona un menú..." : "Añade niños en Paso 1"}/></SelectTrigger><SelectContent>{menusNinoDisponibles.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</SelectItem>)}</SelectContent></Select>
                     </div>
                 )}
             </div>
@@ -304,14 +305,17 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           <CardContent className="p-4 space-y-2">
             {formData.serviciosSeleccionados.size > 0 ? (
                 Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
-                    const servicioOriginal = serviciosCatalogo.find(s => s.nombre === servicio.nombreServicio);
+                    const servicioOriginal = serviciosCatalogo.find(s => s.id === id);
                     if (!servicioOriginal) return null;
-                    const item: ItemPresupuestado = { idServicioCatalogo: id, ...servicio, precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 };
+                    const item: ItemPresupuestado = {
+                        idServicioCatalogo: id, ...servicio, 
+                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
+                    };
                     const costoItem = calcularCostoItem(item, totalInvitados);
                     return (
                         <div key={id} className="flex justify-between items-center p-2 border-b last:border-b-0">
                            <div className="flex-grow">
-                                <p className={`font-semibold text-sm ${servicio.esRegalo ? 'text-green-600' : ''}`}>{servicio.esRegalo && <Gift className="inline w-3.5 h-3.5 mr-1"/>}{servicio.nombreServicio}</p>
+                                <p className="font-semibold text-sm">{servicio.nombreServicio}</p>
                                 <p className="text-xs text-muted-foreground">{formatCurrency(costoItem)}</p>
                            </div>
                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveServicio(id)}><Trash2 className="w-4 h-4" /></Button>
