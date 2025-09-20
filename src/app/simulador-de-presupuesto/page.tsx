@@ -315,7 +315,7 @@ export default function ArmadoRapidoPage() {
         window.print();
     };
 
-    const handleGenerateLead = async () => {
+    const handleGenerateLeadAndProceed = async () => {
         if (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim())) {
             toast({ title: "Datos incompletos o incorrectos", description: "Por favor, completa tu nombre y un celular válido de 9 dígitos.", variant: "destructive" });
             return;
@@ -334,16 +334,24 @@ export default function ArmadoRapidoPage() {
         try {
             const result = await generateLeadFromQuickBudget(data);
             if(result.success) {
-                setStep(5); // Show success step
+                toast({ title: "Presupuesto registrado", description: "Tu estimación ha sido enviada al equipo de ventas."});
+                setStep(4);
             } else { throw new Error(result.error); }
         } catch(e: any) {
-             toast({ title: "Error al enviar", description: e.message, variant: "destructive" });
+             toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
         } finally {
             setIsGeneratingLead(false);
         }
     }
     
-    const nextStep = () => setStep(s => s < 4 ? s + 1 : s);
+    const nextStep = () => {
+        if (step === 3) {
+            handleGenerateLeadAndProceed();
+        } else {
+            setStep(s => s < 4 ? s + 1 : s);
+        }
+    };
+
     const prevStep = () => setStep(s => s > 1 ? s - 1 : s);
     
     if (isLoading) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>; }
@@ -368,7 +376,7 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Elije tu menú gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Elige tu menú gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                     <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
                 <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
@@ -380,7 +388,7 @@ export default function ArmadoRapidoPage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="cliente-contacto">Tu Celular *</Label>
                                     <Input id="cliente-contacto" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="Ej: 098355530" required/>
-                                    <p className="text-xs text-muted-foreground">Debe tener 9 dígitos.</p>
+                                    <p className="text-xs text-muted-foreground">Debe tener 9 dígitos. Sin espacios ni guiones.</p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -540,15 +548,15 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && !selectedPrincipal) || (step === 3 && !selectedPaqueteId)}>
-                            Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
+                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && !selectedPrincipal) || (step === 3 && !selectedPaqueteId) || isGeneratingLead}>
+                            {isGeneratingLead ? <Loader2 className="w-4 h-4 animate-spin"/> : <ArrowRight className="w-4 h-4 ml-2"/>}
+                            {isGeneratingLead ? 'Registrando...' : 'Siguiente'}
                         </Button>
                     ) : (
                         <div className="flex flex-col sm:flex-row gap-2">
                              <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar</Button>
                              <Button type="button" onClick={handleShareWhatsApp} variant="secondary"><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
                              <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar</Button>
-                             <Button onClick={handleGenerateLead} disabled={isGeneratingLead}>{isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2"/>}{isGeneratingLead ? 'Enviando...' : 'Solicitar Presupuesto'}</Button>
                         </div>
                     )}
                 </CardFooter>
