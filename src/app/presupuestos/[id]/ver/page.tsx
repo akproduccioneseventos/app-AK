@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
@@ -183,7 +183,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
 
   return (
     <div className="max-w-4xl mx-auto bg-white print:bg-white font-sans text-gray-800 print:text-black">
-      <div className="p-4 md:p-8 print:p-2">
+      <div className="p-4 md:p-8 print:p-2" id="invoice-to-print">
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
           <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
