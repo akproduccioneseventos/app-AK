@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, BarChart3, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot, Share2, Eye } from 'lucide-react';
+import { ArrowRight, CalendarDays, BarChart3, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot, Share2, Eye, FilePlus2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { useToast } from '@/hooks/use-toast';
@@ -122,29 +122,50 @@ export default function DashboardPage() {
       
       <Separator />
 
-       <Card className="shadow-lg border-2 border-primary/40 bg-primary/5">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-              <Wand2 className="w-8 h-8 text-primary"/>
-              <div>
-                <CardTitle className="font-headline text-xl">Simulador de Presupuesto Público</CardTitle>
-                <CardDescription>Comparte este enlace con tus clientes para que puedan generar un presupuesto estimado al instante.</CardDescription>
-              </div>
-          </div>
-        </CardHeader>
-        <CardFooter className="flex flex-col sm:flex-row gap-2">
-            <Button asChild className="w-full">
-              <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer">
-                <Eye className="w-4 h-4 mr-2"/> Ir al Simulador Público
-              </Link>
-            </Button>
-             <ShareLinkDialog relativePath="/simulador-de-presupuesto" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
-                <Button variant="outline" className="w-full sm:w-auto">
-                    <Share2 className="w-4 h-4 mr-2"/>Compartir Enlace
-                </Button>
-            </ShareLinkDialog>
-        </CardFooter>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="shadow-lg border-2 border-primary/40 bg-primary/5">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+                <Wand2 className="w-8 h-8 text-primary"/>
+                <div>
+                  <CardTitle className="font-headline text-xl">Simulador de Presupuesto Público</CardTitle>
+                  <CardDescription>Comparte este enlace con tus clientes para que puedan generar un presupuesto estimado al instante.</CardDescription>
+                </div>
+            </div>
+          </CardHeader>
+          <CardFooter className="flex flex-col sm:flex-row gap-2">
+              <Button asChild className="w-full">
+                <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer">
+                  <Eye className="w-4 h-4 mr-2"/> Ir al Simulador Público
+                </Link>
+              </Button>
+              <ShareLinkDialog relativePath="/simulador-de-presupuesto" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
+                  <Button variant="outline" className="w-full sm:w-auto">
+                      <Share2 className="w-4 h-4 mr-2"/>Compartir Enlace
+                  </Button>
+              </ShareLinkDialog>
+          </CardFooter>
+        </Card>
+
+         <Card className="shadow-lg border-2 border-secondary">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+                <FilePlus2 className="w-8 h-8 text-foreground"/>
+                <div>
+                  <CardTitle className="font-headline text-xl">Creación Manual de Presupuestos</CardTitle>
+                  <CardDescription>Genera un presupuesto detallado para un cliente directamente desde el panel de gestión.</CardDescription>
+                </div>
+            </div>
+          </CardHeader>
+          <CardFooter>
+              <Button asChild className="w-full">
+                <Link href="/presupuestos/nuevo">
+                  <PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Presupuesto Manual
+                </Link>
+              </Button>
+          </CardFooter>
+        </Card>
+      </div>
       
       <div className="pt-4">
         <h3 className="text-2xl font-semibold text-foreground mb-4 font-headline text-center">Módulos Principales</h3>
