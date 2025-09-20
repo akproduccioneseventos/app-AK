@@ -1,10 +1,10 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
@@ -47,10 +47,11 @@ export default function CrmPage() {
         getCrmStages(),
         getCrmLeads(),
       ]);
-      setStages(stagesData);
+      const sortedStages = stagesData.sort((a,b) => a.order - b.order);
+      setStages(sortedStages);
       setLeads(leadsData);
-      if(stagesData.length > 0 && !mobileVisibleStageId) {
-        setMobileVisibleStageId(stagesData[0].id);
+      if(sortedStages.length > 0 && !mobileVisibleStageId) {
+        setMobileVisibleStageId(sortedStages[0].id);
       }
     } catch (err: any) {
       console.error("Error fetching CRM data:", err);

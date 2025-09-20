@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -49,7 +48,6 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   
   const getDisplayNotes = (notes: string | undefined): { type: 'badge' | 'text', content: string } | null => {
     if (!notes) return null;
-    // Updated keyword to match the new one from armado-rapido action
     if (notes.includes('Generado desde el Simulador/Creador de Presupuestos')) {
         return { type: 'badge', content: 'Presupuesto al Instante' };
     }
