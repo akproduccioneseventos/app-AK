@@ -298,6 +298,12 @@ export default function GestionDocumentalPage() {
         <Card className="shadow-md">
             <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Documentos del Evento</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+                 <Link href="/fiestas/nueva/gestion-documental/contrato" passHref>
+                    <Button variant="secondary" className="w-full">
+                        <FileSignature className="w-4 h-4 mr-2"/> Generar Contrato de Servicio
+                    </Button>
+                </Link>
+                <Separator />
                 {Object.entries(groupedDocuments).length === 0 ? <p className="text-muted-foreground text-center italic text-xs py-2">No hay documentos subidos.</p> :
                   Object.entries(groupedDocuments).map(([tipo, docs]) => (
                     <div key={tipo}>
