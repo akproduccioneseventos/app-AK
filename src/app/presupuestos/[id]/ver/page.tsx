@@ -10,7 +10,7 @@ import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextI
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
-import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
@@ -105,33 +105,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   };
   
   const handlePrint = () => {
-    const printContent = document.getElementById('invoice-to-print');
-    if (printContent) {
-        const WinPrint = window.open('', '', 'width=900,height=650');
-        WinPrint?.document.write(`<html><head><title>Presupuesto</title></head><body>`);
-        // You might need to link your stylesheet here for printing styles
-        const styles = Array.from(document.styleSheets)
-          .map(styleSheet => {
-            try {
-              return Array.from(styleSheet.cssRules)
-                .map(rule => rule.cssText)
-                .join('');
-            } catch (e) {
-              // Ignore CORS errors on external stylesheets
-              return '';
-            }
-          })
-          .join('');
-        WinPrint?.document.write(`<style>${styles}</style>`);
-        WinPrint?.document.write(printContent.innerHTML);
-        WinPrint?.document.write('</body></html>');
-        WinPrint?.document.close();
-        WinPrint?.focus();
-        setTimeout(() => {
-          WinPrint?.print();
-          WinPrint?.close();
-        }, 500); // Timeout to ensure content and styles are loaded
-    }
+    window.print();
   };
   
   const generarTextoWhatsApp = () => {
@@ -251,7 +225,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
             <table className="w-full text-xs print:text-[7pt] border-collapse">
               <thead className="print:bg-gray-100">
                 <tr>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Presupuesto</th>
+                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Documento</th>
                   <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
                   <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
                 </tr>
@@ -263,11 +237,12 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
               </tbody>
-            </table>
+             </table>
              <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
                 <thead className="print:bg-gray-100">
                     <tr>
                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Protagonista(s)</th>
                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
@@ -275,7 +250,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                 </thead>
                 <tbody>
                     <tr>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo} {protagonistas && `de ${protagonistas}`}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{protagonistas || 'N/A'}</td>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.eventoFecha)}</td>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.salonFiestas}</td>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
