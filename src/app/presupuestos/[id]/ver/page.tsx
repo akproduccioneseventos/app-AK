@@ -108,10 +108,11 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     const printContents = document.getElementById('invoice-to-print')?.innerHTML;
     const originalContents = document.body.innerHTML;
     if (printContents) {
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload(); 
+      document.body.innerHTML = printContents;
+      window.print();
+      document.body.innerHTML = originalContents;
+      // Use reload to ensure styles and scripts are reloaded correctly after print
+      window.location.reload(); 
     }
   };
   
@@ -249,14 +250,14 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
             <table className="w-full text-xs print:text-[7pt] border-collapse">
               <thead className="print:bg-gray-100">
                 <tr>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Documento</th>
+                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Presupuesto</th>
                   <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
                   <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {presupuesto.id.substring(presupuesto.id.length - 5)}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {presupuesto.id.split('_')[1] || presupuesto.id}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
@@ -344,7 +345,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         </section>
         
         <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-          <p className="text-sm font-bold text-red-600">{BUDGET_DEPOSIT_NOTE_PDF}</p>
+          <p className="text-red-600 font-bold text-sm">{BUDGET_DEPOSIT_NOTE_PDF}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
           {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
         </footer>
