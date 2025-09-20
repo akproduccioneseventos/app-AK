@@ -5,6 +5,7 @@ import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, PackageSearch, PlusCircle, Search, Trash2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo } from 'react';
@@ -66,6 +67,7 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   }
   return itemTotal;
 }
+
 
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
