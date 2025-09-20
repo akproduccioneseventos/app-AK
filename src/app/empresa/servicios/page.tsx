@@ -124,7 +124,7 @@ export default function CatalogoServiciosPage() {
              <Link href="/empresa/contabilidad" passHref>
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
-                    Volver al Panel Contable
+                    Volver
                 </Button>
             </Link>
         </div>
