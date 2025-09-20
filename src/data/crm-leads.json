@@ -1,5 +1,21 @@
 [
   {
+    "id": "lead_1758382862774_0u46mcv",
+    "name": "Ana García",
+    "phone": "099958",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 50 Niños/Adol.\n- Costo Estimado: $ 72.700,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-20T15:41:02.774Z",
+    "updatedAt": "2025-09-20T15:41:02.774Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-20T15:41:02.774Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1758382106080_mzsi6ac",
     "name": "Ana García",
     "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 50 Niños/Adol.\n- Costo Estimado: $ 72.700,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
@@ -1636,18 +1652,18 @@
     ]
   },
   {
-    "id": "lead_1758382862774_0u46mcv",
+    "id": "lead_1758383434404_r5hvby5",
     "name": "Ana García",
     "phone": "099958",
-    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 50 Niños/Adol.\n- Costo Estimado: $ 72.700,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 50 Niños/Adol.\n- Costo Estimado: $ 105.000,00\n- Servicios Incluidos:\n  • Show de pizzas\n  • Calzones Italianos\n  • Cerdo relleno c/ guarnición\n  • Hamburguesa completa c/ fritas",
     "currentStageId": "s3",
-    "createdAt": "2025-09-20T15:41:02.774Z",
-    "updatedAt": "2025-09-20T15:41:02.774Z",
+    "createdAt": "2025-09-20T15:50:34.404Z",
+    "updatedAt": "2025-09-20T15:50:34.404Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-09-20T15:41:02.774Z"
+        "timestamp": "2025-09-20T15:50:34.404Z"
       }
     ]
   }

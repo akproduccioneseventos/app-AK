@@ -185,7 +185,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     <div className="max-w-4xl mx-auto bg-white print:bg-white font-sans text-gray-800 print:text-black">
       <div className="p-4 md:p-8 print:p-2">
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
-          <Link href="/presupuestos" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
+          <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
             <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
             <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
@@ -194,7 +194,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
               presupuesto.invoiceId ? 
               (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
               (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
-            <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref><Button variant="secondary" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           </div>
         </div>
         
