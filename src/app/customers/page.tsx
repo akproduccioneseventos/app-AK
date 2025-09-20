@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search } from 'lucide-react'; // Added Eye and Search icon
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search, CalendarDays } from 'lucide-react'; 
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
@@ -31,8 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from '@/components/ui/input'; // Added Input
-
+import { Input } from '@/components/ui/input'; 
 
 const getCustomerStatusBadgeVariant = (status?: CustomerStatus): "default" | "secondary" | "destructive" | "outline" => {
   if (!status) return "secondary";
@@ -42,6 +41,15 @@ const getCustomerStatusBadgeVariant = (status?: CustomerStatus): "default" | "se
     default: return "secondary";
   }
 };
+
+const formatDate = (dateString?: string) => {
+    if (!dateString) return "N/A";
+    try {
+        return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
+    } catch(e) {
+        return "Fecha inválida";
+    }
+}
 
 
 export default function CustomersPage() {
@@ -60,7 +68,14 @@ export default function CustomersPage() {
     setIsLoading(true);
     try {
       const data = await getCustomers();
-      setCustomers(data);
+      // Sort by partyDate, upcoming first, then those without a date.
+      const sortedData = data.sort((a, b) => {
+          const dateA = a.partyDate ? new Date(a.partyDate).getTime() : Infinity;
+          const dateB = b.partyDate ? new Date(b.partyDate).getTime() : Infinity;
+          if (dateA === Infinity && dateB === Infinity) return 0;
+          return dateA - dateB;
+      });
+      setCustomers(sortedData);
     } catch (error) {
       toast({ title: "Error", description: "No se pudieron cargar los clientes.", variant: "destructive" });
     } finally {
@@ -183,6 +198,7 @@ export default function CustomersPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre / Empresa</TableHead>
+                    <TableHead className="flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Fecha Evento</TableHead>
                     <TableHead>Estado Cliente</TableHead>
                     <TableHead>Teléfono</TableHead>
                     <TableHead className="text-right print:hidden">Acciones</TableHead>
@@ -192,6 +208,7 @@ export default function CustomersPage() {
                   {filteredCustomers.map((customer) => (
                     <TableRow key={customer.id}>
                       <TableCell className="font-medium min-w-[200px]">{customer.companyName || customer.name}</TableCell>
+                      <TableCell className="min-w-[120px]">{formatDate(customer.partyDate)}</TableCell>
                       <TableCell className="min-w-[120px]">
                         <Badge variant={getCustomerStatusBadgeVariant(customer.estadoCliente)} className="text-xs print:border print:border-gray-300 print:text-black print:bg-white">
                           {customer.estadoCliente || 'Actual'}

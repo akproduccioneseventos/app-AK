@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
@@ -30,8 +31,7 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
   const [clientPhone, setClientPhone] = useState(lead.phone || '');
   const [companyName, setCompanyName] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [street, setStreet] = useState('');
-
+  
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -41,7 +41,6 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
       setClientPhone(lead.phone || '');
       setCompanyName('');
       setTaxId('');
-      setStreet('');
       setContractFile(null);
     }
   }, [isOpen, lead]);
@@ -71,7 +70,6 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
     formData.append('phone', clientPhone);
     if (companyName.trim()) formData.append('companyName', companyName.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-    if (street.trim()) formData.append('street', street.trim());
 
 
     const success = await onSubmit(formData);
@@ -132,17 +130,6 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
               value={taxId} 
               onChange={(e) => setTaxId(e.target.value)} 
               placeholder="Número de identificación fiscal"
-              disabled={isSaving} 
-            />
-          </div>
-           <div className="space-y-1">
-            <Label htmlFor="client-street">Dirección (Calle y Número - Opcional)</Label>
-            <Input 
-              id="client-street" 
-              type="text"
-              value={street} 
-              onChange={(e) => setStreet(e.target.value)} 
-              placeholder="Ej: Av. Principal 1234"
               disabled={isSaving} 
             />
           </div>

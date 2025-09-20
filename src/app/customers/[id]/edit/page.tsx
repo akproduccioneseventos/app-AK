@@ -25,12 +25,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger, // Added AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
 
 export default function EditCustomerPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
-  const params = React.use(paramsProp); // Unwrap the params promise
+  const params = React.use(paramsProp); 
   const router = useRouter();
   const { toast } = useToast();
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -60,14 +60,13 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  // Use the unwrapped params.id
   const customerIdFromParams = params.id;
 
   const loadCustomer = useCallback(async () => {
     setIsLoading(true);
     setNotFound(false);
     try {
-      const loadedCustomer = await getCustomerById(customerIdFromParams); // Use unwrapped ID
+      const loadedCustomer = await getCustomerById(customerIdFromParams); 
       if (loadedCustomer) {
         setCustomer(loadedCustomer);
         setName(loadedCustomer.name || '');
@@ -96,7 +95,7 @@ export default function EditCustomerPage({ params: paramsProp }: { params: Promi
   }, [customerIdFromParams]);
 
   useEffect(() => {
-    if (customerIdFromParams) { // Use unwrapped ID
+    if (customerIdFromParams) { 
       loadCustomer();
     }
   }, [customerIdFromParams, loadCustomer]);

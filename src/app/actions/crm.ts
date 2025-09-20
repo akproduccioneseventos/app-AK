@@ -5,8 +5,8 @@
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import fs from 'fs/promises';
 import path from 'path';
-import { saveCustomer } from '@/app/actions/customers'; // For client creation
-import type { Customer } from '@/types/customer'; // For client creation
+import { saveCustomer } from '@/app/actions/customers'; 
+import type { Customer } from '@/types/customer'; 
 import { createNewFiestaForCustomer } from '@/app/actions/fiesta-actual';
 
 const CRM_DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -76,10 +76,6 @@ export async function addCrmLead(
   }
   const leads = await getCrmLeads();
   
-  //if (leads.some(lead => lead.name.toLowerCase() === leadData.name.trim().toLowerCase())) {
-    //return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
-  //}
-
   const stages = await getCrmStages();
   const now = new Date().toISOString();
   
@@ -107,7 +103,7 @@ export async function moveCrmLead(
   newStageId: string
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
   let leads = await getCrmLeads();
-  const stages = await getCrmStages(); // Fetch stages to get name
+  const stages = await getCrmStages(); 
   const leadIndex = leads.findIndex(l => l.id === leadId);
 
   if (leadIndex === -1) {
@@ -174,7 +170,7 @@ export async function convertToClientAndMoveProspect(
   const phone = formData.get('phone') as string | undefined;
   const companyName = formData.get('companyName') as string | undefined;
   const taxId = formData.get('taxId') as string | undefined;
-  const street = formData.get('street') as string | undefined;
+  // street has been removed from the form
   const contractFile = formData.get('contract') as File | null;
 
   if (!prospectId || !prospectName) {
@@ -196,7 +192,7 @@ export async function convertToClientAndMoveProspect(
   if (phone) customerFormData.append('phone', phone);
   if (companyName) customerFormData.append('companyName', companyName);
   if (taxId) customerFormData.append('taxId', taxId);
-  if (street) customerFormData.append('street', street);
+  // Do not append street
   customerFormData.append('contract', contractFile);
 
   try {

@@ -28,9 +28,7 @@ export default function NewCustomerPage() {
   const [customerCompanyName, setCustomerCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
-  // El campo de email se elimina
-  // El campo 'street' para dirección se elimina
-
+  
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
   const [partyTime, setPartyTime] = useState(''); // Campo de texto simple para horario
@@ -60,14 +58,11 @@ export default function NewCustomerPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Validaciones client-side eliminadas para permitir campos opcionales
-    // La validación del servidor (nombre o empresa) en saveCustomer se mantiene.
-
     setIsSaving(true);
     
     const formData = new FormData();
     if (name.trim()) formData.append('name', name.trim());
-    else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim()); // Fallback si solo hay companyName
+    else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim());
 
     if (selectedPartyType === 'Evento corporativo' && corporateEventCompanyName.trim()) {
         formData.append('companyName', corporateEventCompanyName.trim());
@@ -77,7 +72,6 @@ export default function NewCustomerPage() {
 
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-    // No se añade 'street' al FormData
 
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
@@ -86,7 +80,7 @@ export default function NewCustomerPage() {
     if (finalPartyType) formData.append('partyType', finalPartyType);
 
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
-    if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim()); // Añadir nuevo campo al FormData
+    if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
     
     if (contractFile) formData.append('contract', contractFile);
@@ -139,7 +133,6 @@ export default function NewCustomerPage() {
               <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
               <div><Label htmlFor="customer-taxid">Cédula / RUT</Label><Input id="customer-taxid" value={taxId} onChange={(e) => setTaxId(e.target.value)} /></div>
             </div>
-            {/* Campo de Email y Dirección (street) eliminados del formulario */}
           </CardContent>
 
           <Separator className="my-6" />
@@ -201,7 +194,6 @@ export default function NewCustomerPage() {
                   <Input id="guest-count" type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Ej: 100" min="1"/>
                 </div>
             </div>
-            {/* Nuevo campo "Para quién es la fiesta" */}
             <div className="space-y-2">
               <Label htmlFor="party-for-whom">Para quién es la Fiesta</Label>
               <Input 
@@ -240,5 +232,4 @@ export default function NewCustomerPage() {
     </div>
   );
 }
-
     
