@@ -25,7 +25,6 @@ const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
-
 interface Paso4ResumenProps {
   presupuesto: Presupuesto;
   formData: PresupuestoFormData;
@@ -41,7 +40,7 @@ const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) =
 };
 
 const formatDate = (dateString?: string, shortMonth = false) => {
-  if (!dateString) return 'Fecha no especificada';
+  if (!dateString) return "Fecha no especificada";
   try {
     const date = new Date(dateString);
     const year = dateString.includes('T') ? date.getUTCFullYear() : date.getFullYear();
@@ -272,7 +271,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad} {item.unidad && item.calculationMethod !== 'fijo' ? item.unidad : ''}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
                             </tr>
