@@ -316,10 +316,6 @@ export default function ArmadoRapidoPage() {
     };
 
     const handleGenerateLeadAndProceed = async () => {
-        if (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim())) {
-            toast({ title: "Datos incompletos o incorrectos", description: "Por favor, completa tu nombre y un celular válido de 9 dígitos.", variant: "destructive" });
-            return;
-        }
         setIsGeneratingLead(true);
         const data = {
             clienteNombre,
@@ -376,7 +372,7 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Elige tu menú gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Elije tu menú gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                     <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
                 <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
@@ -458,7 +454,9 @@ export default function ArmadoRapidoPage() {
                                     )}
                                 </div>
                                 <Separator className="my-3"/>
-                                <p className="text-left font-semibold text-sm">{clienteNombre}</p>
+                                <section className="mb-4 print:mb-2 text-sm print:text-[9pt] text-left">
+                                  <p className="font-semibold">{clienteNombre}</p>
+                                </section>
                             </header>
                             
                              <table className="w-full text-xs print:text-[7pt] border-collapse mb-4">
