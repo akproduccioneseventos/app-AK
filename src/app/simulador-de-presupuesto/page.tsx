@@ -426,7 +426,7 @@ export default function ArmadoRapidoPage() {
                                                     <>
                                                         <Separator className="my-2"/>
                                                         <ul className="text-xs list-disc pl-4 space-y-1">
-                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>{serv.nombre}</li> })}
+                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3 h-3"/>{serv.nombre} (REGALO)</li> })}
                                                         </ul>
                                                     </>
                                                 )}
@@ -482,8 +482,8 @@ export default function ArmadoRapidoPage() {
                                         <h4 className="font-bold text-primary border-b pb-1 mb-2">{categoria}</h4>
                                         {items.map(item => (
                                             <div key={item.id} className="p-2 border-b text-sm">
-                                                <div className={`flex justify-between font-medium ${item.esRegalo ? 'text-green-600' : ''}`}>
-                                                    <span>{item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}{item.nombre}</span>
+                                                <div className={`flex justify-between font-medium ${item.esRegalo ? 'text-red-600' : ''}`}>
+                                                    <span>{item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}{item.nombre}{item.esRegalo && ' (REGALO)'}</span>
                                                     <span>{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</span>
                                                 </div>
                                                 <div className="text-xs text-muted-foreground">
@@ -513,9 +513,9 @@ export default function ArmadoRapidoPage() {
                                                 </TableRow>
                                                 {items.map((item) => (
                                                     <TableRow key={item.id}>
-                                                        <TableCell className={`font-medium ${item.esRegalo ? 'text-green-600' : ''}`}>
+                                                        <TableCell className={`font-medium ${item.esRegalo ? 'text-red-600' : ''}`}>
                                                             {item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}
-                                                            {item.nombre}
+                                                            {item.nombre}{item.esRegalo && ' (REGALO)'}
                                                         </TableCell>
                                                         <TableCell className="text-center">{item.cantidad} {item.unidad}</TableCell>
                                                         <TableCell className="text-right">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitario)}</TableCell>
