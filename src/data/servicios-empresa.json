@@ -1,22 +1,5 @@
 [
   {
-    "id": "item_1758320726157_k2ts7sy",
-    "nombre": "Fuegos frios",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 800,
-    "precioVenta": 3000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_invitaciones_digitales",
-    "nombre": "Invitaciones digitales",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "precioVenta": 1500,
-    "calculationMethod": "fijo"
-  },
-  {
     "id": "serv_1752489600004_pchef",
     "nombre": "Cheff",
     "tipoItem": "Servicio",
@@ -32,7 +15,21 @@
     "categoria": "Personal",
     "unidad": "Por evento",
     "precioVenta": 3500,
-    "calculationMethod": "fijo"
+    "calculationMethod": "tramos",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1758379060450",
+        "desde": 110,
+        "hasta": 200,
+        "precio": 3500
+      },
+      {
+        "id": "tramo_1758379088177",
+        "desde": 201,
+        "hasta": 300,
+        "precio": 3500
+      }
+    ]
   },
   {
     "id": "serv_mozos",
@@ -66,6 +63,36 @@
     "unidad": "Por evento",
     "precioVenta": 8000,
     "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757177422000_4ru2piy",
+    "nombre": "Coffe Break",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 500,
+    "unidad": "Por evento",
+    "precioVenta": 3000,
+    "calculationMethod": "fijo",
+    "tramosDePrecio": []
+  },
+  {
+    "id": "item_1758320726157_k2ts7sy",
+    "nombre": "Fuegos frios",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 800,
+    "precioVenta": 3000,
+    "calculationMethod": "fijo",
+    "tramosDePrecio": []
+  },
+  {
+    "id": "serv_invitaciones_digitales",
+    "nombre": "Invitaciones digitales",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "precioVenta": 1500,
+    "calculationMethod": "fijo",
+    "tramosDePrecio": []
   },
   {
     "id": "serv_pantalla_proyector",
@@ -124,15 +151,6 @@
     "subcategoria": "Bebidas con Alcohol",
     "unidad": "Unidad",
     "precioVenta": 6000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757177422000_4ru2piy",
-    "nombre": "Coffe Break",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "unidad": "Por evento",
-    "precioVenta": 3000,
     "calculationMethod": "fijo"
   },
   {

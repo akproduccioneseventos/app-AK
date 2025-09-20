@@ -130,6 +130,10 @@
         {
           "id": "item_1758320278460_yqzpq1h",
           "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600003_pmetr",
+          "esRegalo": false
         }
       ]
     },
@@ -227,6 +231,10 @@
         },
         {
           "id": "item_1757456683585_bb9tztm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600003_pmetr",
           "esRegalo": false
         }
       ]
