@@ -103,11 +103,29 @@ export default function ArmadoRapidoPage() {
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
     
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
-        const entradas = serviciosCatalogo.filter(s => s.subcategoria === 'Entrada');
-        const principales = serviciosCatalogo.filter(s => s.subcategoria === 'Plato Principal');
-        const menusNino = serviciosCatalogo.filter(s => s.subcategoria === 'Menú Adolescente / Niño');
+        if (!config || !serviciosCatalogo.length) {
+            return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
+        }
+
+        const menuCatering = config.menus.find(m => m.id === 'menu_catering');
+        if (!menuCatering) {
+            return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
+        }
+
+        const serviciosDelMenu = menuCatering.serviciosIncluidos.map(s => serviciosCatalogo.find(sc => sc.id === s.id)).filter(Boolean) as ServicioEmpresa[];
+        
+        const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => {
+            const priceA = a.precioPorPersona || a.precioBase || a.precioVenta || 0;
+            const priceB = b.precioPorPersona || b.precioBase || b.precioVenta || 0;
+            return priceA - priceB;
+        };
+
+        const entradas = serviciosDelMenu.filter(s => s.subcategoria === 'Entrada').sort(sortByPrice);
+        const principales = serviciosDelMenu.filter(s => s.subcategoria === 'Plato Principal').sort(sortByPrice);
+        const menusNino = serviciosDelMenu.filter(s => s.subcategoria === 'Menú Niños/Adolescentes').sort(sortByPrice);
+        
         return { entradasDisponibles: entradas, principalesDisponibles: principales, menusNinoDisponibles: menusNino };
-    }, [serviciosCatalogo]);
+    }, [config, serviciosCatalogo]);
     
     useEffect(() => {
         const loadInitialData = async () => {
