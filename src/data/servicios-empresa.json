@@ -1,12 +1,13 @@
+
 [
   {
+    "id": "item_1758320726157_k2ts7sy",
     "nombre": "Fuegos frios",
     "tipoItem": "Servicio",
     "categoria": "Otros servicios",
     "valorUnitarioEstimado": 800,
-    "calculationMethod": "fijo",
     "precioVenta": 3000,
-    "id": "item_1758320726157_k2ts7sy"
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_invitaciones_digitales",
@@ -158,7 +159,7 @@
     "nombre": "Arepas venezolanas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 200
   },
@@ -167,7 +168,7 @@
     "nombre": "Arrolladitos primavera",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 150
   },
@@ -176,7 +177,7 @@
     "nombre": "Asado completo c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 645
   },
@@ -185,7 +186,7 @@
     "nombre": "Bauru c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 390
   },
@@ -194,7 +195,7 @@
     "nombre": "Bife al champiñón c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 480
   },
@@ -203,7 +204,7 @@
     "nombre": "Brochetas c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 380
   },
@@ -212,7 +213,7 @@
     "nombre": "Buñuelo de algas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 120
   },
@@ -221,7 +222,7 @@
     "nombre": "Calzones Italianos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 200
   },
@@ -230,7 +231,7 @@
     "nombre": "Cerdo relleno c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 380
   },
@@ -239,7 +240,7 @@
     "nombre": "Chivito completo c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 350
   },
@@ -248,7 +249,7 @@
     "nombre": "Cordero Asado c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 560
   },
@@ -257,7 +258,7 @@
     "nombre": "Empanadas caseras",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 200
   },
@@ -266,7 +267,7 @@
     "nombre": "Faina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 100
   },
@@ -275,7 +276,7 @@
     "nombre": "Hamburguesa completa c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 280
   },
@@ -284,7 +285,7 @@
     "nombre": "Kebabs",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 130
   },
@@ -292,7 +293,7 @@
     "id": "serv_manteleria_completa",
     "nombre": "Mantelería completa",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
+    "categoria": "Servicio de decoración",
     "precioVenta": 75,
     "calculationMethod": "porPersona",
     "precioPorPersona": 75,
@@ -302,7 +303,7 @@
     "id": "item_1757176691814_wkx7uiy",
     "nombre": "Mantelería, mobiliario y vajilla completa",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
+    "categoria": "Servicio de decoración",
     "subcategoria": "Menu",
     "calculationMethod": "porPersona",
     "precioPorPersona": 230
@@ -312,7 +313,7 @@
     "nombre": "Menú celíaco",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 700
   },
@@ -321,7 +322,7 @@
     "nombre": "Menú celíacos (Sorrentinos)",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 700
   },
@@ -330,7 +331,7 @@
     "nombre": "Menú niños - Chivitos c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 300
   },
@@ -339,7 +340,7 @@
     "nombre": "Menú niños - Panchos c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 165
   },
@@ -348,7 +349,7 @@
     "nombre": "Menú niños - Panchos medio metro c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 300
   },
@@ -357,7 +358,7 @@
     "nombre": "Menú niños 1",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 320
   },
@@ -366,7 +367,7 @@
     "nombre": "Menú niños 2",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 349
   },
@@ -375,7 +376,7 @@
     "nombre": "Menú vegetariano - Spaghetti con Salsa Pesto",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 350
   },
@@ -384,7 +385,7 @@
     "nombre": "Merluza a la crema c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 450
   },
@@ -393,7 +394,7 @@
     "nombre": "Mini brochetas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 200
   },
@@ -402,7 +403,7 @@
     "nombre": "Mini Chivitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 180
   },
@@ -410,7 +411,7 @@
     "id": "item_1758319878111_6ls6lm3",
     "nombre": "Mobiliario Completo",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
+    "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 20,
     "calculationMethod": "porPersona",
     "precioPorPersona": 70
@@ -420,7 +421,7 @@
     "nombre": "Ñoquis al queso",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 390
   },
@@ -429,7 +430,7 @@
     "nombre": "Picada caliente",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 220
   },
@@ -438,7 +439,7 @@
     "nombre": "Picada Criolla",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 220
   },
@@ -447,16 +448,25 @@
     "nombre": "Picada de mar",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 210
+  },
+  {
+    "id": "serv_picada_fiambres",
+    "nombre": "Picada de Fiambres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 170
   },
   {
     "id": "serv_1752489600043_picprem",
     "nombre": "Picada premium",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 200
   },
@@ -465,7 +475,7 @@
     "nombre": "Picada Snack",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 150
   },
@@ -474,7 +484,7 @@
     "nombre": "Pizzetitas y empanaditas de copetín",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 180
   },
@@ -483,7 +493,7 @@
     "nombre": "Planchas calientes",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 150
   },
@@ -492,7 +502,7 @@
     "nombre": "Pollo arrollado c/ guarnición",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 390
   },
@@ -501,7 +511,7 @@
     "nombre": "Ravioles a la crema",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 390
   },
@@ -510,7 +520,7 @@
     "nombre": "Salpicón de pollo",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 150
   },
@@ -519,7 +529,7 @@
     "nombre": "Sandwiches y Saladitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 220
   },
@@ -528,7 +538,7 @@
     "nombre": "Show de pizzas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 190
   },
@@ -537,7 +547,7 @@
     "nombre": "Show de pizzas + arrolladitos primavera",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 399
   },
@@ -546,7 +556,7 @@
     "nombre": "Show de pizzas + buñuelos de algas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 389
   },
@@ -555,7 +565,7 @@
     "nombre": "Show de pizzas + calzones italianos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 489
   },
@@ -564,7 +574,7 @@
     "nombre": "Show de pizzas + minichivitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 429
   },
@@ -573,7 +583,7 @@
     "nombre": "Show de pizzas + picada de fiambre",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 419
   },
@@ -582,7 +592,7 @@
     "nombre": "Show de pizzas + picada Snack",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 419
   },
@@ -591,7 +601,7 @@
     "nombre": "Show de pizzas + planchas calientes",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 419
   },
@@ -600,7 +610,7 @@
     "nombre": "Show de pizzas + sandwiches y saladitos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 469
   },
@@ -609,16 +619,16 @@
     "nombre": "Show de pizzas + Tacos mexicanos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 489
   },
   {
     "id": "serv_1752489600057_showpizfai",
-    "nombre": "Show de pizzas y faena",
+    "nombre": "Show de pizzas y faina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Menú Adolescente / Niño",
     "calculationMethod": "porPersona",
     "precioPorPersona": 389
   },
@@ -627,7 +637,7 @@
     "nombre": "Sorrentinos con salsa rosa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 420
   },
@@ -636,7 +646,7 @@
     "nombre": "Strogonoff de pollo c/ fritas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 420
   },
@@ -645,7 +655,7 @@
     "nombre": "Sushi",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 250
   },
@@ -654,7 +664,7 @@
     "nombre": "Sushi con ensalada",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 400
   },
@@ -663,7 +673,7 @@
     "nombre": "Tabla gourmet de fiambre",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 280
   },
@@ -672,7 +682,7 @@
     "nombre": "Tacos mexicanos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 240
   },
@@ -681,18 +691,9 @@
     "nombre": "Tapas saborizadas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "subcategoria": "Menu",
+    "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 100
-  },
-  {
-    "id": "item_1758319656786_6sjl431",
-    "nombre": "Vajilla completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 20,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 70
   },
   {
     "id": "item_1757539461884_w7kfwsm",
