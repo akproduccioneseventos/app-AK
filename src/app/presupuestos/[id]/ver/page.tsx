@@ -105,7 +105,33 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   };
   
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById('invoice-to-print');
+    if (printContent) {
+        const WinPrint = window.open('', '', 'width=900,height=650');
+        WinPrint?.document.write(`<html><head><title>Presupuesto</title></head><body>`);
+        // You might need to link your stylesheet here for printing styles
+        const styles = Array.from(document.styleSheets)
+          .map(styleSheet => {
+            try {
+              return Array.from(styleSheet.cssRules)
+                .map(rule => rule.cssText)
+                .join('');
+            } catch (e) {
+              // Ignore CORS errors on external stylesheets
+              return '';
+            }
+          })
+          .join('');
+        WinPrint?.document.write(`<style>${styles}</style>`);
+        WinPrint?.document.write(printContent.innerHTML);
+        WinPrint?.document.write('</body></html>');
+        WinPrint?.document.close();
+        WinPrint?.focus();
+        setTimeout(() => {
+          WinPrint?.print();
+          WinPrint?.close();
+        }, 500); // Timeout to ensure content and styles are loaded
+    }
   };
   
   const generarTextoWhatsApp = () => {
@@ -185,20 +211,19 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
-        <div className="mb-6 print:hidden flex flex-row justify-between items-start">
-          <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
-          <div className="flex gap-2 flex-wrap justify-end">
-            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
-            <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-            {presupuesto.estado !== 'Facturado' ? 
-              (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
-              presupuesto.invoiceId ? 
-              (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
-              (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
-          </div>
+      <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
+        <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+        <div className="flex gap-2 flex-wrap justify-end">
+          <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
+          <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+          {presupuesto.estado !== 'Facturado' ? 
+            (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
+            presupuesto.invoiceId ? 
+            (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
+            (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
         </div>
-        
+      </div>
+      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
         <header className="mb-6 print:mb-4">
           <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
           <div className="flex justify-between items-start text-xs print:text-[8pt]">

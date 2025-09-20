@@ -1,5 +1,21 @@
 [
   {
+    "id": "lead_1758383794303_brzwjg3",
+    "name": "Ana García",
+    "phone": "099958",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 50 Niños/Adol.\n- Costo Estimado: $ 195.200,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa\n  • Arrolladitos primavera\n  • Picada Snack\n  • Asado completo c/ guarnición\n  • Hamburguesa completa c/ fritas",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-20T15:56:34.303Z",
+    "updatedAt": "2025-09-20T15:56:34.303Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-20T15:56:34.303Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1758383434404_r5hvby5",
     "name": "Ana García",
     "phone": "099958",
@@ -1668,18 +1684,18 @@
     ]
   },
   {
-    "id": "lead_1758383794303_brzwjg3",
+    "id": "lead_1758384944650_13firgq",
     "name": "Ana García",
     "phone": "099958",
-    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 50 Niños/Adol.\n- Costo Estimado: $ 195.200,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa\n  • Arrolladitos primavera\n  • Picada Snack\n  • Asado completo c/ guarnición\n  • Hamburguesa completa c/ fritas",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 40 Niños/Adol.\n- Costo Estimado: $ 142.350,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Coffe Break\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Servicio de decoración\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Pantalla gigante y proyector\n  • Video de vida\n  • Plataforma 360\n  • Fotocabina\n  • Fuente de chocolate con mesa dulce\n  • Barra libre con tragos\n  • Cuadro de firmas\n  • Lluvia de burbujas\n  • Fuegos frios\n  • Mantelería completa\n  • Fotografía de exteriores\n  • Mesa de jugos naturales",
     "currentStageId": "s3",
-    "createdAt": "2025-09-20T15:56:34.303Z",
-    "updatedAt": "2025-09-20T15:56:34.303Z",
+    "createdAt": "2025-09-20T16:15:44.650Z",
+    "updatedAt": "2025-09-20T16:15:44.650Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-09-20T15:56:34.303Z"
+        "timestamp": "2025-09-20T16:15:44.650Z"
       }
     ]
   }
