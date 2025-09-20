@@ -51,6 +51,15 @@ const formatDate = (dateString?: string) => {
     }
 }
 
+const getCreationDateFromId = (id: string): string => {
+  const parts = id.split('_');
+  if (parts.length > 1 && !isNaN(Number(parts[1]))) {
+    const timestamp = Number(parts[1]);
+    return formatDate(new Date(timestamp).toISOString());
+  }
+  return 'N/A';
+};
+
 
 export default function CustomersPage() {
   const { toast } = useToast();
@@ -198,9 +207,9 @@ export default function CustomersPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre / Empresa</TableHead>
+                    <TableHead>Fecha Contratado</TableHead>
                     <TableHead className="flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Fecha Evento</TableHead>
                     <TableHead>Estado Cliente</TableHead>
-                    <TableHead>Teléfono</TableHead>
                     <TableHead className="text-right print:hidden">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -208,13 +217,13 @@ export default function CustomersPage() {
                   {filteredCustomers.map((customer) => (
                     <TableRow key={customer.id}>
                       <TableCell className="font-medium min-w-[200px]">{customer.companyName || customer.name}</TableCell>
+                      <TableCell className="min-w-[140px]">{getCreationDateFromId(customer.id)}</TableCell>
                       <TableCell className="min-w-[120px]">{formatDate(customer.partyDate)}</TableCell>
                       <TableCell className="min-w-[120px]">
                         <Badge variant={getCustomerStatusBadgeVariant(customer.estadoCliente)} className="text-xs print:border print:border-gray-300 print:text-black print:bg-white">
                           {customer.estadoCliente || 'Actual'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="min-w-[130px]">{customer.phone || '-'}</TableCell>
                       <TableCell className="text-right min-w-[200px] print:hidden">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/customers/${customer.id}`} passHref>

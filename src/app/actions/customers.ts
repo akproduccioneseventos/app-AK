@@ -79,7 +79,7 @@ export async function getCustomers(): Promise<Customer[]> {
     const calculatedStatus: CustomerStatus = hasFutureEvent ? 'Actual' : 'Antiguo';
 
     // Prioritize calculated status, but keep saved status if no events are found
-    const finalStatus = customerFiestas.length > 0 ? calculatedStatus : (customer.estadoCliente || 'Actual');
+    const finalStatus = customerFiestas.length > 0 ? calculatedStatus : (customer.estadoCliente || 'Antiguo');
 
     // Find the nearest upcoming event date for sorting purposes.
     const upcomingEvents = customerFiestas
