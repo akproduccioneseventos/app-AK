@@ -48,7 +48,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   
   const getDisplayNotes = (notes: string | undefined): { type: 'badge' | 'text', content: string } | null => {
     if (!notes) return null;
-    if (notes.includes('Generado desde el Simulador/Creador de Presupuestos')) {
+    if (notes.includes('Generado desde el Simulador/Creador de Presupuestos') || notes.includes('Generado desde SIMULADOR DE PRESUPUESTO')) {
         return { type: 'badge', content: 'Presupuesto al Instante' };
     }
     return { type: 'text', content: notes };
