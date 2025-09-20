@@ -44,7 +44,6 @@ const internalModules: PlanningModule[] = [
   { title: "Lista de Carga Operativa", description: "Elementos que deben trasladarse al evento.", icon: PackageSearch, href: "/fiestas/nueva/carga-operativa", status: "Disponible", actionLabel: "Gestionar Carga" },
   { title: "Reuniones con Cliente", description: "Registro privado de reuniones y acuerdos.", icon: MessageSquareText, href: "/fiestas/nueva/reuniones", status: "Disponible", actionLabel: "Gestionar Reuniones" },
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
-  { title: "Gestión Documental y Financiera", description: "Contrato, presupuesto, facturas, pagos.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Administrar Documentos" },
   { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" },
   { title: "Diseño del Salón y Mesas", description: "Disposición visual de mesas y asignación de invitados.", icon: LayoutDashboard, href: "/fiestas/nueva/invitados/layout", status: "Disponible", actionLabel: "Ir al Diseñador" }

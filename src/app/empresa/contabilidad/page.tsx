@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote, Sparkles, Wand2, Eye, Share2 } from 'lucide-react';
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, CalendarClock, Briefcase, CheckCircle, CircleDollarSign, BarChart3, ArrowLeft, Info, Palette, Settings as SettingsIcon, Banknote, Sparkles, Wand2, Eye, Share2, Archive } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invoice } from '@/types/invoice';
 import { Separator } from '@/components/ui/separator';
@@ -85,6 +85,13 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: Users,
     actionLabel: 'Ir a Clientes',
   },
+  {
+    title: 'Gestión Documental del Evento',
+    description: 'Contratos, pagos a proveedores y documentos importantes de la fiesta actual.',
+    href: '/fiestas/nueva/gestion-documental',
+    icon: Archive,
+    actionLabel: 'Gestionar Documentos',
+   },
    {
     title: 'Catálogo de Servicios y Precios',
     description: 'Define y gestiona los servicios que ofreces en los presupuestos.',
