@@ -105,7 +105,14 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   };
   
   const handlePrint = () => {
-    window.print();
+    const printContents = document.getElementById('invoice-to-print')?.innerHTML;
+    const originalContents = document.body.innerHTML;
+    if (printContents) {
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload(); // To re-attach event listeners
+    }
   };
   
   const generarTextoWhatsApp = () => {
@@ -320,7 +327,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         </section>
         
         <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-          <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
+          <p className="text-sm font-bold text-red-600">{BUDGET_DEPOSIT_NOTE_PDF}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
           {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
         </footer>
@@ -328,3 +335,5 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     </div>
   );
 }
+
+    
