@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { PresupuestoFormData } from '@/types/presupuesto';
+import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -33,6 +34,38 @@ const formatCurrency = (amount?: number) => {
 };
 
 type ServicioSeleccionadoValue = PresupuestoFormData['serviciosSeleccionados'] extends Map<any, infer V> ? V : never;
+
+function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
+  if (item.esRegalo) return 0;
+  
+  let itemTotal = 0;
+  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+
+  switch (item.calculationMethod) {
+    case 'fijo':
+      itemTotal = item.precioBase ?? precioUnitario;
+      break;
+    case 'porPersona':
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
+      break;
+    case 'ratio':
+      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
+      if (invitadosPorUnidadNum > 0) {
+        const basePrice = item.precioBase ?? precioUnitario;
+        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+      } else {
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback
+      }
+      break;
+    case 'tramos':
+      const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
+      itemTotal = tramo?.precio || 0;
+      break;
+    default: // Fallback to simple calculation
+      itemTotal = item.cantidad * precioUnitario;
+  }
+  return itemTotal;
+}
 
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
@@ -118,6 +151,20 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     }, {} as Record<string, ServicioEmpresa[]>);
   }, [serviciosFiltrados]);
 
+  const totalCalculado = useMemo(() => {
+      let total = 0;
+      formData.serviciosSeleccionados.forEach(item => {
+        const itemDataForCalc: ItemPresupuestado = {
+          ...item,
+          idServicioCatalogo: '', // dummy
+          precioUnitario: item.precioUnitarioOriginal,
+          costoTotalItem: 0 // Will be calculated
+        };
+        total += calcularCostoItem(itemDataForCalc, totalInvitados);
+      });
+      return total;
+    }, [formData.serviciosSeleccionados, totalInvitados]);
+
   return (
     <div className="space-y-6">
        <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
@@ -174,22 +221,23 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         <Card>
           <CardContent className="p-4 space-y-2">
             {formData.serviciosSeleccionados.size > 0 ? (
-                Array.from(formData.serviciosSeleccionados.values()).map(servicio => {
+                Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
                     const servicioOriginal = serviciosCatalogo.find(s => s.nombre === servicio.nombreServicio);
+                    if (!servicioOriginal) return null;
                     const item: ItemPresupuestado = {
-                        idServicioCatalogo: servicioOriginal?.id || '',
+                        idServicioCatalogo: id,
                         ...servicio,
                         precioUnitario: servicio.precioUnitarioOriginal,
                         costoTotalItem: 0 // Will be calculated in parent
                     };
                     const costoItem = calcularCostoItem(item, totalInvitados);
                     return (
-                        <div key={servicio.nombreServicio} className="flex justify-between items-center p-2 border-b last:border-b-0">
+                        <div key={id} className="flex justify-between items-center p-2 border-b last:border-b-0">
                            <div className="flex-grow">
                                 <p className="font-semibold text-sm">{servicio.nombreServicio}</p>
                                 <p className="text-xs text-muted-foreground">{formatCurrency(costoItem)}</p>
                            </div>
-                           <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveServicio(servicioOriginal?.id || '')}>
+                           <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveServicio(id)}>
                                 <Trash2 className="w-4 h-4" />
                            </Button>
                         </div>
@@ -203,17 +251,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       </div>
       <div className="pt-4 mt-4 border-t text-right">
         <p className="text-sm text-muted-foreground">Subtotal de Servicios</p>
-        <p className="text-2xl font-bold text-primary">{formatCurrency(Array.from(formData.serviciosSeleccionados.values()).reduce((sum, servicio) => {
-            const servicioOriginal = serviciosCatalogo.find(s => s.nombre === servicio.nombreServicio);
-            if (!servicioOriginal) return sum;
-            const item: ItemPresupuestado = {
-                idServicioCatalogo: servicioOriginal?.id || '',
-                ...servicio,
-                precioUnitario: servicio.precioUnitarioOriginal,
-                costoTotalItem: 0
-            };
-            return sum + calcularCostoItem(item, totalInvitados);
-        }, 0))}</p>
+        <p className="text-2xl font-bold text-primary">{formatCurrency(totalCalculado)}</p>
       </div>
     </div>
   );
