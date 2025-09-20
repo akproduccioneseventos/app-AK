@@ -246,26 +246,32 @@ export default function BudgetDisplaySettingsPage() {
     );
   }, [servicioSearchTerm, serviciosCatalogo]);
   
- const serviciosAgrupadosParaPaquetes = React.useMemo(() => {
+ const serviciosAgrupadosParaPaquetes = useMemo(() => {
     return serviciosFiltrados.reduce((acc, servicio) => {
         const categoria = servicio.categoria || 'Otros';
-        if (!acc[categoria]) acc[categoria] = [];
+        if (!acc[categoria]) {
+            acc[categoria] = [];
+        }
         acc[categoria].push(servicio);
         return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
   }, [serviciosFiltrados]);
-  const categoriasOrdenadasParaPaquetes = Object.keys(serviciosAgrupadosParaPaquetes).sort();
-  
-  const serviciosAgrupadosParaMenus = React.useMemo(() => {
+
+  const categoriasOrdenadasParaPaquetes = useMemo(() => Object.keys(serviciosAgrupadosParaPaquetes).sort(), [serviciosAgrupadosParaPaquetes]);
+
+  const serviciosAgrupadosParaMenus = useMemo(() => {
     const serviciosDeCatering = serviciosFiltrados.filter(s => s.categoria === 'Servicio de catering');
     return serviciosDeCatering.reduce((acc, servicio) => {
-      const subcategoria = servicio.subcategoria || 'General';
-      if (!acc[subcategoria]) acc[subcategoria] = [];
-      acc[subcategoria].push(servicio);
-      return acc;
+        const subcategoria = servicio.subcategoria || 'General';
+        if (!acc[subcategoria]) {
+            acc[subcategoria] = [];
+        }
+        acc[subcategoria].push(servicio);
+        return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
   }, [serviciosFiltrados]);
-  const categoriasOrdenadasParaMenus = Object.keys(serviciosAgrupadosParaMenus).sort();
+
+  const categoriasOrdenadasParaMenus = useMemo(() => Object.keys(serviciosAgrupadosParaMenus).sort(), [serviciosAgrupadosParaMenus]);
 
 
   if (isLoading || !config) {
@@ -302,7 +308,7 @@ export default function BudgetDisplaySettingsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent className="sm:max-w-2xl">
            <DialogHeader>
                 <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
                 <DialogDescription>
@@ -311,12 +317,12 @@ export default function BudgetDisplaySettingsPage() {
             </DialogHeader>
             <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
                 <SheetContent className="w-full max-w-none sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Editar Servicio</DialogTitle>
-                    <DialogDescription>
+                  <SheetHeader>
+                    <SheetTitle>Editar Servicio</SheetTitle>
+                    <SheetDescription>
                       Realiza cambios en el catálogo maestro. Esto afectará a futuros presupuestos.
-                    </DialogDescription>
-                  </DialogHeader>
+                    </SheetDescription>
+                  </SheetHeader>
                     {editingServicioId && (
                         <EditServicioForm 
                           servicioId={editingServicioId}
@@ -327,6 +333,7 @@ export default function BudgetDisplaySettingsPage() {
                         />
                     )}
                 </SheetContent>
+                
                 {currentItem && (
                     <form onSubmit={handleSaveItem}>
                     <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
@@ -343,13 +350,16 @@ export default function BudgetDisplaySettingsPage() {
                             />
                         </div>
                         <Accordion type="multiple" className="w-full space-y-2" defaultValue={modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus}>
-                            {(modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus).map(categoria => (
-                                (serviciosAgrupadosParaPaquetes[categoria] || serviciosAgrupadosParaMenus[categoria]) &&
+                            { (modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus).map(categoria => {
+                                const itemsToShow = modalType === 'paquete' ? serviciosAgrupadosParaPaquetes[categoria] : serviciosAgrupadosParaMenus[categoria];
+                                if (!itemsToShow || itemsToShow.length === 0) return null;
+                                
+                                return (
                                 <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
                                     <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
                                     <AccordionContent className="px-3 pt-0 pb-2">
                                         <div className="space-y-2 pt-2 border-t">
-                                        {(modalType === 'paquete' ? serviciosAgrupadosParaPaquetes[categoria] : serviciosAgrupadosParaMenus[categoria]).map(servicio => {
+                                        {itemsToShow.map(servicio => {
                                             const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
                                             const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
                                             return (
@@ -376,7 +386,8 @@ export default function BudgetDisplaySettingsPage() {
                                         </div>
                                     </AccordionContent>
                                 </AccordionItem>
-                            ))}
+                                );
+                            })}
                         </Accordion>
                     </div>
                     <DialogFooter>
