@@ -63,7 +63,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
         <CardHeader 
           {...attributes} 
           {...listeners} 
-          className="p-2 flex flex-row items-start gap-1 border-b cursor-grab"
+          className="p-2 flex flex-row items-start gap-1 border-b cursor-grab flex-shrink-0"
           title="Mover prospecto"
         >
            <GripVertical className="w-5 h-5 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
@@ -82,7 +82,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
             </div>
           )}
         </CardContent>
-        <CardFooter className="p-2 border-t flex justify-end items-center gap-1">
+        <CardFooter className="p-2 border-t flex justify-end items-center gap-1 flex-shrink-0">
             <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
                 <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
                     <Eye className="w-4 h-4" />
