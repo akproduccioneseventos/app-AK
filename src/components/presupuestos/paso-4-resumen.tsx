@@ -104,7 +104,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
-    // Add gifts at the end
     if (itemsRegalo.length > 0) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
@@ -207,7 +206,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     <div className="space-y-6">
       <Card className="shadow-lg print:shadow-none print:border-none" id="budget-summary-printable">
         <CardHeader className="bg-muted/10 p-4 md:p-6 print:p-2 print:bg-transparent">
-          <h2 className="text-lg md:text-xl font-bold text-center mb-2 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h2>
+          <h2 className="text-xl font-bold text-center mb-2 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h2>
           <div className="flex flex-col md:flex-row justify-between items-start text-xs print:text-[8pt] gap-2">
             <div className="space-y-px text-center md:text-left">
               <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
@@ -253,42 +252,49 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
 
           {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
             <section className="mb-4 print:mb-2">
-              {Object.entries(itemsAgrupados).map(([categoria, items]) => (
-                <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
-                  <h3 className="font-bold text-sm mb-1 border-b border-gray-200 pb-0.5">{categoria}</h3>
-                  <table className="w-full text-xs print:text-[7pt] border-collapse">
-                    <tbody>
-                      {items.map(item => (
-                        <tr key={item.idServicioCatalogo} className="border-b last:border-b-0 border-gray-100">
-                          <td className="px-1 py-1 align-top w-3/5">
-                            {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
-                          </td>
-                          <td className="px-1 py-1 text-center align-top w-[10%]">{item.cantidad}</td>
-                          <td className="px-1 py-1 text-center align-top w-[10%]">{item.unidad}</td>
-                          <td className="px-1 py-1 text-right align-top w-[15%]">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
-                          <td className="px-1 py-1 text-right align-top w-[15%] font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+              <table className="w-full text-xs print:text-[7pt] border-collapse">
+                  <thead className="print:bg-gray-100">
+                  <tr>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50">Cantidad</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {Object.entries(itemsAgrupados).map(([categoria, items]) => (
+                     <React.Fragment key={categoria}>
+                        <tr className="bg-gray-50 print:bg-gray-100">
+                          <td colSpan={4} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))}
+                        {items.map((item) => (
+                            <tr key={item.idServicioCatalogo}>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
+                                  {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
+                                </td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                            </tr>
+                        ))}
+                     </React.Fragment>
+                  ))}
+                  </tbody>
+              </table>
             </section>
           )}
-
+          
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
-            <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
-              {descuentoPromocional > 0 && displaySettings.showPriceBreakdown && ( 
-                <>
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span>{formatCurrency(subtotalBruto, true, true)}</span>
-                  </div>
+            <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>{formatCurrency(subtotalBruto, true, true)}</span>
+              </div>
+              {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
+                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
                     <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
-                </>
               )}
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
@@ -302,7 +308,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
               </div>
             </div>
           </section>
-
+          
            <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
             <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
             {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
@@ -315,12 +321,10 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
         <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
         <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
             <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
-            <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Send className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
+            <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
             <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-    
