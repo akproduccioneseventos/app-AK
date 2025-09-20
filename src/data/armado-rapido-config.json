@@ -275,10 +275,6 @@
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600034_minichiv",
-          "esRegalo": false
-        },
-        {
           "id": "serv_1752489600039_minibro",
           "esRegalo": false
         },
@@ -299,10 +295,6 @@
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600035_pizzemp",
-          "esRegalo": false
-        },
-        {
           "id": "serv_1752489600007_pollarr",
           "esRegalo": false
         },
@@ -319,50 +311,6 @@
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600056_showpiz",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600058_showpizarr",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600059_showpizbun",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600060_showpizcal",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600061_showpizmini",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600062_showpizpicfiam",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600063_showpizpicsna",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600064_showpizplancal",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600065_showpizsansal",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600066_showpiztacmex",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600057_showpizfai",
-          "esRegalo": false
-        },
-        {
           "id": "serv_1752489600013_sorren",
           "esRegalo": false
         },
@@ -375,23 +323,19 @@
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600018_sushi",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1752489600046_tabgour",
-          "esRegalo": false
-        },
-        {
           "id": "serv_1752489600037_tacmex",
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600026_tapsab",
+          "id": "serv_1752489600005_hambur",
           "esRegalo": false
         },
         {
-          "id": "serv_1752489600005_hambur",
+          "id": "serv_1752489600054_menninpanm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_menu_ninos_panchos",
           "esRegalo": false
         }
       ]

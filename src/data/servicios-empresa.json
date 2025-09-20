@@ -316,24 +316,6 @@
     "precioPorPersona": 300
   },
   {
-    "id": "serv_menu_ninos_panchos",
-    "nombre": "Menú niños - Panchos c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Adolescente / Niño",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 165
-  },
-  {
-    "id": "serv_1752489600054_menninpanm",
-    "nombre": "Menú niños - Panchos medio metro c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Adolescente / Niño",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 300
-  },
-  {
     "id": "serv_1752489600049_mennin1",
     "nombre": "Menú niños 1",
     "tipoItem": "Servicio",
@@ -395,6 +377,24 @@
     "subcategoria": "Plato Principal",
     "calculationMethod": "porPersona",
     "precioPorPersona": 390
+  },
+  {
+    "id": "serv_menu_ninos_panchos",
+    "nombre": "Panchos c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Adolescente / Niño",
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 165
+  },
+  {
+    "id": "serv_1752489600054_menninpanm",
+    "nombre": "Panchos medio metro c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Menú Adolescente / Niño",
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 300
   },
   {
     "id": "serv_1752489600040_piccal",
