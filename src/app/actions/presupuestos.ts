@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
@@ -56,20 +57,22 @@ function recalcularCostoItem(item: ItemPresupuestado, invitados: number): number
   if (item.esRegalo) return 0;
   
   let itemTotal = 0;
+  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+
   switch (item.calculationMethod) {
     case 'fijo':
-      itemTotal = item.precioBase ?? item.precioUnitario;
+      itemTotal = item.precioBase ?? precioUnitario;
       break;
     case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? item.precioUnitario) * invitados;
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        const basePrice = item.precioBase ?? item.precioUnitario;
+        const basePrice = item.precioBase ?? precioUnitario;
         itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
       } else {
-        itemTotal = item.precioBase ?? item.precioUnitario; // Fallback for single unit
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback for single unit
       }
       break;
     case 'tramos':
@@ -83,7 +86,7 @@ function recalcularCostoItem(item: ItemPresupuestado, invitados: number): number
 }
 
 
-export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string }> {
+export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto }> {
   let presupuestos = await readPresupuestosFile();
   
   // Recalculate all item costs and the grand total based on the final state of the items
@@ -120,7 +123,7 @@ export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 
   };
   presupuestos.push(nuevoPresupuesto);
   await writePresupuestosFile(presupuestos);
-  return { success: true, id: nuevoPresupuesto.id };
+  return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto };
 }
 
 export async function getPresupuestos(): Promise<Presupuesto[]> {

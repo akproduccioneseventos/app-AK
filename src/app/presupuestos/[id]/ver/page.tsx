@@ -223,21 +223,39 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
           <table className="w-full text-xs print:text-[7pt] border-collapse">
             <thead className="print:bg-gray-100">
               <tr>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Número de presupuesto</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Página</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Fecha</th>
-                <th className="border border-gray-300 print:border-gray-400 px-2 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
+                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de presupuesto</th>
+                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Página</th>
+                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
+                <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-gray-300 print:border-gray-400 px-2 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
-                <td className="border border-gray-300 print:border-gray-400 px-2 py-1">1/1</td>
-                <td className="border border-gray-300 print:border-gray-400 px-2 py-1">{formatDate(presupuesto.timestamp, true)}</td>
-                <td className="border border-gray-300 print:border-gray-400 px-2 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
+                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
+                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">1/1</td>
+                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
+                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
               </tr>
             </tbody>
           </table>
+           <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
+                <thead className="print:bg-gray-100">
+                    <tr>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
+                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.eventoFecha)}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.salonFiestas}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
+                    </tr>
+                </tbody>
+             </table>
         </section>
 
         {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
@@ -274,17 +292,15 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         
         <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
           <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
-              {descuentoPromocional > 0 && displaySettings.showPriceBreakdown && ( 
-                <>
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span>{formatCurrency(subtotalBruto, true, true)}</span>
-                  </div>
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>{formatCurrency(subtotalBruto, true, true)}</span>
+              </div>
+              {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
                     <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
                     <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
-                </>
               )}
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
