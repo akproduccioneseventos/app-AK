@@ -111,7 +111,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         document.body.innerHTML = printContents;
         window.print();
         document.body.innerHTML = originalContents;
-        window.location.reload(); // To re-attach event listeners
+        window.location.reload(); 
     }
   };
   
@@ -169,6 +169,23 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     };
 
   }, [presupuesto, armadoRapidoConfig]);
+  
+  const getDisplayQuantity = (item: ItemPresupuestado, invitados: number): string => {
+    switch (item.calculationMethod) {
+      case 'porPersona':
+        return `${invitados}`;
+      case 'ratio':
+        if (item.invitadosPorUnidad && item.invitadosPorUnidad > 0) {
+          return `${Math.ceil(invitados / item.invitadosPorUnidad)}`;
+        }
+        return `${item.cantidad}`;
+      case 'fijo':
+      case 'tramos':
+      default:
+        return `${item.cantidad}`;
+    }
+  };
+
 
   if (isLoading || !displaySettings) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
@@ -289,8 +306,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad} {item.unidad && `(${item.unidad})`}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitario, true)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item, presupuesto.invitadosCantidad)} {item.unidad && `(${item.unidad})`}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                             </tr>
                         ))}
@@ -336,4 +353,3 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   );
 }
 
-    
