@@ -27,7 +27,7 @@ export function CrmStageColumn({
   const leadIds = leads.map(l => l.id);
 
   return (
-    <Card ref={setNodeRef} className={`w-full md:w-80 md:min-w-[320px] flex-shrink-0 border-t-4 ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors flex flex-col`}>
+    <Card ref={setNodeRef} className={`w-full md:w-80 md:min-w-[320px] flex-shrink-0 border-t-4 h-full flex flex-col ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors`}>
       <CardHeader className={`p-3 ${stage.headerBgColor} ${stage.headerTextColor} rounded-t-md`}>
         <CardTitle className="text-base font-semibold flex justify-between items-center">
           <span>{stage.name}</span>
@@ -37,7 +37,7 @@ export function CrmStageColumn({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-2 flex-grow min-h-0">
-        <ScrollArea className="h-[calc(100vh-300px)] md:h-full pr-2">
+        <ScrollArea className="h-full pr-2">
             <SortableContext items={leadIds} strategy={verticalListSortingStrategy}>
             {leads.length > 0 ? (
                 leads.map(lead => (
