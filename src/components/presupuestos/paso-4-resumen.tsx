@@ -9,11 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useEffect, useState, useMemo } from 'react';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 
-// Company Info Constants from PDF - To be moved to a settings file eventually
+// Company Info Constants - To be moved to a settings file eventually
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
@@ -21,8 +22,6 @@ const COMPANY_ADDRESS_LINE1_PDF = "Salto";
 const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
 const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
-const COMPANY_LOGO_URL_PDF = "https://placehold.co/100x100/EF4444/FFFFFF.png?text=AK&font=montserrat";
-const COMPANY_LOGO_AI_HINT_PDF = "AK Producciones logo";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
 
@@ -64,14 +63,19 @@ const formatDate = (dateString?: string, shortMonth = false) => {
 export default function Paso4Resumen({ presupuesto, formData, setFormData }: Paso4ResumenProps) {
   const { toast } = useToast();
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   useEffect(() => {
     async function loadSettings() {
       setIsLoadingSettings(true);
       try {
-        const settings = await getBudgetDisplaySettings();
-        setDisplaySettings(settings);
+        const [budgetSettings, templateSettings] = await Promise.all([
+          getBudgetDisplaySettings(),
+          getInvoiceTemplateSettings(),
+        ]);
+        setDisplaySettings(budgetSettings);
+        setLogoUrl(templateSettings.logoUrl);
       } catch (e) {
         toast({title: "Error", description: "No se pudo cargar la configuración de visualización.", variant: "destructive"});
       } finally {
@@ -118,10 +122,9 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     };
 
   }, [presupuesto]);
-
+  
   const generarTextoWhatsApp = () => {
     if (!presupuesto || !displaySettings) return '';
-    const totalFinalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
     let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
     texto += `Estimado/a *${presupuesto.clienteNombre}*,\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}* para tu *${presupuesto.eventoTipo}*.\n`;
@@ -135,14 +138,14 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     texto += `\n`;
     if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-      itemsAgrupados && Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
+      Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
         texto += `*${categoria}*\n`;
         items.forEach(item => {
            if (item.esRegalo) {
              const valorRegalo = item.precioUnitario * item.cantidad;
              texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
            } else {
-            texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
+            texto += `  • ${item.nombreServicio}: *${formatCurrency(item.costoTotalItem)}*\n`;
            }
         });
         texto += `\n`;
@@ -151,8 +154,8 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     }
     if (descuentoPromocional > 0 && presupuesto.nombrePromocion) {
       texto += `🎁 *Promoción Aplicada: ${presupuesto.nombrePromocion}*\n`;
-      if (presupuesto.descuentoTipo === 'porcentaje') texto += `  Descuento: ${presupuesto.descuentoValor}% (${formatCurrency(descuentoPromocional)})\n`;
-      else texto += `  Descuento: ${formatCurrency(descuentoPromocional)}\n`;
+      if (presupuesto.descuentoTipo === 'porcentaje') texto += `  Descuento: ${presupuesto.descuentoValor}% (-${formatCurrency(descuentoPromocional)})\n`;
+      else texto += `  Descuento: -${formatCurrency(descuentoPromocional)}\n`;
       if (presupuesto.vigenciaPromocion) texto += `  Válido hasta: ${presupuesto.vigenciaPromocion}\n`;
       texto += `\n`;
     }
@@ -161,7 +164,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
   };
-
+  
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(generarTextoWhatsApp())
       .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
@@ -199,7 +202,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     displaySettings.annualAdjustmentPercentage > 0 && 
     eventYear > currentYear && 
     presupuesto?.estado !== 'Facturado';
-
+    
   return (
     <div className="space-y-6">
       <Card className="shadow-lg print:shadow-none print:border-none" id="budget-summary-printable">
@@ -211,21 +214,21 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
               <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
               <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
             </div>
-            {displaySettings.showCompanyLogo && (
+            {displaySettings.showCompanyLogo && logoUrl && (
                 <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0 self-center md:self-start">
-                    <Image src={COMPANY_LOGO_URL_PDF} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT_PDF}/>
+                    <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
           </div>
         </CardHeader>
         <CardContent className="p-4 md:p-6 print:p-2 space-y-4 print:space-y-2">
-          {displaySettings.showClientData && (
+           {displaySettings.showClientData && (
             <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-1 print:py-0.5">
               <p className="font-semibold">{presupuesto.clienteNombre}</p>
             </section>
           )}
           
-          <section className="mb-4 print:mb-2">
+           <section className="mb-4 print:mb-2">
             <table className="w-full text-xs print:text-[7pt] border-collapse">
               <thead className="print:bg-gray-100">
                 <tr>
@@ -272,7 +275,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
               ))}
             </section>
           )}
-          
+
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
             <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
               {descuentoPromocional > 0 && displaySettings.showPriceBreakdown && ( 
@@ -281,20 +284,26 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                     <span>Subtotal:</span>
                     <span>{formatCurrency(subtotalBruto, true, true)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-destructive">Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
-                    <span className="text-destructive">-{formatCurrency(descuentoPromocional, true, true)}</span>
+                  <div className="flex justify-between text-destructive">
+                    <span>Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
+                    <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
                 </>
               )}
+               {costoTotalRegalos > 0 && (
+                 <div className="flex justify-between text-green-600">
+                    <span>Ahorro en Regalos:</span>
+                    <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
+                  </div>
+               )}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">Importe total</span>
                 <span className="text-base">{formatCurrency(totalFinal, true)}</span>
               </div>
             </div>
           </section>
-          
-          <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
+
+           <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
             <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
             {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
             {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
@@ -307,9 +316,11 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
         <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
             <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
             <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Send className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
-            <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Texto</Button>
+            <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
         </CardContent>
       </Card>
     </div>
   );
 }
+
+    

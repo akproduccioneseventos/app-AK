@@ -1,5 +1,20 @@
 [
   {
+    "id": "lead_1758381234442_zacvxb0",
+    "name": "Prueba",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 40 Adultos, 10 Niños/Adol.\n- Costo Estimado: $ 46.350,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-20T15:13:54.442Z",
+    "updatedAt": "2025-09-20T15:13:54.442Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-20T15:13:54.442Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1758152764498_b3sp82x",
     "name": "nico",
     "phone": "9997",
@@ -1576,17 +1591,17 @@
     ]
   },
   {
-    "id": "lead_1758381234442_zacvxb0",
+    "id": "lead_1758381633609_kd9p98r",
     "name": "Prueba",
-    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 40 Adultos, 10 Niños/Adol.\n- Costo Estimado: $ 46.350,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 50 Niños/Adol.\n- Costo Estimado: $ 72.700,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
     "currentStageId": "s3",
-    "createdAt": "2025-09-20T15:13:54.442Z",
-    "updatedAt": "2025-09-20T15:13:54.442Z",
+    "createdAt": "2025-09-20T15:20:33.609Z",
+    "updatedAt": "2025-09-20T15:20:33.609Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-09-20T15:13:54.442Z"
+        "timestamp": "2025-09-20T15:20:33.609Z"
       }
     ]
   }
