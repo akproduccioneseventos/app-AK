@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save, Loader2, PlusCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
+import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { savePresupuesto } from '@/app/actions/presupuestos';
@@ -16,8 +16,7 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
-import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
-import Paso4Resumen from '@/components/presupuestos/paso-4-resumen'; // Import the new summary component
+import Paso4Resumen from '@/components/presupuestos/paso-4-resumen'; 
 import { Progress } from '@/components/ui/progress';
 import { generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 
@@ -259,8 +258,8 @@ function NuevoPresupuestoContent() {
             {paso < 3 ? (
                 <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {['Datos del Evento', 'Selección de Servicios', 'Resumen'][paso-1]}</CardTitle>
-                        <Progress value={(paso / 3) * 100} className="w-full h-2 mt-2" />
+                        <CardTitle className="font-headline text-2xl">Paso {paso} de 2: {['Datos del Evento', 'Selección de Servicios'][paso-1]}</CardTitle>
+                        <Progress value={(paso / 2) * 100} className="w-full h-2 mt-2" />
                     </CardHeader>
                     <CardContent>
                         {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
@@ -275,8 +274,8 @@ function NuevoPresupuestoContent() {
                             <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
                         </Button>
                         <Button onClick={handleNext} disabled={isSaving}>
-                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
-                            {paso < 2 ? 'Siguiente' : 'Generar Resumen Final'}
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : (paso < 2 ? <ArrowRight className="w-4 h-4 ml-2" /> : <Save className="w-4 h-4 mr-2" />)}
+                            {isSaving ? 'Guardando...' : (paso < 2 ? 'Siguiente' : 'Guardar y Generar Resumen')}
                         </Button>
                     </CardFooter>
                 </Card>

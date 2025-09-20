@@ -85,31 +85,55 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     loadSettings();
   }, [toast]);
 
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal } = useMemo(() => {
+    if (!presupuesto) {
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0 };
+    }
+    
+    const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
+    const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+
+    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
+        const categoria = item.categoriaServicio || 'Otros Servicios';
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+    }, {} as Record<string, ItemPresupuestado[]>);
+    
+    const sortedKeys = Object.keys(agrupados).sort((a,b) => a.localeCompare(b));
+    const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
+    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
+
+    if (itemsRegalo.length > 0) {
+      sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
+    }
+    
+    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
+    const bruto = presupuesto.costoTotalEstimado;
+    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+    
+    return {
+      itemsAgrupados: sortedAgrupados,
+      costoTotalRegalos: costoRegalos,
+      subtotalBruto: bruto,
+      descuentoPromocional: Math.max(0, descPromo),
+      totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+    };
+
+  }, [presupuesto]);
+
   if (isLoadingSettings) {
-    return <div className="flex justify-center items-center h-64"><p>Cargando configuración de visualización...</p></div>;
+    return <div className="flex justify-center items-center h-64"><p>Cargando previsualización...</p></div>;
   }
   if (!presupuesto || !displaySettings) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-8">
         <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <p className="text-xl font-semibold">Generando resumen...</p>
-        <p className="text-muted-foreground">Asegúrate de haber completado los pasos anteriores o que la configuración de visualización esté disponible.</p>
+        <p className="text-xl font-semibold">Error al Generar Resumen</p>
+        <p className="text-muted-foreground">No se pudieron cargar todos los datos necesarios.</p>
       </div>
     );
   }
-
-  const costoTotalAntesDescuento = presupuesto.costoTotalEstimado;
-  let descuentoAplicado = 0;
-  const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
-
-  if (formData.descuentoTipo && descuentoValorNum > 0) {
-    if (formData.descuentoTipo === 'porcentaje') {
-      descuentoAplicado = (costoTotalAntesDescuento * descuentoValorNum) / 100;
-    } else {
-      descuentoAplicado = descuentoValorNum;
-    }
-  }
-  const totalFinalConDescuento = costoTotalAntesDescuento - descuentoAplicado;
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
@@ -120,66 +144,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     displaySettings?.annualAdjustmentPercentage && 
     displaySettings.annualAdjustmentPercentage > 0 && 
     eventYear > currentYear;
-
-  const itemsAgrupados = presupuesto.itemsPresupuestados.reduce((acc, item) => {
-      const categoria = item.categoriaServicio || 'Otros Servicios';
-      if (!acc[categoria]) acc[categoria] = [];
-      acc[categoria].push(item);
-      return acc;
-  }, {} as Record<string, ItemPresupuestado[]>);
-
-  const generarTextoWhatsApp = () => {
-    let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
-    texto += `Estimado/a *${presupuesto.clienteNombre}*,\n\n`;
-    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}* para tu *${presupuesto.eventoTipo}*.\n`;
-    if (displaySettings.showClientData) {
-      texto += `*Salón:* ${presupuesto.salonFiestas}\n`;
-    }
-    if (displaySettings.showEventTypeAndDate) {
-      texto += `*Fecha del Evento:* ${formatDate(presupuesto.eventoFecha)}\n`;
-      texto += `*Cantidad de Invitados:* ${presupuesto.invitadosCantidad}\n`;
-    }
-    texto += `\n`;
-    if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
-      texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-      Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
-        texto += `*${categoria}*\n`;
-        items.forEach(item => {
-           if (item.esRegalo) {
-             const valorRegalo = item.precioUnitario * item.cantidad;
-             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
-           } else {
-            texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-           }
-        });
-        texto += `\n`;
-      });
-      texto += `  SUBTOTAL: *${formatCurrency(costoTotalAntesDescuento)}*\n\n`;
-    }
-    if (descuentoAplicado > 0 && formData.nombrePromocion) {
-      texto += `🎁 *Promoción Aplicada: ${formData.nombrePromocion}*\n`;
-      if (formData.descuentoTipo === 'porcentaje') texto += `  Descuento: ${formData.descuentoValor}% (${formatCurrency(descuentoAplicado)})\n`;
-      else texto += `  Descuento: ${formatCurrency(descuentoAplicado)}\n`;
-      if (formData.vigenciaPromocion) texto += `  Válido hasta: ${formData.vigenciaPromocion}\n`;
-      texto += `\n`;
-    }
-    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinalConDescuento, true, true)}*\n\n`;
-    if(presupuesto.notas && presupuesto.notas.trim() !== '' && displaySettings.showPaymentMethodNotes){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
-    texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
-    return texto;
-  };
-
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(generarTextoWhatsApp())
-      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
-      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
-  };
-  
-  const handleWhatsAppSend = () => window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
-  
-  const handlePrint = () => {
-    window.print();
-  };
 
   return (
     <div className="space-y-6">
@@ -268,7 +232,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                 <>
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>{formatCurrency(costoTotalAntesDescuento, true, true)}</span>
+                    <span>{formatCurrency(subtotalBruto, true, true)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-destructive">Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
@@ -278,7 +242,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
               )}
               <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500">
                 <span className="text-base">Importe total</span>
-                <span className="text-base">{formatCurrency(totalFinalConDescuento, true)}</span>
+                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
               </div>
             </div>
           </section>
@@ -292,14 +256,9 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
       </Card>
       
       <Card className="shadow-md border-primary/20 print:hidden mt-6">
-        <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle><CardDescription>Copia, imprime o envía el resumen.</CardDescription></CardHeader>
-        <CardContent className="p-4 md:p-6 space-y-3">
-           <Textarea value={generarTextoWhatsApp()} readOnly rows={10} className="text-xs bg-muted/30 border-dashed"/>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Button variant="outline" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
-            <Button onClick={handleWhatsAppSend} className="w-full bg-green-500 hover:bg-green-600"><Send className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
-            <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
-          </div>
+        <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
+        <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
+            <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
         </CardContent>
       </Card>
     </div>

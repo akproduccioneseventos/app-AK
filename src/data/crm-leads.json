@@ -1,5 +1,21 @@
 [
   {
+    "id": "lead_1758152764498_b3sp82x",
+    "name": "nico",
+    "phone": "9997",
+    "notes": "Generado desde SIMULADOR DE PRESUPUESTO v2.\n- Invitados: 50 Adultos, 0 Niños/Adol.\n- Costo Estimado: $ 42.126,00\n- Paquete de Servicios: \"Paquete Premium\"\n- Servicios Incluidos:\n  • Arepas venezolanas\n  • Calzones Italianos\n  • Merluza a la crema c/ guarnición\n  • Organizacion de la fiesta (REGALO)\n  • Coffe Break (REGALO)\n  • Album digital personalizado (REGALO)\n  • Invitaciones digitales (REGALO)\n  • Servicio de discoteca\n  • Servicio de decoración\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Pantalla gigante y proyector (REGALO)\n  • Video de vida (REGALO)\n  • Plataforma 360\n  • Fotocabina\n  • Fuente de chocolate con mesa dulce\n  • Barra libre con tragos\n  • Cuadro de firmas\n  • Refrescos",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-17T23:46:04.498Z",
+    "updatedAt": "2025-09-17T23:46:04.498Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-17T23:46:04.498Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1757733923939_d8rthlg",
     "name": "nico",
     "notes": "Generado desde SIMULADOR DE PRESUPUESTO.\nMenú: \"Catering Personalizado\"\nPaquete de Servicios: \"Paquete Intermedio (Copia)\"\nTipo: Evento desde Simulador de Presupuesto\nInvitados: 50\nSalón: A confirmar\nPresupuesto Estimado: $ 78.166,00",
@@ -1560,18 +1576,17 @@
     ]
   },
   {
-    "id": "lead_1758152764498_b3sp82x",
-    "name": "nico",
-    "phone": "9997",
-    "notes": "Generado desde SIMULADOR DE PRESUPUESTO v2.\n- Invitados: 50 Adultos, 0 Niños/Adol.\n- Costo Estimado: $ 42.126,00\n- Paquete de Servicios: \"Paquete Premium\"\n- Servicios Incluidos:\n  • Arepas venezolanas\n  • Calzones Italianos\n  • Merluza a la crema c/ guarnición\n  • Organizacion de la fiesta (REGALO)\n  • Coffe Break (REGALO)\n  • Album digital personalizado (REGALO)\n  • Invitaciones digitales (REGALO)\n  • Servicio de discoteca\n  • Servicio de decoración\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Pantalla gigante y proyector (REGALO)\n  • Video de vida (REGALO)\n  • Plataforma 360\n  • Fotocabina\n  • Fuente de chocolate con mesa dulce\n  • Barra libre con tragos\n  • Cuadro de firmas\n  • Refrescos",
+    "id": "lead_1758381234442_zacvxb0",
+    "name": "Prueba",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 40 Adultos, 10 Niños/Adol.\n- Costo Estimado: $ 46.350,00\n- Servicios Incluidos:\n  • Organizacion de la fiesta\n  • Album digital personalizado\n  • Invitaciones digitales\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
     "currentStageId": "s3",
-    "createdAt": "2025-09-17T23:46:04.498Z",
-    "updatedAt": "2025-09-17T23:46:04.498Z",
+    "createdAt": "2025-09-20T15:13:54.442Z",
+    "updatedAt": "2025-09-20T15:13:54.442Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-09-17T23:46:04.498Z"
+        "timestamp": "2025-09-20T15:13:54.442Z"
       }
     ]
   }
