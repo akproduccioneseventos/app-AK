@@ -153,6 +153,21 @@ export default function ArmadoRapidoPage() {
         loadInitialData();
     }, [toast]);
     
+    const handleEntradaChange = (servicioId: string, checked: boolean) => {
+        setSelectedEntradas(prev => {
+            if (checked) {
+                if (prev.length < 2) {
+                    return [...prev, servicioId];
+                } else {
+                    toast({ title: "Límite alcanzado", description: "Puedes seleccionar hasta 2 entradas.", variant: "default" });
+                    return prev;
+                }
+            } else {
+                return prev.filter(id => id !== servicioId);
+            }
+        });
+    };
+    
     const { costoTotal, subtotal, descuento, serviciosDetallados, totalRegalos } = useMemo(() => {
         if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, descuento: 0, serviciosDetallados: [], totalRegalos: 0 };
         
@@ -353,7 +368,7 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Gastronomía', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                     <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
                 <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
@@ -372,14 +387,14 @@ export default function ArmadoRapidoPage() {
                     )}
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in-20">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu Gastronomía</h3>
-                            <div className="space-y-4"><Label>Entradas (debe elegir al menos 2)</Label>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => setSelectedEntradas(p => checked ? [...p, s.id] : p.filter(id => id !== s.id))}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
+                            <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elije tu menú gastronómico</h3>
+                            <div className="space-y-4"><Label>Entradas (puedes elegir hasta 2)</Label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label>Plato Principal (Adultos)</Label><Select value={selectedPrincipal} onValueChange={setSelectedPrincipal}><SelectTrigger><SelectValue placeholder="Selecciona un plato..."/></SelectTrigger><SelectContent>{principalesDisponibles.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</SelectItem>)}</SelectContent></Select></div>
-                                <div className="space-y-2"><Label>Menú Niños/Adolescentes</Label><Select value={selectedMenuNino} onValueChange={setSelectedMenuNino} disabled={ninos === 0}><SelectTrigger><SelectValue placeholder={ninos > 0 ? "Selecciona un menú..." : "Añade niños en Paso 1"}/></SelectTrigger><SelectContent>{menusNinoDisponibles.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</SelectItem>)}</SelectContent></Select></div>
+                            <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
+                                <RadioGroup value={selectedPrincipal} onValueChange={setSelectedPrincipal} className="grid grid-cols-1 md:grid-cols-2 gap-2">{principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)}</RadioGroup>
                             </div>
+                            <div className="space-y-2"><Label>Menú Niños/Adolescentes (elige 1)</Label><Select value={selectedMenuNino} onValueChange={setSelectedMenuNino} disabled={ninos === 0}><SelectTrigger><SelectValue placeholder={ninos > 0 ? "Selecciona un menú..." : "Añade niños en Paso 1"}/></SelectTrigger><SelectContent>{menusNinoDisponibles.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</SelectItem>)}</SelectContent></Select></div>
                         </div>
                     )}
                      {step === 3 && (
@@ -520,7 +535,7 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !clienteContacto.trim() || adultos <= 0)) || (step === 2 && (!selectedPrincipal || selectedEntradas.length < 2))}>
+                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !clienteContacto.trim() || adultos <= 0)) || (step === 2 && (!selectedPrincipal || selectedEntradas.length !== 2)) || (step === 3 && !selectedPaqueteId)}>
                             Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (
@@ -528,6 +543,7 @@ export default function ArmadoRapidoPage() {
                              <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar</Button>
                              <Button type="button" onClick={handleShareWhatsApp} variant="secondary"><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
                              <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar</Button>
+                             <Button onClick={handleGenerateLead} disabled={isGeneratingLead}>{isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2"/>}{isGeneratingLead ? 'Enviando...' : 'Solicitar Presupuesto'}</Button>
                         </div>
                     )}
                 </CardFooter>
@@ -535,3 +551,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    
