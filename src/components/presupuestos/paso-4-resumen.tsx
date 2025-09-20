@@ -2,22 +2,18 @@
 'use client';
 
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon, Gift } from 'lucide-react';
+import { AlertTriangle, ClipboardCopy, Send, Printer, Gift, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useEffect, useState, useMemo } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 
-// Company Info Constants from PDF
+// Company Info Constants from PDF - To be moved to a settings file eventually
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
@@ -104,6 +100,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
+    // Add gifts at the end
     if (itemsRegalo.length > 0) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
@@ -121,6 +118,63 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     };
 
   }, [presupuesto]);
+
+  const generarTextoWhatsApp = () => {
+    if (!presupuesto || !displaySettings) return '';
+    const totalFinalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+    let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
+    texto += `Estimado/a *${presupuesto.clienteNombre}*,\n\n`;
+    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}* para tu *${presupuesto.eventoTipo}*.\n`;
+    if (displaySettings.showClientData) {
+      texto += `*Salón:* ${presupuesto.salonFiestas}\n`;
+    }
+    if (displaySettings.showEventTypeAndDate) {
+      texto += `*Fecha del Evento:* ${formatDate(presupuesto.eventoFecha)}\n`;
+      texto += `*Cantidad de Invitados:* ${presupuesto.invitadosCantidad}\n`;
+    }
+    texto += `\n`;
+    if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
+      texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
+      itemsAgrupados && Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
+        texto += `*${categoria}*\n`;
+        items.forEach(item => {
+           if (item.esRegalo) {
+             const valorRegalo = item.precioUnitario * item.cantidad;
+             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
+           } else {
+            texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
+           }
+        });
+        texto += `\n`;
+      });
+      texto += `  SUBTOTAL: *${formatCurrency(subtotalBruto)}*\n\n`;
+    }
+    if (descuentoPromocional > 0 && presupuesto.nombrePromocion) {
+      texto += `🎁 *Promoción Aplicada: ${presupuesto.nombrePromocion}*\n`;
+      if (presupuesto.descuentoTipo === 'porcentaje') texto += `  Descuento: ${presupuesto.descuentoValor}% (${formatCurrency(descuentoPromocional)})\n`;
+      else texto += `  Descuento: ${formatCurrency(descuentoPromocional)}\n`;
+      if (presupuesto.vigenciaPromocion) texto += `  Válido hasta: ${presupuesto.vigenciaPromocion}\n`;
+      texto += `\n`;
+    }
+    texto += `------------------------------------\n💰 *TOTAL FINAL: ${formatCurrency(totalFinal, true, true)}*\n\n`;
+    if(presupuesto.notas && presupuesto.notas.trim() !== '' && displaySettings.showPaymentMethodNotes){ texto += `📝 *Notas Adicionales:*\n${presupuesto.notas}\n\n`; }
+    texto += `------------------------------------\n\n${BUDGET_DEPOSIT_NOTE_PDF}\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
+    return texto;
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(generarTextoWhatsApp())
+      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
+      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
+  };
+  
+  const handleShareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
+  };
+  
+  const handlePrint = () => {
+    window.print();
+  };
 
   if (isLoadingSettings) {
     return <div className="flex justify-center items-center h-64"><p>Cargando previsualización...</p></div>;
@@ -143,7 +197,8 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
   const showAnnualAdjustmentLegend = 
     displaySettings?.annualAdjustmentPercentage && 
     displaySettings.annualAdjustmentPercentage > 0 && 
-    eventYear > currentYear;
+    eventYear > currentYear && 
+    presupuesto?.estado !== 'Facturado';
 
   return (
     <div className="space-y-6">
@@ -195,40 +250,32 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
 
           {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
             <section className="mb-4 print:mb-2">
-              <table className="w-full text-xs print:text-[7pt] border-collapse">
-                  <thead className="print:bg-gray-100">
-                  <tr>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-2/5">Artículo</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Unidad</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
-                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  {presupuesto.itemsPresupuestados.map((item) => (
-                      <tr key={item.idServicioCatalogo}>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                        {item.esRegalo ? <span className="text-primary font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio}</span> : item.nombreServicio}
-                      </td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">$</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">
-                          {descuentoAplicado > 0 && formData.descuentoTipo === 'porcentaje' && !item.esRegalo ? `${formData.descuentoValor}%` : ''}
-                      </td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
-                      </tr>
-                  ))}
-                  </tbody>
-              </table>
+              {Object.entries(itemsAgrupados).map(([categoria, items]) => (
+                <div key={categoria} className="mb-3 print:mb-1.5 print:break-inside-avoid">
+                  <h3 className="font-bold text-sm mb-1 border-b border-gray-200 pb-0.5">{categoria}</h3>
+                  <table className="w-full text-xs print:text-[7pt] border-collapse">
+                    <tbody>
+                      {items.map(item => (
+                        <tr key={item.idServicioCatalogo} className="border-b last:border-b-0 border-gray-100">
+                          <td className="px-1 py-1 align-top w-3/5">
+                            {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
+                          </td>
+                          <td className="px-1 py-1 text-center align-top w-[10%]">{item.cantidad}</td>
+                          <td className="px-1 py-1 text-center align-top w-[10%]">{item.unidad}</td>
+                          <td className="px-1 py-1 text-right align-top w-[15%]">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
+                          <td className="px-1 py-1 text-right align-top w-[15%] font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
             </section>
           )}
           
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
             <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
-              {descuentoAplicado > 0 && displaySettings.showPriceBreakdown && ( 
+              {descuentoPromocional > 0 && displaySettings.showPriceBreakdown && ( 
                 <>
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
@@ -236,11 +283,11 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                   </div>
                   <div className="flex justify-between">
                     <span className="text-destructive">Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
-                    <span className="text-destructive">-{formatCurrency(descuentoAplicado, true, true)}</span>
+                    <span className="text-destructive">-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
                 </>
               )}
-              <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500">
+              <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">Importe total</span>
                 <span className="text-base">{formatCurrency(totalFinal, true)}</span>
               </div>
@@ -259,6 +306,8 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
         <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
         <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
             <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
+            <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Send className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
+            <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Texto</Button>
         </CardContent>
       </Card>
     </div>
