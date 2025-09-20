@@ -316,8 +316,8 @@ export default function ArmadoRapidoPage() {
     };
 
     const handleGenerateLead = async () => {
-        if (!clienteNombre.trim() || !clienteContacto.trim()) {
-            toast({ title: "Datos incompletos", description: "Por favor, completa tu nombre y contacto para solicitar el presupuesto.", variant: "destructive" });
+        if (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim())) {
+            toast({ title: "Datos incompletos o incorrectos", description: "Por favor, completa tu nombre y un celular válido de 9 dígitos.", variant: "destructive" });
             return;
         }
         setIsGeneratingLead(true);
@@ -368,7 +368,7 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Elije tu menú gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                     <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
                 <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
@@ -377,7 +377,11 @@ export default function ArmadoRapidoPage() {
                             <h3 className="font-semibold text-lg flex items-center gap-2"><User className="text-primary w-5 h-5"/>Define tu evento</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="cliente-nombre">Tu Nombre Completo *</Label><Input id="cliente-nombre" value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ingresa tu nombre" required/></div>
-                                <div className="space-y-2"><Label htmlFor="cliente-contacto">Tu Celular *</Label><Input id="cliente-contacto" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="Ej: 099123456" required/></div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="cliente-contacto">Tu Celular *</Label>
+                                    <Input id="cliente-contacto" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="Ej: 098355530" required/>
+                                    <p className="text-xs text-muted-foreground">Debe tener 9 dígitos.</p>
+                                </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
@@ -535,7 +539,7 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !clienteContacto.trim() || adultos <= 0)) || (step === 2 && (!selectedPrincipal || selectedEntradas.length !== 2)) || (step === 3 && !selectedPaqueteId)}>
+                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && !selectedPrincipal) || (step === 3 && !selectedPaqueteId)}>
                             Siguiente<ArrowRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (
@@ -551,5 +555,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
