@@ -110,7 +110,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
-    const pageUrl = window.location.href;
+    const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
@@ -180,10 +180,12 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     displaySettings.annualAdjustmentPercentage > 0 && 
     eventYear > currentYear && 
     presupuesto?.estado !== 'Facturado';
+    
+  const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
 
   return (
-    <div className="max-w-4xl mx-auto bg-white print:bg-white font-sans text-gray-800 print:text-black">
-      <div className="p-4 md:p-8 print:p-2" id="invoice-to-print">
+    <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
+      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
         <div className="mb-6 print:hidden flex flex-row justify-between items-start">
           <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
@@ -214,7 +216,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         </header>
 
         {displaySettings.showClientData && (
-          <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-1 print:py-0.5">
+          <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-2 print:py-1">
             <p><span className="font-semibold">Cliente:</span> {presupuesto.clienteNombre}</p>
             {presupuesto.clienteContacto && <p><span className="font-semibold">Contacto:</span> {presupuesto.clienteContacto}</p>}
           </section>
@@ -222,23 +224,21 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         
            <section className="mb-4 print:mb-2">
             <table className="w-full text-xs print:text-[7pt] border-collapse">
-                <thead className="print:bg-gray-100">
-                    <tr>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Documento</th>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Página</th>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">1/1</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
-                    </tr>
-                </tbody>
-             </table>
+              <thead className="print:bg-gray-100">
+                <tr>
+                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Presupuesto</th>
+                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
+                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
+                </tr>
+              </tbody>
+            </table>
              <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
                 <thead className="print:bg-gray-100">
                     <tr>
@@ -250,7 +250,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                 </thead>
                 <tbody>
                     <tr>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo} {protagonistas && `de ${protagonistas}`}</td>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.eventoFecha)}</td>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.salonFiestas}</td>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
