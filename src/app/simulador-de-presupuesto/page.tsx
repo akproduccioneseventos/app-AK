@@ -176,10 +176,10 @@ export default function ArmadoRapidoPage() {
         const totalInvitados = adultos + ninos;
         const includedServicesList: ServicioDetallado[] = [];
 
-        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
+        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string, cantidadEspecifica?: number) => {
             if (!servicio) return;
-            const cantidadParaCalculo = servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio' ? totalInvitados : 1;
-            const costoItem = calcularCostoServicio(servicio, totalInvitados);
+            const cantidadParaCalculo = cantidadEspecifica ?? (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio' ? totalInvitados : 1);
+            const costoItem = calcularCostoServicio(servicio, cantidadParaCalculo);
             
             if (!esRegalo) {
                 calculatedSubtotal += costoItem;
@@ -189,7 +189,7 @@ export default function ArmadoRapidoPage() {
             
             let unidadDisplay = 'evento';
             if (servicio.calculationMethod === 'porPersona') {
-                unidadDisplay = 'persona';
+                unidadDisplay = 'personas';
             } else if (servicio.calculationMethod === 'ratio' && servicio.unidad) {
                 unidadDisplay = servicio.unidad;
             }
@@ -214,21 +214,7 @@ export default function ArmadoRapidoPage() {
             addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false);
         }
         if (selectedMenuNino && ninos > 0) {
-            const menuNinoServicio = serviciosCatalogo.find(s => s.id === selectedMenuNino);
-             if (menuNinoServicio) {
-                const costoItemNino = calcularCostoServicio(menuNinoServicio, ninos);
-                calculatedSubtotal += costoItemNino;
-                includedServicesList.push({
-                    id: menuNinoServicio.id,
-                    nombre: menuNinoServicio.nombre,
-                    esRegalo: false,
-                    costo: costoItemNino,
-                    categoria: menuNinoServicio.categoria || 'Catering',
-                    precioUnitario: menuNinoServicio.precioPorPersona || 0,
-                    cantidad: ninos,
-                    unidad: 'niño/adol.'
-                });
-             }
+            addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, '(Niños/Adol.)', ninos);
         }
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
@@ -536,7 +522,7 @@ export default function ArmadoRapidoPage() {
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                             <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
-                              <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
+                              <p className="text-red-600 font-bold text-lg">Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.</p>
                             </footer>
                         </div>
                     )}

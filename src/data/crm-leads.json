@@ -14,5 +14,21 @@
         "timestamp": "2025-09-20T20:31:50.679Z"
       }
     ]
+  },
+  {
+    "id": "lead_1758400917350_8bdldzx",
+    "name": "nico",
+    "phone": "999788888",
+    "notes": "Generado desde el Simulador/Creador de Presupuestos.\n- Invitados: 50 Adultos, 5 Niños/Adol.\n- Costo Estimado: $ 92.310,00\n- Paquete de Servicios: \"Paquete Básico\"\n- Servicios Incluidos:\n  • Salpicón de pollo\n  • Show de pizzas\n  • Asado completo c/ guarnición\n  • Hamburguesa completa c/ fritas\n  • Organizacion de la fiesta (REGALO)\n  • Album digital personalizado (REGALO)\n  • Invitaciones digitales (REGALO)\n  • Servicio de discoteca\n  • Mozo\n  • Mozo de cocina\n  • Fotografía de la fiesta\n  • Torta principal\n  • Decoración Básica\n  • Mantelería completa",
+    "currentStageId": "s3",
+    "createdAt": "2025-09-20T20:41:57.350Z",
+    "updatedAt": "2025-09-20T20:41:57.350Z",
+    "history": [
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-09-20T20:41:57.350Z"
+      }
+    ]
   }
 ]
