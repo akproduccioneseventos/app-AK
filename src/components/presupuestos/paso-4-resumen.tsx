@@ -10,12 +10,12 @@ import { Label } from '@/components/ui/label';
 import { AlertTriangle, ClipboardCopy, Send, Printer, Tag, Percent, FileText as FileTextIcon, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Dispatch, SetStateAction } from 'react';
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
-import { Separator } from '../ui/separator'; 
+import { Separator } from '../ui/separator';
 
 // Company Info Constants from PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
@@ -85,10 +85,6 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     loadSettings();
   }, [toast]);
 
-  const handleDiscountChange = (field: keyof Pick<PresupuestoFormData, 'nombrePromocion' | 'descuentoTipo' | 'descuentoValor' | 'vigenciaPromocion'>, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   if (isLoadingSettings) {
     return <div className="flex justify-center items-center h-64"><p>Cargando configuración de visualización...</p></div>;
   }
@@ -102,7 +98,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     );
   }
 
-  const costoTotalAntesDescuento = presupuesto.itemsPresupuestados.reduce((sum, item) => sum + (item.esRegalo ? 0 : item.costoTotalItem), 0);
+  const costoTotalAntesDescuento = presupuesto.costoTotalEstimado;
   let descuentoAplicado = 0;
   const descuentoValorNum = parseFloat(formData.descuentoValor || '0');
 
@@ -125,6 +121,12 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
     displaySettings.annualAdjustmentPercentage > 0 && 
     eventYear > currentYear;
 
+  const itemsAgrupados = presupuesto.itemsPresupuestados.reduce((acc, item) => {
+      const categoria = item.categoriaServicio || 'Otros Servicios';
+      if (!acc[categoria]) acc[categoria] = [];
+      acc[categoria].push(item);
+      return acc;
+  }, {} as Record<string, ItemPresupuestado[]>);
 
   const generarTextoWhatsApp = () => {
     let texto = `🎉 *¡Presupuesto para tu Evento!* 🎉\n\n`;
@@ -137,23 +139,22 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
       texto += `*Fecha del Evento:* ${formatDate(presupuesto.eventoFecha)}\n`;
       texto += `*Cantidad de Invitados:* ${presupuesto.invitadosCantidad}\n`;
     }
-    if (presupuesto.protagonista1Nombre) {
-      texto += `*Agasajado/s:* ${presupuesto.protagonista1Nombre}`;
-      if (presupuesto.protagonista2Nombre) texto += ` y ${presupuesto.protagonista2Nombre}`;
-      texto += `\n`;
-    }
-    if (presupuesto.nombreEmpresa) texto += `*Empresa:* ${presupuesto.nombreEmpresa}\n`;
     texto += `\n`;
     if (displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0) {
       texto += `------------------------------------\n✨ *DETALLE DE SERVICIOS* ✨\n------------------------------------\n\n`;
-      presupuesto.itemsPresupuestados.forEach(item => {
-        if (item.esRegalo) {
-             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(item.precioUnitario * item.cantidad)})\n`;
-        } else {
+      Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
+        texto += `*${categoria}*\n`;
+        items.forEach(item => {
+           if (item.esRegalo) {
+             const valorRegalo = item.precioUnitario * item.cantidad;
+             texto += `  🎁 *REGALO:* ${item.nombreServicio} (Valor: ${formatCurrency(valorRegalo)})\n`;
+           } else {
             texto += `  • ${item.nombreServicio} (${item.cantidad} ${item.unidad || 'unid.'} x ${formatCurrency(item.precioUnitario)} c/u): *${formatCurrency(item.costoTotalItem)}*\n`;
-        }
+           }
+        });
+        texto += `\n`;
       });
-      texto += `\n  SUBTOTAL: *${formatCurrency(costoTotalAntesDescuento)}*\n\n`;
+      texto += `  SUBTOTAL: *${formatCurrency(costoTotalAntesDescuento)}*\n\n`;
     }
     if (descuentoAplicado > 0 && formData.nombrePromocion) {
       texto += `🎁 *Promoción Aplicada: ${formData.nombrePromocion}*\n`;
@@ -170,14 +171,13 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
 
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(generarTextoWhatsApp())
-      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado." }))
+      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
       .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
   };
   
   const handleWhatsAppSend = () => window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   
   const handlePrint = () => {
-    console.log('Print button on Resumen step clicked, attempting window.print()');
     window.print();
   };
 
@@ -186,27 +186,23 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
       <Card className="shadow-lg print:shadow-none print:border-none" id="budget-summary-printable">
         <CardHeader className="bg-muted/10 p-4 md:p-6 print:p-2 print:bg-transparent">
           <h2 className="text-lg md:text-xl font-bold text-center mb-2 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h2>
-          <div className="flex flex-col md:flex-row justify-between items-start text-xs print:text-[8pt]">
-            <div className="space-y-px mb-2 md:mb-0">
+          <div className="flex flex-col md:flex-row justify-between items-start text-xs print:text-[8pt] gap-2">
+            <div className="space-y-px text-center md:text-left">
               <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-              <p>{COMPANY_ADDRESS_LINE1_PDF}</p>
-              <p>{COMPANY_ADDRESS_LINE2_PDF}</p>
-              <p>{COMPANY_CONTACT_EMAIL_PDF}</p>
-              <p>{COMPANY_WEBSITE_PDF}</p>
+              <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+              <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
             </div>
             {displaySettings.showCompanyLogo && (
-                <div className="w-24 h-24 print:w-16 print:h-16 flex-shrink-0 self-center md:self-start">
-                    <Image src={COMPANY_LOGO_URL_PDF} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={100} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT_PDF}/>
+                <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0 self-center md:self-start">
+                    <Image src={COMPANY_LOGO_URL_PDF} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint={COMPANY_LOGO_AI_HINT_PDF}/>
                 </div>
             )}
           </div>
         </CardHeader>
         <CardContent className="p-4 md:p-6 print:p-2 space-y-4 print:space-y-2">
-          {displaySettings.showClientData && displaySettings.showEventTypeAndDate && (
-            <section className="my-2 print:my-1 text-sm print:text-[9pt] text-center">
-                <p>
-                <span className="font-semibold">{presupuesto.clienteNombre}</span>{presupuesto.eventoTipo ? ` ${presupuesto.eventoTipo}` : ''}{presupuesto.eventoFecha ? ` - ${formatDate(presupuesto.eventoFecha, true)}` : ''}
-                </p>
+          {displaySettings.showClientData && (
+            <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-1 print:py-0.5">
+              <p className="font-semibold">{presupuesto.clienteNombre}</p>
             </section>
           )}
           
@@ -223,8 +219,8 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id === 'temp-summary' ? 'N/A' : presupuesto.id.split('_')[1]?.substring(0,4) || 'N/A'}</td>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id === 'temp-summary' ? 'Borrador' : presupuesto.id.split('_').pop()?.substring(0,6)}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_')[1]?.substring(0,4) || 'N/A'}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">1/1</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
@@ -242,7 +238,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Cantidad</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Unidad</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Precio</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
+                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50 w-[10%]">Desc.%</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50 w-[15%]">Importe total</th>
                   </tr>
                   </thead>
@@ -250,18 +246,15 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                   {presupuesto.itemsPresupuestados.map((item) => (
                       <tr key={item.idServicioCatalogo}>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                          {item.esRegalo ? <span className="flex items-center gap-1 text-primary font-semibold"><Gift className="w-3 h-3"/> {item.nombreServicio}</span> : item.nombreServicio}
-                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 && !item.esRegalo && (
-                          <div className="text-gray-500 print:text-gray-600 text-[6pt]">{formData.descuentoValor}% de descuento</div>
-                          )}
+                        {item.esRegalo ? <span className="text-primary font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio}</span> : item.nombreServicio}
                       </td>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{item.cantidad}</td>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">$</td>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario, false)}</span> : formatCurrency(item.precioUnitario, false)}</td>
                       <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">
-                          {formData.descuentoTipo === 'porcentaje' && descuentoValorNum > 0 && !item.esRegalo ? `${formData.descuentoValor}%` : ''}
+                          {descuentoAplicado > 0 && formData.descuentoTipo === 'porcentaje' && !item.esRegalo ? `${formData.descuentoValor}%` : ''}
                       </td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
+                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, false) : formatCurrency(item.costoTotalItem, false)}</td>
                       </tr>
                   ))}
                   </tbody>
@@ -270,7 +263,7 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
           )}
           
           <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
-            <div className="w-full max-w-[250px] print:max-w-[200px] space-y-0.5">
+            <div className="w-full max-w-xs print:max-w-[200px] space-y-0.5">
               {descuentoAplicado > 0 && displaySettings.showPriceBreakdown && ( 
                 <>
                   <div className="flex justify-between">
@@ -278,79 +271,27 @@ export default function Paso4Resumen({ presupuesto, formData, setFormData }: Pas
                     <span>{formatCurrency(costoTotalAntesDescuento, true, true)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-red-600">Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
-                    <span className="text-red-600">-{formatCurrency(descuentoAplicado, true, true)}</span>
+                    <span className="text-destructive">Descuento{formData.nombrePromocion ? ` (${formData.nombrePromocion})` : ''}:</span>
+                    <span className="text-destructive">-{formatCurrency(descuentoAplicado, true, true)}</span>
                   </div>
                 </>
               )}
               <div className="flex justify-between font-bold pt-1 border-t border-gray-400 print:border-gray-500">
-                <span>Importe total</span>
-                <span>{formatCurrency(totalFinalConDescuento, true, true)}</span>
+                <span className="text-base">Importe total</span>
+                <span className="text-base">{formatCurrency(totalFinalConDescuento, true)}</span>
               </div>
             </div>
           </section>
           
-          <Separator className="my-4 print:hidden"/>
-          <Card className="bg-muted/20 p-4 print:hidden">
-            <CardTitle className="text-md font-medium mb-3 flex items-center gap-2"><Tag className="text-primary"/>Aplicar Promoción / Descuento (Opcional)</CardTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1"><Label htmlFor="promo-nombre">Nombre Promoción</Label><Input id="promo-nombre" value={formData.nombrePromocion || ''} onChange={e => handleDiscountChange('nombrePromocion', e.target.value)} placeholder="Ej: Promo Invierno"/></div>
-              <div className="space-y-1"><Label htmlFor="promo-vigencia">Vigencia</Label><Input id="promo-vigencia" value={formData.vigenciaPromocion || ''} onChange={e => handleDiscountChange('vigenciaPromocion', e.target.value)} placeholder="Ej: Hasta 30/06/2024"/></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 items-end">
-              <div className="space-y-1"><Label htmlFor="descuento-tipo">Tipo Descuento</Label>
-                <Select value={formData.descuentoTipo || ''} onValueChange={val => handleDiscountChange('descuentoTipo', val as PresupuestoFormData['descuentoTipo'])}>
-                  <SelectTrigger id="descuento-tipo"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
-                  <SelectContent><SelectItem value="porcentaje">Porcentaje (%)</SelectItem><SelectItem value="fijo">Monto Fijo ($)</SelectItem></SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="descuento-valor" className="flex items-center gap-1">
-                  {formData.descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
-                  Valor Descuento
-                </Label>
-                <Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} placeholder="Ej: 10 o 5000" min="0" step="any" disabled={!formData.descuentoTipo}/>
-              </div>
-            </div>
-            {descuentoAplicado > 0 && <p className="text-sm text-destructive text-right mt-2">Descuento Aplicado: -{formatCurrency(descuentoAplicado)}</p>}
-          </Card>
-
-          <Separator className="my-4"/>
-          
-          {showAnnualAdjustmentLegend && (
-            <div className="my-4 p-3 border-l-4 border-orange-400 bg-orange-50 text-orange-700 text-xs">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <AlertTriangle className="h-5 w-5 text-orange-500" />
-                </div>
-                <div className="ml-3">
-                  <p className="font-bold">Notificación de Ajuste Anual</p>
-                  <p className="mt-1">
-                    Este presupuesto podría estar sujeto a un ajuste del <strong>{displaySettings.annualAdjustmentPercentage}%</strong> por realizarse en un año futuro. Esto se reflejará en la facturación final.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div className="space-y-2 print:hidden">
-            <Label htmlFor="notas-presupuesto" className="text-base font-semibold text-primary/90">Notas Adicionales para el Resumen (Internas/Cliente)</Label>
-            <Textarea id="notas-presupuesto" placeholder="Condiciones, validez, formas de pago..." value={formData.notas} onChange={(e) => setFormData(prev => ({...prev, notas: e.target.value}))} rows={4} className="text-base p-3"/>
-          </div>
-          
           <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
             <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
             {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-            {showAnnualAdjustmentLegend && (
-              <p className="mt-1 print:mt-0.5 text-orange-600">
-                  Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
-              </p>
-            )}
+            {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
           </footer>
         </CardContent>
       </Card>
       
-      <Card className="shadow-md border-primary/20 print:hidden">
+      <Card className="shadow-md border-primary/20 print:hidden mt-6">
         <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle><CardDescription>Copia, imprime o envía el resumen.</CardDescription></CardHeader>
         <CardContent className="p-4 md:p-6 space-y-3">
            <Textarea value={generarTextoWhatsApp()} readOnly rows={10} className="text-xs bg-muted/30 border-dashed"/>

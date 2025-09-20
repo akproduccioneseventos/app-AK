@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tag, Percent } from 'lucide-react';
+import { Tag, Percent, Trash2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useMemo } from 'react';
 
@@ -17,6 +17,7 @@ interface Paso3ResumenProps {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
   totalCalculado: number;
+  totalInvitados: number; // Added to recalculate costs
 }
 
 const formatCurrency = (amount?: number) => {
@@ -24,7 +25,40 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function Paso3Resumen({ formData, setFormData, totalCalculado }: Paso3ResumenProps) {
+// Re-defining calculation function locally if it's not exported from parent
+function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
+  if (item.esRegalo) return 0;
+  
+  let itemTotal = 0;
+  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+
+  switch (item.calculationMethod) {
+    case 'fijo':
+      itemTotal = item.precioBase ?? precioUnitario;
+      break;
+    case 'porPersona':
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
+      break;
+    case 'ratio':
+      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
+      if (invitadosPorUnidadNum > 0) {
+        const basePrice = item.precioBase ?? precioUnitario;
+        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+      } else {
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback
+      }
+      break;
+    case 'tramos':
+      const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
+      itemTotal = tramo?.precio || 0;
+      break;
+    default: // Fallback to simple calculation
+      itemTotal = item.cantidad * precioUnitario;
+  }
+  return itemTotal;
+}
+
+export default function Paso3Resumen({ formData, setFormData, totalCalculado, totalInvitados }: Paso3ResumenProps) {
 
   const handleDiscountChange = (field: keyof Pick<PresupuestoFormData, 'nombrePromocion' | 'descuentoTipo' | 'descuentoValor' | 'vigenciaPromocion'>, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -56,7 +90,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado }: 
             newSelected.set(servicioId, {
               ...currentServicio,
               [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-               esRegalo: false,
+               esRegalo: false, // Uncheck gift if price/qty is manually changed
             });
         }
       }
@@ -85,25 +119,37 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado }: 
         <div>
             <h3 className="text-lg font-medium font-headline text-primary mb-2">Servicios Seleccionados</h3>
             <div className="space-y-3">
-            {Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => (
-                <div key={id} className="p-3 border rounded-md">
-                    <p className="font-semibold">{servicio.nombreServicio}</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 items-end">
-                        <div className="space-y-1">
-                            <Label htmlFor={`qty-${id}`} className="text-xs">Cantidad</Label>
-                            <Input id={`qty-${id}`} type="number" value={servicio.cantidad} onChange={e => handleServicioDetailChange(id, 'cantidad', e.target.value)} className="h-8 text-sm" />
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor={`price-${id}`} className="text-xs">Precio Unit. ($)</Label>
-                            <Input id={`price-${id}`} type="number" value={servicio.precioUnitarioPresupuesto} onChange={e => handleServicioDetailChange(id, 'precioUnitarioPresupuesto', e.target.value)} className="h-8 text-sm" />
-                        </div>
-                        <div className="flex items-center space-x-2 pt-5">
-                            <Checkbox id={`gift-${id}`} checked={servicio.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(id, 'esRegalo', !!checked)} />
-                            <Label htmlFor={`gift-${id}`} className="text-xs">Marcar como Regalo</Label>
+            {Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
+                const item: ItemPresupuestado = {
+                    idServicioCatalogo: id, ...servicio, 
+                    precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
+                };
+                const costoItem = calcularCostoItem(item, totalInvitados);
+
+                return (
+                    <div key={id} className="p-3 border rounded-md">
+                        <p className="font-semibold">{servicio.nombreServicio}</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 items-end">
+                            <div className="space-y-1">
+                                <Label htmlFor={`qty-${id}`} className="text-xs">Cantidad</Label>
+                                <Input id={`qty-${id}`} type="number" value={servicio.cantidad} onChange={e => handleServicioDetailChange(id, 'cantidad', e.target.value)} className="h-8 text-sm" />
+                            </div>
+                            <div className="space-y-1">
+                                <Label htmlFor={`price-${id}`} className="text-xs">Precio Unit. ($)</Label>
+                                <Input id={`price-${id}`} type="number" value={servicio.precioUnitarioPresupuesto} onChange={e => handleServicioDetailChange(id, 'precioUnitarioPresupuesto', e.target.value)} className="h-8 text-sm" />
+                            </div>
+                            <div className="flex items-center space-x-2 pt-5">
+                                <Checkbox id={`gift-${id}`} checked={servicio.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(id, 'esRegalo', !!checked)} />
+                                <Label htmlFor={`gift-${id}`} className="text-xs">Regalo</Label>
+                            </div>
+                             <div className="text-right">
+                                <p className="text-xs text-muted-foreground">Total Item</p>
+                                <p className="font-semibold">{formatCurrency(costoItem)}</p>
+                             </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                )
+            })}
             </div>
         </div>
 
@@ -153,4 +199,3 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado }: 
     </div>
   );
 }
-

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Loader2, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, PlusCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -17,6 +17,7 @@ import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
+import Paso4Resumen from '@/components/presupuestos/paso-4-resumen'; // Import the new summary component
 import { Progress } from '@/components/ui/progress';
 import { generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 
@@ -100,6 +101,7 @@ function NuevoPresupuestoContent() {
     const [paso, setPaso] = useState(1);
     
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
+    const [finalPresupuestoData, setFinalPresupuestoData] = useState<Presupuesto | null>(null);
 
     useEffect(() => {
         try {
@@ -139,12 +141,17 @@ function NuevoPresupuestoContent() {
         fetchInitialData();
     }, [searchParams, toast, fetchServicios]);
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (paso === 1) {
              if (!formData.clienteNombre.trim() || !formData.eventoTipo.trim() || !formData.salonFiestas.trim() || !formData.eventoFecha || (formData.invitadosAdultos ?? 0) < 0) {
                  toast({ title: "Requerido", description: "Por favor, completa Cliente, Salón, Tipo de Evento, Fecha y Nº de Adultos.", variant: "destructive" });
                  return;
              }
+        }
+        if (paso === 2) {
+            // Automatically save and create lead when moving to the final summary step
+            await handleSaveAndProceed();
+            return;
         }
         setPaso(p => p < 3 ? p + 1 : p);
     };
@@ -165,7 +172,7 @@ function NuevoPresupuestoContent() {
       return total;
     }, [formData.serviciosSeleccionados, totalInvitados]);
 
-    const handleSave = async () => {
+    const handleSaveAndProceed = async () => {
         const descuentoValorNum = parseFloat(formData.descuentoValor || '0') || 0;
         let descuentoAplicado = 0;
         if (formData.descuentoTipo && descuentoValorNum > 0) {
@@ -174,7 +181,7 @@ function NuevoPresupuestoContent() {
         const totalFinalConDescuento = totalCalculado - descuentoAplicado;
 
 
-        const presupuestoAGuardar = {
+        const presupuestoAGuardar: Omit<Presupuesto, 'id'> = {
             clienteNombre: formData.clienteNombre,
             eventoTipo: formData.eventoTipo,
             eventoFecha: formData.eventoFecha?.toISOString() || '',
@@ -212,6 +219,7 @@ function NuevoPresupuestoContent() {
             descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
             totalConDescuento: descuentoAplicado > 0 ? totalFinalConDescuento : undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
+            estado: 'Borrador',
             timestamp: new Date().toISOString(),
             notas: formData.notas
         };
@@ -220,7 +228,7 @@ function NuevoPresupuestoContent() {
         try {
           const result = await savePresupuesto(presupuestoAGuardar);
           if (result.success && result.id) {
-            
+            setFinalPresupuestoData({ ...presupuestoAGuardar, id: result.id });
              // Create a lead in CRM
             await generateLeadFromQuickBudget({
                 clienteNombre: presupuestoAGuardar.clienteNombre,
@@ -231,9 +239,9 @@ function NuevoPresupuestoContent() {
                 paqueteNombre: undefined
             });
 
-            toast({ title: "¡Presupuesto Guardado!", description: `Se ha creado el presupuesto y se ha añadido un prospecto al CRM.` });
+            toast({ title: "Presupuesto Guardado", description: `Se creó el presupuesto y un prospecto en el CRM.` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
-            router.push('/presupuestos');
+            setPaso(3); // Proceed to final summary step
           } else { throw new Error(result.error || "Error al guardar"); }
         } catch (error: any) {
           toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
@@ -248,36 +256,33 @@ function NuevoPresupuestoContent() {
                 <h1 className="text-3xl font-bold tracking-tight font-headline">Central de Presupuestos</h1>
                 <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
             </div>
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {['Datos del Evento', 'Selección de Servicios', 'Resumen y Descuentos'][paso-1]}</CardTitle>
-                     <Progress value={(paso / 3) * 100} className="w-full h-2 mt-2" />
-                </CardHeader>
-                <CardContent>
-                    {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
-                        <>
-                            {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
-                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados}/>}
-                            {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados}/>}
-                        </>
-                    )}
-                </CardContent>
-                <CardFooter className="flex justify-between border-t pt-4">
-                    <Button variant="outline" onClick={() => setPaso(p => p - 1)} disabled={paso === 1 || isSaving}>
-                        <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
-                    </Button>
-                    {paso < 3 ? (
+            {paso < 3 ? (
+                <Card className="shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {['Datos del Evento', 'Selección de Servicios', 'Resumen'][paso-1]}</CardTitle>
+                        <Progress value={(paso / 3) * 100} className="w-full h-2 mt-2" />
+                    </CardHeader>
+                    <CardContent>
+                        {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
+                            <>
+                                {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
+                                {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados}/>}
+                            </>
+                        )}
+                    </CardContent>
+                    <CardFooter className="flex justify-between border-t pt-4">
+                        <Button variant="outline" onClick={() => setPaso(p => p - 1)} disabled={paso === 1 || isSaving}>
+                            <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
+                        </Button>
                         <Button onClick={handleNext} disabled={isSaving}>
-                            Siguiente 
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
+                            {paso < 2 ? 'Siguiente' : 'Generar Resumen Final'}
                         </Button>
-                    ) : (
-                        <Button onClick={handleSave} disabled={isSaving}>
-                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                            Guardar Presupuesto
-                        </Button>
-                    )}
-                </CardFooter>
-            </Card>
+                    </CardFooter>
+                </Card>
+            ) : (
+                finalPresupuestoData && <Paso4Resumen presupuesto={finalPresupuestoData} formData={formData} setFormData={setFormData} />
+            )}
         </div>
     );
 }
