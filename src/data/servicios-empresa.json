@@ -1,4 +1,3 @@
-
 [
   {
     "id": "item_1758320726157_k2ts7sy",
@@ -290,25 +289,6 @@
     "precioPorPersona": 130
   },
   {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 75,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 75,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "item_1757176691814_wkx7uiy",
-    "nombre": "Mantelería, mobiliario y vajilla completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Menu",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 230
-  },
-  {
     "id": "serv_1752489600047_mencel",
     "nombre": "Menú celíaco",
     "tipoItem": "Servicio",
@@ -408,15 +388,6 @@
     "precioPorPersona": 180
   },
   {
-    "id": "item_1758319878111_6ls6lm3",
-    "nombre": "Mobiliario Completo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 20,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 70
-  },
-  {
     "id": "serv_1752489600009_noquis",
     "nombre": "Ñoquis al queso",
     "tipoItem": "Servicio",
@@ -444,15 +415,6 @@
     "precioPorPersona": 220
   },
   {
-    "id": "serv_1752489600042_picmar",
-    "nombre": "Picada de mar",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 210
-  },
-  {
     "id": "serv_picada_fiambres",
     "nombre": "Picada de Fiambres",
     "tipoItem": "Servicio",
@@ -460,6 +422,15 @@
     "subcategoria": "Entrada",
     "calculationMethod": "porPersona",
     "precioPorPersona": 170
+  },
+  {
+    "id": "serv_1752489600042_picmar",
+    "nombre": "Picada de mar",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "subcategoria": "Entrada",
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 210
   },
   {
     "id": "serv_1752489600043_picprem",
@@ -713,6 +684,34 @@
     "precioVenta": 8000,
     "calculationMethod": "fijo",
     "tramosDePrecio": []
+  },
+  {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "precioVenta": 75,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 75,
+    "tramosDePrecio": []
+  },
+  {
+    "id": "item_1757176691814_wkx7uiy",
+    "nombre": "Mantelería, mobiliario y vajilla completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "subcategoria": "Menu",
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 230
+  },
+  {
+    "id": "item_1758319878111_6ls6lm3",
+    "nombre": "Mobiliario Completo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 20,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 70
   },
   {
     "id": "item_1757258437308_s0lgq1z",

@@ -246,7 +246,7 @@ export default function BudgetDisplaySettingsPage() {
     );
   }, [servicioSearchTerm, serviciosCatalogo]);
   
- const serviciosAgrupadosParaPaquetes = useMemo(() => {
+  const serviciosAgrupadosParaPaquetes = useMemo(() => {
     return serviciosFiltrados.reduce((acc, servicio) => {
         const categoria = servicio.categoria || 'Otros';
         if (!acc[categoria]) {
@@ -376,10 +376,12 @@ export default function BudgetDisplaySettingsPage() {
                                                             <Edit className="w-3.5 h-3.5"/>
                                                         </Button>
                                                     </div>
-                                                    {isInItem && <div className="flex items-center gap-2 pl-7 pt-2 mt-2 border-t">
+                                                    {isInItem && modalType === 'paquete' && (
+                                                      <div className="flex items-center gap-2 pl-7 pt-2 mt-2 border-t">
                                                         <Switch id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)}/>
                                                         <Label htmlFor={`gift-${servicio.id}`} className="text-xs text-green-600 font-medium flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
-                                                    </div>}
+                                                      </div>
+                                                    )}
                                                 </div>
                                             )
                                         })}
