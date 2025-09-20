@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -392,7 +392,8 @@ export default function ArmadoRapidoPage() {
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elije tu menú gastronómico</h3>
-                            <div className="space-y-4"><Label>Entradas (puedes elegir hasta 2)</Label>
+                            <div className="space-y-4">
+                                <Label>Elige 2</Label>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
                             </div>
                             <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
