@@ -1,6 +1,174 @@
 [
   {
     "clienteNombre": "Ana García",
+    "clienteContacto": "099958",
+    "eventoTipo": "XV años",
+    "eventoFecha": "2025-10-04T03:00:00.000Z",
+    "invitadosCantidad": 100,
+    "invitadosAdultos": 50,
+    "invitadosNinos": 50,
+    "salonFiestas": "Club Uruguay",
+    "protagonista1Nombre": "aaaa",
+    "protagonista2Nombre": "",
+    "nombreEmpresa": "",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "item_1756940568854_u5m4prf",
+        "nombreServicio": "Organizacion de la fiesta",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 8000,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "item_1757282105396_39i6zkn",
+        "nombreServicio": "Album digital personalizado",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 3000,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Servicio de fotografía",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_digitales",
+        "nombreServicio": "Invitaciones digitales",
+        "cantidad": 1,
+        "precioUnitario": 1500,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "tramosDePrecio": []
+      },
+      {
+        "idServicioCatalogo": "item_1757258361278_fs8ba4x",
+        "nombreServicio": "Servicio de discoteca",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 9000,
+        "precioUnitarioPresupuesto": 9000,
+        "costoTotalItem": 15000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca",
+        "calculationMethod": "tramos",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1758224519401",
+            "desde": 1,
+            "hasta": 80,
+            "precio": 9000
+          },
+          {
+            "id": "tramo_1758224542306",
+            "desde": 81,
+            "hasta": 130,
+            "precio": 15000
+          },
+          {
+            "id": "tramo_1758224566309",
+            "desde": 131,
+            "hasta": 250,
+            "precio": 25000
+          }
+        ]
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozo",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "costoTotalItem": 11600,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "ratio",
+        "precioBase": 2900,
+        "invitadosPorUnidad": 25,
+        "tramosDePrecio": []
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "costoTotalItem": 11600,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "ratio",
+        "precioBase": 2900,
+        "invitadosPorUnidad": 25,
+        "tramosDePrecio": []
+      },
+      {
+        "idServicioCatalogo": "item_1757281980225_3x3nbzo",
+        "nombreServicio": "Fotografía de la fiesta",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 9000,
+        "precioUnitarioPresupuesto": 9000,
+        "costoTotalItem": 9000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de fotografía",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "item_1757280489194_y9qozwm",
+        "nombreServicio": "Torta principal",
+        "cantidad": 1,
+        "unidad": "Por evento",
+        "precioUnitario": 100,
+        "precioUnitarioPresupuesto": 100,
+        "costoTotalItem": 10000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de repostería",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 100
+      },
+      {
+        "idServicioCatalogo": "item_1758319049180_rrpf3lf",
+        "nombreServicio": "Decoración Básica",
+        "cantidad": 1,
+        "precioUnitario": 8000,
+        "precioUnitarioPresupuesto": 8000,
+        "costoTotalItem": 8000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de decoración",
+        "calculationMethod": "fijo",
+        "tramosDePrecio": []
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería completa",
+        "cantidad": 1,
+        "precioUnitario": 75,
+        "precioUnitarioPresupuesto": 75,
+        "costoTotalItem": 7500,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de decoración",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 75,
+        "tramosDePrecio": []
+      }
+    ],
+    "costoTotalEstimado": 72700,
+    "nombrePromocion": "",
+    "vigenciaPromocion": "",
+    "estado": "Borrador",
+    "timestamp": "2025-09-20T15:41:02.513Z",
+    "notas": "",
+    "id": "pres_1758382862513_tbh98wb"
+  },
+  {
+    "clienteNombre": "Ana García",
     "eventoTipo": "Cumpleaños infantil",
     "eventoFecha": "2025-09-27T03:00:00.000Z",
     "invitadosCantidad": 100,

@@ -154,7 +154,6 @@ function NuevoPresupuestoContent() {
              }
         }
         if (paso === 2) {
-            // Automatically save and create lead when moving to the final summary step
             await handleSaveAndProceed();
             return;
         }
@@ -288,7 +287,7 @@ function NuevoPresupuestoContent() {
                     </CardFooter>
                 </Card>
             ) : (
-                finalPresupuestoData && <Paso4Resumen presupuesto={finalPresupuestoData} formData={formData} setFormData={setFormData} />
+                finalPresupuestoData && <Paso4Resumen presupuesto={finalPresupuestoData} />
             )}
         </div>
     );
