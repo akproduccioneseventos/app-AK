@@ -2,55 +2,16 @@
 'use server';
 
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
-import fs from 'fs/promises';
-import path from 'path';
+import { readData, writeData } from '@/lib/data-service';
 
-const EMPLEADOS_COLLECTION_JSON = 'empleados.json';
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const empleadosFilePath = path.join(dataDirectory, EMPLEADOS_COLLECTION_JSON);
-
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(dataDirectory);
-    } catch {
-        await fs.mkdir(dataDirectory, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
-}
-
-async function readEmpleadosFile(): Promise<Empleado[]> {
-  await ensureDataFileExists(empleadosFilePath, '[]');
-  try {
-    const fileContent = await fs.readFile(empleadosFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Empleado[];
-  } catch (error) {
-    console.error('Error reading empleados file, returning empty array:', error);
-    return [];
-  }
-}
-
-async function writeEmpleadosFile(data: Empleado[]): Promise<void> {
-  await ensureDataFileExists(empleadosFilePath, '[]');
-  const sortedData = data.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
-  await fs.writeFile(empleadosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
-
-async function initializeLocalEmpleadosFile() {
-  await readEmpleadosFile();
-}
-initializeLocalEmpleadosFile();
+const EMPLEADOS_FILE = 'empleados.json';
 
 export async function getEmpleados(): Promise<Empleado[]> {
-  return readEmpleadosFile();
+  return readData<Empleado[]>(EMPLEADOS_FILE, []);
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
-  const empleados = await readEmpleadosFile();
+  const empleados = await getEmpleados();
   return empleados.find(e => e.id === id) || null;
 }
 
@@ -61,12 +22,11 @@ export async function saveEmpleado(
     return { success: false, error: 'El nombre del empleado es obligatorio.' };
   }
 
-  let empleados = await readEmpleadosFile();
+  let empleados = await getEmpleados();
   let finalEmpleadoData: Empleado;
   let empleadoId: string;
 
   if ('id' in empleadoData && empleadoData.id) {
-    // Update
     empleadoId = empleadoData.id;
     const index = empleados.findIndex(e => e.id === empleadoId);
     if (index === -1) {
@@ -81,7 +41,6 @@ export async function saveEmpleado(
     empleados[index] = { ...empleados[index], ...dataToUpdate };
     finalEmpleadoData = empleados[index];
   } else {
-    // Create
     empleadoId = `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newEmpleadoData = empleadoData as NuevoEmpleadoFormData;
     finalEmpleadoData = {
@@ -93,17 +52,17 @@ export async function saveEmpleado(
     };
     empleados.push(finalEmpleadoData);
   }
-  await writeEmpleadosFile(empleados);
+  await writeData(EMPLEADOS_FILE, empleados, (a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
   return { success: true, id: empleadoId, empleado: finalEmpleadoData };
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
-  let empleados = await readEmpleadosFile();
+  let empleados = await getEmpleados();
   const initialLength = empleados.length;
   empleados = empleados.filter(e => e.id !== id);
   if (empleados.length === initialLength) {
     return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
   }
-  await writeEmpleadosFile(empleados);
+  await writeData(EMPLEADOS_FILE, empleados);
   return { success: true };
 }

@@ -2,45 +2,29 @@
 'use server';
 
 import type { SocialPost } from '@/types/social-media';
+import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 
-const SOCIAL_MEDIA_DATA_DIR = path.join(process.cwd(), 'src', 'data');
-const POSTS_FILE_PATH = path.join(SOCIAL_MEDIA_DATA_DIR, 'social-posts.json');
+const POSTS_FILE = 'social-posts.json';
+const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const ASSETS_DIR_NAME = 'social-media-assets';
-const assetsDirectoryPath = path.join(SOCIAL_MEDIA_DATA_DIR, ASSETS_DIR_NAME);
+const assetsDirectoryPath = path.join(DATA_DIR, ASSETS_DIR_NAME);
 
 async function ensureDataDirectoriesExist() {
-  try { await fs.access(SOCIAL_MEDIA_DATA_DIR); } catch { await fs.mkdir(SOCIAL_MEDIA_DATA_DIR, { recursive: true }); }
+  try { await fs.access(DATA_DIR); } catch { await fs.mkdir(DATA_DIR, { recursive: true }); }
   try { await fs.access(assetsDirectoryPath); } catch { await fs.mkdir(assetsDirectoryPath, { recursive: true }); }
 }
-
-async function readPostsFile(): Promise<SocialPost[]> {
-  try {
-    await ensureDataDirectoriesExist();
-    await fs.access(POSTS_FILE_PATH);
-    const fileContent = await fs.readFile(POSTS_FILE_PATH, 'utf-8');
-    return fileContent.trim() === '' ? [] : JSON.parse(fileContent);
-  } catch (error) {
-    await writePostsFile([]); // Create file if it doesn't exist
-    return [];
-  }
-}
-
-async function writePostsFile(data: SocialPost[]): Promise<void> {
-  await ensureDataDirectoriesExist();
-  const sortedData = data.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
-  await fs.writeFile(POSTS_FILE_PATH, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
+ensureDataDirectoriesExist();
 
 export async function getSocialPosts(): Promise<SocialPost[]> {
-  return readPostsFile();
+  return readData<SocialPost[]>(POSTS_FILE, []);
 }
 
 export async function saveSocialPost(
   formData: FormData
 ): Promise<{ success: boolean; post?: SocialPost; error?: string }> {
-  let posts = await readPostsFile();
+  let posts = await getSocialPosts();
   const postId = (formData.get('id') as string) || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const mediaFile = formData.get('mediaFile') as File | null;
   const autoPublish = formData.get('autoPublish') === 'true';
@@ -58,9 +42,7 @@ export async function saveSocialPost(
       
       mediaUrl = `/api/social-media-assets/${newFilename}`;
       mediaType = mediaFile.type.startsWith('image/') ? 'image' : 'video';
-
     } catch (fileError: any) {
-      console.error("Error saving media file:", fileError);
       return { success: false, error: `Error al guardar el archivo multimedia: ${fileError.message}` };
     }
   }
@@ -88,39 +70,33 @@ export async function saveSocialPost(
   let finalPost: SocialPost;
 
   if (existingIndex > -1) {
-    // Update
     finalPost = { ...posts[existingIndex], ...postData, updatedAt: new Date().toISOString() };
     posts[existingIndex] = finalPost;
   } else {
-    // Create
     finalPost = { ...postData, id: postId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     posts.push(finalPost);
   }
   
   if (autoPublish) {
     console.log(`[SIMULATION] Attempting to auto-publish post ${postId} to ${finalPost.platform}.`);
-    // Simulate API call delay and potential failure
     await new Promise(resolve => setTimeout(resolve, 1500));
-    const isSuccess = Math.random() > 0.1; // 90% success rate
+    const isSuccess = Math.random() > 0.1;
     if (!isSuccess) {
       return { success: false, error: `Error simulado al publicar en ${finalPost.platform}.` };
     }
   }
 
-  await writePostsFile(posts);
+  await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
   return { success: true, post: finalPost };
 }
 
 
 export async function deleteSocialPost(postId: string): Promise<{ success: boolean, error?: string }> {
-  let posts = await readPostsFile();
+  let posts = await getSocialPosts();
   const postToDelete = posts.find(p => p.id === postId);
 
-  if (!postToDelete) {
-    return { success: false, error: "Publicación no encontrada." };
-  }
+  if (!postToDelete) return { success: false, error: "Publicación no encontrada." };
 
-  // Delete associated media file if it exists
   if (postToDelete.mediaUrl) {
     try {
       const filename = path.basename(postToDelete.mediaUrl);
@@ -132,6 +108,6 @@ export async function deleteSocialPost(postId: string): Promise<{ success: boole
   }
   
   const updatedPosts = posts.filter(p => p.id !== postId);
-  await writePostsFile(updatedPosts);
+  await writeData(POSTS_FILE, updatedPosts);
   return { success: true };
 }

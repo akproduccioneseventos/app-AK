@@ -2,42 +2,29 @@
 'use server';
 
 import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
+import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 
-const SOCIAL_GALLERY_DIR = path.join(process.cwd(), 'src', 'data', 'social-gallery');
-const SOCIAL_GALLERY_METADATA_FILE = path.join(SOCIAL_GALLERY_DIR, 'metadata.json');
-const MAX_PHOTOS_PER_EVENT = 200; // Límite de fotos por evento
+const SOCIAL_GALLERY_DIR_NAME = 'social-gallery';
+const SOCIAL_GALLERY_DIR = path.join(process.cwd(), 'src', 'data', SOCIAL_GALLERY_DIR_NAME);
+const METADATA_FILE = path.join(SOCIAL_GALLERY_DIR_NAME, 'metadata.json');
+const MAX_PHOTOS_PER_EVENT = 200;
 
 async function ensureDataDirectoryExists() {
-  try {
-    await fs.access(SOCIAL_GALLERY_DIR);
-  } catch {
-    await fs.mkdir(SOCIAL_GALLERY_DIR, { recursive: true });
-  }
+  try { await fs.access(SOCIAL_GALLERY_DIR); } catch { await fs.mkdir(SOCIAL_GALLERY_DIR, { recursive: true }); }
 }
 
-async function readMetadataFile(): Promise<SocialGalleryPost[]> {
-  try {
-    await ensureDataDirectoryExists();
-    await fs.access(SOCIAL_GALLERY_METADATA_FILE);
-    const fileContent = await fs.readFile(SOCIAL_GALLERY_METADATA_FILE, 'utf-8');
-    return fileContent.trim() === '' ? [] : JSON.parse(fileContent);
-  } catch (error) {
-    await writeMetadataFile([]); // Create file if it doesn't exist
-    return [];
-  }
+async function getMetadata(): Promise<SocialGalleryPost[]> {
+  return readData<SocialGalleryPost[]>(METADATA_FILE, []);
 }
 
-async function writeMetadataFile(data: SocialGalleryPost[]): Promise<void> {
-  await ensureDataDirectoryExists();
-  const sortedData = data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  await fs.writeFile(SOCIAL_GALLERY_METADATA_FILE, JSON.stringify(sortedData, null, 2), 'utf-8');
+async function writeMetadata(data: SocialGalleryPost[]): Promise<void> {
+  await writeData(METADATA_FILE, data, (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
-
 
 export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
-  const allPosts = await readMetadataFile();
+  const allPosts = await getMetadata();
   return allPosts.filter(post => post.fiestaId === fiestaId);
 }
 
@@ -46,18 +33,16 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
   const file = formData.get('file') as File;
   const authorName = formData.get('authorName') as string || 'Anónimo';
 
-  if (!fiestaId || !file) {
-    return { success: false, error: "Faltan datos (ID de fiesta o archivo)." };
-  }
+  if (!fiestaId || !file) return { success: false, error: "Faltan datos (ID de fiesta o archivo)." };
   
-  const allPosts = await readMetadataFile();
-  const postsOfFiesta = allPosts.filter(p => p.fiestaId === fiestaId);
-  if (postsOfFiesta.length >= MAX_PHOTOS_PER_EVENT) {
-    return { success: false, error: `Se ha alcanzado el límite de ${MAX_PHOTOS_PER_EVENT} fotos para la galería de este evento.` };
+  const allPosts = await getMetadata();
+  if (allPosts.filter(p => p.fiestaId === fiestaId).length >= MAX_PHOTOS_PER_EVENT) {
+    return { success: false, error: `Se ha alcanzado el límite de ${MAX_PHOTOS_PER_EVENT} fotos para este evento.` };
   }
 
   const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
   try {
+    await ensureDataDirectoryExists();
     await fs.mkdir(eventPhotoDirPath, { recursive: true });
 
     const fileExtension = path.extname(file.name);
@@ -78,7 +63,7 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
       comments: [],
     };
     allPosts.push(newPost);
-    await writeMetadataFile(allPosts);
+    await writeMetadata(allPosts);
     
     return { success: true, post: newPost };
   } catch (error: any) {
@@ -87,22 +72,20 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
 }
 
 export async function addLikeToPost(postId: string): Promise<{ success: boolean; error?: string }> {
-    const allPosts = await readMetadataFile();
+    const allPosts = await getMetadata();
     const postIndex = allPosts.findIndex(p => p.id === postId);
-    if (postIndex === -1) {
-        return { success: false, error: "Publicación no encontrada." };
-    }
+    if (postIndex === -1) return { success: false, error: "Publicación no encontrada." };
+    
     allPosts[postIndex].likes = (allPosts[postIndex].likes || 0) + 1;
-    await writeMetadataFile(allPosts);
+    await writeMetadata(allPosts);
     return { success: true };
 }
 
 export async function addCommentToPost(postId: string, commentText: string, authorName: string): Promise<{ success: boolean; error?: string }> {
-    const allPosts = await readMetadataFile();
+    const allPosts = await getMetadata();
     const postIndex = allPosts.findIndex(p => p.id === postId);
-    if (postIndex === -1) {
-        return { success: false, error: "Publicación no encontrada." };
-    }
+    if (postIndex === -1) return { success: false, error: "Publicación no encontrada." };
+
     const newComment: SocialComment = {
         id: `comment_${Date.now()}`,
         authorName: authorName || 'Anónimo',
@@ -113,39 +96,29 @@ export async function addCommentToPost(postId: string, commentText: string, auth
         allPosts[postIndex].comments = [];
     }
     allPosts[postIndex].comments.push(newComment);
-    await writeMetadataFile(allPosts);
+    await writeMetadata(allPosts);
     return { success: true };
 }
 
 export async function deleteSocialPost(postId: string): Promise<{ success: boolean; error?: string }> {
-  const allPosts = await readMetadataFile();
+  const allPosts = await getMetadata();
   const postToDelete = allPosts.find(p => p.id === postId);
   
-  if (!postToDelete) {
-    return { success: false, error: "Publicación no encontrada para eliminar." };
-  }
+  if (!postToDelete) return { success: false, error: "Publicación no encontrada para eliminar." };
   
-  const remainingPosts = allPosts.filter(p => p.id !== postId);
-  
-  // Delete the physical file
   try {
     const filename = path.basename(postToDelete.imageUrl);
     const filePath = path.join(SOCIAL_GALLERY_DIR, postToDelete.fiestaId, filename);
     await fs.unlink(filePath);
   } catch (fileError: any) {
-    // Log the error but continue to remove metadata, as the file might already be gone.
     console.warn(`Could not delete file for post ${postId}: ${fileError.message}`);
   }
   
-  await writeMetadataFile(remainingPosts);
+  await writeMetadata(allPosts.filter(p => p.id !== postId));
   return { success: true };
 }
 
 export async function clearGallery(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-    const allPosts = await readMetadataFile();
-    const postsOfFiesta = allPosts.filter(p => p.fiestaId === fiestaId);
-    
-    // Delete physical directory
     try {
         const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
         await fs.rm(eventPhotoDirPath, { recursive: true, force: true });
@@ -153,9 +126,8 @@ export async function clearGallery(fiestaId: string): Promise<{ success: boolean
         console.warn(`Could not delete directory for fiesta ${fiestaId}: ${dirError.message}`);
     }
 
-    // Remove metadata
-    const remainingPosts = allPosts.filter(p => p.fiestaId !== fiestaId);
-    await writeMetadataFile(remainingPosts);
+    const allPosts = await getMetadata();
+    await writeMetadata(allPosts.filter(p => p.fiestaId !== fiestaId));
     return { success: true };
 }
 

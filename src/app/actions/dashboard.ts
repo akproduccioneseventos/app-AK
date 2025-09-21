@@ -4,7 +4,7 @@
 import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
-import { getAllFiestas } from './fiesta-actual';
+import { getAllFiestas } from './fiesta/fiesta.actions';
 
 export async function getDashboardKpiData() {
   try {
@@ -14,7 +14,7 @@ export async function getDashboardKpiData() {
       invoicesData,
       fiestasData,
     ] = await Promise.all([
-      getCustomers(), // Use the safe version
+      getCustomers(),
       getPresupuestos(),
       getInvoices(),
       getAllFiestas(),
@@ -26,7 +26,6 @@ export async function getDashboardKpiData() {
     const totalPendiente = ventasTotales - montoPagado;
     const prospectosActivos = presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length;
     
-    // Recalculate active customers based on events
     const activeCustomerIds = new Set(fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now).map(f => f.configuracion.clienteId));
     const clientesActivos = activeCustomerIds.size;
     

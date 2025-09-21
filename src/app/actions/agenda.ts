@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getFiestas } from './fiesta-actual';
+import { getFiestas } from './fiesta/fiesta.actions';
 
 export async function getOcupiedDates(): Promise<string[]> {
   try {

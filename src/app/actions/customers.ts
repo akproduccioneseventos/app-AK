@@ -2,31 +2,17 @@
 'use server';
 
 import type { Customer, CustomerStatus } from '@/types/customer';
+import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 
-// This action no longer depends on fiesta-actual, breaking the circular dependency.
-const CLIENTES_COLLECTION_JSON = 'customers.json';
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const customersFilePath = path.join(dataDirectory, CLIENTES_COLLECTION_JSON);
-
+const CUSTOMERS_FILE = 'customers.json';
+const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const CONTRACTS_DIR_NAME = 'contracts';
 const BUDGETS_DIR_NAME = 'budgets'; 
-const contractsDirectoryPath = path.join(dataDirectory, CONTRACTS_DIR_NAME);
-const budgetsDirectoryPath = path.join(dataDirectory, BUDGETS_DIR_NAME); 
+const contractsDirectoryPath = path.join(DATA_DIR, CONTRACTS_DIR_NAME);
+const budgetsDirectoryPath = path.join(DATA_DIR, BUDGETS_DIR_NAME); 
 
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(dataDirectory);
-    } catch {
-        await fs.mkdir(dataDirectory, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
-}
 
 async function ensureSubdirectoryExists(dirPath: string) {
     try {
@@ -35,52 +21,23 @@ async function ensureSubdirectoryExists(dirPath: string) {
         await fs.mkdir(dirPath, { recursive: true });
     }
 }
-
-
-async function readCustomersFile(): Promise<Customer[]> {
-  await ensureDataFileExists(customersFilePath, '[]');
-  try {
-    const fileContent = await fs.readFile(customersFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Customer[];
-  } catch (error) {
-    console.error('Error reading customers file, returning empty array:', error);
-    return [];
-  }
-}
-
-async function writeCustomersFile(data: Customer[]): Promise<void> {
-  await ensureDataFileExists(customersFilePath, '[]');
-  const sortedData = data.sort((a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
-  await fs.writeFile(customersFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
-
-async function initializeLocalCustomersFile() {
-  await readCustomersFile();
-  await ensureSubdirectoryExists(contractsDirectoryPath);
-  await ensureSubdirectoryExists(budgetsDirectoryPath);
-}
-initializeLocalCustomersFile();
+ensureSubdirectoryExists(contractsDirectoryPath);
+ensureSubdirectoryExists(budgetsDirectoryPath);
 
 
 export async function getCustomers(): Promise<Customer[]> {
-  return readCustomersFile();
+  return readData<Customer[]>(CUSTOMERS_FILE, []);
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {
-  const customers = await readCustomersFile();
-  const customer = customers.find(c => c.id === id);
-  if (!customer) return null;
-
-  // This is a simplified status assignment. For a full status with event dates,
-  // the logic is now handled on the client-side page to avoid circular dependencies.
-  return { ...customer, estadoCliente: customer.estadoCliente || 'Actual' };
+  const customers = await getCustomers();
+  return customers.find(c => c.id === id) || null;
 }
 
 export async function saveCustomer(
   customerData: Omit<Customer, 'id'> | Customer | FormData
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
-  let customers = await readCustomersFile();
+  let customers = await getCustomers();
   let customerId: string;
   let customerToSave: Partial<Customer> = {}; 
 
@@ -185,13 +142,13 @@ export async function saveCustomer(
   const finalIndex = customers.findIndex(c => c.id === customerId);
   if (finalIndex !== -1) customers[finalIndex] = customerToSave as Customer;
   
-  await writeCustomersFile(customers);
+  await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
   return { success: true, id: customerId, customer: customerToSave as Customer };
 }
 
 
 export async function deleteCustomer(id: string): Promise<{ success: boolean; error?: string }> {
-  let customers = await readCustomersFile();
+  let customers = await getCustomers();
   const customerToDelete = customers.find(c => c.id === id);
   const initialLength = customers.length;
   customers = customers.filter(c => c.id !== id);
@@ -215,7 +172,7 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
     }
   }
 
-  await writeCustomersFile(customers);
+  await writeData(CUSTOMERS_FILE, customers);
   return { success: true };
 }
 
@@ -291,7 +248,7 @@ export async function syncCustomerFromFiestaConfig(
 }
 
 export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget', filename: string): Promise<{ success: boolean, error?: string}> {
-    const customers = await readCustomersFile();
+    const customers = await getCustomers();
     const customerIndex = customers.findIndex(c => c.id === customerId);
     if (customerIndex === -1) {
         return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
@@ -303,6 +260,6 @@ export async function addDocumentReferenceToCustomer(customerId: string, documen
         customers[customerIndex].budgetFileName = filename;
     }
 
-    await writeCustomersFile(customers);
+    await writeData(CUSTOMERS_FILE, customers);
     return { success: true };
 }

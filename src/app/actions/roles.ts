@@ -1,63 +1,23 @@
 
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
+import { readData, writeData } from '@/lib/data-service';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
-import type { CategoriaServicio } from '@/types/empresa';
 
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const rolesFilePath = path.join(dataDirectory, 'roles.json');
-
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(dataDirectory);
-    } catch {
-        await fs.mkdir(dataDirectory, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
-}
-
-async function readRolesFile(): Promise<Rol[]> {
-  await ensureDataFileExists(rolesFilePath, '[]');
-  try {
-    const fileContent = await fs.readFile(rolesFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Rol[];
-  } catch (error) {
-    console.error('Error reading roles file, returning empty array:', error);
-    return [];
-  }
-}
-
-async function writeRolesFile(data: Rol[]): Promise<void> {
-  await ensureDataFileExists(rolesFilePath, '[]');
-  const sortedData = data.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
-  await fs.writeFile(rolesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
-
-async function initializeLocalRolesFile() {
-  await readRolesFile();
-}
-initializeLocalRolesFile();
+const ROLES_FILE = 'roles.json';
 
 export async function getRoles(): Promise<Rol[]> {
-  return readRolesFile();
+  return readData<Rol[]>(ROLES_FILE, []);
 }
 
 export async function getRolById(id: string): Promise<Rol | null> {
-  const localRoles = await readRolesFile();
-  return localRoles.find(r => r.id === id) || null;
+  const roles = await getRoles();
+  return roles.find(r => r.id === id) || null;
 }
 
 export async function saveRol(
   rolData: Rol | NuevoRolFormData
 ): Promise<{ success: boolean; id?: string; rol?: Rol; error?: string }> {
-  // Validaciones básicas
   if (!rolData.nombre?.trim()) {
     return { success: false, error: "El nombre del rol es obligatorio." };
   }
@@ -69,7 +29,7 @@ export async function saveRol(
     return { success: false, error: "El sueldo por evento debe ser un número positivo." };
   }
   
-  const localRoles = await readRolesFile();
+  const roles = await getRoles();
   let savedRol: Rol;
 
   const costoAportes = (sueldoNum * (Number(rolData.porcentajeAportesPatronales) || 0)) / 100;
@@ -86,32 +46,32 @@ export async function saveRol(
 
   if ('id' in rolData && rolData.id) {
     // Update
-    const index = localRoles.findIndex(r => r.id === rolData.id);
+    const index = roles.findIndex(r => r.id === rolData.id);
     if (index === -1) {
       return { success: false, error: `Rol con ID ${rolData.id} no encontrado para actualizar.` };
     }
-    savedRol = { ...localRoles[index], ...rolToProcess };
-    localRoles[index] = savedRol;
+    savedRol = { ...roles[index], ...rolToProcess };
+    roles[index] = savedRol;
   } else {
     // Create
     const newRolId = `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     savedRol = { ...rolToProcess, id: newRolId };
-    localRoles.push(savedRol);
+    roles.push(savedRol);
   }
   
-  await writeRolesFile(localRoles);
+  await writeData(ROLES_FILE, roles, (a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
   return { success: true, id: savedRol.id, rol: savedRol };
 }
 
 export async function deleteRol(id: string): Promise<{ success: boolean; error?: string }> {
-  let localRoles = await readRolesFile();
-  const initialLength = localRoles.length;
-  localRoles = localRoles.filter(r => r.id !== id);
+  let roles = await getRoles();
+  const initialLength = roles.length;
+  roles = roles.filter(r => r.id !== id);
 
-  if (localRoles.length === initialLength) {
-    return { success: false, error: `Rol ID ${id} no encontrado en JSON local para eliminar.` };
+  if (roles.length === initialLength) {
+    return { success: false, error: `Rol ID ${id} no encontrado para eliminar.` };
   }
   
-  await writeRolesFile(localRoles);
+  await writeData(ROLES_FILE, roles);
   return { success: true };
 }

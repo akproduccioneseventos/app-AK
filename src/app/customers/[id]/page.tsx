@@ -13,7 +13,8 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, Payment } from '@/types/invoice';
 import { getCustomerById } from '@/app/actions/customers';
-import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getHistorialFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { Separator } from '@/components/ui/separator';
@@ -171,7 +172,7 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
             </Link>
              <Link href={`/customers/${customerId}/edit`} passHref className="flex-1 sm:flex-none">
                 <Button variant="default" className="w-full">Editar Cliente</Button>
-            </Link>
+             </Link>
         </div>
       </div>
 

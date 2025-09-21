@@ -3,28 +3,15 @@
 'use server';
 
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
+import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 import { markPresupuestoAsFacturado } from './presupuestos';
 
-const INVOICES_COLLECTION_JSON = 'invoices.json';
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const invoicesFilePath = path.join(dataDirectory, INVOICES_COLLECTION_JSON);
+const INVOICES_FILE = 'invoices.json';
+const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const PAYMENT_PROOFS_DIR_NAME = 'payment-proofs';
-const paymentProofsDirectoryPath = path.join(dataDirectory, PAYMENT_PROOFS_DIR_NAME);
-
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(dataDirectory);
-    } catch {
-        await fs.mkdir(dataDirectory, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
-}
+const paymentProofsDirectoryPath = path.join(DATA_DIR, PAYMENT_PROOFS_DIR_NAME);
 
 async function ensureSubdirectoryExists(dirPath: string) {
     try {
@@ -33,41 +20,17 @@ async function ensureSubdirectoryExists(dirPath: string) {
         await fs.mkdir(dirPath, { recursive: true });
     }
 }
+ensureSubdirectoryExists(paymentProofsDirectoryPath);
 
-async function readInvoicesFile(): Promise<Invoice[]> {
-  await ensureDataFileExists(invoicesFilePath, '[]');
-  try {
-    const fileContent = await fs.readFile(invoicesFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Invoice[];
-  } catch (error) {
-    console.error('Error reading invoices file, returning empty array:', error);
-    return [];
-  }
-}
-
-async function writeInvoicesFile(data: Invoice[]): Promise<void> {
-  await ensureDataFileExists(invoicesFilePath, '[]');
-  const sortedData = data.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
-  await fs.writeFile(invoicesFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
-
-async function initializeLocalInvoicesFile() {
-  await readInvoicesFile();
-  await ensureSubdirectoryExists(paymentProofsDirectoryPath);
-}
-initializeLocalInvoicesFile();
 
 export async function getInvoices(): Promise<Invoice[]> {
-  const invoices = await readInvoicesFile();
+  const invoices = await readData<Invoice[]>(INVOICES_FILE, []);
   return invoices.map(inv => ({ ...inv, payments: inv.payments || [] }));
 }
 
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
-  const invoices = await readInvoicesFile();
-  const invoice = invoices.find(inv => inv.id === id);
-  if (!invoice) return null;
-  return { ...invoice, payments: invoice.payments || [] };
+  const invoices = await getInvoices();
+  return invoices.find(inv => inv.id === id) || null;
 }
 
 export async function saveInvoice(
@@ -82,7 +45,7 @@ export async function saveInvoice(
     return { success: false, error: 'Todos los ítems de la factura deben tener una descripción.' };
   }
 
-  let invoices = await readInvoicesFile();
+  let invoices = await getInvoices();
   let finalInvoiceData: Invoice;
   let invoiceId: string;
 
@@ -131,7 +94,7 @@ export async function saveInvoice(
     };
     invoices.push(finalInvoiceData);
   }
-  await writeInvoicesFile(invoices);
+  await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
 
   if (sourcePresupuestoId && !('id' in invoiceDataInput)) { 
     const markResult = await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
@@ -144,16 +107,13 @@ export async function saveInvoice(
 }
 
 export async function deleteInvoice(id: string): Promise<{ success: boolean; error?: string }> {
-  let invoices = await readInvoicesFile();
+  let invoices = await getInvoices();
   const initialLength = invoices.length;
   invoices = invoices.filter(inv => inv.id !== id);
   if (invoices.length === initialLength) {
     return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
   }
-  await writeInvoicesFile(invoices);
-  // Also remove from fiestaActual if assigned
-  // This might need to be a separate action or handled by the caller after successful deletion
-  // For now, just deleting from the invoices store.
+  await writeData(INVOICES_FILE, invoices);
   return { success: true };
 }
 
@@ -175,7 +135,7 @@ export async function addPaymentToInvoice(
     return { success: false, error: "El monto del pago debe ser un número positivo." };
   }
 
-  let invoices = await readInvoicesFile();
+  let invoices = await getInvoices();
   const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
 
   if (invoiceIndex === -1) {
@@ -217,10 +177,10 @@ export async function addPaymentToInvoice(
   if (totalPaid >= invoice.totalAmount) {
     newStatus = 'Paid';
   } else if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
-    newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status; // Mark as Sent if it was a Draft
+    newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status;
   }
 
   invoices[invoiceIndex] = { ...invoice, payments, status: newStatus };
-  await writeInvoicesFile(invoices);
+  await writeData(INVOICES_FILE, invoices);
   return { success: true, invoice: invoices[invoiceIndex] };
 }

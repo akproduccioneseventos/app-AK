@@ -2,62 +2,23 @@
 'use server';
 
 import type { Proveedor, NuevoProveedorFormData } from '@/types/proveedor';
-import fs from 'fs/promises';
-import path from 'path';
+import { readData, writeData } from '@/lib/data-service';
 
-const PROVEEDORES_COLLECTION_JSON = 'proveedores.json';
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const proveedoresFilePath = path.join(dataDirectory, PROVEEDORES_COLLECTION_JSON);
-
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(dataDirectory);
-    } catch {
-        await fs.mkdir(dataDirectory, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
-}
-
-async function readProveedoresFile(): Promise<Proveedor[]> {
-  await ensureDataFileExists(proveedoresFilePath, '[]');
-  try {
-    const fileContent = await fs.readFile(proveedoresFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Proveedor[];
-  } catch (error) {
-    console.error('Error reading proveedores file, returning empty array:', error);
-    return [];
-  }
-}
-
-async function writeProveedoresFile(data: Proveedor[]): Promise<void> {
-  await ensureDataFileExists(proveedoresFilePath, '[]');
-  const sortedData = data.sort((a, b) => (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || ''));
-  await fs.writeFile(proveedoresFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
-
-async function initializeLocalProveedoresFile() {
-  await readProveedoresFile();
-}
-initializeLocalProveedoresFile();
+const PROVEEDORES_FILE = 'proveedores.json';
 
 export async function getProveedores(): Promise<Proveedor[]> {
-  return readProveedoresFile();
+  return readData<Proveedor[]>(PROVEEDORES_FILE, []);
 }
 
 export async function getProveedorById(id: string): Promise<Proveedor | null> {
-  const proveedores = await readProveedoresFile();
+  const proveedores = await getProveedores();
   return proveedores.find(p => p.id === id) || null;
 }
 
 export async function saveProveedor(
   proveedorData: NuevoProveedorFormData | Proveedor
 ): Promise<{ success: boolean; id?: string; proveedor?: Proveedor; error?: string }> {
-  let proveedores = await readProveedoresFile();
+  let proveedores = await getProveedores();
   let finalProveedorData: Proveedor;
   let proveedorId: string;
 
@@ -88,17 +49,17 @@ export async function saveProveedor(
     };
     proveedores.push(finalProveedorData);
   }
-  await writeProveedoresFile(proveedores);
+  await writeData(PROVEEDORES_FILE, proveedores, (a, b) => (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || ''));
   return { success: true, id: proveedorId, proveedor: finalProveedorData };
 }
 
 export async function deleteProveedor(id: string): Promise<{ success: boolean; error?: string }> {
-  let proveedores = await readProveedoresFile();
+  let proveedores = await getProveedores();
   const initialLength = proveedores.length;
   proveedores = proveedores.filter(p => p.id !== id);
   if (proveedores.length === initialLength) {
     return { success: false, error: `Proveedor con ID ${id} no encontrado para eliminar.` };
   }
-  await writeProveedoresFile(proveedores);
+  await writeData(PROVEEDORES_FILE, proveedores);
   return { success: true };
 }

@@ -1,17 +1,14 @@
 
-
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
-import fs from 'fs/promises';
-import path from 'path';
+import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import type { Customer } from '@/types/customer'; 
-import { createNewFiestaForCustomer } from '@/app/actions/fiesta-actual';
+import { createNewFiestaForCustomer } from '@/app/actions/fiesta/fiesta.actions';
 
-const CRM_DATA_DIR = path.join(process.cwd(), 'src', 'data');
-const LEADS_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-leads.json');
-const STAGES_FILE_PATH = path.join(CRM_DATA_DIR, 'crm-stages.json');
+const LEADS_FILE = 'crm-leads.json';
+const STAGES_FILE = 'crm-stages.json';
 
 const defaultStages: CrmStage[] = [
   { id: 's1', name: 'Consultó', order: 1, headerBgColor: "bg-sky-500 dark:bg-sky-700", headerTextColor: 'text-sky-50', bgColor: 'bg-sky-100 dark:bg-sky-900/30', borderColor: 'border-sky-500 dark:border-sky-700', textColor: 'text-sky-700 dark:text-sky-300' },
@@ -21,50 +18,13 @@ const defaultStages: CrmStage[] = [
   { id: 's5', name: 'No contrató', order: 5, headerBgColor: "bg-rose-500 dark:bg-rose-700", headerTextColor: 'text-rose-50', bgColor: 'bg-rose-100 dark:bg-rose-900/30', borderColor: 'border-rose-500 dark:border-rose-700', textColor: 'text-rose-700 dark:text-rose-300' },
 ];
 
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(CRM_DATA_DIR);
-    } catch {
-        await fs.mkdir(CRM_DATA_DIR, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
-}
-
-async function readJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
-  await ensureDataFileExists(filePath, JSON.stringify(defaultValue, null, 2));
-  try {
-    const fileContent = await fs.readFile(filePath, 'utf-8');
-    return fileContent.trim() === '' ? defaultValue : JSON.parse(fileContent) as T;
-  } catch (error) {
-    console.error(`Error reading or parsing ${filePath}, returning default value.`, error);
-    await fs.writeFile(filePath, JSON.stringify(defaultValue, null, 2), 'utf-8'); // Attempt to fix the file
-    return defaultValue;
-  }
-}
-
-async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
-  await ensureDataFileExists(filePath); // Ensure directory exists before writing
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-async function initializeCrmFiles() {
-  await readJsonFile(LEADS_FILE_PATH, []);
-  await readJsonFile(STAGES_FILE_PATH, defaultStages);
-}
-initializeCrmFiles();
-
-
 export async function getCrmStages(): Promise<CrmStage[]> {
-  const stages = await readJsonFile<CrmStage[]>(STAGES_FILE_PATH, defaultStages);
+  const stages = await readData<CrmStage[]>(STAGES_FILE, defaultStages);
   return stages.sort((a, b) => a.order - b.order);
 }
 
 export async function getCrmLeads(): Promise<CrmLead[]> {
-  const leads = await readJsonFile<CrmLead[]>(LEADS_FILE_PATH, []);
+  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
   return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
@@ -94,7 +54,7 @@ export async function addCrmLead(
     history: [{ stageId: stageId, stageName, timestamp: now }],
   };
   leads.push(newLead);
-  await writeJsonFile(LEADS_FILE_PATH, leads);
+  await writeData(LEADS_FILE, leads);
   return { success: true, lead: newLead };
 }
 
@@ -125,7 +85,7 @@ export async function moveCrmLead(
 
   leads[leadIndex] = updatedLead;
 
-  await writeJsonFile(LEADS_FILE_PATH, leads);
+  await writeData(LEADS_FILE, leads);
   return { success: true, lead: updatedLead };
 }
 
@@ -137,7 +97,7 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     if (leads.length === initialLength) {
         return { success: false, error: `Prospecto con ID ${leadId} no encontrado para eliminar.` };
     }
-    await writeJsonFile(LEADS_FILE_PATH, leads);
+    await writeData(LEADS_FILE, leads);
     return { success: true };
 }
 
@@ -156,10 +116,9 @@ export async function updateCrmStageName(
   }
 
   stages[stageIndex] = { ...stages[stageIndex], name: newName.trim() };
-  await writeJsonFile(STAGES_FILE_PATH, stages);
+  await writeData(STAGES_FILE, stages);
   return { success: true, stage: stages[stageIndex] };
 }
-
 
 export async function convertToClientAndMoveProspect(
   formData: FormData
@@ -170,7 +129,6 @@ export async function convertToClientAndMoveProspect(
   const phone = formData.get('phone') as string | undefined;
   const companyName = formData.get('companyName') as string | undefined;
   const taxId = formData.get('taxId') as string | undefined;
-  // street has been removed from the form
   const contractFile = formData.get('contract') as File | null;
 
   if (!prospectId || !prospectName) {
@@ -192,7 +150,6 @@ export async function convertToClientAndMoveProspect(
   if (phone) customerFormData.append('phone', phone);
   if (companyName) customerFormData.append('companyName', companyName);
   if (taxId) customerFormData.append('taxId', taxId);
-  // Do not append street
   customerFormData.append('contract', contractFile);
 
   try {
@@ -208,12 +165,10 @@ export async function convertToClientAndMoveProspect(
       return { success: false, error: `Cliente creado, pero no se pudo actualizar el prospecto: ${moveResult.error}`, customerId: customerResult.id };
     }
     
-    // START: Automate Party Creation for new customer
     const newFiestaResult = await createNewFiestaForCustomer(customerResult.customer as Customer);
      if (!newFiestaResult.success) {
         console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta para el cliente ${customerResult.id}: ${newFiestaResult.error}`);
     }
-    // END: Automate Party Creation
 
     return { success: true, customerId: customerResult.id, lead: moveResult.lead };
 

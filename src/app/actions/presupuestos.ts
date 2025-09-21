@@ -2,55 +2,11 @@
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
-import fs from 'fs/promises';
-import path from 'path';
-
-// Import invoice actions and types
+import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 
-
-const PRESUPUESTOS_COLLECTION_JSON = 'presupuestos.json';
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const presupuestosFilePath = path.join(dataDirectory, PRESUPUESTOS_COLLECTION_JSON);
-
-
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(dataDirectory);
-    } catch {
-        await fs.mkdir(dataDirectory, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
-}
-
-async function readPresupuestosFile(): Promise<Presupuesto[]> {
-  await ensureDataFileExists(presupuestosFilePath, '[]');
-  try {
-    const fileContent = await fs.readFile(presupuestosFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as Presupuesto[];
-  } catch (error) {
-    console.error('Error reading presupuestos file, returning empty array:', error);
-    return [];
-  }
-}
-
-async function writePresupuestosFile(data: Presupuesto[]): Promise<void> {
-  await ensureDataFileExists(presupuestosFilePath, '[]');
-  const sortedData = data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  await fs.writeFile(presupuestosFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
-
-async function initializeLocalPresupuestosFile() {
-  await readPresupuestosFile();
-}
-initializeLocalPresupuestosFile();
-
+const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 // Helper function to recalculate costs based on complex logic for a single item
 function recalcularCostoItem(item: ItemPresupuestado, invitados: number): number {
@@ -85,11 +41,18 @@ function recalcularCostoItem(item: ItemPresupuestado, invitados: number): number
   return itemTotal;
 }
 
+export async function getPresupuestos(): Promise<Presupuesto[]> {
+  return readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+}
+
+export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
+  const presupuestos = await getPresupuestos();
+  return presupuestos.find(p => p.id === id) || null;
+}
 
 export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto }> {
-  let presupuestos = await readPresupuestosFile();
+  let presupuestos = await getPresupuestos();
   
-  // Recalculate all item costs and the grand total based on the final state of the items
   const validItems = presupuestoData.itemsPresupuestados.map(item => {
     const costoTotalItem = recalcularCostoItem(item, presupuestoData.invitadosCantidad);
     return { ...item, costoTotalItem };
@@ -122,27 +85,17 @@ export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 
     invoiceId: undefined,
   };
   presupuestos.push(nuevoPresupuesto);
-  await writePresupuestosFile(presupuestos);
+  await writeData(PRESUPUESTOS_FILE, presupuestos, (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto };
 }
 
-export async function getPresupuestos(): Promise<Presupuesto[]> {
-  return readPresupuestosFile();
-}
-
-export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
-  const presupuestos = await readPresupuestosFile();
-  return presupuestos.find(p => p.id === id) || null;
-}
-
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  let presupuestos = await readPresupuestosFile();
+  let presupuestos = await getPresupuestos();
   const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
   if (index === -1) {
     return { success: false, error: `Presupuesto con ID ${presupuestoData.id} no encontrado.` };
   }
 
-  // Recalculate all item costs and the grand total based on the updated data
   const validItems = presupuestoData.itemsPresupuestados.map(item => {
     const costoTotalItem = recalcularCostoItem(item, presupuestoData.invitadosCantidad);
     return { ...item, costoTotalItem };
@@ -169,13 +122,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     itemsPresupuestados: validItems,
     costoTotalEstimado: costoTotalEstimadoRecalculado,
     totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
-    timestamp: new Date().toISOString(), // Always update timestamp
+    timestamp: new Date().toISOString(),
   };
   
   presupuestos[index] = updatedPresupuesto;
-  await writePresupuestosFile(presupuestos);
+  await writeData(PRESUPUESTOS_FILE, presupuestos);
 
-  // Sync invoice if the budget is marked as 'Facturado'
   if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
     try {
       const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
@@ -196,11 +148,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
             notes: updatedPresupuesto.notas || linkedInvoice.notes,
         };
 
-        const updateInvoiceResult = await saveInvoice(invoiceDataToUpdate);
-        
-        if (!updateInvoiceResult.success) {
-          console.warn(`Presupuesto ${updatedPresupuesto.id} actualizado, pero falló la sincronización con la factura ${updatedPresupuesto.invoiceId}: ${updateInvoiceResult.error}`);
-        }
+        await saveInvoice(invoiceDataToUpdate);
       }
     } catch (invoiceError) {
       console.error(`Error al sincronizar la factura del presupuesto actualizado ${updatedPresupuesto.id}:`, invoiceError);
@@ -211,18 +159,18 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 }
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
-  let presupuestos = await readPresupuestosFile();
+  let presupuestos = await getPresupuestos();
   const initialLength = presupuestos.length;
   presupuestos = presupuestos.filter(p => p.id !== id);
   if (presupuestos.length === initialLength) {
     return { success: false, error: `Presupuesto con ID ${id} no encontrado para eliminar.` };
   }
-  await writePresupuestosFile(presupuestos);
+  await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }
 
 export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceId: string): Promise<{ success: boolean; error?: string }> {
-  let presupuestos = await readPresupuestosFile();
+  let presupuestos = await getPresupuestos();
   const index = presupuestos.findIndex(p => p.id === presupuestoId);
   if (index === -1) {
     return { success: false, error: `Presupuesto con ID ${presupuestoId} no encontrado.` };
@@ -231,6 +179,6 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].timestamp = new Date().toISOString();
   
-  await writePresupuestosFile(presupuestos);
+  await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }

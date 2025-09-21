@@ -34,4 +34,46 @@ async function ensureFiestasDirectoryExists() {
 }
 
 async function readCustomersFile(): Promise<Customer[]> {
-  await ensureDataFileExists(customersFilePath, '[]'
+  await ensureDataFileExists(customersFilePath, '[]');
+  try {
+    const fileContent = await fs.readFile(customersFilePath, 'utf-8');
+    if (fileContent.trim() === '') return [];
+    return JSON.parse(fileContent);
+  } catch {
+    return [];
+  }
+}
+
+export async function initializeEventsForAllCustomers(): Promise<{ success: boolean; created: number; errors: number }> {
+  await ensureFiestasDirectoryExists();
+  const customers = await readCustomersFile();
+  let createdCount = 0;
+  let errorCount = 0;
+
+  for (const customer of customers) {
+    const fiestaId = `fiesta_${customer.id}`;
+    const fiestaPath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+
+    try {
+      await fs.access(fiestaPath);
+      // Fiesta file already exists, do nothing.
+    } catch (error) {
+      // Fiesta file does not exist, create it.
+      const newFiesta: FiestaEnPlanificacion = {
+        ...initialFiestaActualData,
+        id: fiestaId,
+        configuracion: {
+          ...initialFiestaActualData.configuracion,
+          clienteId: customer.id,
+          nombreEvento: customer.partyType ? `${customer.partyType} de ${customer.name}` : `Evento de ${customer.name}`,
+          fechaEvento: customer.partyDate || new Date().toISOString(),
+          invitadosEstimados: customer.guestCount || 50,
+          nombreLugar: customer.venueName || 'A definir',
+        },
+      };
+      await fs.writeFile(fiestaPath, JSON.stringify(newFiesta, null, 2), 'utf-8');
+      createdCount++;
+    }
+  }
+  return { success: true, created: createdCount, errors: errorCount };
+}

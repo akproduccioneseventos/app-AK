@@ -1,70 +1,37 @@
 
 'use server';
 
-import type { ProgramaEventoItem } from '@/types/fiesta';
-import fs from 'fs/promises';
-import path from 'path';
+import type { ItineraryTemplate, ProgramaEventoItem } from '@/types/fiesta';
+import { readData, writeData } from '@/lib/data-service';
 
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-const TEMPLATES_FILE_PATH = path.join(DATA_DIR, 'itinerary-templates.json');
-
-export interface ItineraryTemplate {
-  id: string;
-  name: string;
-  items: ProgramaEventoItem[];
-}
-
-async function ensureDataFileExists() {
-  try {
-    await fs.access(DATA_DIR);
-  } catch {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  }
-  try {
-    await fs.access(TEMPLATES_FILE_PATH);
-  } catch {
-    await fs.writeFile(TEMPLATES_FILE_PATH, '[]', 'utf-8');
-  }
-}
-
-async function readTemplatesFile(): Promise<ItineraryTemplate[]> {
-  await ensureDataFileExists();
-  const fileContent = await fs.readFile(TEMPLATES_FILE_PATH, 'utf-8');
-  return fileContent.trim() === '' ? [] : JSON.parse(fileContent);
-}
-
-async function writeTemplatesFile(data: ItineraryTemplate[]): Promise<void> {
-  await ensureDataFileExists();
-  const sortedData = data.sort((a, b) => a.name.localeCompare(b.name));
-  await fs.writeFile(TEMPLATES_FILE_PATH, JSON.stringify(sortedData, null, 2), 'utf-8');
-}
+const TEMPLATES_FILE = 'itinerary-templates.json';
 
 export async function getItineraryTemplates(): Promise<ItineraryTemplate[]> {
-  return readTemplatesFile();
+  return readData<ItineraryTemplate[]>(TEMPLATES_FILE, []);
 }
 
 export async function saveItineraryTemplate(name: string, items: ProgramaEventoItem[]): Promise<{ success: boolean; template?: ItineraryTemplate; error?: string }> {
   if (!name.trim()) {
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
   }
-  const templates = await readTemplatesFile();
+  const templates = await getItineraryTemplates();
   const newTemplate: ItineraryTemplate = {
     id: `template_${Date.now()}`,
     name: name.trim(),
-    items: items.map(item => ({...item, id: `item_${Date.now()}_${Math.random()}`})) // Give new IDs to avoid key conflicts
+    items: items.map(item => ({...item, id: `item_${Date.now()}_${Math.random()}`}))
   };
   templates.push(newTemplate);
-  await writeTemplatesFile(templates);
+  await writeData(TEMPLATES_FILE, templates, (a, b) => a.name.localeCompare(b.name));
   return { success: true, template: newTemplate };
 }
 
 export async function deleteItineraryTemplate(id: string): Promise<{ success: boolean; error?: string }> {
-  let templates = await readTemplatesFile();
+  let templates = await getItineraryTemplates();
   const initialLength = templates.length;
   templates = templates.filter(t => t.id !== id);
   if (templates.length === initialLength) {
     return { success: false, error: "Plantilla no encontrada." };
   }
-  await writeTemplatesFile(templates);
+  await writeData(TEMPLATES_FILE, templates);
   return { success: true };
 }

@@ -1,42 +1,25 @@
 
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, LeadFromQuickBudget } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, LeadFromQuickBudget } from '@/types/armado-rapido';
+import { readData, writeData } from '@/lib/data-service';
 import { addCrmLead, getCrmStages } from './crm';
 
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-const CONFIG_FILE_PATH = path.join(DATA_DIR, 'armado-rapido-config.json');
-
+const CONFIG_FILE = 'armado-rapido-config.json';
 const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 0,
   paquetes: [],
   menus: [],
 };
 
-async function ensureDataFileExists() {
-  try { await fs.access(DATA_DIR); } catch { await fs.mkdir(DATA_DIR, { recursive: true }); }
-  try { await fs.access(CONFIG_FILE_PATH); } catch { await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8'); }
-}
-
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
-  await ensureDataFileExists();
-  try {
-    const fileContent = await fs.readFile(CONFIG_FILE_PATH, 'utf-8');
-    const parsedConfig = fileContent.trim() === '' ? defaultConfig : JSON.parse(fileContent);
-    // Merge with defaults to ensure all keys are present
-    return { ...defaultConfig, ...parsedConfig };
-  } catch (error) {
-    console.error("Error reading armado-rapido-config.json, returning default. The file will NOT be overwritten.", error);
-    return defaultConfig;
-  }
+  const config = await readData<ArmadoRapidoConfig>(CONFIG_FILE, defaultConfig);
+  return { ...defaultConfig, ...config };
 }
 
 export async function saveArmadoRapidoConfig(
   newConfigData: ArmadoRapidoConfig
 ): Promise<{ success: boolean; error?: string }> {
-  await ensureDataFileExists();
   try {
     const sanitizedConfig: ArmadoRapidoConfig = {
       ...newConfigData,
@@ -44,26 +27,18 @@ export async function saveArmadoRapidoConfig(
         id: pkg.id,
         nombre: pkg.nombre,
         descripcion: pkg.descripcion,
-        serviciosIncluidos: pkg.serviciosIncluidos.map(serv => ({
-          id: serv.id,
-          esRegalo: serv.esRegalo || false,
-        })),
+        serviciosIncluidos: pkg.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
       menus: (newConfigData.menus || []).map(menu => ({
         id: menu.id,
         nombre: menu.nombre,
         descripcion: menu.descripcion,
-        serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({
-          id: serv.id,
-          esRegalo: serv.esRegalo || false,
-        })),
+        serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       }))
     };
-    
-    await fs.writeFile(CONFIG_FILE_PATH, JSON.stringify(sanitizedConfig, null, 2), 'utf-8');
+    await writeData(CONFIG_FILE, sanitizedConfig);
     return { success: true };
   } catch (error: any) {
-    console.error("Error saving armado-rapido-config.json", error);
     return { success: false, error: error.message || "Unknown error saving config." };
   }
 }
@@ -109,4 +84,3 @@ export async function generateLeadFromQuickBudget(
     return { success: false, error: error.message || "Error al generar el prospecto." };
   }
 }
-  
