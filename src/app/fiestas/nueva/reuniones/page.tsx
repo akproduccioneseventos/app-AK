@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { getFiestaActual, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
@@ -195,41 +195,6 @@ export default function GestionReunionesPage() {
     }
   };
 
-  const handleAddToCalendar = (reunion: Reunion) => {
-    if (!reunion.fecha) return;
-  
-    const eventDate = new Date(reunion.fecha);
-    const endDate = new Date(eventDate.getTime() + 60 * 60 * 1000); // Assume 1 hour duration
-  
-    const toICSFormat = (date: Date) => {
-      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    };
-  
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//AK Producciones//App//EN',
-      'BEGIN:VEVENT',
-      `UID:${reunion.id}@akproducciones.com`,
-      `DTSTAMP:${toICSFormat(new Date())}`,
-      `DTSTART:${toICSFormat(eventDate)}`,
-      `DTEND:${toICSFormat(endDate)}`,
-      `SUMMARY:${reunion.titulo}`,
-      `DESCRIPTION:${reunion.notas.replace(/\n/g, '\\n')}`,
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-  
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${reunion.titulo}.ics`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  
   const now = new Date();
   const todayReuniones = reuniones.filter(r => r.fecha && isToday(new Date(r.fecha)));
   const next7DaysReuniones = reuniones.filter(r => r.fecha && isWithinInterval(new Date(r.fecha), { start: endOfDay(now), end: addDays(now, 7) }));
@@ -273,13 +238,6 @@ export default function GestionReunionesPage() {
           <p className="text-sm text-muted-foreground italic p-3 bg-background rounded-md border">No hay notas.</p>
         )}
       </CardContent>
-      {reunion.fecha && (
-        <CardFooter className="pt-0">
-          <Button variant="secondary" size="sm" onClick={() => handleAddToCalendar(reunion)}>
-            <CalendarPlus className="w-4 h-4 mr-2"/>Añadir a Calendario
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 
