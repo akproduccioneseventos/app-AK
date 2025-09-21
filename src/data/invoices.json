@@ -1,6 +1,71 @@
 
 [
   {
+    "id": "inv_future_123",
+    "invoiceNumber": "FUT-001",
+    "customer": {
+      "id": "cust_future_123",
+      "name": "Cliente Futuro (Ejemplo)",
+      "companyName": "Eventos del Mañana S.A."
+    },
+    "issueDate": "2024-07-02T10:00:00.000Z",
+    "dueDate": "2025-11-30T10:00:00.000Z",
+    "items": [
+      {
+        "id": "item_fut_1",
+        "description": "Servicios para Boda Ana y Juan",
+        "quantity": 1,
+        "unitPrice": 97000,
+        "total": 97000
+      }
+    ],
+    "subtotal": 97000,
+    "totalAmount": 97000,
+    "status": "Sent",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "payments": []
+  },
+  {
+    "id": "inv_past_789",
+    "invoiceNumber": "PAS-001",
+    "customer": {
+      "id": "cust_past_789",
+      "name": "Cliente Pasado (Ejemplo)",
+      "companyName": "Recuerdos del Ayer"
+    },
+    "issueDate": "2023-09-15T10:00:00.000Z",
+    "dueDate": "2023-10-10T10:00:00.000Z",
+    "items": [
+      {
+        "id": "item_past_1",
+        "description": "Servicios para Aniversario",
+        "quantity": 1,
+        "unitPrice": 51600,
+        "total": 51600
+      }
+    ],
+    "subtotal": 51600,
+    "totalAmount": 51600,
+    "status": "Paid",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "payments": [
+      {
+        "id": "pay_past_1",
+        "paymentDate": "2023-09-20T10:00:00.000Z",
+        "amount": 20000,
+        "method": "Transferencia"
+      },
+      {
+        "id": "pay_past_2",
+        "paymentDate": "2023-10-05T10:00:00.000Z",
+        "amount": 31600,
+        "method": "Efectivo"
+      }
+    ]
+  },
+  {
     "id": "inv_1024",
     "invoiceNumber": "1024",
     "customer": {
@@ -209,49 +274,6 @@
     "vendorAddress": "Montevideo, Uruguay",
     "vendorTaxId": "RUT Ejemplo 123456789012",
     "payments": []
-  },
-  {
-    "id": "inv_1762181514757_xsnz8v",
-    "invoiceNumber": "1050",
-    "customer": {
-      "id": "cust_1762181514757_q5kgyx",
-      "name": "Ana Salgado y Gilberto Coelho",
-      "estadoCliente": "Actual",
-      "partyDate": "2025-11-07T03:00:00.000Z",
-      "partyType": "XV Años",
-      "taxId": "2962173-4",
-      "venueName": "Club Uruguay"
-    },
-    "issueDate": "2024-12-23T00:00:00.000Z",
-    "dueDate": "2025-11-01T00:00:00.000Z",
-    "items": [
-      {
-        "id": "item_inv_1050_seña_1",
-        "description": "Seña por servicio de fiesta",
-        "quantity": 1,
-        "unitPrice": 5000,
-        "total": 5000
-      }
-    ],
-    "subtotal": 165029,
-    "taxRate": 0,
-    "taxAmount": 0,
-    "totalAmount": 165029,
-    "status": "Sent",
-    "notes": "INCLUYE AJUSTE 15 % 2025",
-    "currency": "UYU",
-    "vendorName": "AK Producciones",
-    "vendorAddress": "Montevideo, Uruguay",
-    "vendorTaxId": "RUT Ejemplo 123456789012",
-    "payments": [
-      {
-        "id": "pay_inv_1050_1",
-        "paymentDate": "2024-12-23T03:00:00.000Z",
-        "amount": 5000,
-        "method": "Transferencia",
-        "notes": "Seña según contrato"
-      }
-    ]
   },
   {
     "id": "inv_1758410145695_z6q9x",

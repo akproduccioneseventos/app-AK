@@ -1,1 +1,55 @@
-[]
+
+[
+  {
+    "id": "pres_future_123",
+    "clienteNombre": "Cliente Futuro (Ejemplo)",
+    "eventoTipo": "Boda",
+    "eventoFecha": "2025-12-31T21:00:00.000Z",
+    "invitadosCantidad": 150,
+    "salonFiestas": "Salón Moderno",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_1752489600021_bifech",
+        "nombreServicio": "Bife al champiñón c/ guarnición",
+        "cantidad": 150,
+        "precioUnitario": 480,
+        "costoTotalItem": 72000,
+        "categoriaServicio": "Servicio de catering"
+      },
+      {
+        "idServicioCatalogo": "item_1757258361278_fs8ba4x",
+        "nombreServicio": "Servicio de discoteca",
+        "cantidad": 1,
+        "precioUnitario": 25000,
+        "costoTotalItem": 25000,
+        "categoriaServicio": "Servicio de discoteca"
+      }
+    ],
+    "costoTotalEstimado": 97000,
+    "estado": "Aceptado",
+    "timestamp": "2024-07-01T10:00:00.000Z",
+    "invoiceId": "inv_future_123"
+  },
+  {
+    "id": "pres_past_789",
+    "clienteNombre": "Cliente Pasado (Ejemplo)",
+    "eventoTipo": "Aniversario",
+    "eventoFecha": "2023-10-15T21:00:00.000Z",
+    "invitadosCantidad": 80,
+    "salonFiestas": "Chacra Histórica",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_1752489600023_asadocom",
+        "nombreServicio": "Asado completo c/ guarnición",
+        "cantidad": 80,
+        "precioUnitario": 645,
+        "costoTotalItem": 51600,
+        "categoriaServicio": "Servicio de catering"
+      }
+    ],
+    "costoTotalEstimado": 51600,
+    "estado": "Facturado",
+    "timestamp": "2023-09-01T10:00:00.000Z",
+    "invoiceId": "inv_past_789"
+  }
+]

@@ -1,170 +1,24 @@
 
 {
-  "id": "fiesta_1762181514757",
+  "id": "fiesta_cust_future_123",
   "configuracion": {
-    "nombreEvento": "XV Años de Guillermina",
-    "tipoCelebracion": "XV Años",
-    "fechaEvento": "2025-11-07T03:00:00.000Z",
+    "nombreEvento": "Boda Futura de Ejemplo",
+    "tipoCelebracion": "Boda",
+    "fechaEvento": "2025-12-31T21:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "05:00",
-    "nombreLugar": "Club Uruguay",
+    "nombreLugar": "Salón Moderno",
     "invitadosEstimados": 150,
-    "presupuestoEstimado": 165029,
-    "notasAdicionales": "Ajuste del 15% para 2025 incluido.",
-    "clienteId": "cust_1762181514757_q5kgyx"
+    "presupuestoEstimado": 97000,
+    "notasAdicionales": "Este es el evento activo para demostración.",
+    "clienteId": "cust_future_123"
   },
-  "personalAsignado": [],
-  "menuAsignadoId": null,
-  "presupuestoId": "pres_1762181514757_xyz789",
+  "presupuestoId": "pres_future_123",
   "invoiceIds": [
-    "inv_1762181514757_xsnz8v"
+    "inv_future_123"
   ],
+  "personalAsignado": [],
   "reuniones": [],
   "tareas": [],
-  "clientChecklist": [],
-  "clientNotes": "",
-  "decoracion": {
-    "tema": "Gala Elegante",
-    "paletaColores": {
-      "primary": "#D9B8FF",
-      "secondary": "#FCD3DE",
-      "accent": "#F0E6CC"
-    },
-    "zonasContratadas": [],
-    "salonElements": [],
-    "items": []
-  },
-  "invitados": [],
-  "webPageSettings": {
-    "pageTitle": "Mis XV - Guillermina",
-    "welcomeMessage": "¡Te espero para celebrar mis 15 años!",
-    "showCountdown": true,
-    "showOurStory": false,
-    "showEventDetails": true,
-    "showGiftRegistry": false,
-    "showRsvp": true,
-    "showGallery": false
-  },
-  "clientPortalSettings": {
-    "enabled": true,
-    "accessKey": "guille15",
-    "checklist": {
-      "visible": true,
-      "editable": true
-    },
-    "itinerario": {
-      "visible": true
-    },
-    "musica": {
-      "visible": true,
-      "editable": true
-    },
-    "videoVida": {
-      "visible": true,
-      "editable": true
-    },
-    "listaRegalos": {
-      "visible": true
-    },
-    "documentos": {
-      "visible": true
-    },
-    "notasCliente": {
-      "visible": true,
-      "editable": true
-    },
-    "invitados": {
-      "visible": true
-    },
-    "paginaPublica": {
-      "visible": true
-    },
-    "fotografiaYFilmacion": {
-      "visible": true
-    }
-  },
-  "socialGallerySettings": {
-    "enabled": true,
-    "allowLikes": true,
-    "allowComments": true,
-    "uploadsActive": true
-  },
-  "musica": {
-    "cancionesTortaBrindis": []
-  },
-  "reposteria": {
-    "categorias": []
-  },
-  "bebidas": {
-    "categorias": []
-  },
-  "listaDeCargaOperativa": {
-    "categorias": []
-  },
-  "gestionCostos": {
-    "costosItems": [
-      {
-        "id": "costo_1762181514757_seña_salon",
-        "nombre": "Seña Salón Club Uruguay",
-        "categoria": "Pago de Salón",
-        "montoEstimado": 3000,
-        "notas": "Pago en USD"
-      },
-      {
-        "id": "costo_1762181514757_saldo_salon",
-        "nombre": "Saldo alquiler Salón Club Uruguay",
-        "categoria": "Pago de Salón",
-        "montoEstimado": 12000,
-        "notas": "Pago realizado el 23/07/2024"
-      }
-    ],
-    "ingresosTotalesEstimados": 0
-  },
-  "videoVida": {
-    "galleryEnabled": false,
-    "photosUploaded": false
-  },
-  "programa": [],
-  "fotografiaYFilmacion": {
-    "estadoEntrega": "Pendiente",
-    "recibidoPorCliente": false
-  },
-  "otrosDocumentos": [
-    {
-      "id": "doc_1762181514759_contrato_club_uruguay",
-      "nombre": "Contrato Salón Club Uruguay (1/3)",
-      "tipo": "contrato_salon",
-      "fileName": "contrato_club_uruguay_p1.pdf",
-      "timestamp": "2025-09-01T12:00:00.000Z"
-    },
-    {
-      "id": "doc_1762181514759_contrato_club_uruguay_p2",
-      "nombre": "Contrato Salón Club Uruguay (2/3)",
-      "tipo": "contrato_salon",
-      "fileName": "contrato_club_uruguay_p2.pdf",
-      "timestamp": "2025-09-01T12:01:00.000Z"
-    },
-    {
-      "id": "doc_1762181514759_contrato_club_uruguay_p3",
-      "nombre": "Contrato Salón Club Uruguay (Firmas 3/3)",
-      "tipo": "contrato_salon",
-      "fileName": "contrato_club_uruguay_p3_firmas.pdf",
-      "timestamp": "2025-09-01T12:02:00.000Z"
-    },
-    {
-      "id": "doc_1762181514759_recibo_seña",
-      "nombre": "Recibo Seña Salón Club Uruguay",
-      "tipo": "recibo_pago",
-      "fileName": "recibo_seña_club_uruguay.pdf",
-      "timestamp": "2025-09-01T12:03:00.000Z"
-    },
-    {
-      "id": "doc_1762181514760_recibo_saldo",
-      "nombre": "Recibo Saldo Salón Club Uruguay",
-      "tipo": "recibo_pago",
-      "fileName": "recibo_saldo_club_uruguay.pdf",
-      "timestamp": "2025-09-01T12:04:00.000Z"
-    }
-  ],
-  "pagosProveedores": []
+  "invitados": []
 }

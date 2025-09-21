@@ -9,10 +9,14 @@
     "horaFin": "05:00",
     "nombreLugar": "Salón Moderno",
     "invitadosEstimados": 150,
-    "presupuestoEstimado": 200000,
+    "presupuestoEstimado": 97000,
     "notasAdicionales": "Este es un evento de ejemplo en el futuro.",
     "clienteId": "cust_future_123"
   },
+  "presupuestoId": "pres_future_123",
+  "invoiceIds": [
+    "inv_future_123"
+  ],
   "personalAsignado": [],
   "reuniones": [],
   "tareas": [],

@@ -1,3 +1,4 @@
+
 [
   {
     "id": "cust_future_123",
@@ -5,18 +6,26 @@
     "phone": "099123456",
     "companyName": "Eventos del Mañana S.A.",
     "estadoCliente": "Actual",
-    "taxId": null,
-    "partyDate": null,
-    "partyTime": null,
-    "partyType": null,
-    "partyForWhom": null,
-    "venueName": "Club Uruguay"
+    "taxId": "12345678-9",
+    "partyDate": "2025-12-31T21:00:00.000Z",
+    "partyTime": "21:00 - 05:00",
+    "partyType": "Boda",
+    "partyForWhom": "Ana y Juan",
+    "venueName": "Salón Moderno",
+    "guestCount": 150
   },
   {
     "id": "cust_past_789",
     "name": "Cliente Pasado (Ejemplo)",
     "phone": "098765432",
     "companyName": "Recuerdos del Ayer",
-    "estadoCliente": "Antiguo"
+    "estadoCliente": "Antiguo",
+    "taxId": "98765432-1",
+    "partyDate": "2023-10-15T21:00:00.000Z",
+    "partyTime": "20:00 - 01:00",
+    "partyType": "Aniversario",
+    "partyForWhom": "Aniversario de Bodas",
+    "venueName": "Chacra Histórica",
+    "guestCount": 80
   }
 ]
