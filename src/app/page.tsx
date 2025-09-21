@@ -21,7 +21,7 @@ interface ModuleCardProps {
 }
 
 const modules: ModuleCardProps[] = [
-  { title: "Gestor de Eventos", description: "Visualiza y organiza todos tus eventos, el actual y los pasados.", href: "/eventos", icon: CalendarDays },
+  { title: "Gestor de Eventos", description: "Visualiza y organiza todos tus eventos, el actual y los pasados. Accede al Calendario General.", href: "/eventos", icon: CalendarDays },
   { title: "Contabilidad y Finanzas", description: "Accede al CRM, presupuestos, facturas y reportes.", href: "/empresa/contabilidad", icon: BarChart3 },
   { title: "Gestión de Empresa", description: "Administra personal, proveedores y tu catálogo de servicios.", href: "/empresa", icon: Building2 },
   { title: "Configuración General", description: "Ajusta las preferencias de la aplicación y plantillas de documentos.", href: "/settings", icon: Settings },

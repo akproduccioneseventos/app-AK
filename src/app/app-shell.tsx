@@ -53,7 +53,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
 
 
-  if (pathname === '/compras') return 'Compras y Checklist';
+  if (pathname === '/compras') return 'Compras y Adquisiciones';
 
   if (pathname === '/empleados') return 'Gestión de Personal';
   if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
@@ -118,7 +118,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname.startsWith('/acceso-personal')) return 'Acceso de Colaboradores';
 
 
-  if (pathname === '/eventos') return 'Todas las Fiestas';
+  if (pathname === '/eventos') return 'Gestor de Eventos';
   if (pathname === '/calendario') return 'Calendario General';
   if (pathname === '/notas') return 'Bloc de Notas';
   

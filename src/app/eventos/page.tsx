@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2 } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestas, archiveFiesta, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
@@ -130,16 +130,13 @@ export default function GestorFiestasPage() {
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-           <Button variant="outline" onClick={handlePrintSummary} disabled={isLoading}>
-              <Printer className="w-4 h-4 mr-2" />
-              Imprimir
-            </Button>
-            <Button variant="outline" onClick={handleShare} disabled={isLoading}>
-              <Share2 className="w-4 h-4 mr-2"/>Compartir
-            </Button>
-            <Link href="/customers/new" passHref>
-              <Button>
-                  <PlusCircle className="w-4 h-4 mr-2"/> Nuevo Cliente/Evento
+           <Link href="/calendario" passHref>
+              <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario General</Button>
+           </Link>
+            <Link href="/" passHref>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver al Menú Principal
               </Button>
             </Link>
         </div>
@@ -255,5 +252,4 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
-
     
