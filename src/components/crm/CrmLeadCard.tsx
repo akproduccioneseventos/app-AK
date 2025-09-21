@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,9 +25,11 @@ interface CrmLeadCardProps {
   lead: CrmLead;
   onDeleteLead: (leadId: string) => Promise<void>;
   isDeleting: boolean;
+  isMobile?: boolean;
+  onMove?: (direction: -1 | 1) => void;
 }
 
-export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps) {
+export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }: CrmLeadCardProps) {
   const {
     attributes,
     listeners,
@@ -35,7 +37,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: lead.id });
+  } = useSortable({ id: lead.id, disabled: isMobile });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -51,7 +53,6 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
     if (!notes) return null;
     const notesLower = notes.toLowerCase();
     
-    // Check for meeting notes first
     if (notesLower.includes('reunión de entrevista:') || notesLower.includes('reunión de firma de contrato:')) {
         const meetingLine = notes.split('\n')[0];
         return { type: 'text', content: meetingLine };
@@ -81,7 +82,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
           className="p-2 flex flex-row items-start gap-1 border-b cursor-grab flex-shrink-0"
           title="Mover prospecto"
         >
-           <GripVertical className="w-5 h-5 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
+           {!isMobile && <GripVertical className="w-5 h-5 text-muted-foreground/70 flex-shrink-0 mt-0.5" />}
             <div className="flex-grow min-w-0">
                <p className="font-semibold text-sm break-words line-clamp-2" title={lead.name}>{lead.name}</p>
             </div>
@@ -115,6 +116,12 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
           )}
         </CardContent>
         <CardFooter className="p-2 border-t flex justify-end items-center gap-1 flex-shrink-0">
+            {isMobile && onMove && (
+              <>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(-1)}><ChevronLeft className="w-4 h-4"/></Button>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(1)}><ChevronRight className="w-4 h-4"/></Button>
+              </>
+            )}
             <Link href={`/presupuestos/nuevo?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
                 <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
                     <FilePlus2 className="w-4 h-4" />

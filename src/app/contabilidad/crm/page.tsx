@@ -6,14 +6,14 @@ import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog, Clock } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
 import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
 import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
 import { ConvertToClientDialog } from '@/components/crm/ConvertToClientDialog';
-import { ScheduleMeetingDialog } from '@/components/crm/ScheduleMeetingDialog'; // Import new dialog
+import { ScheduleMeetingDialog } from '@/components/crm/ScheduleMeetingDialog'; 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -32,7 +32,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { CrmLeadCard } from '@/components/crm/CrmLeadCard';
 
 
 export default function CrmPage() {
@@ -47,13 +49,11 @@ export default function CrmPage() {
   const [isConvertToClientModalOpen, setIsConvertToClientModalOpen] = useState(false);
   const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
   
-  // State for the new meeting dialog
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [leadForMeeting, setLeadForMeeting] = useState<CrmLead | null>(null);
   const [meetingType, setMeetingType] = useState<'Entrevista' | 'Firma de Contrato'>('Entrevista');
 
   const isMobile = useIsMobile();
-  const [mobileVisibleStageId, setMobileVisibleStageId] = useState<string | null>(null);
   
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -68,14 +68,10 @@ export default function CrmPage() {
       ]);
       const sortedStages = stagesData.sort((a,b) => a.order - b.order);
       setStages(sortedStages);
-      // Sort leads by creation date descending
       const sortedLeads = leadsData.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setLeads(sortedLeads);
       
       setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
-      if(sortedStages.length > 0 && !mobileVisibleStageId) {
-        setMobileVisibleStageId(sortedStages[0].id);
-      }
     } catch (err: any) {
       console.error("Error fetching CRM data:", err);
       setError("No se pudieron cargar los datos del CRM.");
@@ -83,7 +79,7 @@ export default function CrmPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, mobileVisibleStageId]);
+  }, [toast]);
 
   useEffect(() => {
     fetchData();
@@ -92,7 +88,6 @@ export default function CrmPage() {
   const handleMeetingSubmit = async (meetingDate: string) => {
     if (!leadForMeeting) return;
     
-    // Optimistically update UI
     setLeads(currentLeads =>
         currentLeads.map(lead =>
           lead.id === leadForMeeting.id ? { ...lead, followUpDate: meetingDate } : lead
@@ -109,10 +104,30 @@ export default function CrmPage() {
       }
     } catch(e: any) {
        toast({ title: "Error", description: e.message, variant: "destructive" });
-       fetchData(); // Rollback on error
+       fetchData(); 
     }
     setIsMeetingModalOpen(false);
     setLeadForMeeting(null);
+  };
+  
+  const moveLeadAndUpdate = async (leadId: string, newStageId: string) => {
+    const originalLeads = [...leads];
+    setLeads(currentLeads =>
+        currentLeads.map(lead =>
+          lead.id === leadId ? { ...lead, currentStageId: newStageId, updatedAt: new Date().toISOString() } : lead
+        )
+    );
+
+    try {
+      const result = await moveCrmLead(leadId, newStageId);
+      if (!result.success) {
+        throw new Error(result.error || "No se pudo mover el prospecto.");
+      }
+      toast({ description: `Prospecto "${result.lead?.name}" movido.` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      setLeads(originalLeads); // Rollback on error
+    }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -122,13 +137,11 @@ export default function CrmPage() {
       const activeLeadId = active.id as string;
       const newStageId = over.id as string;
       
-      const originalLeads = [...leads];
-      const leadToMove = originalLeads.find(l => l.id === activeLeadId);
+      const leadToMove = leads.find(l => l.id === activeLeadId);
       const targetStage = stages.find(s => s.id === newStageId);
 
       if (!leadToMove || !targetStage) return;
 
-      // Handle special stages
       if (targetStage.name.toLowerCase().includes('entrevista')) {
         setLeadForMeeting({ ...leadToMove, currentStageId: newStageId });
         setMeetingType('Entrevista');
@@ -141,23 +154,7 @@ export default function CrmPage() {
         return; 
       }
 
-      // Default move action
-      setLeads(currentLeads =>
-        currentLeads.map(lead =>
-          lead.id === activeLeadId ? { ...lead, currentStageId: newStageId, updatedAt: new Date().toISOString() } : lead
-        )
-      );
-
-      try {
-        const result = await moveCrmLead(activeLeadId, newStageId);
-        if (!result.success) {
-          throw new Error(result.error || "No se pudo mover el prospecto.");
-        }
-        toast({ description: `Prospecto "${result.lead?.name}" movido.` });
-      } catch (error: any) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-        setLeads(originalLeads); // Rollback on error
-      }
+      await moveLeadAndUpdate(activeLeadId, newStageId);
     }
   };
 
@@ -274,20 +271,6 @@ export default function CrmPage() {
           </div>
         </div>
         
-        {isMobile && mobileVisibleStageId && (
-            <div className="mb-4">
-                <Label htmlFor="stage-selector">Seleccionar Etapa</Label>
-                <Select value={mobileVisibleStageId} onValueChange={setMobileVisibleStageId}>
-                    <SelectTrigger id="stage-selector"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                        {stages.map(stage => (
-                            <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-        )}
-
         {stages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-10">
               <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
@@ -295,17 +278,38 @@ export default function CrmPage() {
               <p className="text-sm text-muted-foreground">Verifica la configuración en `src/app/actions/crm.ts`.</p>
           </div>
         ) : isMobile ? (
-             <div className="flex-1 min-h-0">
-                {stages.filter(s => s.id === mobileVisibleStageId).map(stage => (
-                  <CrmStageColumn
-                      key={stage.id}
-                      stage={stage}
-                      leads={leadsByStage[stage.id] || []}
-                      onDeleteLead={handleDeleteLead}
-                      deletingLeadId={deletingLeadId}
-                  />
-                ))}
-             </div>
+             <Accordion type="multiple" defaultValue={stages.map(s => s.id)} className="w-full space-y-3">
+              {stages.map((stage, stageIndex) => {
+                const stageLeads = leadsByStage[stage.id] || [];
+                return (
+                  <AccordionItem key={stage.id} value={stage.id} className="border-l-4 rounded-md overflow-hidden bg-card shadow-sm" style={{borderColor: stage.borderColor}}>
+                    <AccordionTrigger className={`px-4 py-3 text-left hover:no-underline ${stage.headerBgColor} ${stage.headerTextColor}`}>
+                      <div className="flex justify-between items-center w-full">
+                        <span className="font-semibold">{stage.name}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${stage.bgColor} ${stage.textColor}`}>{stageLeads.length}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-2 space-y-2 bg-muted/30">
+                       {stageLeads.length > 0 ? stageLeads.map(lead => (
+                        <CrmLeadCard
+                          key={lead.id}
+                          lead={lead}
+                          onDeleteLead={handleDeleteLead}
+                          isDeleting={deletingLeadId === lead.id}
+                          isMobile={true}
+                          onMove={async (direction) => {
+                            const nextStageIndex = stageIndex + direction;
+                            if (nextStageIndex >= 0 && nextStageIndex < stages.length) {
+                              await moveLeadAndUpdate(lead.id, stages[nextStageIndex].id);
+                            }
+                          }}
+                        />
+                       )) : <p className="p-4 text-center text-sm text-muted-foreground">No hay prospectos en esta etapa.</p>}
+                    </AccordionContent>
+                  </AccordionItem>
+                )
+              })}
+            </Accordion>
         ) : (
           <ScrollArea className="w-full whitespace-nowrap pb-4">
               <div className="flex gap-4">
