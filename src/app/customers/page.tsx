@@ -177,7 +177,7 @@ export default function CustomersPage() {
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <CardTitle className="font-headline">Listado de Clientes ({filteredCustomers.length})</CardTitle>
-              <CardDescription>Consulta y gestiona la información de tus clientes que han firmado contrato.</CardDescription>
+              <CardDescription>Consulta y gestiona la información de tus clientes.</CardDescription>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                  <div className="relative flex-grow md:min-w-[250px]">

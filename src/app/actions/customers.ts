@@ -4,7 +4,6 @@
 import type { Customer, CustomerStatus } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
-import { getAllFiestas } from './fiesta-actual';
 
 const CLIENTES_COLLECTION_JSON = 'customers.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
