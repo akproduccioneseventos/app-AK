@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestas, archiveFiesta } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -35,6 +35,7 @@ const formatDate = (dateString?: string) => {
 export default function GestorFiestasPage() {
   const { toast } = useToast();
   const [fiestasActivas, setFiestasActivas] = useState<FiestaEnPlanificacion[]>([]);
+  const [fiestasArchivadas, setFiestasArchivadas] = useState<FiestaEnPlanificacion[]>([]);
   
   const [kpiData, setKpiData] = useState({
     fiestasPasadas: 0,
@@ -49,9 +50,10 @@ export default function GestorFiestasPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [kpiResult, activas] = await Promise.all([
+      const [kpiResult, activas, archivadas] = await Promise.all([
         getDashboardKpiData(),
         getFiestas(false), // Solo fiestas activas
+        getHistorialFiestas()
       ]);
 
       if (kpiResult.success && kpiResult.data) {
@@ -61,6 +63,7 @@ export default function GestorFiestasPage() {
       }
       
       setFiestasActivas(activas);
+      setFiestasArchivadas(archivadas);
 
     } catch (e: any) {
       console.error("Error loading fiestas data:", e);
@@ -193,7 +196,7 @@ export default function GestorFiestasPage() {
                       </div>
                     </CardContent>
                      <CardFooter className="p-2 border-t flex justify-end gap-2 print:hidden">
-                        <Link href={`/fiestas/nueva/configuracion?fiestaId=${fiesta.id}`} passHref>
+                        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
                           <Button variant="default" size="sm" className="w-full">
                             <Edit className="w-4 h-4 mr-2"/>Planificar
                           </Button>
@@ -222,7 +225,33 @@ export default function GestorFiestasPage() {
                 <p>No hay fiestas activas. Crea un nuevo cliente para empezar a planificar.</p>
               </div>
             )}
-          </div>
+        </div>
+        
+        <Separator className="my-8 print:my-4" />
+
+        <div className="print:break-before-page">
+            <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">Eventos Pasados y Archivados</h2>
+            {isLoading ? (
+                <div className="flex items-center justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+            ) : fiestasArchivadas.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {fiestasArchivadas.map(fiesta => (
+                        <Card key={fiesta.id} className="bg-muted/40 print:border print:shadow-none">
+                            <CardHeader className="p-4">
+                                <CardTitle className="text-base font-medium text-muted-foreground print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
+                                <CardDescription className="text-xs print:text-[10px]">{formatDate(fiesta.configuracion.fechaEvento)}</CardDescription>
+                            </CardHeader>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
+                    <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p>No hay eventos en el archivo histórico.</p>
+                </div>
+            )}
+        </div>
+
     </div>
   );
 }
