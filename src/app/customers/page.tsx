@@ -31,10 +31,8 @@ const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
-            if (new Date(dateString).getUTCFullYear() < 1971) return "N/A";
-            return "Fecha inválida";
-        }
+        // Check for invalid date strings that result in a date far in the past
+        if (isNaN(date.getTime()) || date.getUTCFullYear() < 1971) return "N/A";
         return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
     } catch(e) {
         return "Fecha inválida";
@@ -43,7 +41,7 @@ const formatDate = (dateString?: string) => {
 
 const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: string, customers: Customer[], deletingId: string | null, onDelete: (id: string, name?: string) => void }) => {
     if (customers.length === 0) {
-        return null;
+        return null; // Don't render the table if there are no customers for this status
     }
 
     return (
@@ -124,16 +122,17 @@ export default function CustomersPage() {
         getAllFiestas()
       ]);
       const now = new Date();
+      now.setHours(0, 0, 0, 0); // Set to start of today for comparison
       
       const customersWithStatus = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id);
           const hasFutureEvent = customerFiestas.some(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now);
           
           let calculatedStatus: CustomerStatus = 'Antiguo';
-          if(hasFutureEvent) {
+          if (hasFutureEvent) {
             calculatedStatus = 'Actual';
-          } else if (customerFiestas.length === 0 && customer.estadoCliente === 'Actual') {
-            // If they are marked as 'Actual' but have no fiestas, keep them as 'Actual'
+          } else if (customer.estadoCliente === 'Actual' && customerFiestas.length === 0) {
+            // Keep them 'Actual' if they have no events, they are a current prospect/client without a party date yet.
             calculatedStatus = 'Actual';
           }
           
@@ -151,9 +150,20 @@ export default function CustomersPage() {
       const sortedData = customersWithStatus.sort((a, b) => {
           if (a.estadoCliente === 'Actual' && b.estadoCliente !== 'Actual') return -1;
           if (a.estadoCliente !== 'Actual' && b.estadoCliente === 'Actual') return 1;
-          const dateA = a.partyDate ? new Date(a.partyDate).getTime() : Infinity;
-          const dateB = b.partyDate ? new Date(b.partyDate).getTime() : Infinity;
-          if(dateA !== Infinity && dateB !== Infinity) return dateA - dateB;
+          
+          const dateA = a.partyDate ? new Date(a.partyDate).getTime() : (a.estadoCliente === 'Actual' ? Infinity : -Infinity);
+          const dateB = b.partyDate ? new Date(b.partyDate).getTime() : (b.estadoCliente === 'Actual' ? Infinity : -Infinity);
+          
+          if(a.estadoCliente === 'Actual') {
+            if(dateA !== Infinity && dateB !== Infinity) return dateA - dateB;
+            if(dateA !== Infinity) return -1;
+            if(dateB !== Infinity) return 1;
+          } else { // Both are 'Antiguo'
+             if(dateA !== -Infinity && dateB !== -Infinity) return dateB - dateA; // Sort descending for past events
+             if(dateA !== -Infinity) return -1;
+             if(dateB !== -Infinity) return 1;
+          }
+
           return (a.companyName || a.name || '').localeCompare(b.companyName || b.name || '');
       });
       setCustomers(sortedData);
@@ -239,7 +249,7 @@ export default function CustomersPage() {
             </div>
           ) : filteredCustomers.length > 0 ? (
             <>
-                <CustomerTable title="Clientes con Eventos Futuros" customers={activeCustomers} deletingId={deletingId} onDelete={handleDelete} />
+                <CustomerTable title="Clientes con Eventos Futuros o Activos" customers={activeCustomers} deletingId={deletingId} onDelete={handleDelete} />
                 {oldCustomers.length > 0 && <Separator />}
                 <CustomerTable title="Clientes Antiguos" customers={oldCustomers} deletingId={deletingId} onDelete={handleDelete} />
             </>
