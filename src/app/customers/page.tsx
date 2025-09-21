@@ -31,9 +31,9 @@ const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "N/A";
-        // Use UTC methods to avoid timezone shifts affecting the date comparison logic
-        return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()).toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
+        // This ensures we read the date as if it's in UTC to avoid timezone shifts from the server string
+        const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+        return utcDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
     } catch(e) {
         return "Fecha inválida";
     }
@@ -128,20 +128,24 @@ export default function CustomersPage() {
       const customersWithStatus = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
           
-          let calculatedStatus: CustomerStatus = 'Actual'; // Default to Actual if no events
+          let calculatedStatus: CustomerStatus = 'Actual'; // Default for clients with no events
           let displayDate = customer.partyDate;
 
           if (customerFiestas.length > 0) {
               const hasUpcomingEvent = customerFiestas.some(f => {
                   const eventDate = new Date(f.configuracion.fechaEvento!);
                   eventDate.setHours(0, 0, 0, 0);
-                  return eventDate >= now;
+                  return eventDate.getTime() >= now.getTime();
               });
 
               if (hasUpcomingEvent) {
                   calculatedStatus = 'Actual';
                   const upcomingEvents = customerFiestas
-                      .filter(f => new Date(f.configuracion.fechaEvento!).setHours(0,0,0,0) >= now.getTime())
+                      .filter(f => {
+                          const eventDate = new Date(f.configuracion.fechaEvento!);
+                          eventDate.setHours(0, 0, 0, 0);
+                          return eventDate.getTime() >= now.getTime();
+                      })
                       .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
                   displayDate = upcomingEvents[0]?.configuracion.fechaEvento;
               } else {
