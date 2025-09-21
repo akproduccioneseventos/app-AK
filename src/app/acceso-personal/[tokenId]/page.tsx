@@ -36,14 +36,18 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: { t
         throw new Error("El enlace de acceso no es válido, ha expirado o ha sido revocado.");
       }
       
+      // If the access is event-specific, load the event data.
+      // If it's general (like for CRM), fiestaId will be undefined and this will be skipped.
       if (fetchedAcceso.fiestaId) {
         const fiestaData = await getFiestaById(fetchedAcceso.fiestaId);
         if(!fiestaData) {
-            throw new Error("Este enlace de acceso es para un evento que no se ha encontrado.");
+            // This is a valid error for event-specific links if the event is gone.
+            throw new Error("Este enlace de acceso es para un evento que ya no se ha encontrado.");
         }
         setFiesta(fiestaData);
       }
       setAcceso(fetchedAcceso);
+
     } catch (e: any) {
       setError(e.message);
       toast({ title: "Error de Acceso", description: e.message, variant: "destructive" });
@@ -101,7 +105,8 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: { t
                         const Icon = modulo.icon;
                         const isEventSpecific = ['musica', 'itinerario', 'carga-operativa', 'decoracion'].includes(permisoId);
                         
-                        if (isEventSpecific && !fiesta) return null; // Don't show event modules if no event is linked
+                        // If it's an event-specific module but this link is general (no fiesta), don't show it.
+                        if (isEventSpecific && !fiesta) return null;
 
                         const linkHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
 

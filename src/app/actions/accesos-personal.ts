@@ -25,7 +25,7 @@ export async function createAccesoPersonal(
   const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
   const newAcceso: AccesoPersonal = {
     ...data,
-    fiestaId: data.fiestaId || undefined,
+    fiestaId: data.fiestaId || undefined, // Ensures fiestaId is not an empty string
     id: randomUUID(),
     fechaCreacion: new Date().toISOString(),
   };
