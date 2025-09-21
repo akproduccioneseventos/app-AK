@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input'; 
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Archive, FileText, Printer, Share2, DollarSign, CreditCard, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle, BarChart3, UploadCloud, Eye, Trash2 } from 'lucide-react';
+import { ArrowLeft, Archive, FileText, Printer, Share2, DollarSign, CreditCard, FileSignature, PlusCircle, Info, Users, Loader2, AlertTriangle, BarChart3, UploadCloud, Eye, Trash2, Building } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import { StatusBadge as InvoiceStatusBadge } from '@/components/status-badge';
@@ -298,11 +298,18 @@ export default function GestionDocumentalPage() {
         <Card className="shadow-md">
             <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><FileSignature className="w-5 h-5 text-primary"/>Documentos del Evento</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-                 <Link href="/fiestas/nueva/gestion-documental/contrato" passHref>
-                    <Button variant="secondary" className="w-full">
-                        <FileSignature className="w-4 h-4 mr-2"/> Generar Contrato de Servicio
-                    </Button>
-                </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Link href="/fiestas/nueva/gestion-documental/contrato" passHref>
+                        <Button variant="secondary" className="w-full">
+                            <FileSignature className="w-4 h-4 mr-2"/> Generar Contrato de Servicio
+                        </Button>
+                    </Link>
+                    <Link href="/fiestas/nueva/gestion-documental/contrato-salon" passHref>
+                        <Button variant="secondary" className="w-full">
+                            <Building className="w-4 h-4 mr-2"/> Generar Contrato de Salón
+                        </Button>
+                    </Link>
+                </div>
                 <Separator />
                 {Object.entries(groupedDocuments).length === 0 ? <p className="text-muted-foreground text-center italic text-xs py-2">No hay documentos subidos.</p> :
                   Object.entries(groupedDocuments).map(([tipo, docs]) => (
@@ -322,7 +329,7 @@ export default function GestionDocumentalPage() {
                   ))
                 }
             </CardContent>
-            <CardFooter className="flex-col items-start gap-3"><Button onClick={() => setIsUploadModalOpen(true)}><UploadCloud className="w-4 h-4 mr-2"/>Subir Documento</Button>
+            <CardFooter className="flex-col items-start gap-3"><Button onClick={() => setIsUploadModalOpen(true)}><UploadCloud className="w-4 h-4 mr-2"/>Subir Documento Firmado</Button>
             <Button onClick={handleDownloadAll} variant="secondary" size="sm" disabled={isDownloading || (fiesta.otrosDocumentos?.length || 0) === 0}>{isDownloading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Archive className="w-4 h-4 mr-2" />}Descargar Todo (.zip)</Button></CardFooter>
         </Card>
         <Card className="shadow-md">
