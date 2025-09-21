@@ -118,7 +118,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
                 </Select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="lead-follow-up">Fecha de Seguimiento/Evento (Opcional)</Label>
+              <Label htmlFor="lead-follow-up">FECHA DEL EVENTO (opcional)</Label>
               <DatePickerDemo selectedDate={formData.followUpDate ? new Date(formData.followUpDate) : undefined} onDateChange={(date) => handleInputChange('followUpDate', date)} />
             </div>
           </div>
