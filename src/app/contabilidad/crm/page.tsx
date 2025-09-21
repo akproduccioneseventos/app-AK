@@ -87,24 +87,26 @@ export default function CrmPage() {
   
   const handleMeetingSubmit = async (meetingDate: string) => {
     if (!leadForMeeting) return;
-    
+
+    // Optimistically update the moved lead in the UI
+    const targetStageId = leadForMeeting.currentStageId;
     setLeads(currentLeads =>
         currentLeads.map(lead =>
-          lead.id === leadForMeeting.id ? { ...lead, followUpDate: meetingDate } : lead
+          lead.id === leadForMeeting.id ? { ...lead, currentStageId: targetStageId, followUpDate: meetingDate } : lead
         )
     );
 
     try {
-      const result = await moveCrmLead(leadForMeeting.id, leadForMeeting.currentStageId, meetingDate);
+      const result = await moveCrmLead(leadForMeeting.id, targetStageId, meetingDate);
       if (result.success) {
         toast({ description: `Reunión agendada para "${leadForMeeting.name}".` });
-        fetchData();
+        fetchData(); // Full refresh to get all data consistent from server
       } else {
         throw new Error(result.error);
       }
     } catch(e: any) {
        toast({ title: "Error", description: e.message, variant: "destructive" });
-       fetchData(); 
+       fetchData(); // Rollback on error
     }
     setIsMeetingModalOpen(false);
     setLeadForMeeting(null);
@@ -261,7 +263,7 @@ export default function CrmPage() {
             <Link href="/fiestas/nueva/reuniones" passHref>
                 <Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Ver Agenda de Reuniones</Button>
             </Link>
-            <Link href="/fiestas/nueva/accesos-personal" passHref>
+            <Link href="/settings/accesos-personal" passHref>
                 <Button variant="secondary"><UserCog className="w-4 h-4 mr-2"/>Gestionar Accesos</Button>
             </Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}

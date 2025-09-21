@@ -50,6 +50,13 @@ const settingsCards = [
     buttonLabel: "Configurar Simulador"
   },
   {
+    title: "Accesos para Colaboradores",
+    description: "Crea y gestiona enlaces de acceso para tu equipo (secretaria, DJ, etc.).",
+    href: "/settings/accesos-personal",
+    icon: UserCog,
+    buttonLabel: "Gestionar Accesos"
+  },
+  {
     title: "Notificaciones",
     description: "Configura cómo y cuándo recibir alertas y avisos.",
     href: "/settings/notifications", 
@@ -69,13 +76,6 @@ const settingsCards = [
     href: "/settings/backup",
     icon: HardDriveDownload,
     buttonLabel: "Gestionar Backups"
-  },
-  {
-    title: "Accesos para Colaboradores",
-    description: "Crea y gestiona enlaces de acceso para tu equipo (secretaria, DJ, etc.).",
-    href: "/fiestas/nueva/accesos-personal",
-    icon: UserCog,
-    buttonLabel: "Gestionar Accesos"
   },
 ];
 

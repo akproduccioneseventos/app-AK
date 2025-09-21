@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
@@ -16,6 +16,7 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'itinerario': { label: 'Itinerario del Evento', href: '/fiestas/nueva/itinerario', icon: Clock },
   'carga-operativa': { label: 'Lista de Carga Operativa', href: '/fiestas/nueva/carga-operativa', icon: PackageSearch },
   'decoracion': { label: 'Plan de Decoración', href: '/fiestas/nueva/decoracion/pdf', icon: Palette },
+  'crm': { label: 'Gestión de Prospectos (CRM)', href: '/contabilidad/crm', icon: KanbanSquare },
 };
 
 export default function PortalPersonalPage({ params: paramsProp }: { params: { tokenId: string } }) {
@@ -35,12 +36,14 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: { t
         throw new Error("El enlace de acceso no es válido, ha expirado o ha sido revocado.");
       }
       
-      const fiestaData = await getFiestaById(fetchedAcceso.fiestaId);
-      if(!fiestaData) {
-         throw new Error("Este enlace de acceso es para un evento que no se ha encontrado.");
+      if (fetchedAcceso.fiestaId) {
+        const fiestaData = await getFiestaById(fetchedAcceso.fiestaId);
+        if(!fiestaData) {
+            throw new Error("Este enlace de acceso es para un evento que no se ha encontrado.");
+        }
+        setFiesta(fiestaData);
       }
       setAcceso(fetchedAcceso);
-      setFiesta(fiestaData);
     } catch (e: any) {
       setError(e.message);
       toast({ title: "Error de Acceso", description: e.message, variant: "destructive" });
@@ -59,7 +62,7 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: { t
     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
   
-  if (error || !acceso || !fiesta) {
+  if (error || !acceso) {
     return (
         <div className="flex items-center justify-center min-h-screen p-4">
             <Card className="max-w-lg text-center bg-destructive/10">
@@ -75,26 +78,33 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: { t
     );
   }
 
+  const portalTitle = fiesta ? `Portal para: ${fiesta.configuracion.nombreEvento}` : "Portal de Colaborador";
+
   return (
     <div className="min-h-screen bg-muted/40 p-4 sm:p-8">
         <div className="max-w-2xl mx-auto space-y-6">
             <header className="text-center">
                 <KeyRound className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-3xl font-bold font-headline">{acceso.nombreAcceso}</h1>
-                <p className="text-lg text-muted-foreground">Portal para: {fiesta.configuracion.nombreEvento}</p>
+                <p className="text-lg text-muted-foreground">{portalTitle}</p>
             </header>
 
             <Card>
                 <CardHeader>
                     <CardTitle>Módulos Disponibles</CardTitle>
-                    <CardDescription>Haz clic en un módulo para ver los detalles relevantes para tu rol en el evento.</CardDescription>
+                    <CardDescription>Haz clic en un módulo para ver los detalles relevantes para tu rol.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                     {acceso.permisos.map(permisoId => {
                         const modulo = MODULO_DETAILS[permisoId];
                         if (!modulo) return null;
                         const Icon = modulo.icon;
-                        const linkHref = `${modulo.href}?fiestaId=${fiesta.id}`;
+                        const isEventSpecific = ['musica', 'itinerario', 'carga-operativa', 'decoracion'].includes(permisoId);
+                        
+                        if (isEventSpecific && !fiesta) return null; // Don't show event modules if no event is linked
+
+                        const linkHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
+
                         return (
                             <Link href={linkHref} key={permisoId} passHref>
                                 <Button variant="outline" className="w-full h-auto justify-start p-4 text-left">

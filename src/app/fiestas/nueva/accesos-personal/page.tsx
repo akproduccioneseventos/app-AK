@@ -1,193 +1,40 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, KeyRound, ClipboardCopy, Share2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { createAccesoPersonal, getAccesosByFiestaId, deleteAccesoPersonal, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
-const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string }[] = [
-    { id: 'musica', label: 'Música de la Fiesta' },
-    { id: 'itinerario', label: 'Itinerario del Evento' },
-    { id: 'carga-operativa', label: 'Lista de Carga Operativa' },
-    { id: 'decoracion', label: 'Plan de Decoración' },
-];
+export default function DeprecatedAccesosPage() {
+    const router = useRouter();
 
-export default function AccesosPersonalPage() {
-  const { toast } = useToast();
-  const [fiestaId, setFiestaId] = useState<string>('');
-  const [accesos, setAccesos] = useState<AccesoPersonal[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
+    useEffect(() => {
+        router.replace('/settings/accesos-personal');
+    }, [router]);
 
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [nombreAcceso, setNombreAcceso] = useState('');
-  const [permisos, setPermisos] = useState<Set<ModuloPermiso>>(new Set());
-
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const fiesta = await getFiestaActual();
-      if (!fiesta) throw new Error("No se encontró la fiesta actual.");
-      setFiestaId(fiesta.id);
-      const fetchedAccesos = await getAccesosByFiestaId(fiesta.id);
-      setAccesos(fetchedAccesos);
-    } catch (e: any) {
-      toast({ title: "Error", description: "No se pudieron cargar los datos de acceso.", variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  const handleCreateAcceso = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nombreAcceso.trim() || permisos.size === 0) {
-      toast({ title: "Datos incompletos", description: "El nombre del acceso y al menos un permiso son requeridos.", variant: "destructive" });
-      return;
-    }
-    setIsProcessing(true);
-    const result = await createAccesoPersonal({
-      nombreAcceso,
-      fiestaId,
-      permisos: Array.from(permisos)
-    });
-    if (result.success) {
-      toast({ title: "¡Acceso Creado!", description: "El enlace de acceso ha sido generado." });
-      setIsModalOpen(false);
-      setNombreAcceso('');
-      setPermisos(new Set());
-      await loadData();
-    } else {
-      toast({ title: "Error", description: result.error, variant: "destructive" });
-    }
-    setIsProcessing(false);
-  };
-  
-  const handleDeleteAcceso = async (accesoId: string) => {
-      setIsProcessing(true);
-      const result = await deleteAccesoPersonal(accesoId);
-      if(result.success) {
-          toast({title: "Acceso Eliminado"});
-          await loadData();
-      } else {
-          toast({title: "Error", description: result.error, variant: "destructive"});
-      }
-      setIsProcessing(false);
-  }
-  
-  const copyLink = (tokenId: string) => {
-    const url = `${window.location.origin}/acceso-personal/${tokenId}`;
-    navigator.clipboard.writeText(url);
-    toast({ title: "Enlace Copiado", description: "El enlace de acceso ha sido copiado al portapapeles." });
-  };
-  
-  const shareLink = (tokenId: string) => {
-     const url = `${window.location.origin}/acceso-personal/${tokenId}`;
-     const message = `¡Hola! Aquí tienes tu acceso para los detalles del evento: ${url}`;
-     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-  }
-
-  return (
-    <div className="max-w-3xl mx-auto space-y-6">
-       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Crear Nuevo Acceso para Colaborador</DialogTitle><DialogDescription>Define un nombre y selecciona los módulos a los que tendrá acceso.</DialogDescription></DialogHeader>
-          <form onSubmit={handleCreateAcceso} className="space-y-4 py-2">
-            <div className="space-y-1"><Label htmlFor="nombre-acceso">Nombre del Acceso *</Label><Input id="nombre-acceso" value={nombreAcceso} onChange={e => setNombreAcceso(e.target.value)} placeholder="Ej: Acceso DJ, Acceso Decoradora" required /></div>
-            <div className="space-y-2"><Label>Permisos *</Label>
-              <div className="space-y-2 p-3 border rounded-md">
-                {MODULOS_PERMITIDOS.map(modulo => (
-                  <div key={modulo.id} className="flex items-center gap-3">
-                    <Checkbox
-                      id={`permiso-${modulo.id}`}
-                      checked={permisos.has(modulo.id)}
-                      onCheckedChange={(checked) => {
-                        setPermisos(prev => {
-                          const newPermisos = new Set(prev);
-                          if (checked) newPermisos.add(modulo.id);
-                          else newPermisos.delete(modulo.id);
-                          return newPermisos;
-                        });
-                      }}
-                    />
-                    <Label htmlFor={`permiso-${modulo.id}`} className="font-normal">{modulo.label}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <DialogFooter className="pt-3">
-                <DialogClose asChild><Button type="button" variant="outline" disabled={isProcessing}>Cancelar</Button></DialogClose>
-                <Button type="submit" disabled={isProcessing}>{isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Crear Acceso</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <KeyRound className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Accesos para Colaboradores</h1>
+    return (
+        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
+            <Card className="max-w-xl text-center">
+                <CardHeader>
+                    <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
+                    <CardTitle className="font-headline text-2xl mt-4">Redirigiendo...</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <p className="text-muted-foreground">
+                        La gestión de accesos ahora es centralizada. Serás redirigido a la nueva página en Configuración.
+                    </p>
+                </CardContent>
+                 <CardFooter className="justify-center">
+                    <Link href="/settings/accesos-personal" passHref>
+                        <Button variant="link">
+                            Si no eres redirigido, haz clic aquí.
+                        </Button>
+                    </Link>
+                </CardFooter>
+            </Card>
         </div>
-        <Link href="/fiestas/nueva" passHref>
-          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
-        </Link>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Gestionar Accesos</CardTitle>
-          <CardDescription>Crea enlaces únicos y seguros para que tu personal (DJ, decorador, etc.) pueda ver solo la información relevante del evento, sin necesidad de una contraseña.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button onClick={() => setIsModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Enlace de Acceso</Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader><CardTitle>Enlaces de Acceso Activos</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-           {isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> : 
-             accesos.length > 0 ? (
-                 accesos.map(acceso => (
-                    <Card key={acceso.id} className="p-3 bg-muted/40">
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
-                           <div>
-                                <p className="font-semibold text-primary">{acceso.nombreAcceso}</p>
-                                <p className="text-xs text-muted-foreground">Permisos: {acceso.permisos.join(', ')}</p>
-                                <p className="text-xs text-muted-foreground">Creado: {new Date(acceso.fechaCreacion).toLocaleDateString()}</p>
-                           </div>
-                           <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
-                               <Button variant="outline" size="sm" onClick={() => copyLink(acceso.id)} className="flex-1"><ClipboardCopy className="w-3.5 h-3.5 mr-1.5"/>Copiar</Button>
-                               <Button variant="secondary" size="sm" onClick={() => shareLink(acceso.id)} className="flex-1"><Share2 className="w-3.5 h-3.5 mr-1.5"/>Compartir</Button>
-                               <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => handleDeleteAcceso(acceso.id)} disabled={isProcessing}><Trash2 className="w-4 h-4"/></Button>
-                           </div>
-                        </div>
-                    </Card>
-                 ))
-             ) : <p className="text-center text-muted-foreground py-4">No hay enlaces de acceso creados para esta fiesta.</p>
-           }
-        </CardContent>
-      </Card>
-    </div>
-  );
+    );
 }
