@@ -1,5 +1,4 @@
 
-
 export interface CrmLeadHistoryItem {
   stageId: string;
   stageName: string;

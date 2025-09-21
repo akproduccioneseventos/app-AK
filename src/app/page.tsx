@@ -5,13 +5,15 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, BarChart3, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot, Share2, Eye, FilePlus2 } from 'lucide-react';
+import { ArrowRight, CalendarDays, BarChart3, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot, Share2, Eye, FilePlus2, MessageSquareText, ListChecks } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { useToast } from '@/hooks/use-toast';
 import { triggerAppLogout } from '@/components/auth-guard';
 import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
 import { getDashboardKpiData } from '@/app/actions/dashboard'; 
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, Tarea, Reunion } from '@/types/fiesta';
 
 interface ModuleCardProps {
   title: string;
@@ -62,9 +64,17 @@ const formatCurrency = (amount?: number) => {
   }).format(amount);
 };
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "Sin fecha";
+  return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+}
+
+
 export default function DashboardPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
+  const [upcomingTasks, setUpcomingTasks] = useState<Tarea[]>([]);
+  const [upcomingReuniones, setUpcomingReuniones] = useState<Reunion[]>([]);
   const [kpiData, setKpiData] = useState({
     fiestasPasadas: 0,
     fiestasFuturas: 0,
@@ -76,12 +86,32 @@ export default function DashboardPage() {
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await getDashboardKpiData(); 
-      if (result.success && result.data) {
-        setKpiData(result.data);
+      const [kpiResult, fiestaActual] = await Promise.all([
+        getDashboardKpiData(),
+        getFiestaActual()
+      ]); 
+      if (kpiResult.success && kpiResult.data) {
+        setKpiData(kpiResult.data);
       } else {
-        throw new Error(result.error || "Failed to fetch dashboard data.");
+        throw new Error(kpiResult.error || "Failed to fetch dashboard data.");
       }
+
+      // Filter and sort tasks and meetings
+      const now = new Date();
+      if(fiestaActual.tareas) {
+        const pendingTasks = fiestaActual.tareas
+          .filter(t => !t.completada && t.fechaLimite && new Date(t.fechaLimite) >= now)
+          .sort((a,b) => new Date(a.fechaLimite!).getTime() - new Date(b.fechaLimite!).getTime());
+        setUpcomingTasks(pendingTasks.slice(0, 3));
+      }
+
+       if(fiestaActual.reuniones) {
+        const pendingReuniones = fiestaActual.reuniones
+          .filter(r => r.fecha && new Date(r.fecha) >= now)
+          .sort((a,b) => new Date(a.fecha!).getTime() - new Date(b.fecha!).getTime());
+        setUpcomingReuniones(pendingReuniones.slice(0, 3));
+      }
+
     } catch (err: any) {
       console.error("Error fetching dashboard data:", err);
       toast({ title: "Error de Carga", description: "No se pudieron cargar los datos del dashboard.", variant: "destructive" });
@@ -122,47 +152,59 @@ export default function DashboardPage() {
       
       <Separator />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="shadow-lg lg:col-span-2">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl">Próximas Tareas y Reuniones</CardTitle>
+                <CardDescription>Resumen de tus próximos compromisos para el evento actual.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                    <h4 className="font-semibold text-sm flex items-center gap-2"><ListChecks className="w-5 h-5 text-primary"/> Tareas Pendientes</h4>
+                    {upcomingTasks.length > 0 ? (
+                        <ul className="space-y-2 text-sm">{upcomingTasks.map(t=>(<li key={t.id} className="flex items-center gap-2"><span className="font-medium text-primary/80">{formatDate(t.fechaLimite)}</span><span>{t.texto}</span></li>))}</ul>
+                    ) : <p className="text-sm text-muted-foreground italic">No hay tareas próximas.</p>}
+                </div>
+                <div className="space-y-3">
+                    <h4 className="font-semibold text-sm flex items-center gap-2"><MessageSquareText className="w-5 h-5 text-primary"/> Reuniones Agendadas</h4>
+                    {upcomingReuniones.length > 0 ? (
+                        <ul className="space-y-2 text-sm">{upcomingReuniones.map(r=>(<li key={r.id} className="flex items-center gap-2"><span className="font-medium text-primary/80">{formatDate(r.fecha)}</span><span>{r.titulo}</span></li>))}</ul>
+                    ) : <p className="text-sm text-muted-foreground italic">No hay reuniones próximas.</p>}
+                </div>
+            </CardContent>
+             <CardFooter>
+                <Link href="/fiestas/nueva/tareas" passHref>
+                    <Button variant="outline" size="sm">Gestionar Tareas</Button>
+                </Link>
+                <Link href="/fiestas/nueva/reuniones" passHref className="ml-2">
+                    <Button variant="outline" size="sm">Gestionar Reuniones</Button>
+                </Link>
+            </CardFooter>
+        </Card>
+        
         <Card className="shadow-lg border-2 border-primary/40 bg-primary/5">
           <CardHeader>
             <div className="flex items-center gap-3">
                 <Wand2 className="w-8 h-8 text-primary"/>
                 <div>
                   <CardTitle className="font-headline text-xl">Simulador de Presupuesto Público</CardTitle>
-                  <CardDescription>Comparte este enlace con tus clientes para que puedan generar un presupuesto estimado al instante.</CardDescription>
                 </div>
             </div>
           </CardHeader>
+           <CardContent>
+                <p className="text-sm text-muted-foreground">Comparte este enlace con tus clientes para que puedan generar un presupuesto estimado al instante.</p>
+           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2">
               <Button asChild className="w-full">
                 <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer">
-                  <Eye className="w-4 h-4 mr-2"/> Ir al Simulador Público
+                  <Eye className="w-4 h-4 mr-2"/> Ir al Simulador
                 </Link>
               </Button>
               <ShareLinkDialog relativePath="/simulador-de-presupuesto" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
                   <Button variant="outline" className="w-full sm:w-auto">
-                      <Share2 className="w-4 h-4 mr-2"/>Compartir Enlace
+                      <Share2 className="w-4 h-4 mr-2"/>Compartir
                   </Button>
               </ShareLinkDialog>
-          </CardFooter>
-        </Card>
-
-         <Card className="shadow-lg border-2 border-secondary">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-                <FilePlus2 className="w-8 h-8 text-foreground"/>
-                <div>
-                  <CardTitle className="font-headline text-xl">Central de Presupuestos</CardTitle>
-                  <CardDescription>Genera presupuestos detallados para tus clientes directamente desde el panel de gestión.</CardDescription>
-                </div>
-            </div>
-          </CardHeader>
-          <CardFooter>
-              <Button asChild className="w-full">
-                <Link href="/presupuestos/nuevo">
-                  <PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Presupuesto
-                </Link>
-              </Button>
           </CardFooter>
         </Card>
       </div>

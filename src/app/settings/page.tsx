@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2 } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -62,7 +62,14 @@ const settingsCards = [
     href: "/settings/backup",
     icon: HardDriveDownload,
     buttonLabel: "Gestionar Backups"
-  }
+  },
+  {
+    title: "Accesos para Colaboradores",
+    description: "Crea y gestiona enlaces de acceso para tu equipo (secretaria, DJ, etc.).",
+    href: "/fiestas/nueva/accesos-personal",
+    icon: UserCog,
+    buttonLabel: "Gestionar Accesos"
+  },
 ];
 
 export default function SettingsPage() {
