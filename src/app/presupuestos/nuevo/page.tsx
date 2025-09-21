@@ -13,12 +13,12 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
 import { savePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
+import { getCrmStages, moveCrmLead } from '@/app/actions/crm'; // Importar acciones de CRM
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso4Resumen from '@/components/presupuestos/paso-4-resumen'; 
 import { Progress } from '@/components/ui/progress';
-import { generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
@@ -107,6 +107,8 @@ function NuevoPresupuestoContent() {
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
     const [finalPresupuestoData, setFinalPresupuestoData] = useState<Presupuesto | null>(null);
 
+    const leadIdFromParams = searchParams.get('leadId');
+
     useEffect(() => {
         try {
             sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
@@ -133,7 +135,9 @@ function NuevoPresupuestoContent() {
                 await fetchServicios();
                 setPaquetesBase(armadoConfig.paquetes || []);
                 setMenusArmadoRapido(armadoConfig.menus || []);
+                
                 const leadName = searchParams.get('leadName');
+                // Only prefill from lead if there's no state saved in session storage
                 if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
                     setFormData(prev => ({ ...prev, clienteNombre: leadName }));
                 }
@@ -233,18 +237,29 @@ function NuevoPresupuestoContent() {
         try {
           const result = await savePresupuesto(presupuestoAGuardar);
           if (result.success && result.id) {
-             // Create a lead in CRM
-            await generateLeadFromQuickBudget({
-                clienteNombre: presupuestoAGuardar.clienteNombre,
-                clienteContacto: presupuestoAGuardar.clienteContacto,
-                adultos: presupuestoAGuardar.invitadosAdultos || 0,
-                ninos: presupuestoAGuardar.invitadosNinos || 0,
-                costoEstimado: totalFinalConDescuento,
-                serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio),
-                paqueteNombre: undefined
-            });
+             // If we came from a lead, move it in the CRM
+            if (leadIdFromParams) {
+                const stages = await getCrmStages();
+                const targetStage = stages.find(s => s.name.toLowerCase() === 'con presupuesto');
+                if (targetStage) {
+                    await moveCrmLead(leadIdFromParams, targetStage.id);
+                    toast({ title: "Prospecto Actualizado", description: `Se movió a "${formData.clienteNombre}" a la etapa "Con presupuesto".` });
+                }
+            } else {
+                 // Create a new lead if not coming from CRM
+                await generateLeadFromQuickBudget({
+                    clienteNombre: presupuestoAGuardar.clienteNombre,
+                    clienteContacto: presupuestoAGuardar.clienteContacto,
+                    adultos: presupuestoAGuardar.invitadosAdultos || 0,
+                    ninos: presupuestoAGuardar.invitadosNinos || 0,
+                    costoEstimado: totalFinalConDescuento,
+                    serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio),
+                    paqueteNombre: undefined
+                });
+                toast({ title: "Prospecto Creado", description: `Se creó un nuevo prospecto en el CRM para "${formData.clienteNombre}".` });
+            }
 
-            toast({ title: "Presupuesto Guardado", description: `Se creó el presupuesto y un prospecto en el CRM.` });
+            toast({ title: "Presupuesto Guardado" });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push(`/presupuestos/${result.id}/ver`); // Redirect to the professional view
           } else { throw new Error(result.error || "Error al guardar"); }

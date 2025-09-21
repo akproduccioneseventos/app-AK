@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, Eye } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,9 +83,9 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
           )}
         </CardContent>
         <CardFooter className="p-2 border-t flex justify-end items-center gap-1 flex-shrink-0">
-            <Link href={`/presupuestos/nuevo?leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
+            <Link href={`/presupuestos/nuevo?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
                 <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
-                    <Eye className="w-4 h-4" />
+                    <FilePlus2 className="w-4 h-4" />
                     Crear Presupuesto
                 </Button>
             </Link>
