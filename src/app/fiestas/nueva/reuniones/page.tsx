@@ -9,12 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { getFiestaActual, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +47,33 @@ const formatDate = (dateString?: string) => {
   }
 };
 
+// Función para generar contenido de archivo .ics
+const generateICSContent = (reunion: Reunion, fiestaNombre: string): string => {
+  if (!reunion.fecha) return '';
+  const startDate = new Date(reunion.fecha);
+  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Asumir 1 hora de duración
+
+  const toUTC = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//AKProducciones//App//EN',
+    'BEGIN:VEVENT',
+    `UID:${reunion.id}@akproducciones.app`,
+    `DTSTAMP:${toUTC(new Date())}`,
+    `DTSTART:${toUTC(startDate)}`,
+    `DTEND:${toUTC(endDate)}`,
+    `SUMMARY:Reunión: ${reunion.titulo}`,
+    `DESCRIPTION:Reunión para el evento "${fiestaNombre}". Notas: ${reunion.notas.replace(/\n/g, '\\n')}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\n');
+
+  return icsContent;
+};
+
+
 export default function GestionReunionesPage() {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -57,7 +82,7 @@ export default function GestionReunionesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [currentReunion, setCurrentReunion] = useState<Reunion | null>(null); // For editing
+  const [currentReunion, setCurrentReunion] = useState<Reunion | null>(null);
   const [formTitulo, setFormTitulo] = useState('');
   const [formFecha, setFormFecha] = useState<Date | undefined>(undefined);
   const [formHora, setFormHora] = useState('');
@@ -94,7 +119,6 @@ export default function GestionReunionesPage() {
 
       const existingReunion = reuniones.find(r => {
         if (!r.fecha) return false;
-        // Ignore self when editing
         if (currentReunion && r.id === currentReunion.id) return false;
         return new Date(r.fecha).getTime() === currentDateTime.getTime();
       });
@@ -147,7 +171,7 @@ export default function GestionReunionesPage() {
 
     try {
       let result;
-      if (currentReunion) { // Editing existing reunion
+      if (currentReunion) {
         const updatedReunionData: Reunion = {
           ...currentReunion,
           titulo: formTitulo.trim(),
@@ -155,7 +179,7 @@ export default function GestionReunionesPage() {
           notas: formNotas.trim(),
         };
         result = await updateReunionInFiestaActual(updatedReunionData);
-      } else { // Adding new reunion
+      } else {
         const newReunionData: Omit<Reunion, 'id'> = {
           titulo: formTitulo.trim(),
           fecha: finalDate ? finalDate.toISOString() : undefined,
@@ -167,7 +191,7 @@ export default function GestionReunionesPage() {
       if (result.success && result.reunion) {
         toast({ title: `¡Reunión ${currentReunion ? 'Actualizada' : 'Añadida'}!`, description: `La reunión "${result.reunion.titulo}" ha sido guardada.` });
         setIsFormModalOpen(false);
-        await loadReuniones(); // Refresh list
+        await loadReuniones();
       } else {
         throw new Error(result.error || `Error desconocido al ${currentReunion ? 'actualizar' : 'añadir'} la reunión.`);
       }
@@ -184,7 +208,7 @@ export default function GestionReunionesPage() {
       const result = await deleteReunionFromFiestaActual(reunionId);
       if (result.success) {
         toast({ title: "Reunión Eliminada", description: "La reunión ha sido eliminada correctamente." });
-        await loadReuniones(); // Refresh list
+        await loadReuniones();
       } else {
         throw new Error(result.error || "Error desconocido al eliminar la reunión.");
       }
@@ -194,6 +218,22 @@ export default function GestionReunionesPage() {
       setDeletingReunionId(null);
     }
   };
+
+  const handleAddToCalendar = (reunion: Reunion) => {
+    if (!fiesta) return;
+    const icsContent = generateICSContent(reunion, fiesta.configuracion.nombreEvento);
+    if (icsContent) {
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Reunion - ${reunion.titulo}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({title: "Archivo de Calendario Descargado", description: "Abre el archivo para añadirlo a tu calendario."});
+    }
+  };
+
 
   const now = new Date();
   const todayReuniones = reuniones.filter(r => r.fecha && isToday(new Date(r.fecha)));
@@ -238,6 +278,14 @@ export default function GestionReunionesPage() {
           <p className="text-sm text-muted-foreground italic p-3 bg-background rounded-md border">No hay notas.</p>
         )}
       </CardContent>
+       {reunion.fecha && (
+        <CardFooter>
+          <Button variant="outline" size="sm" onClick={() => handleAddToCalendar(reunion)}>
+            <CalendarPlus className="w-4 h-4 mr-2" />
+            Añadir a Calendario
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 
