@@ -20,5 +20,6 @@ export interface Customer {
   venueName?: string; // Nombre del salón o lugar
   
   contractFileName?: string; 
-  budgetFileName?: string; 
+  budgetFileName?: string;
+  salonContractFileName?: string;
 }

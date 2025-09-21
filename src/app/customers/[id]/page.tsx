@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -184,10 +185,10 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
                  <div className="flex flex-wrap gap-2">
                     {customer.contractFileName ? (
                         <a href={`/api/contracts/${customer.contractFileName}`} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline"><FileText className="w-4 h-4 mr-2"/> Ver Contrato Firmado</Button>
+                            <Button variant="outline"><FileText className="w-4 h-4 mr-2"/> Ver Contrato de Servicio</Button>
                         </a>
                     ) : (
-                        <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato no subido</Button>
+                        <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato de Servicio no subido</Button>
                     )}
                      {customer.budgetFileName ? (
                         <a href={`/api/budgets/${customer.budgetFileName}`} target="_blank" rel="noopener noreferrer">
@@ -195,6 +196,13 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
                         </a>
                     ) : (
                          <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Presupuesto no subido</Button>
+                    )}
+                    {customer.salonContractFileName ? (
+                        <a href={`/api/salon-contracts/${customer.salonContractFileName}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline"><FileText className="w-4 h-4 mr-2"/> Ver Contrato del Salón</Button>
+                        </a>
+                    ) : (
+                         <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato Salón no subido</Button>
                     )}
                  </div>
             </div>

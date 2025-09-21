@@ -42,6 +42,7 @@ export default function NewCustomerPage() {
   
   const [contractFile, setContractFile] = useState<File | null>(null);
   const [budgetFile, setBudgetFile] = useState<File | null>(null);
+  const [salonContractFile, setSalonContractFile] = useState<File | null>(null);
 
   const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
@@ -86,6 +87,7 @@ export default function NewCustomerPage() {
 
     if (contractFile) formData.append('contract', contractFile);
     if (budgetFile) formData.append('budget', budgetFile);
+    if (salonContractFile) formData.append('salonContract', salonContractFile);
 
 
     try {
@@ -211,12 +213,18 @@ export default function NewCustomerPage() {
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Contrato (PDF)</Label>
+                  <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Contrato de Servicio (PDF)</Label>
                   <Input id="contract-file" type="file" onChange={(e) => setContractFile(e.target.files?.[0] || null)} accept="application/pdf" />
                 </div>
                 <div>
-                  <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Presupuesto (PDF)</Label>
+                  <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Presupuesto Firmado (PDF)</Label>
                   <Input id="budget-file" type="file" onChange={(e) => setBudgetFile(e.target.files?.[0] || null)} accept="application/pdf" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div>
+                    <Label htmlFor="salon-contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Contrato del Salón (PDF)</Label>
+                    <Input id="salon-contract-file" type="file" onChange={(e) => setSalonContractFile(e.target.files?.[0] || null)} accept="application/pdf" />
                 </div>
               </div>
           </CardContent>
@@ -232,4 +240,3 @@ export default function NewCustomerPage() {
     </div>
   );
 }
-    

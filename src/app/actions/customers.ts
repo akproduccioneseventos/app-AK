@@ -10,8 +10,10 @@ const CUSTOMERS_FILE = 'customers.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const CONTRACTS_DIR_NAME = 'contracts';
 const BUDGETS_DIR_NAME = 'budgets'; 
+const SALON_CONTRACTS_DIR_NAME = 'salon-contracts';
 const contractsDirectoryPath = path.join(DATA_DIR, CONTRACTS_DIR_NAME);
 const budgetsDirectoryPath = path.join(DATA_DIR, BUDGETS_DIR_NAME); 
+const salonContractsDirectoryPath = path.join(DATA_DIR, SALON_CONTRACTS_DIR_NAME);
 
 
 async function ensureSubdirectoryExists(dirPath: string) {
@@ -23,6 +25,7 @@ async function ensureSubdirectoryExists(dirPath: string) {
 }
 ensureSubdirectoryExists(contractsDirectoryPath);
 ensureSubdirectoryExists(budgetsDirectoryPath);
+ensureSubdirectoryExists(salonContractsDirectoryPath);
 
 
 export async function getCustomers(): Promise<Customer[]> {
@@ -43,6 +46,7 @@ export async function saveCustomer(
 
   let contractFile: File | null = null;
   let budgetFile: File | null = null;
+  let salonContractFile: File | null = null;
 
   if (customerData instanceof FormData) {
     customerToSave.name = customerData.get('name') as string;
@@ -60,6 +64,7 @@ export async function saveCustomer(
 
     contractFile = customerData.get('contract') as File | null;
     budgetFile = customerData.get('budget') as File | null; 
+    salonContractFile = customerData.get('salonContract') as File | null;
 
     const formId = customerData.get('id') as string | undefined;
     if (formId) customerToSave.id = formId;
@@ -89,6 +94,7 @@ export async function saveCustomer(
       estadoCliente: customerToSave.estadoCliente || existingCustomer.estadoCliente || 'Actual',
       contractFileName: contractFile ? undefined : (customerToSave.contractFileName || existingCustomer.contractFileName),
       budgetFileName: budgetFile ? undefined : (customerToSave.budgetFileName || existingCustomer.budgetFileName),
+      salonContractFileName: salonContractFile ? undefined : (customerToSave.salonContractFileName || existingCustomer.salonContractFileName),
     };
     customerToSave = customers[index]; 
   } else { // Create
@@ -139,6 +145,23 @@ export async function saveCustomer(
     }
   }
   
+  if (salonContractFile && salonContractFile.size > 0) {
+    try {
+      if (salonContractFile.type !== 'application/pdf') {
+        throw new Error('El contrato del salón debe ser un archivo PDF.');
+      }
+      await ensureSubdirectoryExists(salonContractsDirectoryPath);
+      const bytes = await salonContractFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const uniqueFilename = `salon_contract_${customerId}_${Date.now()}_${salonContractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      await fs.writeFile(path.join(salonContractsDirectoryPath, uniqueFilename), buffer);
+      (customerToSave as Customer).salonContractFileName = uniqueFilename;
+    } catch (fileError: any) {
+      console.error("Error saving salon contract file:", fileError);
+      return { success: false, error: `Error al guardar archivo de contrato del salón: ${fileError.message}` };
+    }
+  }
+  
   const finalIndex = customers.findIndex(c => c.id === customerId);
   if (finalIndex !== -1) customers[finalIndex] = customerToSave as Customer;
   
@@ -171,6 +194,13 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
       console.warn(`Error deleting budget file ${customerToDelete.budgetFileName}:`, fileError.message);
     }
   }
+  if (customerToDelete?.salonContractFileName) { 
+    try {
+      await fs.unlink(path.join(salonContractsDirectoryPath, customerToDelete.salonContractFileName));
+    } catch (fileError: any) {
+      console.warn(`Error deleting salon contract file ${customerToDelete.salonContractFileName}:`, fileError.message);
+    }
+  }
 
   await writeData(CUSTOMERS_FILE, customers);
   return { success: true };
@@ -188,6 +218,16 @@ export async function getContractFilePath(filename: string): Promise<string | nu
 
 export async function getBudgetFilePath(filename: string): Promise<string | null> {
   const filePath = path.join(budgetsDirectoryPath, filename);
+  try {
+    await fs.access(filePath);
+    return filePath;
+  } catch {
+    return null;
+  }
+}
+
+export async function getSalonContractFilePath(filename: string): Promise<string | null> {
+  const filePath = path.join(salonContractsDirectoryPath, filename);
   try {
     await fs.access(filePath);
     return filePath;
@@ -247,7 +287,7 @@ export async function syncCustomerFromFiestaConfig(
   return { success: true };
 }
 
-export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget', filename: string): Promise<{ success: boolean, error?: string}> {
+export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget' | 'salonContract', filename: string): Promise<{ success: boolean, error?: string}> {
     const customers = await getCustomers();
     const customerIndex = customers.findIndex(c => c.id === customerId);
     if (customerIndex === -1) {
@@ -258,7 +298,10 @@ export async function addDocumentReferenceToCustomer(customerId: string, documen
         customers[customerIndex].contractFileName = filename;
     } else if (documentType === 'budget') {
         customers[customerIndex].budgetFileName = filename;
+    } else if (documentType === 'salonContract') {
+        customers[customerIndex].salonContractFileName = filename;
     }
+
 
     await writeData(CUSTOMERS_FILE, customers);
     return { success: true };
