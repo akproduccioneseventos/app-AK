@@ -9,7 +9,7 @@ import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainC
 const settingsCards = [
    {
     title: "Información de la Empresa",
-    description: "Actualiza los datos fiscales y de contactode tu empresa.",
+    description: "Actualiza los datos fiscales y de contacto de tu empresa.",
     href: "/settings/company", 
     icon: Building,
     buttonLabel: "Gestionar Datos"
@@ -41,6 +41,13 @@ const settingsCards = [
     href: "/admin/aaiff-fiesta",
     icon: PartyPopper,
     buttonLabel: "Analizar Evento"
+  },
+  {
+    title: "Configuración de Paquetes (Simulador)",
+    description: "Define los paquetes y precios para el simulador de presupuesto de clientes.",
+    href: "/settings/budget-display",
+    icon: Wand2,
+    buttonLabel: "Configurar Simulador"
   },
   {
     title: "Notificaciones",
@@ -76,6 +83,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
+        <SettingsIcon className="w-8 h-8 text-primary"/>
         <div>
             <h1 className="text-3xl font-bold tracking-tight font-headline">
                 Configuración General
@@ -85,10 +93,7 @@ export default function SettingsPage() {
             </p>
         </div>
       </div>
-      <p className="text-muted-foreground">
-        Administra las preferencias de la aplicación, apariencia de documentos y detalles de tu cuenta.
-      </p>
-
+      
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {settingsCards.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">

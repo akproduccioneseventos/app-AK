@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
@@ -206,9 +206,9 @@ export default function CrmPage() {
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle>Calendario de Eventos</SheetTitle>
+                  <SheetTitle>Calendario de Eventos Ocupados</SheetTitle>
                   <SheetDescription>
-                    Los días marcados en rojo ya tienen un evento confirmado. Evita agendar reuniones importantes en estas fechas.
+                    Los días marcados en rojo ya tienen un evento confirmado. Evita agendar reuniones importantes en estas fechas para no generar conflictos.
                   </SheetDescription>
                 </SheetHeader>
                 <div className="py-4 flex justify-center">
@@ -216,11 +216,14 @@ export default function CrmPage() {
                 </div>
               </SheetContent>
             </Sheet>
+            <Link href="/settings/account" passHref>
+                <Button variant="secondary"><UserCog className="w-4 h-4 mr-2"/>Gestionar Accesos</Button>
+            </Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
             <Link href="/empresa/contabilidad" passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver a Contabilidad
+                Volver
               </Button>
             </Link>
           </div>
