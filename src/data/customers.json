@@ -1,2 +1,17 @@
 
-[]
+[
+  {
+    "id": "cust_future_123",
+    "name": "Cliente Futuro (Ejemplo)",
+    "phone": "099123456",
+    "companyName": "Eventos del Mañana S.A.",
+    "estadoCliente": "Actual"
+  },
+  {
+    "id": "cust_past_789",
+    "name": "Cliente Pasado (Ejemplo)",
+    "phone": "098765432",
+    "companyName": "Recuerdos del Ayer",
+    "estadoCliente": "Antiguo"
+  }
+]

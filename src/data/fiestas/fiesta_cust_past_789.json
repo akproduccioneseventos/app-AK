@@ -1,0 +1,20 @@
+
+{
+  "id": "fiesta_cust_past_789",
+  "configuracion": {
+    "nombreEvento": "Aniversario Pasado de Ejemplo",
+    "tipoCelebracion": "Cumpleaños",
+    "fechaEvento": "2023-10-15T21:00:00.000Z",
+    "horaInicio": "20:00",
+    "horaFin": "01:00",
+    "nombreLugar": "Chacra Histórica",
+    "invitadosEstimados": 80,
+    "presupuestoEstimado": 120000,
+    "notasAdicionales": "Este es un evento de ejemplo en el pasado.",
+    "clienteId": "cust_past_789"
+  },
+  "personalAsignado": [],
+  "reuniones": [],
+  "tareas": [],
+  "invitados": []
+}
