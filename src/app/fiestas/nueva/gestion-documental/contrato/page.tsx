@@ -87,7 +87,7 @@ export default function ContratoServicioPage() {
           
           <p>
             En la ciudad de Salto, a los {today}, comparecen por una parte AK PRODUCCIONES EVENTOS, RUT: 220372680019, Nº de Empresa: 0000008898364, representado en este acto por el Tec. Alexander Knuth, C.I. 46173508, con domicilio en Gaboto 3390, Salto, Uruguay, correo electrónico akproduccionessalto@gmail.com, en adelante el “PRESTADOR DEL SERVICIO”.
-            Por otra parte, el/la Sr./Sra. <strong>{cliente?.name || '______________________________'}</strong>, con domicilio en {cliente?.street || '____________________________________'}, cédula de identidad N° <strong>{cliente?.taxId || '____________________'}</strong>, número de contacto <strong>{cliente?.phone || '____________________'}</strong>, en adelante el “CLIENTE”.
+            Por otra parte, el/la Sr./Sra. <strong>{cliente?.name || '______________________________'}</strong>, con domicilio en { '____________________________________'}, cédula de identidad N° <strong>{cliente?.taxId || '____________________'}</strong>, número de contacto <strong>{cliente?.phone || '____________________'}</strong>, en adelante el “CLIENTE”.
             Ambas partes acuerdan celebrar el presente contrato, sujeto a los términos y condiciones que se establecen a continuación:
           </p>
 
@@ -137,3 +137,5 @@ export default function ContratoServicioPage() {
     </div>
   );
 }
+
+    
