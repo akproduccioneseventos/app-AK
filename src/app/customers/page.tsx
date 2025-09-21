@@ -10,7 +10,7 @@ import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Print
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
-import { getCustomers, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
+import { getCustomersWithStatus, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,16 +51,6 @@ const formatDate = (dateString?: string) => {
     }
 }
 
-const getCreationDateFromId = (id: string): string => {
-  const parts = id.split('_');
-  if (parts.length > 1 && !isNaN(Number(parts[1]))) {
-    const timestamp = Number(parts[1]);
-    return formatDate(new Date(timestamp).toISOString());
-  }
-  return 'N/A';
-};
-
-
 export default function CustomersPage() {
   const { toast } = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -76,7 +66,7 @@ export default function CustomersPage() {
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getCustomers();
+      const data = await getCustomersWithStatus();
       // Sort by partyDate, upcoming first, then those without a date.
       const sortedData = data.sort((a, b) => {
           const dateA = a.partyDate ? new Date(a.partyDate).getTime() : Infinity;
@@ -206,25 +196,23 @@ export default function CustomersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre / Empresa</TableHead>
-                    <TableHead>Fecha Contratado</TableHead>
-                    <TableHead className="flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Fecha Evento</TableHead>
-                    <TableHead>Estado Cliente</TableHead>
-                    <TableHead className="text-right print:hidden">Acciones</TableHead>
+                    <TableHead className="min-w-[250px]">Nombre / Empresa</TableHead>
+                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Fecha Evento</TableHead>
+                    <TableHead className="min-w-[120px]">Estado Cliente</TableHead>
+                    <TableHead className="text-right print:hidden min-w-[200px]">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredCustomers.map((customer) => (
                     <TableRow key={customer.id}>
-                      <TableCell className="font-medium min-w-[200px]">{customer.companyName || customer.name}</TableCell>
-                      <TableCell className="min-w-[140px]">{getCreationDateFromId(customer.id)}</TableCell>
-                      <TableCell className="min-w-[120px]">{formatDate(customer.partyDate)}</TableCell>
-                      <TableCell className="min-w-[120px]">
+                      <TableCell className="font-medium">{customer.companyName || customer.name}</TableCell>
+                      <TableCell>{formatDate(customer.partyDate)}</TableCell>
+                      <TableCell>
                         <Badge variant={getCustomerStatusBadgeVariant(customer.estadoCliente)} className="text-xs print:border print:border-gray-300 print:text-black print:bg-white">
                           {customer.estadoCliente || 'Actual'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right min-w-[200px] print:hidden">
+                      <TableCell className="text-right print:hidden">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/customers/${customer.id}`} passHref>
                             <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${customer.companyName || customer.name}`} title="Ver Detalles">
