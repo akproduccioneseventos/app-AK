@@ -2,8 +2,8 @@
 'use server';
 
 import { 
-    getFiestaActual as getFiesta, 
-    updateConfiguracion as updateConfiguracionFiestaActual 
+    getFiestaActual as getFiesta,
+    updateConfiguracion as updateConfiguracionFiestaActual
 } from './fiesta/configuracion.actions';
 import { 
     addInvitado as addInvitadoFiestaActual,
@@ -95,9 +95,10 @@ import {
     getFiestaById,
     getFiestas,
     getAllFiestas,
+    getFiestaActual, // Added missing import
     resetFiestaActual,
     saveFiesta,
-    createNewFiestaForCustomer
+    createNewFiestaForCustomer,
 } from './fiesta/fiesta.actions';
 
 
