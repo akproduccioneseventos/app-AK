@@ -130,7 +130,7 @@ export default function GestorFiestasPage() {
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-           <Button variant="outline" onClick={handlePrint} disabled={isLoading}>
+           <Button variant="outline" onClick={handlePrintSummary} disabled={isLoading}>
               <Printer className="w-4 h-4 mr-2" />
               Imprimir
             </Button>
@@ -255,3 +255,5 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
+
+    

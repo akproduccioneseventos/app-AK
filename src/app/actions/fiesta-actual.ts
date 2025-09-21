@@ -1,7 +1,8 @@
+
 'use server';
 
 import { 
-    getFiestaActual as getFiesta, // Deprecated, use getFiestaActual
+    getFiestaActual,
     updateConfiguracion as updateConfiguracionFiestaActual 
 } from './fiesta/configuracion.actions';
 import { 
@@ -76,7 +77,6 @@ import {
     getFiestaById,
     getFiestas,
     getAllFiestas,
-    getFiestaActual,
     resetFiestaActual,
     saveFiesta,
     createNewFiestaForCustomer,
@@ -85,7 +85,7 @@ import {
 
 // Re-exporting all for backward compatibility during transition.
 export {
-    getFiesta,
+    getFiestaActual,
     updateConfiguracionFiestaActual,
     addInvitadoFiestaActual,
     updateInvitadoFiestaActual,
@@ -122,7 +122,6 @@ export {
     getFiestaById,
     getFiestas,
     getAllFiestas,
-    getFiestaActual,
     resetFiestaActual,
     saveFiesta,
     createNewFiestaForCustomer,

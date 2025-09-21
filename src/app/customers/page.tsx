@@ -125,10 +125,10 @@ export default function CustomersPage() {
       const now = new Date();
       now.setHours(0, 0, 0, 0); 
       
-      const customersWithStatus = customersData.map(customer => {
+      const customersWithData = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
           
-          let calculatedStatus: CustomerStatus = 'Actual'; // Default for clients with no events
+          let calculatedStatus: CustomerStatus = 'Actual'; 
           let displayDate = customer.partyDate;
 
           if (customerFiestas.length > 0) {
@@ -149,7 +149,6 @@ export default function CustomersPage() {
                       .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
                   displayDate = upcomingEvents[0]?.configuracion.fechaEvento;
               } else {
-                  // All events are in the past
                   calculatedStatus = 'Antiguo';
                   const pastEvents = customerFiestas
                       .sort((a,b) => new Date(b.configuracion.fechaEvento!).getTime() - new Date(a.configuracion.fechaEvento!).getTime());
@@ -164,18 +163,14 @@ export default function CustomersPage() {
           };
       });
       
-      const sortedData = customersWithStatus.sort((a, b) => {
+      const sortedData = customersWithData.sort((a, b) => {
           const dateA = a.partyDate ? new Date(a.partyDate).getTime() : -Infinity;
           const dateB = b.partyDate ? new Date(b.partyDate).getTime() : -Infinity;
           
           if(a.estadoCliente === 'Actual' && b.estadoCliente !== 'Actual') return -1;
           if(a.estadoCliente !== 'Actual' && b.estadoCliente === 'Actual') return 1;
 
-          // If both are 'Actual', sort by closest upcoming event
-          if (a.estadoCliente === 'Actual') {
-            return dateA - dateB;
-          } 
-          // If both are 'Antiguo', sort by most recent past event
+          if (a.estadoCliente === 'Actual') return dateA - dateB;
           return dateB - dateA;
       });
 
