@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getProveedorById, saveProveedor } from '@/app/actions/proveedores';
 import type { Proveedor } from '@/types/proveedor';
 
-export default function EditProveedorPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function EditProveedorPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();

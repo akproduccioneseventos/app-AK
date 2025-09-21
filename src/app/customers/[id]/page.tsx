@@ -47,7 +47,7 @@ interface EventPaymentDetails {
   saldoFiesta: number;
 }
 
-export default function CustomerDetailsPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function CustomerDetailsPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const customerId = params.id;
   const router = useRouter();

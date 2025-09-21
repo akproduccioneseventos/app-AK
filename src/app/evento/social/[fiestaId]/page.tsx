@@ -99,7 +99,7 @@ const PostCard: React.FC<{
 };
 
 
-export default function SocialGalleryPage({ params: paramsProp }: { params: Promise<{ fiestaId: string }> }) {
+export default function SocialGalleryPage({ params: paramsProp }: { params: { fiestaId: string } }) {
   const params = React.use(paramsProp);
   const { toast } = useToast();
   

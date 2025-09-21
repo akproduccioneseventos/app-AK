@@ -17,7 +17,7 @@ import type { Presupuesto, TipoEvento, ItemPresupuestado } from '@/types/presupu
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 
-export default function EditarPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function EditarPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id as string;

@@ -28,7 +28,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function EditarEmpleadoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function EditarEmpleadoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();

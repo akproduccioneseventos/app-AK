@@ -18,7 +18,7 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'decoracion': { label: 'Plan de Decoración', href: '/fiestas/nueva/decoracion/pdf', icon: Palette },
 };
 
-export default function PortalPersonalPage({ params: paramsProp }: { params: Promise<{ tokenId: string }> }) {
+export default function PortalPersonalPage({ params: paramsProp }: { params: { tokenId: string } }) {
   const params = React.use(paramsProp);
   const { toast } = useToast();
   const [acceso, setAcceso] = useState<AccesoPersonal | null>(null);

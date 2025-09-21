@@ -82,7 +82,7 @@ function PhotoSlot({ index, file, onFileChange, onRemove, isSubmitting }: PhotoS
 }
 
 
-export default function PhotoUploadPage({ params: paramsProp }: { params: Promise<{ fiestaId: string }> }) {
+export default function PhotoUploadPage({ params: paramsProp }: { params: { fiestaId: string } }) {
   const params = React.use(paramsProp);
   const { toast } = useToast();
   const [photos, setPhotos] = useState<(File | null)[]>(Array(MAX_PHOTOS).fill(null));

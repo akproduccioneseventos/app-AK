@@ -18,7 +18,7 @@ import { getInvoiceById, saveInvoice as updateInvoiceAction } from '@/app/action
 import { getCustomers } from '@/app/actions/customers'; // To fetch customers for dropdown
 import type { Customer } from '@/types/customer'; // Main Customer type
 
-export default function EditInvoicePage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function EditInvoicePage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const invoiceId = params.id as string;

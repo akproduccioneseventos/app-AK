@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
 
-export default function EditCustomerPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function EditCustomerPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp); 
   const router = useRouter();
   const { toast } = useToast();
