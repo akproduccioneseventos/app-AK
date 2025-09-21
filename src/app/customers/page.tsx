@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -51,7 +52,7 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
                 <TableHeader>
                   <TableRow>
                     <TableHead className="min-w-[250px]">Nombre / Empresa</TableHead>
-                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Próximo Evento</TableHead>
+                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Próximo/Último Evento</TableHead>
                     <TableHead className="text-right print:hidden min-w-[200px]">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -127,13 +128,10 @@ export default function CustomersPage() {
       const customersWithStatus = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
           
-          let calculatedStatus: CustomerStatus = 'Antiguo';
+          let calculatedStatus: CustomerStatus = 'Actual'; // Default to Actual if no events
           let displayDate = customer.partyDate;
 
-          if (customerFiestas.length === 0) {
-              // If no events, consider them "Actual" to keep them in the main list.
-              calculatedStatus = 'Actual';
-          } else {
+          if (customerFiestas.length > 0) {
               const hasUpcomingEvent = customerFiestas.some(f => {
                   const eventDate = new Date(f.configuracion.fechaEvento!);
                   eventDate.setHours(0, 0, 0, 0);
@@ -166,12 +164,17 @@ export default function CustomersPage() {
           const dateA = a.partyDate ? new Date(a.partyDate).getTime() : -Infinity;
           const dateB = b.partyDate ? new Date(b.partyDate).getTime() : -Infinity;
           
-          if(a.estadoCliente === 'Actual') { // For active clients, sort by closest upcoming event
+          if(a.estadoCliente === 'Actual' && b.estadoCliente !== 'Actual') return -1;
+          if(a.estadoCliente !== 'Actual' && b.estadoCliente === 'Actual') return 1;
+
+          // If both are 'Actual', sort by closest upcoming event
+          if (a.estadoCliente === 'Actual') {
             return dateA - dateB;
-          } else { // For old clients, sort by most recent past event
-             return dateB - dateA; 
-          }
+          } 
+          // If both are 'Antiguo', sort by most recent past event
+          return dateB - dateA;
       });
+
       setCustomers(sortedData);
     } catch (error) {
       toast({ title: "Error", description: "No se pudieron cargar los clientes.", variant: "destructive" });
@@ -280,4 +283,6 @@ export default function CustomersPage() {
     </div>
   );
 }
+    
+
     
