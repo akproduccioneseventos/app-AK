@@ -85,13 +85,6 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: Users,
     actionLabel: 'Ir a Clientes',
   },
-  {
-    title: 'Gestión Documental del Evento',
-    description: 'Contratos, pagos a proveedores y documentos importantes de la fiesta actual.',
-    href: '/fiestas/nueva/gestion-documental',
-    icon: Archive,
-    actionLabel: 'Gestionar Documentos',
-   },
    {
     title: 'Catálogo de Servicios y Precios',
     description: 'Define y gestiona los servicios que ofreces en los presupuestos.',

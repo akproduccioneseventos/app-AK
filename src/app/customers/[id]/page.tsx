@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Customer } from '@/types/customer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -92,14 +92,6 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: Pr
         }
       });
       
-      // Ordenar por fecha de evento, más próxima primero
-      todasLasFiestasDelCliente.sort((a, b) => {
-        const dateA = a.configuracion.fechaEvento ? new Date(a.configuracion.fechaEvento).getTime() : 0;
-        const dateB = b.configuracion.fechaEvento ? new Date(b.configuracion.fechaEvento).getTime() : 0;
-        return dateA - dateB; // Ascendente para que las más próximas queden al principio si invertimos luego, o descendente si no
-      });
-      // Para mostrar más próximas primero, podríamos hacer reverse o cambiar el sort a b - a
-
       const paymentHistory: EventPaymentDetails[] = [];
       for (const fiesta of todasLasFiestasDelCliente) {
         let presupuestoFiesta: Presupuesto | null = null;
@@ -118,7 +110,7 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: Pr
           totalPagadoFiesta += factura.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
         });
 
-        const costoTotalFiesta = presupuestoFiesta?.costoTotalEstimado || 0;
+        const costoTotalFiesta = presupuestoFiesta?.totalConDescuento ?? presupuestoFiesta?.costoTotalEstimado ?? 0;
         const saldoFiesta = costoTotalFiesta - totalPagadoFiesta;
 
         paymentHistory.push({
@@ -129,7 +121,6 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: Pr
           saldoFiesta
         });
       }
-      // Ordenar por fecha de evento descendente (más reciente primero)
       setEventPaymentHistory(paymentHistory.sort((a,b) => 
         (b.fiesta.configuracion.fechaEvento ? new Date(b.fiesta.configuracion.fechaEvento).getTime() : 0) - 
         (a.fiesta.configuracion.fechaEvento ? new Date(a.fiesta.configuracion.fechaEvento).getTime() : 0)
@@ -148,7 +139,7 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: Pr
     loadCustomerData();
   }, [loadCustomerData]);
 
-  const [notFound, setNotFound] = useState(false); // To handle not found customer
+  const [notFound, setNotFound] = useState(false);
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -163,105 +154,119 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: Pr
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <UserCircle className="w-10 h-10 text-primary" />
+        <div className="flex items-center gap-4">
+          <UserCircle className="w-12 h-12 text-primary flex-shrink-0" />
           <div>
             <h1 className="text-3xl font-bold tracking-tight font-headline">
               {customer.companyName || customer.name}
             </h1>
-            <p className="text-sm text-muted-foreground">Detalles y Historial de Pagos del Cliente</p>
+            <p className="text-sm text-muted-foreground">Centro de Control del Cliente</p>
           </div>
         </div>
-        <Link href="/customers" passHref>
-          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Clientes</Button>
-        </Link>
+        <div className="flex gap-2 w-full sm:w-auto">
+            <Link href="/customers" passHref className="flex-1 sm:flex-none">
+                <Button variant="outline" className="w-full"><ArrowLeft className="w-4 h-4 mr-2"/>Clientes</Button>
+            </Link>
+             <Link href={`/customers/${customerId}/edit`} passHref className="flex-1 sm:flex-none">
+                <Button variant="default" className="w-full">Editar Cliente</Button>
+            </Link>
+        </div>
       </div>
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Información de Contacto</CardTitle>
+          <CardTitle className="font-headline text-xl">Información General y Documentos</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div><span className="font-medium text-muted-foreground">Nombre:</span> {customer.name}</div>
-          {customer.companyName && <div><span className="font-medium text-muted-foreground">Empresa:</span> {customer.companyName}</div>}
-          <div><span className="font-medium text-muted-foreground">Teléfono:</span> {customer.phone || '-'}</div>
-          <div><span className="font-medium text-muted-foreground">RUT/Cédula:</span> {customer.taxId || '-'}</div>
+        <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Empresa:</span> {customer.companyName || '-'}</div>
+              <div className="flex items-center gap-2"><UserCircle className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Contacto:</span> {customer.name}</div>
+              <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Teléfono:</span> {customer.phone || '-'}</div>
+              <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">RUT/Cédula:</span> {customer.taxId || '-'}</div>
+            </div>
+            <Separator />
+            <div>
+                 <h4 className="text-sm font-semibold mb-2">Documentos Adjuntos</h4>
+                 <div className="flex flex-wrap gap-2">
+                    {customer.contractFileName ? (
+                        <a href={`/api/contracts/${customer.contractFileName}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline"><FileText className="w-4 h-4 mr-2"/> Ver Contrato Firmado</Button>
+                        </a>
+                    ) : (
+                        <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato no subido</Button>
+                    )}
+                     {customer.budgetFileName ? (
+                        <a href={`/api/budgets/${customer.budgetFileName}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline"><FileText className="w-4 h-4 mr-2"/> Ver Presupuesto Firmado</Button>
+                        </a>
+                    ) : (
+                         <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Presupuesto no subido</Button>
+                    )}
+                 </div>
+            </div>
         </CardContent>
       </Card>
 
       <Separator />
 
       <section>
-        <h2 className="text-2xl font-semibold font-headline mb-4 text-primary">Eventos Contratados y Pagos</h2>
+        <h2 className="text-2xl font-semibold font-headline mb-4 text-primary">Historial de Eventos</h2>
         {eventPaymentHistory.length > 0 ? (
-          <ScrollArea className="h-auto max-h-[calc(100vh-400px)] pr-3">
-            <div className="space-y-6">
+          <div className="space-y-6">
               {eventPaymentHistory.map(eventDetail => (
                 <Card key={eventDetail.fiesta.id} className="shadow-md border-l-4 border-primary/70">
                   <CardHeader className="bg-muted/20 pb-3">
-                    <CardTitle className="font-headline text-lg">{eventDetail.fiesta.configuracion.nombreEvento}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {eventDetail.fiesta.configuracion.tipoCelebracion} - {formatDate(eventDetail.fiesta.configuracion.fechaEvento)}
-                    </CardDescription>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <CardTitle className="font-headline text-lg">{eventDetail.fiesta.configuracion.nombreEvento}</CardTitle>
+                            <CardDescription className="text-xs">
+                              {eventDetail.fiesta.configuracion.tipoCelebracion} - {formatDate(eventDetail.fiesta.configuracion.fechaEvento)}
+                            </CardDescription>
+                        </div>
+                         <Button asChild size="sm">
+                            <Link href={`/fiestas/nueva?fiestaId=${eventDetail.fiesta.id}`}>Planificar Evento</Link>
+                         </Button>
+                    </div>
                   </CardHeader>
-                  <CardContent className="pt-4 space-y-3">
+                  <CardContent className="pt-4 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                      <div className="p-2 border rounded-md bg-blue-50"><span className="font-medium text-blue-700">Costo Evento:</span> {formatCurrency(eventDetail.presupuestoFiesta?.costoTotalEstimado)}</div>
-                      <div className="p-2 border rounded-md bg-green-50"><span className="font-medium text-green-700">Total Pagado:</span> {formatCurrency(eventDetail.totalPagadoFiesta)}</div>
-                      <div className={`p-2 border rounded-md ${eventDetail.saldoFiesta > 0 ? 'bg-red-50' : 'bg-green-50'}`}><span className={`font-medium ${eventDetail.saldoFiesta > 0 ? 'text-red-700' : 'text-green-700'}`}>Saldo:</span> {formatCurrency(eventDetail.saldoFiesta)}</div>
+                      <div className="p-2 border rounded-md bg-blue-50 dark:bg-blue-900/30"><span className="font-medium text-blue-700 dark:text-blue-300">Costo Evento:</span> {formatCurrency(eventDetail.presupuestoFiesta?.totalConDescuento ?? eventDetail.presupuestoFiesta?.costoTotalEstimado)}</div>
+                      <div className="p-2 border rounded-md bg-green-50 dark:bg-green-900/30"><span className="font-medium text-green-700 dark:text-green-300">Total Pagado:</span> {formatCurrency(eventDetail.totalPagadoFiesta)}</div>
+                      <div className={`p-2 border rounded-md ${eventDetail.saldoFiesta > 0 ? 'bg-red-50 dark:bg-red-900/30' : 'bg-green-50 dark:bg-green-900/30'}`}><span className={`font-medium ${eventDetail.saldoFiesta > 0 ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}`}>Saldo:</span> {formatCurrency(eventDetail.saldoFiesta)}</div>
                     </div>
 
-                    {eventDetail.presupuestoFiesta && (
-                      <Link href={`/presupuestos/${eventDetail.presupuestoFiesta.id}/ver`} passHref>
-                        <Button variant="outline" size="sm" className="text-xs">
-                          <FileText className="w-3 h-3 mr-1.5"/>Ver Presupuesto del Evento
-                        </Button>
-                      </Link>
-                    )}
-
-                    {eventDetail.facturasFiesta.length > 0 && (
-                      <div className="pt-2">
-                        <h4 className="text-sm font-medium mb-1.5">Pagos Registrados:</h4>
-                        <ul className="space-y-1 text-xs list-disc list-inside pl-2">
-                          {eventDetail.facturasFiesta.flatMap(factura => 
-                            factura.payments?.map(pago => (
-                              <li key={pago.id} className="flex justify-between items-center">
-                                <span>{formatDate(pago.paymentDate)} - {pago.method} - {formatCurrency(pago.amount, factura.currency)} ({pago.notes || 'Pago'})</span>
-                                <Link href={`/invoices/${factura.id}`} passHref>
-                                   <InvoiceStatusBadge status={factura.status} />
-                                </Link>
-                              </li>
-                            )) || []
-                          )}
-                        </ul>
-                      </div>
-                    )}
-                    {eventDetail.facturasFiesta.length === 0 && <p className="text-xs text-muted-foreground italic">No hay pagos registrados para este evento aún.</p>}
-                    
-                    <div className="pt-3 text-right">
-                       <Button variant="secondary" size="sm" className="text-xs" disabled>
-                         <UploadCloud className="w-3 h-3 mr-1.5"/> Subir Comprobante (Próximamente)
-                       </Button>
+                     <div className="flex flex-wrap gap-2">
+                        {eventDetail.presupuestoFiesta && (
+                          <Link href={`/presupuestos/${eventDetail.presupuestoFiesta.id}/ver`} passHref>
+                            <Button variant="outline" size="sm" className="text-xs">
+                              <FileText className="w-3 h-3 mr-1.5"/>Ver Presupuesto
+                            </Button>
+                          </Link>
+                        )}
+                        {eventDetail.facturasFiesta.map(factura => (
+                             <Link href={`/invoices/${factura.id}`} passHref key={factura.id}>
+                                <Button variant="secondary" size="sm" className="text-xs">
+                                    <FileText className="w-3 h-3 mr-1.5"/> Factura #{factura.invoiceNumber} <InvoiceStatusBadge status={factura.status} className="ml-1.5"/>
+                                </Button>
+                             </Link>
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </ScrollArea>
         ) : (
           <Card className="p-6 text-center bg-muted/30">
             <Info className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3"/>
-            <p className="text-muted-foreground">Este cliente no tiene eventos o pagos registrados en el sistema.</p>
+            <p className="text-muted-foreground">Este cliente no tiene eventos registrados en el sistema.</p>
+             <Button asChild className="mt-4">
+                <Link href="/fiestas/nueva/configuracion">Crear Nuevo Evento</Link>
+             </Button>
           </Card>
         )}
       </section>
-      <CardFooter className="mt-6 border-t pt-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            La funcionalidad de descarga de resumen de pagos por cliente en PDF estará disponible en futuras actualizaciones.
-          </p>
-      </CardFooter>
     </div>
   );
 }
