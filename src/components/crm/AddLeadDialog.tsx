@@ -33,14 +33,14 @@ interface AddLeadDialogProps {
 
 export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', email: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
+  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   const firstStageId = stages.length > 0 ? stages[0].id : '';
 
   const resetForm = () => {
-    setFormData({ name: '', email: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
+    setFormData({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
   };
 
   const handleInputChange = (field: keyof NewCrmLeadData, value: string | number | undefined | Date) => {
@@ -49,8 +49,8 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.name?.trim() || (!formData.email?.trim() && !formData.phone?.trim())) {
-      toast({ title: "Datos Requeridos", description: "Por favor, ingresa el nombre y un método de contacto (email o teléfono).", variant: "destructive" });
+    if (!formData.name?.trim() || !formData.phone?.trim()) {
+      toast({ title: "Datos Requeridos", description: "Por favor, ingresa el nombre y el teléfono de contacto.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
@@ -96,21 +96,16 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-4">
-          <div className="space-y-1">
-            <Label htmlFor="lead-name">Nombre del Prospecto *</Label>
-            <Input id="lead-name" value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} placeholder="Ej: Contacto de Empresa XYZ" required disabled={isSaving}/>
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="lead-email">Email</Label>
-              <Input id="lead-email" type="email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="email@ejemplo.com" disabled={isSaving}/>
+              <Label htmlFor="lead-name">Nombre del Prospecto *</Label>
+              <Input id="lead-name" value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} placeholder="Ej: Contacto de Empresa XYZ" required disabled={isSaving}/>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="lead-phone">Teléfono</Label>
-              <Input id="lead-phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="099 123 456" disabled={isSaving}/>
+              <Label htmlFor="lead-phone">Teléfono *</Label>
+              <Input id="lead-phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="099 123 456" disabled={isSaving} required/>
             </div>
           </div>
-           <p className="text-xs text-muted-foreground -mt-2">Al menos uno de los dos campos de contacto (Email o Teléfono) es obligatorio.</p>
            
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">

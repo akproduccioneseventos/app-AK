@@ -35,8 +35,8 @@ export async function addCrmLead(
   if (!leadData.name.trim()) {
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
-  if (!leadData.phone?.trim() && !leadData.email?.trim()) {
-    return { success: false, error: 'Se requiere al menos un método de contacto (teléfono o email).' };
+  if (!leadData.phone?.trim()) {
+    return { success: false, error: 'Se requiere un teléfono de contacto.' };
   }
   const leads = await getCrmLeads();
   
