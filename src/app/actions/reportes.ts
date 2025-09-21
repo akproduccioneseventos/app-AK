@@ -2,7 +2,7 @@
 'use server';
 
 import { getInvoices } from './invoices';
-import { getFiestas, getHistorialFiestas } from './fiesta-actual';
+import { getAllFiestas } from './fiesta-actual';
 import { getMenuById } from './menus-catering';
 import { getEmpleados } from './empleados';
 import { getRoles } from './roles';
@@ -65,17 +65,16 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     });
 
     // --- CÁLCULO DE COSTOS ---
-    const [fiestas, historial, empleados, roles] = await Promise.all([
-      getFiestas(false),
-      getHistorialFiestas(),
+    const [fiestas, empleados, roles] = await Promise.all([
+      getAllFiestas(),
       getEmpleados(),
       getRoles()
     ]);
-    const allFiestas = [...fiestas, ...historial];
+
     const costosDetalle: CostoDetalle[] = [];
     let totalCostos = 0;
 
-    for (const fiesta of allFiestas) {
+    for (const fiesta of fiestas) {
       const fiestaDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       if (!fiestaDate || fiestaDate < from || fiestaDate > to) {
         continue; // Skip events outside the date range

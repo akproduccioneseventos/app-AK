@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData, GiftItem, ClientPortalSettings, Reunion, PersonalAsignadoDetalleStorage, Invitado, RsvpStatus } from '@/types/fiesta';
@@ -44,6 +43,18 @@ async function writeFiestaFile(filePath: string, data: FiestaEnPlanificacion): P
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
+  try {
+    const activeFiesta = await getFiestaActual();
+    const archivedFiestas = await getHistorialFiestas();
+    let allFiestas = activeFiesta ? [activeFiesta] : [];
+    allFiestas = allFiestas.concat(archivedFiestas);
+    return allFiestas;
+  } catch (error) {
+    console.error("Error fetching all fiestas:", error);
+    return [];
+  }
+}
 
 // --- MAIN DATA ACCESS FUNCTIONS ---
 
@@ -434,36 +445,29 @@ export async function removeInvoiceIdFromFiestaActual(invoiceId: string) {
   });
 }
 
+export { getAllFiestas };
 
-// This function is being kept for backwards compatibility with older components
-// that might still call it. It now delegates to getFiestaActual.
-// New components should use getFiestas() or getFiestaById()
-export async function getFiestas(includeArchived = false): Promise<FiestaEnPlanificacion[]> {
-  const fiestaActual = await getFiestaActual();
-  let allFiestas = fiestaActual ? [fiestaActual] : [];
 
-  if (includeArchived) {
-    const archivedFiestas = await getHistorialFiestas();
-    allFiestas = allFiestas.concat(archivedFiestas);
-  }
-  
-  return allFiestas.sort((a, b) => new Date(a.configuracion.fechaEvento || 0).getTime() - new Date(b.configuracion.fechaEvento || 0).getTime());
-}
-
-// This function is kept for backwards compatibility with older components
-// that might still call it. It now delegates to getFiestaActual or searches history.
 export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-    if (fiestaId === FIESTA_ACTUAL_ID) {
-      return getFiestaActual();
-    }
-    // Fallback to check archive if not the active fiesta
-    const archivePath = path.join(ARCHIVE_DIR, `fiesta_${fiestaId}.json`);
-    try {
-        await fs.access(archivePath);
-        return await readFiestaFile(archivePath);
-    } catch (archiveError) {
-         return null;
-    }
+  // Check the active fiestas directory
+  const activeFiestaPath = path.join(FIESTAS_DIR, `fiesta_${fiestaId}.json`);
+  let fiesta = await readFiestaFile(activeFiestaPath);
+  if (fiesta) return fiesta;
+  
+  // Also check the main file for the current one
+  if (`fiesta_${fiestaId}` === FIESTA_ACTUAL_ID) {
+    fiesta = await readFiestaFile(FIESTA_ACTUAL_FILE_PATH);
+    if(fiesta) return fiesta;
+  }
+
+  // Fallback to check archive
+  const allArchivedFiles = await fs.readdir(ARCHIVE_DIR);
+  const matchingArchive = allArchivedFiles.find(file => file.includes(fiestaId));
+  if (matchingArchive) {
+    return readFiestaFile(path.join(ARCHIVE_DIR, matchingArchive));
+  }
+
+  return null;
 }
 
 

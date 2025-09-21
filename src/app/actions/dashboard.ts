@@ -4,7 +4,7 @@
 import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
-import { getFiestas } from './fiesta-actual';
+import { getAllFiestas } from './fiesta-actual';
 
 export async function getDashboardKpiData() {
   try {
@@ -17,7 +17,7 @@ export async function getDashboardKpiData() {
       getCustomers(),
       getPresupuestos(),
       getInvoices(),
-      getFiestas(),
+      getAllFiestas(),
     ]);
     
     const ventasTotales = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);

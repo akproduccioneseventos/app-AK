@@ -4,7 +4,7 @@
 import type { Customer, CustomerStatus } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
-import { getFiestas } from './fiesta-actual';
+import { getAllFiestas } from './fiesta-actual';
 
 const CLIENTES_COLLECTION_JSON = 'customers.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
@@ -64,9 +64,13 @@ initializeLocalCustomersFile();
 
 
 export async function getCustomers(): Promise<Customer[]> {
+  return readCustomersFile();
+}
+
+export async function getCustomersWithStatus(): Promise<Customer[]> {
   const [customers, fiestas] = await Promise.all([
     readCustomersFile(),
-    getFiestas(true) // includeArchived = true
+    getAllFiestas()
   ]);
 
   const now = new Date();
@@ -75,13 +79,10 @@ export async function getCustomers(): Promise<Customer[]> {
     const customerFiestas = fiestas.filter(f => f.configuracion.clienteId === customer.id);
     const hasFutureEvent = customerFiestas.some(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now);
     
-    // Si tiene un evento futuro, es 'Actual'. Si no, es 'Antiguo'.
     const calculatedStatus: CustomerStatus = hasFutureEvent ? 'Actual' : 'Antiguo';
 
-    // Prioritize calculated status, but keep saved status if no events are found
     const finalStatus = customerFiestas.length > 0 ? calculatedStatus : (customer.estadoCliente || 'Antiguo');
 
-    // Find the nearest upcoming event date for sorting purposes.
     const upcomingEvents = customerFiestas
         .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
         .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
@@ -89,7 +90,6 @@ export async function getCustomers(): Promise<Customer[]> {
     return { 
       ...customer, 
       estadoCliente: finalStatus,
-      // Add the date of the next event to the customer object for sorting on the frontend
       partyDate: upcomingEvents.length > 0 ? upcomingEvents[0].configuracion.fechaEvento : customer.partyDate
     };
   });
