@@ -33,18 +33,27 @@ export default function ContratoSalonPage() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const fiestaData = await getFiestaActual();
-      setFiesta(fiestaData);
-      if (fiestaData.configuracion.clienteId) {
-        const clienteData = await getCustomerById(fiestaData.configuracion.clienteId);
-        setCliente(clienteData);
+      if (!fiestaData.configuracion.clienteId) {
+        setError("Para generar este contrato, primero asigna un cliente al evento en la sección de 'Configuración del Evento'.");
+        setIsLoading(false);
+        return;
       }
+      setFiesta(fiestaData);
+      const clienteData = await getCustomerById(fiestaData.configuracion.clienteId);
+      if (!clienteData) {
+        setError(`No se encontraron los datos para el cliente ID: ${fiestaData.configuracion.clienteId}`);
+      }
+      setCliente(clienteData);
     } catch (err: any) {
-      toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
+      setError("No se pudieron cargar los datos para generar el contrato.");
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -67,8 +76,18 @@ export default function ContratoSalonPage() {
   if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-  if (!fiesta) {
-    return <div className="p-8 text-center text-destructive"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/> No se encontraron datos del evento.</div>;
+  
+  if (error || !fiesta) {
+    return (
+        <div className="max-w-xl mx-auto mt-10 text-center p-6 border-l-4 border-destructive bg-destructive/10">
+            <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
+            <h2 className="font-semibold text-lg text-destructive">Datos Incompletos</h2>
+            <p className="text-sm text-muted-foreground mt-2">{error || "No se encontró un evento activo."}</p>
+             <Link href="/fiestas/nueva/configuracion" passHref>
+                <Button variant="secondary" className="mt-4">Ir a Configuración</Button>
+            </Link>
+        </div>
+    );
   }
 
   return (
