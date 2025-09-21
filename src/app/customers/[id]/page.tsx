@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -277,5 +276,3 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
     </div>
   );
 }
-
-    
