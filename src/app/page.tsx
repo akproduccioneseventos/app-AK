@@ -152,7 +152,7 @@ export default function DashboardPage() {
       
       <Separator />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="shadow-lg lg:col-span-2">
             <CardHeader>
                 <CardTitle className="font-headline text-xl">Próximas Tareas y Reuniones</CardTitle>
@@ -182,36 +182,37 @@ export default function DashboardPage() {
             </CardFooter>
         </Card>
         
-        <Card className="shadow-lg border-2 border-primary/40 bg-primary/5">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-                <Wand2 className="w-8 h-8 text-primary"/>
-                <div>
-                  <CardTitle className="font-headline text-xl">Simulador de Presupuesto</CardTitle>
-                </div>
-            </div>
-          </CardHeader>
-           <CardContent>
-                <p className="text-sm text-muted-foreground">Comparte este enlace con tus clientes para que puedan generar un presupuesto estimado al instante.</p>
-           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-2">
-              <Button asChild className="w-full">
-                <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer">
-                  <Eye className="w-4 h-4 mr-2"/> Ir al Simulador
-                </Link>
-              </Button>
-              <ShareLinkDialog relativePath="/simulador-de-presupuesto" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
-                  <Button variant="outline" className="w-full sm:w-auto">
-                      <Share2 className="w-4 h-4 mr-2"/>Compartir
-                  </Button>
-              </ShareLinkDialog>
-          </CardFooter>
-        </Card>
+        <div className="space-y-6">
+            <Card className="shadow-lg border-2 border-primary/40 bg-primary/5">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl flex items-center gap-3"><FilePlus2 className="text-primary"/> Acceso Rápido</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/presupuestos/nuevo" passHref>
+                        <Button className="w-full">Crear Presupuesto Manual</Button>
+                    </Link>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg flex items-center gap-2"><Wand2 className="text-primary"/>Simulador de Presupuesto</CardTitle>
+                </CardHeader>
+                <CardFooter className="flex flex-col sm:flex-row gap-2">
+                    <Button asChild className="w-full">
+                        <Link href="/simulador-de-presupuesto" target="_blank" rel="noopener noreferrer"><Eye className="w-4 h-4 mr-2"/> Ver</Link>
+                    </Button>
+                    <ShareLinkDialog relativePath="/simulador-de-presupuesto" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
+                        <Button variant="outline" className="w-full sm:w-auto"><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
+                    </ShareLinkDialog>
+                </CardFooter>
+            </Card>
+        </div>
       </div>
       
       <div className="pt-4">
         <h3 className="text-2xl font-semibold text-foreground mb-4 font-headline text-center">Módulos Principales</h3>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {modules.map((module) => (
             <ModuleCard key={module.title} {...module} />
           ))}
