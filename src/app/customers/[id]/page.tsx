@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Customer } from '@/types/customer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -133,6 +133,10 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
   useEffect(() => {
     loadCustomerData();
   }, [loadCustomerData]);
+  
+  const handlePrint = () => {
+    window.print();
+  };
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -165,6 +169,9 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
              <Link href={`/customers/${customerId}/edit`} passHref className="flex-1 sm:flex-none">
                 <Button variant="default" className="w-full">Editar Cliente</Button>
              </Link>
+             <Button onClick={handlePrint} variant="secondary" className="flex-1 sm:flex-none">
+                <Printer className="w-4 h-4 mr-2"/>Imprimir Resumen
+             </Button>
         </div>
       </div>
 
@@ -270,3 +277,5 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
     </div>
   );
 }
+
+    
