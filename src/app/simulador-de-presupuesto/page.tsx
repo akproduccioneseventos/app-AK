@@ -94,6 +94,7 @@ export default function ArmadoRapidoPage() {
     const [clienteContacto, setClienteContacto] = useState('');
     const [adultos, setAdultos] = useState<number>(50);
     const [ninos, setNinos] = useState<number>(0);
+    const [duracionHoras, setDuracionHoras] = useState<number>(5);
     const [selectedEntradas, setSelectedEntradas] = useState<string[]>([]);
     const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
     const [selectedMenuNino, setSelectedMenuNino] = useState<string>('');
@@ -154,12 +155,13 @@ export default function ArmadoRapidoPage() {
     }, [toast]);
     
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
+        const maxEntradas = duracionHoras > 4 ? 2 : 1;
         setSelectedEntradas(prev => {
             if (checked) {
-                if (prev.length < 2) {
+                if (prev.length < maxEntradas) {
                     return [...prev, servicioId];
                 } else {
-                    toast({ title: "Límite alcanzado", description: "Puedes seleccionar hasta 2 entradas.", variant: "default" });
+                    toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
                     return prev;
                 }
             } else {
@@ -373,9 +375,10 @@ export default function ArmadoRapidoPage() {
                                     <p className="text-xs text-muted-foreground">Debe tener 9 dígitos. Sin espacios ni guiones.</p>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
                                 <div className="space-y-2"><Label htmlFor="num-ninos">Cantidad de Niños/Adolescentes</Label><Input id="num-ninos" type="number" value={ninos} onChange={e => setNinos(Number(e.target.value) || 0)} min="0"/></div>
+                                <div className="space-y-2"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
                             </div>
                         </div>
                     )}
@@ -383,7 +386,7 @@ export default function ArmadoRapidoPage() {
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elije tu menú gastronómico</h3>
                             <div className="space-y-4">
-                                <Label>Elige 2 Entradas</Label>
+                                <Label>Elige {duracionHoras > 4 ? 'hasta 2 entradas' : '1 entrada'} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
                             </div>
                             <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
@@ -518,7 +521,7 @@ export default function ArmadoRapidoPage() {
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                                 {descuento > 0 && <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>}
                                 {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
-                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-{formatCurrency(descuento)}</span></div>}
+                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento (${config?.descuentoGeneral}%):</span><span>-${formatCurrency(descuento)}</span></div>}
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                             <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
