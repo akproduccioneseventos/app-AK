@@ -126,23 +126,17 @@ export default function CustomersPage() {
       
       const customersWithStatus = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id);
-          const hasFutureEvent = customerFiestas.some(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now);
-          
-          let calculatedStatus: CustomerStatus = 'Antiguo';
-          if (hasFutureEvent) {
-            calculatedStatus = 'Actual';
-          } else if (customer.estadoCliente === 'Actual' && customerFiestas.length === 0) {
-            // Keep them 'Actual' if they have no events, they are a current prospect/client without a party date yet.
-            calculatedStatus = 'Actual';
-          }
           
           const upcomingEvents = customerFiestas
             .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
             .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
 
+          const calculatedStatus: CustomerStatus = upcomingEvents.length > 0 ? 'Actual' : 'Antiguo';
+
           return { 
             ...customer, 
             estadoCliente: calculatedStatus,
+            // Show the next upcoming event date, or the original party date if none.
             partyDate: upcomingEvents.length > 0 ? upcomingEvents[0].configuracion.fechaEvento : customer.partyDate
           };
       });
@@ -151,20 +145,14 @@ export default function CustomersPage() {
           if (a.estadoCliente === 'Actual' && b.estadoCliente !== 'Actual') return -1;
           if (a.estadoCliente !== 'Actual' && b.estadoCliente === 'Actual') return 1;
           
-          const dateA = a.partyDate ? new Date(a.partyDate).getTime() : (a.estadoCliente === 'Actual' ? Infinity : -Infinity);
-          const dateB = b.partyDate ? new Date(b.partyDate).getTime() : (b.estadoCliente === 'Actual' ? Infinity : -Infinity);
+          const dateA = a.partyDate ? new Date(a.partyDate).getTime() : -Infinity;
+          const dateB = b.partyDate ? new Date(b.partyDate).getTime() : -Infinity;
           
-          if(a.estadoCliente === 'Actual') {
-            if(dateA !== Infinity && dateB !== Infinity) return dateA - dateB;
-            if(dateA !== Infinity) return -1;
-            if(dateB !== Infinity) return 1;
-          } else { // Both are 'Antiguo'
-             if(dateA !== -Infinity && dateB !== -Infinity) return dateB - dateA; // Sort descending for past events
-             if(dateA !== -Infinity) return -1;
-             if(dateB !== -Infinity) return 1;
+          if(a.estadoCliente === 'Actual') { // For active clients, sort by closest upcoming event
+            return dateA - dateB;
+          } else { // For old clients, sort by most recent past event
+             return dateB - dateA; 
           }
-
-          return (a.companyName || a.name || '').localeCompare(b.companyName || b.name || '');
       });
       setCustomers(sortedData);
     } catch (error) {
@@ -274,3 +262,5 @@ export default function CustomersPage() {
     </div>
   );
 }
+
+    
