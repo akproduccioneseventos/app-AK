@@ -120,38 +120,36 @@ export default function CustomersPage() {
         getCustomers(),
         getAllFiestas()
       ]);
+      
       const now = new Date();
       now.setHours(0, 0, 0, 0); 
       
       const customersWithStatus = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id);
           
-          const upcomingEvents = customerFiestas
-            .filter(f => {
-                if (!f.configuracion.fechaEvento) return false;
-                const eventDate = new Date(f.configuracion.fechaEvento);
-                return eventDate >= now;
-            })
-            .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
+          const hasUpcomingEvent = customerFiestas.some(f => {
+              if (!f.configuracion.fechaEvento) return false;
+              const eventDate = new Date(f.configuracion.fechaEvento);
+              eventDate.setHours(0,0,0,0);
+              return eventDate >= now;
+          });
 
-          const pastEvents = customerFiestas
-            .filter(f => {
-                if (!f.configuracion.fechaEvento) return false;
-                const eventDate = new Date(f.configuracion.fechaEvento);
-                return eventDate < now;
-            })
-            .sort((a,b) => new Date(b.configuracion.fechaEvento!).getTime() - new Date(a.configuracion.fechaEvento!).getTime());
+          const calculatedStatus: CustomerStatus = hasUpcomingEvent ? 'Actual' : 'Antiguo';
 
-          const calculatedStatus: CustomerStatus = upcomingEvents.length > 0 ? 'Actual' : 'Antiguo';
-          
-          let displayDate = customer.partyDate;
-          if (calculatedStatus === 'Actual' && upcomingEvents.length > 0) {
-            displayDate = upcomingEvents[0].configuracion.fechaEvento;
-          } else if (calculatedStatus === 'Antiguo' && pastEvents.length > 0) {
-            displayDate = pastEvents[0].configuracion.fechaEvento;
+          // Determine the most relevant date to display
+          let displayDate = customer.partyDate; // Fallback to the customer's own party date
+          if (hasUpcomingEvent) {
+             const upcomingEvents = customerFiestas
+                .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
+                .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
+             if (upcomingEvents.length > 0) displayDate = upcomingEvents[0].configuracion.fechaEvento;
+          } else if (customerFiestas.length > 0) {
+             const pastEvents = customerFiestas
+                .filter(f => f.configuracion.fechaEvento)
+                .sort((a,b) => new Date(b.configuracion.fechaEvento!).getTime() - new Date(a.configuracion.fechaEvento!).getTime());
+            if (pastEvents.length > 0) displayDate = pastEvents[0].configuracion.fechaEvento;
           }
-
-
+          
           return { 
             ...customer, 
             estadoCliente: calculatedStatus,
@@ -280,3 +278,4 @@ export default function CustomersPage() {
     </div>
   );
 }
+    
