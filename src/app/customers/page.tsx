@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
 import { getCustomers, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
-import { getAllFiestas } from '@/app/actions/fiesta-actual';
+import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,7 +54,7 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
                 <TableHeader>
                   <TableRow>
                     <TableHead className="min-w-[250px]">Nombre / Empresa</TableHead>
-                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Fecha Evento</TableHead>
+                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Fecha Próximo Evento</TableHead>
                     <TableHead className="text-right print:hidden min-w-[200px]">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -128,8 +128,14 @@ export default function CustomersPage() {
       const customersWithStatus = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id);
           const hasFutureEvent = customerFiestas.some(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now);
-          const calculatedStatus: CustomerStatus = hasFutureEvent ? 'Actual' : 'Antiguo';
-          const finalStatus = customerFiestas.length > 0 ? calculatedStatus : (customer.estadoCliente || 'Antiguo');
+          
+          let calculatedStatus: CustomerStatus = 'Antiguo';
+          if(hasFutureEvent) {
+            calculatedStatus = 'Actual';
+          } else if (customerFiestas.length === 0 && customer.estadoCliente === 'Actual') {
+            // If they are marked as 'Actual' but have no fiestas, keep them as 'Actual'
+            calculatedStatus = 'Actual';
+          }
           
           const upcomingEvents = customerFiestas
             .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
@@ -137,16 +143,18 @@ export default function CustomersPage() {
 
           return { 
             ...customer, 
-            estadoCliente: finalStatus,
+            estadoCliente: calculatedStatus,
             partyDate: upcomingEvents.length > 0 ? upcomingEvents[0].configuracion.fechaEvento : customer.partyDate
           };
       });
       
       const sortedData = customersWithStatus.sort((a, b) => {
+          if (a.estadoCliente === 'Actual' && b.estadoCliente !== 'Actual') return -1;
+          if (a.estadoCliente !== 'Actual' && b.estadoCliente === 'Actual') return 1;
           const dateA = a.partyDate ? new Date(a.partyDate).getTime() : Infinity;
           const dateB = b.partyDate ? new Date(b.partyDate).getTime() : Infinity;
-          if (dateA === Infinity && dateB === Infinity) return 0;
-          return dateA - dateB;
+          if(dateA !== Infinity && dateB !== Infinity) return dateA - dateB;
+          return (a.companyName || a.name || '').localeCompare(b.companyName || b.name || '');
       });
       setCustomers(sortedData);
     } catch (error) {
@@ -232,7 +240,7 @@ export default function CustomersPage() {
           ) : filteredCustomers.length > 0 ? (
             <>
                 <CustomerTable title="Clientes con Eventos Futuros" customers={activeCustomers} deletingId={deletingId} onDelete={handleDelete} />
-                <Separator />
+                {oldCustomers.length > 0 && <Separator />}
                 <CustomerTable title="Clientes Antiguos" customers={oldCustomers} deletingId={deletingId} onDelete={handleDelete} />
             </>
           ) : (
