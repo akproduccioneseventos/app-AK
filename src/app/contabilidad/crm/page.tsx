@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
@@ -21,6 +21,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DashboardCalendar } from '@/components/dashboard-calendar';
+import { getOcupiedDates } from '@/app/actions/agenda';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 
 export default function CrmPage() {
@@ -33,6 +43,8 @@ export default function CrmPage() {
   
   const [leadToConvert, setLeadToConvert] = useState<CrmLead | null>(null);
   const [isConvertToClientModalOpen, setIsConvertToClientModalOpen] = useState(false);
+  const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
+
 
   const isMobile = useIsMobile();
   const [mobileVisibleStageId, setMobileVisibleStageId] = useState<string | null>(null);
@@ -43,13 +55,15 @@ export default function CrmPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [stagesData, leadsData] = await Promise.all([
+      const [stagesData, leadsData, occupiedDatesStrings] = await Promise.all([
         getCrmStages(),
         getCrmLeads(),
+        getOcupiedDates(),
       ]);
       const sortedStages = stagesData.sort((a,b) => a.order - b.order);
       setStages(sortedStages);
       setLeads(leadsData);
+      setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
       if(sortedStages.length > 0 && !mobileVisibleStageId) {
         setMobileVisibleStageId(sortedStages[0].id);
       }
@@ -185,6 +199,22 @@ export default function CrmPage() {
             </h1>
           </div>
           <div className="flex gap-2 flex-wrap">
+             <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario</Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Calendario de Eventos</SheetTitle>
+                  <SheetDescription>
+                    Los días marcados en rojo ya tienen un evento confirmado. Evita agendar reuniones importantes en estas fechas.
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="py-4 flex justify-center">
+                  <DashboardCalendar occupiedDates={occupiedDates} />
+                </div>
+              </SheetContent>
+            </Sheet>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
             <Link href="/empresa/contabilidad" passHref>
               <Button variant="outline">

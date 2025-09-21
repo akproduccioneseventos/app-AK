@@ -6,6 +6,7 @@ import '@/ai/flows/analyze-codebase-flow.ts';
 import '@/ai/flows/generate-testimonial-flow.ts';
 import '@/ai/flows/assign-guests-flow.ts';
 import '@/ai/flows/analyze-event-plan-flow.ts';
+import '@/ai/flows/assistant-flow.ts';
 
 
 // AI Type definitions - These don't need to be loaded by genkit start
