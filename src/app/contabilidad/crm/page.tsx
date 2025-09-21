@@ -1,18 +1,19 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
 import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
 import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
 import { ConvertToClientDialog } from '@/components/crm/ConvertToClientDialog';
+import { ScheduleMeetingDialog } from '@/components/crm/ScheduleMeetingDialog'; // Import new dialog
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -45,7 +46,11 @@ export default function CrmPage() {
   const [leadToConvert, setLeadToConvert] = useState<CrmLead | null>(null);
   const [isConvertToClientModalOpen, setIsConvertToClientModalOpen] = useState(false);
   const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
-
+  
+  // State for the new meeting dialog
+  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
+  const [leadForMeeting, setLeadForMeeting] = useState<CrmLead | null>(null);
+  const [meetingType, setMeetingType] = useState<'Entrevista' | 'Firma de Contrato'>('Entrevista');
 
   const isMobile = useIsMobile();
   const [mobileVisibleStageId, setMobileVisibleStageId] = useState<string | null>(null);
@@ -63,7 +68,10 @@ export default function CrmPage() {
       ]);
       const sortedStages = stagesData.sort((a,b) => a.order - b.order);
       setStages(sortedStages);
-      setLeads(leadsData);
+      // Sort leads by creation date descending
+      const sortedLeads = leadsData.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setLeads(sortedLeads);
+      
       setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
       if(sortedStages.length > 0 && !mobileVisibleStageId) {
         setMobileVisibleStageId(sortedStages[0].id);
@@ -80,6 +88,32 @@ export default function CrmPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+  
+  const handleMeetingSubmit = async (meetingDate: string) => {
+    if (!leadForMeeting) return;
+    
+    // Optimistically update UI
+    setLeads(currentLeads =>
+        currentLeads.map(lead =>
+          lead.id === leadForMeeting.id ? { ...lead, followUpDate: meetingDate } : lead
+        )
+    );
+
+    try {
+      const result = await moveCrmLead(leadForMeeting.id, leadForMeeting.currentStageId, meetingDate);
+      if (result.success) {
+        toast({ description: `Reunión agendada para "${leadForMeeting.name}".` });
+        fetchData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch(e: any) {
+       toast({ title: "Error", description: e.message, variant: "destructive" });
+       fetchData(); // Rollback on error
+    }
+    setIsMeetingModalOpen(false);
+    setLeadForMeeting(null);
+  };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -94,12 +128,20 @@ export default function CrmPage() {
 
       if (!leadToMove || !targetStage) return;
 
+      // Handle special stages
+      if (targetStage.name.toLowerCase().includes('entrevista')) {
+        setLeadForMeeting({ ...leadToMove, currentStageId: newStageId });
+        setMeetingType('Entrevista');
+        setIsMeetingModalOpen(true);
+        return;
+      }
       if (targetStage.isConversionStage) {
         setLeadToConvert(leadToMove);
         setIsConvertToClientModalOpen(true);
         return; 
       }
 
+      // Default move action
       setLeads(currentLeads =>
         currentLeads.map(lead =>
           lead.id === activeLeadId ? { ...lead, currentStageId: newStageId, updatedAt: new Date().toISOString() } : lead
@@ -285,6 +327,16 @@ export default function CrmPage() {
             onSubmit={handleConversionSubmit}
             onClose={() => setLeadToConvert(null)}
           />
+        )}
+        {leadForMeeting && (
+            <ScheduleMeetingDialog
+                isOpen={isMeetingModalOpen}
+                onOpenChange={setIsMeetingModalOpen}
+                leadName={leadForMeeting.name}
+                meetingType={meetingType}
+                onSubmit={handleMeetingSubmit}
+                onClose={() => setLeadForMeeting(null)}
+            />
         )}
       </div>
     </DndContext>

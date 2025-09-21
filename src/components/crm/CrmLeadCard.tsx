@@ -49,15 +49,25 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
   
   const getDisplayNotes = (notes: string | undefined): { type: 'badge' | 'text', content: string } | null => {
     if (!notes) return null;
+    const notesLower = notes.toLowerCase();
+    
+    // Check for meeting notes first
+    if (notesLower.includes('reunión de entrevista:') || notesLower.includes('reunión de firma de contrato:')) {
+        const meetingLine = notes.split('\n')[0];
+        return { type: 'text', content: meetingLine };
+    }
+    
     if (notes.includes('Generado desde el Simulador/Creador de Presupuestos') || notes.includes('Generado desde SIMULADOR DE PRESUPUESTO')) {
         return { type: 'badge', content: 'Presupuesto al Instante' };
     }
-    // Don't show notes if it's just repeating lead details
-    const notesLower = notes.toLowerCase();
-    if(notesLower.includes('tipo de fiesta:') || notesLower.includes('salón:') || notesLower.includes('invitados:') || notesLower.includes('fecha seguimiento:')) {
+
+    const nonStructuralNotes = notes.split('\n---')[0].trim();
+    const structuralKeywords = ['tipo de fiesta:', 'salón:', 'invitados:', 'fecha seguimiento:'];
+    if (structuralKeywords.some(kw => nonStructuralNotes.toLowerCase().includes(kw))) {
       return null;
     }
-    return { type: 'text', content: notes };
+    
+    return { type: 'text', content: nonStructuralNotes };
   };
 
   const displayNotes = getDisplayNotes(lead.notes);
@@ -80,7 +90,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
           {lead.followUpDate && (
              <div className="flex items-center gap-1.5 font-medium text-amber-700">
                 <Clock className="w-3.5 h-3.5 flex-shrink-0"/>
-                <span className="truncate">Seguimiento: {new Date(lead.followUpDate).toLocaleDateString('es-ES')}</span>
+                <span className="truncate">Cita: {new Date(lead.followUpDate).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}hs</span>
             </div>
           )}
           {lead.partyType && (
@@ -95,13 +105,12 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
               <span className="truncate">Aprox. {lead.guestCount} invitados</span>
             </div>
           )}
-          {displayNotes && (
+          {displayNotes && displayNotes.type === 'text' && (
+            <p className="break-words line-clamp-2 italic text-blue-600">"{displayNotes.content}"</p>
+          )}
+          {displayNotes && displayNotes.type === 'badge' && (
             <div className="pt-1">
-            {displayNotes.type === 'badge' ? (
                 <Badge variant="secondary" className="text-xs">{displayNotes.content}</Badge>
-            ) : (
-                <p className="break-words line-clamp-2 italic">"{displayNotes.content}"</p>
-            )}
             </div>
           )}
         </CardContent>

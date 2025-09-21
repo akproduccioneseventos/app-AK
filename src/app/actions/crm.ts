@@ -75,7 +75,8 @@ export async function addCrmLead(
 
 export async function moveCrmLead(
   leadId: string,
-  newStageId: string
+  newStageId: string,
+  meetingDate?: string,
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
   let leads = await getCrmLeads();
   const stages = await getCrmStages(); 
@@ -88,10 +89,21 @@ export async function moveCrmLead(
   const newStageName = stages.find(s => s.id === newStageId)?.name || 'Etapa desconocida';
   const now = new Date().toISOString();
 
+  let notes = leads[leadIndex].notes || '';
+  if (meetingDate) {
+      if (newStageName.toLowerCase().includes('entrevista')) {
+          notes = `\nREUNIÓN DE ENTREVISTA: ${new Date(meetingDate).toLocaleString('es-UY')}\n---` + notes;
+      } else if (newStageName.toLowerCase().includes('contrato')) {
+          notes = `\nREUNIÓN DE FIRMA DE CONTRATO: ${new Date(meetingDate).toLocaleString('es-UY')}\n---` + notes;
+      }
+      leads[leadIndex].followUpDate = meetingDate;
+  }
+
   const updatedLead = {
     ...leads[leadIndex],
     currentStageId: newStageId,
     updatedAt: now,
+    notes: notes,
     history: [
       ...(leads[leadIndex].history || []),
       { stageId: newStageId, stageName: newStageName, timestamp: now }
@@ -145,12 +157,10 @@ export async function convertToClientAndMoveProspect(
   const companyName = formData.get('companyName') as string | undefined;
   const taxId = formData.get('taxId') as string | undefined;
   const contractFile = formData.get('contract') as File | null;
+  const meetingDate = formData.get('meetingDate') as string | undefined;
 
   if (!prospectId || !prospectName) {
     return { success: false, error: "Faltan datos del prospecto." };
-  }
-  if (!contractFile || contractFile.size === 0) {
-    return { success: false, error: "El archivo del contrato es obligatorio y no puede estar vacío." };
   }
   
   const stages = await getCrmStages();
@@ -165,7 +175,9 @@ export async function convertToClientAndMoveProspect(
   if (phone) customerFormData.append('phone', phone);
   if (companyName) customerFormData.append('companyName', companyName);
   if (taxId) customerFormData.append('taxId', taxId);
-  customerFormData.append('contract', contractFile);
+  if (contractFile && contractFile.size > 0) {
+    customerFormData.append('contract', contractFile);
+  }
 
   try {
     const customerResult = await saveCustomer(customerFormData);
@@ -174,7 +186,7 @@ export async function convertToClientAndMoveProspect(
       return { success: false, error: customerResult.error || "No se pudo crear el cliente." };
     }
 
-    const moveResult = await moveCrmLead(prospectId, firmStage.id);
+    const moveResult = await moveCrmLead(prospectId, firmStage.id, meetingDate);
     if (!moveResult.success) {
       console.warn(`Cliente ${customerResult.id} creado, pero no se pudo mover el prospecto ${prospectId}. Error: ${moveResult.error}`);
       return { success: false, error: `Cliente creado, pero no se pudo actualizar el prospecto: ${moveResult.error}`, customerId: customerResult.id };

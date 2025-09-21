@@ -14,9 +14,10 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { FileSignature, Loader2, FileText } from 'lucide-react';
+import { FileSignature, Loader2, FileText, CalendarDays } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
+import { DatePickerDemo } from '../date-picker-demo';
 
 interface ConvertToClientDialogProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
   const [clientPhone, setClientPhone] = useState(lead.phone || '');
   const [companyName, setCompanyName] = useState('');
   const [taxId, setTaxId] = useState('');
+  const [meetingDate, setMeetingDate] = useState<Date | undefined>(undefined);
   
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -42,6 +44,7 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
       setCompanyName('');
       setTaxId('');
       setContractFile(null);
+      setMeetingDate(undefined);
     }
   }, [isOpen, lead]);
 
@@ -60,17 +63,13 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!contractFile) {
-      toast({ title: "Contrato Requerido", description: "Por favor, carga el contrato en formato PDF.", variant: "destructive" });
-      return;
-    }
     setIsSaving(true);
     const formData = new FormData();
-    formData.append('contract', contractFile);
+    if(contractFile) formData.append('contract', contractFile);
     formData.append('phone', clientPhone);
     if (companyName.trim()) formData.append('companyName', companyName.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
-
+    if (meetingDate) formData.append('meetingDate', meetingDate.toISOString());
 
     const success = await onSubmit(formData);
     if (success) {
@@ -88,7 +87,7 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
             <FileSignature className="w-6 h-6 text-primary" /> Convertir Prospecto a Cliente
           </DialogTitle>
           <DialogDescription>
-            Convierte a <span className="font-semibold">{lead.name}</span> en cliente. Se requiere el contrato firmado y puedes completar datos adicionales del cliente.
+            Convierte a <span className="font-semibold">{lead.name}</span> en cliente. Completa los datos y agenda la firma del contrato.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
@@ -100,51 +99,34 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
           
 
           <div className="space-y-1">
-            <Label htmlFor="client-phone">Teléfono del Cliente (Opcional)</Label>
-            <Input 
-              id="client-phone" 
-              type="tel"
-              value={clientPhone} 
-              onChange={(e) => setClientPhone(e.target.value)} 
-              placeholder="09..."
-              disabled={isSaving} 
-            />
+            <Label htmlFor="client-phone">Teléfono del Cliente</Label>
+            <Input id="client-phone" type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="09..." disabled={isSaving} />
           </div>
           
           <div className="space-y-1">
             <Label htmlFor="client-companyName">Nombre Empresa (Opcional)</Label>
-            <Input 
-              id="client-companyName" 
-              type="text"
-              value={companyName} 
-              onChange={(e) => setCompanyName(e.target.value)} 
-              placeholder="Nombre de la empresa"
-              disabled={isSaving} 
-            />
+            <Input id="client-companyName" type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Nombre de la empresa" disabled={isSaving} />
           </div>
           <div className="space-y-1">
             <Label htmlFor="client-taxId">RUT/Cédula (Opcional)</Label>
-            <Input 
-              id="client-taxId" 
-              type="text"
-              value={taxId} 
-              onChange={(e) => setTaxId(e.target.value)} 
-              placeholder="Número de identificación fiscal"
-              disabled={isSaving} 
-            />
+            <Input id="client-taxId" type="text" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="Número de identificación fiscal" disabled={isSaving} />
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="meeting-date" className="flex items-center gap-1"><CalendarDays className="w-4 h-4"/> Agendar Firma de Contrato (Opcional)</Label>
+            <DatePickerDemo selectedDate={meetingDate} onDateChange={setMeetingDate} />
           </div>
 
 
           <div className="space-y-1">
             <Label htmlFor="contract-file" className="flex items-center gap-1">
-              <FileText className="w-4 h-4" /> Contrato Firmado (PDF) <span className="text-destructive">*</span>
+              <FileText className="w-4 h-4" /> Contrato Firmado (PDF, opcional ahora)
             </Label>
             <Input
               id="contract-file"
               type="file"
               accept="application/pdf"
               onChange={handleFileChange}
-              required
               disabled={isSaving}
               className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
             />
@@ -155,7 +137,7 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isSaving} onClick={onClose}>Cancelar</Button>
             </DialogClose>
-            <Button type="submit" disabled={isSaving || !contractFile}>
+            <Button type="submit" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileSignature className="w-4 h-4 mr-2" />}
               {isSaving ? 'Convirtiendo...' : 'Confirmar y Convertir'}
             </Button>
