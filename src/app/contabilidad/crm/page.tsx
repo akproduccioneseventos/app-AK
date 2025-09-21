@@ -120,10 +120,13 @@ export default function CrmPage() {
 
     try {
       const result = await moveCrmLead(leadId, newStageId);
-      if (!result.success) {
+      if (!result.success || !result.lead) {
         throw new Error(result.error || "No se pudo mover el prospecto.");
       }
-      toast({ description: `Prospecto "${result.lead?.name}" movido.` });
+      toast({ description: `Prospecto "${result.lead.name}" movido a "${result.lead.history?.[result.lead.history.length-1]?.stageName || ''}".` });
+      // Update the specific lead in the state to reflect all server-side changes (like notes)
+      setLeads(currentLeads => currentLeads.map(l => l.id === leadId ? result.lead! : l));
+
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       setLeads(originalLeads); // Rollback on error
