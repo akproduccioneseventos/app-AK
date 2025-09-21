@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, CalendarDays, FileText } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, CalendarDays, FileText, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
 import type { Customer, CustomerStatus } from '@/types/customer';
@@ -50,10 +50,6 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
   const [guestCount, setGuestCount] = useState<string>('');
   const [partyForWhom, setPartyForWhom] = useState('');
   const [venueName, setVenueName] = useState('');
-  const [currentContractFile, setCurrentContractFile] = useState<string | null>(null);
-  const [currentBudgetFile, setCurrentBudgetFile] = useState<string | null>(null);
-  const [newContractFile, setNewContractFile] = useState<File | null>(null);
-  const [newBudgetFile, setNewBudgetFile] = useState<File | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -81,8 +77,6 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
         setGuestCount(loadedCustomer.guestCount?.toString() || '');
         setPartyForWhom(loadedCustomer.partyForWhom || '');
         setVenueName(loadedCustomer.venueName || '');
-        setCurrentContractFile(loadedCustomer.contractFileName || null);
-        setCurrentBudgetFile(loadedCustomer.budgetFileName || null);
 
       } else {
         setNotFound(true);
@@ -126,28 +120,11 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
     if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
 
-    if (newContractFile) formData.append('contract', newContractFile);
-    else if (currentContractFile) formData.append('contractFileName', currentContractFile); 
-
-    if (newBudgetFile) formData.append('budget', newBudgetFile);
-    else if (currentBudgetFile) formData.append('budgetFileName', currentBudgetFile); 
-
-
     try {
       const result = await saveCustomer(formData);
       if (result.success && result.customer) {
         toast({ title: "¡Cliente Actualizado!"});
-        setCustomer(result.customer); 
-        setCurrentContractFile(result.customer.contractFileName || null);
-        setCurrentBudgetFile(result.customer.budgetFileName || null);
-        setNewContractFile(null); 
-        setNewBudgetFile(null);
-        
-        const contractInput = document.getElementById('contract-file') as HTMLInputElement;
-        if (contractInput) contractInput.value = "";
-        const budgetInput = document.getElementById('budget-file') as HTMLInputElement;
-        if (budgetInput) budgetInput.value = "";
-
+        router.push('/customers');
       } else {
         throw new Error(result.error || "Error desconocido al actualizar.");
       }
@@ -302,22 +279,10 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
                 <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>
                 <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso" disabled={isSaving || isDeleting}/>
              </div>
-             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Presupuesto (PDF)</Label>
-                    <Input id="budget-file" type="file" accept="application/pdf" onChange={(e) => setNewBudgetFile(e.target.files?.[0] || null)} 
-                           className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                           disabled={isSaving || isDeleting}/>
-                    {currentBudgetFile && !newBudgetFile && <p className="text-xs text-muted-foreground mt-1">Actual: <a href={`/api/budgets/${currentBudgetFile}`} target="_blank" rel="noopener noreferrer" className="text-primary underline">{currentBudgetFile}</a></p>}
-                    {newBudgetFile && <p className="text-xs text-muted-foreground mt-1">Nuevo: {newBudgetFile.name}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4 text-muted-foreground"/>Contrato (PDF)</Label>
-                    <Input id="contract-file" type="file" accept="application/pdf" onChange={(e) => setNewContractFile(e.target.files?.[0] || null)} 
-                           className="file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                           disabled={isSaving || isDeleting}/>
-                    {currentContractFile && !newContractFile && <p className="text-xs text-muted-foreground mt-1">Actual: <a href={`/api/contracts/${currentContractFile}`} target="_blank" rel="noopener noreferrer" className="text-primary underline">{currentContractFile}</a></p>}
-                    {newContractFile && <p className="text-xs text-muted-foreground mt-1">Nuevo: {newContractFile.name}</p>}
+             <div className="p-3 border rounded-md bg-muted/20">
+                <div className="flex items-start gap-2">
+                    <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"/>
+                    <p className="text-sm text-muted-foreground">La carga de documentos (contratos, presupuestos firmados) ahora se gestiona de forma centralizada en la sección de "Gestión Documental" dentro del planificador del evento.</p>
                 </div>
              </div>
           </CardContent>
@@ -356,3 +321,4 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
     </div>
   );
 }
+

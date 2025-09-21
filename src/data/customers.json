@@ -1,11 +1,16 @@
-
 [
   {
     "id": "cust_future_123",
     "name": "Cliente Futuro (Ejemplo)",
     "phone": "099123456",
     "companyName": "Eventos del Mañana S.A.",
-    "estadoCliente": "Actual"
+    "estadoCliente": "Actual",
+    "taxId": null,
+    "partyDate": null,
+    "partyTime": null,
+    "partyType": null,
+    "partyForWhom": null,
+    "venueName": "Club Uruguay"
   },
   {
     "id": "cust_past_789",
