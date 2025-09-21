@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { getFiestaActual, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
@@ -194,6 +194,41 @@ export default function GestionReunionesPage() {
       setDeletingReunionId(null);
     }
   };
+
+  const handleAddToCalendar = (reunion: Reunion) => {
+    if (!reunion.fecha) return;
+  
+    const eventDate = new Date(reunion.fecha);
+    const endDate = new Date(eventDate.getTime() + 60 * 60 * 1000); // Assume 1 hour duration
+  
+    const toICSFormat = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+  
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//AK Producciones//App//EN',
+      'BEGIN:VEVENT',
+      `UID:${reunion.id}@akproducciones.com`,
+      `DTSTAMP:${toICSFormat(new Date())}`,
+      `DTSTART:${toICSFormat(eventDate)}`,
+      `DTEND:${toICSFormat(endDate)}`,
+      `SUMMARY:${reunion.titulo}`,
+      `DESCRIPTION:${reunion.notas.replace(/\n/g, '\\n')}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+  
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${reunion.titulo}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   
   const now = new Date();
   const todayReuniones = reuniones.filter(r => r.fecha && isToday(new Date(r.fecha)));
@@ -210,11 +245,11 @@ export default function GestionReunionesPage() {
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-semibold text-primary">{reunion.titulo}</CardTitle>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => openFormModal(reunion)} aria-label="Editar reunión"><Edit3 className="w-4 h-4" /></Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={() => openFormModal(reunion)} aria-label="Editar reunión" className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80" aria-label="Eliminar reunión" disabled={deletingReunionId === reunion.id}>
+                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8" aria-label="Eliminar reunión" disabled={deletingReunionId === reunion.id}>
                   {deletingReunionId === reunion.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                 </Button>
               </AlertDialogTrigger>
@@ -226,8 +261,8 @@ export default function GestionReunionesPage() {
           </div>
         </div>
         {reunion.fecha && (
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
-            <CalendarIcon className="w-3 h-3" /> {formatDate(reunion.fecha)} {new Date(reunion.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+          <div className="text-sm font-medium text-muted-foreground flex items-center gap-1.5 mt-1">
+            <CalendarIcon className="w-4 h-4" /> {formatDate(reunion.fecha)} - {new Date(reunion.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}hs
           </div>
         )}
       </CardHeader>
@@ -238,6 +273,13 @@ export default function GestionReunionesPage() {
           <p className="text-sm text-muted-foreground italic p-3 bg-background rounded-md border">No hay notas.</p>
         )}
       </CardContent>
+      {reunion.fecha && (
+        <CardFooter className="pt-0">
+          <Button variant="secondary" size="sm" onClick={() => handleAddToCalendar(reunion)}>
+            <CalendarPlus className="w-4 h-4 mr-2"/>Añadir a Calendario
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 
