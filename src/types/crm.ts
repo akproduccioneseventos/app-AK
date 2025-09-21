@@ -24,10 +24,14 @@ export interface CrmLead {
   currentStageId: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
-  email?: string; // Added for potential future use or capture during conversion
-  phone?: string; // Added
-  notes?: string; // Added
-  history?: CrmLeadHistoryItem[]; // Added history
+  email?: string;
+  phone?: string;
+  notes?: string;
+  history?: CrmLeadHistoryItem[];
+  // Optional party details
+  partyType?: string;
+  venueName?: string;
+  guestCount?: number;
 }
 
-export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'email' | 'phone' | 'notes' | 'history'> & Partial<Pick<CrmLead, 'email' | 'phone' | 'notes'>>;
+export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history'>;

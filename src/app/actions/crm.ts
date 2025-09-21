@@ -34,6 +34,9 @@ export async function addCrmLead(
   if (!leadData.name.trim()) {
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
+  if (!leadData.phone?.trim() && !leadData.email?.trim()) {
+    return { success: false, error: 'Se requiere al menos un método de contacto (teléfono o email).' };
+  }
   const leads = await getCrmLeads();
   
   const stages = await getCrmStages();
@@ -42,12 +45,21 @@ export async function addCrmLead(
   const stageId = leadData.currentStageId || stages[0]?.id || 's1';
   const stageName = stages.find(s => s.id === stageId)?.name || 'Etapa desconocida';
 
+  // Construct notes from optional fields
+  let combinedNotes = leadData.notes?.trim() || '';
+  if (leadData.partyType) combinedNotes += `\n- Tipo de Fiesta: ${leadData.partyType}`;
+  if (leadData.venueName) combinedNotes += `\n- Salón: ${leadData.venueName}`;
+  if (leadData.guestCount) combinedNotes += `\n- Invitados: ${leadData.guestCount}`;
+
   const newLead: CrmLead = {
     id: `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     name: leadData.name.trim(),
     email: leadData.email?.trim() || undefined,
     phone: leadData.phone?.trim() || undefined,
-    notes: leadData.notes?.trim() || undefined,
+    notes: combinedNotes.trim() || undefined,
+    partyType: leadData.partyType?.trim() || undefined,
+    venueName: leadData.venueName?.trim() || undefined,
+    guestCount: leadData.guestCount,
     currentStageId: stageId,
     createdAt: now,
     updatedAt: now,
