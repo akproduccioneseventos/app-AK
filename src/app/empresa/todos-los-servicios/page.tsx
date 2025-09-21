@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -143,7 +144,7 @@ export default function InventarioGeneralPage() {
          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
             <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
-            <Link href="/empresa/todos-los-servicios/nuevo" passHref>
+            <Link href="/empresa/todos-los-servicios/nuevo?type=Activo Fijo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
                     Añadir Activo
@@ -243,3 +244,5 @@ export default function InventarioGeneralPage() {
     </div>
   );
 }
+
+    

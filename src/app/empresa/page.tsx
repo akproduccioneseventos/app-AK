@@ -31,7 +31,7 @@ const empresaHubItems: HubItem[] = [
   },
   {
     title: 'Panel Contable y Financiero',
-    description: 'Accede a la central de CRM, presupuestos, facturas y reportes.',
+    description: 'Accede al CRM, presupuestos, facturas y reportes.',
     href: '/empresa/contabilidad',
     icon: BarChart3,
     actionLabel: 'Ir al Panel',
@@ -100,3 +100,5 @@ export default function EmpresaHubPage() {
     </div>
   );
 }
+
+    

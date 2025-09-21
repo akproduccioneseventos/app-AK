@@ -51,7 +51,7 @@ export async function addCrmLead(
   if (leadData.partyType) combinedNotes += `\n- Tipo de Fiesta: ${leadData.partyType}`;
   if (leadData.venueName) combinedNotes += `\n- Salón: ${leadData.venueName}`;
   if (leadData.guestCount) combinedNotes += `\n- Invitados: ${leadData.guestCount}`;
-  if (leadData.followUpDate) combinedNotes += `\n- Fecha Seguimiento: ${new Date(leadData.followUpDate).toLocaleDateString('es-ES')}`;
+  if (leadData.followUpDate) combinedNotes += `\n- Fecha Evento: ${new Date(leadData.followUpDate).toLocaleDateString('es-ES')}`;
 
   const newLead: CrmLead = {
     id: `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -204,3 +204,5 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
+
+    
