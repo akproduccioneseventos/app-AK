@@ -132,7 +132,7 @@ export default function CustomersPage() {
     try {
       const result = await deleteCustomerAction(id);
       if (result.success) {
-        toast({ title: "Cliente Eliminado", description: `El cliente "${customerName || id}" ha sido eliminado.` });
+        toast({ title: "Cliente Eliminado", description: `El cliente "${'customerName' || id}" ha sido eliminado.` });
         fetchCustomers(); 
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
@@ -160,7 +160,7 @@ export default function CustomersPage() {
         <div className="flex items-center gap-3">
           <UsersIcon className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestión de Clientes (Confirmados)
+            Gestión de Clientes
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -243,19 +243,19 @@ export default function CustomersPage() {
                       </TableCell>
                       <TableCell className="text-right print:hidden">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/customers/${customer.id}`} passHref>
-                            <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${customer.companyName || customer.name}`} title="Ver Detalles">
+                          <Link href={`/customers/${'customer.id'}`} passHref>
+                            <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${'customer.companyName' || 'customer.name'}`} title="Ver Detalles">
                               <Eye className="w-4 h-4" />
                             </Button>
                           </Link>
-                          <Link href={`/customers/${customer.id}/edit`} passHref>
-                            <Button variant="outline" size="icon" aria-label={`Editar Cliente ${customer.companyName || customer.name}`} title="Editar Cliente">
+                          <Link href={`/customers/${'customer.id'}/edit`} passHref>
+                            <Button variant="outline" size="icon" aria-label={`Editar Cliente ${'customer.companyName' || 'customer.name'}`} title="Editar Cliente">
                               <Edit className="w-4 h-4" />
                             </Button>
                           </Link>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="icon" aria-label={`Eliminar Cliente ${customer.companyName || customer.name}`} title="Eliminar Cliente" disabled={deletingId === customer.id}>
+                              <Button variant="destructive" size="icon" aria-label={`Eliminar Cliente ${'customer.companyName' || 'customer.name'}`} title="Eliminar Cliente" disabled={deletingId === customer.id}>
                                 {deletingId === customer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                               </Button>
                             </AlertDialogTrigger>
@@ -263,7 +263,7 @@ export default function CustomersPage() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Esta acción no se puede deshacer. El cliente "{customer.companyName || customer.name}" será eliminado permanentemente.
+                                  Esta acción no se puede deshacer. El cliente "{'customer.companyName' || 'customer.name'}" será eliminado permanentemente.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
