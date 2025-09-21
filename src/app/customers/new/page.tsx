@@ -39,6 +39,9 @@ export default function NewCustomerPage() {
   const [guestCount, setGuestCount] = useState<string>('');
   const [partyForWhom, setPartyForWhom] = useState(''); // Nuevo campo
   const [venueName, setVenueName] = useState('');
+  
+  const [contractFile, setContractFile] = useState<File | null>(null);
+  const [budgetFile, setBudgetFile] = useState<File | null>(null);
 
   const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
@@ -80,6 +83,10 @@ export default function NewCustomerPage() {
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
     if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
+
+    if (contractFile) formData.append('contract', contractFile);
+    if (budgetFile) formData.append('budget', budgetFile);
+
 
     try {
       const result = await saveCustomer(formData); 
@@ -202,12 +209,16 @@ export default function NewCustomerPage() {
                 <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>
                 <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso"/>
              </div>
-             <div className="p-3 border rounded-md bg-muted/20">
-                <div className="flex items-start gap-2">
-                    <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"/>
-                    <p className="text-sm text-muted-foreground">La carga de documentos (contratos, presupuestos) ahora se gestiona desde la sección de "Gestión Documental" dentro del planificador de cada evento.</p>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Contrato (PDF)</Label>
+                  <Input id="contract-file" type="file" onChange={(e) => setContractFile(e.target.files?.[0] || null)} accept="application/pdf" />
                 </div>
-             </div>
+                <div>
+                  <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Presupuesto (PDF)</Label>
+                  <Input id="budget-file" type="file" onChange={(e) => setBudgetFile(e.target.files?.[0] || null)} accept="application/pdf" />
+                </div>
+              </div>
           </CardContent>
 
           <CardFooter className="border-t pt-6 mt-6">

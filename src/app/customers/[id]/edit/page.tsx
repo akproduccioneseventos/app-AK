@@ -51,6 +51,10 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
   const [partyForWhom, setPartyForWhom] = useState('');
   const [venueName, setVenueName] = useState('');
 
+  // File fields
+  const [contractFile, setContractFile] = useState<File | null>(null);
+  const [budgetFile, setBudgetFile] = useState<File | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -119,6 +123,10 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
     if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
+
+    if (contractFile) formData.append('contract', contractFile);
+    if (budgetFile) formData.append('budget', budgetFile);
+
 
     try {
       const result = await saveCustomer(formData);
@@ -279,12 +287,16 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
                 <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>
                 <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso" disabled={isSaving || isDeleting}/>
              </div>
-             <div className="p-3 border rounded-md bg-muted/20">
-                <div className="flex items-start gap-2">
-                    <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"/>
-                    <p className="text-sm text-muted-foreground">La carga de documentos (contratos, presupuestos firmados) ahora se gestiona de forma centralizada en la sección de "Gestión Documental" dentro del planificador del evento.</p>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Contrato (PDF)</Label>
+                  <Input id="contract-file" type="file" onChange={(e) => setContractFile(e.target.files?.[0] || null)} accept="application/pdf" disabled={isSaving || isDeleting}/>
                 </div>
-             </div>
+                <div>
+                  <Label htmlFor="budget-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Presupuesto (PDF)</Label>
+                  <Input id="budget-file" type="file" onChange={(e) => setBudgetFile(e.target.files?.[0] || null)} accept="application/pdf" disabled={isSaving || isDeleting}/>
+                </div>
+              </div>
           </CardContent>
 
           <CardFooter className="border-t pt-6 mt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -321,4 +333,3 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
     </div>
   );
 }
-
