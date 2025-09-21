@@ -187,7 +187,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
                 <Wand2 className="w-8 h-8 text-primary"/>
                 <div>
-                  <CardTitle className="font-headline text-xl">Simulador de Presupuesto Público</CardTitle>
+                  <CardTitle className="font-headline text-xl">Simulador de Presupuesto</CardTitle>
                 </div>
             </div>
           </CardHeader>

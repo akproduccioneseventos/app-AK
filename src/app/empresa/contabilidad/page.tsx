@@ -271,7 +271,7 @@ export default function ContabilidadDashboardPage() {
             <Card className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 border-dashed border-primary/50">
                 <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
                     <div className="p-3 bg-primary/10 rounded-lg"><Wand2 className="w-7 h-7 text-primary"/></div>
-                    <div><CardTitle className="font-headline text-lg mb-1">Simulador para Clientes</CardTitle></div>
+                    <div><CardTitle className="font-headline text-lg mb-1">Simulador de Presupuesto</CardTitle></div>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2"><p className="text-sm text-muted-foreground">Configura los paquetes y comparte el enlace del simulador de presupuesto.</p></CardContent>
                 <CardFooter className="pt-2 flex flex-col sm:flex-row gap-2">

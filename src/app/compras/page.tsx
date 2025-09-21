@@ -14,7 +14,7 @@ export default function ComprasPage() {
         <div className="flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Compras y Adquisiciones
+              Compras y Checklist
             </h1>
         </div>
         <Link href="/" passHref>

@@ -258,11 +258,14 @@ export default function CrmPage() {
                 </div>
               </SheetContent>
             </Sheet>
+            <Link href="/fiestas/nueva/reuniones" passHref>
+                <Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Ver Agenda de Reuniones</Button>
+            </Link>
             <Link href="/fiestas/nueva/accesos-personal" passHref>
                 <Button variant="secondary"><UserCog className="w-4 h-4 mr-2"/>Gestionar Accesos</Button>
             </Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
-            <Link href="/empresa/contabilidad" passHref>
+            <Link href="/empresa" passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
