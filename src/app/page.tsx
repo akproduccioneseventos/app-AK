@@ -152,15 +152,15 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
                 <FilePlus2 className="w-8 h-8 text-foreground"/>
                 <div>
-                  <CardTitle className="font-headline text-xl">Creación Manual de Presupuestos</CardTitle>
-                  <CardDescription>Genera un presupuesto detallado para un cliente directamente desde el panel de gestión.</CardDescription>
+                  <CardTitle className="font-headline text-xl">Central de Presupuestos</CardTitle>
+                  <CardDescription>Genera presupuestos detallados para tus clientes directamente desde el panel de gestión.</CardDescription>
                 </div>
             </div>
           </CardHeader>
           <CardFooter>
               <Button asChild className="w-full">
                 <Link href="/presupuestos/nuevo">
-                  <PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Presupuesto Manual
+                  <PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Presupuesto
                 </Link>
               </Button>
           </CardFooter>

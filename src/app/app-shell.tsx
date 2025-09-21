@@ -27,11 +27,12 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/') return 'Menú Principal';
 
-  if (pathname.startsWith('/presupuestos/nuevo')) return 'Nueva Cotización';
+  if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
 
-  if (pathname.startsWith('/invoices/new')) return 'Nueva Factura';
+  if (pathname === '/invoices') return 'Gestión de Facturas';
+  if (pathname === '/invoices/new') return 'Nueva Factura';
   if (pathSegments[0] === 'invoices' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Factura #${idSegment}`;
   if (pathSegments[0] === 'invoices' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Factura #${idSegment}`;
 
@@ -85,6 +86,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
+  if (pathname === '/fiestas/nueva/accesos-personal') return 'Accesos para Colaboradores';
 
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
@@ -100,6 +102,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
+  
+  if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
@@ -148,6 +152,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
+    if (pathname === '/fiestas/nueva/accesos-personal') return UserCog;
     return PartyPopper;
   }
 
@@ -174,8 +179,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/login') return LogInIcon;
 
+  if (pathname === '/presupuestos/nuevo') return ListChecks;
   if (pathname.startsWith('/presupuestos')) return ListChecks;
-  if (pathname.startsWith('/invoices')) return FileText;
+  if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
 
   if (pathname === '/settings') return SettingsIcon;
@@ -190,6 +196,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
   
+  if (pathname === '/simulador-de-presupuesto') return Wand2;
+  
+
   if (pathname === '/planner-costo-fiesta') return Calculator;
   if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
   if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
@@ -229,7 +238,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
-  
+  const isClientFacingTool = pathname === '/simulador-de-presupuesto';
+
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible');
   
@@ -240,6 +250,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isSpecialRender = 
     isAuthPage || 
     isPublicEventPage || 
+    isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
     isInvoiceViewPage;
