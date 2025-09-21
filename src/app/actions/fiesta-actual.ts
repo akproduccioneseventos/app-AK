@@ -1,8 +1,8 @@
-// This file is deprecated and will be removed. Use the new actions in 'src/app/actions/fiesta/*' instead.
 'use server';
 
 import { 
-    getFiestaActual as getFiesta
+    getFiestaActual as getFiesta, // Deprecated, use getFiestaActual
+    updateConfiguracion as updateConfiguracionFiestaActual 
 } from './fiesta/configuracion.actions';
 import { 
     addInvitado as addInvitadoFiestaActual,
@@ -12,81 +12,63 @@ import {
     handleRsvpSubmission,
     checkInGuest
 } from './fiesta/invitados.actions';
-
 import {
     updateTareas as updateTareasFiestaActual
 } from './fiesta/tareas.actions';
-
 import {
     updateDecoracion as updateDecoracionFiestaActual
 } from './fiesta/decoracion.actions';
-
 import {
     updateMenuAsignado as updateMenuAsignadoFiestaActual
 } from './fiesta/catering.actions';
-
 import {
     updateClientChecklist,
     updateClientNotes,
     updatePortalSettings
 } from './fiesta/portal.actions';
-
 import {
     updateMusica as updateMusicaFiestaActual
 } from './fiesta/musica.actions';
-
 import {
     updateReposteria as updateReposteriaFiestaActual
 } from './fiesta/reposteria.actions';
-
 import {
     updateBebidas as updateBebidasFiestaActual
 } from './fiesta/bebidas.actions';
-
 import {
     updateListaDeCargaOperativa
 } from './fiesta/carga-operativa.actions';
-
 import {
     updateGestionCostos as updateGestionCostosFiestaActual
 } from './fiesta/costos.actions';
-
 import {
     updateVideoVidaSettings
 } from './fiesta/video-vida.actions';
-
 import {
     updatePrograma as updateProgramaFiestaActual
 } from './fiesta/itinerario.actions';
-
 import {
     addReunion as addReunionToFiestaActual,
     updateReunion as updateReunionInFiestaActual,
     deleteReunion as deleteReunionFromFiestaActual
 } from './fiesta/reuniones.actions';
-
 import {
     updateFotografiaYFilmacion
 } from './fiesta/fotografia.actions';
-
 import {
     uploadDocumento as uploadDocumentoFiesta,
     deleteDocumento as deleteDocumentoFiesta
 } from './fiesta/documentos.actions';
-
 import {
     updatePagosProveedores
 } from './fiesta/pagos.actions';
-
 import {
     updatePersonal as updatePersonalFiestaActual
 } from './fiesta/personal.actions';
-
 import {
     updateGiftRegistry,
     claimGift
 } from './fiesta/regalos.actions';
-
 import {
     addInvoiceId as addInvoiceIdToFiestaActual,
     removeInvoiceId as removeInvoiceIdFromFiestaActual,
@@ -98,14 +80,12 @@ import {
     resetFiestaActual,
     saveFiesta,
     createNewFiestaForCustomer,
+    getHistorialFiestas // Added this export
 } from './fiesta/fiesta.actions';
-import { updateConfiguracion as updateConfiguracionFiestaActual } from './fiesta/configuracion.actions';
-
 
 // Re-exporting all for backward compatibility during transition.
 export {
     getFiesta,
-    getFiestaActual,
     updateConfiguracionFiestaActual,
     addInvitadoFiestaActual,
     updateInvitadoFiestaActual,
@@ -142,7 +122,9 @@ export {
     getFiestaById,
     getFiestas,
     getAllFiestas,
+    getFiestaActual,
     resetFiestaActual,
     saveFiesta,
-    createNewFiestaForCustomer
+    createNewFiestaForCustomer,
+    getHistorialFiestas
 }

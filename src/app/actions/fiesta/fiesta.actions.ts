@@ -1,6 +1,6 @@
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, OtroDocumento, DocumentoTipo, PagoProveedor, DecoracionData, ClientTarea, MusicaFiesta, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, VideoVidaData, ProgramaEventoItem, FotografiaYFilmacionData, GiftItem, ClientPortalSettings, Reunion, PersonalAsignadoDetalleStorage, Invitado, RsvpStatus } from '@/types/fiesta';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
@@ -81,7 +81,8 @@ async function getActivas(): Promise<FiestaEnPlanificacion[]> {
 }
 
 export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
-  return getFiestas(true);
+  const [activas, archivadas] = await Promise.all([getActivas(), getHistorialFiestas()]);
+  return [...activas, ...archivadas];
 }
 
 

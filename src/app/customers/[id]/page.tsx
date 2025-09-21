@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -13,8 +12,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, Payment } from '@/types/invoice';
 import { getCustomerById } from '@/app/actions/customers';
-import { getHistorialFiestas } from '@/app/actions/fiesta/fiesta.actions';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { Separator } from '@/components/ui/separator';
@@ -58,6 +56,7 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
   const [eventPaymentHistory, setEventPaymentHistory] = useState<EventPaymentDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   const loadCustomerData = useCallback(async () => {
     if (!customerId) {
@@ -83,15 +82,9 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
         getFiestaActual()
       ]);
       
-      const todasLasFiestasDelCliente: FiestaEnPlanificacion[] = [];
-      if (actual && actual.configuracion.clienteId === customerId) {
-        todasLasFiestasDelCliente.push(actual);
-      }
-      historial.forEach(fiestaHist => {
-        if (fiestaHist.configuracion.clienteId === customerId) {
-          todasLasFiestasDelCliente.push(fiestaHist);
-        }
-      });
+      const todasLasFiestasDelCliente = [actual, ...historial].filter(
+        (f): f is FiestaEnPlanificacion => f !== null && f.configuracion.clienteId === customerId
+      );
       
       const paymentHistory: EventPaymentDetails[] = [];
       for (const fiesta of todasLasFiestasDelCliente) {
@@ -139,8 +132,6 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
   useEffect(() => {
     loadCustomerData();
   }, [loadCustomerData]);
-
-  const [notFound, setNotFound] = useState(false);
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;

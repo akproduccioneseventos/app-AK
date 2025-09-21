@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -31,9 +30,9 @@ const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     try {
         const date = new Date(dateString);
-        // Check for invalid date strings that result in a date far in the past
-        if (isNaN(date.getTime()) || date.getUTCFullYear() < 1971) return "N/A";
-        return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
+        if (isNaN(date.getTime())) return "N/A";
+        // Use UTC methods to avoid timezone shifts affecting the date comparison logic
+        return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()).toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
     } catch(e) {
         return "Fecha inválida";
     }
@@ -52,7 +51,7 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
                 <TableHeader>
                   <TableRow>
                     <TableHead className="min-w-[250px]">Nombre / Empresa</TableHead>
-                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Fecha Próximo Evento</TableHead>
+                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Próximo Evento</TableHead>
                     <TableHead className="text-right print:hidden min-w-[200px]">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -122,22 +121,41 @@ export default function CustomersPage() {
         getAllFiestas()
       ]);
       const now = new Date();
-      now.setHours(0, 0, 0, 0); // Set to start of today for comparison
+      now.setHours(0, 0, 0, 0); 
       
       const customersWithStatus = customersData.map(customer => {
           const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id);
           
           const upcomingEvents = customerFiestas
-            .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
+            .filter(f => {
+                if (!f.configuracion.fechaEvento) return false;
+                const eventDate = new Date(f.configuracion.fechaEvento);
+                return eventDate >= now;
+            })
             .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
 
+          const pastEvents = customerFiestas
+            .filter(f => {
+                if (!f.configuracion.fechaEvento) return false;
+                const eventDate = new Date(f.configuracion.fechaEvento);
+                return eventDate < now;
+            })
+            .sort((a,b) => new Date(b.configuracion.fechaEvento!).getTime() - new Date(a.configuracion.fechaEvento!).getTime());
+
           const calculatedStatus: CustomerStatus = upcomingEvents.length > 0 ? 'Actual' : 'Antiguo';
+          
+          let displayDate = customer.partyDate;
+          if (calculatedStatus === 'Actual' && upcomingEvents.length > 0) {
+            displayDate = upcomingEvents[0].configuracion.fechaEvento;
+          } else if (calculatedStatus === 'Antiguo' && pastEvents.length > 0) {
+            displayDate = pastEvents[0].configuracion.fechaEvento;
+          }
+
 
           return { 
             ...customer, 
             estadoCliente: calculatedStatus,
-            // Show the next upcoming event date, or the original party date if none.
-            partyDate: upcomingEvents.length > 0 ? upcomingEvents[0].configuracion.fechaEvento : customer.partyDate
+            partyDate: displayDate
           };
       });
       
@@ -262,5 +280,3 @@ export default function CustomersPage() {
     </div>
   );
 }
-
-    
