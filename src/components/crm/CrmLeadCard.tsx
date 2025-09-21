@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -5,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2 } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,6 +52,11 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
     if (notes.includes('Generado desde el Simulador/Creador de Presupuestos') || notes.includes('Generado desde SIMULADOR DE PRESUPUESTO')) {
         return { type: 'badge', content: 'Presupuesto al Instante' };
     }
+    // Don't show notes if it's just repeating lead details
+    const notesLower = notes.toLowerCase();
+    if(notesLower.includes('tipo de fiesta:') || notesLower.includes('salón:') || notesLower.includes('invitados:') || notesLower.includes('fecha seguimiento:')) {
+      return null;
+    }
     return { type: 'text', content: notes };
   };
 
@@ -71,6 +77,12 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
             </div>
         </CardHeader>
         <CardContent className="p-2 flex-grow min-h-0 text-xs text-muted-foreground space-y-1">
+          {lead.followUpDate && (
+             <div className="flex items-center gap-1.5 font-medium text-amber-700">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0"/>
+                <span className="truncate">Seguimiento: {new Date(lead.followUpDate).toLocaleDateString('es-ES')}</span>
+            </div>
+          )}
           {lead.partyType && (
             <div className="flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5 flex-shrink-0"/>

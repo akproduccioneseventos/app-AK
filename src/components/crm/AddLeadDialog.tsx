@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent } from 'react';
@@ -22,6 +23,7 @@ import { Textarea } from '../ui/textarea';
 import type { TipoEvento } from '@/types/presupuesto';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerDemo } from '../date-picker-demo';
 
 interface AddLeadDialogProps {
   stages: CrmStage[];
@@ -31,17 +33,17 @@ interface AddLeadDialogProps {
 
 export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', email: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined });
+  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', email: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   const firstStageId = stages.length > 0 ? stages[0].id : '';
 
   const resetForm = () => {
-    setFormData({ name: '', email: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined });
+    setFormData({ name: '', email: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
   };
 
-  const handleInputChange = (field: keyof NewCrmLeadData, value: string | number | undefined) => {
+  const handleInputChange = (field: keyof NewCrmLeadData, value: string | number | undefined | Date) => {
     setFormData(prev => ({...prev, [field]: value}));
   };
 
@@ -53,10 +55,15 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
     }
     setIsSaving(true);
     try {
-      const result = await addCrmLead({ 
+      const dataToSave: NewCrmLeadData = {
         ...formData,
+        followUpDate: formData.followUpDate ? new Date(formData.followUpDate).toISOString() : undefined
+      } as NewCrmLeadData;
+
+      const result = await addCrmLead({ 
+        ...dataToSave,
         currentStageId: defaultStageId || firstStageId,
-      } as NewCrmLeadData);
+      });
 
       if (result.success) {
         toast({ title: "Prospecto Añadido", description: `El prospecto "${formData.name}" ha sido añadido.` });
@@ -105,14 +112,20 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
           </div>
            <p className="text-xs text-muted-foreground -mt-2">Al menos uno de los dos campos de contacto (Email o Teléfono) es obligatorio.</p>
            
-          <div className="space-y-1">
-            <Label htmlFor="lead-party-type">Tipo de Fiesta (Opcional)</Label>
-            <Select value={formData.partyType || ''} onValueChange={(value) => handleInputChange('partyType', value)}>
-                <SelectTrigger id="lead-party-type"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
-                <SelectContent>
-                    {ALL_TIPOS_EVENTO.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+                <Label htmlFor="lead-party-type">Tipo de Fiesta (Opcional)</Label>
+                <Select value={formData.partyType || ''} onValueChange={(value) => handleInputChange('partyType', value)}>
+                    <SelectTrigger id="lead-party-type"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
+                    <SelectContent>
+                        {ALL_TIPOS_EVENTO.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="lead-follow-up">Fecha de Seguimiento/Evento (Opcional)</Label>
+              <DatePickerDemo selectedDate={formData.followUpDate ? new Date(formData.followUpDate) : undefined} onDateChange={(date) => handleInputChange('followUpDate', date)} />
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">

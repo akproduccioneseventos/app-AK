@@ -25,6 +25,7 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 
 export async function getCrmLeads(): Promise<CrmLead[]> {
   const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  // Default sort: newest first
   return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
@@ -50,6 +51,7 @@ export async function addCrmLead(
   if (leadData.partyType) combinedNotes += `\n- Tipo de Fiesta: ${leadData.partyType}`;
   if (leadData.venueName) combinedNotes += `\n- Salón: ${leadData.venueName}`;
   if (leadData.guestCount) combinedNotes += `\n- Invitados: ${leadData.guestCount}`;
+  if (leadData.followUpDate) combinedNotes += `\n- Fecha Seguimiento: ${new Date(leadData.followUpDate).toLocaleDateString('es-ES')}`;
 
   const newLead: CrmLead = {
     id: `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -60,6 +62,7 @@ export async function addCrmLead(
     partyType: leadData.partyType?.trim() || undefined,
     venueName: leadData.venueName?.trim() || undefined,
     guestCount: leadData.guestCount,
+    followUpDate: leadData.followUpDate,
     currentStageId: stageId,
     createdAt: now,
     updatedAt: now,

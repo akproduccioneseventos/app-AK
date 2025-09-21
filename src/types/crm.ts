@@ -1,4 +1,5 @@
 
+
 export interface CrmLeadHistoryItem {
   stageId: string;
   stageName: string;
@@ -32,6 +33,7 @@ export interface CrmLead {
   partyType?: string;
   venueName?: string;
   guestCount?: number;
+  followUpDate?: string; // ISO Date string for follow-up or event estimate
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history'>;
