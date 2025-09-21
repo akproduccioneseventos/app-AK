@@ -53,7 +53,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
 
 
-  if (pathname === '/compras') return 'Compras y Adquisiciones';
+  if (pathname === '/compras') return 'Compras y Checklist';
 
   if (pathname === '/empleados') return 'Gestión de Personal';
   if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
