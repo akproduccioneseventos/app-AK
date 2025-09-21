@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, FileText, Loader2, AlertTriangle, Archive, FileSignature, FileUp, ListChecks } from 'lucide-react';
+import { ArrowLeft, UploadCloud, FileText, Loader2, AlertTriangle, Archive, FileSignature, FileUp, ListChecks, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
@@ -26,6 +26,7 @@ export default function GestionDocumentalPage() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [docType, setDocType] = useState<DocumentoTipo>('otro');
   const [customName, setCustomName] = useState('');
@@ -104,6 +105,34 @@ export default function GestionDocumentalPage() {
       toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
     }
   };
+  
+  const handleDownloadAll = async () => {
+    if (!fiesta) return;
+    setIsDownloading(true);
+    toast({ title: "Preparando descarga...", description: "Comprimiendo documentos..." });
+    try {
+      const response = await fetch(`/api/documentos-fiesta/${fiesta.id}/download-all.zip`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'No se pudo generar el archivo ZIP.');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `documentos-${fiesta.id.substring(0, 6)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: "Descarga Iniciada" });
+    } catch (error: any) {
+      toast({ title: "Error en la Descarga", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
 
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-3xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>
@@ -168,6 +197,10 @@ export default function GestionDocumentalPage() {
                 <Link href={`/fiestas/nueva/gestion-documental/contrato-salon`} passHref>
                    <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Salón</Button>
                 </Link>
+                <Button onClick={handleDownloadAll} variant="outline" size="sm" disabled={isDownloading}>
+                    {isDownloading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin"/> : <Download className="w-4 h-4 mr-1.5"/>}
+                    Descargar Todos (.zip)
+                </Button>
             </div>
           </CardDescription>
         </CardHeader>

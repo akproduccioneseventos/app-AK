@@ -300,7 +300,7 @@ export default function EditCustomerPage({ params: paramsProp }: { params: { id:
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                 <div>
                     <Label htmlFor="salon-contract-file" className="flex items-center gap-1"><FileText className="w-4 h-4"/>Contrato del Salón (PDF)</Label>
                     <Input id="salon-contract-file" type="file" onChange={(e) => setSalonContractFile(e.target.files?.[0] || null)} accept="application/pdf" disabled={isSaving || isDeleting}/>
                 </div>
