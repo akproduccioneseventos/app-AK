@@ -5,6 +5,7 @@ import type { Customer, CustomerStatus } from '@/types/customer';
 import fs from 'fs/promises';
 import path from 'path';
 
+// This action no longer depends on fiesta-actual, breaking the circular dependency.
 const CLIENTES_COLLECTION_JSON = 'customers.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const customersFilePath = path.join(dataDirectory, CLIENTES_COLLECTION_JSON);

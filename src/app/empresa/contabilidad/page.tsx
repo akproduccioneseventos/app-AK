@@ -293,5 +293,4 @@ export default function ContabilidadDashboardPage() {
     </div>
   );
 }
-
     
