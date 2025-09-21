@@ -293,7 +293,7 @@ export default function GestionReunionesPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><MessageSquareText className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Reuniones</h1></div>
-        <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
+        <Link href="/contabilidad/crm" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al CRM</Button></Link>
       </div>
 
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
