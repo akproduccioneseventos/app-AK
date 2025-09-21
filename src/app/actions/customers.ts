@@ -67,38 +67,13 @@ export async function getCustomers(): Promise<Customer[]> {
   return readCustomersFile();
 }
 
-export async function getCustomersWithStatus(): Promise<Customer[]> {
-  const [customers, fiestas] = await Promise.all([
-    readCustomersFile(),
-    getAllFiestas()
-  ]);
-
-  const now = new Date();
-
-  return customers.map(customer => {
-    const customerFiestas = fiestas.filter(f => f.configuracion.clienteId === customer.id);
-    const hasFutureEvent = customerFiestas.some(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now);
-    
-    const calculatedStatus: CustomerStatus = hasFutureEvent ? 'Actual' : 'Antiguo';
-
-    const finalStatus = customerFiestas.length > 0 ? calculatedStatus : (customer.estadoCliente || 'Antiguo');
-
-    const upcomingEvents = customerFiestas
-        .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
-        .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
-
-    return { 
-      ...customer, 
-      estadoCliente: finalStatus,
-      partyDate: upcomingEvents.length > 0 ? upcomingEvents[0].configuracion.fechaEvento : customer.partyDate
-    };
-  });
-}
-
 export async function getCustomerById(id: string): Promise<Customer | null> {
   const customers = await readCustomersFile();
   const customer = customers.find(c => c.id === id);
   if (!customer) return null;
+
+  // This is a simplified status assignment. For a full status with event dates,
+  // the logic is now handled on the client-side page to avoid circular dependencies.
   return { ...customer, estadoCliente: customer.estadoCliente || 'Actual' };
 }
 

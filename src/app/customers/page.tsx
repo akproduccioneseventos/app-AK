@@ -10,7 +10,8 @@ import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Print
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
-import { getCustomersWithStatus, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
+import { getCustomers, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
+import { getAllFiestas } from '@/app/actions/fiesta-actual';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,7 +46,14 @@ const getCustomerStatusBadgeVariant = (status?: CustomerStatus): "default" | "se
 const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     try {
-        return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
+        const date = new Date(dateString);
+        // Check if the date is valid. An invalid date might result from parsing 'undefined' or null.
+        if (isNaN(date.getTime())) {
+            // Check for a specific invalid date pattern from previous bugs, like the Unix epoch start
+            if (new Date(dateString).getUTCFullYear() < 1971) return "N/A";
+            return "Fecha inválida";
+        }
+        return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
     } catch(e) {
         return "Fecha inválida";
     }
@@ -66,9 +74,30 @@ export default function CustomersPage() {
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getCustomersWithStatus();
-      // Sort by partyDate, upcoming first, then those without a date.
-      const sortedData = data.sort((a, b) => {
+      const [customersData, fiestasData] = await Promise.all([
+        getCustomers(),
+        getAllFiestas()
+      ]);
+      const now = new Date();
+      
+      const customersWithStatus = customersData.map(customer => {
+          const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id);
+          const hasFutureEvent = customerFiestas.some(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now);
+          const calculatedStatus: CustomerStatus = hasFutureEvent ? 'Actual' : 'Antiguo';
+          const finalStatus = customerFiestas.length > 0 ? calculatedStatus : (customer.estadoCliente || 'Antiguo');
+          
+          const upcomingEvents = customerFiestas
+            .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
+            .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
+
+          return { 
+            ...customer, 
+            estadoCliente: finalStatus,
+            partyDate: upcomingEvents.length > 0 ? upcomingEvents[0].configuracion.fechaEvento : customer.partyDate
+          };
+      });
+      
+      const sortedData = customersWithStatus.sort((a, b) => {
           const dateA = a.partyDate ? new Date(a.partyDate).getTime() : Infinity;
           const dateB = b.partyDate ? new Date(b.partyDate).getTime() : Infinity;
           if (dateA === Infinity && dateB === Infinity) return 0;
