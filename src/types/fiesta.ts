@@ -295,14 +295,6 @@ export type BebidasConsumoConfig = {
 };
 
 
-export interface BebidaCategoria {
-  id: BebidaCategoriaId;
-  nombreDisplay: string;
-  activada: boolean;
-  descripcion?: string;
-  items: BebidaItem[];
-}
-
 export interface BebidasData {
   categorias: BebidaCategoria[];
   consumoConfig?: BebidasConsumoConfig;
