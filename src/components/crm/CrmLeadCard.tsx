@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -6,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2 } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,7 +58,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-[180px]">
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-auto min-h-[190px]">
         <CardHeader 
           {...attributes} 
           {...listeners} 
@@ -71,13 +70,25 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting }: CrmLeadCardProps
                <p className="font-semibold text-sm break-words line-clamp-2" title={lead.name}>{lead.name}</p>
             </div>
         </CardHeader>
-        <CardContent className="p-2 flex-grow min-h-0">
+        <CardContent className="p-2 flex-grow min-h-0 text-xs text-muted-foreground space-y-1">
+          {lead.partyType && (
+            <div className="flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 flex-shrink-0"/>
+              <span className="truncate">{lead.partyType} {lead.venueName && `en ${lead.venueName}`}</span>
+            </div>
+          )}
+          {lead.guestCount !== undefined && (
+             <div className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 flex-shrink-0"/>
+              <span className="truncate">Aprox. {lead.guestCount} invitados</span>
+            </div>
+          )}
           {displayNotes && (
-            <div className="mt-1">
+            <div className="pt-1">
             {displayNotes.type === 'badge' ? (
                 <Badge variant="secondary" className="text-xs">{displayNotes.content}</Badge>
             ) : (
-                <p className="text-xs text-muted-foreground break-words line-clamp-3">{displayNotes.content}</p>
+                <p className="break-words line-clamp-2 italic">"{displayNotes.content}"</p>
             )}
             </div>
           )}

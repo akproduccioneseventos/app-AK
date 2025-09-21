@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent } from 'react';
@@ -42,7 +41,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
     setFormData({ name: '', email: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined });
   };
 
-  const handleInputChange = (field: keyof NewCrmLeadData, value: string | number) => {
+  const handleInputChange = (field: keyof NewCrmLeadData, value: string | number | undefined) => {
     setFormData(prev => ({...prev, [field]: value}));
   };
 
