@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Loader2, AlertTriangle, Link as LinkIcon, ClipboardCopy, Image, Download, Camera, Music2, Type } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
-import { getFiestaActual, updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateVideoVidaSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { getLifeStoryVideoPhotos } from '@/app/actions/video-vida';
 import NextImage from 'next/image';
 
@@ -54,7 +54,7 @@ export default function VideoVidaAdminPage() {
     const newSettings = { ...videoVidaSettings, galleryEnabled: enabled };
     setVideoVidaSettings(newSettings);
     
-    const result = await updateVideoVidaSettings(newSettings);
+    const result = await updateVideoVidaSettingsFiestaActual(newSettings);
     if(result.success) {
         toast({title: "Configuración guardada"});
     } else {

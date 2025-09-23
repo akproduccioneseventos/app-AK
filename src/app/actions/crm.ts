@@ -7,6 +7,7 @@ import { saveCustomer } from '@/app/actions/customers';
 import type { Customer } from '@/types/customer'; 
 import { createNewFiestaForCustomer, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { activateAnnualAdjustmentForBudget } from './presupuestos';
+import { addReunion } from './fiesta/reuniones.actions';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -192,6 +193,13 @@ export async function convertToClientAndMoveProspect(
     if (!newFiestaResult.success || !newFiestaResult.fiesta) {
         console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta para el cliente ${customerResult.id}: ${newFiestaResult.error}`);
         // Continue but warn about it
+    } else if (meetingDate) {
+        // If a meeting was scheduled, add it to the newly created Fiesta's reunions
+        await addReunion({
+            titulo: `Reunión de Firma de Contrato`,
+            fecha: new Date(meetingDate).toISOString(),
+            notas: `Reunión agendada desde el CRM al convertirse en cliente.`,
+        });
     }
 
     // Now, activate adjustment on the associated budget
@@ -216,3 +224,5 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
+
+    
