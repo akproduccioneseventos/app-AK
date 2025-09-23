@@ -436,7 +436,7 @@
     "notasGeneralesCostos": ""
   },
   "videoVida": {
-    "galleryEnabled": false,
+    "galleryEnabled": true,
     "photosUploaded": false,
     "songSuggestion": "",
     "customText": ""
