@@ -132,9 +132,9 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   };
 
-  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal } = useMemo(() => {
-    if (!presupuesto) {
-      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0 };
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalConDescuento, ajustesAnuales, totalFinal } = useMemo(() => {
+    if (!presupuesto || !displaySettings) {
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalConDescuento: 0, ajustesAnuales: [], totalFinal: 0 };
     }
     
     const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
@@ -157,19 +157,35 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     const bruto = presupuesto.costoTotalEstimado;
-    
-    const descuentoPorcentaje = armadoRapidoConfig?.descuentoGeneral ?? 0;
-    const descPromo = (bruto * descuentoPorcentaje) / 100;
+    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+    const totalDescuento = presupuesto.totalConDescuento ?? bruto;
+
+    let ajustes: { anio: number; monto: number; totalAcumulado: number }[] = [];
+    let montoAjustable = totalDescuento;
+    let totalAjustado = totalDescuento;
+
+    if (presupuesto.ajusteAnualActivo && presupuesto.eventoFecha && displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0) {
+        const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
+        const anioEvento = new Date(presupuesto.eventoFecha).getFullYear();
+        for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
+            const ajuste = montoAjustable * (displaySettings.annualAdjustmentPercentage / 100);
+            montoAjustable += ajuste;
+            totalAjustado = montoAjustable;
+            ajustes.push({ anio, monto: ajuste, totalAcumulado: montoAjustable });
+        }
+    }
     
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),
-      totalFinal: bruto - descPromo
+      totalConDescuento: totalDescuento,
+      ajustesAnuales: ajustes,
+      totalFinal: totalAjustado,
     };
 
-  }, [presupuesto, armadoRapidoConfig]);
+  }, [presupuesto, displaySettings]);
   
   const getDisplayQuantity = (item: ItemPresupuestado, invitados: number): string => {
     switch (item.calculationMethod) {
@@ -197,14 +213,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
-  
-  const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
-  const currentYear = new Date().getFullYear();
-  const showAnnualAdjustmentLegend = 
-    displaySettings?.annualAdjustmentPercentage && 
-    displaySettings.annualAdjustmentPercentage > 0 && 
-    eventYear > currentYear && 
-    presupuesto?.estado !== 'Facturado';
     
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
 
@@ -327,7 +335,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
               </div>
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Descuento Promocional ({armadoRapidoConfig?.descuentoGeneral}%):</span>
+                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
                     <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
               )}
@@ -337,6 +345,18 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
                     <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
                   </div>
                )}
+               {descuentoPromocional > 0 && (
+                 <div className="flex justify-between font-semibold pt-1 border-t">
+                    <span>Subtotal con Descuento:</span>
+                    <span>{formatCurrency(totalConDescuento, true)}</span>
+                  </div>
+               )}
+               {ajustesAnuales.map((ajuste, index) => (
+                 <div key={ajuste.anio} className="flex justify-between text-orange-600">
+                    <span>Ajuste anual {ajuste.anio} ({displaySettings.annualAdjustmentPercentage}%):</span>
+                    <span>+{formatCurrency(ajuste.monto, true, true)}</span>
+                 </div>
+               ))}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">Importe total</span>
                 <span className="text-base">{formatCurrency(totalFinal, true)}</span>
@@ -347,7 +367,9 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: Pro
         <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p className="text-red-600 font-bold text-sm">{BUDGET_DEPOSIT_NOTE_PDF}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-          {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
+          {presupuesto.ajusteAnualActivo && displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && (
+            <p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: El importe total incluye un ajuste anual del {displaySettings.annualAdjustmentPercentage}% por cada año hasta la fecha del evento.</p>
+          )}
         </footer>
       </div>
     </div>

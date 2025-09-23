@@ -54,6 +54,7 @@ export interface Presupuesto {
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
   invoiceId?: string;
+  ajusteAnualActivo?: boolean; // NEW: Controls visibility of annual adjustment
 }
 
 // FormData for the new unified builder.

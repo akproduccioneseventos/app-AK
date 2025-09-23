@@ -83,6 +83,7 @@ export async function savePresupuesto(presupuestoData: Omit<Presupuesto, 'id' | 
     timestamp: new Date().toISOString(),
     estado: 'Borrador', 
     invoiceId: undefined,
+    ajusteAnualActivo: false, // Ensure it's false on creation
   };
   presupuestos.push(nuevoPresupuesto);
   await writeData(PRESUPUESTOS_FILE, presupuestos, (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -95,6 +96,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
   if (index === -1) {
     return { success: false, error: `Presupuesto con ID ${presupuestoData.id} no encontrado.` };
   }
+  
+  const isNowAcceptedOrBilled = ['Aceptado', 'Facturado'].includes(presupuestoData.estado);
+  const wasNotAcceptedOrBilled = !['Aceptado', 'Facturado'].includes(presupuestos[index].estado);
+
+  const activateAdjustment = isNowAcceptedOrBilled && wasNotAcceptedOrBilled;
+
 
   const validItems = presupuestoData.itemsPresupuestados.map(item => {
     const costoTotalItem = recalcularCostoItem(item, presupuestoData.invitadosCantidad);
@@ -123,6 +130,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     costoTotalEstimado: costoTotalEstimadoRecalculado,
     totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
     timestamp: new Date().toISOString(),
+    ajusteAnualActivo: activateAdjustment ? true : (presupuestos[index].ajusteAnualActivo || false),
   };
   
   presupuestos[index] = updatedPresupuesto;
@@ -178,6 +186,7 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   presupuestos[index].estado = 'Facturado';
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].timestamp = new Date().toISOString();
+  presupuestos[index].ajusteAnualActivo = true; // Also activate adjustment on invoicing
   
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
