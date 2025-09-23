@@ -2,12 +2,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog } from 'lucide-react';
-import Link from 'next/link';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Reunion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
@@ -45,7 +45,7 @@ const internalModules: PlanningModule[] = [
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
   { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" },
-  { title: "Accesos para Colaboradores", description: "Genera enlaces únicos para que tu equipo vea la información que necesita.", icon: UserCog, href: "/fiestas/nueva/accesos-personal", status: "Disponible", actionLabel: "Gestionar Accesos" }
+  { title: "Accesos para Colaboradores", description: "Genera enlaces únicos para que tu equipo vea la información que necesita.", icon: UserCog, href: "/settings/accesos-personal", status: "Disponible", actionLabel: "Gestionar Accesos" }
 ];
 
 
