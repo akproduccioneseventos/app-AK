@@ -1,8 +1,7 @@
 
-
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, MusicaFiesta, VideoVidaData, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, VideoVidaData, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
 import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
@@ -128,3 +127,5 @@ export const deleteReunionFromFiestaActual = deleteReunion;
 
 // --- Catering Actions ---
 export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
+
+  

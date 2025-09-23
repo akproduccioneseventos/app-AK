@@ -1,7 +1,8 @@
+
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, EventWebPageSettings } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 
@@ -28,6 +29,14 @@ export async function updateClientNotes(notes: string) {
   return updateFiestaData(data => ({ ...data, clientNotes: notes }));
 }
 
-export async function updatePortalSettings(settings: ClientPortalSettings) {
-  return updateFiestaData(data => ({ ...data, clientPortalSettings: settings }));
+export async function updatePortalSettings(clientSettings: ClientPortalSettings, webSettings: EventWebPageSettings) {
+  return updateFiestaData(data => ({ 
+      ...data, 
+      clientPortalSettings: clientSettings,
+      webPageSettings: {
+        ...data.webPageSettings,
+        ...webSettings,
+        galleryImageUrls: (webSettings.galleryImageUrls || []).filter(url => url && url.trim() !== '')
+      },
+    }));
 }
