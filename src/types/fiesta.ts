@@ -3,6 +3,7 @@
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
+import type { SocialGalleryPost } from './social-gallery';
 
 // --- CONFIGURACIÓN DEL ASISTENTE AK ---
 export interface AsistentePasoOpcion {
@@ -206,6 +207,7 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
+  posts?: SocialGalleryPost[];
 }
 
 export interface MusicaFiesta {

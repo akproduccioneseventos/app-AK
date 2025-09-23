@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaActual, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import QRCodeStylized from 'qrcode.react';
+import { defaultWebPageSettings } from '@/lib/fiesta-defaults';
 
 const platformIcons: Record<string, React.ElementType> = {
     Facebook: Facebook,
@@ -226,7 +227,7 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
 export default function EventoPublicoPage() {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [webSettings, setWebSettings] = useState<EventWebPageSettings | null>(null);
+  const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
   const [paletaColores, setPaletaColores] = useState<ColorPalette | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -245,16 +246,8 @@ export default function EventoPublicoPage() {
         getSocialConnections(),
       ]);
       setFiesta(data);
-      setWebSettings(data.webPageSettings || { 
-          pageTitle: data.configuracion.nombreEvento || 'Nuestro Evento', 
-          welcomeMessage: '¡Te esperamos!', 
-          galleryImageUrls: [],
-          showCountdown: true,
-          showOurStory: true,
-          showEventDetails: true,
-          showGallery: true,
-          showRsvp: true,
-      });
+      // Correctly merge settings with defaults
+      setWebSettings({ ...defaultWebPageSettings, ...(data.webPageSettings || {}) });
       setPaletaColores(data.decoracion?.paletaColores || null);
       setSocialLinks(connections.filter(c => c.isConnected && c.profileUrl));
     } catch (err: any) {
@@ -299,7 +292,7 @@ export default function EventoPublicoPage() {
     );
   }
 
-  if (error || !fiesta || !webSettings) {
+  if (error || !fiesta) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background text-destructive p-6 text-center">
         <AlertTriangle className="w-16 h-16 mb-4" />
@@ -350,6 +343,17 @@ export default function EventoPublicoPage() {
         {webSettings.welcomeMessage && (
              <section id="welcome" className="text-center">
                 <p className="text-lg md:text-xl text-muted-foreground whitespace-pre-line">{webSettings.welcomeMessage}</p>
+            </section>
+        )}
+        
+        {fiesta.socialGallerySettings?.enabled && (
+             <section id="social-gallery-link" className="text-center">
+                <Button asChild size="lg">
+                    <Link href={`/evento/social/${fiesta.id}`}>
+                        <Camera className="w-5 h-5 mr-2"/>
+                        Ver y Subir Fotos a la Galería Social
+                    </Link>
+                </Button>
             </section>
         )}
 
