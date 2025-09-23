@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Globe, Lock } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Globe, Lock, Share2, ClipboardCopy, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, ClientTarea } from '@/types/fiesta';
 import { getFiestaActual, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
@@ -37,6 +37,13 @@ export default function PortalClienteSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const [publicPageUrl, setPublicPageUrl] = useState('');
+
+  useEffect(() => {
+    // This effect ensures window.location.origin is only accessed on the client-side
+    setPublicPageUrl(`${window.location.origin}/evento/actual`);
+  }, []);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -93,6 +100,15 @@ export default function PortalClienteSettingsPage() {
     }
   };
 
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(publicPageUrl);
+    toast({ title: "Enlace Copiado", description: "El enlace se ha copiado al portapapeles." });
+  };
+
+  const handleShareWhatsApp = () => {
+    const message = `¡Hola! Te comparto la página de nuestro evento: ${publicPageUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -110,6 +126,27 @@ export default function PortalClienteSettingsPage() {
         </div>
         <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
+      
+       {settings.paginaPublica.visible && (
+        <Card className="shadow-md bg-green-50 border-green-200">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><LinkIcon className="text-green-600"/>Enlace a la Página Pública</CardTitle>
+                <CardDescription>Usa este enlace para compartir la página con tus invitados.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <div className="flex gap-2">
+                    <Input value={publicPageUrl} readOnly />
+                    <Button type="button" size="icon" onClick={handleCopyToClipboard}><ClipboardCopy className="w-4 h-4"/></Button>
+                </div>
+            </CardContent>
+            <CardFooter>
+                 <Button type="button" onClick={handleShareWhatsApp} className="w-full sm:w-auto bg-green-500 hover:bg-green-600">
+                    <Share2 className="w-4 h-4 mr-2"/>Compartir por WhatsApp
+                 </Button>
+            </CardFooter>
+        </Card>
+      )}
+
 
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">
