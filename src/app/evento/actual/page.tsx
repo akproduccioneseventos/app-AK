@@ -540,7 +540,7 @@ export default function EventoPublicoPage() {
                 })}
             </div>
         )}
-        <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} {fiesta.configuracion.nombreEvento}. Creado con cariño.</p>
+        <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AK Producciones. Creado con cariño.</p>
       </footer>
     </div>
   );
