@@ -100,6 +100,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
   const isNowAcceptedOrBilled = ['Aceptado', 'Facturado'].includes(presupuestoData.estado);
   const wasNotAcceptedOrBilled = !['Aceptado', 'Facturado'].includes(presupuestos[index].estado);
 
+  // Activate adjustment if the status changes TO 'Aceptado' or 'Facturado' for the first time.
   const activateAdjustment = isNowAcceptedOrBilled && wasNotAcceptedOrBilled;
 
 
@@ -130,7 +131,8 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     costoTotalEstimado: costoTotalEstimadoRecalculado,
     totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
     timestamp: new Date().toISOString(),
-    ajusteAnualActivo: activateAdjustment ? true : (presupuestos[index].ajusteAnualActivo || false),
+    // Keep existing value OR activate it if conditions are met. Never deactivate automatically.
+    ajusteAnualActivo: presupuestos[index].ajusteAnualActivo || activateAdjustment,
   };
   
   presupuestos[index] = updatedPresupuesto;
@@ -191,3 +193,19 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }
+
+export async function activateAnnualAdjustmentForBudget(presupuestoId: string): Promise<{ success: boolean; error?: string }> {
+  let presupuestos = await getPresupuestos();
+  const index = presupuestos.findIndex(p => p.id === presupuestoId);
+  if (index === -1) {
+    return { success: false, error: `Presupuesto con ID ${presupuestoId} no encontrado para activar ajuste.` };
+  }
+  if (presupuestos[index].ajusteAnualActivo) {
+    return { success: true }; // Already active, no change needed.
+  }
+  
+  presupuestos[index].ajusteAnualActivo = true;
+  await writeData(PRESUPUESTOS_FILE, presupuestos);
+  return { success: true };
+}
+

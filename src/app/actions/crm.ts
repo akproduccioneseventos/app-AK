@@ -5,7 +5,8 @@ import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import type { Customer } from '@/types/customer'; 
-import { createNewFiestaForCustomer } from '@/app/actions/fiesta/fiesta.actions';
+import { createNewFiestaForCustomer, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { activateAnnualAdjustmentForBudget } from './presupuestos';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -185,16 +186,27 @@ export async function convertToClientAndMoveProspect(
     if (!customerResult.success || !customerResult.id) {
       return { success: false, error: customerResult.error || "No se pudo crear el cliente." };
     }
+    
+    // Create or retrieve the fiesta for the new customer
+    const newFiestaResult = await createNewFiestaForCustomer(customerResult.customer as Customer);
+    if (!newFiestaResult.success || !newFiestaResult.fiesta) {
+        console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta para el cliente ${customerResult.id}: ${newFiestaResult.error}`);
+        // Continue but warn about it
+    }
+
+    // Now, activate adjustment on the associated budget
+    if (newFiestaResult.fiesta?.presupuestoId) {
+      const budgetActivationResult = await activateAnnualAdjustmentForBudget(newFiestaResult.fiesta.presupuestoId);
+      if (!budgetActivationResult.success) {
+        console.warn(`Ajuste anual no activado para presupuesto ${newFiestaResult.fiesta.presupuestoId}. Error: ${budgetActivationResult.error}`);
+        // Don't fail the whole operation, just log a warning
+      }
+    }
 
     const moveResult = await moveCrmLead(prospectId, firmStage.id, meetingDate);
     if (!moveResult.success) {
       console.warn(`Cliente ${customerResult.id} creado, pero no se pudo mover el prospecto ${prospectId}. Error: ${moveResult.error}`);
       return { success: false, error: `Cliente creado, pero no se pudo actualizar el prospecto: ${moveResult.error}`, customerId: customerResult.id };
-    }
-    
-    const newFiestaResult = await createNewFiestaForCustomer(customerResult.customer as Customer);
-     if (!newFiestaResult.success) {
-        console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta para el cliente ${customerResult.id}: ${newFiestaResult.error}`);
     }
 
     return { success: true, customerId: customerResult.id, lead: moveResult.lead };
@@ -204,5 +216,3 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
-
-    
