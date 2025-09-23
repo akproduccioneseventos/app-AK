@@ -208,4 +208,3 @@ export async function activateAnnualAdjustmentForBudget(presupuestoId: string): 
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }
-
