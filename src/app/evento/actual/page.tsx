@@ -7,7 +7,7 @@ import NextImage from 'next/image';
 import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
-import { getFiestaActual, handleRsvpSubmission, claimGift } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { CountdownTimer } from '@/components/countdown-timer';
@@ -118,7 +118,7 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
     };
 
     try {
-      const result = await handleRsvpSubmission(submissionData);
+      const result = await handleRsvpSubmissionFiestaActual(submissionData);
       if (result.success) {
         setFormMessage({ type: 'success', text: '¡Gracias por confirmar! Tu respuesta ha sido enviada.' });
         // Reset form
@@ -272,7 +272,7 @@ export default function EventoPublicoPage() {
       return;
     }
     setIsClaiming(true);
-    const result = await claimGift(selectedGift.id, guestName);
+    const result = await claimGiftFiestaActual(selectedGift.id, guestName);
     if (result.success) {
       toast({ title: "¡Regalo Elegido!", description: "Gracias por tu generosidad." });
       setIsClaimModalOpen(false);
