@@ -33,7 +33,7 @@ const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños/Adol
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
-export default function EditarItemInventarioPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function EditarItemInventarioPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();
@@ -148,7 +148,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         precioBase: formData.precioBase !== undefined ? Number(formData.precioBase) : undefined,
         precioPorPersona: formData.precioPorPersona !== undefined ? Number(formData.precioPorPersona) : undefined,
         invitadosPorUnidad: formData.invitadosPorUnidad !== undefined ? Number(formData.invitadosPorUnidad) : undefined,
-        notas: undefined,
+        notas: formData.notas?.trim() || undefined,
     };
     
     try {
@@ -302,6 +302,10 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
                 </div>
             )}
             
+            <div className="space-y-2">
+              <Label htmlFor="item-notas" className="text-base">Observaciones (Opcional)</Label>
+              <Textarea id="item-notas" value={formData.notas || ''} onChange={(e) => handleFormChange('notas', e.target.value)} rows={3} disabled={isSaving}/>
+            </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-between items-center">
             <Button type="submit" className="w-auto" disabled={isSaving}>

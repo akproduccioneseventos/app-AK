@@ -190,29 +190,29 @@
     "enabled": false,
     "accessKey": "",
     "checklist": {
-      "visible": false,
+      "visible": true,
       "editable": false
     },
     "itinerario": {
-      "visible": false
+      "visible": true
     },
     "musica": {
-      "visible": false,
-      "editable": false
+      "visible": true,
+      "editable": true
     },
     "videoVida": {
-      "visible": false,
+      "visible": true,
       "editable": true
     },
     "listaRegalos": {
-      "visible": false
+      "visible": true
     },
     "documentos": {
       "visible": true
     },
     "notasCliente": {
       "visible": false,
-      "editable": true
+      "editable": false
     },
     "invitados": {
       "visible": true

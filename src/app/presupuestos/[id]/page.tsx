@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 // This page is obsolete and now redirects to the new unified editor page.
-export default function ViewPresupuestoRedirectPage({ params }: { params: { id: string } }) {
+export default function ViewPresupuestoRedirectPage({ params: paramsProp }: { params: { id: string } }) {
+  const params = React.use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id;
 

@@ -46,7 +46,7 @@ import { Slider } from '@/components/ui/slider';
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 
 
-export default function EditarMenuEspecificoPage({ params: paramsProp }: { params: Promise<{ menuId: string }> }) {
+export default function EditarMenuEspecificoPage({ params: paramsProp }: { params: { menuId: string } }) {
   const params = React.use(paramsProp);
   const menuIdFromParams = params.menuId;
 
