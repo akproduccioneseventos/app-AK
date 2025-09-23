@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -14,6 +13,7 @@ import type { FiestaEnPlanificacion, ClientPortalSettings, ClientTarea } from '@
 import { getFiestaActual, updatePortalSettings } from '@/app/actions/fiesta-actual';
 import { defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type PortalModule = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>;
 
