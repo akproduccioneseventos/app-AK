@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 
 const DOCS_DIR = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
 

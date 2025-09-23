@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -10,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Loader2, AlertTriangle, Globe, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, ClientTarea } from '@/types/fiesta';
-import { getFiestaActual, updatePortalSettings } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -79,7 +80,7 @@ export default function PortalClienteSettingsPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const result = await updatePortalSettings(settings);
+      const result = await updatePortalSettingsFiestaActual(settings);
       if (result.success) {
         toast({ title: "¡Configuración Guardada!", description: "La configuración del portal y página pública ha sido actualizada." });
       } else {

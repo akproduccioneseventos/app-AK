@@ -2,7 +2,7 @@
 'use server';
 
 import { getInvoices } from './invoices';
-import { getAllFiestas } from './fiesta-actual';
+import { getAllFiestas } from './fiesta/fiesta.actions';
 import { getMenuById } from './menus-catering';
 import { getEmpleados } from './empleados';
 import { getRoles } from './roles';

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
-import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ElementType }> = {

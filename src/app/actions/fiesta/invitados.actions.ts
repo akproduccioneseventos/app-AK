@@ -64,7 +64,7 @@ export async function handleRsvpSubmission(submission: {nombreCompleto: string, 
            ...(data.invitados![invitadoExistenteIndex]),
            rsvp: submission.confirmacion as RsvpStatus,
            partySize: submission.numeroAsistentes,
-           notes: [data.invitados![invitadoExistenteIndex].notes, submission.mensaje].filter(Boolean).join('\n---\n'),
+           notes: [data.invitados![invitadoExistenteIndex].notes, submission.mensaje].filter(Boolean).join('\\n---\\n'),
            companionNames: submission.companionNames,
          };
          data.invitados![invitadoExistenteIndex] = updatedInvitado;

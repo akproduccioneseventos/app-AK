@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useCallback, type FormEvent } from 'react';
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { ArrowLeft, PartyPopper, Wand2, ClipboardList, AlertTriangle, CheckCircle, Loader2, Info } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { analyzeEventPlan, type AnalyzeEventPlanOutput } from '@/ai/flows/analyze-event-plan-flow';
 import { Separator } from '@/components/ui/separator';
 

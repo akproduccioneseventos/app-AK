@@ -1,129 +1,130 @@
 
+
 'use server';
 
+import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, MusicaFiesta, VideoVidaData, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
+import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
+import { readData, writeData } from '@/lib/data-service';
+import fs from 'fs/promises';
+import path from 'path';
+
+// DEPRECATED: This file is being split into smaller, modular action files
+// inside the /app/actions/fiesta/ directory.
+// The functions are temporarily re-exported from here for backward compatibility
+// during the transition. New code should import from the specific action files.
+
 import { 
-    getFiestaActual,
-    updateConfiguracion as updateConfiguracionFiestaActual 
-} from './fiesta/configuracion.actions';
-import { 
-    addInvitado as addInvitadoFiestaActual,
-    updateInvitado as updateInvitadoFiestaActual,
-    deleteInvitado as deleteInvitadoFiestaActual,
-    getInvitados as getInvitadosFiestaActual,
-    handleRsvpSubmission,
-    checkInGuest
-} from './fiesta/invitados.actions';
-import {
-    updateTareas as updateTareasFiestaActual
-} from './fiesta/tareas.actions';
-import {
-    updateDecoracion as updateDecoracionFiestaActual
-} from './fiesta/decoracion.actions';
-import {
-    updateMenuAsignado as updateMenuAsignadoFiestaActual
-} from './fiesta/catering.actions';
-import {
-    updateClientChecklist,
-    updateClientNotes,
-    updatePortalSettings
-} from './fiesta/portal.actions';
-import {
-    updateMusica as updateMusicaFiestaActual
-} from './fiesta/musica.actions';
-import {
-    updateReposteria as updateReposteriaFiestaActual
-} from './fiesta/reposteria.actions';
-import {
-    updateBebidas as updateBebidasFiestaActual
-} from './fiesta/bebidas.actions';
-import {
-    updateListaDeCargaOperativa
-} from './fiesta/carga-operativa.actions';
-import {
-    updateGestionCostos as updateGestionCostosFiestaActual
-} from './fiesta/costos.actions';
-import {
-    updateVideoVidaSettings
-} from './fiesta/video-vida.actions';
-import {
-    updatePrograma as updateProgramaFiestaActual
-} from './fiesta/itinerario.actions';
-import {
-    addReunion as addReunionToFiestaActual,
-    updateReunion as updateReunionInFiestaActual,
-    deleteReunion as deleteReunionFromFiestaActual
-} from './fiesta/reuniones.actions';
-import {
-    updateFotografiaYFilmacion
-} from './fiesta/fotografia.actions';
-import {
-    uploadDocumento as uploadDocumentoFiesta,
-    deleteDocumento as deleteDocumentoFiesta
-} from './fiesta/documentos.actions';
-import {
-    updatePagosProveedores
-} from './fiesta/pagos.actions';
-import {
-    updatePersonal as updatePersonalFiestaActual
-} from './fiesta/personal.actions';
-import {
-    updateGiftRegistry,
-    claimGift
-} from './fiesta/regalos.actions';
-import {
-    addInvoiceId as addInvoiceIdToFiestaActual,
-    removeInvoiceId as removeInvoiceIdFromFiestaActual,
-    archiveFiesta,
-    getFiestaById,
-    getFiestas,
-    getAllFiestas,
-    resetFiestaActual,
-    saveFiesta,
-    createNewFiestaForCustomer,
-    getHistorialFiestas
+    getFiestaActual as getFiestaActualFromModule,
+    getHistorialFiestas as getHistorialFiestasFromModule,
+    getFiestas as getFiestasFromModule,
+    getAllFiestas as getAllFiestasFromModule,
+    archiveFiesta as archiveFiestaFromModule,
+    resetFiestaActual as resetFiestaActualFromModule,
+    getFiestaById as getFiestaByIdFromModule,
+    saveFiesta as saveFiestaFromModule,
+    createNewFiestaForCustomer as createNewFiestaForCustomerFromModule,
+    addInvoiceId,
+    removeInvoiceId
 } from './fiesta/fiesta.actions';
 
-// Re-exporting all for backward compatibility during transition.
-export {
-    getFiestaActual,
-    updateConfiguracionFiestaActual,
-    addInvitadoFiestaActual,
-    updateInvitadoFiestaActual,
-    deleteInvitadoFiestaActual,
-    getInvitadosFiestaActual,
-    handleRsvpSubmission,
-    checkInGuest,
-    updateTareasFiestaActual,
-    updateDecoracionFiestaActual,
-    updateMenuAsignadoFiestaActual,
-    updateClientChecklist,
-    updateClientNotes,
-    updatePortalSettings,
-    updateMusicaFiestaActual,
-    updateReposteriaFiestaActual,
-    updateBebidasFiestaActual,
-    updateListaDeCargaOperativa,
-    updateGestionCostosFiestaActual,
-    updateVideoVidaSettings,
-    updateProgramaFiestaActual,
-    addReunionToFiestaActual,
-    updateReunionInFiestaActual,
-    deleteReunionFromFiestaActual,
-    updateFotografiaYFilmacion,
-    uploadDocumentoFiesta,
-    deleteDocumentoFiesta,
-    updatePagosProveedores,
-    updatePersonalFiestaActual,
-    updateGiftRegistry,
-    claimGift,
-    addInvoiceIdToFiestaActual,
-    removeInvoiceIdFromFiestaActual,
-    archiveFiesta,
-    getFiestaById,
-    getFiestas,
-    getAllFiestas,
-    resetFiestaActual,
-    saveFiesta,
-    createNewFiestaForCustomer,
-    getHistorialFiestas
-}
+import { updateConfiguracion } from './fiesta/configuracion.actions';
+import { updateTareas } from './fiesta/tareas.actions';
+import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, checkInGuest, getInvitados } from './fiesta/invitados.actions';
+import { updateDecoracion } from './fiesta/decoracion.actions';
+import { updatePrograma } from './fiesta/itinerario.actions';
+import { updatePersonal } from './fiesta/personal.actions';
+import { updateClientChecklist, updateClientNotes, updatePortalSettings } from './fiesta/portal.actions';
+import { updateMusica } from './fiesta/musica.actions';
+import { updateVideoVidaSettings } from './fiesta/video-vida.actions';
+import { updateGiftRegistry, claimGift } from './fiesta/regalos.actions';
+import { updateReposteria } from './fiesta/reposteria.actions';
+import { updateBebidas } from './fiesta/bebidas.actions';
+import { updateListaDeCargaOperativa } from './fiesta/carga-operativa.actions';
+import { updateGestionCostos } from './fiesta/costos.actions';
+import { updateFotografiaYFilmacion } from './fiesta/fotografia.actions';
+import { uploadDocumento, deleteDocumento } from './fiesta/documentos.actions';
+import { updatePagosProveedores } from './fiesta/pagos.actions';
+import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
+import { updateMenuAsignado } from './fiesta/catering.actions';
+
+
+// --- General Fiesta Actions ---
+export const getFiestaActual = getFiestaActualFromModule;
+export const getHistorialFiestas = getHistorialFiestasFromModule;
+export const getFiestas = getFiestasFromModule;
+export const getAllFiestas = getAllFiestasFromModule;
+export const archiveFiesta = archiveFiestaFromModule;
+export const resetFiestaActual = resetFiestaActualFromModule;
+export const getFiestaById = getFiestaByIdFromModule;
+export const saveFiesta = saveFiestaFromModule;
+export const createNewFiestaForCustomer = createNewFiestaForCustomerFromModule;
+export const addInvoiceIdToFiestaActual = addInvoiceId;
+export const removeInvoiceIdFromFiestaActual = removeInvoiceId;
+
+// --- Configuration Actions ---
+export const updateConfiguracionFiestaActual = updateConfiguracion;
+
+// --- Tareas Actions ---
+export const updateTareasFiestaActual = updateTareas;
+
+// --- Invitados Actions ---
+export const getInvitadosFiestaActual = getInvitados;
+export const addInvitadoFiestaActual = addInvitado;
+export const updateInvitadoFiestaActual = updateInvitado;
+export const deleteInvitadoFiestaActual = deleteInvitado;
+export const handleRsvpSubmissionFiestaActual = handleRsvpSubmission;
+export const checkInGuestFiestaActual = checkInGuest;
+
+// --- Decoracion Actions ---
+export const updateDecoracionFiestaActual = updateDecoracion;
+
+// --- Itinerario Actions ---
+export const updateProgramaFiestaActual = updatePrograma;
+
+// --- Personal Actions ---
+export const updatePersonalFiestaActual = updatePersonal;
+
+// --- Portal Actions ---
+export const updateClientChecklistFiestaActual = updateClientChecklist;
+export const updateClientNotesFiestaActual = updateClientNotes;
+export const updatePortalSettingsFiestaActual = updatePortalSettings;
+
+// --- Musica Actions ---
+export const updateMusicaFiestaActual = updateMusica;
+
+// --- Video Vida Actions ---
+export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettings;
+
+// --- Regalos Actions ---
+export const updateGiftRegistryFiestaActual = updateGiftRegistry;
+export const claimGiftFiestaActual = claimGift;
+
+// --- Reposteria Actions ---
+export const updateReposteriaFiestaActual = updateReposteria;
+
+// --- Bebidas Actions ---
+export const updateBebidasFiestaActual = updateBebidas;
+
+// --- Carga Operativa Actions ---
+export const updateListaDeCargaOperativaFiestaActual = updateListaDeCargaOperativa;
+
+// --- Costos Actions ---
+export const updateGestionCostosFiestaActual = updateGestionCostos;
+
+// --- Fotografia Actions ---
+export const updateFotografiaYFilmacionFiestaActual = updateFotografiaYFilmacion;
+
+// --- Documentos Actions ---
+export const uploadDocumentoFiesta = uploadDocumento;
+export const deleteDocumentoFiesta = deleteDocumento;
+
+// --- Pagos Proveedores Actions ---
+export const updatePagosProveedoresFiestaActual = updatePagosProveedores;
+
+// --- Reuniones Actions ---
+export const addReunionToFiestaActual = addReunion;
+export const updateReunionInFiestaActual = updateReunion;
+export const deleteReunionFromFiestaActual = deleteReunion;
+
+// --- Catering Actions ---
+export const updateMenuAsignadoFiestaActual = updateMenuAsignado;

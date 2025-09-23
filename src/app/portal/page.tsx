@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, Music2, Gift, Camera, StickyNote, ClipboardCheck, Clock } from 'lucide-react';
 import type { FiestaEnPlanificacion, ClientTarea, TareaAsignadaA } from '@/types/fiesta';
-import { getFiestaActual, updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateClientChecklistFiestaActual, updateClientNotesFiestaActual } from '@/app/actions/fiesta-actual';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -115,7 +115,7 @@ export default function ClientPortalPage() {
         );
         setClientChecklist(updatedTasks);
         setIsSaving(true);
-        const result = await updateClientChecklist(updatedTasks);
+        const result = await updateClientChecklistFiestaActual(updatedTasks);
         if(!result.success){
             toast({title: "Error", description: "No se pudo actualizar la tarea.", variant: "destructive"});
             await loadData(); // Revert
@@ -125,7 +125,7 @@ export default function ClientPortalPage() {
 
     const handleNotesSave = async () => {
         setIsSaving(true);
-        const result = await updateClientNotes(clientNotes);
+        const result = await updateClientNotesFiestaActual(clientNotes);
         if (result.success) {
             toast({title: "Notas Guardadas"});
         } else {
