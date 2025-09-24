@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
@@ -280,10 +281,11 @@ export default function ListaDeCargaOperativaPage() {
       <Accordion type="multiple" defaultValue={listaDeCarga.categorias.map(c => c.id)} className="w-full space-y-3">
         {(listaDeCarga.categorias || []).map(category => (
           <AccordionItem key={category.id} value={category.id} className="border rounded-lg shadow-sm bg-card">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-              <div className="flex items-center justify-between w-full">
-                <span className="flex items-center gap-2">{category.nombre}</span>
-                <div className="flex items-center gap-1">
+            <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
+                <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1">
+                    <span className="flex items-center gap-2">{category.nombre}</span>
+                </AccordionTrigger>
+                <div className="flex items-center gap-1 pl-2">
                   <Dialog>
                      <DialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>
@@ -304,8 +306,7 @@ export default function ListaDeCargaOperativaPage() {
                      </DialogContent>
                   </Dialog>
                 </div>
-              </div>
-            </AccordionTrigger>
+              </AccordionPrimitive.Header>
             <AccordionContent className="px-4 pt-2 pb-4 border-t">
               <div className="flex flex-col sm:flex-row justify-end gap-2 mb-3">
                 <Button variant="outline" size="sm" onClick={() => openAddItemModal(category)}>
