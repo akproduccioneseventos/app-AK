@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -14,7 +13,7 @@ export default function ViewPresupuestoRedirectPage({ params: paramsProp }: { pa
   useEffect(() => {
     if (presupuestoId) {
       // Redirect to the new editor page for this specific budget
-      router.replace(`/presupuestos/${presupuestoId}/editar`);
+      router.replace(`/presupuestos/${presupuestoId}/ver`);
     } else {
       // Fallback if no ID is present
       router.replace('/presupuestos/nuevo');
@@ -24,7 +23,7 @@ export default function ViewPresupuestoRedirectPage({ params: paramsProp }: { pa
   return (
     <div className="flex items-center justify-center h-screen">
       <Loader2 className="w-16 h-16 animate-spin text-primary" />
-      <p className="ml-4 text-xl">Redirigiendo al nuevo editor...</p>
+      <p className="ml-4 text-xl">Redirigiendo a la vista del presupuesto...</p>
     </div>
   );
 }

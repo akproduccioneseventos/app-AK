@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -11,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Loader2, AlertTriangle, Globe, Lock, Share2, ClipboardCopy, Link as LinkIcon, Edit, Trash2, PlusCircle, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, EventWebPageSettings } from '@/types/fiesta';
-import { getFiestaActual, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updatePortalSettingsFiestaActual as updatePortalSettings } from '@/app/actions/fiesta-actual';
 import { defaultClientPortalSettings, defaultWebPageSettings } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -148,7 +147,7 @@ export default function PortalClienteSettingsPage() {
             finalWebSettings.galleryImageUrls = newGalleryUrls;
             
             // Save all settings together
-            const result = await updatePortalSettingsFiestaActual(clientSettings, finalWebSettings);
+            const result = await updatePortalSettings(clientSettings, finalWebSettings);
             if (result.success) {
                 toast({ title: "¡Configuración Guardada!", description: "La configuración ha sido actualizada." });
                 await loadData(); // Reload to get fresh data with new URLs

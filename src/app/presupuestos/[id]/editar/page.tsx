@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -105,7 +104,7 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
     e.preventDefault();
     if (!presupuesto) return;
     if (!clienteNombre.trim() || !finalEventType.trim() || !eventoFecha || !invitadosCantidad || invitadosCantidad <= 0 || !salonFiestas.trim()) {
-      toast({ title: "Campos incompletos", description: "Cliente, tipo, fecha, invitados y salón son requeridos.", variant: "destructive" });
+      toast({ title: "Campos incompletos", description: "Cliente, Salón, Tipo de Evento, Fecha y Nº de Invitados son requeridos.", variant: "destructive" });
       return;
     }
 
@@ -150,13 +149,13 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
-  if (notFound) return <div className="flex flex-col items-center justify-center h-screen text-center"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold">Presupuesto No Encontrado</h1><Link href="/presupuestos"><Button variant="outline" className="mt-4"><ArrowLeft />Volver</Button></Link></div>;
+  if (notFound) return <div className="flex flex-col items-center justify-center h-screen text-center"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold">Presupuesto No Encontrado</h1><Link href="/presupuestos/nuevo"><Button variant="outline" className="mt-4"><ArrowLeft />Volver</Button></Link></div>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
-        <Link href="/presupuestos" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver</Button></Link>
+        <Link href="/presupuestos/nuevo" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver</Button></Link>
       </div>
       
       <Card className="shadow-lg">

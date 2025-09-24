@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
@@ -236,7 +235,7 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: { id: 
         <CardHeader className="p-6 bg-muted/30 print:bg-transparent print:p-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className={`flex ${getLogoAlignmentClass()} w-full sm:w-auto mb-2 sm:mb-0`}>
-              {templateSettings.logoUrl && <Image src={templateSettings.logoUrl} alt={`${companySettings.companyName} Logo`} width={150} height={60} className="object-contain print:w-36 print:h-14" data-ai-hint="company logo invoice"/>}
+              {templateSettings.logoUrl && <Image src={templateSettings.logoUrl} alt={`${companySettings.companyName} Logo`} width={150} height={60} className="object-contain print:w-36 print:h-14" data-ai-hint="company logo"/>}
             </div>
             <div className="text-left sm:text-right w-full sm:w-auto">
               <h2 className="text-2xl font-bold print:text-xl" style={primaryColorStyle}>FACTURA</h2>

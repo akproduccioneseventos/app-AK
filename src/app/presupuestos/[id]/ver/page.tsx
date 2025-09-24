@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -56,7 +55,7 @@ const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
-export default function VerPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function VerPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id as string;

@@ -1,12 +1,12 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, Music2, Gift, Camera, StickyNote, ClipboardCheck, Clock } from 'lucide-react';
 import type { FiestaEnPlanificacion, ClientTarea, TareaAsignadaA } from '@/types/fiesta';
-import { getFiestaActual, updateClientChecklistFiestaActual, updateClientNotesFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -115,7 +115,7 @@ export default function ClientPortalPage() {
         );
         setClientChecklist(updatedTasks);
         setIsSaving(true);
-        const result = await updateClientChecklistFiestaActual(updatedTasks);
+        const result = await updateClientChecklist(updatedTasks);
         if(!result.success){
             toast({title: "Error", description: "No se pudo actualizar la tarea.", variant: "destructive"});
             await loadData(); // Revert
@@ -125,7 +125,7 @@ export default function ClientPortalPage() {
 
     const handleNotesSave = async () => {
         setIsSaving(true);
-        const result = await updateClientNotesFiestaActual(clientNotes);
+        const result = await updateClientNotes(clientNotes);
         if (result.success) {
             toast({title: "Notas Guardadas"});
         } else {
