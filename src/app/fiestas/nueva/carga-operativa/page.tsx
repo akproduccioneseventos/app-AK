@@ -166,7 +166,7 @@ export default function ListaDeCargaOperativaPage() {
       return;
     }
     const newItem: CargaOperativaItem = {
-      id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       nombre: newItemFormData.nombre.trim(),
       cantidad: newItemFormData.cantidad.trim(),
       unidad: newItemFormData.unidad?.trim() || undefined,
@@ -192,6 +192,17 @@ export default function ListaDeCargaOperativaPage() {
       categorias: prev.categorias.map(cat =>
         cat.id === categoryId
           ? { ...cat, items: cat.items.map(item => item.id === itemId ? { ...item, cargado: !item.cargado } : item) }
+          : cat
+      ),
+    }));
+  };
+  
+  const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
+    setListaDeCarga(prev => ({
+      ...prev,
+      categorias: prev.categorias.map(cat =>
+        cat.id === categoryId
+          ? { ...cat, items: cat.items.map(item => item.id === itemId ? { ...item, cantidad: newQuantity } : item) }
           : cat
       ),
     }));
@@ -283,30 +294,28 @@ export default function ListaDeCargaOperativaPage() {
         {(listaDeCarga.categorias || []).map(category => (
           <AccordionItem key={category.id} value={category.id} className="border rounded-lg shadow-sm bg-card">
               <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
-                <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1 p-0">
-                    <span className="flex items-center gap-2">{category.nombre}</span>
-                </AccordionTrigger>
-                <div className="flex items-center gap-1 pl-2">
+                  <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1 p-0">
+                      <span className="flex items-center gap-2">{category.nombre}</span>
+                  </AccordionTrigger>
                   <Dialog>
-                     <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>
-                            <Trash2 className="w-4 h-4"/>
-                        </Button>
-                     </DialogTrigger>
-                     <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>¿Eliminar Categoría?</DialogTitle>
-                            <DialogDescription>
-                                Se eliminará la categoría "{category.nombre}" y todos sus ítems. Esta acción no se puede deshacer.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-                            <Button variant="destructive" onClick={() => handleDeleteCategory(category.id)}>Eliminar</Button>
-                        </DialogFooter>
-                     </DialogContent>
+                      <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>
+                              <Trash2 className="w-4 h-4"/>
+                          </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                          <DialogHeader>
+                              <DialogTitle>¿Eliminar Categoría?</DialogTitle>
+                              <DialogDescription>
+                                  Se eliminará la categoría "{category.nombre}" y todos sus ítems. Esta acción no se puede deshacer.
+                              </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                              <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                              <Button variant="destructive" onClick={() => handleDeleteCategory(category.id)}>Eliminar</Button>
+                          </DialogFooter>
+                      </DialogContent>
                   </Dialog>
-                </div>
               </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t">
               <div className="flex flex-col sm:flex-row justify-end gap-2 mb-3">
@@ -332,15 +341,22 @@ export default function ListaDeCargaOperativaPage() {
                         />
                         <div className="flex-grow">
                           <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
-                          <p className={`text-xs ${item.cargado ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>
-                            Cantidad: {item.cantidad} {item.unidad && `(${item.unidad})`}
-                          </p>
                           {item.origenId && <p className="text-xs text-blue-600">Origen: Catálogo</p>}
                           {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notes}</p>}
                         </div>
-                         <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => handleDeleteItem(category.id, item.id)}>
-                            <Trash2 className="w-3.5 h-3.5"/>
-                        </Button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                           <Input
+                              type="text"
+                              value={item.cantidad}
+                              onChange={(e) => handleItemQuantityChange(category.id, item.id, e.target.value)}
+                              className="h-8 w-20 text-center"
+                              placeholder="Cant."
+                            />
+                           <span className="text-xs text-muted-foreground">{item.unidad || 'Uds.'}</span>
+                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => handleDeleteItem(category.id, item.id)}>
+                              <Trash2 className="w-3.5 h-3.5"/>
+                           </Button>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -461,3 +477,5 @@ export default function ListaDeCargaOperativaPage() {
     </div>
   );
 }
+
+    
