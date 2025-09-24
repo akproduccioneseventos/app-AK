@@ -1,18 +1,15 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
-import Link from 'next/link';
-import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
+import NextImage from 'next/image';
 
 const PHOTO_SLOT_COUNT = 50;
 
@@ -22,8 +19,7 @@ interface PhotoSlot {
   uploading: boolean;
 }
 
-export default function VideoVidaClientPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-  const params = React.use(paramsProp);
+export default function VideoVidaClientPage({ params }: { params: { fiestaId: string } }) {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);

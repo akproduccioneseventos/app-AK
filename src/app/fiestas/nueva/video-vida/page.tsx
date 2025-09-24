@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -10,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type } from 'lucide-react';
+import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
@@ -85,6 +84,18 @@ export default function VideoVidaAdminPage() {
   }
   if (!fiesta) return null;
 
+  const photoSlotsForAdmin = Array.from({ length: PHOTO_SLOT_COUNT }).map((_, index) => {
+      const photoNumber = index + 1;
+      const matchingPhoto = photos.find(url => {
+          const filename = url.split('/').pop()?.split('.')[0];
+          return parseInt(filename || '0', 10) === photoNumber;
+      });
+      return {
+        number: photoNumber,
+        imageUrl: matchingPhoto || null,
+      };
+  });
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -145,10 +156,15 @@ export default function VideoVidaAdminPage() {
            {photos.length > 0 ? (
             <>
               <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
-                {photos.map((url, index) => (
-                    <div key={index} className="aspect-square relative rounded-md bg-muted overflow-hidden border">
-                         <NextImage src={url} alt={`Foto ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint="photo for slideshow"/>
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-0.5">{String(index + 1).padStart(2, '0')}</div>
+                {photoSlotsForAdmin.map(slot => (
+                    <div key={slot.number} className="aspect-square relative rounded-md bg-muted overflow-hidden border">
+                         {slot.imageUrl ? (
+                             <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>
+                         ) : (
+                             <div className="flex items-center justify-center h-full text-xs text-muted-foreground">{String(slot.number).padStart(2, '0')}</div>
+                         )}
+                         {slot.imageUrl && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
+                         <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
                     </div>
                 ))}
               </div>

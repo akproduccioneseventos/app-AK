@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa'; // Import ServicioEmpresa
-import { getFiestaActual, updateListaDeCargaOperativa } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa'; // Import getServiciosEmpresa
 import {
   Dialog,
@@ -83,7 +83,7 @@ export default function ListaDeCargaOperativaPage() {
   const handleSaveListaDeCarga = async () => {
     setIsSaving(true);
     try {
-      const result = await updateListaDeCargaOperativa(listaDeCarga);
+      const result = await updateListaDeCargaOperativaFiestaActual(listaDeCarga);
       if (result.success) {
         toast({ title: "¡Lista Guardada!", description: "La lista de carga operativa ha sido actualizada." });
         if (result.updatedData) {
