@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2, AlertTriangle, Link as LinkIcon, ClipboardCopy, Image, Download, Camera, Music2, Type } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Link as LinkIcon, ClipboardCopy, Image as ImageIcon, Download, Camera, Music2, Type, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
@@ -162,14 +161,14 @@ export default function VideoVidaAdminPage() {
                     className="group-hover:opacity-75 transition-opacity"
                   />
                   <div className="absolute top-1 left-1 bg-black/60 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                    {index + 1}
+                    {parseInt(photoName.split('.')[0], 10)}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
              <div className="text-center py-8 text-muted-foreground">
-               <Image className="w-12 h-12 mx-auto mb-2 opacity-50"/>
+               <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/>
                El cliente aún no ha subido las fotos.
              </div>
           )}
@@ -203,5 +202,3 @@ export default function VideoVidaAdminPage() {
     </div>
   );
 }
-
-    

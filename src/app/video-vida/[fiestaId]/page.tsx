@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, type FormEvent, useCallback } from 'react';
@@ -268,5 +267,3 @@ export default function PhotoUploadPage({ params: paramsProp }: { params: { fies
     </div>
   );
 }
-
-    
