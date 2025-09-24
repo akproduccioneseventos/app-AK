@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
@@ -281,8 +282,8 @@ export default function ListaDeCargaOperativaPage() {
       <Accordion type="multiple" defaultValue={listaDeCarga.categorias.map(c => c.id)} className="w-full space-y-3">
         {(listaDeCarga.categorias || []).map(category => (
           <AccordionItem key={category.id} value={category.id} className="border rounded-lg shadow-sm bg-card">
-            <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
-                <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1">
+              <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
+                <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1 p-0">
                     <span className="flex items-center gap-2">{category.nombre}</span>
                 </AccordionTrigger>
                 <div className="flex items-center gap-1 pl-2">
@@ -306,7 +307,7 @@ export default function ListaDeCargaOperativaPage() {
                      </DialogContent>
                   </Dialog>
                 </div>
-              </AccordionPrimitive.Header>
+              </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t">
               <div className="flex flex-col sm:flex-row justify-end gap-2 mb-3">
                 <Button variant="outline" size="sm" onClick={() => openAddItemModal(category)}>
