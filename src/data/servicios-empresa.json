@@ -1,891 +1,404 @@
 
 [
   {
-    "id": "serv_1752489600004_pchef",
-    "nombre": "Cheff",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "unidad": "Por evento",
-    "precioVenta": 3500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_1752489600003_pmetr",
-    "nombre": "Metre",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "unidad": "Por evento",
-    "precioVenta": 3500,
-    "calculationMethod": "tramos",
-    "tramosDePrecio": [
-      {
-        "id": "tramo_1758379060450",
-        "desde": 110,
-        "hasta": 200,
-        "precio": 3500
-      },
-      {
-        "id": "tramo_1758379088177",
-        "desde": 201,
-        "hasta": 300,
-        "precio": 3500
-      }
-    ]
-  },
-  {
-    "id": "serv_mozos",
-    "nombre": "Mozo",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 2900,
-    "precioVenta": 2900,
-    "calculationMethod": "ratio",
-    "precioBase": 2900,
-    "invitadosPorUnidad": 25,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_mozo_cocina",
-    "nombre": "Mozo de cocina",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 2900,
-    "precioVenta": 2900,
-    "calculationMethod": "ratio",
-    "precioBase": 2900,
-    "invitadosPorUnidad": 25,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "item_1756940568854_u5m4prf",
-    "nombre": "Organizacion de la fiesta",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "unidad": "Por evento",
-    "precioVenta": 8000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757177422000_4ru2piy",
-    "nombre": "Coffe Break",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 500,
-    "unidad": "Por evento",
-    "precioVenta": 3000,
-    "calculationMethod": "fijo",
-    "tramosDePrecio": []
-  },
-  {
-    "id": "item_1758320726157_k2ts7sy",
-    "nombre": "Fuegos frios",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 800,
-    "precioVenta": 3000,
-    "calculationMethod": "fijo",
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_invitaciones_digitales",
-    "nombre": "Invitaciones digitales",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "precioVenta": 1500,
-    "calculationMethod": "fijo",
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_pantalla_proyector",
-    "nombre": "Pantalla gigante y proyector",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "precioVenta": 2000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_video_vida",
-    "nombre": "Video de vida",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "precioVenta": 1900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_1752489600084_barlic",
-    "nombre": "Barra de licuados",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barras",
-    "unidad": "Por persona",
-    "precioVenta": 199,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 199
-  },
-  {
-    "id": "serv_1752489600086_barlib",
-    "nombre": "Barra libre con tragos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barras",
-    "unidad": "Por persona",
-    "precioVenta": 350,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 350
-  },
-  {
-    "id": "serv_1752489600087_bebidjug",
-    "nombre": "Bebidas y jugos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas sin Alcohol",
-    "unidad": "Por persona",
-    "precioVenta": 70,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 70
-  },
-  {
-    "id": "serv_1752489600090_coctel",
-    "nombre": "Coctel (50 litros)",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Bebidas con Alcohol",
-    "unidad": "Unidad",
-    "precioVenta": 6000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757456683585_bb9tztm",
-    "nombre": "Mesa de jugos naturales",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "precioVenta": 100,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 100
-  },
-  {
-    "id": "item_1757733147509_dtykm4c",
-    "nombre": "Refrescos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de bebidas",
-    "precioVenta": 140,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 140
-  },
-  {
-    "id": "serv_1752489600038_arepven",
-    "nombre": "Arepas venezolanas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 200
-  },
-  {
-    "id": "serv_1752489600027_arrprim",
-    "nombre": "Arrolladitos primavera",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 150
-  },
-  {
-    "id": "serv_1752489600023_asadocom",
-    "nombre": "Asado completo c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 645
-  },
-  {
-    "id": "serv_1752489600014_bauru",
-    "nombre": "Bauru c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 390,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_1752489600021_bifech",
-    "nombre": "Bife al champiñón c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 480
-  },
-  {
-    "id": "serv_1752489600016_brochet",
-    "nombre": "Brochetas c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 380
-  },
-  {
-    "id": "serv_1752489600024_bunalga",
-    "nombre": "Buñuelo de algas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 120
-  },
-  {
-    "id": "serv_1752489600036_calzita",
-    "nombre": "Calzones Italianos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 200
-  },
-  {
-    "id": "serv_cerdo_relleno",
-    "nombre": "Cerdo relleno c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 380
-  },
-  {
-    "id": "serv_1752489600006_chivit",
-    "nombre": "Chivito completo c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 350
-  },
-  {
-    "id": "serv_1752489600055_menninchiv",
-    "nombre": "Chivitos c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "valorUnitarioEstimado": 180,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 350,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_1752489600022_cordero",
-    "nombre": "Cordero Asado c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 560
-  },
-  {
-    "id": "serv_1752489600033_empcas",
-    "nombre": "Empanadas caseras",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 200
-  },
-  {
-    "id": "serv_1752489600025_faina",
-    "nombre": "Faina",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 100
-  },
-  {
-    "id": "serv_1752489600005_hambur",
-    "nombre": "Hamburguesa completa c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 280
-  },
-  {
-    "id": "serv_1752489600030_kebabs",
-    "nombre": "Kebabs",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 130
-  },
-  {
-    "id": "serv_1752489600047_mencel",
-    "nombre": "Menú celíaco",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 700
-  },
-  {
-    "id": "serv_1752489600048_mensorr",
-    "nombre": "Menú celíacos (Sorrentinos)",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 700
-  },
-  {
-    "id": "serv_1752489600049_mennin1",
-    "nombre": "Menú niños 1",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 320
-  },
-  {
-    "id": "serv_1752489600050_mennin2",
-    "nombre": "Menú niños 2",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 349
-  },
-  {
-    "id": "serv_1752489600051_menveg",
-    "nombre": "Menú vegetariano - Spaghetti con Salsa Pesto",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 350
-  },
-  {
-    "id": "serv_1752489600020_merluz",
-    "nombre": "Merluza a la crema c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 450
-  },
-  {
-    "id": "serv_1752489600039_minibro",
-    "nombre": "Mini brochetas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 200
-  },
-  {
-    "id": "serv_1752489600034_minichiv",
-    "nombre": "Mini Chivitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "valorUnitarioEstimado": 90,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 180,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_1752489600009_noquis",
-    "nombre": "Ñoquis al queso",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 390
-  },
-  {
-    "id": "serv_menu_ninos_panchos",
-    "nombre": "Panchos c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 165
-  },
-  {
-    "id": "serv_1752489600054_menninpanm",
-    "nombre": "Panchos medio metro c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 300
-  },
-  {
-    "id": "serv_1752489600040_piccal",
-    "nombre": "Picada caliente",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 220
-  },
-  {
-    "id": "serv_1752489600041_piccrio",
-    "nombre": "Picada Criolla",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 220
-  },
-  {
-    "id": "serv_picada_fiambres",
-    "nombre": "Picada de Fiambres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 170
-  },
-  {
-    "id": "serv_1752489600042_picmar",
-    "nombre": "Picada de mar",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 210
-  },
-  {
-    "id": "serv_1752489600043_picprem",
-    "nombre": "Picada premium",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 200
-  },
-  {
-    "id": "serv_1752489600028_picsna",
-    "nombre": "Picada Snack",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 150
-  },
-  {
-    "id": "serv_1752489600035_pizzemp",
-    "nombre": "Pizzetitas y empanaditas de copetín",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "valorUnitarioEstimado": 90,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 180,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_1752489600029_plancal",
-    "nombre": "Planchas calientes",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 150
-  },
-  {
-    "id": "serv_1752489600007_pollarr",
-    "nombre": "Pollo arrollado c/ guarnición",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 390
-  },
-  {
-    "id": "serv_1752489600010_raviol",
-    "nombre": "Ravioles a la crema",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 390
-  },
-  {
-    "id": "serv_1752489600032_salpoll",
-    "nombre": "Salpicón de pollo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 150
-  },
-  {
-    "id": "serv_1752489600044_sansal",
-    "nombre": "Sandwiches y Saladitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 220
-  },
-  {
-    "id": "serv_1752489600056_showpiz",
-    "nombre": "Show de pizzas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 190,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_1752489600058_showpizarr",
-    "nombre": "Show de pizzas + arrolladitos primavera",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 399
-  },
-  {
-    "id": "serv_1752489600059_showpizbun",
-    "nombre": "Show de pizzas + buñuelos de algas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 389
-  },
-  {
-    "id": "serv_1752489600060_showpizcal",
-    "nombre": "Show de pizzas + calzones italianos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 489
-  },
-  {
-    "id": "serv_1752489600061_showpizmini",
-    "nombre": "Show de pizzas + minichivitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 429
-  },
-  {
-    "id": "serv_1752489600062_showpizpicfiam",
-    "nombre": "Show de pizzas + picada de fiambre",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 419
-  },
-  {
-    "id": "serv_1752489600063_showpizpicsna",
-    "nombre": "Show de pizzas + picada Snack",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 419
-  },
-  {
-    "id": "serv_1752489600064_showpizplancal",
-    "nombre": "Show de pizzas + planchas calientes",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 419
-  },
-  {
-    "id": "serv_1752489600065_showpizsansal",
-    "nombre": "Show de pizzas + sandwiches y saladitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 469
-  },
-  {
-    "id": "serv_1752489600066_showpiztacmex",
-    "nombre": "Show de pizzas + Tacos mexicanos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 489
-  },
-  {
-    "id": "serv_1752489600057_showpizfai",
-    "nombre": "Show de pizzas y faina",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Menú Niños/Adolescentes",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 389
-  },
-  {
-    "id": "serv_1752489600013_sorren",
-    "nombre": "Sorrentinos con salsa rosa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 420
-  },
-  {
-    "id": "serv_1752489600019_strogon",
-    "nombre": "Strogonoff de pollo c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Plato Principal",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 420
-  },
-  {
-    "id": "serv_1752489600045_shushi",
-    "nombre": "Sushi",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 250
-  },
-  {
-    "id": "serv_1752489600018_sushi",
-    "nombre": "Sushi con ensalada",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 400
-  },
-  {
-    "id": "serv_1752489600046_tabgour",
-    "nombre": "Tabla gourmet de fiambre",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 280
-  },
-  {
-    "id": "serv_1752489600037_tacmex",
-    "nombre": "Tacos mexicanos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 240
-  },
-  {
-    "id": "serv_1752489600026_tapsab",
-    "nombre": "Tapas saborizadas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "subcategoria": "Entrada",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 100
-  },
-  {
-    "id": "item_1757539461884_w7kfwsm",
-    "nombre": "Cuadro de firmas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 1400,
-    "precioVenta": 2900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1758319049180_rrpf3lf",
-    "nombre": "Decoración Básica",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 2000,
-    "precioVenta": 8000,
-    "calculationMethod": "fijo",
-    "tramosDePrecio": []
-  },
-  {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 75,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 75,
-    "tramosDePrecio": []
-  },
-  {
-    "id": "item_1757176691814_wkx7uiy",
-    "nombre": "Mantelería, mobiliario y vajilla completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "subcategoria": "Menu",
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 230
-  },
-  {
-    "id": "item_1758319878111_6ls6lm3",
-    "nombre": "Mobiliario Completo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 20,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 70
-  },
-  {
-    "id": "item_1757258437308_s0lgq1z",
-    "nombre": "Servicio de decoración",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "unidad": "Por evento",
-    "precioVenta": 14500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1758278588259_q92hghy",
-    "nombre": "Zona de fotografía con sillón diván y mural personalizado",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "precioVenta": 4990,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757539236109_vtqfjaz",
-    "nombre": "Lluvia de burbujas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
-    "precioVenta": 1500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757258361278_fs8ba4x",
-    "nombre": "Servicio de discoteca",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
-    "valorUnitarioEstimado": 3000,
-    "unidad": "Por evento",
-    "precioVenta": 9000,
-    "calculationMethod": "tramos",
-    "tramosDePrecio": [
-      {
-        "id": "tramo_1758224519401",
-        "desde": 1,
-        "hasta": 80,
-        "precio": 9000
-      },
-      {
-        "id": "tramo_1758224542306",
-        "desde": 81,
-        "hasta": 130,
-        "precio": 15000
-      },
-      {
-        "id": "tramo_1758224566309",
-        "desde": 131,
-        "hasta": 250,
-        "precio": 25000
-      }
-    ]
-  },
-  {
-    "id": "item_1757281679718_anst4pv",
-    "nombre": "Box Infinito",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "unidad": "Por evento",
-    "precioVenta": 3900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757281594479_qby7zsw",
-    "nombre": "Espejo Mágico",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "unidad": "Por evento",
-    "precioVenta": 3900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757284864269_4d9w4ml",
-    "nombre": "Fotocabina",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "unidad": "Por evento",
-    "precioVenta": 2900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757536022626_o6vi9hl",
-    "nombre": "Mesa de Glitter Bar",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "precioVenta": 80,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 80
-  },
-  {
-    "id": "item_1757284889281_ioj7571",
-    "nombre": "Plataforma 360",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "unidad": "Por evento",
-    "precioVenta": 3900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757282105396_39i6zkn",
-    "nombre": "Album digital personalizado",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "unidad": "Por evento",
-    "precioVenta": 3000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1758320278460_yqzpq1h",
-    "nombre": "Fotografía de exteriores",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 2000,
-    "precioVenta": 3900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757281980225_3x3nbzo",
-    "nombre": "Fotografía de la fiesta",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "unidad": "Por evento",
-    "precioVenta": 9000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1757285027582_71oyrff",
-    "nombre": "Fuente de chocolate con mesa dulce",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "unidad": "Por evento",
-    "precioVenta": 120,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 120
-  },
-  {
-    "id": "item_1757280489194_y9qozwm",
-    "nombre": "Torta principal",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "unidad": "Por evento",
-    "precioVenta": 100,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 100
+    "id": "asset_1758810058",
+    "nombre": "Cajas Activas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810059",
+    "nombre": "Caja de Consula y Potencia",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810060",
+    "nombre": "Controlador DJ Gonza",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810061",
+    "nombre": "Controlador de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810062",
+    "nombre": "Controlador DMX Luces Pendrive",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810063",
+    "nombre": "Notebook DJ Gonza",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810064",
+    "nombre": "Notebook de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810065",
+    "nombre": "Microfonos Inalambricos y Pilas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810066",
+    "nombre": "Barras de Bolas de Espejos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810067",
+    "nombre": "Bolas de Espejo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 5,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810068",
+    "nombre": "Cerchas de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 3,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810069",
+    "nombre": "Cajas de Herramientas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Herramientas",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810070",
+    "nombre": "Pie de Luces y T de Arriba",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810071",
+    "nombre": "Barra DJ (Fierros y Tabla)",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810072",
+    "nombre": "Tela de Barra DJ",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810073",
+    "nombre": "Cartel de Barra DJ",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810074",
+    "nombre": "Caja de Cables",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810075",
+    "nombre": "Spider",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810076",
+    "nombre": "Cabezal Movil 10W",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810077",
+    "nombre": "Cabezal Movil 30W",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 4,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810078",
+    "nombre": "Laser",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810079",
+    "nombre": "Maquina de Humo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810080",
+    "nombre": "Liquido de Humo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Litro"
+  },
+  {
+    "id": "asset_1758810081",
+    "nombre": "Focos Led Luz Negra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810082",
+    "nombre": "Focos Led Color",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810083",
+    "nombre": "Mesa de DJ para Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810084",
+    "nombre": "Cartel Lona Rollup",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810085",
+    "nombre": "Tornillos Cercha",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810086",
+    "nombre": "Barra de Tragos (Mobiliario)",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810087",
+    "nombre": "Maderas Grandes de Barra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810088",
+    "nombre": "Maderas Chicas de Barra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810089",
+    "nombre": "Fierritos Apoyo Madera Chica",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810090",
+    "nombre": "Cajas de 18",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810041",
+    "nombre": "Servilletas Negras de Tela",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810042",
+    "nombre": "Delantales y Gorros Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810043",
+    "nombre": "Manteles Negros de Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810044",
+    "nombre": "Manteles y Cubre Blancos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810045",
+    "nombre": "Cubre Azul",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810046",
+    "nombre": "Tul Blanco",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810047",
+    "nombre": "Estructura Rectangular",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810048",
+    "nombre": "Aro",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810049",
+    "nombre": "Letras Chicas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810050",
+    "nombre": "Plancha a Vapor",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Herramientas",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810051",
+    "nombre": "Alfombra Grande",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810052",
+    "nombre": "Caja de Herramientas Deco",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Herramientas",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810053",
+    "nombre": "Faroles Grandes",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810054",
+    "nombre": "Faroles Chicos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810055",
+    "nombre": "Cilindros",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 3,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810056",
+    "nombre": "Cartel Neon",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810057",
+    "nombre": "Aerosol de Globos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
   },
   {
     "id": "asset_1758810001",
@@ -1003,7 +516,7 @@
     "id": "asset_1758810015",
     "nombre": "Cocina",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Equipamiento",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
@@ -1011,15 +524,15 @@
     "id": "asset_1758810016",
     "nombre": "Hornallas de la Cocina",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Equipamiento",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
   {
     "id": "asset_1758810017",
     "nombre": "Garrafa de Gas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Equipamiento",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
@@ -1035,14 +548,14 @@
     "id": "asset_1758810019",
     "nombre": "Espatulas, Cuchillos de Cocina",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Herramientas",
     "cantidadDisponible": 1,
     "unidad": "Caja"
   },
   {
     "id": "asset_1758810020",
     "nombre": "Escarbadientes y Saleros",
-    "tipoItem": "Activo Fijo",
+    "tipoItem": "Insumo/Ingrediente",
     "categoria": "Vajilla",
     "cantidadDisponible": 1,
     "unidad": "Caja"
@@ -1075,7 +588,7 @@
     "id": "asset_1758810024",
     "nombre": "Freidora",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Equipamiento",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
@@ -1090,8 +603,8 @@
   {
     "id": "asset_1758810026",
     "nombre": "Alcohol y Guantes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Limpieza",
     "cantidadDisponible": 1,
     "unidad": "Caja"
   },
@@ -1099,39 +612,39 @@
     "id": "asset_1758810027",
     "nombre": "Repasadores",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Mantelería",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
   {
     "id": "asset_1758810028",
     "nombre": "Servilletas de Papel para Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
     "cantidadDisponible": 1,
     "unidad": "Caja"
   },
   {
     "id": "asset_1758810029",
     "nombre": "Rollo Servilletas de Papel",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
     "cantidadDisponible": 2,
     "unidad": "Unidad"
   },
   {
     "id": "asset_1758810030",
     "nombre": "Aderezos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
   {
     "id": "asset_1758810031",
     "nombre": "Jabon y Esponjas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Limpieza",
     "cantidadDisponible": 1,
     "unidad": "Caja"
   },
@@ -1139,7 +652,7 @@
     "id": "asset_1758810032",
     "nombre": "Escurridor de Fregar",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Equipamiento",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
@@ -1147,7 +660,7 @@
     "id": "asset_1758810033",
     "nombre": "Jarra Electrica",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Equipamiento",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
@@ -1155,23 +668,23 @@
     "id": "asset_1758810034",
     "nombre": "Papeleras",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "categoria": "Equipamiento",
     "cantidadDisponible": 1,
     "unidad": "Caja"
   },
   {
     "id": "asset_1758810035",
     "nombre": "Bolsas Negras de Residuos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
     "cantidadDisponible": 1,
     "unidad": "Caja"
   },
   {
     "id": "asset_1758810036",
     "nombre": "Bolsas Negras para Manteleria",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
     "cantidadDisponible": 2,
     "unidad": "Caja"
   },
@@ -1206,349 +719,5 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 6,
     "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810041",
-    "nombre": "Servilletas Negras de Tela",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 80,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810042",
-    "nombre": "Delantales y Gorros Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810043",
-    "nombre": "Manteles Negros de Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810044",
-    "nombre": "Manteles y Cubre Blancos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810045",
-    "nombre": "Cubre Azul",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810046",
-    "nombre": "Tul Blanco",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810047",
-    "nombre": "Extructura Rectangular",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810048",
-    "nombre": "Aro",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810049",
-    "nombre": "Letras Chicas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810050",
-    "nombre": "Plancha a Vapor",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810051",
-    "nombre": "Alfombra Grande",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810052",
-    "nombre": "Caja de Herramientas Deco",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810053",
-    "nombre": "Faroles Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810054",
-    "nombre": "Faroles Chicos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810055",
-    "nombre": "Cilindros",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 3,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810056",
-    "nombre": "Cartel Neon",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810057",
-    "nombre": "Aerosol de Globos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810058",
-    "nombre": "Cajas Activas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810059",
-    "nombre": "Caja de Consula y Potencia",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810060",
-    "nombre": "Controlador DJ Gonza",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810061",
-    "nombre": "Controlador de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810062",
-    "nombre": "Controlador DMX Luces Pendrive",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810063",
-    "nombre": "Notebook DJ Gonza",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810064",
-    "nombre": "Notebook de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810065",
-    "nombre": "Microfonos Inalambricos y Pilas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810066",
-    "nombre": "Barras de Bolas de Espejos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810067",
-    "nombre": "Bolas de Espejo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 15,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810068",
-    "nombre": "Cerchas de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 3,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810069",
-    "nombre": "Cajas de Herramientas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810070",
-    "nombre": "Pie de Luces y T de Arriba",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810071",
-    "nombre": "Barra DJ (Fierros y Tabla)",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810072",
-    "nombre": "Tela de Barra DJ",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810073",
-    "nombre": "Cartel de Barra DJ",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810074",
-    "nombre": "Caja de Cables",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810075",
-    "nombre": "Cabezal Movil 10W",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810076",
-    "nombre": "Cabezal Movil 30W",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 4,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810077",
-    "nombre": "Laser",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810078",
-    "nombre": "Maquina de Humo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810079",
-    "nombre": "Liquido de Humo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810080",
-    "nombre": "Mesa de DJ para Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810081",
-    "nombre": "Cartel Lona Rollup",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810082",
-    "nombre": "Tornillos Cercha",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810083",
-    "nombre": "Pantalla y Proyector",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
   }
 ]
