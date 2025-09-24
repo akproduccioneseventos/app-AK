@@ -1,7 +1,7 @@
 
 'use server';
 
-import { updateVideoVidaSettings } from './fiesta/video-vida.actions';
+import { updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from './fiesta-actual';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -30,6 +30,7 @@ export async function saveLifeStoryVideoPhotos(formData: FormData): Promise<{ su
   try {
     await fs.mkdir(eventPhotoDirPath, { recursive: true });
     
+    // Clear previous photos if any exist, to ensure a clean upload
     const existingFiles = await fs.readdir(eventPhotoDirPath);
     for (const file of existingFiles) {
         await fs.unlink(path.join(eventPhotoDirPath, file));
@@ -37,8 +38,12 @@ export async function saveLifeStoryVideoPhotos(formData: FormData): Promise<{ su
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const fileExtension = path.extname(file.name);
-      const newFilename = `${String(i + 1).padStart(2, '0')}${fileExtension}`;
+      // The name of the file indicates its order, which comes from the form
+      const originalName = file.name;
+      const originalIndex = parseInt(originalName.split('_')[0], 10);
+      const fileExtension = path.extname(originalName);
+      
+      const newFilename = `${String(originalIndex + 1).padStart(2, '0')}${fileExtension}`;
       const filePath = path.join(eventPhotoDirPath, newFilename);
       
       const bytes = await file.arrayBuffer();
@@ -63,6 +68,7 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[
   try {
     await fs.access(eventPhotoDirPath);
     const filenames = await fs.readdir(eventPhotoDirPath);
+    // Sort filenames numerically based on the leading number
     return filenames.sort((a, b) => {
         const numA = parseInt(a.split('.')[0], 10);
         const numB = parseInt(b.split('.')[0], 10);

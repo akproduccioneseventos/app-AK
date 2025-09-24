@@ -34,7 +34,7 @@ import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';
 import { updateClientChecklist, updateClientNotes, updatePortalSettings } from './fiesta/portal.actions';
 import { updateMusica } from './fiesta/musica.actions';
-import { updateVideoVidaSettings } from './fiesta/video-vida.actions';
+import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
 import { updateGiftRegistry, claimGift } from './fiesta/regalos.actions';
 import { updateReposteria } from './fiesta/reposteria.actions';
 import { updateBebidas } from './fiesta/bebidas.actions';
@@ -92,7 +92,7 @@ export const updatePortalSettingsFiestaActual = updatePortalSettings;
 export const updateMusicaFiestaActual = updateMusica;
 
 // --- Video Vida Actions ---
-export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettings;
+export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
 
 // --- Regalos Actions ---
 export const updateGiftRegistryFiestaActual = updateGiftRegistry;
@@ -127,5 +127,3 @@ export const deleteReunionFromFiestaActual = deleteReunion;
 
 // --- Catering Actions ---
 export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
-
-  

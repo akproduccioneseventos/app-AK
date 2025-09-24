@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, type FormEvent, useCallback } from 'react';
@@ -153,9 +154,13 @@ export default function PhotoUploadPage({ params: paramsProp }: { params: { fies
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
     
-    photos.forEach(file => {
+    // We send files with a name that includes their original index
+    // so the server knows how to order them.
+    photos.forEach((file, index) => {
       if (file) {
-          formData.append('photos', file);
+          // Rename file before appending to include index
+          const newFile = new File([file], `${index}_${file.name}`, { type: file.type });
+          formData.append('photos', newFile);
       }
     });
 
