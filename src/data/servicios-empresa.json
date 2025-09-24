@@ -1,3 +1,4 @@
+
 [
   {
     "id": "serv_1752489600004_pchef",
@@ -885,5 +886,669 @@
     "precioVenta": 100,
     "calculationMethod": "porPersona",
     "precioPorPersona": 100
+  },
+  {
+    "id": "asset_1758810001",
+    "nombre": "Platos de Sitio",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810002",
+    "nombre": "Platos Grandes",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810003",
+    "nombre": "Platos Chicos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810004",
+    "nombre": "Cucharitas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810005",
+    "nombre": "Tenedores",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810006",
+    "nombre": "Cuchillos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810007",
+    "nombre": "Espatula de Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810008",
+    "nombre": "Jarras Chicas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810009",
+    "nombre": "Jarras Grandes",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 3,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810010",
+    "nombre": "Vasos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 2,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810011",
+    "nombre": "Copas de Brindis",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810012",
+    "nombre": "Hieleras Grandes",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 4,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810013",
+    "nombre": "Hieleras Chicas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810014",
+    "nombre": "Bandejas de Horno",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810015",
+    "nombre": "Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810016",
+    "nombre": "Hornallas de la Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810017",
+    "nombre": "Garrafa de Gas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810018",
+    "nombre": "Pinzas de Hieleras",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810019",
+    "nombre": "Espatulas, Cuchillos de Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810020",
+    "nombre": "Escarbadientes y Saleros",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810021",
+    "nombre": "Tablas de Pizzas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810022",
+    "nombre": "Tablas Redondas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810023",
+    "nombre": "Platinas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810024",
+    "nombre": "Freidora",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810025",
+    "nombre": "Pinzas de Ensaladas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810026",
+    "nombre": "Alcohol y Guantes",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810027",
+    "nombre": "Repasadores",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810028",
+    "nombre": "Servilletas de Papel para Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810029",
+    "nombre": "Rollo Servilletas de Papel",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810030",
+    "nombre": "Aderezos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810031",
+    "nombre": "Jabon y Esponjas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810032",
+    "nombre": "Escurridor de Fregar",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810033",
+    "nombre": "Jarra Electrica",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810034",
+    "nombre": "Papeleras",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810035",
+    "nombre": "Bolsas Negras de Residuos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810036",
+    "nombre": "Bolsas Negras para Manteleria",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 2,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810037",
+    "nombre": "Canastas Paneras Marrones",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 6,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810038",
+    "nombre": "Platos Rectangulares Lisos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810039",
+    "nombre": "4 Tipos de Tarros para Salsa",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810040",
+    "nombre": "Copas Lacradas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 6,
+    "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810041",
+    "nombre": "Servilletas Negras de Tela",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810042",
+    "nombre": "Delantales y Gorros Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810043",
+    "nombre": "Manteles Negros de Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810044",
+    "nombre": "Manteles y Cubre Blancos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810045",
+    "nombre": "Cubre Azul",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810046",
+    "nombre": "Tul Blanco",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810047",
+    "nombre": "Extructura Rectangular",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810048",
+    "nombre": "Aro",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810049",
+    "nombre": "Letras Chicas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810050",
+    "nombre": "Plancha a Vapor",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810051",
+    "nombre": "Alfombra Grande",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810052",
+    "nombre": "Caja de Herramientas Deco",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810053",
+    "nombre": "Faroles Grandes",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810054",
+    "nombre": "Faroles Chicos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810055",
+    "nombre": "Cilindros",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 3,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810056",
+    "nombre": "Cartel Neon",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810057",
+    "nombre": "Aerosol de Globos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810058",
+    "nombre": "Cajas Activas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810059",
+    "nombre": "Caja de Consula y Potencia",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810060",
+    "nombre": "Controlador DJ Gonza",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810061",
+    "nombre": "Controlador de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810062",
+    "nombre": "Controlador DMX Luces Pendrive",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810063",
+    "nombre": "Notebook DJ Gonza",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810064",
+    "nombre": "Notebook de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810065",
+    "nombre": "Microfonos Inalambricos y Pilas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810066",
+    "nombre": "Barras de Bolas de Espejos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810067",
+    "nombre": "Bolas de Espejo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 15,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810068",
+    "nombre": "Cerchas de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 3,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810069",
+    "nombre": "Cajas de Herramientas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810070",
+    "nombre": "Pie de Luces y T de Arriba",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810071",
+    "nombre": "Barra DJ (Fierros y Tabla)",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810072",
+    "nombre": "Tela de Barra DJ",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810073",
+    "nombre": "Cartel de Barra DJ",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810074",
+    "nombre": "Caja de Cables",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810075",
+    "nombre": "Cabezal Movil 10W",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810076",
+    "nombre": "Cabezal Movil 30W",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 4,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810077",
+    "nombre": "Laser",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810078",
+    "nombre": "Maquina de Humo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810079",
+    "nombre": "Liquido de Humo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810080",
+    "nombre": "Mesa de DJ para Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810081",
+    "nombre": "Cartel Lona Rollup",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810082",
+    "nombre": "Tornillos Cercha",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810083",
+    "nombre": "Pantalla y Proyector",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
   }
 ]
