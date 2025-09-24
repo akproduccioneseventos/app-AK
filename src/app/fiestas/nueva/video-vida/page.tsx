@@ -168,7 +168,10 @@ export default function VideoVidaAdminPage() {
               ))}
             </div>
           ) : (
-             <div className="text-center py-8 text-muted-foreground">se ve igual</div>
+             <div className="text-center py-8 text-muted-foreground">
+               <Image className="w-12 h-12 mx-auto mb-2 opacity-50"/>
+               Esperando fotos del cliente...
+             </div>
           )}
         </CardContent>
         <CardFooter className="border-t pt-4">
