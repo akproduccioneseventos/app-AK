@@ -30,11 +30,19 @@ export const defaultClientChecklist: Omit<ClientTarea, 'id'>[] = [
 ];
 
 export const defaultPrograma: ProgramaEventoItem[] = [
-  { id: 'prog_1', hora: '20:00', titulo: 'Recepción de Invitados', descripcion: 'Música suave y cóctel de bienvenida.', icono: 'GlassWater' },
-  { id: 'prog_2', hora: '21:00', titulo: 'Entrada Principal', descripcion: 'Entrada de los agasajados al salón.', icono: 'Sparkles' },
-  { id: 'prog_3', hora: '21:30', titulo: 'Cena', descripcion: 'Servicio de plato principal.', icono: 'Utensils' },
-  { id: 'prog_4', hora: '23:00', titulo: '¡A Bailar!', descripcion: 'Se abre la pista de baile.', icono: 'Music' },
-  { id: 'prog_5', hora: '00:30', titulo: 'Corte de Torta y Brindis', descripcion: 'Momento especial con la torta y el brindis.', icono: 'CakeSlice' },
+  { id: 'prog_1', hora: '22:00', titulo: 'Comienzo', descripcion: 'Recepción de invitados con música suave.', icono: 'PartyPopper' },
+  { id: 'prog_2', hora: '22:15', titulo: 'Servicio de Entrada 1', descripcion: 'Se sirve la primera tanda de bocaditos.', icono: 'Utensils' },
+  { id: 'prog_3', hora: '22:30', titulo: 'Entrada de la Quinceañera y Vals', descripcion: 'Momento emotivo principal.', icono: 'Diamond' },
+  { id: 'prog_4', hora: '22:45', titulo: 'Servicio de Entrada 2', descripcion: 'Segunda tanda de bocaditos.', icono: 'Utensils' },
+  { id: 'prog_5', hora: '00:00', titulo: 'Comienza el Baile / Abre Barra de Tragos', descripcion: 'Se abre la pista de baile y la barra.', icono: 'Music' },
+  { id: 'prog_6', hora: '01:00', titulo: 'Cena / Cierre de Barra', descripcion: 'Se sirve el plato principal. La barra se cierra temporalmente.', icono: 'Utensils' },
+  { id: 'prog_7', hora: '01:45', titulo: 'Video de Vida', descripcion: 'Proyección del video emotivo.', icono: 'Camera' },
+  { id: 'prog_8', hora: '02:00', titulo: 'Reapertura de Barra y Baile', descripcion: 'Continúa la fiesta.', icono: 'GlassWater' },
+  { id: 'prog_9', hora: '02:30', titulo: 'Plataforma 360 / Fotocabina', descripcion: 'Activación de entretenimiento fotográfico.', icono: 'Camera' },
+  { id: 'prog_10', hora: '03:00', titulo: 'Cotillón', descripcion: 'Reparto de cotillón para el carnaval carioca.', icono: 'Sparkles' },
+  { id: 'prog_11', hora: '03:45', titulo: 'Fuente de Chocolate', descripcion: 'Se habilita la mesa de postres o fuente de chocolate.', icono: 'CakeSlice' },
+  { id: 'prog_12', hora: '04:00', titulo: 'Apagado de Velas y Torta', descripcion: 'Momento de cantar y cortar la torta.', icono: 'CakeSlice' },
+  { id: 'prog_13', hora: '05:00', titulo: 'Final de la Fiesta', descripcion: 'Cierre del evento.', icono: 'Clock' },
 ];
 
 
