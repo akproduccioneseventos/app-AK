@@ -823,5 +823,159 @@
     "categoria": "Mobiliario",
     "cantidadDisponible": 2,
     "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636254_l3vj3k",
+    "nombre": "ESTRUCTURA DE ARRIBA DE LA BARRA",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636254_37k22q",
+    "nombre": "CAJA DE HERRAMIENTAS BARMAN",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Herramientas",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_o8r0r",
+    "nombre": "CASILLEROS DE LICORES",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_h2s4e",
+    "nombre": "REFRESCOS COLA",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Bebida (Insumo)",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_10iwh2",
+    "nombre": "REFRESCOS LIMA",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Bebida (Insumo)",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_s3q0m",
+    "nombre": "LONA DE BARRA",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_s4o0n",
+    "nombre": "FOCOS LED LUZ NEGRA BARRA",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_a6p0o",
+    "nombre": "FOCOS LED COLOR",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_5e7m7",
+    "nombre": "LICUADORAS",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636255_h3k5k",
+    "nombre": "PANTALLA LED BARRA",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636256_7l0x4",
+    "nombre": "PAPELERAS",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636256_e4x4z",
+    "nombre": "VASOS Y SORVITOS",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636256_n1y6y",
+    "nombre": "TARROS PARA JUGOS",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636256_5v4z1",
+    "nombre": "CONSERVADORA",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636256_g8v3z",
+    "nombre": "LATAS DE ANANA",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Lata"
+  },
+  {
+    "id": "item_1758988636256_j7w2v",
+    "nombre": "LATAS DE DURAZNO",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Lata"
+  },
+  {
+    "id": "item_1758988636256_o6x3w",
+    "nombre": "FRUTILLAS CONGELADAS",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Kg"
+  },
+  {
+    "id": "item_1758988636257_p5y1u",
+    "nombre": "JUGO DE DURAZNO",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Bebida (Insumo)",
+    "unidad": "Litro"
+  },
+  {
+    "id": "item_1758988636257_z4a2t",
+    "nombre": "AZUCAR",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Kg"
+  },
+  {
+    "id": "item_1758988636257_b3s3s",
+    "nombre": "LIMONES",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Kg"
+  },
+  {
+    "id": "item_1758988636257_q2r2r",
+    "nombre": "PROYECTOR Y PANTALLA",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "item_1758988636257_8p4p",
+    "nombre": "INTERCOMUNICADORES",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento",
+    "unidad": "Unidad"
   }
 ]
