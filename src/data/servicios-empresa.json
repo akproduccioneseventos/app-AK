@@ -669,8 +669,8 @@
     "nombre": "Papeleras",
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
   },
   {
     "id": "asset_1758810035",
@@ -685,39 +685,143 @@
     "nombre": "Bolsas Negras para Manteleria",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Descartables",
-    "cantidadDisponible": 2,
+    "cantidadDisponible": 1,
     "unidad": "Caja"
   },
   {
-    "id": "asset_1758810037",
-    "nombre": "Canastas Paneras Marrones",
+    "id": "asset_1758810091",
+    "nombre": "Lampazo y Paños de piso",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 6,
+    "categoria": "Limpieza",
+    "cantidadDisponible": 1,
+    "unidad": "Set"
+  },
+  {
+    "id": "asset_1758810092",
+    "nombre": "Latones",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento",
+    "cantidadDisponible": 2,
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758810038",
+    "id": "asset_1758810093",
+    "nombre": "Canastas Paneras Marrones",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 16,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810094",
     "nombre": "Platos Rectangulares Lisos",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla",
     "cantidadDisponible": 1,
-    "unidad": "Unidad"
+    "unidad": "Set"
   },
   {
-    "id": "asset_1758810039",
-    "nombre": "4 Tipos de Tarros para Salsa",
+    "id": "asset_1758810095",
+    "nombre": "Copon Acrilico con Soporte",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla",
     "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758810040",
+    "id": "asset_1758810096",
+    "nombre": "4 Tipos de Tarros para Salsa",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Set"
+  },
+  {
+    "id": "asset_1758810097",
     "nombre": "Copas Lacradas",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla",
-    "cantidadDisponible": 6,
+    "cantidadDisponible": 9,
     "unidad": "Caja"
+  },
+  {
+    "id": "asset_1758810098",
+    "nombre": "Plancha de Hamburguesas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810099",
+    "nombre": "Soportes de Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Set"
+  },
+  {
+    "id": "asset_1758810100",
+    "nombre": "Manteles Blancos Redondo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810101",
+    "nombre": "Nailon de Mesa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810102",
+    "nombre": "Cubre Mantel Blanco",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810103",
+    "nombre": "Delantales Mozos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810104",
+    "nombre": "Cubre Sillas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 120,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810105",
+    "nombre": "Porta Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810106",
+    "nombre": "Fuente de Chocolate",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento",
+    "cantidadDisponible": 1,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "asset_1758810107",
+    "nombre": "Mesas Plegables",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 2,
+    "unidad": "Unidad"
   }
 ]
