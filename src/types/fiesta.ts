@@ -193,7 +193,6 @@ export interface ClientPortalSettings {
   checklist: PortalModuleSettings;
   itinerario: PortalViewOnlyModuleSettings;
   musica: PortalModuleSettings;
-  videoVida: PortalModuleSettings;
   listaRegalos: PortalViewOnlyModuleSettings;
   documentos: PortalViewOnlyModuleSettings;
   notasCliente: PortalModuleSettings;
@@ -380,14 +379,6 @@ export interface GestionCostosData {
   notasGeneralesCostos?: string;
 }
 
-export interface VideoVidaData {
-  galleryEnabled: boolean;
-  photosUploaded: boolean;
-  uploadDate?: string; // ISO string
-  songSuggestion?: string;
-  customText?: string;
-}
-
 export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
 
 export interface FotografiaYFilmacionData {
@@ -432,7 +423,6 @@ export interface FiestaEnPlanificacion {
   bebidas?: BebidasData;
   listaDeCargaOperativa?: ListaDeCargaOperativa;
   gestionCostos?: GestionCostosData;
-  videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
   

@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, VideoVidaData, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
 import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
@@ -34,7 +34,6 @@ import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';
 import { updateClientChecklist, updateClientNotes, updatePortalSettings } from './fiesta/portal.actions';
 import { updateMusica } from './fiesta/musica.actions';
-import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
 import { updateGiftRegistry, claimGift } from './fiesta/regalos.actions';
 import { updateReposteria } from './fiesta/reposteria.actions';
 import { updateBebidas } from './fiesta/bebidas.actions';
@@ -90,9 +89,6 @@ export const updatePortalSettingsFiestaActual = updatePortalSettings;
 
 // --- Musica Actions ---
 export const updateMusicaFiestaActual = updateMusica;
-
-// --- Video Vida Actions ---
-export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
 
 // --- Regalos Actions ---
 export const updateGiftRegistryFiestaActual = updateGiftRegistry;

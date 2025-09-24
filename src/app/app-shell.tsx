@@ -69,7 +69,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
-  if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
+  if (pathname === '/portal') return 'Portal del Cliente';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
   if (pathname === '/fiestas/nueva/catering/modificar-menu') return 'Catálogo de Platos';
@@ -83,11 +83,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
   if (pathname === '/fiestas/nueva/carga-operativa') return 'Lista de Carga Operativa';
   if (pathname === '/fiestas/nueva/carga-operativa/pdf') return 'PDF Lista de Carga';
-  if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
-  if (pathname === '/fiestas/nueva/accesos-personal') return 'Accesos para Colaboradores';
-
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -113,7 +110,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
   if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
   if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
-  if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
   if (pathname.startsWith('/feedback')) return 'Encuesta de Satisfacción';
   if (pathname.startsWith('/acceso-personal')) return 'Acceso de Colaboradores';
 
@@ -137,7 +133,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
-    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
+    if (pathname === '/portal') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
@@ -149,10 +145,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
     if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
-    if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
-    if (pathname === '/fiestas/nueva/accesos-personal') return UserCog;
     return PartyPopper;
   }
 
@@ -207,9 +201,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/evento/actual/mesa') return Ticket;
   if (pathname === '/evento/actual/checkin') return UserCheck;
   if (pathname.startsWith('/evento/social')) return Camera;
-  if (pathname.startsWith('/video-vida')) return Camera;
   if (pathname.startsWith('/feedback')) return Star;
   if (pathname.startsWith('/acceso-personal')) return UserCog;
+  if (pathname.startsWith('/portal')) return Globe;
 
 
   return null;
@@ -237,7 +231,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
-  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal');
+  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal');
   const isClientFacingTool = pathname === '/simulador-de-presupuesto';
 
   // Define pages that are printable views and should not have the shell.
