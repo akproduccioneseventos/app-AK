@@ -324,7 +324,7 @@
         "nino": 1.5
       },
       "mesa_helada": {
-        "adulto": 1,
+        "adulto": 1.5,
         "adolescente": 1.5,
         "nino": 1.5
       },
@@ -491,7 +491,7 @@
         "nombre": "Decoración",
         "items": [
           { "id": "lc_46", "nombre": "Tul Blanco", "cantidad": "1", "cargado": false },
-          { "id": "lc_47", "nombre": "Extructura Rectangular", "cantidad": "1", "cargado": false },
+          { "id": "lc_47", "nombre": "Estructura Rectangular", "cantidad": "1", "cargado": false },
           { "id": "lc_48", "nombre": "Aro", "cantidad": "1", "cargado": false },
           { "id": "lc_49", "nombre": "Letras Chicas", "cantidad": "2", "cargado": false },
           { "id": "lc_50", "nombre": "Plancha a Vapor", "cantidad": "1", "cargado": false },
@@ -519,7 +519,7 @@
           { "id": "lc_66", "nombre": "Barras de Bolas de Espejos", "cantidad": "1", "cargado": false },
           { "id": "lc_67", "nombre": "Bolas de Espejo", "cantidad": "15", "cargado": false },
           { "id": "lc_68", "nombre": "Cerchas de Luces", "cantidad": "3", "cargado": false },
-          { "id": "lc_69", "nombre": "Cajas de Herramientas", "cantidad": "1", "cargado": false },
+          { "id": "lc_69", "nombre": "Caja de Herramientas", "cantidad": "1", "cargado": false },
           { "id": "lc_70", "nombre": "Pie de Luces y T de Arriba", "cantidad": "2", "cargado": false },
           { "id": "lc_71", "nombre": "Barra DJ (Fierros y Tabla)", "cantidad": "1", "cargado": false },
           { "id": "lc_72", "nombre": "Tela de Barra DJ", "cantidad": "1", "cargado": false },
