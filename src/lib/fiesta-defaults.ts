@@ -1,6 +1,5 @@
 
-
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -116,6 +115,7 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
   checklist: { visible: false, editable: false },
   itinerario: { visible: false },
   musica: { visible: false, editable: false },
+  videoVida: { visible: true, editable: true },
   listaRegalos: { visible: false },
   documentos: { visible: true },
   notasCliente: { visible: false, editable: true },
@@ -202,6 +202,13 @@ export const initialGestionCostosData: GestionCostosData = {
   notasGeneralesCostos: '',
 };
 
+export const defaultVideoVidaData: VideoVidaData = {
+  galleryEnabled: true,
+  photosUploaded: false,
+  songSuggestion: '',
+  customText: '',
+};
+
 export const defaultFotografiaYFilmacionData: FotografiaYFilmacionData = {
     estadoEntrega: 'Pendiente',
     recibidoPorCliente: false,
@@ -242,6 +249,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
   listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
   gestionCostos: { ...initialGestionCostosData },
+  videoVida: { ...defaultVideoVidaData },
   programa: [...defaultPrograma.map(p => ({ ...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
   fotografiaYFilmacion: { ...defaultFotografiaYFilmacionData },
   otrosDocumentos: [],

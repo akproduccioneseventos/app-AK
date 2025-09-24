@@ -45,6 +45,7 @@ const internalModules: PlanningModule[] = [
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
   { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" },
+  { title: "Video de Vida", description: "Gestiona las fotos para el video emotivo.", icon: Camera, href: "/fiestas/nueva/video-vida", status: "Disponible", actionLabel: "Gestionar Fotos" },
   { title: "Accesos para Colaboradores", description: "Genera enlaces únicos para que tu equipo vea la información que necesita.", icon: UserCog, href: "/settings/accesos-personal", status: "Disponible", actionLabel: "Gestionar Accesos" }
 ];
 

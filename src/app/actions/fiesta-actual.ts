@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
 import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
@@ -44,6 +44,7 @@ import { uploadDocumento, deleteDocumento } from './fiesta/documentos.actions';
 import { updatePagosProveedores } from './fiesta/pagos.actions';
 import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
 import { updateMenuAsignado } from './fiesta/catering.actions';
+import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
 
 
 // --- General Fiesta Actions ---
@@ -123,3 +124,6 @@ export const deleteReunionFromFiestaActual = deleteReunion;
 
 // --- Catering Actions ---
 export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
+
+// --- Video de Vida Actions ---
+export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;

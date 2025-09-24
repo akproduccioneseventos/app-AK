@@ -1,5 +1,4 @@
 
-
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -193,6 +192,7 @@ export interface ClientPortalSettings {
   checklist: PortalModuleSettings;
   itinerario: PortalViewOnlyModuleSettings;
   musica: PortalModuleSettings;
+  videoVida: PortalModuleSettings;
   listaRegalos: PortalViewOnlyModuleSettings;
   documentos: PortalViewOnlyModuleSettings;
   notasCliente: PortalModuleSettings;
@@ -392,6 +392,13 @@ export interface FotografiaYFilmacionData {
     notasEntrega?: string;
 }
 
+export interface VideoVidaData {
+  galleryEnabled: boolean;
+  photosUploaded: boolean;
+  songSuggestion?: string;
+  customText?: string;
+}
+
 export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_pago' | 'otro';
 export interface OtroDocumento {
   id: string;
@@ -423,6 +430,7 @@ export interface FiestaEnPlanificacion {
   bebidas?: BebidasData;
   listaDeCargaOperativa?: ListaDeCargaOperativa;
   gestionCostos?: GestionCostosData;
+  videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
   
