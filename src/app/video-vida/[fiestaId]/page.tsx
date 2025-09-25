@@ -17,8 +17,8 @@ interface PhotoSlot {
   imageUrl: string | null;
 }
 
-// **CORRECCIÓN:** El componente se define FUERA del componente principal.
-// Esto evita que se vuelva a crear en cada renderizado, lo que rompía el input del archivo.
+// Componente para un único recuadro de subida de foto.
+// Definido fuera para evitar que se vuelva a crear en cada renderizado.
 const PhotoUploadSlot: React.FC<{
   slot: PhotoSlot;
   fiestaId: string;
@@ -57,9 +57,9 @@ const PhotoUploadSlot: React.FC<{
       toast({ title: "Error al subir", description: err.message, variant: "destructive" });
       onUploadComplete(slot.number, null); // Notify parent of failure
     } finally {
-      setIsUploading(false);
-      // Reset file input to allow re-uploading the same file
-      if (event.target) event.target.value = '';
+        setIsUploading(false);
+        // Reset file input to allow re-uploading the same file if needed
+        event.target.value = '';
     }
   };
 
@@ -103,6 +103,12 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  // This effect ensures code runs only on the client, avoiding hydration issues.
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -138,23 +144,21 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
   }, [params.fiestaId, toast]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (isClient) {
+      loadData();
+    }
+  }, [loadData, isClient]);
   
-  const handleUploadComplete = (slotNumber: number, url: string | null) => {
+  const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
-        if (s.number === slotNumber) {
-            // Only update the URL if the upload was successful (url is not null)
-            return {
-                ...s,
-                imageUrl: url || s.imageUrl, // Keep old image on failure
-            };
+        if (s.number === slotNumber && url) {
+            return { ...s, imageUrl: url };
         }
         return s;
     }));
-  };
+  }, []);
 
-  if (isLoading) {
+  if (!isClient || isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
   
@@ -193,7 +197,6 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                                 key={slot.number}
                                 slot={slot}
                                 fiestaId={fiesta.id}
-                                onUploadStart={() => {}} // No longer need start notification
                                 onUploadComplete={handleUploadComplete}
                             />
                         ))}
