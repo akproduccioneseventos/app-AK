@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
@@ -25,7 +25,10 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  // Simplified upload logic state
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [activeSlotForUpload, setActiveSlotForUpload] = useState<number | null>(null);
+
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -39,7 +42,6 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
       
       const slotCount = fiestaData.videoVida?.photoCount || 50;
-      fileInputRefs.current = fileInputRefs.current.slice(0, slotCount);
       
       const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
         const photoNumber = index + 1;
@@ -66,9 +68,12 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     loadData();
   }, [loadData]);
   
-  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>, slotNumber: number) => {
+  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !fiesta) return;
+    if (!file || !fiesta || activeSlotForUpload === null) return;
+    
+    const slotNumber = activeSlotForUpload;
+    setActiveSlotForUpload(null); // Reset active slot
 
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
         toast({title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive"});
@@ -93,11 +98,15 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     } catch(err: any) {
         toast({title: "Error al subir", description: err.message, variant: "destructive"});
         setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, uploading: false} : s));
+    } finally {
+        // Reset file input to allow re-uploading the same file
+        if (e.target) e.target.value = '';
     }
   };
   
   const triggerFileInput = (slotNumber: number) => {
-      fileInputRefs.current[slotNumber - 1]?.click();
+      setActiveSlotForUpload(slotNumber);
+      fileInputRef.current?.click();
   };
 
   if (isLoading) {
@@ -132,6 +141,13 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                     <CardDescription>Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan {photoCount} fotos.</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    <Input 
+                        ref={fileInputRef}
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileSelect}
+                        className="hidden"
+                    />
                     <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
                         {photoSlots.map(slot => (
                             <div 
@@ -139,13 +155,6 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                                 className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
                                 onClick={() => triggerFileInput(slot.number)}
                             >
-                                <Input 
-                                    ref={el => { if (el) fileInputRefs.current[slot.number - 1] = el; }}
-                                    type="file" 
-                                    accept="image/*" 
-                                    onChange={(e) => handleFileSelect(e, slot.number)} 
-                                    className="hidden"
-                                />
                                 {slot.imageUrl ? (
                                     <>
                                         <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>
