@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
@@ -12,7 +13,6 @@ import NextImage from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-
 interface PhotoSlot {
   number: number;
   imageUrl: string | null;
@@ -20,80 +20,76 @@ interface PhotoSlot {
 }
 
 const PhotoUploadSlot: React.FC<{
-    slot: PhotoSlot;
-    fiestaId: string;
-    onUploadStart: (slotNumber: number) => void;
-    onUploadComplete: (slotNumber: number, url: string | null, error?: string) => void;
+  slot: PhotoSlot;
+  fiestaId: string;
+  onUploadStart: (slotNumber: number) => void;
+  onUploadComplete: (slotNumber: number, url: string | null) => void;
 }> = ({ slot, fiestaId, onUploadStart, onUploadComplete }) => {
-    const { toast } = useToast();
-    const inputId = `upload-${slot.number}`;
+  const { toast } = useToast();
+  const inputId = `upload-${slot.number}`;
 
-    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        onUploadStart(slot.number);
+    onUploadStart(slot.number);
 
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            toast({ title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive" });
-            onUploadComplete(slot.number, null, "File too large");
-            return;
-        }
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast({ title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive" });
+      onUploadComplete(slot.number, null);
+      return;
+    }
 
-        const formData = new FormData();
-        formData.append('fiestaId', fiestaId);
-        formData.append('file', file);
-        formData.append('photoNumber', String(slot.number));
+    const formData = new FormData();
+    formData.append('fiestaId', fiestaId);
+    formData.append('file', file);
+    formData.append('photoNumber', String(slot.number));
 
-        try {
-            const result = await saveLifeStoryVideoPhoto(formData);
-            if (result.success && result.url) {
-                onUploadComplete(slot.number, result.url);
-                toast({ title: "¡Foto Subida!", description: `La foto para la posición ${slot.number} se ha guardado.` });
-            } else {
-                throw new Error(result.error || "No se pudo guardar la foto.");
-            }
-        } catch (err: any) {
-            toast({ title: "Error al subir", description: err.message, variant: "destructive" });
-            onUploadComplete(slot.number, null, err.message);
-        } finally {
-            if (e.target) e.target.value = '';
-        }
-    };
+    try {
+      const result = await saveLifeStoryVideoPhoto(formData);
+      if (result.success && result.url) {
+        onUploadComplete(slot.number, result.url);
+        toast({ title: "¡Foto Subida!", description: `La foto ${slot.number} se ha guardado.` });
+      } else {
+        throw new Error(result.error || "No se pudo guardar la foto.");
+      }
+    } catch (err: any) {
+      toast({ title: "Error al subir", description: err.message, variant: "destructive" });
+      onUploadComplete(slot.number, null);
+    } finally {
+        if(e.target) e.target.value = '';
+    }
+  };
 
-    return (
-        <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed flex items-center justify-center hover:border-primary transition-colors">
-            <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex items-center justify-center">
-                {slot.imageUrl ? (
-                    <>
-                        <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>
-                        <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Upload className="w-6 h-6 text-white" />
-                        </div>
-                    </>
-                ) : (
-                    <div className="text-center text-muted-foreground">
-                        <Upload className="w-6 h-6 mx-auto" />
-                    </div>
-                )}
-            </Label>
-            <Input
-                id={inputId}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-                disabled={slot.uploading}
-            />
-            {slot.uploading && (
-                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                    <Loader2 className="w-6 h-6 text-white animate-spin" />
-                </div>
-            )}
-            <div className="absolute top-0.5 right-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-md rounded-tr-sm">{String(slot.number).padStart(2, '0')}</div>
-            {slot.imageUrl && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
+  return (
+    <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed flex items-center justify-center hover:border-primary transition-colors group">
+      <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
+        {slot.imageUrl ? (
+            <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
+        ) : (
+          <>
+            <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
+            <span className="text-xs font-medium">Subir foto</span>
+          </>
+        )}
+      </Label>
+      <Input
+        id={inputId}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+        disabled={slot.uploading}
+      />
+      {slot.uploading && (
+        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 text-white animate-spin" />
         </div>
-    );
+      )}
+       <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
+       {slot.imageUrl && !slot.uploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
+    </div>
+  );
 };
 
 
@@ -146,7 +142,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, uploading: true} : s));
   };
   
-  const handleUploadComplete = (slotNumber: number, url: string | null, error?: string) => {
+  const handleUploadComplete = (slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber) {
             return {
@@ -173,6 +169,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
 
   if (!fiesta) return null;
   const photoCount = fiesta.videoVida?.photoCount || 50;
+  const photosUploadedCount = photoSlots.filter(s => s.imageUrl).length;
 
   return (
     <div className="min-h-screen bg-muted/40 p-4 sm:p-6 md:p-8">
@@ -187,7 +184,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
 
              <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle>Galería de Fotos</CardTitle>
+                    <CardTitle>Tu Galería ({photosUploadedCount} de {photoCount})</CardTitle>
                     <CardDescription>Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan {photoCount} fotos.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -203,6 +200,9 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                         ))}
                     </div>
                 </CardContent>
+                 <CardFooter>
+                    <p className="text-xs text-muted-foreground">Las fotos se guardan automáticamente al subirlas.</p>
+                </CardFooter>
             </Card>
         </div>
     </div>
