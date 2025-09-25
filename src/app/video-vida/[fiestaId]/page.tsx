@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
@@ -9,8 +10,6 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
-
-const PHOTO_SLOT_COUNT = 50;
 
 interface PhotoSlot {
   number: number;
@@ -32,14 +31,14 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
-      // SECURITY CHECK: This is a minimal check. In a real app, a more robust auth system is needed.
       if (fiestaData.id !== params.fiestaId) throw new Error("Acceso no válido para este evento.");
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
       
       setFiesta(fiestaData);
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
       
-      const slots: PhotoSlot[] = Array.from({ length: PHOTO_SLOT_COUNT }).map((_, index) => {
+      const slotCount = fiestaData.videoVida?.photoCount || 50;
+      const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
         const photoNumber = index + 1;
         const matchingPhoto = photoUrls.find(url => {
             const filename = url.split('/').pop()?.split('.')[0];
@@ -111,6 +110,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
   }
 
   if (!fiesta) return null;
+  const photoCount = fiesta.videoVida?.photoCount || 50;
 
   return (
     <div className="min-h-screen bg-muted/40 p-4 sm:p-6 md:p-8">
@@ -126,7 +126,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
              <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle>Galería de Fotos</CardTitle>
-                    <CardDescription>Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan {PHOTO_SLOT_COUNT} fotos.</CardDescription>
+                    <CardDescription>Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan {photoCount} fotos.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">

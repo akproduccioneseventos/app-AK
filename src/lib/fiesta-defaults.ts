@@ -215,6 +215,7 @@ export const defaultVideoVidaData: VideoVidaData = {
   photosUploaded: false,
   songSuggestion: '',
   customText: '',
+  photoCount: 50,
 };
 
 export const defaultFotografiaYFilmacionData: FotografiaYFilmacionData = {

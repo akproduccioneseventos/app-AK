@@ -397,6 +397,7 @@ export interface VideoVidaData {
   photosUploaded: boolean;
   songSuggestion?: string;
   customText?: string;
+  photoCount?: number;
 }
 
 export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_pago' | 'otro';
