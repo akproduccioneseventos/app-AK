@@ -175,6 +175,7 @@ export default function VideoVidaAdminPage() {
                  <div className="space-y-2">
                     <Label htmlFor="photo-count" className="flex items-center gap-2">Cantidad de Fotos a Solicitar</Label>
                     <Input id="photo-count" type="number" value={videoVidaData.photoCount || 50} onChange={e => handleSettingsChange('photoCount', e.target.value)} min="1" max="200" disabled={isSaving}/>
+                    <p className="text-xs text-muted-foreground">Cambia este número para agregar o quitar cuadros de la galería.</p>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="song-suggestion" className="flex items-center gap-2"><Music2 className="w-4 h-4 text-primary"/>Canción Sugerida</Label>
