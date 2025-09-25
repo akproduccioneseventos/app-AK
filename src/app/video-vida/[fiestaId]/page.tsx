@@ -10,6 +10,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
+import { Input } from '@/components/ui/input';
 
 interface PhotoSlot {
   number: number;
@@ -24,7 +25,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -38,6 +39,8 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
       
       const slotCount = fiestaData.videoVida?.photoCount || 50;
+      fileInputRefs.current = fileInputRefs.current.slice(0, slotCount);
+      
       const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
         const photoNumber = index + 1;
         const matchingPhoto = photoUrls.find(url => {
@@ -137,7 +140,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                                 onClick={() => triggerFileInput(slot.number)}
                             >
                                 <Input 
-                                    ref={el => fileInputRefs.current[slot.number - 1] = el}
+                                    ref={el => { if (el) fileInputRefs.current[slot.number - 1] = el; }}
                                     type="file" 
                                     accept="image/*" 
                                     onChange={(e) => handleFileSelect(e, slot.number)} 
