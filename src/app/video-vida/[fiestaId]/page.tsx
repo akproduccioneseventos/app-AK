@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
@@ -59,7 +60,7 @@ const PhotoUploadSlot: React.FC<{
     } finally {
         setIsUploading(false);
         // Reset file input to allow re-uploading the same file if needed
-        event.target.value = '';
+        if (event.target) event.target.value = '';
     }
   };
 
