@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
@@ -10,6 +9,9 @@ import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
 
 interface PhotoSlot {
   number: number;
@@ -24,6 +26,7 @@ const PhotoUploadSlot: React.FC<{
     onUploadComplete: (slotNumber: number, url: string | null, error?: string) => void;
 }> = ({ slot, fiestaId, onUploadStart, onUploadComplete }) => {
     const { toast } = useToast();
+    const inputId = `upload-${slot.number}`;
 
     const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -60,7 +63,7 @@ const PhotoUploadSlot: React.FC<{
 
     return (
         <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed flex items-center justify-center hover:border-primary transition-colors">
-            <Label htmlFor={`upload-${slot.number}`} className="w-full h-full cursor-pointer">
+            <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex items-center justify-center">
                 {slot.imageUrl ? (
                     <>
                         <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>
@@ -75,7 +78,7 @@ const PhotoUploadSlot: React.FC<{
                 )}
             </Label>
             <Input
-                id={`upload-${slot.number}`}
+                id={inputId}
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
@@ -88,7 +91,7 @@ const PhotoUploadSlot: React.FC<{
                 </div>
             )}
             <div className="absolute top-0.5 right-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-md rounded-tr-sm">{String(slot.number).padStart(2, '0')}</div>
-            {slot.imageUrl && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full" />}
+            {slot.imageUrl && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
         </div>
     );
 };
@@ -100,7 +103,6 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
