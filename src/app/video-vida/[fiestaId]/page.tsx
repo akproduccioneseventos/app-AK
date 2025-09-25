@@ -15,15 +15,16 @@ import { Label } from '@/components/ui/label';
 interface PhotoSlot {
   number: number;
   imageUrl: string | null;
-  uploading: boolean;
 }
 
+// **CORRECCIÓN:** El componente se define FUERA del componente principal.
+// Esto evita que se vuelva a crear en cada renderizado, lo que rompía el input del archivo.
 const PhotoUploadSlot: React.FC<{
   slot: PhotoSlot;
   fiestaId: string;
-  onUploadStart: (slotNumber: number) => void;
   onUploadComplete: (slotNumber: number, url: string | null) => void;
-}> = ({ slot, fiestaId, onUploadStart, onUploadComplete }) => {
+}> = ({ slot, fiestaId, onUploadComplete }) => {
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const inputId = `upload-${slot.number}`;
 
@@ -31,11 +32,11 @@ const PhotoUploadSlot: React.FC<{
     const file = event.target.files?.[0];
     if (!file) return;
 
-    onUploadStart(slot.number);
+    setIsUploading(true);
 
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast({ title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive" });
-      onUploadComplete(slot.number, null);
+      setIsUploading(false);
       return;
     }
 
@@ -54,19 +55,21 @@ const PhotoUploadSlot: React.FC<{
       }
     } catch (err: any) {
       toast({ title: "Error al subir", description: err.message, variant: "destructive" });
-      onUploadComplete(slot.number, null);
+      onUploadComplete(slot.number, null); // Notify parent of failure
     } finally {
-        if(event.target) event.target.value = '';
+      setIsUploading(false);
+      // Reset file input to allow re-uploading the same file
+      if (event.target) event.target.value = '';
     }
   };
 
   return (
     <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
       <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
-        {slot.imageUrl && !slot.uploading ? (
+        {slot.imageUrl && !isUploading ? (
             <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
         ) : (
-          !slot.uploading && (
+          !isUploading && (
             <div className="flex flex-col items-center">
               <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
               <span className="text-xs font-medium">Subir foto</span>
@@ -80,15 +83,15 @@ const PhotoUploadSlot: React.FC<{
         accept="image/*"
         onChange={handleFileChange}
         className="hidden"
-        disabled={slot.uploading}
+        disabled={isUploading}
       />
-      {slot.uploading && (
+      {isUploading && (
         <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
           <Loader2 className="w-6 h-6 text-white animate-spin" />
         </div>
       )}
        <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
-       {slot.imageUrl && !slot.uploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
+       {slot.imageUrl && !isUploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
     </div>
   );
 };
@@ -123,7 +126,6 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
         return {
           number: photoNumber,
           imageUrl: matchingPhoto || null,
-          uploading: false,
         };
       });
       setPhotoSlots(slots);
@@ -133,23 +135,19 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     } finally {
       setIsLoading(false);
     }
-  }, [params.fiestaId]);
+  }, [params.fiestaId, toast]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
   
-  const handleUploadStart = (slotNumber: number) => {
-    setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, uploading: true} : s));
-  };
-  
   const handleUploadComplete = (slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber) {
+            // Only update the URL if the upload was successful (url is not null)
             return {
                 ...s,
-                uploading: false,
-                imageUrl: url || s.imageUrl // Keep old image on failure, or set new one
+                imageUrl: url || s.imageUrl, // Keep old image on failure
             };
         }
         return s;
@@ -195,7 +193,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                                 key={slot.number}
                                 slot={slot}
                                 fiestaId={fiesta.id}
-                                onUploadStart={handleUploadStart}
+                                onUploadStart={() => {}} // No longer need start notification
                                 onUploadComplete={handleUploadComplete}
                             />
                         ))}
