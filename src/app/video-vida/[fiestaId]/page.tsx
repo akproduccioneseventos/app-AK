@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
@@ -18,8 +18,7 @@ interface PhotoSlot {
   imageUrl: string | null;
 }
 
-// --- Componente Atómico para cada Slot de Foto ---
-// Cada slot gestiona su propia subida de forma aislada.
+// --- Componente Atómico para cada Slot de Foto (Definido AFUERA del componente principal) ---
 const PhotoUploadSlot: React.FC<{
   slot: PhotoSlot;
   fiestaId: string;
@@ -34,8 +33,8 @@ const PhotoUploadSlot: React.FC<{
     if (!file) return;
 
     setIsUploading(true);
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Archivo muy grande", description: "El tamaño máximo es 5MB.", variant: "destructive" });
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast({ title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive" });
       setIsUploading(false);
       return;
     }
@@ -139,7 +138,8 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
   const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber && url) {
-            return { ...s, imageUrl: url };
+            // Re-create a new URL object to ensure React re-renders the image
+            return { ...s, imageUrl: `${url}?t=${new Date().getTime()}` };
         }
         return s;
     }));
@@ -203,5 +203,6 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
         setIsClient(true);
     }, []);
 
+    // Renderiza el contenido solo cuando isClient es true
     return isClient ? <VideoVidaClientPageContent params={params} /> : <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
 }

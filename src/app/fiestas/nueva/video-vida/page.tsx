@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
@@ -286,15 +287,12 @@ export default function VideoVidaAdminPage() {
             <>
               <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
                 {photoSlots.map(slot => (
-                    <div key={slot.number} className="aspect-square relative rounded-md bg-muted overflow-hidden border">
-                         {slot.imageUrl ? (
-                             <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>
-                         ) : (
-                             <div className="flex items-center justify-center h-full text-xs text-muted-foreground">{String(slot.number).padStart(2, '0')}</div>
-                         )}
-                         {slot.imageUrl && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
-                         <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
-                    </div>
+                    <PhotoUploadSlot
+                        key={slot.number}
+                        slot={slot}
+                        fiestaId={fiesta.id}
+                        onUploadComplete={handleUploadComplete}
+                    />
                 ))}
               </div>
                <Button onClick={handleDownloadAll} className="mt-4" disabled={isDownloading || photosUploadedCount === 0}>
