@@ -43,9 +43,8 @@ export default function InventarioGeneralPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo'); // Filtra solo Activos Fijos
-      setAllItems(inventoryItems);
-      setFilteredItems(inventoryItems);
+      setAllItems(data);
+      setFilteredItems(data);
     } catch (err: any) {
       setError("No se pudo cargar el inventario de activos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -90,8 +89,8 @@ export default function InventarioGeneralPage() {
   
   const handleShare = async () => {
     const shareData = {
-      title: 'Gestión de Activos - AK Producciones',
-      text: `Resumen de activos fijos.`,
+      title: 'Inventario General - AK Producciones',
+      text: `Resumen de inventario.`,
       url: window.location.href,
     };
     try {
@@ -123,6 +122,7 @@ export default function InventarioGeneralPage() {
   const capitalPorCategoria = useMemo(() => {
     return categoriasOrdenadas.map(categoria => {
       const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
+        if (item.tipoItem === 'Servicio') return sum;
         const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
         return sum + valorItem;
       }, 0);
@@ -138,16 +138,16 @@ export default function InventarioGeneralPage() {
         <div className="flex items-center gap-3">
           <Package className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestión de Activos Fijos
+            Inventario General
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
             <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
-            <Link href="/empresa/todos-los-servicios/nuevo?type=Activo Fijo" passHref>
+            <Link href="/empresa/todos-los-servicios/nuevo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
-                    Añadir Activo
+                    Añadir Ítem
                 </Button>
             </Link>
              <Link href="/empresa" passHref>
@@ -158,11 +158,11 @@ export default function InventarioGeneralPage() {
             </Link>
         </div>
       </div>
-      <CardDescription>Gestiona tu inventario de activos de la empresa (mobiliario, equipo, etc.).</CardDescription>
+      <CardDescription>Gestiona tu inventario de activos, insumos y servicios de la empresa.</CardDescription>
       <Card className="shadow-lg print:shadow-none print:border-none">
         <CardHeader className="border-b print:border-b-2 print:border-gray-200">
           <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos de la Empresa</CardTitle>
-          <CardDescription>Resumen del capital total de activos físicos, por categoría.</CardDescription>
+          <CardDescription>Resumen del capital total de activos físicos e insumos, por categoría.</CardDescription>
         </CardHeader>
         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-3 print:p-2">
           {capitalPorCategoria.map(cat => (
@@ -175,7 +175,7 @@ export default function InventarioGeneralPage() {
         <CardFooter className="border-t p-4 bg-muted/30 print:border-t-2 print:border-gray-200">
           <div className="flex justify-end items-center w-full gap-2">
             <BarChart3 className="w-5 h-5 text-primary"/>
-            <span className="text-lg font-semibold print:text-base">Capital Total en Activos:</span>
+            <span className="text-lg font-semibold print:text-base">Capital Total en Inventario Físico:</span>
             <span className="text-2xl font-bold text-primary print:text-xl">{formatCurrency(capitalTotalGeneral)}</span>
           </div>
         </CardFooter>
@@ -197,7 +197,7 @@ export default function InventarioGeneralPage() {
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron activos que coincidan." : "El inventario de activos está vacío."}</CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron ítems que coincidan." : "El inventario general está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (
@@ -209,6 +209,7 @@ export default function InventarioGeneralPage() {
                 <div className="space-y-3 mt-2">
                   {itemsAgrupadosPorCategoria[categoria]?.map((item) => {
                     const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+                    const isServicio = item.tipoItem === 'Servicio';
                     return (
                       <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow print:shadow-none print:border-gray-200">
                         <CardHeader className="pb-2 pt-3 px-3">
@@ -218,18 +219,22 @@ export default function InventarioGeneralPage() {
                                 <Link href={`/empresa/todos-los-servicios/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
-                                  <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={deletingId === item.id}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                                  <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={deletingId === item.id}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                 </AlertDialog>
                             </div>
                           </div>
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1 print:text-xs">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
-                            <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
-                            <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
-                            <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
-                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
-                          </div>
+                          {isServicio ? (
+                            <p className="text-primary font-medium">{formatCurrency(item.precioVenta || item.precioPorPersona || item.precioBase)}</p>
+                          ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
+                              <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
+                              <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
+                              <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
+                              <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
+                            </div>
+                          )}
                           {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5 print:mt-1 print:pt-0.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>
                       </Card>
@@ -244,5 +249,3 @@ export default function InventarioGeneralPage() {
     </div>
   );
 }
-
-    

@@ -28,7 +28,7 @@ function NuevoItemInventarioContent() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [nombre, setNombre] = useState('');
-  const [tipoItem, setTipoItem] = useState<TipoItemEmpresa>('Servicio');
+  const [tipoItem, setTipoItem] = useState<TipoItemEmpresa>('Activo Fijo');
   const [categoria, setCategoria] = useState<CategoriaServicio | ''>('');
   const [valorUnitarioEstimado, setValorUnitarioEstimado] = useState<string>('');
   const [subcategoria, setSubcategoria] = useState('');
@@ -264,5 +264,3 @@ export default function NuevoItemInventarioPage() {
         </Suspense>
     )
 }
-
-    
