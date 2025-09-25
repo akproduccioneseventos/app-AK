@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
@@ -14,13 +13,90 @@ import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, Chec
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
-import { getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
+import { getLifeStoryVideoPhotos, saveLifeStoryVideoPhoto } from '@/app/actions/fiesta/video-vida.actions';
 import { Separator } from '@/components/ui/separator';
 
 interface PhotoSlot {
   number: number;
   imageUrl: string | null;
 }
+
+const PhotoUploadSlot: React.FC<{
+  slot: PhotoSlot;
+  fiestaId: string;
+  onUploadComplete: (slotNumber: number, url: string) => void;
+}> = ({ slot, fiestaId, onUploadComplete }) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
+  const inputId = `upload-${slot.number}`;
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast({ title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive" });
+      setIsUploading(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('fiestaId', fiestaId);
+    formData.append('file', file);
+    formData.append('photoNumber', String(slot.number));
+
+    try {
+      const result = await saveLifeStoryVideoPhoto(formData);
+      if (result.success && result.url) {
+        onUploadComplete(slot.number, result.url);
+        toast({ title: "¡Foto Subida!", description: `La foto ${slot.number} se ha guardado.` });
+      } else {
+        throw new Error(result.error || "No se pudo guardar la foto.");
+      }
+    } catch (err: any) {
+      toast({ title: "Error al subir", description: err.message, variant: "destructive" });
+    } finally {
+        setIsUploading(false);
+        // Reset file input to allow re-uploading the same file
+        if (event.target) event.target.value = '';
+    }
+  };
+
+  return (
+    <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
+      <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
+        {slot.imageUrl && !isUploading ? (
+            <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
+        ) : (
+          !isUploading && (
+            <div className="flex flex-col items-center">
+              <Camera className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
+              <span className="text-xs font-medium">Subir foto</span>
+            </div>
+          )
+        )}
+      </Label>
+      <Input
+        id={inputId}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+        disabled={isUploading}
+      />
+      {isUploading && (
+        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 text-white animate-spin" />
+        </div>
+      )}
+       <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
+       {slot.imageUrl && !isUploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
+    </div>
+  );
+};
+
 
 export default function VideoVidaAdminPage() {
   const { toast } = useToast();
@@ -126,6 +202,11 @@ export default function VideoVidaAdminPage() {
       setIsDownloading(false);
     }
   };
+
+  const handleUploadComplete = (slotNumber: number, url: string) => {
+    setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, imageUrl: url} : s));
+  };
+
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

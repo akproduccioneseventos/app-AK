@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
@@ -28,8 +27,8 @@ const PhotoUploadSlot: React.FC<{
   const { toast } = useToast();
   const inputId = `upload-${slot.number}`;
 
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     onUploadStart(slot.number);
@@ -57,20 +56,22 @@ const PhotoUploadSlot: React.FC<{
       toast({ title: "Error al subir", description: err.message, variant: "destructive" });
       onUploadComplete(slot.number, null);
     } finally {
-        if(e.target) e.target.value = '';
+        if(event.target) event.target.value = '';
     }
   };
 
   return (
-    <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed flex items-center justify-center hover:border-primary transition-colors group">
+    <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
       <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
-        {slot.imageUrl ? (
+        {slot.imageUrl && !slot.uploading ? (
             <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
         ) : (
-          <>
-            <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
-            <span className="text-xs font-medium">Subir foto</span>
-          </>
+          !slot.uploading && (
+            <div className="flex flex-col items-center">
+              <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
+              <span className="text-xs font-medium">Subir foto</span>
+            </div>
+          )
         )}
       </Label>
       <Input
