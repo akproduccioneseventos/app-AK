@@ -1,6 +1,6 @@
 
 {
-  "id": "fiesta_1756924717109",
+  "id": "fiesta_1762181514757",
   "configuracion": {
     "nombreEvento": "Mi Próximo Evento Increíble",
     "tipoCelebracion": "Cumpleaños",
@@ -324,7 +324,7 @@
         "nino": 1.5
       },
       "mesa_helada": {
-        "adulto": 1.5,
+        "adulto": 1,
         "adolescente": 1.5,
         "nino": 1.5
       },

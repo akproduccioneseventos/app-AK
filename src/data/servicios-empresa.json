@@ -565,14 +565,6 @@
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758810107",
-    "nombre": "Mesas Plegables",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
     "id": "asset_1758810001",
     "nombre": "Platos de Sitio",
     "tipoItem": "Activo Fijo",
@@ -948,13 +940,6 @@
     "nombre": "VASOS Y SORVITOS",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Descartables",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758988636256_7l0x4",
-    "nombre": "PAPELERAS",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
     "unidad": "Unidad"
   },
   {
