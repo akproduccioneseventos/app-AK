@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
@@ -10,7 +10,6 @@ import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
-import { Input } from '@/components/ui/input';
 
 interface PhotoSlot {
   number: number;
@@ -18,16 +17,89 @@ interface PhotoSlot {
   uploading: boolean;
 }
 
+const PhotoUploadSlot: React.FC<{
+    slot: PhotoSlot;
+    fiestaId: string;
+    onUploadStart: (slotNumber: number) => void;
+    onUploadComplete: (slotNumber: number, url: string | null, error?: string) => void;
+}> = ({ slot, fiestaId, onUploadStart, onUploadComplete }) => {
+    const { toast } = useToast();
+
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        onUploadStart(slot.number);
+
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            toast({ title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive" });
+            onUploadComplete(slot.number, null, "File too large");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('fiestaId', fiestaId);
+        formData.append('file', file);
+        formData.append('photoNumber', String(slot.number));
+
+        try {
+            const result = await saveLifeStoryVideoPhoto(formData);
+            if (result.success && result.url) {
+                onUploadComplete(slot.number, result.url);
+                toast({ title: "¡Foto Subida!", description: `La foto para la posición ${slot.number} se ha guardado.` });
+            } else {
+                throw new Error(result.error || "No se pudo guardar la foto.");
+            }
+        } catch (err: any) {
+            toast({ title: "Error al subir", description: err.message, variant: "destructive" });
+            onUploadComplete(slot.number, null, err.message);
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    return (
+        <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed flex items-center justify-center hover:border-primary transition-colors">
+            <Label htmlFor={`upload-${slot.number}`} className="w-full h-full cursor-pointer">
+                {slot.imageUrl ? (
+                    <>
+                        <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>
+                        <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Upload className="w-6 h-6 text-white" />
+                        </div>
+                    </>
+                ) : (
+                    <div className="text-center text-muted-foreground">
+                        <Upload className="w-6 h-6 mx-auto" />
+                    </div>
+                )}
+            </Label>
+            <Input
+                id={`upload-${slot.number}`}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={slot.uploading}
+            />
+            {slot.uploading && (
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                </div>
+            )}
+            <div className="absolute top-0.5 right-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-md rounded-tr-sm">{String(slot.number).padStart(2, '0')}</div>
+            {slot.imageUrl && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full" />}
+        </div>
+    );
+};
+
+
 export default function VideoVidaClientPage({ params }: { params: { fiestaId: string } }) {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Simplified upload logic state
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [activeSlotForUpload, setActiveSlotForUpload] = useState<number | null>(null);
 
 
   const loadData = useCallback(async () => {
@@ -37,7 +109,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
       const fiestaData = await getFiestaActual();
       if (fiestaData.id !== params.fiestaId) throw new Error("Acceso no válido para este evento.");
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
-      
+
       setFiesta(fiestaData);
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
       
@@ -68,45 +140,21 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     loadData();
   }, [loadData]);
   
-  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !fiesta || activeSlotForUpload === null) return;
-    
-    const slotNumber = activeSlotForUpload;
-    setActiveSlotForUpload(null); // Reset active slot
-
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive"});
-        return;
-    }
-    
+  const handleUploadStart = (slotNumber: number) => {
     setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, uploading: true} : s));
-
-    const formData = new FormData();
-    formData.append('fiestaId', fiesta.id);
-    formData.append('file', file);
-    formData.append('photoNumber', String(slotNumber));
-
-    try {
-        const result = await saveLifeStoryVideoPhoto(formData);
-        if(result.success && result.url) {
-            setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, imageUrl: result.url, uploading: false} : s));
-            toast({title: "¡Foto Subida!", description: `La foto para la posición ${slotNumber} se ha guardado.`});
-        } else {
-             throw new Error(result.error || "No se pudo guardar la foto.");
-        }
-    } catch(err: any) {
-        toast({title: "Error al subir", description: err.message, variant: "destructive"});
-        setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, uploading: false} : s));
-    } finally {
-        // Reset file input to allow re-uploading the same file
-        if (e.target) e.target.value = '';
-    }
   };
   
-  const triggerFileInput = (slotNumber: number) => {
-      setActiveSlotForUpload(slotNumber);
-      fileInputRef.current?.click();
+  const handleUploadComplete = (slotNumber: number, url: string | null, error?: string) => {
+    setPhotoSlots(prev => prev.map(s => {
+        if (s.number === slotNumber) {
+            return {
+                ...s,
+                uploading: false,
+                imageUrl: url || s.imageUrl // Keep old image on failure, or set new one
+            };
+        }
+        return s;
+    }));
   };
 
   if (isLoading) {
@@ -141,40 +189,15 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                     <CardDescription>Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan {photoCount} fotos.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Input 
-                        ref={fileInputRef}
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleFileSelect}
-                        className="hidden"
-                    />
                     <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
                         {photoSlots.map(slot => (
-                            <div 
-                                key={slot.number} 
-                                className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
-                                onClick={() => triggerFileInput(slot.number)}
-                            >
-                                {slot.imageUrl ? (
-                                    <>
-                                        <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>
-                                        <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <Upload className="w-6 h-6 text-white"/>
-                                        </div>
-                                    </>
-                                ) : (
-                                     <div className="text-center text-muted-foreground">
-                                        <Upload className="w-6 h-6 mx-auto"/>
-                                    </div>
-                                )}
-                                {slot.uploading && (
-                                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                                        <Loader2 className="w-6 h-6 text-white animate-spin"/>
-                                    </div>
-                                )}
-                                 <div className="absolute top-0.5 right-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-md rounded-tr-sm">{String(slot.number).padStart(2, '0')}</div>
-                                 {slot.imageUrl && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
-                            </div>
+                            <PhotoUploadSlot
+                                key={slot.number}
+                                slot={slot}
+                                fiestaId={fiesta.id}
+                                onUploadStart={handleUploadStart}
+                                onUploadComplete={handleUploadComplete}
+                            />
                         ))}
                     </div>
                 </CardContent>
