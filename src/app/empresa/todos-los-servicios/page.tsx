@@ -43,10 +43,12 @@ export default function InventarioGeneralPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      setAllItems(data);
-      setFilteredItems(data);
+      // This page now shows everything EXCEPT services, which have their own page.
+      const inventoryItems = data.filter(s => s.tipoItem !== 'Servicio');
+      setAllItems(inventoryItems);
+      setFilteredItems(inventoryItems);
     } catch (err: any) {
-      setError("No se pudo cargar el inventario de activos.");
+      setError("No se pudo cargar el inventario de activos e insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -90,7 +92,7 @@ export default function InventarioGeneralPage() {
   const handleShare = async () => {
     const shareData = {
       title: 'Inventario General - AK Producciones',
-      text: `Resumen de inventario.`,
+      text: `Resumen de inventario de activos e insumos.`,
       url: window.location.href,
     };
     try {
@@ -158,11 +160,11 @@ export default function InventarioGeneralPage() {
             </Link>
         </div>
       </div>
-      <CardDescription>Gestiona tu inventario de activos, insumos y servicios de la empresa.</CardDescription>
+      <CardDescription>Gestiona tu inventario de activos (mobiliario, equipo, etc.) e insumos (ingredientes, descartables, etc.).</CardDescription>
       <Card className="shadow-lg print:shadow-none print:border-none">
         <CardHeader className="border-b print:border-b-2 print:border-gray-200">
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos de la Empresa</CardTitle>
-          <CardDescription>Resumen del capital total de activos físicos e insumos, por categoría.</CardDescription>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos e Insumos</CardTitle>
+          <CardDescription>Resumen del capital total de tu inventario físico, por categoría.</CardDescription>
         </CardHeader>
         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-3 print:p-2">
           {capitalPorCategoria.map(cat => (
@@ -197,7 +199,7 @@ export default function InventarioGeneralPage() {
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron ítems que coincidan." : "El inventario general está vacío."}</CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron ítems que coincidan." : "Tu inventario general está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (

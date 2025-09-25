@@ -37,11 +37,18 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir al Panel',
   },
   {
-    title: 'Gestión de Activos Fijos',
-    description: 'Gestiona tu inventario de activos de la empresa (mobiliario, equipo, etc.).',
+    title: 'Inventario General',
+    description: 'Gestiona tus activos fijos (mobiliario, equipo) e insumos (ingredientes, descartables).',
     href: '/empresa/todos-los-servicios',
     icon: Package,
-    actionLabel: 'Gestionar Activos',
+    actionLabel: 'Gestionar Inventario',
+  },
+   {
+    title: 'Catálogo de Servicios',
+    description: 'Define los servicios que ofreces en los presupuestos (DJ, Decoración, etc.).',
+    href: '/empresa/servicios',
+    icon: Sparkles,
+    actionLabel: 'Gestionar Servicios',
   },
    {
     title: 'Redes Sociales y Publicaciones',
@@ -100,5 +107,4 @@ export default function EmpresaHubPage() {
     </div>
   );
 }
-
     
