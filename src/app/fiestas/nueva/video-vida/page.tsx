@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -18,11 +18,17 @@ import { Separator } from '@/components/ui/separator';
 
 const PHOTO_SLOT_COUNT = 50;
 
+interface PhotoSlot {
+  number: number;
+  imageUrl: string | null;
+}
+
 export default function VideoVidaAdminPage() {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [videoVidaData, setVideoVidaData] = useState<VideoVidaData | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -37,6 +43,17 @@ export default function VideoVidaAdminPage() {
       setVideoVidaData(fiestaData.videoVida || { galleryEnabled: true, photosUploaded: false });
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
       setPhotos(photoUrls);
+
+      const slots: PhotoSlot[] = Array.from({ length: PHOTO_SLOT_COUNT }).map((_, index) => {
+        const photoNumber = index + 1;
+        const matchingPhoto = photoUrls.find(url => {
+            const filename = url.split('/').pop()?.split('.')[0];
+            return parseInt(filename || '0', 10) === photoNumber;
+        });
+        return { number: photoNumber, imageUrl: matchingPhoto || null };
+      });
+      setPhotoSlots(slots);
+
     } catch (err: any) {
       setError("No se pudieron cargar los datos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -104,7 +121,6 @@ export default function VideoVidaAdminPage() {
     }
   };
 
-
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
@@ -112,18 +128,6 @@ export default function VideoVidaAdminPage() {
     return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
   }
   if (!fiesta) return null;
-
-  const photoSlotsForAdmin = Array.from({ length: PHOTO_SLOT_COUNT }).map((_, index) => {
-      const photoNumber = index + 1;
-      const matchingPhoto = photos.find(url => {
-          const filename = url.split('/').pop()?.split('.')[0];
-          return parseInt(filename || '0', 10) === photoNumber;
-      });
-      return {
-        number: photoNumber,
-        imageUrl: matchingPhoto || null,
-      };
-  });
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -182,10 +186,10 @@ export default function VideoVidaAdminPage() {
           <CardDescription>Aquí verás las fotos que el cliente ha subido, en su orden correcto.</CardDescription>
         </CardHeader>
         <CardContent>
-           {photos.length > 0 ? (
+           {photoSlots.length > 0 ? (
             <>
               <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
-                {photoSlotsForAdmin.map(slot => (
+                {photoSlots.map(slot => (
                     <div key={slot.number} className="aspect-square relative rounded-md bg-muted overflow-hidden border">
                          {slot.imageUrl ? (
                              <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" data-ai-hint="life story photo"/>

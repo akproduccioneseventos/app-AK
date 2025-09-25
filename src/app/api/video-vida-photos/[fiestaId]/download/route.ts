@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
-import { getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data', 'video-vida-photos');
 

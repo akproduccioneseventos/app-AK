@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -42,8 +41,6 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
       
       const slots: PhotoSlot[] = Array.from({ length: PHOTO_SLOT_COUNT }).map((_, index) => {
         const photoNumber = index + 1;
-        // Find the photo URL that corresponds to the current slot number.
-        // This assumes filenames are like "01.jpg", "02.png", etc.
         const matchingPhoto = photoUrls.find(url => {
             const filename = url.split('/').pop()?.split('.')[0];
             return parseInt(filename || '0', 10) === photoNumber;
@@ -61,7 +58,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     } finally {
       setIsLoading(false);
     }
-  }, [params.fiestaId, toast]);
+  }, [params.fiestaId]);
 
   useEffect(() => {
     loadData();
