@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -10,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, CheckCircle, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
@@ -26,6 +25,7 @@ export default function VideoVidaAdminPage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -77,6 +77,34 @@ export default function VideoVidaAdminPage() {
       toast({title: "Enlace Copiado", description: "El enlace de carga se ha copiado al portapapeles."});
   };
 
+  const handleDownloadAll = async () => {
+    if (!fiesta) return;
+    setIsDownloading(true);
+    toast({ title: "Preparando descarga...", description: "Comprimiendo fotos..." });
+    try {
+      const response = await fetch(`/api/video-vida-photos/${fiesta.id}/download`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'No se pudo generar el archivo ZIP.');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `video-de-vida-${fiesta.id}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: "Descarga Iniciada" });
+    } catch (error: any) {
+      toast({ title: "Error en la Descarga", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
@@ -126,7 +154,7 @@ export default function VideoVidaAdminPage() {
                     <Label>Enlace para el Cliente</Label>
                     <div className="flex gap-2">
                         <Input value={getPublicLink()} readOnly />
-                        <Button type="button" onClick={handleCopyLink}>Copiar Enlace</Button>
+                        <Button type="button" onClick={handleCopyLink}><LinkIcon className="w-4 h-4 mr-2"/>Copiar Enlace</Button>
                     </div>
                 </div>
             )}
@@ -169,10 +197,9 @@ export default function VideoVidaAdminPage() {
                     </div>
                 ))}
               </div>
-               <Button asChild className="mt-4">
-                 <a href={`/api/video-vida-photos/${fiesta.id}/download`}>
-                   <Download className="w-4 h-4 mr-2"/> Descargar Todas (.zip)
-                 </a>
+               <Button onClick={handleDownloadAll} className="mt-4" disabled={isDownloading}>
+                 {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Download className="w-4 h-4 mr-2"/>}
+                 Descargar Todas (.zip)
                </Button>
             </>
            ) : (

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
@@ -34,6 +33,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
+      // SECURITY CHECK: This is a minimal check. In a real app, a more robust auth system is needed.
       if (fiestaData.id !== params.fiestaId) throw new Error("Acceso no válido para este evento.");
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
       
@@ -42,6 +42,8 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
       
       const slots: PhotoSlot[] = Array.from({ length: PHOTO_SLOT_COUNT }).map((_, index) => {
         const photoNumber = index + 1;
+        // Find the photo URL that corresponds to the current slot number.
+        // This assumes filenames are like "01.jpg", "02.png", etc.
         const matchingPhoto = photoUrls.find(url => {
             const filename = url.split('/').pop()?.split('.')[0];
             return parseInt(filename || '0', 10) === photoNumber;
@@ -121,6 +123,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                 <h1 className="text-4xl font-bold tracking-tight font-headline">{fiesta.configuracion.nombreEvento}</h1>
                 <p className="text-lg text-muted-foreground mt-1">Carga de Fotos para el Video de Vida</p>
                 {fiesta.videoVida?.customText && <p className="mt-4 text-accent-foreground bg-accent/20 p-3 rounded-md max-w-2xl mx-auto">{fiesta.videoVida.customText}</p>}
+                {fiesta.videoVida?.songSuggestion && <p className="mt-2 text-sm text-muted-foreground">Canción elegida: <strong>{fiesta.videoVida.songSuggestion}</strong></p>}
             </header>
 
              <Card className="shadow-lg">
