@@ -18,8 +18,8 @@ interface PhotoSlot {
   imageUrl: string | null;
 }
 
-// Componente para un único recuadro de subida de foto.
-// Definido fuera para evitar que se vuelva a crear en cada renderizado.
+// --- Componente Atómico para cada Slot de Foto ---
+// Cada slot gestiona su propia subida de forma aislada.
 const PhotoUploadSlot: React.FC<{
   slot: PhotoSlot;
   fiestaId: string;
@@ -34,9 +34,8 @@ const PhotoUploadSlot: React.FC<{
     if (!file) return;
 
     setIsUploading(true);
-
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      toast({ title: "Archivo muy grande", description: "El tamaño máximo por foto es 5MB.", variant: "destructive" });
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Archivo muy grande", description: "El tamaño máximo es 5MB.", variant: "destructive" });
       setIsUploading(false);
       return;
     }
@@ -56,11 +55,10 @@ const PhotoUploadSlot: React.FC<{
       }
     } catch (err: any) {
       toast({ title: "Error al subir", description: err.message, variant: "destructive" });
-      onUploadComplete(slot.number, null); // Notify parent of failure
+      onUploadComplete(slot.number, null);
     } finally {
-        setIsUploading(false);
-        // Reset file input to allow re-uploading the same file if needed
-        if (event.target) event.target.value = '';
+      setIsUploading(false);
+      if (event.target) event.target.value = '';
     }
   };
 
@@ -68,14 +66,12 @@ const PhotoUploadSlot: React.FC<{
     <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
       <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
         {slot.imageUrl && !isUploading ? (
-            <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
-        ) : (
-          !isUploading && (
-            <div className="flex flex-col items-center">
-              <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
-              <span className="text-xs font-medium">Subir foto</span>
-            </div>
-          )
+          <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
+        ) : !isUploading && (
+          <div className="flex flex-col items-center">
+            <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
+            <span className="text-xs font-medium">Subir foto</span>
+          </div>
         )}
       </Label>
       <Input
@@ -91,25 +87,20 @@ const PhotoUploadSlot: React.FC<{
           <Loader2 className="w-6 h-6 text-white animate-spin" />
         </div>
       )}
-       <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
-       {slot.imageUrl && !isUploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
+      <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
+      {slot.imageUrl && !isUploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
     </div>
   );
 };
 
 
-export default function VideoVidaClientPage({ params }: { params: { fiestaId: string } }) {
+// --- Componente Principal que se renderiza solo en el cliente ---
+function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }) {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
-
-  // This effect ensures code runs only on the client, avoiding hydration issues.
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -130,10 +121,7 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
             const filename = url.split('/').pop()?.split('.')[0];
             return parseInt(filename || '0', 10) === photoNumber;
         });
-        return {
-          number: photoNumber,
-          imageUrl: matchingPhoto || null,
-        };
+        return { number: photoNumber, imageUrl: matchingPhoto || null };
       });
       setPhotoSlots(slots);
 
@@ -145,10 +133,8 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
   }, [params.fiestaId, toast]);
 
   useEffect(() => {
-    if (isClient) {
-      loadData();
-    }
-  }, [loadData, isClient]);
+    loadData();
+  }, [loadData]);
   
   const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
@@ -159,19 +145,18 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
     }));
   }, []);
 
-  if (!isClient || isLoading) {
+  if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
   
-  if (error) {
+  if (error || !fiesta) {
     return <div className="flex flex-col items-center justify-center h-screen text-center p-4">
         <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
         <h1 className="text-2xl font-bold">Error de Acceso</h1>
-        <p className="text-muted-foreground mt-2">{error}</p>
+        <p className="text-muted-foreground mt-2">{error || "No se encontró la información del evento."}</p>
     </div>;
   }
-
-  if (!fiesta) return null;
+  
   const photoCount = fiesta.videoVida?.photoCount || 50;
   const photosUploadedCount = photoSlots.filter(s => s.imageUrl).length;
 
@@ -203,11 +188,20 @@ export default function VideoVidaClientPage({ params }: { params: { fiestaId: st
                         ))}
                     </div>
                 </CardContent>
-                 <CardFooter>
-                    <p className="text-xs text-muted-foreground">Las fotos se guardan automáticamente al subirlas.</p>
-                </CardFooter>
             </Card>
         </div>
     </div>
   );
+}
+
+
+// --- Página principal que se asegura de renderizar el contenido solo en el cliente ---
+export default function VideoVidaClientPage({ params }: { params: { fiestaId: string } }) {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    return isClient ? <VideoVidaClientPageContent params={params} /> : <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
 }
