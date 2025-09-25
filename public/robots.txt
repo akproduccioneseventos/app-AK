@@ -1,0 +1,4 @@
+# Indica a todos los bots y crawlers que no indexen ninguna página del sitio.
+# Esto es útil para aplicaciones privadas para reducir el tráfico de bots y los errores 404.
+User-agent: *
+Disallow: /
