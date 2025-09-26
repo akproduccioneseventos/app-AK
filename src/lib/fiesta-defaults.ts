@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -199,16 +199,13 @@ export const defaultBebidasCategorias: BebidaCategoria[] = [
   { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
   { id: 'cervezas', nombreDisplay: 'Cervezas', activada: false, items: [], descripcion: 'Variedad de cervezas nacionales e importadas.' },
   { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
-  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], recetas: [
-      {
-        id: 'receta_gintonic', nombre: 'Gin Tonic', capacidadBaseLt: 0.25, porcionesBase: 1, costoTotalReceta: 80,
-        ingredientes: [ { id: 'ing_gt_1', insumoId: 'insumo_gin', nombreInsumo: 'Gin', cantidad: 50, unidad: 'ml', costoUnitario: 1, costoTotal: 50 }, { id: 'ing_gt_2', insumoId: 'insumo_tonica', nombreInsumo: 'Agua Tónica', cantidad: 200, unidad: 'ml', costoUnitario: 0.15, costoTotal: 30 } ]
-      },
-      {
-        id: 'receta_mojito', nombre: 'Mojito', capacidadBaseLt: 0.25, porcionesBase: 1, costoTotalReceta: 95,
-        ingredientes: [ { id: 'ing_moj_1', insumoId: 'insumo_ron', nombreInsumo: 'Ron Blanco', cantidad: 50, unidad: 'ml', costoUnitario: 0.8, costoTotal: 40 }, { id: 'ing_moj_2', insumoId: 'insumo_soda', nombreInsumo: 'Soda', cantidad: 100, unidad: 'ml', costoUnitario: 0.1, costoTotal: 10 }, { id: 'ing_moj_3', insumoId: 'insumo_azucar', nombreInsumo: 'Azúcar', cantidad: 10, unidad: 'g', costoUnitario: 0.05, costoTotal: 5 }, { id: 'ing_moj_4', insumoId: 'insumo_menta', nombreInsumo: 'Menta Fresca', cantidad: 10, unidad: 'g', costoUnitario: 2, costoTotal: 20 }, { id: 'ing_moj_5', insumoId: 'insumo_limon', nombreInsumo: 'Jugo de Limón', cantidad: 25, unidad: 'ml', costoUnitario: 0.8, costoTotal: 20 } ]
-      }
-  ], descripcion: 'Cócteles con y sin alcohol preparados al momento.' },
+  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [
+      { id: 'beb-fernet', nombre: 'Fernet', cantidadNecesaria: 5, unidadCantidad: 'Botellas' },
+      { id: 'beb-whisky', nombre: 'Whisky', cantidadNecesaria: 3, unidadCantidad: 'Botellas' },
+      { id: 'beb-ron', nombre: 'Ron', cantidadNecesaria: 4, unidadCantidad: 'Botellas' },
+      { id: 'beb-gancia', nombre: 'Gancia', cantidadNecesaria: 3, unidadCantidad: 'Botellas' },
+      { id: 'beb-campari', nombre: 'Campari', cantidadNecesaria: 2, unidadCantidad: 'Botellas' },
+  ], recetas: [], descripcion: 'Bebidas blancas y licores para la barra.' },
   { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' },
 ];
 
