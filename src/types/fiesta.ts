@@ -302,6 +302,7 @@ export interface BebidaReceta {
 }
 
 export type BebidaCategoriaId =
+  | 'coctel_bienvenida'
   | 'refrescos_gaseosas'
   | 'jugos'
   | 'aguas_saborizadas'

@@ -367,7 +367,7 @@ export default function GestionBebidasPage() {
                         <AccordionContent className="p-4 border-t space-y-4">
                             {cat.activada && (
                                 <>
-                                  {cat.id === 'barra_tragos' ? (
+                                  {cat.recetas && (
                                       <div className="space-y-3">
                                           <Button type="button" size="sm" onClick={() => {setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe({})}}><PlusCircle className="w-4 h-4 mr-1.5"/>Crear Receta</Button>
                                           {cat.recetas?.map(receta => (
@@ -386,8 +386,6 @@ export default function GestionBebidasPage() {
                                               </Card>
                                           ))}
                                       </div>
-                                  ) : (
-                                     <p className="text-xs text-muted-foreground">Funcionalidad de añadir productos individuales para esta categoría próximamente.</p>
                                   )}
                                     <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(costoTotalCategoria)}</p>
                                 </>
