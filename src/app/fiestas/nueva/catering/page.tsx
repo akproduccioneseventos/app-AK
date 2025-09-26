@@ -13,6 +13,7 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getFiestaActual, updateMenuAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PlatoConMenu extends MenuItem {
   menuId: string;
@@ -56,7 +57,7 @@ export default function CateringEventoHubPage() {
           });
         });
         
-      platos.sort((a, b) => a.totalDishCost - b.totalDishCost);
+      platos.sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
       setAllPlatos(platos);
 
     } catch (error) {
@@ -272,7 +273,14 @@ export default function CateringEventoHubPage() {
                           <CardDescription>{menu.description}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <p className="text-sm font-semibold text-green-700">Costo p/Persona: {formatCurrency(menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0))}</p>
+                          <p className="text-sm font-semibold text-green-700 mb-2">Costo p/Persona: {formatCurrency(menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0))}</p>
+                          {menu.items.length > 0 && (
+                            <ScrollArea className="h-20 text-xs text-muted-foreground border-t pt-2">
+                              <ul className="list-disc pl-4 space-y-0.5">
+                                {menu.items.map(item => <li key={item.id}>{item.name}</li>)}
+                              </ul>
+                            </ScrollArea>
+                          )}
                         </CardContent>
                         <CardFooter>
                             <Button onClick={() => handleAssignMenu(menu.id)} disabled={assigningMenuId === menu.id || fiestaActual?.menuAsignadoId === menu.id} className="w-full">
