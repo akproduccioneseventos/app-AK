@@ -44,7 +44,7 @@ export default function CatalogoPlatosPage() {
         });
         
         // Ordenar por precio de costo
-        platos.sort((a, b) => a.totalDishCost - b.totalDishCost);
+        platos.sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
 
         setAllPlatos(platos);
       } catch (error) {
@@ -74,6 +74,16 @@ export default function CatalogoPlatosPage() {
           </Button>
         </Link>
       </div>
+      
+      <div className="flex justify-end">
+          <Link href="/fiestas/nueva/catering/nuevo-menu" passHref className="inline-block">
+            <Button size="lg"> 
+                <PlusCircle className="w-5 h-5 mr-2" />
+                Crear Nuevo Menú
+            </Button>
+        </Link>
+      </div>
+
 
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-12">
@@ -86,21 +96,21 @@ export default function CatalogoPlatosPage() {
              <div className="flex items-center gap-3">
                 <Utensils className="w-7 h-7 text-primary" />
                 <div>
-                    <CardTitle className="font-headline text-xl">Todos los Platos Disponibles</CardTitle>
+                    <CardTitle className="font-headline text-xl">Todos los Platos Disponibles ({allPlatos.length})</CardTitle>
                     <CardDescription>Visualiza todos tus platos ordenados por costo. Haz clic en "Editar" para modificar sus ingredientes dentro de su menú correspondiente.</CardDescription>
                 </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
              {allPlatos.map((plato) => {
-                const precioFinalSugerido = plato.totalDishCost * 1.3; // Ejemplo de margen del 30%
+                const precioFinalSugerido = (plato.totalDishCost || 0) * 2; // Ejemplo de margen del 100%
                 return (
                   <Card key={plato.id} className="shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-3 flex justify-between items-center">
                         <div>
                             <p className="font-semibold text-foreground">{plato.name}</p>
                             <p className="text-xs text-muted-foreground">
-                                <span className="font-medium text-destructive">Costo p/p:</span> {formatCurrency(plato.totalDishCost)} | <span className="font-medium text-green-600">Venta Sugerida:</span> {formatCurrency(precioFinalSugerido)}
+                                <span className="font-medium text-destructive">Costo p/p:</span> {formatCurrency(plato.totalDishCost || 0)} | <span className="font-medium text-green-600">Venta Sugerida:</span> {formatCurrency(precioFinalSugerido)}
                             </p>
                              <p className="text-xs text-muted-foreground">
                                 Pertenece al menú: <i>{plato.menuName}</i>
