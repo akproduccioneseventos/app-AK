@@ -30,6 +30,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -269,10 +270,10 @@ export default function GestionBebidasPage() {
           <DialogHeader><DialogTitle className="font-headline">{currentItem?.id && currentItem.origenId !== currentItem.id ? 'Editar' : 'Añadir'} Producto</DialogTitle></DialogHeader>
           {currentItem && (
             <div className="space-y-3">
-              <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={e => handleItemModalChange(currentCategoryId!, currentItem.id!, 'nombre', e.target.value)} /></div>
+              <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={e => handleItemFieldChange(currentCategoryId!, currentItem.id!, 'nombre', e.target.value)} /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label htmlFor="item-qty-nec">Cant. Necesaria</Label><Input id="item-qty-nec" type="number" value={currentItem.cantidadNecesaria || ''} onChange={e => handleItemModalChange(currentCategoryId!, currentItem.id!, 'cantidadNecesaria', Number(e.target.value))}/></div>
-                <div className="space-y-1"><Label htmlFor="item-costo-unit">Costo Unit.</Label><Input id="item-costo-unit" type="number" value={currentItem.costoUnitario || ''} onChange={e => handleItemModalChange(currentCategoryId!, currentItem.id!, 'costoUnitario', Number(e.target.value))}/></div>
+                <div className="space-y-1"><Label htmlFor="item-qty-nec">Cant. Necesaria</Label><Input id="item-qty-nec" type="number" value={currentItem.cantidadNecesaria || ''} onChange={e => handleItemFieldChange(currentCategoryId!, currentItem.id!, 'cantidadNecesaria', Number(e.target.value))}/></div>
+                <div className="space-y-1"><Label htmlFor="item-costo-unit">Costo Unit.</Label><Input id="item-costo-unit" type="number" value={currentItem.costoUnitario || ''} onChange={e => handleItemFieldChange(currentCategoryId!, currentItem.id!, 'costoUnitario', Number(e.target.value))}/></div>
               </div>
             </div>
           )}
@@ -345,53 +346,69 @@ export default function GestionBebidasPage() {
          </CardFooter>
       </Card>
       
-      {bebidasData.categorias.map(cat => {
-        const consumoAdultos = (consumoConfig[cat.id]?.adulto || 0) * numAdultos * duracionHoras;
-        const consumoAdolescentes = (consumoConfig[cat.id]?.adolescente || 0) * numAdolescentes * duracionHoras;
-        const consumoNinos = (consumoConfig[cat.id]?.nino || 0) * numNinos * duracionHoras;
-        const totalLitrosNecesarios = consumoAdultos + consumoAdolescentes + consumoNinos;
-        
-        return (
-          <Card key={cat.id}>
-             <CardHeader className="flex-row justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-lg font-semibold">{cat.nombreDisplay}</h3>
-                  <Badge variant="secondary">Est: {totalLitrosNecesarios.toFixed(1)} Litros</Badge>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label>
-                    <Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)}/>
-                 </div>
-             </CardHeader>
-             {cat.activada && (
-                <CardContent>
-                    <div className="p-3 border rounded-md bg-muted/50">
-                        {cat.items.length > 0 ? (
-                            <table className="w-full text-sm">
-                                <thead><tr className="border-b"><th className="text-left py-1">Producto</th><th className="text-right py-1">Cant. Necesaria</th><th className="text-right py-1">Costo Unit.</th><th className="text-right py-1 font-semibold">Costo Total</th><th className="w-[80px]"></th></tr></thead>
-                                <tbody>
-                                {cat.items.map(item => (
-                                    <tr key={item.id}>
-                                        <td className="py-1 font-medium">{item.nombre}</td>
-                                        <td className="text-right"><Input type="number" value={item.cantidadNecesaria || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'cantidadNecesaria', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0"/></td>
-                                        <td className="text-right"><Input type="number" value={item.costoUnitario || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'costoUnitario', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0"/></td>
-                                        <td className="py-1 text-right font-semibold">{formatCurrency(item.costoTotal)}</td>
-                                        <td className="text-right"><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={()=>handleDeleteItem(cat.id, item.id)}><Trash2 className="w-4 h-4"/></Button></td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        ) : (<p className="text-center text-muted-foreground text-xs py-2">No hay productos añadidos para esta categoría.</p>)}
-                    </div>
-                    <div className="flex justify-end gap-2 mt-3">
-                        <Button type="button" size="sm" variant="outline" onClick={() => openItemModal(cat.id)}><PlusCircle className="w-4 h-4 mr-1"/>Añadir Manualmente</Button>
-                        <Button type="button" size="sm" variant="secondary" onClick={() => { setCurrentCategoryId(cat.id); setIsCatalogModalOpen(true); }}><BookOpen className="w-4 h-4 mr-1"/>Añadir del Catálogo</Button>
-                    </div>
-                </CardContent>
-             )}
-          </Card>
-        )
-      })}
+        <Accordion type="multiple" defaultValue={bebidasData.categorias.map(c => c.id)} className="w-full space-y-3">
+            {bebidasData.categorias.map(cat => {
+                const consumoAdultos = (consumoConfig[cat.id]?.adulto || 0) * numAdultos * duracionHoras;
+                const consumoAdolescentes = (consumoConfig[cat.id]?.adolescente || 0) * numAdolescentes * duracionHoras;
+                const consumoNinos = (consumoConfig[cat.id]?.nino || 0) * numNinos * duracionHoras;
+                const totalLitrosNecesarios = consumoAdultos + consumoAdolescentes + consumoNinos;
+                const costoTotalCategoria = cat.items.reduce((sum, item) => sum + (item.costoTotal || 0), 0);
+
+                return (
+                    <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm bg-card">
+                        <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
+                            <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center gap-2 text-lg font-medium text-primary hover:no-underline", "[&[data-state=open]>svg:last-child]:rotate-180")}>
+                                <Wand2 className="w-5 h-5 text-primary/80" />
+                                {cat.nombreDisplay}
+                                <Badge variant="secondary" className="ml-2">Est: {totalLitrosNecesarios.toFixed(1)} Litros</Badge>
+                                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
+                            </AccordionPrimitive.Trigger>
+                            <div className="flex items-center gap-2 pl-4">
+                                <Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label>
+                                <Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)} onClick={(e) => e.stopPropagation()} />
+                            </div>
+                        </AccordionPrimitive.Header>
+                        <AccordionContent className="p-4 border-t space-y-4">
+                            {cat.activada && (
+                                <>
+                                    <div className="p-3 border rounded-md bg-muted/50">
+                                        {cat.items.length > 0 ? (
+                                            <Table className="text-sm">
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead className="font-semibold">Producto</TableHead>
+                                                        <TableHead className="text-right">Cant. Necesaria</TableHead>
+                                                        <TableHead className="text-right">Costo Unit.</TableHead>
+                                                        <TableHead className="text-right font-semibold">Costo Total</TableHead>
+                                                        <TableHead className="w-[80px]"></TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {cat.items.map(item => (
+                                                        <TableRow key={item.id}>
+                                                            <TableCell className="font-medium">{item.nombre}</TableCell>
+                                                            <TableCell className="text-right"><Input type="number" value={item.cantidadNecesaria || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'cantidadNecesaria', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0" /></TableCell>
+                                                            <TableCell className="text-right"><Input type="number" value={item.costoUnitario || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'costoUnitario', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0" /></TableCell>
+                                                            <TableCell className="py-1 text-right font-semibold">{formatCurrency(item.costoTotal)}</TableCell>
+                                                            <TableCell className="text-right"><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-4 h-4" /></Button></TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        ) : (<p className="text-center text-muted-foreground text-xs py-2">No hay productos añadidos para esta categoría.</p>)}
+                                    </div>
+                                    <div className="flex justify-end gap-2 mt-3">
+                                        <Button type="button" size="sm" variant="outline" onClick={() => openItemModal(cat.id)}><PlusCircle className="w-4 h-4 mr-1" />Añadir Manualmente</Button>
+                                        <Button type="button" size="sm" variant="secondary" onClick={() => { setCurrentCategoryId(cat.id); setIsCatalogModalOpen(true); }}><BookOpen className="w-4 h-4 mr-1" />Añadir del Catálogo</Button>
+                                    </div>
+                                    <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(costoTotalCategoria)}</p>
+                                </>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
+                )
+            })}
+        </Accordion>
       
        <div className="flex justify-between items-center pt-6 border-t">
         <div className="text-right">
