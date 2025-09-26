@@ -362,14 +362,16 @@ export default function GestionBebidasPage() {
                                 <Badge variant="secondary" className="ml-2">Est: {totalLitrosNecesarios.toFixed(1)} Litros</Badge>
                                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
                             </AccordionPrimitive.Trigger>
-                            <div className="flex items-center gap-2 pl-4"><Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label><Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)} onClick={(e) => e.stopPropagation()} /></div>
+                            <div className="flex items-center gap-2 pl-4">
+                              {cat.id === 'barra_tragos' && cat.activada && <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe({}) }}><PlusCircle className="w-4 h-4 mr-1.5"/>Crear Receta</Button>}
+                                <Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label><Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)} onClick={(e) => e.stopPropagation()} />
+                            </div>
                         </AccordionPrimitive.Header>
                         <AccordionContent className="p-4 border-t space-y-4">
                             {cat.activada && (
                                 <>
                                   {cat.recetas && (
                                       <div className="space-y-3">
-                                          <Button type="button" size="sm" onClick={() => {setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe({})}}><PlusCircle className="w-4 h-4 mr-1.5"/>Crear Receta</Button>
                                           {cat.recetas?.map(receta => (
                                               <Card key={receta.id} className="bg-muted/30">
                                                 <CardHeader className="p-3 flex-row justify-between items-center">
