@@ -67,10 +67,10 @@ export default function SeleccionarPlatoParaModificarPage() {
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Catálogo de Platos
         </h1>
-        <Link href="/fiestas/nueva/catering" passHref>
+        <Link href="/empresa/contabilidad" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Catering
+            Volver a Contabilidad
           </Button>
         </Link>
       </div>

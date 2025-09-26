@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -108,3 +108,4 @@ export default function EmpresaHubPage() {
   );
 }
     
+
