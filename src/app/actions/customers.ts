@@ -109,6 +109,7 @@ export async function saveCustomer(
       id: customerId,
     });
     customerToSave = customers[customers.length - 1];
+    customerToSave.name = customerToSave.name || customerToSave.companyName; // Ensure name is set
   }
   
   if (contractFile && contractFile.size > 0) {
