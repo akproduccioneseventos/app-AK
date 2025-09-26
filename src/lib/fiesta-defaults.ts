@@ -1,5 +1,5 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -179,14 +179,7 @@ export const defaultBebidasCategorias: BebidaCategoria[] = [
   { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
   { id: 'cervezas', nombreDisplay: 'Cervezas', activada: false, items: [], descripcion: 'Variedad de cervezas nacionales e importadas.' },
   { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
-  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [
-    { id: 'trago_fernet', nombre: 'Fernet con Coca', cantidadNecesaria: 0, costoTotal: 0, costoUnitario: 80, unidadCantidad: 'trago' },
-    { id: 'trago_gin_tonic', nombre: 'Gin Tonic', cantidadNecesaria: 0, costoTotal: 0, costoUnitario: 120, unidadCantidad: 'trago' },
-    { id: 'trago_cuba_libre', nombre: 'Cuba Libre', cantidadNecesaria: 0, costoTotal: 0, costoUnitario: 100, unidadCantidad: 'trago' },
-    { id: 'trago_caipirinha', nombre: 'Caipirinha', cantidadNecesaria: 0, costoTotal: 0, costoUnitario: 130, unidadCantidad: 'trago' },
-    { id: 'trago_daikiri', nombre: 'Daikiri', cantidadNecesaria: 0, costoTotal: 0, costoUnitario: 140, unidadCantidad: 'trago' },
-    { id: 'trago_mojito', nombre: 'Mojito', cantidadNecesaria: 0, costoTotal: 0, costoUnitario: 130, unidadCantidad: 'trago' },
-  ], descripcion: 'Cócteles con y sin alcohol preparados al momento.' },
+  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], recetas: [], descripcion: 'Cócteles con y sin alcohol preparados al momento.' },
   { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' },
 ];
 

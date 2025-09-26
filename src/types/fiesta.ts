@@ -280,6 +280,27 @@ export interface BebidaItem {
   stockDisponible?: number;
 }
 
+export interface IngredienteReceta {
+    id: string; // Unique within the recipe
+    insumoId: string; // ID from a "ServicioEmpresa" of type "Insumo/Ingrediente" or "Bebida (Insumo)"
+    nombreInsumo: string; // Denormalized name
+    cantidad: number;
+    unidad: string; // e.g., "lt", "kg", "unidad"
+    costoUnitario: number; // Cost of 1 unit of this ingredient
+    costoTotal: number; // cantidad * costoUnitario
+}
+
+export interface BebidaReceta {
+    id: string;
+    nombre: string;
+    capacidadBaseLt: number; // e.g., 50
+    porcionesBase: number; // e.g., 100
+    ingredientes: IngredienteReceta[];
+    costoTotalReceta: number;
+    precioVentaSugerido?: number;
+    notas?: string;
+}
+
 export type BebidaCategoriaId =
   | 'refrescos_gaseosas'
   | 'jugos'
@@ -294,6 +315,15 @@ export type TipoAsistente = 'adulto' | 'adolescente' | 'nino';
 export type BebidasConsumoConfig = {
   [key in BebidaCategoriaId]: Record<TipoAsistente, number>;
 };
+
+export interface BebidaCategoria {
+  id: BebidaCategoriaId;
+  nombreDisplay: string;
+  activada: boolean;
+  descripcion?: string;
+  items: BebidaItem[];
+  recetas?: BebidaReceta[];
+}
 
 
 export interface BebidasData {

@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Trash2, ChevronDown, Wand2, BookOpen, Search, Settings, Info, ShoppingCart, Edit } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Trash2, ChevronDown, Wand2, BookOpen, Search, Settings, Info, ShoppingCart, Edit, TestTube2, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, BebidasData, BebidaCategoria, TipoEventoAjusteBebidas, BebidaItem, BebidaItemEstado, BebidasConsumoConfig } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, BebidasData, BebidaCategoria, TipoEventoAjusteBebidas, BebidaItem, BebidaItemEstado, BebidasConsumoConfig, BebidaReceta, IngredienteReceta } from '@/types/fiesta';
 import { getFiestaActual, updateBebidasFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultBebidasCategorias, defaultBebidasConsumoConfig } from '@/lib/fiesta-defaults';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -60,6 +60,10 @@ export default function GestionBebidasPage() {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+  
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const [currentRecipe, setCurrentRecipe] = useState<Partial<BebidaReceta> | null>(null);
+  
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -80,6 +84,7 @@ export default function GestionBebidasPage() {
         const savedCat = fetchedBebidasData.categorias?.find(sc => sc.id === defaultCat.id);
         const mergedCat = savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
         mergedCat.items = mergedCat.items || [];
+        mergedCat.recetas = mergedCat.recetas || [];
         return mergedCat;
       });
       setBebidasData({
@@ -126,106 +131,88 @@ export default function GestionBebidasPage() {
       };
     });
   };
-
-  const handleItemFieldChange = (categoryId: string, itemId: string, field: keyof BebidaItem, value: any) => {
-    setBebidasData(prev => {
-        if (!prev) return null;
-        return {
-            ...prev,
-            categorias: prev.categorias.map(cat => {
-                if (cat.id !== categoryId) return cat;
-                return {
-                    ...cat,
-                    items: cat.items.map(item => {
-                        if (item.id !== itemId) return item;
-                        const updatedItem = { ...item, [field]: value };
-                        if (field === 'cantidadNecesaria' || field === 'costoUnitario') {
-                            updatedItem.costoTotal = (updatedItem.cantidadNecesaria || 0) * (updatedItem.costoUnitario || 0);
-                        }
-                        return updatedItem;
-                    })
-                };
-            })
-        };
-    });
-  };
-
-  const openItemModal = (catId: string, item?: BebidaItem) => {
-    setCurrentCategoryId(catId);
-    if(item) {
-      setCurrentItem({...item});
-    } else {
-      setCurrentItem({ id: '', nombre: '', cantidadNecesaria: 1, costoUnitario: 0, unidadCantidad: 'Unidad' });
-    }
-    setIsItemModalOpen(true);
-  };
   
-  const handleItemModalSave = () => {
-    if (!currentItem || !currentItem.nombre?.trim() || !currentCategoryId) {
-      toast({ title: "Nombre Requerido", variant: "destructive" });
-      return;
+    const handleRecipeChange = (field: keyof BebidaReceta, value: any) => {
+      setCurrentRecipe(prev => prev ? ({ ...prev, [field]: value }) : null);
     }
-    const finalItem: BebidaItem = {
-      ...currentItem,
-      id: currentItem.id || `bebida_${Date.now()}`,
-      cantidadNecesaria: Number(currentItem.cantidadNecesaria) || 0,
-      costoUnitario: Number(currentItem.costoUnitario) || 0,
-      costoTotal: (Number(currentItem.cantidadNecesaria) || 0) * (Number(currentItem.costoUnitario) || 0),
-    } as BebidaItem;
+  
+    const handleIngredientChange = (ingId: string, field: keyof IngredienteReceta, value: any) => {
+        setCurrentRecipe(prev => {
+            if (!prev || !prev.ingredientes) return prev;
+            const newIngredientes = prev.ingredientes.map(ing => {
+                if (ing.id === ingId) {
+                    const updatedIng = { ...ing, [field]: value };
+                    if(field === 'cantidad' || field === 'costoUnitario'){
+                        updatedIng.costoTotal = (Number(updatedIng.cantidad) || 0) * (Number(updatedIng.costoUnitario) || 0);
+                    }
+                    return updatedIng;
+                }
+                return ing;
+            });
+            const costoTotalReceta = newIngredientes.reduce((sum, ing) => sum + ing.costoTotal, 0);
+            return { ...prev, ingredientes: newIngredientes, costoTotalReceta };
+        });
+    };
+
+    const addIngredientToRecipe = () => {
+        setCurrentRecipe(prev => {
+            if (!prev) return prev;
+            const newIngredient: IngredienteReceta = {
+                id: `ing_${Date.now()}`,
+                insumoId: '',
+                nombreInsumo: '',
+                cantidad: 1,
+                unidad: 'Unidad',
+                costoUnitario: 0,
+                costoTotal: 0
+            };
+            return { ...prev, ingredientes: [...(prev.ingredientes || []), newIngredient] };
+        });
+    };
+
+    const removeIngredientFromRecipe = (ingId: string) => {
+        setCurrentRecipe(prev => {
+            if (!prev || !prev.ingredientes) return prev;
+            return { ...prev, ingredientes: prev.ingredientes.filter(i => i.id !== ingId) };
+        })
+    };
     
-    setBebidasData(prev => {
-      if (!prev) return null;
-      const catIndex = prev.categorias.findIndex(c => c.id === currentCategoryId);
-      if (catIndex === -1) return prev;
-      
-      const newCategorias = [...prev.categorias];
-      const targetCat = {...newCategorias[catIndex]};
-      const itemIndex = targetCat.items.findIndex(i => i.id === finalItem.id);
-
-      if (itemIndex > -1) {
-        targetCat.items[itemIndex] = finalItem;
-      } else {
-        targetCat.items.push(finalItem);
-      }
-      newCategorias[catIndex] = targetCat;
-      return { ...prev, categorias: newCategorias };
-    });
-
-    setIsItemModalOpen(false);
-  };
-
-  const handleDeleteItem = (categoryId: string, itemId: string) => {
-    setBebidasData(prev => {
-        if (!prev) return null;
-        return {
-            ...prev,
-            categorias: prev.categorias.map(cat => 
-                cat.id === categoryId 
-                ? { ...cat, items: cat.items.filter(it => it.id !== itemId) }
-                : cat
-            )
-        }
-    })
-  };
-  
-  const filteredCatalogItems = useMemo(() => {
-    if (!catalogSearchTerm) return serviciosCatalogo;
-    const lowerSearch = catalogSearchTerm.toLowerCase();
-    return serviciosCatalogo.filter(item => item.nombre.toLowerCase().includes(lowerSearch) || item.categoria?.toLowerCase().includes(lowerSearch));
-  }, [serviciosCatalogo, catalogSearchTerm]);
-
-  const handleCatalogItemSelected = (servicio: ServicioEmpresa) => {
-    if (!currentCategoryId) return;
-    openItemModal(currentCategoryId, {
-        id: servicio.id,
-        nombre: servicio.nombre,
-        origenId: servicio.id,
-        unidadCantidad: servicio.unidad,
-        costoUnitario: servicio.valorUnitarioEstimado,
-    });
-    setIsCatalogModalOpen(false);
-  };
-
+    const handleRecipeSave = () => {
+        if (!currentRecipe || !currentRecipe.nombre?.trim() || !currentCategoryId) return;
+        
+        const finalRecipe: BebidaReceta = {
+            id: currentRecipe.id || `receta_${Date.now()}`,
+            ...currentRecipe
+        } as BebidaReceta;
+        
+        setBebidasData(prev => {
+            if (!prev) return null;
+            const newCategorias = [...prev.categorias];
+            const catIndex = newCategorias.findIndex(c => c.id === currentCategoryId);
+            if (catIndex === -1) return prev;
+            
+            const newRecetas = [...(newCategorias[catIndex].recetas || [])];
+            const recipeIndex = newRecetas.findIndex(r => r.id === finalRecipe.id);
+            if(recipeIndex > -1) {
+                newRecetas[recipeIndex] = finalRecipe;
+            } else {
+                newRecetas.push(finalRecipe);
+            }
+            newCategorias[catIndex].recetas = newRecetas;
+            return { ...prev, categorias: newCategorias };
+        });
+        setIsRecipeModalOpen(false);
+    }
+    
+    const handleDeleteRecipe = (catId: string, recipeId: string) => {
+        setBebidasData(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                categorias: prev.categorias.map(cat => cat.id === catId ? {...cat, recetas: (cat.recetas || []).filter(r => r.id !== recipeId)} : cat)
+            }
+        });
+    }
 
   const handleSave = async () => {
     if (!bebidasData) return;
@@ -259,38 +246,50 @@ export default function GestionBebidasPage() {
   const totalInvitados = numAdultos + numAdolescentes + numNinos;
   const costoTotalGeneral = bebidasData.categorias.reduce((sumCat, cat) => {
     if (!cat.activada) return sumCat;
-    return sumCat + cat.items.reduce((sumItem, item) => sumItem + (item.costoTotal || 0), 0);
+    const costoItems = cat.items.reduce((sumItem, item) => sumItem + (item.costoTotal || 0), 0);
+    const costoRecetas = cat.recetas?.reduce((sumReceta, receta) => {
+        const factorEscala = totalInvitados / (receta.porcionesBase || 100);
+        return sumReceta + (receta.costoTotalReceta * factorEscala);
+    }, 0) || 0;
+    return sumCat + costoItems + costoRecetas;
   }, 0);
 
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle className="font-headline">{currentItem?.id && currentItem.origenId !== currentItem.id ? 'Editar' : 'Añadir'} Producto</DialogTitle></DialogHeader>
-          {currentItem && (
-            <div className="space-y-3">
-              <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={e => handleItemFieldChange(currentCategoryId!, currentItem.id!, 'nombre', e.target.value)} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label htmlFor="item-qty-nec">Cant. Necesaria</Label><Input id="item-qty-nec" type="number" value={currentItem.cantidadNecesaria || ''} onChange={e => handleItemFieldChange(currentCategoryId!, currentItem.id!, 'cantidadNecesaria', Number(e.target.value))}/></div>
-                <div className="space-y-1"><Label htmlFor="item-costo-unit">Costo Unit.</Label><Input id="item-costo-unit" type="number" value={currentItem.costoUnitario || ''} onChange={e => handleItemFieldChange(currentCategoryId!, currentItem.id!, 'costoUnitario', Number(e.target.value))}/></div>
-              </div>
-            </div>
-          )}
-          <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleItemModalSave}>Guardar</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle className="font-headline">Seleccionar Insumo del Catálogo</DialogTitle><DialogDescription>Añade un producto pre-existente a esta categoría.</DialogDescription></DialogHeader>
-          <div className="py-2 space-y-3">
-            <Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} />
-            <ScrollArea className="h-72 border rounded-md"><ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Unidad: {item.unidad}</p></div></Button></li>))}</ul></ScrollArea>
-          </div>
-          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+        <Dialog open={isRecipeModalOpen} onOpenChange={setIsRecipeModalOpen}>
+            <DialogContent className="sm:max-w-xl">
+                <DialogHeader><DialogTitle className="font-headline">{currentRecipe?.id ? 'Editar' : 'Crear'} Receta</DialogTitle></DialogHeader>
+                {currentRecipe && (
+                    <div className="py-2 space-y-4 max-h-[70vh] overflow-y-auto pr-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1"><Label htmlFor="receta-nombre">Nombre de la Receta</Label><Input id="receta-nombre" value={currentRecipe.nombre || ''} onChange={e => handleRecipeChange('nombre', e.target.value)} /></div>
+                            <div className="space-y-1"><Label htmlFor="receta-porciones">Rinde (Porciones)</Label><Input id="receta-porciones" type="number" value={currentRecipe.porcionesBase || ''} onChange={e => handleRecipeChange('porcionesBase', Number(e.target.value))}/></div>
+                        </div>
+                        <Separator />
+                        <h4 className="font-medium text-sm">Ingredientes</h4>
+                        <div className="space-y-2">
+                            {currentRecipe.ingredientes?.map(ing => (
+                                <div key={ing.id} className="p-2 border rounded-md grid grid-cols-3 gap-2 items-end">
+                                    <div className="col-span-3"><Input placeholder="Nombre Ingrediente" value={ing.nombreInsumo} onChange={e => handleIngredientChange(ing.id, 'nombreInsumo', e.target.value)}/></div>
+                                    <div className="space-y-1"><Label className="text-xs">Cantidad</Label><Input type="number" value={ing.cantidad} onChange={e => handleIngredientChange(ing.id, 'cantidad', e.target.value)}/></div>
+                                    <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unidad} onChange={e => handleIngredientChange(ing.id, 'unidad', e.target.value)}/></div>
+                                    <div className="space-y-1"><Label className="text-xs">Costo Unit.</Label><Input type="number" value={ing.costoUnitario} onChange={e => handleIngredientChange(ing.id, 'costoUnitario', e.target.value)}/></div>
+                                    <div className="col-span-3 flex justify-between items-center text-xs">
+                                        <span className="font-semibold">Costo Total Ingrediente: {formatCurrency(ing.costoTotal)}</span>
+                                        <Button type="button" size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => removeIngredientFromRecipe(ing.id)}><Trash2 className="w-3 h-3"/></Button>
+                                    </div>
+                                </div>
+                            ))}
+                            <Button type="button" size="sm" variant="outline" onClick={addIngredientToRecipe}><PlusCircle className="w-4 h-4 mr-1"/>Añadir Ingrediente</Button>
+                        </div>
+                        <p className="text-right font-bold pt-2 border-t">Costo Total Receta Base: {formatCurrency(currentRecipe.costoTotalReceta)}</p>
+                    </div>
+                )}
+                <DialogFooter><Button variant="outline" onClick={() => setIsRecipeModalOpen(false)}>Cancelar</Button><Button onClick={handleRecipeSave}>Guardar Receta</Button></DialogFooter>
+            </DialogContent>
+        </Dialog>
+        
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <GlassWater className="w-8 h-8 text-primary" />
@@ -352,7 +351,7 @@ export default function GestionBebidasPage() {
                 const consumoAdolescentes = (consumoConfig[cat.id]?.adolescente || 0) * numAdolescentes * duracionHoras;
                 const consumoNinos = (consumoConfig[cat.id]?.nino || 0) * numNinos * duracionHoras;
                 const totalLitrosNecesarios = consumoAdultos + consumoAdolescentes + consumoNinos;
-                const costoTotalCategoria = cat.items.reduce((sum, item) => sum + (item.costoTotal || 0), 0);
+                const costoTotalCategoria = cat.items.reduce((sum, item) => sum + (item.costoTotal || 0), 0) + (cat.recetas?.reduce((sum, r) => sum + r.costoTotalReceta * (totalInvitados / (r.porcionesBase || 1)), 0) || 0);
 
                 return (
                     <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm bg-card">
@@ -363,44 +362,33 @@ export default function GestionBebidasPage() {
                                 <Badge variant="secondary" className="ml-2">Est: {totalLitrosNecesarios.toFixed(1)} Litros</Badge>
                                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
                             </AccordionPrimitive.Trigger>
-                            <div className="flex items-center gap-2 pl-4">
-                                <Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label>
-                                <Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)} onClick={(e) => e.stopPropagation()} />
-                            </div>
+                            <div className="flex items-center gap-2 pl-4"><Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label><Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)} onClick={(e) => e.stopPropagation()} /></div>
                         </AccordionPrimitive.Header>
                         <AccordionContent className="p-4 border-t space-y-4">
                             {cat.activada && (
                                 <>
-                                    <div className="p-3 border rounded-md bg-muted/50">
-                                        {cat.items.length > 0 ? (
-                                            <Table className="text-sm">
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        <TableHead className="font-semibold">Producto</TableHead>
-                                                        <TableHead className="text-right">Cant. Necesaria</TableHead>
-                                                        <TableHead className="text-right">Costo Unit.</TableHead>
-                                                        <TableHead className="text-right font-semibold">Costo Total</TableHead>
-                                                        <TableHead className="w-[80px]"></TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {cat.items.map(item => (
-                                                        <TableRow key={item.id}>
-                                                            <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                            <TableCell className="text-right"><Input type="number" value={item.cantidadNecesaria || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'cantidadNecesaria', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0" /></TableCell>
-                                                            <TableCell className="text-right"><Input type="number" value={item.costoUnitario || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'costoUnitario', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0" /></TableCell>
-                                                            <TableCell className="py-1 text-right font-semibold">{formatCurrency(item.costoTotal)}</TableCell>
-                                                            <TableCell className="text-right"><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-4 h-4" /></Button></TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        ) : (<p className="text-center text-muted-foreground text-xs py-2">No hay productos añadidos para esta categoría.</p>)}
-                                    </div>
-                                    <div className="flex justify-end gap-2 mt-3">
-                                        <Button type="button" size="sm" variant="outline" onClick={() => openItemModal(cat.id)}><PlusCircle className="w-4 h-4 mr-1" />Añadir Manualmente</Button>
-                                        <Button type="button" size="sm" variant="secondary" onClick={() => { setCurrentCategoryId(cat.id); setIsCatalogModalOpen(true); }}><BookOpen className="w-4 h-4 mr-1" />Añadir del Catálogo</Button>
-                                    </div>
+                                  {cat.id === 'barra_tragos' ? (
+                                      <div className="space-y-3">
+                                          <Button type="button" size="sm" onClick={() => {setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe({})}}><PlusCircle className="w-4 h-4 mr-1.5"/>Crear Receta</Button>
+                                          {cat.recetas?.map(receta => (
+                                              <Card key={receta.id} className="bg-muted/30">
+                                                <CardHeader className="p-3 flex-row justify-between items-center">
+                                                    <CardTitle className="text-md">{receta.nombre}</CardTitle>
+                                                    <div className="flex gap-1">
+                                                      <Button type="button" size="sm" variant="outline" onClick={() => {setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe(receta)}}><Edit className="w-3 h-3 mr-1"/>Editar</Button>
+                                                      <Button type="button" size="sm" variant="destructive" onClick={() => handleDeleteRecipe(cat.id, receta.id)}><Trash2 className="w-3 h-3"/></Button>
+                                                    </div>
+                                                </CardHeader>
+                                                <CardContent className="p-3 text-xs">
+                                                  <p className="font-bold">Costo Receta Base ({receta.capacidadBaseLt}L): {formatCurrency(receta.costoTotalReceta)}</p>
+                                                  <p className="font-bold">Costo Receta Evento: {formatCurrency(receta.costoTotalReceta * (totalInvitados / receta.porcionesBase))}</p>
+                                                </CardContent>
+                                              </Card>
+                                          ))}
+                                      </div>
+                                  ) : (
+                                     <p className="text-xs text-muted-foreground">Funcionalidad de añadir productos individuales para esta categoría próximamente.</p>
+                                  )}
                                     <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(costoTotalCategoria)}</p>
                                 </>
                             )}
