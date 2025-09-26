@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -97,10 +98,16 @@ export default function InsumosPage() {
       if (navigator.share && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
-        throw new Error();
+        // Fallback for desktop or non-supporting browsers
+        await navigator.clipboard.writeText(shareData.url);
+        toast({
+          title: "Enlace Copiado",
+          description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+        });
       }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
+       // Fallback if share fails for any reason
+      await navigator.clipboard.writeText(shareData.url);
       toast({
         title: "Enlace Copiado",
         description: "El enlace a esta página ha sido copiado a tu portapapeles.",
