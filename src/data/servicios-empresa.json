@@ -1,980 +1,1144 @@
 
 [
   {
-    "id": "asset_1758810091",
-    "nombre": "Lampazo y Paños de piso",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Limpieza",
-    "cantidadDisponible": 1,
-    "unidad": "Set"
-  },
-  {
-    "id": "asset_1758810092",
-    "nombre": "Latones",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810093",
-    "nombre": "Canastas Paneras Marrones",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 16,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810094",
-    "nombre": "Platos Rectangulares Lisos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Set"
-  },
-  {
-    "id": "asset_1758810095",
-    "nombre": "Copon Acrilico con Soporte",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810096",
-    "nombre": "4 Tipos de Tarros para Salsa",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Set"
-  },
-  {
-    "id": "asset_1758810097",
-    "nombre": "Copas Lacradas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 9,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810098",
-    "nombre": "Plancha de Hamburguesas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810099",
-    "nombre": "Soportes de Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Set"
-  },
-  {
-    "id": "asset_1758810100",
-    "nombre": "Manteles Blancos Redondo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810101",
-    "nombre": "Nailon de Mesa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810102",
-    "nombre": "Cubre Mantel Blanco",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810103",
-    "nombre": "Delantales Mozos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810104",
-    "nombre": "Cubre Sillas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810105",
-    "nombre": "Porta Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810106",
-    "nombre": "Fuente de Chocolate",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810107",
-    "nombre": "Mesas Plegables",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636254_l3vj3k",
-    "nombre": "ESTRUCTURA DE ARRIBA DE LA BARRA",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636254_37k22q",
-    "nombre": "CAJA DE HERRAMIENTAS BARMAN",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Herramientas",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636255_o8r0r",
-    "nombre": "CASILLEROS DE LICORES",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636255_s3q0m",
-    "nombre": "LONA DE BARRA",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636255_s4o0n",
-    "nombre": "FOCOS LED LUZ NEGRA BARRA",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636255_h3k5k",
-    "nombre": "PANTALLA LED BARRA",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636256_j7w2v",
-    "nombre": "LATAS DE DURAZNO",
+    "id": "ing-harina",
+    "nombre": "Harina",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Servicio de catering",
-    "unidad": "Lata"
+    "unidad": "Gramos"
   },
   {
-    "id": "item_1758988636257_p5y1u",
-    "nombre": "JUGO DE DURAZNO",
+    "id": "ing-algas",
+    "nombre": "Algas",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Bebida (Insumo)",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salsa-soja",
+    "nombre": "Salsa de soja",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
     "unidad": "Litro"
   },
   {
-    "id": "item_1758988636257_z4a2t",
-    "nombre": "AZUCAR",
+    "id": "ing-aceite",
+    "nombre": "Aceite",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Servicio de catering",
-    "unidad": "Kg"
-  },
-  {
-    "id": "item_1758988636257_b3s3s",
-    "nombre": "LIMONES",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de catering",
-    "unidad": "Kg"
-  },
-  {
-    "id": "item_1758988636257_q2r2r",
-    "nombre": "PROYECTOR Y PANTALLA",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "item_1758988636257_8p4p",
-    "nombre": "INTERCOMUNICADORES",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810069",
-    "nombre": "Cajas de Herramientas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Herramientas",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810052",
-    "nombre": "Caja de Herramientas Deco",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Herramientas",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810074",
-    "nombre": "Caja de Cables",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810090",
-    "nombre": "Cajas de 18",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810058",
-    "nombre": "Cajas Activas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810059",
-    "nombre": "Caja de Consula y Potencia",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810060",
-    "nombre": "Controlador DJ Gonza",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810061",
-    "nombre": "Controlador de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810062",
-    "nombre": "Controlador DMX Luces Pendrive",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810063",
-    "nombre": "Notebook DJ Gonza",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810064",
-    "nombre": "Notebook de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810065",
-    "nombre": "Microfonos Inalambricos y Pilas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810066",
-    "nombre": "Barras de Bolas de Espejos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810068",
-    "nombre": "Cerchas de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 3,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810070",
-    "nombre": "Pie de Luces y T de Arriba",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810071",
-    "nombre": "Barra DJ (Fierros y Tabla)",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810072",
-    "nombre": "Tela de Barra DJ",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810073",
-    "nombre": "Cartel de Barra DJ",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810075",
-    "nombre": "Spider",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810076",
-    "nombre": "Cabezal Movil 10W",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810077",
-    "nombre": "Cabezal Movil 30W",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 4,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810078",
-    "nombre": "Laser",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810079",
-    "nombre": "Maquina de Humo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810080",
-    "nombre": "Liquido de Humo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
     "unidad": "Litro"
   },
   {
-    "id": "asset_1758810081",
-    "nombre": "Focos Led Luz Negra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810083",
-    "nombre": "Mesa de DJ para Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810085",
-    "nombre": "Tornillos Cercha",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810067",
-    "nombre": "Bolas de Espejo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 5,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810084",
-    "nombre": "Cartel Lona Rollup",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810046",
-    "nombre": "Tul Blanco",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810047",
-    "nombre": "Estructura Rectangular",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810048",
-    "nombre": "Aro",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810049",
-    "nombre": "Letras Chicas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810051",
-    "nombre": "Alfombra Grande",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810053",
-    "nombre": "Faroles Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810054",
-    "nombre": "Faroles Chicos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810055",
-    "nombre": "Cilindros",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 3,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810056",
-    "nombre": "Cartel Neon",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810057",
-    "nombre": "Aerosol de Globos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Decoración",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810086",
-    "nombre": "Barra de Tragos (Mobiliario)",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810087",
-    "nombre": "Maderas Grandes de Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810088",
-    "nombre": "Maderas Chicas de Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810089",
-    "nombre": "Fierritos Apoyo Madera Chica",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810001",
-    "nombre": "Platos de Sitio",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810002",
-    "nombre": "Platos Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810003",
-    "nombre": "Platos Chicos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810004",
-    "nombre": "Cucharitas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810005",
-    "nombre": "Tenedores",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810006",
-    "nombre": "Cuchillos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810007",
-    "nombre": "Espatula de Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 4,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810008",
-    "nombre": "Jarras Chicas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810009",
-    "nombre": "Jarras Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 4,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810010",
-    "nombre": "Vasos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 4,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810011",
-    "nombre": "Copas de Brindis",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 2,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810012",
-    "nombre": "Hieleras Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 16,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810013",
-    "nombre": "Hieleras Chicas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810014",
-    "nombre": "Bandejas de Horno",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810018",
-    "nombre": "Pinzas de Hieleras",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810020",
-    "nombre": "Escarbadientes y Saleros",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810021",
-    "nombre": "Tablas de Pizzas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Set"
-  },
-  {
-    "id": "asset_1758810022",
-    "nombre": "Tablas Redondas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 16,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810023",
-    "nombre": "Platinas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810024",
-    "nombre": "Freidora",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 2,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810025",
-    "nombre": "Pinzas de Ensaladas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810015",
-    "nombre": "Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810016",
-    "nombre": "Hornallas de la Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810017",
-    "nombre": "Garrafa de Gas",
+    "id": "ing-gas",
+    "nombre": "Gas",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758810032",
-    "nombre": "Escurridor de Fregar",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810033",
-    "nombre": "Jarra Electrica",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810034",
-    "nombre": "Papeleras",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
-    "cantidadDisponible": 2,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810050",
-    "nombre": "Plancha a Vapor",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Herramientas",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810019",
-    "nombre": "Espatulas, Cuchillos de Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Herramientas",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810041",
-    "nombre": "Servilletas Negras de Tela",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 80,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810042",
-    "nombre": "Delantales y Gorros Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810043",
-    "nombre": "Manteles Negros de Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810044",
-    "nombre": "Manteles y Cubre Blancos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810045",
-    "nombre": "Cubre Azul",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810027",
-    "nombre": "Repasadores",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "asset_1758810026",
-    "nombre": "Alcohol y Guantes",
+    "id": "ing-huevo",
+    "nombre": "Huevo",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Limpieza",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810031",
-    "nombre": "Jabon y Esponjas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Limpieza",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810028",
-    "nombre": "Servilletas de Papel para Torta",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Descartables",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
-  },
-  {
-    "id": "asset_1758810029",
-    "nombre": "Rollo Servilletas de Papel",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Descartables",
-    "cantidadDisponible": 2,
+    "categoria": "Servicio de catering",
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758810035",
-    "nombre": "Bolsas Negras de Residuos",
+    "id": "ing-arrolladitos",
+    "nombre": "Arrolladitos primavera",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Descartables",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
+    "categoria": "Servicio de catering",
+    "unidad": "Unidad"
   },
   {
-    "id": "asset_1758810036",
-    "nombre": "Bolsas Negras para Manteleria",
+    "id": "ing-tostaditas",
+    "nombre": "Tostaditas",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Descartables",
-    "cantidadDisponible": 1,
-    "unidad": "Caja"
+    "categoria": "Panificados",
+    "unidad": "Gramos"
   },
   {
-    "id": "asset_1758810030",
+    "id": "ing-albahaca",
+    "nombre": "Albahaca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-hongos",
+    "nombre": "Hongos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-picles",
+    "nombre": "Picles",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pate",
+    "nombre": "Pate",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salsas",
+    "nombre": "Salsas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-aceitunas-rodajas",
+    "nombre": "Aceitunas rodajas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tomate-cherry",
+    "nombre": "Tomate cherry",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-jamon",
+    "nombre": "Jamon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-manteca",
+    "nombre": "Manteca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-muzzarella",
+    "nombre": "Muzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pan-sandwiches",
+    "nombre": "Pan de Sandwiches",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-aceitunas",
+    "nombre": "Aceitunas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-palitos-salados",
+    "nombre": "Palitos salados",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-mani",
+    "nombre": "Mani",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-chips",
+    "nombre": "Papas Chips",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-doritos",
+    "nombre": "Doritos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-paleta",
+    "nombre": "Paleta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-dambo",
+    "nombre": "Queso Dambo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salame",
+    "nombre": "Salame",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-cerdo",
+    "nombre": "Queso de cerdo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-alpa",
+    "nombre": "Queso alpa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-leonesa-primavera",
+    "nombre": "Leonesa primavera",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-aceitunas-sincarozo",
+    "nombre": "Aceitunas s/ carozo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-grisines-chicos",
+    "nombre": "Grisines chicos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletas-redondas-arcor",
+    "nombre": "Galletas redondas arcor",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletas-malteadas-sin-sal",
+    "nombre": "Galletas malteadas sin sal",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tostadas-baguet-saborizadas",
+    "nombre": "Tostadas baguet saborizadas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-catalan-20g-remolacha",
+    "nombre": "Catalan 20g con sesamo de remolacha",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-catalan-20g-verde",
+    "nombre": "Catalan 20g con sesamo verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-picada-carne",
+    "nombre": "Picada de carne",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-aderezos-varios",
     "nombre": "Aderezos",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Servicio de catering",
-    "cantidadDisponible": 1,
-    "unidad": "Unidad"
+    "unidad": "Gramos"
   },
   {
-    "id": "asset_1758988636256_g8v3z",
-    "nombre": "LATAS DE ANANA",
+    "id": "ing-perejil-ajo",
+    "nombre": "Perejil y ajo natural",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cebollas",
+    "nombre": "Cebollas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pollo",
+    "nombre": "Pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papa",
+    "nombre": "Papa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-zanahoria",
+    "nombre": "Zanahoria",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-arbejas",
+    "nombre": "Arbejas",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Servicio de catering",
-    "unidad": "Lata"
+    "unidad": "Gramos"
   },
   {
-    "id": "asset_1758988636255_h2s4e",
-    "nombre": "REFRESCOS COLA",
+    "id": "ing-mayonesa",
+    "nombre": "Mayonesa",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Bebida (Insumo)",
-    "unidad": "Unidad"
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
   },
   {
-    "id": "asset_1758988636255_10iwh2",
-    "nombre": "REFRESCOS LIMA",
+    "id": "ing-condimentos",
+    "nombre": "Condimentos",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Bebida (Insumo)",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tapa-empanada",
+    "nombre": "Tapa de Empanada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758988636256_5v4z1",
-    "nombre": "CONSERVADORA",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
+    "id": "ing-morron",
+    "nombre": "Morron",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-carne",
+    "nombre": "Carne",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tomate",
+    "nombre": "Tomate",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso",
+    "nombre": "Queso",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-choclo",
+    "nombre": "Choclo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-pay",
+    "nombre": "Papas pay",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-palmitos",
+    "nombre": "Palmitos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-panchos",
+    "nombre": "Panchos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-panceta",
+    "nombre": "Panceta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-conos",
+    "nombre": "Conos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758988636256_n1y6y",
-    "nombre": "TARROS PARA JUGOS",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "id": "ing-pizzas",
+    "nombre": "Pizzas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758988636256_e4x4z",
-    "nombre": "VASOS Y SORVITOS",
+    "id": "ing-lechuga",
+    "nombre": "Lechuga",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-harina-maiz-blanco",
+    "nombre": "Harina de maiz blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tapas-hojaldre",
+    "nombre": "Tapas de hojaldre",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-salsa-picante",
+    "nombre": "Salsa picante",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-morron-rojo",
+    "nombre": "Morrón rojo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-morron-verde",
+    "nombre": "Morrón verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-palta",
+    "nombre": "Palta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-muzzarella-rallar",
+    "nombre": "Muzzarella para rallar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-empanaditas-copetin",
+    "nombre": "Enpanaditas copetin",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pizzetitas-muzzarella",
+    "nombre": "pizzetitas con muzzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-nugget-pollo",
+    "nombre": "Nugget de pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-aros-cebolla",
+    "nombre": "Aros de cebolla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-fritas-congeladas",
+    "nombre": "Papas fritas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-croquetas-papa",
+    "nombre": "Croquetas de papa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-noisettes",
+    "nombre": "Noisettes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-formitas-merluza",
+    "nombre": "Formitas de merluza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-milanesa-carne",
+    "nombre": "Milanesa de carne",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-milanesa-pollo",
+    "nombre": "Milanesa de pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletas",
+    "nombre": "Galletas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-grisines",
+    "nombre": "Grisines",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salsa-criolla",
+    "nombre": "Salsa criolla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-colonia",
+    "nombre": "Queso colonia",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ravioles-fritos",
+    "nombre": "Ravioles Fritos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-rusticas",
+    "nombre": "Papas rústicas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-chorizos",
+    "nombre": "Chorizos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-morcilla",
+    "nombre": "Morcilla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pan-campo",
+    "nombre": "Pan de campo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-milanesa-pescado",
+    "nombre": "Milanesa de pescado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-rabas-rebozadas",
+    "nombre": "Rabas rebozadas de calamar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-bastones-muzzarella",
+    "nombre": "Bastones de muzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salmon",
+    "nombre": "Salmon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pescados y Mariscos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-arroz-sushi",
+    "nombre": "Arroz de Shushi",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-crema",
+    "nombre": "Queso crema",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pepino",
+    "nombre": "Pepino",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-sandwiches-panblanco",
+    "nombre": "Sandwiches pan blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pebetes",
+    "nombre": "Pebetes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-arrolladitos-hojaldre",
+    "nombre": "Arrolladitos de hojaldre",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-medialunas",
+    "nombre": "Medialunas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-canoncitos",
+    "nombre": "Cañoncitos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-palmitas",
+    "nombre": "Palmitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tarteletas",
+    "nombre": "Tarteletas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-jesuitas",
+    "nombre": "Jesuitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-sandwiches-pannegro",
+    "nombre": "Sandwiches pan negro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-vulevanes",
+    "nombre": "Vulevanes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-escones-queso-sesamo",
+    "nombre": "Escones de queso con sesamo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-chipa",
+    "nombre": "Chipa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-con-cereza",
+    "nombre": "Queso con cereza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-lomito-ahumado",
+    "nombre": "Lomito ahumado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-mortadela",
+    "nombre": "Mortadela",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-jamon-crudo",
+    "nombre": "Jamon crudo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-colonial",
+    "nombre": "Queso colonial",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-bondiola-cocida-ahumada",
+    "nombre": "Bondiola cocida ahumada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cerezas-verde",
+    "nombre": "Cerezas verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cerezas-roja",
+    "nombre": "Cerezas roja",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-aceitunas-negras",
+    "nombre": "Aceitunas negras",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletitas",
+    "nombre": "Galletitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-panchos-medio-metro",
+    "nombre": "Panchos medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-porta-pancho-medio-metro",
+    "nombre": "Porta pancho medio metro",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Descartables",
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758988636255_a6p0o",
-    "nombre": "FOCOS LED COLOR",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
+    "id": "ing-pan-panchos-medio-metro",
+    "nombre": "Pan de panchos medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
     "unidad": "Unidad"
   },
   {
-    "id": "asset_1758988636255_e7m7",
-    "nombre": "LICUADORAS",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
+    "id": "ing-pan-panchos",
+    "nombre": "Pan de panchos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
     "unidad": "Unidad"
   },
   {
-    "id": "item_1758988636256_8x9y0",
-    "nombre": "OLLA 50 LITROS",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "id": "ing-hamburguesas",
+    "nombre": "Hamburguesas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
     "unidad": "Unidad"
   },
   {
-    "id": "item_1758988636256_1a2b3",
-    "nombre": "COLADOR GRANDE",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla",
+    "id": "ing-tortugas-brioche-70g",
+    "nombre": "Tortugas brioche 70 gramos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
     "unidad": "Unidad"
   },
   {
-    "id": "item_1758988636256_c4d5e",
-    "nombre": "TARRINA 200L",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento",
+    "id": "ing-emboltorio",
+    "nombre": "Emboltorio",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pollo-arrollado",
+    "nombre": "Pollo arrollado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-guarnicion",
+    "nombre": "Guarnicion",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-bondiola",
+    "nombre": "Bondiola",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-crema-leche",
+    "nombre": "Crema de leche",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Litro"
+  },
+  {
+    "id": "ing-miel",
+    "nombre": "Miel",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-mostaza",
+    "nombre": "Mostaza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salsa-barbacoa",
+    "nombre": "Salsa Barbacoa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ajo",
+    "nombre": "Ajo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ravioles",
+    "nombre": "Ravioles",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pastas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-rallado",
+    "nombre": "Queso rallado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-noquis-congelados",
+    "nombre": "Noquis congelados",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cerdo-arrollado",
+    "nombre": "Cerdo arrollado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-muslos",
+    "nombre": "Muslos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ketchup",
+    "nombre": "Ketchup",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-sorrentinos",
+    "nombre": "Sorrentinos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pastas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-suprema-pollo",
+    "nombre": "Suprema de pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-para-freir",
+    "nombre": "Papas para freir",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-milanesa",
+    "nombre": "Milanesa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salsa",
+    "nombre": "Salsa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tortugas",
+    "nombre": "Tortugas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-champinon",
+    "nombre": "Champiñon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-merluza",
+    "nombre": "Merluza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pescados y Mariscos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-guarnicion-verde",
+    "nombre": "Guarnicion verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-bife",
+    "nombre": "Bife",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cordero-crudo",
+    "nombre": "Cordero crudo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-asado-vacio",
+    "nombre": "Asado vacio",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Carnes",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-repollo-blanco",
+    "nombre": "Repollo Blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-repollo-morado",
+    "nombre": "Repollo Morado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-cebolla-blanca",
+    "nombre": "Cebolla blanca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cebolla-morada",
+    "nombre": "Cebolla morada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-lechuga-crespa-lisa",
+    "nombre": "Lechuga crespa y lisa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-chauchas",
+    "nombre": "Chauchas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-remolacha",
+    "nombre": "Remolacha",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-boniato",
+    "nombre": "Boniato",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-limon",
+    "nombre": "Limón",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-congeladas-torneadas",
+    "nombre": "Papas congeladas torneadas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-muzzarella-rallar",
+    "nombre": "Queso muzzarella para rallar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ensalada-rusa-congelada",
+    "nombre": "Ensalada rusa congelada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pasas-uva",
+    "nombre": "Pasas de uva",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-anana-lata",
+    "nombre": "Anana en lata",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Lata"
+  },
+  {
+    "id": "ing-pan-pebete",
+    "nombre": "Pan de pebete",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
     "unidad": "Unidad"
   }
 ]
