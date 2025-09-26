@@ -40,6 +40,11 @@ export async function saveProveedor(
     finalProveedorData = proveedores[index];
   } else {
     // Create
+    const isDuplicate = proveedores.some(p => p.nombreEmpresa?.trim().toLowerCase() === proveedorData.nombreEmpresa!.trim().toLowerCase());
+    if (isDuplicate) {
+        return { success: false, error: `Ya existe un proveedor o servicio con el nombre "${proveedorData.nombreEmpresa!.trim()}".` };
+    }
+
     proveedorId = `prov_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalProveedorData = {
       ...proveedorData,

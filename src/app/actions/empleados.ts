@@ -27,6 +27,7 @@ export async function saveEmpleado(
   let empleadoId: string;
 
   if ('id' in empleadoData && empleadoData.id) {
+    // Update
     empleadoId = empleadoData.id;
     const index = empleados.findIndex(e => e.id === empleadoId);
     if (index === -1) {
@@ -41,6 +42,12 @@ export async function saveEmpleado(
     empleados[index] = { ...empleados[index], ...dataToUpdate };
     finalEmpleadoData = empleados[index];
   } else {
+    // Create
+    const isDuplicate = empleados.some(emp => emp.nombre.trim().toLowerCase() === empleadoData.nombre!.trim().toLowerCase());
+    if (isDuplicate) {
+        return { success: false, error: `Ya existe un empleado con el nombre "${empleadoData.nombre!.trim()}".` };
+    }
+    
     empleadoId = `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newEmpleadoData = empleadoData as NuevoEmpleadoFormData;
     finalEmpleadoData = {
