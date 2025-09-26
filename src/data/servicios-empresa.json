@@ -1135,13 +1135,6 @@
     "unidad": "Lata"
   },
   {
-    "id": "ing-pan-pebete",
-    "nombre": "Pan de pebete",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "unidad": "Unidad"
-  },
-  {
     "id": "ing-jugo-naranja",
     "nombre": "Jugo de Naranja",
     "tipoItem": "Bebida (Insumo)",
@@ -1224,5 +1217,40 @@
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
     "unidad": "Litro"
+  },
+  {
+    "id": "insumo_gin",
+    "nombre": "Gin",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "insumo_tonica",
+    "nombre": "Agua Tónica",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "insumo_ron",
+    "nombre": "Ron Blanco",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "insumo_soda",
+    "nombre": "Soda",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "insumo_menta",
+    "nombre": "Menta Fresca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
   }
 ]

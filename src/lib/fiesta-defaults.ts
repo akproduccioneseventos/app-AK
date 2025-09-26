@@ -178,19 +178,19 @@ export const defaultBebidasCategorias: BebidaCategoria[] = [
     {
       id: 'receta_coctel_100p', nombre: 'Coctel 100 Personas - 50 Litros', capacidadBaseLt: 50, porcionesBase: 100, costoTotalReceta: 2910,
       ingredientes: [
-        { id: 'ing_1', insumoId: '', nombreInsumo: 'Jugo de Naranja', cantidad: 6000, unidad: 'ml', costoUnitario: 0.04, costoTotal: 240 },
-        { id: 'ing_2', insumoId: '', nombreInsumo: 'Banana', cantidad: 5000, unidad: 'g', costoUnitario: 0.05, costoTotal: 250 },
-        { id: 'ing_3', insumoId: '', nombreInsumo: 'Otra fruta (mix)', cantidad: 2000, unidad: 'g', costoUnitario: 0.07, costoTotal: 140 },
-        { id: 'ing_4', insumoId: '', nombreInsumo: 'Agua', cantidad: 25000, unidad: 'ml', costoUnitario: 0, costoTotal: 0 },
-        { id: 'ing_5', insumoId: '', nombreInsumo: 'Durazno en lata', cantidad: 4, unidad: 'lata', costoUnitario: 100, costoTotal: 400 },
-        { id: 'ing_6', insumoId: '', nombreInsumo: 'Ananá en lata', cantidad: 2, unidad: 'lata', costoUnitario: 140, costoTotal: 280 },
-        { id: 'ing_7', insumoId: '', nombreInsumo: 'Vino rosado dulce', cantidad: 3, unidad: 'botella', costoUnitario: 100, costoTotal: 300 },
-        { id: 'ing_8', insumoId: '', nombreInsumo: 'Vino blanco dulce', cantidad: 3, unidad: 'botella', costoUnitario: 130, costoTotal: 390 },
-        { id: 'ing_9', insumoId: '', nombreInsumo: 'Jugo rinde 2', cantidad: 6, unidad: 'sobre', costoUnitario: 18, costoTotal: 108 },
-        { id: 'ing_10', insumoId: '', nombreInsumo: 'Azúcar', cantidad: 3, unidad: 'kg', costoUnitario: 65, costoTotal: 195 },
-        { id: 'ing_11', insumoId: '', nombreInsumo: 'Sidra 750ml', cantidad: 3, unidad: 'botella', costoUnitario: 69, costoTotal: 207 },
-        { id: 'ing_12', insumoId: '', nombreInsumo: 'Licor de Frutilla', cantidad: 0.5, unidad: 'lt', costoUnitario: 400, costoTotal: 200 },
-        { id: 'ing_13', insumoId: '', nombreInsumo: 'Licor de Durazno', cantidad: 0.5, unidad: 'lt', costoUnitario: 400, costoTotal: 200 },
+        { id: 'ing_1', insumoId: 'ing-jugo-naranja', nombreInsumo: 'Jugo de Naranja', cantidad: 6000, unidad: 'ml', costoUnitario: 0.04, costoTotal: 240 },
+        { id: 'ing_2', insumoId: 'ing-banana', nombreInsumo: 'Banana', cantidad: 5000, unidad: 'g', costoUnitario: 0.05, costoTotal: 250 },
+        { id: 'ing_3', insumoId: 'ing-fruta-mix', nombreInsumo: 'Otra fruta (mix)', cantidad: 2000, unidad: 'g', costoUnitario: 0.07, costoTotal: 140 },
+        { id: 'ing_4', insumoId: 'ing-agua', nombreInsumo: 'Agua', cantidad: 25000, unidad: 'ml', costoUnitario: 0, costoTotal: 0 },
+        { id: 'ing_5', insumoId: 'ing-durazno-lata', nombreInsumo: 'Durazno en lata', cantidad: 4, unidad: 'lata', costoUnitario: 100, costoTotal: 400 },
+        { id: 'ing_6', insumoId: 'ing-anana-lata', nombreInsumo: 'Ananá en lata', cantidad: 2, unidad: 'lata', costoUnitario: 140, costoTotal: 280 },
+        { id: 'ing_7', insumoId: 'ing-vino-rosado-dulce', nombreInsumo: 'Vino rosado dulce', cantidad: 3, unidad: 'botella', costoUnitario: 100, costoTotal: 300 },
+        { id: 'ing_8', insumoId: 'ing-vino-blanco-dulce', nombreInsumo: 'Vino blanco dulce', cantidad: 3, unidad: 'botella', costoUnitario: 130, costoTotal: 390 },
+        { id: 'ing_9', insumoId: 'ing-jugo-rinde2', nombreInsumo: 'Jugo rinde 2', cantidad: 6, unidad: 'sobre', costoUnitario: 18, costoTotal: 108 },
+        { id: 'ing_10', insumoId: 'ing-azucar', nombreInsumo: 'Azúcar', cantidad: 3, unidad: 'kg', costoUnitario: 65, costoTotal: 195 },
+        { id: 'ing_11', insumoId: 'ing-sidra-750ml', nombreInsumo: 'Sidra 750ml', cantidad: 3, unidad: 'botella', costoUnitario: 69, costoTotal: 207 },
+        { id: 'ing_12', insumoId: 'ing-licor-frutilla', nombreInsumo: 'Licor de Frutilla', cantidad: 0.5, unidad: 'lt', costoUnitario: 400, costoTotal: 200 },
+        { id: 'ing_13', insumoId: 'ing-licor-durazno', nombreInsumo: 'Licor de Durazno', cantidad: 0.5, unidad: 'lt', costoUnitario: 400, costoTotal: 200 },
       ]
     }
   ], descripcion: 'El cóctel especial que se sirve al recibir a los invitados.' },
@@ -199,7 +199,16 @@ export const defaultBebidasCategorias: BebidaCategoria[] = [
   { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
   { id: 'cervezas', nombreDisplay: 'Cervezas', activada: false, items: [], descripcion: 'Variedad de cervezas nacionales e importadas.' },
   { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
-  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], recetas: [], descripcion: 'Cócteles con y sin alcohol preparados al momento.' },
+  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], recetas: [
+      {
+        id: 'receta_gintonic', nombre: 'Gin Tonic', capacidadBaseLt: 0.25, porcionesBase: 1, costoTotalReceta: 80,
+        ingredientes: [ { id: 'ing_gt_1', insumoId: 'insumo_gin', nombreInsumo: 'Gin', cantidad: 50, unidad: 'ml', costoUnitario: 1, costoTotal: 50 }, { id: 'ing_gt_2', insumoId: 'insumo_tonica', nombreInsumo: 'Agua Tónica', cantidad: 200, unidad: 'ml', costoUnitario: 0.15, costoTotal: 30 } ]
+      },
+      {
+        id: 'receta_mojito', nombre: 'Mojito', capacidadBaseLt: 0.25, porcionesBase: 1, costoTotalReceta: 95,
+        ingredientes: [ { id: 'ing_moj_1', insumoId: 'insumo_ron', nombreInsumo: 'Ron Blanco', cantidad: 50, unidad: 'ml', costoUnitario: 0.8, costoTotal: 40 }, { id: 'ing_moj_2', insumoId: 'insumo_soda', nombreInsumo: 'Soda', cantidad: 100, unidad: 'ml', costoUnitario: 0.1, costoTotal: 10 }, { id: 'ing_moj_3', insumoId: 'insumo_azucar', nombreInsumo: 'Azúcar', cantidad: 10, unidad: 'g', costoUnitario: 0.05, costoTotal: 5 }, { id: 'ing_moj_4', insumoId: 'insumo_menta', nombreInsumo: 'Menta Fresca', cantidad: 10, unidad: 'g', costoUnitario: 2, costoTotal: 20 }, { id: 'ing_moj_5', insumoId: 'insumo_limon', nombreInsumo: 'Jugo de Limón', cantidad: 25, unidad: 'ml', costoUnitario: 0.8, costoTotal: 20 } ]
+      }
+  ], descripcion: 'Cócteles con y sin alcohol preparados al momento.' },
   { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' },
 ];
 
