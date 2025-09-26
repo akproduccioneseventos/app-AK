@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera, Calculator } from 'lucide-react';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Tarea, Reunion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -38,6 +38,7 @@ interface PlanningModule {
 
 const internalModules: PlanningModule[] = [
   { title: "Configuración del Evento", description: "Datos técnicos: fecha, tipo, lugar, invitados.", icon: Settings2, href: "/fiestas/nueva/configuracion", status: "Disponible", actionLabel: "Configurar Evento" },
+  { title: "Planificador Gastronómico", description: "Calcula costos de catering, repostería y bebidas.", icon: Calculator, href: "/planner-costo-fiesta", status: "Disponible", actionLabel: "Abrir Calculadora" },
   { title: "Lista de Tareas (Interna)", description: "Organización interna del equipo.", icon: ListChecks, href: "/fiestas/nueva/tareas", status: "Disponible", actionLabel: "Gestionar Tareas" },
   { title: "Gestión de Personal", description: "Asignación y costos de personal.", icon: UserCheck, href: "/fiestas/nueva/personal", status: "Disponible", actionLabel: "Asignar Personal" },
   { title: "Lista de Carga Operativa", description: "Elementos que deben trasladarse al evento.", icon: PackageSearch, href: "/fiestas/nueva/carga-operativa", status: "Disponible", actionLabel: "Gestionar Carga" },

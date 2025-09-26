@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Edit, List, Loader2, NotebookText, CheckCircle, XCircle, LinkIcon, FileText, HardHat, ShoppingCart, Utensils } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, List, Loader2, NotebookText, CheckCircle, XCircle, LinkIcon, FileText, HardHat, ShoppingCart, Utensils, Calculator } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -220,21 +220,21 @@ export default function CateringEventoHubPage() {
          <Card className="shadow-lg">
           <CardHeader>
               <div className="flex items-center gap-3">
-                  <ShoppingCart className="w-8 h-8 text-primary" />
+                  <Calculator className="w-8 h-8 text-primary" />
                   <div>
-                      <CardTitle className="font-headline text-xl">Lista de Compras</CardTitle>
-                      <CardDescription>Genera una lista de compras automática.</CardDescription>
+                      <CardTitle className="font-headline text-xl">Calculadora de Costos</CardTitle>
+                      <CardDescription>Estima costos y rentabilidad de la gastronomía.</CardDescription>
                   </div>
               </div>
           </CardHeader>
           <CardContent>
               <p className="text-muted-foreground mb-4 text-sm">
-                  Basado en tu menú y cantidad de invitados.
+                  Utiliza el planificador para un desglose detallado de costos.
               </p>
-              <Link href="/fiestas/nueva/catering/lista-compras" passHref>
+              <Link href="/planner-costo-fiesta" passHref>
                   <Button className="w-full">
-                      <ShoppingCart className="w-5 h-5 mr-2" />
-                      Ver Lista de Compras
+                      <Calculator className="w-5 h-5 mr-2" />
+                      Ver Planificador Gastronómico
                   </Button>
               </Link>
           </CardContent>
@@ -257,7 +257,7 @@ export default function CateringEventoHubPage() {
               <Link href="/empresa/todos-los-servicios" passHref>
                   <Button className="w-full" variant="secondary">
                       <HardHat className="w-5 h-5 mr-2" />
-                      Gestionar Catálogo General
+                      Gestionar Inventario General
                   </Button>
               </Link>
           </CardContent>
