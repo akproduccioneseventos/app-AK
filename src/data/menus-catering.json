@@ -1,4 +1,5 @@
 
+      
 [
   {
     "id": "menu_entradas_predisenado",
@@ -266,38 +267,6 @@
             "quantityPerPerson": "25",
             "unit": "g",
             "cost": 20,
-            "proveedor": "DK MAYORISTA"
-          }
-        ]
-      },
-      {
-        "id": "dish_entrada_5_1",
-        "name": "Papas fritas con Cheddar",
-        "type": "Entrada",
-        "totalDishCost": 50,
-        "ingredients": [
-          {
-            "id": "ing_5_1_1",
-            "name": "Fritas",
-            "quantityPerPerson": "200",
-            "unit": "g",
-            "cost": 26,
-            "proveedor": "DOPACA"
-          },
-          {
-            "id": "ing_5_1_2",
-            "name": "Queso Cheddar",
-            "quantityPerPerson": "50",
-            "unit": "g",
-            "cost": 17,
-            "proveedor": "DK MAYORISTA"
-          },
-          {
-            "id": "ing_5_1_3",
-            "name": "Aceite",
-            "quantityPerPerson": "100",
-            "unit": "g",
-            "cost": 7,
             "proveedor": "DK MAYORISTA"
           }
         ]
@@ -1975,6 +1944,38 @@
             "proveedor": "DON DIEGO"
           }
         ]
+      },
+      {
+        "id": "dish_papas_cheddar",
+        "name": "Papas fritas con Cheddar",
+        "type": "Entrada",
+        "totalDishCost": 50,
+        "ingredients": [
+          {
+            "id": "ing_pc_1",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 26,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_pc_2",
+            "name": "Queso Cheddar",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 17,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_pc_3",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 7,
+            "proveedor": "DK MAYORISTA"
+          }
+        ]
       }
     ]
   },
@@ -2888,7 +2889,7 @@
             "quantityPerPerson": "100",
             "unit": "g",
             "cost": 50,
-            "proveedor": "DOPACA"
+            "proveedor": "UNIPLAS"
           },
           {
             "id": "ing_m14_6",
@@ -3370,7 +3371,7 @@
           },
           {
             "id": "ing_c3_8",
-            "name": "Aderezos",
+            "name": "Aderesos",
             "quantityPerPerson": "100",
             "unit": "g",
             "cost": 4.5,
@@ -3396,3 +3397,5 @@
     ]
   }
 ]
+
+    
