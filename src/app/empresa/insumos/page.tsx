@@ -2,12 +2,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, StickyNote, Printer, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function InventarioActivosPage() {
+export default function InsumosPage() {
   const { toast } = useToast();
   const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
   const [filteredItems, setFilteredItems] = useState<ServicioEmpresa[]>([]);
@@ -43,11 +43,11 @@ export default function InventarioActivosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo');
+      const inventoryItems = data.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)');
       setAllItems(inventoryItems);
       setFilteredItems(inventoryItems);
     } catch (err: any) {
-      setError("No se pudo cargar el inventario de activos.");
+      setError("No se pudo cargar el inventario de insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -72,7 +72,7 @@ export default function InventarioActivosPage() {
     try {
       const result = await deleteServicioEmpresa(id);
       if (result.success) {
-        toast({ title: "Activo Eliminado", description: `El activo "${nombreItem || id}" ha sido eliminado.` });
+        toast({ title: "Insumo Eliminado", description: `El ítem "${nombreItem || id}" ha sido eliminado.` });
         fetchItems(); 
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
@@ -88,27 +88,6 @@ export default function InventarioActivosPage() {
     window.print();
   };
   
-  const handleShare = async () => {
-    const shareData = {
-      title: 'Inventario de Activos Fijos - AK Producciones',
-      text: `Resumen de activos fijos de la empresa.`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
-    }
-  };
-
   const itemsAgrupadosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
       const categoria = item.categoria || 'Otros';
@@ -120,34 +99,21 @@ export default function InventarioActivosPage() {
 
   const categoriasOrdenadas = Object.keys(itemsAgrupadosPorCategoria).sort();
 
-  const capitalPorCategoria = useMemo(() => {
-    return categoriasOrdenadas.map(categoria => {
-      const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
-        const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
-        return sum + valorItem;
-      }, 0);
-      return { nombre: categoria, total: totalCategoria };
-    });
-  }, [categoriasOrdenadas, itemsAgrupadosPorCategoria]);
-
-  const capitalTotalGeneral = useMemo(() => capitalPorCategoria.reduce((sum, cat) => sum + cat.total, 0), [capitalPorCategoria]);
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
-          <Package className="w-8 h-8 text-primary" />
+          <ShoppingCart className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestión de Activos Fijos
+            Gestión de Insumos e Ingredientes
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
-            <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
-            <Link href="/empresa/todos-los-servicios/nuevo?type=Activo Fijo" passHref>
+            <Link href="/empresa/todos-los-servicios/nuevo?type=Insumo/Ingrediente" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
-                    Añadir Activo
+                    Añadir Insumo
                 </Button>
             </Link>
              <Link href="/empresa" passHref>
@@ -158,30 +124,7 @@ export default function InventarioActivosPage() {
             </Link>
         </div>
       </div>
-      <CardDescription>Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).</CardDescription>
-      <Card className="shadow-lg print:shadow-none print:border-none">
-        <CardHeader className="border-b print:border-b-2 print:border-gray-200">
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Capital en Activos</CardTitle>
-          <CardDescription>Resumen del valor total de tu inventario físico.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-3 print:p-2">
-          {capitalPorCategoria.map(cat => (
-            cat.total > 0 && <Card key={cat.nombre} className="bg-muted/50 print:border print:border-gray-200 print:shadow-none">
-              <CardHeader className="pb-2 pt-3 px-4"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center print:text-xs"><Tag className="w-3.5 h-3.5 mr-1.5"/> {cat.nombre}</CardTitle></CardHeader>
-              <CardContent className="px-4 pb-3"><p className="text-2xl font-bold text-primary print:text-lg">{formatCurrency(cat.total)}</p></CardContent>
-            </Card>
-          ))}
-        </CardContent>
-        <CardFooter className="border-t p-4 bg-muted/30 print:border-t-2 print:border-gray-200">
-          <div className="flex justify-end items-center w-full gap-2">
-            <BarChart3 className="w-5 h-5 text-primary"/>
-            <span className="text-lg font-semibold print:text-base">Capital Total en Activos:</span>
-            <span className="text-2xl font-bold text-primary print:text-xl">{formatCurrency(capitalTotalGeneral)}</span>
-          </div>
-        </CardFooter>
-      </Card>
-      
-      <Separator className="my-6 print:hidden" />
+      <CardDescription>Gestiona tu inventario de consumibles (ingredientes, bebidas, descartables, etc.).</CardDescription>
 
        <Card className="shadow-sm print:hidden">
         <CardContent className="p-4 flex flex-col md:flex-row gap-4">
@@ -197,7 +140,7 @@ export default function InventarioActivosPage() {
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron activos que coincidan." : "Tu inventario de activos está vacío."}</CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron insumos que coincidan." : "Tu inventario de insumos está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (
@@ -207,9 +150,7 @@ export default function InventarioActivosPage() {
               </AccordionTrigger>
               <AccordionContent className="px-4 pt-0 pb-3 print:p-2">
                 <div className="space-y-3 mt-2">
-                  {itemsAgrupadosPorCategoria[categoria]?.map((item) => {
-                    const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
-                    return (
+                  {itemsAgrupadosPorCategoria[categoria]?.map((item) => (
                       <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow print:shadow-none print:border-gray-200">
                         <CardHeader className="pb-2 pt-3 px-3">
                           <div className="flex justify-between items-start">
@@ -228,7 +169,6 @@ export default function InventarioActivosPage() {
                             <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
-                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
                           </div>
                           {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5 print:mt-1 print:pt-0.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>

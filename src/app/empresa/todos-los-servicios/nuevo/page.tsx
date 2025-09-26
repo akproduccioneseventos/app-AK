@@ -94,8 +94,13 @@ function NuevoItemInventarioContent() {
     try {
       const result = await saveServicioEmpresa(itemData);
       if (result.success && result.id) {
-        toast({ title: "¡Ítem Guardado!", description: `El ítem "${itemData.nombre}" ha sido añadido al catálogo.` });
-        const redirectUrl = tipoItem === 'Servicio' ? '/empresa/servicios' : '/empresa/todos-los-servicios';
+        toast({ title: "¡Ítem Guardado!", description: `El ítem "${itemData.nombre}" ha sido añadido.` });
+        
+        let redirectUrl = '/empresa';
+        if(tipoItem === 'Servicio') redirectUrl = '/empresa/servicios';
+        else if (tipoItem === 'Activo Fijo') redirectUrl = '/empresa/todos-los-servicios';
+        else if (tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') redirectUrl = '/empresa/insumos';
+        
         router.push(redirectUrl);
       } else {
         toast({ title: "Error al Guardar", description: result.error || "No se pudo guardar el ítem.", variant: "destructive"});
@@ -130,7 +135,12 @@ function NuevoItemInventarioContent() {
   const isCatering = categoria === 'Servicio de catering';
   const isReposteria = categoria === 'Servicio de repostería';
   const isServicio = tipoItem === 'Servicio';
-  const backUrl = isServicio ? '/empresa/servicios' : '/empresa/todos-los-servicios';
+  
+  let backUrl = '/empresa';
+  if(tipoItem === 'Servicio') backUrl = '/empresa/servicios';
+  else if (tipoItem === 'Activo Fijo') backUrl = '/empresa/todos-los-servicios';
+  else if (tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') backUrl = '/empresa/insumos';
+
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -138,7 +148,7 @@ function NuevoItemInventarioContent() {
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Ítem al Inventario
+            Añadir Nuevo Ítem
           </h1>
         </div>
         <Link href={backUrl} passHref>
