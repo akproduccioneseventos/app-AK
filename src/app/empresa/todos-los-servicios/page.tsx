@@ -29,7 +29,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function ActivosFijosPage() {
+export default function InventarioGeneralPage() {
   const { toast } = useToast();
   const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
   const [filteredItems, setFilteredItems] = useState<ServicioEmpresa[]>([]);
@@ -43,11 +43,12 @@ export default function ActivosFijosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo');
+      // This page now handles both Activos and Insumos
+      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo' || s.tipoItem === 'Insumo/Ingrediente');
       setAllItems(inventoryItems);
       setFilteredItems(inventoryItems);
     } catch (err: any) {
-      setError("No se pudo cargar el inventario de activos.");
+      setError("No se pudo cargar el inventario.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -90,8 +91,8 @@ export default function ActivosFijosPage() {
   
   const handleShare = async () => {
     const shareData = {
-      title: 'Gestión de Activos - AK Producciones',
-      text: `Resumen de activos fijos de la empresa.`,
+      title: 'Inventario General - AK Producciones',
+      text: `Resumen de activos e insumos de la empresa.`,
       url: window.location.href,
     };
     try {
@@ -123,8 +124,12 @@ export default function ActivosFijosPage() {
   const capitalPorCategoria = useMemo(() => {
     return categoriasOrdenadas.map(categoria => {
       const totalCategoria = itemsAgrupadosPorCategoria[categoria].reduce((sum, item) => {
-        const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
-        return sum + valorItem;
+        // Only count 'Activo Fijo' for capital calculation
+        if (item.tipoItem === 'Activo Fijo') {
+            const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+            return sum + valorItem;
+        }
+        return sum;
       }, 0);
       return { nombre: categoria, total: totalCategoria };
     });
@@ -138,16 +143,16 @@ export default function ActivosFijosPage() {
         <div className="flex items-center gap-3">
           <Package className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Gestión de Activos Fijos
+            Inventario General
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
             <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
-            <Link href="/empresa/todos-los-servicios/nuevo?type=Activo Fijo" passHref>
+            <Link href="/empresa/todos-los-servicios/nuevo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
-                    Añadir Activo
+                    Añadir Ítem
                 </Button>
             </Link>
              <Link href="/empresa" passHref>
@@ -158,11 +163,11 @@ export default function ActivosFijosPage() {
             </Link>
         </div>
       </div>
-      <CardDescription>Gestiona tu inventario de activos reutilizables como mobiliario, equipo de sonido, decoración, etc.</CardDescription>
+      <CardDescription>Gestiona tu inventario de activos reutilizables (mobiliario, equipo) e insumos consumibles (ingredientes, etc.).</CardDescription>
       <Card className="shadow-lg print:shadow-none print:border-none">
         <CardHeader className="border-b print:border-b-2 print:border-gray-200">
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Valor de Activos</CardTitle>
-          <CardDescription>Resumen del capital total de tu inventario físico, por categoría.</CardDescription>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Capital en Activos Fijos</CardTitle>
+          <CardDescription>Resumen del valor total de tu inventario físico reutilizable.</CardDescription>
         </CardHeader>
         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-3 print:p-2">
           {capitalPorCategoria.map(cat => (
@@ -193,11 +198,11 @@ export default function ActivosFijosPage() {
       </Card>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-10"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">Cargando activos...</p></div>
+        <div className="flex items-center justify-center py-10"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">Cargando inventario...</p></div>
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron activos que coincidan." : "Tu inventario de activos está vacío."}</CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron ítems que coincidan." : "Tu inventario está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (
@@ -225,10 +230,11 @@ export default function ActivosFijosPage() {
                         </CardHeader>
                         <CardContent className="px-3 pb-3 text-sm space-y-1 print:text-xs">
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 print:grid-cols-2">
+                            <p><span className="text-muted-foreground">Tipo: </span><span className="font-medium">{item.tipoItem || 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
                             <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
-                            <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
+                            {item.tipoItem === 'Activo Fijo' && <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>}
                           </div>
                           {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5 print:mt-1 print:pt-0.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
                         </CardContent>

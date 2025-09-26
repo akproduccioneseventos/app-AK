@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Palette, Settings2, HardHat } from 'lucide-react';
+import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Palette, Settings2, HardHat, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -186,7 +186,7 @@ export default function PlanificadorGastronomicoPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering</CardTitle>
@@ -211,6 +211,21 @@ export default function PlanificadorGastronomicoPage() {
           <CardFooter>
             <Link href="/fiestas/nueva/catering" passHref className="w-full">
               <Button variant="outline" className="w-full">Gestionar Menús</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><Package className="text-primary"/>Inventario de Insumos y Equipamiento</CardTitle>
+             <CardDescription>Costo total repostería: {formatCurrency(costoTotalReposteria)}</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <p className="text-sm text-muted-foreground">Gestiona tus ingredientes, bebidas y equipamiento reutilizable.</p>
+          </CardContent>
+          <CardFooter>
+            <Link href="/empresa/todos-los-servicios" passHref className="w-full">
+              <Button variant="outline" className="w-full">Gestionar Inventario</Button>
             </Link>
           </CardFooter>
         </Card>
