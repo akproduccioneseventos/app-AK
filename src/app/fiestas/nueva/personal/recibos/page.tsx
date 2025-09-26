@@ -1,21 +1,23 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -26,15 +28,15 @@ const formatDate = (dateString?: string) => {
   if (!dateString) return "N/A";
   try {
     return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit', month: 'long', year: 'numeric'
+      day: 'numeric', month: 'long', year: 'numeric'
     });
-  } catch (e) { return "Fecha Inválida"; }
+  } catch (e) { return "Fecha inválida"; }
 };
 
 interface FullStaffDetail {
   empleado: Empleado;
   rol?: Rol;
-  eventSalary: number; // Pago total para el empleado para este evento específico
+  eventSalary: number;
   employerContribution: number;
 }
 
@@ -44,21 +46,14 @@ interface SalaryBreakdown {
   aguinaldo: number;
 }
 
-// Función para calcular el desglose del salario
 const calculateSalaryBreakdown = (totalPayment: number, rol?: Rol): SalaryBreakdown => {
   const vacacionalPct = (rol?.porcentajeSalarioVacacional ?? 0) / 100;
   const aguinaldoPct = (rol?.porcentajeAguinaldo ?? 0) / 100;
-
-  // T = S * (1 + V_pct + A_pct) => S = T / (1 + V_pct + A_pct)
-  const sueldoBase = totalPayment / (1 + vacacionalPct + aguinaldoPct);
+  const divisor = 1 + vacacionalPct + aguinaldoPct;
+  const sueldoBase = divisor > 0 ? totalPayment / divisor : totalPayment;
   const salarioVacacional = sueldoBase * vacacionalPct;
   const aguinaldo = sueldoBase * aguinaldoPct;
-  
-  return {
-    base: sueldoBase,
-    vacacional: salarioVacacional,
-    aguinaldo: aguinaldo,
-  };
+  return { base: sueldoBase, vacacional: salarioVacacional, aguinaldo: aguinaldo };
 };
 
 export default function RecibosDePagoPage() {
@@ -66,6 +61,7 @@ export default function RecibosDePagoPage() {
   const [assignedStaffDetails, setAssignedStaffDetails] = useState<FullStaffDetail[]>([]);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -79,7 +75,7 @@ export default function RecibosDePagoPage() {
       ]);
       setFiesta(fiestaData);
       
-      const details = fiestaData.personalAsignado.map(assigned => {
+      const details = (fiestaData.personalAsignado || []).map(assigned => {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);
         if (!empleado) return null;
         const rol = empleado.rolId ? rolesData.find(r => r.id === empleado.rolId) : undefined;
@@ -116,18 +112,42 @@ export default function RecibosDePagoPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(message + '\n' + url)}`, '_blank');
   };
   
-  if (isLoading) {
-    return (
-      <div className="p-8 max-w-4xl mx-auto bg-white">
-          <Skeleton className="h-10 w-40 mb-6" />
-          <Skeleton className="h-12 w-3/4 mb-2" />
-          <Skeleton className="h-6 w-1/2 mb-8" />
-          <div className="space-y-6">
-              <Skeleton className="h-48 w-full" />
-              <Skeleton className="h-48 w-full" />
-          </div>
-      </div>
+  const handleSalaryChange = (empleadoId: string, newSalary: string) => {
+    const salaryNum = parseFloat(newSalary) || 0;
+    setAssignedStaffDetails(prev => 
+      prev.map(detail => {
+        if (detail.empleado.id === empleadoId) {
+          const newContribution = (salaryNum * (detail.rol?.porcentajeAportesPatronales ?? 0)) / 100;
+          return { ...detail, eventSalary: salaryNum, employerContribution: newContribution };
+        }
+        return detail;
+      })
     );
+  };
+  
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    const personalToSave: PersonalAsignadoDetalleStorage[] = assignedStaffDetails.map(item => ({
+      empleadoId: item.empleado.id,
+      eventSalary: item.eventSalary
+    }));
+    try {
+      const result = await updatePersonalFiestaActual(personalToSave);
+      if (result.success) {
+        toast({ title: "¡Cambios Guardados!", description: `Se guardaron los nuevos montos de pago.` });
+        await loadData();
+      } else {
+        throw new Error(result.error || "No se pudieron guardar los cambios.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  if (isLoading) {
+    return <div className="p-8 max-w-4xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
 
   if (error || !fiesta) {
@@ -149,8 +169,11 @@ export default function RecibosDePagoPage() {
         <div className="flex justify-between items-center mb-6 print:hidden">
             <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
             <div className="flex gap-2">
+              <Button onClick={handleSaveChanges} size="sm" variant="secondary" disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
+              </Button>
               <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
-              <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir Recibos</Button>
+              <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir</Button>
             </div>
         </div>
         
@@ -212,8 +235,19 @@ export default function RecibosDePagoPage() {
                         </tbody>
                         <tfoot>
                             <tr className="border-t-2 font-bold">
-                                <td className="py-1.5">MONTO TOTAL RECIBIDO</td>
-                                <td className="py-1.5 text-right text-base print:text-sm">{formatCurrency(detail.eventSalary)}</td>
+                                <td className="py-1.5">PAGO TOTAL</td>
+                                <td className="py-1.5 text-right text-base print:text-sm">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <span className="print:hidden">$</span>
+                                        <Input
+                                            type="number"
+                                            value={detail.eventSalary}
+                                            onChange={(e) => handleSalaryChange(detail.empleado.id, e.target.value)}
+                                            className="text-right h-8 w-28 font-bold print:hidden"
+                                        />
+                                        <span className="hidden print:inline">{formatCurrency(detail.eventSalary)}</span>
+                                    </div>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
@@ -236,3 +270,4 @@ export default function RecibosDePagoPage() {
     </div>
   );
 }
+

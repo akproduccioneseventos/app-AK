@@ -279,9 +279,6 @@ export default function AsignarPersonalEventoPage() {
             <div className="flex justify-between items-center"><span className="text-muted-foreground">Costo Total Salarios Evento:</span><span className="font-semibold text-lg">{formatCurrency(totalSalaryCost)}</span></div>
             <div className="flex justify-between items-center"><span className="text-muted-foreground">Costo Total Aportes Patronales:</span><span className="font-semibold text-lg">{formatCurrency(totalContributionCost)}</span></div>
             <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL PERSONAL:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
-             <div className="pt-3">
-                <img src="https://placehold.co/600x200.png" alt="Equipo trabajando en evento" className="rounded-md shadow-sm mx-auto" data-ai-hint="team event work"/>
-            </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
