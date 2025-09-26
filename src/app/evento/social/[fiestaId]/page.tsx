@@ -1,10 +1,11 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
-import { getFiestaById } from '@/app/actions/fiesta-actual'; // Corrected import
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions'; // Corrected import
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';

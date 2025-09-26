@@ -526,5 +526,3 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
     </div>
   );
 }
-
-    
