@@ -173,7 +173,7 @@ export default function PlanificadorGastronomicoPage() {
                   {allMenus.map(menu => (<SelectItem key={menu.id} value={menu.id}>{menu.name}</SelectItem>))}
                 </SelectContent>
               </Select>
-              {allMenus.length === 0 && <p className="text-xs text-muted-foreground mt-1">No hay menús. <Link href="/empresa/menus/nuevo" className="underline">Crear Menús</Link></p>}
+              {allMenus.length === 0 && <p className="text-xs text-muted-foreground mt-1">No hay menús. <Link href="/empresa/menus" className="underline">Gestionar Menús</Link></p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="costo-operativo" className="text-base">Costo Operativo Fijo (UYU)</Label>

@@ -51,15 +51,8 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Publicaciones',
   },
   {
-    title: 'Gestión de Menús de Catering',
-    description: 'Crea, edita y organiza las plantillas de menús para tus eventos.',
-    href: '/empresa/menus',
-    icon: ChefHat,
-    actionLabel: 'Gestionar Menús',
-  },
-  {
     title: 'Planificador Gastronómico',
-    description: 'Calcula costos detallados de catering, repostería y bebidas.',
+    description: 'Calcula costos y gestiona plantillas de catering, repostería y bebidas.',
     href: '/planner-costo-fiesta',
     icon: Calculator,
     actionLabel: 'Abrir Planificador',
