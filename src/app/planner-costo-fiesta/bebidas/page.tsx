@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Trash2, ChevronDown, Wand2, BookOpen, Search, Settings, Info, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, GlassWater, PlusCircle, Trash2, ChevronDown, Wand2, BookOpen, Search, Settings, Info, ShoppingCart, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, BebidasData, BebidaCategoria, TipoEventoAjusteBebidas, BebidaItem, BebidaItemEstado, BebidasConsumoConfig } from '@/types/fiesta';
 import { getFiestaActual, updateBebidasFiestaActual } from '@/app/actions/fiesta-actual';
@@ -52,15 +52,27 @@ export default function GestionBebidasPage() {
   
   const [consumoConfig, setConsumoConfig] = useState<BebidasConsumoConfig>(defaultBebidasConsumoConfig);
 
+  // States for Modals
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<Partial<BebidaItem>>({});
+  const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+  const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const fetchedFiestaData = await getFiestaActual();
+      const [fetchedFiestaData, fetchedServicios] = await Promise.all([
+          getFiestaActual(),
+          getServiciosEmpresa()
+      ]);
+      setServiciosCatalogo(fetchedServicios.filter(s => s.tipoItem === 'Bebida (Insumo)' || s.tipoItem === 'Insumo/Ingrediente'));
       setFiestaData(fetchedFiestaData);
       
       const config = fetchedFiestaData.configuracion;
-      setNumAdultos(Number(config.invitadosEstimados) || 0); // Default all guests to adults
+      setNumAdultos(Number(config.invitadosEstimados) || 0);
       
       const fetchedBebidasData = fetchedFiestaData.bebidas || { categorias: [], notasGenerales: '' };
        const mergedCategorias = defaultBebidasCategorias.map(defaultCat => {
@@ -114,6 +126,105 @@ export default function GestionBebidasPage() {
     });
   };
 
+  const handleItemFieldChange = (categoryId: string, itemId: string, field: keyof BebidaItem, value: any) => {
+    setBebidasData(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            categorias: prev.categorias.map(cat => {
+                if (cat.id !== categoryId) return cat;
+                return {
+                    ...cat,
+                    items: cat.items.map(item => {
+                        if (item.id !== itemId) return item;
+                        const updatedItem = { ...item, [field]: value };
+                        if (field === 'cantidadNecesaria' || field === 'costoUnitario') {
+                            updatedItem.costoTotal = (updatedItem.cantidadNecesaria || 0) * (updatedItem.costoUnitario || 0);
+                        }
+                        return updatedItem;
+                    })
+                };
+            })
+        };
+    });
+  };
+
+  const openItemModal = (catId: string, item?: BebidaItem) => {
+    setCurrentCategoryId(catId);
+    if(item) {
+      setCurrentItem({...item});
+    } else {
+      setCurrentItem({ id: '', nombre: '', cantidadNecesaria: 1, costoUnitario: 0, unidadCantidad: 'Unidad' });
+    }
+    setIsItemModalOpen(true);
+  };
+  
+  const handleItemModalSave = () => {
+    if (!currentItem || !currentItem.nombre?.trim() || !currentCategoryId) {
+      toast({ title: "Nombre Requerido", variant: "destructive" });
+      return;
+    }
+    const finalItem: BebidaItem = {
+      ...currentItem,
+      id: currentItem.id || `bebida_${Date.now()}`,
+      cantidadNecesaria: Number(currentItem.cantidadNecesaria) || 0,
+      costoUnitario: Number(currentItem.costoUnitario) || 0,
+      costoTotal: (Number(currentItem.cantidadNecesaria) || 0) * (Number(currentItem.costoUnitario) || 0),
+    } as BebidaItem;
+    
+    setBebidasData(prev => {
+      if (!prev) return null;
+      const catIndex = prev.categorias.findIndex(c => c.id === currentCategoryId);
+      if (catIndex === -1) return prev;
+      
+      const newCategorias = [...prev.categorias];
+      const targetCat = {...newCategorias[catIndex]};
+      const itemIndex = targetCat.items.findIndex(i => i.id === finalItem.id);
+
+      if (itemIndex > -1) {
+        targetCat.items[itemIndex] = finalItem;
+      } else {
+        targetCat.items.push(finalItem);
+      }
+      newCategorias[catIndex] = targetCat;
+      return { ...prev, categorias: newCategorias };
+    });
+
+    setIsItemModalOpen(false);
+  };
+
+  const handleDeleteItem = (categoryId: string, itemId: string) => {
+    setBebidasData(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            categorias: prev.categorias.map(cat => 
+                cat.id === categoryId 
+                ? { ...cat, items: cat.items.filter(it => it.id !== itemId) }
+                : cat
+            )
+        }
+    })
+  };
+  
+  const filteredCatalogItems = useMemo(() => {
+    if (!catalogSearchTerm) return serviciosCatalogo;
+    const lowerSearch = catalogSearchTerm.toLowerCase();
+    return serviciosCatalogo.filter(item => item.nombre.toLowerCase().includes(lowerSearch) || item.categoria?.toLowerCase().includes(lowerSearch));
+  }, [serviciosCatalogo, catalogSearchTerm]);
+
+  const handleCatalogItemSelected = (servicio: ServicioEmpresa) => {
+    if (!currentCategoryId) return;
+    openItemModal(currentCategoryId, {
+        id: servicio.id,
+        nombre: servicio.nombre,
+        origenId: servicio.id,
+        unidadCantidad: servicio.unidad,
+        costoUnitario: servicio.valorUnitarioEstimado,
+    });
+    setIsCatalogModalOpen(false);
+  };
+
 
   const handleSave = async () => {
     if (!bebidasData) return;
@@ -145,9 +256,40 @@ export default function GestionBebidasPage() {
   }
   
   const totalInvitados = numAdultos + numAdolescentes + numNinos;
+  const costoTotalGeneral = bebidasData.categorias.reduce((sumCat, cat) => {
+    if (!cat.activada) return sumCat;
+    return sumCat + cat.items.reduce((sumItem, item) => sumItem + (item.costoTotal || 0), 0);
+  }, 0);
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="font-headline">{currentItem?.id && currentItem.origenId !== currentItem.id ? 'Editar' : 'Añadir'} Producto</DialogTitle></DialogHeader>
+          {currentItem && (
+            <div className="space-y-3">
+              <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={e => handleItemModalChange(currentCategoryId!, currentItem.id!, 'nombre', e.target.value)} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1"><Label htmlFor="item-qty-nec">Cant. Necesaria</Label><Input id="item-qty-nec" type="number" value={currentItem.cantidadNecesaria || ''} onChange={e => handleItemModalChange(currentCategoryId!, currentItem.id!, 'cantidadNecesaria', Number(e.target.value))}/></div>
+                <div className="space-y-1"><Label htmlFor="item-costo-unit">Costo Unit.</Label><Input id="item-costo-unit" type="number" value={currentItem.costoUnitario || ''} onChange={e => handleItemModalChange(currentCategoryId!, currentItem.id!, 'costoUnitario', Number(e.target.value))}/></div>
+              </div>
+            </div>
+          )}
+          <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleItemModalSave}>Guardar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader><DialogTitle className="font-headline">Seleccionar Insumo del Catálogo</DialogTitle><DialogDescription>Añade un producto pre-existente a esta categoría.</DialogDescription></DialogHeader>
+          <div className="py-2 space-y-3">
+            <Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} />
+            <ScrollArea className="h-72 border rounded-md"><ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Unidad: {item.unidad}</p></div></Button></li>))}</ul></ScrollArea>
+          </div>
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <GlassWater className="w-8 h-8 text-primary" />
@@ -226,26 +368,24 @@ export default function GestionBebidasPage() {
                     <div className="p-3 border rounded-md bg-muted/50">
                         {cat.items.length > 0 ? (
                             <table className="w-full text-sm">
-                                <thead><tr className="border-b"><th className="text-left py-1">Producto</th><th className="text-right py-1">Cant.</th><th className="text-right py-1">En Stock</th><th className="text-right py-1 text-red-600">A Comprar</th><th className="text-right py-1">Costo Total</th></tr></thead>
+                                <thead><tr className="border-b"><th className="text-left py-1">Producto</th><th className="text-right py-1">Cant. Necesaria</th><th className="text-right py-1">Costo Unit.</th><th className="text-right py-1 font-semibold">Costo Total</th><th className="w-[80px]"></th></tr></thead>
                                 <tbody>
-                                {cat.items.map(item => {
-                                    const aComprar = Math.max(0, (item.cantidadNecesaria || 0) - (item.stockDisponible || 0));
-                                    return (
-                                        <tr key={item.id}>
-                                            <td className="py-1">{item.nombre}</td>
-                                            <td className="py-1 text-right">{item.cantidadNecesaria || 0}</td>
-                                            <td className="py-1 text-right"><Input type="number" value={item.stockDisponible || ''} className="h-7 w-16 ml-auto text-right" placeholder="0"/></td>
-                                            <td className="py-1 text-right font-medium text-red-600">{aComprar}</td>
-                                            <td className="py-1 text-right">{formatCurrency(item.costoTotal)}</td>
-                                        </tr>
-                                    )
-                                })}
+                                {cat.items.map(item => (
+                                    <tr key={item.id}>
+                                        <td className="py-1 font-medium">{item.nombre}</td>
+                                        <td className="text-right"><Input type="number" value={item.cantidadNecesaria || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'cantidadNecesaria', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0"/></td>
+                                        <td className="text-right"><Input type="number" value={item.costoUnitario || ''} onChange={e => handleItemFieldChange(cat.id, item.id, 'costoUnitario', Number(e.target.value))} className="h-7 w-20 ml-auto text-right" placeholder="0"/></td>
+                                        <td className="py-1 text-right font-semibold">{formatCurrency(item.costoTotal)}</td>
+                                        <td className="text-right"><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={()=>handleDeleteItem(cat.id, item.id)}><Trash2 className="w-4 h-4"/></Button></td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         ) : (<p className="text-center text-muted-foreground text-xs py-2">No hay productos añadidos para esta categoría.</p>)}
                     </div>
                     <div className="flex justify-end gap-2 mt-3">
-                        <Button type="button" size="sm" variant="outline"><PlusCircle className="w-4 h-4 mr-1"/>Añadir Producto</Button>
+                        <Button type="button" size="sm" variant="outline" onClick={() => openItemModal(cat.id)}><PlusCircle className="w-4 h-4 mr-1"/>Añadir Manualmente</Button>
+                        <Button type="button" size="sm" variant="secondary" onClick={() => { setCurrentCategoryId(cat.id); setIsCatalogModalOpen(true); }}><BookOpen className="w-4 h-4 mr-1"/>Añadir del Catálogo</Button>
                     </div>
                 </CardContent>
              )}
@@ -253,7 +393,11 @@ export default function GestionBebidasPage() {
         )
       })}
       
-       <div className="flex justify-end pt-6 border-t">
+       <div className="flex justify-between items-center pt-6 border-t">
+        <div className="text-right">
+            <p className="text-sm text-muted-foreground">Costo Total General Bebidas</p>
+            <p className="text-2xl font-bold text-primary">{formatCurrency(costoTotalGeneral)}</p>
+        </div>
         <Button onClick={handleSave} disabled={isSaving || isLoading} size="lg">
           {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>}
           {isSaving ? 'Guardando...' : 'Guardar Plan de Bebidas'}
