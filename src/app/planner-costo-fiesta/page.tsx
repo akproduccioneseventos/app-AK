@@ -8,14 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Palette, Settings2, HardHat, Package, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Settings2, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { FullMenu, MenuItem } from '@/types/catering';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, ReposteriaData, BebidasData } from '@/types/fiesta';
+import type { FullMenu } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
+import { getReposteriaDataForPlanner, getBebidasDataForPlanner } from '@/app/actions/planner-actions';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
@@ -24,10 +23,12 @@ const formatCurrency = (amount: number) => {
 
 export default function PlanificadorGastronomicoPage() {
   const { toast } = useToast();
-  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
+  const [reposteriaData, setReposteriaData] = useState<ReposteriaData | null>(null);
+  const [bebidasData, setBebidasData] = useState<BebidasData | null>(null);
+
   const [selectedMenuId, setSelectedMenuId] = useState<string | undefined>(undefined);
-  const [numberOfGuests, setNumberOfGuests] = useState<number>(0);
+  const [numberOfGuests, setNumberOfGuests] = useState<number>(100); // Default to 100 for general planning
   const [costoOperativoFijo, setCostoOperativoFijo] = useState<number>(0);
   const [margenSugerido, setMargenSugerido] = useState<number>(30); 
 
@@ -38,19 +39,15 @@ export default function PlanificadorGastronomicoPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, menusData] = await Promise.all([
-        getFiestaActual(),
-        getMenus()
+      const [menusData, fetchedReposteria, fetchedBebidas] = await Promise.all([
+        getMenus(),
+        getReposteriaDataForPlanner(),
+        getBebidasDataForPlanner(),
       ]);
-      setFiestaActual(fiestaData);
       setAllMenus(menusData);
+      setReposteriaData(fetchedReposteria);
+      setBebidasData(fetchedBebidas);
 
-      if (fiestaData) {
-        setNumberOfGuests(Number(fiestaData.configuracion.invitadosEstimados) || 0);
-        if (fiestaData.menuAsignadoId && menusData.some(m => m.id === fiestaData.menuAsignadoId)) {
-          setSelectedMenuId(fiestaData.menuAsignadoId);
-        }
-      }
     } catch (err: any) {
       console.error("Error loading planner data:", err);
       setError("No se pudieron cargar los datos necesarios para el planificador.");
@@ -68,21 +65,18 @@ export default function PlanificadorGastronomicoPage() {
     return allMenus.find(menu => menu.id === selectedMenuId);
   }, [selectedMenuId, allMenus]);
 
-  // Costo total del menú SELECCIONADO por persona
   const costoTotalMenuPorPersona = useMemo(() => {
     if (!selectedMenu) return 0;
-    // Each item's totalDishCost in selectedMenu.items is already the per-person cost for that dish
     return selectedMenu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
   }, [selectedMenu]);
 
-  // Costo total del catering para TODOS los invitados
   const costoTotalCatering = useMemo(() => {
     return costoTotalMenuPorPersona * numberOfGuests;
   }, [costoTotalMenuPorPersona, numberOfGuests]);
 
   const costoTotalReposteria = useMemo(() => {
     let total = 0;
-    fiestaActual?.reposteria?.categorias.forEach(cat => {
+    reposteriaData?.categorias.forEach(cat => {
       if (cat.activada) {
         cat.items.forEach(item => {
           total += (item.costoEstimado || 0) * (item.cantidad || 1);
@@ -90,11 +84,11 @@ export default function PlanificadorGastronomicoPage() {
       }
     });
     return total;
-  }, [fiestaActual?.reposteria]);
+  }, [reposteriaData]);
 
   const costoTotalBebidas = useMemo(() => {
     let total = 0;
-    fiestaActual?.bebidas?.categorias.forEach(cat => {
+    bebidasData?.categorias.forEach(cat => {
       if (cat.activada) {
         cat.items.forEach(item => {
           total += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0));
@@ -102,7 +96,7 @@ export default function PlanificadorGastronomicoPage() {
       }
     });
     return total;
-  }, [fiestaActual?.bebidas]);
+  }, [bebidasData]);
 
   const costoTotalGastronomia = useMemo(() => {
     return costoTotalCatering + costoTotalReposteria + costoTotalBebidas;
@@ -145,7 +139,7 @@ export default function PlanificadorGastronomicoPage() {
         <div className="flex items-center gap-3">
           <Calculator className="w-10 h-10 text-primary" />
           <h1 className="text-4xl font-bold tracking-tight font-headline">
-            Planificador Gastronómico Integral
+            Planificador Gastronómico General
           </h1>
         </div>
         <Link href="/empresa" passHref>
@@ -155,16 +149,19 @@ export default function PlanificadorGastronomicoPage() {
           </Button>
         </Link>
       </div>
+      <CardDescription className="text-lg">
+        Utiliza esta herramienta como una calculadora general para estimar costos y precios de cualquier evento.
+      </CardDescription>
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/> Configuración del Evento</CardTitle>
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/> Parámetros de Simulación</CardTitle>
           <CardDescription>Ajusta los parámetros base para el cálculo de costos.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div className="space-y-2">
-              <Label htmlFor="guest-count-planner" className="text-base">Nº Invitados</Label>
+              <Label htmlFor="guest-count-planner" className="text-base">Nº Invitados a simular</Label>
               <Input id="guest-count-planner" type="number" value={numberOfGuests} onChange={(e) => setNumberOfGuests(Number(e.target.value) || 0)} min="0" className="text-lg p-3"/>
             </div>
             <div className="space-y-2">
@@ -173,10 +170,10 @@ export default function PlanificadorGastronomicoPage() {
                 <SelectTrigger id="menu-select-planner" className="text-lg p-3 h-auto"><SelectValue placeholder="Seleccionar menú..." /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none" className="text-muted-foreground">Ninguno</SelectItem>
-                  {allMenus.map(menu => (<SelectItem key={menu.id} value={menu.id}>{menu.name} ({menu.templateType || 'Personalizado'})</SelectItem>))}
+                  {allMenus.map(menu => (<SelectItem key={menu.id} value={menu.id}>{menu.name}</SelectItem>))}
                 </SelectContent>
               </Select>
-              {allMenus.length === 0 && <p className="text-xs text-muted-foreground mt-1">No hay menús. <Link href="/fiestas/nueva/catering/nuevo-menu" className="underline">Crear Menús</Link></p>}
+              {allMenus.length === 0 && <p className="text-xs text-muted-foreground mt-1">No hay menús. <Link href="/empresa/menus/nuevo" className="underline">Crear Menús</Link></p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="costo-operativo" className="text-base">Costo Operativo Fijo (UYU)</Label>
@@ -186,11 +183,11 @@ export default function PlanificadorGastronomicoPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><ChefHat className="text-primary"/>Menús de Catering</CardTitle>
-            <CardDescription>Costo total catering ({numberOfGuests} inv.): {formatCurrency(costoTotalCatering)}</CardDescription>
+             <CardDescription>Costo total catering ({numberOfGuests} inv.): {formatCurrency(costoTotalCatering)}</CardDescription>
           </CardHeader>
           <CardContent>
             {selectedMenu ? (
@@ -200,7 +197,6 @@ export default function PlanificadorGastronomicoPage() {
                       {selectedMenu.items.map(item => (
                         <li key={item.id} className="flex justify-between text-xs">
                           <span>{item.name}</span>
-                          {/* totalDishCost is already per person for the dish */}
                           <span>{formatCurrency(item.totalDishCost || 0)} c/u</span> 
                         </li>
                       ))}
@@ -209,38 +205,23 @@ export default function PlanificadorGastronomicoPage() {
             ) : <p className="text-sm text-muted-foreground">No hay menú de catering seleccionado.</p>}
           </CardContent>
           <CardFooter>
-            <Link href="/fiestas/nueva/catering" passHref className="w-full">
+            <Link href="/empresa/menus" passHref className="w-full">
               <Button variant="outline" className="w-full">Gestionar Menús</Button>
             </Link>
           </CardFooter>
         </Card>
-
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2"><Package className="text-primary"/>Inventario de Insumos</CardTitle>
-             <CardDescription>Gestiona ingredientes, bebidas y materia prima en general.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <p className="text-sm text-muted-foreground">Aquí puedes dar de alta nuevos productos que usarás en tus recetas y bebidas.</p>
-          </CardContent>
-          <CardFooter>
-            <Link href="/empresa/insumos" passHref className="w-full">
-              <Button variant="outline" className="w-full">Gestionar Inventario de Insumos</Button>
-            </Link>
-          </CardFooter>
-        </Card>
-
+        
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><Cake className="text-primary"/>Módulo de Repostería</CardTitle>
              <CardDescription>Costo total repostería: {formatCurrency(costoTotalReposteria)}</CardDescription>
           </CardHeader>
           <CardContent>
-             <p className="text-sm text-muted-foreground">Define tortas, candy bar, mesas dulces, etc.</p>
+             <p className="text-sm text-muted-foreground">Define tortas, candy bar, mesas dulces, etc. Los costos se basan en los ítems activados en la configuración.</p>
           </CardContent>
           <CardFooter>
             <Link href="/planner-costo-fiesta/reposteria" passHref className="w-full">
-              <Button variant="outline" className="w-full">Gestionar Repostería</Button>
+              <Button variant="outline" className="w-full">Configurar Repostería</Button>
             </Link>
           </CardFooter>
         </Card>
@@ -251,11 +232,11 @@ export default function PlanificadorGastronomicoPage() {
             <CardDescription>Costo total bebidas: {formatCurrency(costoTotalBebidas)}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Calcula refrescos, jugos, alcohol, barra de tragos.</p>
+            <p className="text-sm text-muted-foreground">Calcula refrescos, jugos, alcohol, barra de tragos. Los costos se basan en los ítems activados.</p>
           </CardContent>
           <CardFooter>
             <Link href="/planner-costo-fiesta/bebidas" passHref className="w-full">
-              <Button variant="outline" className="w-full">Gestionar Bebidas</Button>
+              <Button variant="outline" className="w-full">Configurar Bebidas</Button>
             </Link>
           </CardFooter>
         </Card>
@@ -296,7 +277,6 @@ export default function PlanificadorGastronomicoPage() {
             </CardFooter>
         </Card>
       </div>
-
     </div>
   );
 }
