@@ -39,7 +39,7 @@ import { updateReposteria } from './fiesta/reposteria.actions';
 import { updateBebidas } from './fiesta/bebidas.actions';
 import { updateListaDeCargaOperativa } from './fiesta/carga-operativa.actions';
 import { updateGestionCostos } from './fiesta/costos.actions';
-import { updateFotografiaYFilmacion } from './fiesta/fotografia.actions';
+import { updateFotografiaYFilmacion as updateFotografiaYFilmacionFromModule } from './fiesta/fotografia.actions';
 import { uploadDocumento, deleteDocumento } from './fiesta/documentos.actions';
 import { updatePagosProveedores } from './fiesta/pagos.actions';
 import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
@@ -108,7 +108,7 @@ export const updateListaDeCargaOperativaFiestaActual = updateListaDeCargaOperati
 export const updateGestionCostosFiestaActual = updateGestionCostos;
 
 // --- Fotografia Actions ---
-export const updateFotografiaYFilmacionFiestaActual = updateFotografiaYFilmacion;
+export const updateFotografiaYFilmacionFiestaActual = updateFotografiaYFilmacionFromModule;
 
 // --- Documentos Actions ---
 export const uploadDocumentoFiesta = uploadDocumento;

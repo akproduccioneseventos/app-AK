@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera, Calculator } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera, Calculator, Film } from 'lucide-react';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Tarea, Reunion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -48,6 +48,7 @@ const internalModules: PlanningModule[] = [
   { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" },
   { title: "Video de Vida", description: "Gestiona las fotos para el video emotivo.", icon: Camera, href: "/fiestas/nueva/video-vida", status: "Disponible", actionLabel: "Gestionar Fotos" },
+  { title: "Fotografía y Filmación", description: "Gestiona la entrega del material fotográfico y de video.", icon: Film, href: "/fiestas/nueva/fotografia", status: "Disponible", actionLabel: "Gestionar Entrega" },
   { title: "Accesos para Colaboradores", description: "Genera enlaces únicos para que tu equipo vea la información que necesita.", icon: UserCog, href: "/settings/accesos-personal", status: "Disponible", actionLabel: "Gestionar Accesos" }
 ];
 
