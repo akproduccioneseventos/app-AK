@@ -110,25 +110,10 @@ export default function RecibosDePagoPage() {
     window.print();
   };
 
-  const handleShare = async () => {
-    const shareData = {
-      title: `Recibos de Pago - ${fiesta?.configuracion.nombreEvento}`,
-      text: 'Recibos de pago para el personal del evento.',
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
-    }
+  const handleShareWhatsApp = () => {
+    const message = `Te comparto los recibos de pago para el personal del evento.`;
+    const url = window.location.href;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message + '\n' + url)}`, '_blank');
   };
   
   if (isLoading) {
@@ -164,7 +149,7 @@ export default function RecibosDePagoPage() {
         <div className="flex justify-between items-center mb-6 print:hidden">
             <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
             <div className="flex gap-2">
-              <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+              <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
               <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir Recibos</Button>
             </div>
         </div>
