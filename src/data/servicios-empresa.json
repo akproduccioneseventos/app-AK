@@ -1140,5 +1140,89 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Panificados",
     "unidad": "Unidad"
+  },
+  {
+    "id": "ing-jugo-naranja",
+    "nombre": "Jugo de Naranja",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "ing-banana",
+    "nombre": "Banana",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-fruta-mix",
+    "nombre": "Otra fruta (mix)",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-agua",
+    "nombre": "Agua",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "ing-durazno-lata",
+    "nombre": "Durazno en lata",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Lata"
+  },
+  {
+    "id": "ing-vino-rosado-dulce",
+    "nombre": "Vino rosado dulce",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Botella"
+  },
+  {
+    "id": "ing-vino-blanco-dulce",
+    "nombre": "Vino blanco dulce",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Botella"
+  },
+  {
+    "id": "ing-jugo-rinde2",
+    "nombre": "Jugo rinde 2",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Sobre"
+  },
+  {
+    "id": "ing-azucar",
+    "nombre": "Azúcar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de catering",
+    "unidad": "Kg"
+  },
+  {
+    "id": "ing-sidra-750ml",
+    "nombre": "Sidra 750ml",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Botella"
+  },
+  {
+    "id": "ing-licor-frutilla",
+    "nombre": "Licor de Frutilla",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "ing-licor-durazno",
+    "nombre": "Licor de Durazno",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
   }
 ]
