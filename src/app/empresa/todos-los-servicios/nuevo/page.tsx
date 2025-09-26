@@ -34,6 +34,7 @@ function NuevoItemInventarioContent() {
   const [subcategoria, setSubcategoria] = useState('');
   const [cantidadDisponible, setCantidadDisponible] = useState<string>('');
   const [unidad, setUnidad] = useState<UnidadServicio | ''>('');
+  const [notas, setNotas] = useState('');
   
   const [calculationMethod, setCalculationMethod] = useState<ServicioEmpresa['calculationMethod']>('fijo');
   const [precioVenta, setPrecioVenta] = useState<string>('');
@@ -80,6 +81,7 @@ function NuevoItemInventarioContent() {
       cantidadDisponible: cantidadDisponible ? parseInt(cantidadDisponible, 10) : undefined,
       valorUnitarioEstimado: valorUnitarioEstimado ? parseFloat(valorUnitarioEstimado) : undefined,
       unidad: tipoItem === 'Servicio' ? undefined : unidad as UnidadServicio,
+      notas: notas.trim() || undefined,
       
       calculationMethod: tipoItem === 'Servicio' ? calculationMethod : undefined,
       precioVenta: (calculationMethod === 'fijo' && precioVenta) ? parseFloat(precioVenta) : undefined,
@@ -136,7 +138,7 @@ function NuevoItemInventarioContent() {
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Ítem al Catálogo
+            Añadir Nuevo Ítem al Inventario
           </h1>
         </div>
         <Link href={backUrl} passHref>
@@ -243,12 +245,12 @@ function NuevoItemInventarioContent() {
                      <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={unidad} onValueChange={(value) => setUnidad(value as UnidadServicio)} disabled={isSaving} required={!isServicio}><SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..."/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent></Select></div>
                 </div>
             )}
-            
+             <div className="space-y-2"><Label htmlFor="item-notas">Notas</Label><Textarea id="item-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Notas adicionales sobre el ítem..." rows={3} className="text-base p-3" disabled={isSaving}/></div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Ítem en Catálogo'}
+              {isSaving ? 'Guardando...' : 'Guardar Ítem'}
             </Button>
           </CardFooter>
         </form>

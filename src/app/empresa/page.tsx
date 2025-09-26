@@ -37,11 +37,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir al Panel',
   },
   {
-    title: 'Inventario General',
-    description: 'Gestiona tus activos fijos (mobiliario, equipo) e insumos (ingredientes, descartables).',
+    title: 'Gestión de Activos Fijos',
+    description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
     href: '/empresa/todos-los-servicios',
     icon: Package,
-    actionLabel: 'Gestionar Inventario',
+    actionLabel: 'Gestionar Activos',
   },
    {
     title: 'Catálogo de Servicios',
