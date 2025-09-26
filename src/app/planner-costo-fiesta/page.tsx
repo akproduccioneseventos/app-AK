@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Palette, Settings2, HardHat, Package } from 'lucide-react';
+import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Palette, Settings2, HardHat, Package, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -148,10 +148,10 @@ export default function PlanificadorGastronomicoPage() {
             Planificador Gastronómico Integral
           </h1>
         </div>
-        <Link href="/eventos" passHref>
+        <Link href="/empresa" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Gestor de Fiestas
+            Volver a Gestión Empresa
           </Button>
         </Link>
       </div>
@@ -217,15 +217,15 @@ export default function PlanificadorGastronomicoPage() {
 
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2"><Package className="text-primary"/>Inventario de Insumos y Equipamiento</CardTitle>
-             <CardDescription>Costo total repostería: {formatCurrency(costoTotalReposteria)}</CardDescription>
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><Package className="text-primary"/>Inventario de Insumos</CardTitle>
+             <CardDescription>Gestiona ingredientes, bebidas y materia prima en general.</CardDescription>
           </CardHeader>
           <CardContent>
-             <p className="text-sm text-muted-foreground">Gestiona tus ingredientes, bebidas y equipamiento reutilizable.</p>
+             <p className="text-sm text-muted-foreground">Aquí puedes dar de alta nuevos productos que usarás en tus recetas y bebidas.</p>
           </CardContent>
           <CardFooter>
-            <Link href="/empresa/todos-los-servicios" passHref className="w-full">
-              <Button variant="outline" className="w-full">Gestionar Inventario</Button>
+            <Link href="/empresa/insumos" passHref className="w-full">
+              <Button variant="outline" className="w-full">Gestionar Inventario de Insumos</Button>
             </Link>
           </CardFooter>
         </Card>
@@ -260,27 +260,43 @@ export default function PlanificadorGastronomicoPage() {
           </CardFooter>
         </Card>
       </div>
+      
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="shadow-xl border-t-4 border-primary">
+            <CardHeader><CardTitle className="font-headline text-2xl flex items-center gap-2"><DollarSign className="text-primary w-8 h-8"/>Resumen Final de Costos y Precios</CardTitle><CardDescription>Visualiza el costo total, precio sugerido y margen.</CardDescription></CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center md:text-left">
+              <div className="p-4 bg-muted/30 rounded-lg"><p className="text-sm font-medium text-muted-foreground">Costo Gastronomía Total</p><p className="text-2xl font-bold">{formatCurrency(costoTotalGastronomia)}</p></div>
+              <div className="p-4 bg-muted/30 rounded-lg"><p className="text-sm font-medium text-muted-foreground">Costo Op. Fijo</p><p className="text-2xl font-bold">{formatCurrency(costoOperativoFijo)}</p></div>
+              <div className="p-4 bg-primary/10 rounded-lg md:col-span-2"><p className="text-sm font-medium text-primary/80">COSTO TOTAL EVENTO</p><p className="text-3xl font-bold text-primary">{formatCurrency(costoTotalEvento)}</p></div>
+            </CardContent>
+            <Separator className="my-4"/>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="margen-sugerido" className="text-base">Margen Ganancia Sugerido (%)</Label>
+                  <Input id="margen-sugerido" type="number" value={margenSugerido} onChange={(e) => setMargenSugerido(Number(e.target.value) || 0)} min="0" max="200" className="text-lg p-3"/>
+                </div>
+                <div className="space-y-3">
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center md:text-left"><p className="text-sm font-medium text-green-700">Precio Sugerido al Cliente</p><p className="text-3xl font-bold text-green-600">{formatCurrency(precioSugeridoCliente)}</p></div>
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center md:text-left"><p className="text-sm font-medium text-blue-700">Rentabilidad Estimada</p><p className="text-3xl font-bold text-blue-600">{formatCurrency(rentabilidadEstimada)}</p></div>
+                </div>
+            </CardContent>
+        </Card>
+        <Card className="shadow-lg">
+            <CardHeader>
+                <CardTitle className="font-headline text-lg flex items-center gap-2"><ShoppingCart className="text-primary"/>Lista de Compras</CardTitle>
+                <CardDescription>Genera una lista consolidada con todos los insumos necesarios para la parte gastronómica de tu evento.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground">Esta herramienta te ayudará a saber qué necesitas comprar basado en tu menú, repostería y plan de bebidas.</p>
+            </CardContent>
+            <CardFooter>
+                 <Link href="/fiestas/nueva/catering/lista-compras" passHref className="w-full">
+                    <Button className="w-full">Generar Lista de Compras</Button>
+                </Link>
+            </CardFooter>
+        </Card>
+      </div>
 
-      <Card className="shadow-xl border-t-4 border-primary">
-        <CardHeader><CardTitle className="font-headline text-2xl flex items-center gap-2"><DollarSign className="text-primary w-8 h-8"/>Resumen Final de Costos y Precios</CardTitle><CardDescription>Visualiza el costo total, precio sugerido y margen.</CardDescription></CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center md:text-left">
-          <div className="p-4 bg-muted/30 rounded-lg"><p className="text-sm font-medium text-muted-foreground">Costo Gastronomía Total</p><p className="text-2xl font-bold">{formatCurrency(costoTotalGastronomia)}</p></div>
-          <div className="p-4 bg-muted/30 rounded-lg"><p className="text-sm font-medium text-muted-foreground">Costo Op. Fijo</p><p className="text-2xl font-bold">{formatCurrency(costoOperativoFijo)}</p></div>
-          <div className="p-4 bg-primary/10 rounded-lg"><p className="text-sm font-medium text-primary/80">COSTO TOTAL EVENTO</p><p className="text-3xl font-bold text-primary">{formatCurrency(costoTotalEvento)}</p></div>
-        </CardContent>
-        <Separator className="my-4"/>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-            <div className="space-y-2">
-              <Label htmlFor="margen-sugerido" className="text-base">Margen Ganancia Sugerido (%)</Label>
-              <Input id="margen-sugerido" type="number" value={margenSugerido} onChange={(e) => setMargenSugerido(Number(e.target.value) || 0)} min="0" max="200" className="text-lg p-3"/>
-            </div>
-            <div className="space-y-3">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center md:text-left"><p className="text-sm font-medium text-green-700">Precio Sugerido al Cliente</p><p className="text-3xl font-bold text-green-600">{formatCurrency(precioSugeridoCliente)}</p></div>
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center md:text-left"><p className="text-sm font-medium text-blue-700">Rentabilidad Estimada</p><p className="text-3xl font-bold text-blue-600">{formatCurrency(rentabilidadEstimada)}</p></div>
-            </div>
-        </CardContent>
-        <CardFooter><p className="text-xs text-muted-foreground">Ajustes por inflación y más detalles en futuras actualizaciones.</p></CardFooter>
-      </Card>
     </div>
   );
 }
