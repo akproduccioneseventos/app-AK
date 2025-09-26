@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Settings2, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Calculator, ChefHat, Cake, GlassWater, Loader2, AlertTriangle, Info, DollarSign, Settings2, ShoppingCart, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ReposteriaData, BebidasData } from '@/types/fiesta';
 import type { FullMenu } from '@/types/catering';
@@ -252,20 +252,30 @@ export default function PlanificadorGastronomicoPage() {
                 </div>
             </CardContent>
         </Card>
-        <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle className="font-headline text-lg flex items-center gap-2"><ShoppingCart className="text-primary"/>Lista de Compras</CardTitle>
-                <CardDescription>Genera una lista consolidada con todos los insumos necesarios para la parte gastronómica de tu evento.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground">Esta herramienta te ayudará a saber qué necesitas comprar basado en tu menú, repostería y plan de bebidas.</p>
-            </CardContent>
-            <CardFooter>
-                 <Link href="/fiestas/nueva/catering/lista-compras" passHref className="w-full">
-                    <Button className="w-full">Generar Lista de Compras</Button>
-                </Link>
-            </CardFooter>
-        </Card>
+        <div className="space-y-6">
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg flex items-center gap-2"><Package className="text-primary"/>Catálogo de Insumos</CardTitle>
+                    <CardDescription>Gestiona los ingredientes y bebidas base que usas en tus menús y recetas.</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <Link href="/empresa/insumos" passHref className="w-full">
+                        <Button className="w-full">Gestionar Insumos</Button>
+                    </Link>
+                </CardFooter>
+            </Card>
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg flex items-center gap-2"><ShoppingCart className="text-primary"/>Lista de Compras</CardTitle>
+                    <CardDescription>Genera una lista consolidada con todos los insumos necesarios para la parte gastronómica de tu evento.</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <Link href="/fiestas/nueva/catering/lista-compras" passHref className="w-full">
+                        <Button className="w-full">Generar Lista de Compras</Button>
+                    </Link>
+                </CardFooter>
+            </Card>
+        </div>
       </div>
     </div>
   );
