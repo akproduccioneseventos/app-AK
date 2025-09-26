@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -66,14 +65,14 @@ export default function InsumosPage() {
     );
     setFilteredItems(filteredData);
   }, [searchTerm, allItems]);
-  
+
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
     try {
       const result = await deleteServicioEmpresa(id);
       if (result.success) {
         toast({ title: "Insumo Eliminado", description: `El ítem "${nombreItem || id}" ha sido eliminado.` });
-        fetchItems(); 
+        fetchItems();
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
       }
@@ -83,22 +82,21 @@ export default function InsumosPage() {
       setDeletingId(null);
     }
   };
-
+  
   const handlePrint = () => {
     window.print();
   };
-  
+
   const handleShare = async () => {
     const shareData = {
       title: 'Inventario de Insumos - AK Producciones',
-      text: `Resumen de insumos e ingredientes de la empresa.`,
+      text: 'Resumen de insumos e ingredientes de la empresa.',
       url: window.location.href,
     };
     try {
       if (navigator.share && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
-        // Fallback for desktop or non-supporting browsers
         await navigator.clipboard.writeText(shareData.url);
         toast({
           title: "Enlace Copiado",
@@ -106,9 +104,8 @@ export default function InsumosPage() {
         });
       }
     } catch (err) {
-       // Fallback if share fails for any reason
-      await navigator.clipboard.writeText(shareData.url);
-      toast({
+       await navigator.clipboard.writeText(shareData.url);
+       toast({
         title: "Enlace Copiado",
         description: "El enlace a esta página ha sido copiado a tu portapapeles.",
       });
