@@ -131,7 +131,7 @@ export default function GestionBebidasPage() {
       };
     });
   };
-  
+
     const handleRecipeChange = (field: keyof BebidaReceta, value: any) => {
       setCurrentRecipe(prev => prev ? ({ ...prev, [field]: value }) : null);
     }
@@ -213,6 +213,75 @@ export default function GestionBebidasPage() {
             }
         });
     }
+    
+    const openItemModal = (categoryId: string, item?: BebidaItem) => {
+        setCurrentCategoryId(categoryId);
+        setCurrentItem(item ? { ...item } : { id: '', nombre: '', cantidadNecesaria: 0, costoUnitario: 0 });
+        setIsItemModalOpen(true);
+    };
+
+    const handleItemModalChange = (field: keyof BebidaItem, value: string | number) => {
+        setCurrentItem(prev => (prev ? { ...prev, [field]: value } : null));
+    };
+
+    const handleItemModalSave = () => {
+        if (!currentItem || !currentItem.nombre?.trim() || !currentCategoryId) {
+            toast({ title: "Nombre Requerido", variant: "destructive" });
+            return;
+        }
+        const finalItem: BebidaItem = {
+            id: currentItem.id || `bebidaItem_${Date.now()}`,
+            nombre: currentItem.nombre,
+            cantidadNecesaria: Number(currentItem.cantidadNecesaria) || 0,
+            costoUnitario: Number(currentItem.costoUnitario) || 0,
+            costoTotal: (Number(currentItem.cantidadNecesaria) || 0) * (Number(currentItem.costoUnitario) || 0),
+            unidadCantidad: currentItem.unidadCantidad,
+            origenId: currentItem.origenId,
+        };
+        setBebidasData(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                categorias: prev.categorias.map(cat => {
+                    if (cat.id !== currentCategoryId) return cat;
+                    const itemExists = cat.items.some(it => it.id === finalItem.id);
+                    const newItems = itemExists 
+                        ? cat.items.map(it => it.id === finalItem.id ? finalItem : it)
+                        : [...cat.items, finalItem];
+                    return { ...cat, items: newItems };
+                })
+            }
+        });
+        setIsItemModalOpen(false);
+    };
+
+    const handleDeleteItem = (categoryId: string, itemId: string) => {
+        setBebidasData(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                categorias: prev.categorias.map(cat => 
+                    cat.id === categoryId
+                    ? { ...cat, items: cat.items.filter(it => it.id !== itemId) }
+                    : cat
+                )
+            }
+        })
+    };
+
+    const handleCatalogItemSelected = (insumo: ServicioEmpresa, categoryId: string) => {
+        const newItem: BebidaItem = {
+            id: `bebidaItem_${Date.now()}`,
+            nombre: insumo.nombre,
+            unidadCantidad: insumo.unidad,
+            costoUnitario: insumo.valorUnitarioEstimado || 0,
+            origenId: insumo.id,
+        };
+        setCurrentCategoryId(categoryId);
+        setCurrentItem(newItem);
+        setIsCatalogModalOpen(false);
+        setIsItemModalOpen(true);
+    };
 
   const handleSave = async () => {
     if (!bebidasData) return;
@@ -254,10 +323,12 @@ export default function GestionBebidasPage() {
     return sumCat + costoItems + costoRecetas;
   }, 0);
 
+  const filteredCatalogItems = serviciosCatalogo.filter(item => item.nombre.toLowerCase().includes(catalogSearchTerm.toLowerCase()));
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-        <Dialog open={isRecipeModalOpen} onOpenChange={setIsRecipeModalOpen}>
+       {/* Modals */}
+       <Dialog open={isRecipeModalOpen} onOpenChange={setIsRecipeModalOpen}>
             <DialogContent className="sm:max-w-xl">
                 <DialogHeader><DialogTitle className="font-headline">{currentRecipe?.id ? 'Editar' : 'Crear'} Receta</DialogTitle></DialogHeader>
                 {currentRecipe && (
@@ -289,7 +360,43 @@ export default function GestionBebidasPage() {
                 <DialogFooter><Button variant="outline" onClick={() => setIsRecipeModalOpen(false)}>Cancelar</Button><Button onClick={handleRecipeSave}>Guardar Receta</Button></DialogFooter>
             </DialogContent>
         </Dialog>
-        
+        <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
+            <DialogContent>
+                <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Producto</DialogTitle></DialogHeader>
+                {currentItem && (
+                    <div className="space-y-3 py-2">
+                        <div className="space-y-1"><Label htmlFor="item-nombre">Nombre *</Label><Input id="item-nombre" value={currentItem.nombre || ''} onChange={(e) => handleItemModalChange('nombre', e.target.value)} /></div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1"><Label htmlFor="item-qty">Cantidad</Label><Input id="item-qty" type="number" value={currentItem.cantidadNecesaria || ''} onChange={(e) => handleItemModalChange('cantidadNecesaria', Number(e.target.value))}/></div>
+                            <div className="space-y-1"><Label htmlFor="item-costo">Costo Unitario</Label><Input id="item-costo" type="number" value={currentItem.costoUnitario || ''} onChange={(e) => handleItemModalChange('costoUnitario', Number(e.target.value))}/></div>
+                        </div>
+                    </div>
+                )}
+                <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleItemModalSave}>Guardar</Button></DialogFooter>
+            </DialogContent>
+        </Dialog>
+        <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
+            <DialogContent className="sm:max-w-lg">
+                <DialogHeader><DialogTitle>Seleccionar del Catálogo</DialogTitle></DialogHeader>
+                <Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} />
+                <ScrollArea className="h-72 border rounded-md">
+                    {filteredCatalogItems.length > 0 ? (
+                        <div className="p-2 space-y-1">
+                            {filteredCatalogItems.map(item => (
+                                <Button key={item.id} variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => handleCatalogItemSelected(item, currentCategoryId!)}>
+                                    <div>
+                                        <p className="font-medium text-sm">{item.nombre}</p>
+                                        <p className="text-xs text-muted-foreground">{item.categoria}</p>
+                                    </div>
+                                </Button>
+                            ))}
+                        </div>
+                    ) : <p className="text-center p-4 text-sm text-muted-foreground">No hay insumos que coincidan.</p>}
+                </ScrollArea>
+                <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+            </DialogContent>
+        </Dialog>
+
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <GlassWater className="w-8 h-8 text-primary" />
@@ -363,32 +470,36 @@ export default function GestionBebidasPage() {
                                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
                             </AccordionPrimitive.Trigger>
                             <div className="flex items-center gap-2 pl-4">
-                              {cat.id === 'barra_tragos' && cat.activada && <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe({}) }}><PlusCircle className="w-4 h-4 mr-1.5"/>Crear Receta</Button>}
-                                <Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label><Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)} onClick={(e) => e.stopPropagation()} />
+                              <Label htmlFor={`cat-active-${cat.id}`} className="text-sm">Activar</Label><Switch id={`cat-active-${cat.id}`} checked={cat.activada} onCheckedChange={(val) => handleCategoryChange(cat.id, 'activada', val)} onClick={(e) => e.stopPropagation()} />
                             </div>
                         </AccordionPrimitive.Header>
                         <AccordionContent className="p-4 border-t space-y-4">
                             {cat.activada && (
                                 <>
-                                  {cat.recetas && (
-                                      <div className="space-y-3">
-                                          {cat.recetas?.map(receta => (
-                                              <Card key={receta.id} className="bg-muted/30">
-                                                <CardHeader className="p-3 flex-row justify-between items-center">
-                                                    <CardTitle className="text-md">{receta.nombre}</CardTitle>
-                                                    <div className="flex gap-1">
-                                                      <Button type="button" size="sm" variant="outline" onClick={() => {setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe(receta)}}><Edit className="w-3 h-3 mr-1"/>Editar</Button>
-                                                      <Button type="button" size="sm" variant="destructive" onClick={() => handleDeleteRecipe(cat.id, receta.id)}><Trash2 className="w-3 h-3"/></Button>
-                                                    </div>
-                                                </CardHeader>
-                                                <CardContent className="p-3 text-xs">
-                                                  <p className="font-bold">Costo Receta Base ({receta.capacidadBaseLt}L): {formatCurrency(receta.costoTotalReceta)}</p>
-                                                  <p className="font-bold">Costo Receta Evento: {formatCurrency(receta.costoTotalReceta * (totalInvitados / receta.porcionesBase))}</p>
-                                                </CardContent>
-                                              </Card>
-                                          ))}
+                                  <div className="flex flex-col sm:flex-row justify-end gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => openItemModal(cat.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Producto Manual</Button>
+                                    <Button variant="outline" size="sm" onClick={() => { setCurrentCategoryId(cat.id); setIsCatalogModalOpen(true); }}><BookOpen className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
+                                    {cat.id === 'barra_tragos' && <Button variant="secondary" size="sm" onClick={() => { setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe({}); }}><TestTube2 className="w-4 h-4 mr-1.5"/>Crear Receta</Button>}
+                                  </div>
+                                  <Separator/>
+                                  {cat.items.length === 0 && cat.recetas?.length === 0 && <p className="text-center text-muted-foreground text-sm py-2">No hay productos o recetas en esta categoría.</p>}
+                                  
+                                  <div className="space-y-2">
+                                    {cat.items.map(item => (
+                                      <div key={item.id} className="flex items-center justify-between p-2 border rounded bg-background">
+                                        <div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Cant: {item.cantidadNecesaria} {item.unidadCantidad} | Costo Est: {formatCurrency(item.costoTotal)}</p></div>
+                                        <div className="flex gap-1"><Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openItemModal(cat.id, item)}><Edit className="w-3.5 h-3.5"/></Button><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div>
                                       </div>
-                                  )}
+                                    ))}
+                                    {cat.recetas?.map(receta => (
+                                        <div key={receta.id} className="p-2 border rounded bg-background">
+                                          <div className="flex items-center justify-between">
+                                            <div><p className="font-medium text-sm">{receta.nombre}</p><p className="text-xs text-muted-foreground">Costo p/evento: {formatCurrency(receta.costoTotalReceta * (totalInvitados / receta.porcionesBase))}</p></div>
+                                            <div className="flex gap-1"><Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {setCurrentCategoryId(cat.id); setIsRecipeModalOpen(true); setCurrentRecipe(receta)}}><Edit className="w-3.5 h-3.5"/></Button><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteRecipe(cat.id, receta.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div>
+                                          </div>
+                                        </div>
+                                    ))}
+                                  </div>
                                     <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(costoTotalCategoria)}</p>
                                 </>
                             )}
@@ -411,3 +522,5 @@ export default function GestionBebidasPage() {
     </div>
   );
 }
+
+    
