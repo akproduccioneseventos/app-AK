@@ -20,6 +20,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -231,14 +232,9 @@ export default function GestionReposteriaPage() {
           <Cake className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador de Repostería</h1>
         </div>
-        <div className="flex gap-2">
-            <Link href="/fiestas/nueva/catering/lista-compras" passHref>
-                <Button variant="outline"><ShoppingCart className="w-4 h-4 mr-2"/>Ver Lista de Compras</Button>
-            </Link>
-            <Link href="/planner-costo-fiesta" passHref>
-              <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
-            </Link>
-        </div>
+        <Link href="/planner-costo-fiesta" passHref>
+          <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button>
+        </Link>
       </div>
       
        <Card>
