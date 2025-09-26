@@ -33,7 +33,7 @@ const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños/Adol
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
-export default function EditarItemInventarioPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
+export default function EditarItemInventarioPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();

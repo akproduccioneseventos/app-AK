@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -175,7 +176,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     }
     
     return {
-      itemsAgrupados: sortedAgrupados,
+      itemsAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),
