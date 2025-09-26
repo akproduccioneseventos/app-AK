@@ -1,8 +1,10 @@
+
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
+import { syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import path from 'path';
 
 const FIESTAS_DIR = 'fiestas';
@@ -14,6 +16,12 @@ async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => Fiest
     const currentData = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
     const updatedData = updateFn(currentData);
     await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
+
+    // Sync changes to the customer file if a customer is linked
+    if (updatedData.configuracion.clienteId) {
+        await syncCustomerFromFiestaConfig(updatedData.configuracion.clienteId, updatedData.configuracion);
+    }
+    
     return { success: true, updatedData };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -27,3 +35,5 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
 export async function updateConfiguracion(config: ConfigEventoDataStorage) {
   return updateFiestaData(data => ({ ...data, configuracion: config }));
 }
+
+    

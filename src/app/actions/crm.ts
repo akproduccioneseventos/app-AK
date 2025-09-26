@@ -5,7 +5,7 @@ import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import type { Customer } from '@/types/customer'; 
-import { createNewFiestaForCustomer, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { createNewFiestaForCustomer } from '@/app/actions/fiesta/fiesta.actions';
 import { activateAnnualAdjustmentForBudget } from './presupuestos';
 import { addReunion } from './fiesta/reuniones.actions';
 
@@ -96,13 +96,15 @@ export async function moveCrmLead(
   const newStageName = stages.find(s => s.id === newStageId)?.name || 'Etapa desconocida';
   const now = new Date().toISOString();
 
-  let notes = leads[leadIndex].notes || '';
+  let currentNotes = leads[leadIndex].notes || '';
   if (meetingDate) {
+      let meetingNote = '';
       if (newStageName.toLowerCase().includes('entrevista')) {
-          notes = `\nREUNIÓN DE ENTREVISTA: ${new Date(meetingDate).toLocaleString('es-UY')}\n---` + notes;
+          meetingNote = `\nREUNIÓN DE ENTREVISTA: ${new Date(meetingDate).toLocaleString('es-UY')}`;
       } else if (newStageName.toLowerCase().includes('contrato')) {
-          notes = `\nREUNIÓN DE FIRMA DE CONTRATO: ${new Date(meetingDate).toLocaleString('es-UY')}\n---` + notes;
+          meetingNote = `\nREUNIÓN DE FIRMA DE CONTRATO: ${new Date(meetingDate).toLocaleString('es-UY')}`;
       }
+      currentNotes = `${meetingNote}\n---\n${currentNotes}`;
       leads[leadIndex].followUpDate = meetingDate;
   }
 
@@ -110,7 +112,7 @@ export async function moveCrmLead(
     ...leads[leadIndex],
     currentStageId: newStageId,
     updatedAt: now,
-    notes: notes,
+    notes: currentNotes,
     history: [
       ...(leads[leadIndex].history || []),
       { stageId: newStageId, stageName: newStageName, timestamp: now }
@@ -189,18 +191,19 @@ export async function convertToClientAndMoveProspect(
   try {
     const customerResult = await saveCustomer(customerFormData);
 
-    if (!customerResult.success || !customerResult.id) {
+    if (!customerResult.success || !customerResult.id || !customerResult.customer) {
       return { success: false, error: customerResult.error || "No se pudo crear el cliente." };
     }
     
     // Create or retrieve the fiesta for the new customer
-    const newFiestaResult = await createNewFiestaForCustomer(customerResult.customer as Customer);
+    const newFiestaResult = await createNewFiestaForCustomer(customerResult.customer);
     if (!newFiestaResult.success || !newFiestaResult.fiesta) {
         console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta para el cliente ${customerResult.id}: ${newFiestaResult.error}`);
         // Continue but warn about it
     } else if (meetingDate) {
         // If a meeting was scheduled, add it to the newly created Fiesta's reunions
         await addReunion({
+            fiestaId: newFiestaResult.fiesta.id, // Associate reunion with the new fiesta
             titulo: `Reunión de Firma de Contrato`,
             fecha: new Date(meetingDate).toISOString(),
             notas: `Reunión agendada desde el CRM al convertirse en cliente.`,
@@ -229,3 +232,5 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
+
+    

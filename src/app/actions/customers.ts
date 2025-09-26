@@ -45,7 +45,7 @@ export async function saveCustomer(
   let customerToSave: Partial<Customer> = {}; 
 
   let contractFile: File | null = null;
-  let budgetFile: File | null = null;
+  let budgetFile: File | null = null; 
   let salonContractFile: File | null = null;
 
   if (customerData instanceof FormData) {
@@ -104,12 +104,13 @@ export async function saveCustomer(
         name: customerToSave.name || customerToSave.companyName || 'Sin Nombre Asignado',
         estadoCliente: customerToSave.estadoCliente || 'Actual',
     };
-    customers.push({
+    const newCustomerWithId = {
       ...newCustomerBase,
       id: customerId,
-    });
-    customerToSave = customers[customers.length - 1];
-    customerToSave.name = customerToSave.name || customerToSave.companyName; // Ensure name is set
+      name: newCustomerBase.name || newCustomerBase.companyName, // Ensure name is set on creation
+    };
+    customers.push(newCustomerWithId);
+    customerToSave = newCustomerWithId;
   }
   
   if (contractFile && contractFile.size > 0) {
@@ -307,3 +308,5 @@ export async function addDocumentReferenceToCustomer(customerId: string, documen
     await writeData(CUSTOMERS_FILE, customers);
     return { success: true };
 }
+
+    
