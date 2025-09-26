@@ -123,21 +123,22 @@ export default function PlanificarFiestaHubPage() {
       const fiesta = await getFiestaActual();
       setFiestaActual(fiesta);
 
-      // Check for specific salon contract
-      const hasContratoSalon = fiesta.otrosDocumentos?.some(doc => doc.tipo === 'contrato_salon');
-      if (fiesta?.configuracion.nombreLugar?.toLowerCase().includes("club uruguay") && !hasContratoSalon) {
+      let clientDetails: Customer | null = null;
+      if (fiesta?.configuracion.clienteId) {
+        clientDetails = await getCustomerById(fiesta.configuracion.clienteId);
+        setLinkedClient(clientDetails);
+      }
+      
+      const hasContratoSalonFiesta = fiesta.otrosDocumentos?.some(doc => doc.tipo === 'contrato_salon');
+      if (fiesta?.configuracion.nombreLugar?.toLowerCase().includes("club uruguay") && !hasContratoSalonFiesta && !clientDetails?.salonContractFileName) {
         setShowSalonContractReminder(true);
       }
       
-      const hasContratoServicio = fiesta.otrosDocumentos?.some(doc => doc.tipo === 'contrato_servicio');
-      if (fiesta && !hasContratoServicio) {
+      const hasContratoServicioFiesta = fiesta.otrosDocumentos?.some(doc => doc.tipo === 'contrato_servicio');
+      if (fiesta && !hasContratoServicioFiesta && !clientDetails?.contractFileName) {
         setShowServiceContractReminder(true);
       }
 
-      if (fiesta?.configuracion.clienteId) {
-        const clientDetails = await getCustomerById(fiesta.configuracion.clienteId);
-        setLinkedClient(clientDetails);
-      }
 
       if (fiesta?.tareas) {
         const completed = fiesta.tareas.filter(t => t.completada).length;
