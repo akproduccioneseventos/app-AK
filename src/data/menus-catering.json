@@ -343,7 +343,7 @@
           {"id": "ing_20_7", "name": "Tostadas", "quantityPerPerson": "30", "unit": "g", "cost": 11.7, "proveedor": "DON DIEGO"},
           {"id": "ing_20_8", "name": "Grisines", "quantityPerPerson": "30", "unit": "g", "cost": 6, "proveedor": "DON DIEGO"},
           {"id": "ing_20_9", "name": "Salsas", "quantityPerPerson": "30", "unit": "g", "cost": 6, "proveedor": "UNIPLAS"},
-          {"id": "ing_20_10", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "cost": 6, "proveedor": "DK MOYORISTA"},
+          {"id": "ing_20_10", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "cost": 6, "proveedor": "DK MAYORISTA"},
           {"id": "ing_20_11", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "cost": 5}
         ]
       },
@@ -625,10 +625,10 @@
         "totalDishCost": 186.1,
         "ingredients": [
           { "id": "ing_pp14_1", "name": "Pollo", "quantityPerPerson": "200", "unit": "g", "cost": 56, "proveedor": "CARNICERIA" },
-          { "id": "ing_pp14_2", "name": "Crema de leche", "quantityPerPerson": "80", "unit": "g", "cost": 16, "proveedor": "DOPACA" },
+          { "id": "ing_pp14_2", "name": "Crema de leche", "quantityPerPerson": "80", "unit": "ml", "cost": 16, "proveedor": "DOPACA" },
           { "id": "ing_pp14_3", "name": "Condimentos", "quantityPerPerson": "80", "unit": "g", "cost": 9.6, "proveedor": "UNIPLAS" },
           { "id": "ing_pp14_4", "name": "Cebolla", "quantityPerPerson": "50", "unit": "g", "cost": 4.5, "proveedor": "VERDULERIA" },
-          { "id": "ing_pp14_5", "name": "Champiñon", "quantityPerPerson": "100", "unit": "g", "cost": 50, "proveedor": "DOPACA" },
+          { "id": "ing_pp14_5", "name": "Champiñon", "quantityPerPerson": "100", "unit": "g", "cost": 50, "proveedor": "UNIPLAS" },
           { "id": "ing_pp14_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "cost": 10 },
           { "id": "ing_pp14_7", "name": "Guarnicion", "quantityPerPerson": "1", "unit": "Unidad", "cost": 40, "proveedor": "" }
         ]
