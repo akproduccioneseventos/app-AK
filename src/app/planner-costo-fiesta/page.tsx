@@ -191,17 +191,7 @@ export default function PlanificadorGastronomicoPage() {
           </CardHeader>
           <CardContent>
             {selectedMenu ? (
-                 <ScrollArea className="h-[120px] pr-3 text-sm">
-                    <p className="font-medium mb-1">Platos de "{selectedMenu.name}" (Costo por persona: {formatCurrency(costoTotalMenuPorPersona)}):</p>
-                    <ul className="space-y-0.5">
-                      {selectedMenu.items.map(item => (
-                        <li key={item.id} className="flex justify-between text-xs">
-                          <span>{item.name}</span>
-                          <span>{formatCurrency(item.totalDishCost || 0)} c/u</span> 
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
+                 <p className="text-sm text-muted-foreground">Menú seleccionado: <span className="font-medium text-foreground">{selectedMenu.name}</span>. Costo p/persona: {formatCurrency(costoTotalMenuPorPersona)}</p>
             ) : <p className="text-sm text-muted-foreground">No hay menú de catering seleccionado.</p>}
           </CardContent>
           <CardFooter>

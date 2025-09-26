@@ -272,7 +272,6 @@ export default function CateringEventoHubPage() {
             </div>
           ) : (
             <div className="text-center py-8 bg-muted/30 rounded-md mb-4">
-                <Image src="https://placehold.co/300x200.png" alt="Icono de lista de menús vacía" width={100} height={80} className="mx-auto mb-4 opacity-50" data-ai-hint="empty menu list" />
                 <p className="text-muted-foreground mb-3">
                     Aún no has creado ningún menú.
                 </p>
