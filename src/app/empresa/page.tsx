@@ -57,7 +57,7 @@ const empresaHubItems: HubItem[] = [
     icon: Sparkles,
     actionLabel: 'Gestionar Publicaciones',
   },
-    {
+  {
     title: 'Gestión de Menús de Catering',
     description: 'Crea, edita y organiza las plantillas de menús para tus eventos.',
     href: '/fiestas/nueva/catering/modificar-menu',
@@ -122,5 +122,6 @@ export default function EmpresaHubPage() {
   );
 }
     
+
 
 

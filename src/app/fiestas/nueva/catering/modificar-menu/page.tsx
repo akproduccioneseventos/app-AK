@@ -22,7 +22,7 @@ interface PlatoConMenu extends MenuItem {
   menuName: string;
 }
 
-export default function SeleccionarPlatoParaModificarPage() {
+export default function CatalogoPlatosPage() {
   const { toast } = useToast();
   const [allPlatos, setAllPlatos] = useState<PlatoConMenu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,10 +67,10 @@ export default function SeleccionarPlatoParaModificarPage() {
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Catálogo de Platos
         </h1>
-        <Link href="/empresa/contabilidad" passHref>
+        <Link href="/empresa" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Contabilidad
+            Volver a Gestión Empresa
           </Button>
         </Link>
       </div>
@@ -87,20 +87,20 @@ export default function SeleccionarPlatoParaModificarPage() {
                 <Utensils className="w-7 h-7 text-primary" />
                 <div>
                     <CardTitle className="font-headline text-xl">Todos los Platos Disponibles</CardTitle>
-                    <CardDescription>Visualiza todos tus platos ordenados por costo. Haz clic en "Editar" para modificar sus ingredientes.</CardDescription>
+                    <CardDescription>Visualiza todos tus platos ordenados por costo. Haz clic en "Editar" para modificar sus ingredientes dentro de su menú correspondiente.</CardDescription>
                 </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
              {allPlatos.map((plato) => {
-                const precioFinal = plato.totalDishCost * 2;
+                const precioFinalSugerido = plato.totalDishCost * 1.3; // Ejemplo de margen del 30%
                 return (
                   <Card key={plato.id} className="shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-3 flex justify-between items-center">
                         <div>
                             <p className="font-semibold text-foreground">{plato.name}</p>
                             <p className="text-xs text-muted-foreground">
-                                <span className="font-medium text-destructive">Costo p/p:</span> {formatCurrency(plato.totalDishCost)} | <span className="font-medium text-green-600">Venta p/p:</span> {formatCurrency(precioFinal)}
+                                <span className="font-medium text-destructive">Costo p/p:</span> {formatCurrency(plato.totalDishCost)} | <span className="font-medium text-green-600">Venta Sugerida:</span> {formatCurrency(precioFinalSugerido)}
                             </p>
                              <p className="text-xs text-muted-foreground">
                                 Pertenece al menú: <i>{plato.menuName}</i>
@@ -109,7 +109,7 @@ export default function SeleccionarPlatoParaModificarPage() {
                         <Link href={`/fiestas/nueva/catering/menu/${plato.menuId}/editar`} passHref>
                             <Button variant="outline" size="sm">
                                 <Edit className="w-4 h-4 mr-2" />
-                                Editar
+                                Editar Menú
                             </Button>
                         </Link>
                     </CardContent>

@@ -193,31 +193,8 @@ export default function CateringEventoHubPage() {
         </CardContent>
       </Card>
       
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         <Card className="shadow-lg">
-          <CardHeader>
-              <div className="flex items-center gap-3">
-                  <PlusCircle className="w-8 h-8 text-primary" />
-                  <div>
-                      <CardTitle className="font-headline text-xl">Crear Nuevo Menú</CardTitle>
-                      <CardDescription>Define tus propios menús, platos e ingredientes.</CardDescription>
-                  </div>
-              </div>
-          </CardHeader>
-          <CardContent>
-              <p className="text-muted-foreground mb-4 text-sm">
-                  Crea menús desde cero y calcula costos precisos.
-              </p>
-              <Link href="/fiestas/nueva/catering/nuevo-menu" passHref>
-                  <Button className="w-full">
-                      <PlusCircle className="w-5 h-5 mr-2" />
-                      Empezar a Crear
-                  </Button>
-              </Link>
-          </CardContent>
-        </Card>
-        
-         <Card className="shadow-lg">
           <CardHeader>
               <div className="flex items-center gap-3">
                   <Calculator className="w-8 h-8 text-primary" />
@@ -243,21 +220,21 @@ export default function CateringEventoHubPage() {
         <Card className="shadow-lg">
           <CardHeader>
               <div className="flex items-center gap-3">
-                  <HardHat className="w-8 h-8 text-primary" />
+                  <ShoppingCart className="w-8 h-8 text-primary" />
                   <div>
-                      <CardTitle className="font-headline text-xl">Catálogo de Ingredientes</CardTitle>
-                      <CardDescription>Gestiona tu lista maestra de ingredientes.</CardDescription>
+                      <CardTitle className="font-headline text-xl">Lista de Compras</CardTitle>
+                      <CardDescription>Genera una lista de insumos basada en el menú asignado.</CardDescription>
                   </div>
               </div>
           </CardHeader>
           <CardContent>
               <p className="text-muted-foreground mb-4 text-sm">
-                  Mantén un registro de tus insumos para usarlos en tus menús.
+                  Calcula automáticamente las cantidades necesarias para tus invitados.
               </p>
-              <Link href="/empresa/todos-los-servicios" passHref>
-                  <Button className="w-full" variant="secondary">
-                      <HardHat className="w-5 h-5 mr-2" />
-                      Gestionar Inventario General
+              <Link href="/fiestas/nueva/catering/lista-compras" passHref>
+                  <Button className="w-full">
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      Generar Lista de Compras
                   </Button>
               </Link>
           </CardContent>
@@ -270,8 +247,8 @@ export default function CateringEventoHubPage() {
             <div className="flex items-center gap-3">
                 <Utensils className="w-8 h-8 text-primary" />
                 <div>
-                    <CardTitle className="font-headline text-xl">Catálogo de Platos</CardTitle>
-                    <CardDescription>Visualiza, edita o asigna platos a tu fiesta actual. Para asignar un grupo de platos, asígnalos al mismo menú y luego selecciona ese menú arriba.</CardDescription>
+                    <CardTitle className="font-headline text-xl">Plantillas de Menú</CardTitle>
+                    <CardDescription>Estos son los menús generales de tu empresa. Puedes asignarlos, editarlos o crear nuevos.</CardDescription>
                 </div>
             </div>
         </CardHeader>
@@ -279,36 +256,31 @@ export default function CateringEventoHubPage() {
           {isLoadingMenus ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="ml-3 text-muted-foreground">Cargando tus platos...</p>
+              <p className="ml-3 text-muted-foreground">Cargando menús...</p>
             </div>
-          ) : Object.keys(platosAgrupados).length > 0 ? (
-            <div className="space-y-4">
-                {Object.entries(platosAgrupados).map(([tipo, platos]) => (
-                    <div key={tipo}>
-                        <h3 className="font-headline text-lg text-primary border-b pb-1 mb-2">{tipo}</h3>
-                        <div className="space-y-2">
-                         {platos.map((plato) => {
-                            const precioFinal = plato.totalDishCost * 2;
-                            return (
-                              <div key={plato.id} className="p-3 border rounded-md bg-muted/30 hover:bg-muted/50 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                                <div className="flex-grow">
-                                  <h4 className="font-medium text-foreground">{plato.name}</h4>
-                                  <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
-                                  <p className="text-sm">
-                                    <span className="font-semibold text-destructive">Costo:</span> {formatCurrency(plato.totalDishCost)} | <span className="font-semibold text-green-600">Venta:</span> {formatCurrency(precioFinal)}
-                                  </p>
-                                </div>
-                                <Link href={`/fiestas/nueva/catering/menu/${plato.menuId}/editar`} passHref className="w-full sm:w-auto">
-                                  <Button variant="outline" size="sm" className="w-full">
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Editar
-                                  </Button>
-                                </Link>
-                              </div>
-                            );
-                          })}
-                        </div>
-                    </div>
+          ) : allMenus.length > 0 ? (
+            <div className="space-y-3">
+                {allMenus.map((menu) => (
+                    <Card key={menu.id} className="shadow-sm hover:shadow-md transition-shadow">
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-lg">{menu.name}</CardTitle>
+                            <Link href={`/fiestas/nueva/catering/menu/${menu.id}/editar`} passHref>
+                                <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
+                            </Link>
+                          </div>
+                          <CardDescription>{menu.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <p className="text-sm font-semibold text-green-700">Costo p/Persona: {formatCurrency(menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0))}</p>
+                        </CardContent>
+                        <CardFooter>
+                            <Button onClick={() => handleAssignMenu(menu.id)} disabled={assigningMenuId === menu.id || fiestaActual?.menuAsignadoId === menu.id} className="w-full">
+                                {assigningMenuId === menu.id ? <Loader2 className="w-4 h-4 animate-spin"/> : (fiestaActual?.menuAsignadoId === menu.id ? <CheckCircle className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />)}
+                                <span className="ml-2">{fiestaActual?.menuAsignadoId === menu.id ? 'Asignado a este evento' : 'Asignar a este evento'}</span>
+                            </Button>
+                        </CardFooter>
+                    </Card>
                 ))}
             </div>
           ) : (
@@ -317,6 +289,9 @@ export default function CateringEventoHubPage() {
                 <p className="text-muted-foreground mb-3">
                     Aún no has creado ningún menú personalizado.
                 </p>
+                <Link href="/fiestas/nueva/catering/nuevo-menu" passHref>
+                    <Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Primer Menú</Button>
+                </Link>
             </div>
           )}
         </CardContent>
