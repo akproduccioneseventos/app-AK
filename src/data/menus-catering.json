@@ -21,6 +21,38 @@
           { "id": "ing_1_5", "name": "Gas", "quantityPerPerson": "5", "unit": "Unidad", "cost": 5 },
           { "id": "ing_1_6", "name": "Huevo", "quantityPerPerson": "0.1", "unit": "Unidad", "cost": 1, "proveedor": "VERDULERIA" }
         ]
+      },
+      {
+        "id": "dish_entrada_2",
+        "name": "Pinchos Caprese",
+        "type": "Entrada",
+        "totalDishCost": 35.0,
+        "ingredients": [
+          { "id": "ing_2_1", "name": "Tomate Cherry", "quantityPerPerson": "30", "unit": "Gramos", "cost": 15 },
+          { "id": "ing_2_2", "name": "Muzzarella", "quantityPerPerson": "20", "unit": "Gramos", "cost": 15 },
+          { "id": "ing_2_3", "name": "Albahaca", "quantityPerPerson": "5", "unit": "Gramos", "cost": 5 }
+        ]
+      },
+      {
+        "id": "dish_entrada_3",
+        "name": "Mini Brochetas de Pollo",
+        "type": "Entrada",
+        "totalDishCost": 50.0,
+        "ingredients": [
+          { "id": "ing_3_1", "name": "Pollo", "quantityPerPerson": "50", "unit": "Gramos", "cost": 30 },
+          { "id": "ing_3_2", "name": "Morron", "quantityPerPerson": "10", "unit": "Gramos", "cost": 10 },
+          { "id": "ing_3_3", "name": "Cebolla", "quantityPerPerson": "10", "unit": "Gramos", "cost": 10 }
+        ]
+      },
+      {
+        "id": "dish_entrada_4",
+        "name": "Empanaditas de Carne",
+        "type": "Entrada",
+        "totalDishCost": 40.0,
+        "ingredients": [
+          { "id": "ing_4_1", "name": "Carne Picada", "quantityPerPerson": "40", "unit": "Gramos", "cost": 25 },
+          { "id": "ing_4_2", "name": "Tapa de empanada", "quantityPerPerson": "1", "unit": "Unidad", "cost": 15 }
+        ]
       }
     ]
   },
@@ -34,12 +66,37 @@
     "items": [
       {
         "id": "dish_pp_1",
-        "name": "Chivito c/ Fritas",
+        "name": "Chivito al Plato con Fritas",
         "type": "Plato Principal",
-        "totalDishCost": 153.146,
+        "totalDishCost": 250.0,
         "ingredients": [
-          { "id": "ing_pp1_1", "name": "Huevo duro", "quantityPerPerson": "0.3", "unit": "Unidad", "cost": 3, "proveedor": "VERDULERIA" },
-          { "id": "ing_pp1_2", "name": "Tortuga", "quantityPerPerson": "1", "unit": "Unidad", "cost": 16, "proveedor": "DON DIEGO" }
+          { "id": "ing_pp1_1", "name": "Lomo", "quantityPerPerson": "150", "unit": "Gramos", "cost": 120 },
+          { "id": "ing_pp1_2", "name": "Panceta", "quantityPerPerson": "30", "unit": "Gramos", "cost": 30 },
+          { "id": "ing_pp1_3", "name": "Muzzarella", "quantityPerPerson": "50", "unit": "Gramos", "cost": 40 },
+          { "id": "ing_pp1_4", "name": "Papas", "quantityPerPerson": "200", "unit": "Gramos", "cost": 60 }
+        ]
+      },
+      {
+        "id": "dish_pp_2",
+        "name": "Ravioles con Salsa Caruso",
+        "type": "Plato Principal",
+        "totalDishCost": 180.0,
+        "ingredients": [
+          { "id": "ing_pp2_1", "name": "Ravioles", "quantityPerPerson": "200", "unit": "Gramos", "cost": 100 },
+          { "id": "ing_pp2_2", "name": "Crema de Leche", "quantityPerPerson": "100", "unit": "ml", "cost": 50 },
+          { "id": "ing_pp2_3", "name": "Champiñones", "quantityPerPerson": "30", "unit": "Gramos", "cost": 30 }
+        ]
+      },
+      {
+        "id": "dish_pp_3",
+        "name": "Asado Completo",
+        "type": "Plato Principal",
+        "totalDishCost": 350.0,
+        "ingredients": [
+          { "id": "ing_pp3_1", "name": "Asado", "quantityPerPerson": "400", "unit": "Gramos", "cost": 250 },
+          { "id": "ing_pp3_2", "name": "Chorizo", "quantityPerPerson": "1", "unit": "Unidad", "cost": 50 },
+          { "id": "ing_pp3_3", "name": "Morcilla", "quantityPerPerson": "0.5", "unit": "Unidad", "cost": 25 },
+          { "id": "ing_pp3_4", "name": "Ensalada Rusa", "quantityPerPerson": "100", "unit": "Gramos", "cost": 25 }
         ]
       }
     ]
@@ -54,12 +111,33 @@
     "items": [
       {
         "id": "dish_nino_1",
-        "name": "Panchos Medio Metro c/ Fritas",
+        "name": "Panchos Medio Metro con Fritas",
         "type": "Plato Principal",
         "totalDishCost": 164.3,
         "ingredients": [
           { "id": "ing_n1_1", "name": "Panchos medio metro", "quantityPerPerson": "190", "unit": "Gramos", "cost": 51, "proveedor": "BORDENAVE" },
           { "id": "ing_n1_2", "name": "Papas pai", "quantityPerPerson": "3", "unit": "Gramos", "cost": 3, "proveedor": "UNIPLAS" }
+        ]
+      },
+      {
+        "id": "dish_nino_2",
+        "name": "Nuggets de Pollo con Puré",
+        "type": "Plato Principal",
+        "totalDishCost": 150.0,
+        "ingredients": [
+          { "id": "ing_n2_1", "name": "Nuggets", "quantityPerPerson": "150", "unit": "Gramos", "cost": 100 },
+          { "id": "ing_n2_2", "name": "Papas para puré", "quantityPerPerson": "100", "unit": "Gramos", "cost": 50 }
+        ]
+      },
+      {
+        "id": "dish_nino_3",
+        "name": "Mini Pizzas Muzzarella",
+        "type": "Plato Principal",
+        "totalDishCost": 120.0,
+        "ingredients": [
+          { "id": "ing_n3_1", "name": "Masa de pizza", "quantityPerPerson": "1", "unit": "Unidad", "cost": 60 },
+          { "id": "ing_n3_2", "name": "Salsa de tomate", "quantityPerPerson": "50", "unit": "ml", "cost": 20 },
+          { "id": "ing_n3_3", "name": "Muzzarella", "quantityPerPerson": "80", "unit": "Gramos", "cost": 40 }
         ]
       }
     ]
