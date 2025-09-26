@@ -227,8 +227,8 @@ export default function CateringEventoHubPage() {
                         <CardDescription>Estos son los menús generales de tu empresa. Puedes asignarlos, editarlos o crear nuevos.</CardDescription>
                     </div>
                 </div>
-                <Link href="/fiestas/nueva/catering/modificar-menu" passHref>
-                    <Button><Edit className="w-4 h-4 mr-2"/>Gestionar Catálogo de Platos/Menús</Button>
+                <Link href="/empresa/menus" passHref>
+                    <Button><Edit className="w-4 h-4 mr-2"/>Gestionar Catálogo de Menús</Button>
                 </Link>
             </div>
         </CardHeader>
@@ -245,7 +245,7 @@ export default function CateringEventoHubPage() {
                         <CardHeader className="pb-2">
                           <div className="flex justify-between items-start">
                             <CardTitle className="text-lg">{menu.name}</CardTitle>
-                            <Link href={`/fiestas/nueva/catering/menu/${encodeURIComponent(menu.id)}/editar`} passHref>
+                            <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref>
                                 <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
                             </Link>
                           </div>
@@ -276,7 +276,7 @@ export default function CateringEventoHubPage() {
                 <p className="text-muted-foreground mb-3">
                     Aún no has creado ningún menú.
                 </p>
-                <Link href="/fiestas/nueva/catering/nuevo-menu" passHref>
+                <Link href="/empresa/menus/nuevo" passHref>
                     <Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Primer Menú</Button>
                 </Link>
             </div>

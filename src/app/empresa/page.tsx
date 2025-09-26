@@ -53,7 +53,7 @@ const empresaHubItems: HubItem[] = [
   {
     title: 'Gestión de Menús de Catering',
     description: 'Crea, edita y organiza las plantillas de menús para tus eventos.',
-    href: '/fiestas/nueva/catering/modificar-menu',
+    href: '/empresa/menus',
     icon: ChefHat,
     actionLabel: 'Gestionar Menús',
   },
