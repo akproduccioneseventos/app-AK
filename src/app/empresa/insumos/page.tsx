@@ -88,6 +88,27 @@ export default function InsumosPage() {
     window.print();
   };
   
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Inventario de Insumos - AK Producciones',
+      text: `Resumen de insumos e ingredientes de la empresa.`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
+  };
+
   const itemsAgrupadosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
       const categoria = item.categoria || 'Otros';
@@ -110,6 +131,7 @@ export default function InsumosPage() {
         </div>
          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
+            <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
             <Link href="/empresa/todos-los-servicios/nuevo?type=Insumo/Ingrediente" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
