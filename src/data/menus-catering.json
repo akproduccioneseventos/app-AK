@@ -1,7 +1,7 @@
 
 [
   {
-    "id": "menu_entradas_prediseñado",
+    "id": "menu_entradas_predisenado",
     "name": "Menú de Entradas",
     "description": "Una selección de entradas frías y calientes para comenzar el evento.",
     "templateType": "Menú de Entradas",

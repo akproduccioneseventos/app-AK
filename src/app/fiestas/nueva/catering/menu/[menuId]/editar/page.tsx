@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, type FormEvent } from 'react';
@@ -48,7 +49,7 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { styl
 
 export default function EditarMenuEspecificoPage({ params: paramsProp }: { params: { menuId: string } }) {
   const params = React.use(paramsProp);
-  const menuIdFromParams = params.menuId;
+  const menuIdFromParams = decodeURIComponent(params.menuId); // Decode the ID
 
   const { toast } = useToast();
   const router = useRouter();
@@ -237,7 +238,7 @@ export default function EditarMenuEspecificoPage({ params: paramsProp }: { param
         return;
     }
     if (!menuData) {
-        toast({ title: 'Error', description: 'No hay datos de menú cargados.', variant: 'destructive' });
+        toast({ title: 'Error', description: 'No hay datos de menú cargados.', variant: "destructive" });
         return;
     }
     setIsSaving(true);
