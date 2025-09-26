@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat, Calculator } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -37,11 +37,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir al Panel',
   },
   {
-    title: 'Gestión de Activos Fijos',
-    description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
+    title: 'Inventario General',
+    description: 'Gestiona tu inventario de activos fijos, insumos e ingredientes.',
     href: '/empresa/todos-los-servicios',
     icon: Package,
-    actionLabel: 'Gestionar Activos',
+    actionLabel: 'Gestionar Inventario',
   },
    {
     title: 'Catálogo de Servicios',
@@ -56,6 +56,20 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/redes-sociales',
     icon: Sparkles,
     actionLabel: 'Gestionar Publicaciones',
+  },
+    {
+    title: 'Gestión de Menús de Catering',
+    description: 'Crea, edita y organiza las plantillas de menús para tus eventos.',
+    href: '/fiestas/nueva/catering/modificar-menu',
+    icon: ChefHat,
+    actionLabel: 'Gestionar Menús',
+  },
+  {
+    title: 'Planificador Gastronómico',
+    description: 'Calcula costos detallados de catering, repostería y bebidas.',
+    href: '/planner-costo-fiesta',
+    icon: Calculator,
+    actionLabel: 'Abrir Planificador',
   },
 ];
 
@@ -108,4 +122,5 @@ export default function EmpresaHubPage() {
   );
 }
     
+
 
