@@ -98,6 +98,23 @@ export default function GestionBebidasPage() {
     });
   };
 
+  const handleCategoryChange = (
+    categoryId: BebidaCategoria['id'],
+    field: keyof Omit<BebidaCategoria, 'id' | 'items' | 'nombreDisplay'>,
+    value: string | boolean
+  ) => {
+    setBebidasData(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        categorias: prev.categorias.map(cat =>
+          cat.id === categoryId ? { ...cat, [field]: value } : cat
+        ),
+      };
+    });
+  };
+
+
   const handleSave = async () => {
     if (!bebidasData) return;
     setIsSaving(true);
@@ -156,7 +173,7 @@ export default function GestionBebidasPage() {
                 <div className="space-y-1"><Label htmlFor="num-adultos">Nº Adultos</Label><Input id="num-adultos" type="number" value={numAdultos} onChange={(e) => setNumAdultos(Number(e.target.value) || 0)} min="0"/></div>
                 <div className="space-y-1"><Label htmlFor="num-adolescentes">Nº Adolescentes</Label><Input id="num-adolescentes" type="number" value={numAdolescentes} onChange={(e) => setNumAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
                 <div className="space-y-1"><Label htmlFor="num-ninos">Nº Niños</Label><Input id="num-ninos" type="number" value={numNinos} onChange={(e) => setNumNinos(Number(e.target.value) || 0)} min="0"/></div>
-                <div className="space-y-1"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 0)} min="1"/></div>
+                <div className="space-y-1"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
             </div>
             <div className="p-3 border rounded-md bg-muted/50 text-center font-medium">
                 Total Invitados: <span className="text-primary font-bold">{totalInvitados}</span>
