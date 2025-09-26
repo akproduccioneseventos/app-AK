@@ -60,7 +60,7 @@
     "id": "ing-albahaca",
     "nombre": "Albahaca",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de catering",
+    "categoria": "Verduras",
     "unidad": "Unidad"
   },
   {
@@ -102,28 +102,28 @@
     "id": "ing-tomate-cherry",
     "nombre": "Tomate cherry",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de catering",
+    "categoria": "Verduras",
     "unidad": "Gramos"
   },
   {
     "id": "ing-jamon",
     "nombre": "Jamon",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de catering",
+    "categoria": "Fiambres",
     "unidad": "Gramos"
   },
   {
     "id": "ing-manteca",
     "nombre": "Manteca",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de catering",
+    "categoria": "Lácteos",
     "unidad": "Gramos"
   },
   {
     "id": "ing-muzzarella",
     "nombre": "Muzarella",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Servicio de catering",
+    "categoria": "Lácteos",
     "unidad": "Gramos"
   },
   {
