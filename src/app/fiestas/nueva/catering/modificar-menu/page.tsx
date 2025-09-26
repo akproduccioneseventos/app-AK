@@ -116,7 +116,7 @@ export default function CatalogoPlatosPage() {
                                 Pertenece al menú: <i>{plato.menuName}</i>
                             </p>
                         </div>
-                        <Link href={`/fiestas/nueva/catering/menu/${plato.menuId}/editar`} passHref>
+                        <Link href={`/fiestas/nueva/catering/menu/${encodeURIComponent(plato.menuId)}/editar`} passHref>
                             <Button variant="outline" size="sm">
                                 <Edit className="w-4 h-4 mr-2" />
                                 Editar Menú
