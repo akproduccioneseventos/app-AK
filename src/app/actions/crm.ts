@@ -41,6 +41,11 @@ export async function addCrmLead(
     return { success: false, error: 'Se requiere un teléfono de contacto.' };
   }
   const leads = await getCrmLeads();
+
+  const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
+  if (isDuplicate) {
+    return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
+  }
   
   const stages = await getCrmStages();
   const now = new Date().toISOString();
@@ -224,5 +229,7 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
+
+    
 
     
