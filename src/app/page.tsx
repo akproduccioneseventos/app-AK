@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CalendarDays, BarChart3, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot, Share2, Eye, FilePlus2, MessageSquareText, ListChecks } from 'lucide-react';
+import { ArrowRight, CalendarDays, BarChart3, Settings, Building2, PlusCircle, FileText as FileTextIcon, CalendarClock, Briefcase, CheckCircle, TrendingUp, Banknote, Users, LogOut, Sparkles, Wand2, Bot, Share2, Eye, FilePlus2, MessageSquareText, ListChecks, Calculator } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,7 @@ interface ModuleCardProps {
 
 const modules: ModuleCardProps[] = [
   { title: "Gestor de Eventos", description: "Visualiza y organiza todos tus eventos, el actual y los pasados. Accede al Calendario General.", href: "/eventos", icon: CalendarDays },
+  { title: "Planificador Gastronómico", description: "Calcula costos detallados de catering, repostería y bebidas para tus eventos.", href: "/planner-costo-fiesta", icon: Calculator },
   { title: "Contabilidad y Finanzas", description: "Accede al CRM, presupuestos, facturas y reportes.", href: "/empresa/contabilidad", icon: BarChart3 },
   { title: "Gestión de Empresa", description: "Administra personal, proveedores y tu catálogo de servicios.", href: "/empresa", icon: Building2 },
   { title: "Configuración General", description: "Ajusta las preferencias de la aplicación y plantillas de documentos.", href: "/settings", icon: Settings },
@@ -212,7 +213,7 @@ export default function DashboardPage() {
       
       <div className="pt-4">
         <h3 className="text-2xl font-semibold text-foreground mb-4 font-headline text-center">Módulos Principales</h3>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {modules.map((module) => (
             <ModuleCard key={module.title} {...module} />
           ))}
