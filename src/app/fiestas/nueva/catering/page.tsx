@@ -29,7 +29,6 @@ export default function CateringEventoHubPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
-  const [allPlatos, setAllPlatos] = useState<PlatoConMenu[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoadingFiesta, setIsLoadingFiesta] = useState(true);
@@ -46,20 +45,6 @@ export default function CateringEventoHubPage() {
       setAllMenus(menusData);
       setFiestaActual(fiestaData);
       
-      const platos: PlatoConMenu[] = [];
-      menusData.forEach(menu => {
-          menu.items.forEach(item => {
-            platos.push({
-              ...item,
-              menuId: menu.id,
-              menuName: menu.name,
-            });
-          });
-        });
-        
-      platos.sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
-      setAllPlatos(platos);
-
     } catch (error) {
       console.error("Error al cargar datos de catering:", error);
       toast({
@@ -77,17 +62,6 @@ export default function CateringEventoHubPage() {
     loadData();
   }, [loadData]);
   
-  const platosAgrupados = useMemo(() => {
-    return allPlatos.reduce((acc, plato) => {
-      const tipo = plato.type || 'Sin Categoría';
-      if (!acc[tipo]) {
-        acc[tipo] = [];
-      }
-      acc[tipo].push(plato);
-      return acc;
-    }, {} as Record<string, PlatoConMenu[]>);
-  }, [allPlatos]);
-
   const handleAssignMenu = async (menuId: string) => {
     setAssigningMenuId(menuId);
     try {
@@ -144,7 +118,7 @@ export default function CateringEventoHubPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Gestión de Catering y Menús
+          Catering y Menú del Evento
         </h1>
         <Link href="/fiestas/nueva" passHref>
           <Button variant="outline">
@@ -245,12 +219,17 @@ export default function CateringEventoHubPage() {
 
       <Card className="shadow-lg">
         <CardHeader>
-            <div className="flex items-center gap-3">
-                <Utensils className="w-8 h-8 text-primary" />
-                <div>
-                    <CardTitle className="font-headline text-xl">Plantillas de Menú</CardTitle>
-                    <CardDescription>Estos son los menús generales de tu empresa. Puedes asignarlos, editarlos o crear nuevos.</CardDescription>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <Utensils className="w-8 h-8 text-primary" />
+                    <div>
+                        <CardTitle className="font-headline text-xl">Plantillas de Menú</CardTitle>
+                        <CardDescription>Estos son los menús generales de tu empresa. Puedes asignarlos, editarlos o crear nuevos.</CardDescription>
+                    </div>
                 </div>
+                <Link href="/fiestas/nueva/catering/modificar-menu" passHref>
+                    <Button><Edit className="w-4 h-4 mr-2"/>Gestionar Catálogo de Platos/Menús</Button>
+                </Link>
             </div>
         </CardHeader>
         <CardContent>
@@ -266,7 +245,7 @@ export default function CateringEventoHubPage() {
                         <CardHeader className="pb-2">
                           <div className="flex justify-between items-start">
                             <CardTitle className="text-lg">{menu.name}</CardTitle>
-                            <Link href={`/fiestas/nueva/catering/menu/${menu.id}/editar`} passHref>
+                            <Link href={`/fiestas/nueva/catering/menu/${encodeURIComponent(menu.id)}/editar`} passHref>
                                 <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
                             </Link>
                           </div>
@@ -295,7 +274,7 @@ export default function CateringEventoHubPage() {
             <div className="text-center py-8 bg-muted/30 rounded-md mb-4">
                 <Image src="https://placehold.co/300x200.png" alt="Icono de lista de menús vacía" width={100} height={80} className="mx-auto mb-4 opacity-50" data-ai-hint="empty menu list" />
                 <p className="text-muted-foreground mb-3">
-                    Aún no has creado ningún menú personalizado.
+                    Aún no has creado ningún menú.
                 </p>
                 <Link href="/fiestas/nueva/catering/nuevo-menu" passHref>
                     <Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Primer Menú</Button>
