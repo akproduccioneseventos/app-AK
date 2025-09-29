@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -224,5 +223,3 @@ export async function removeInvoiceId(invoiceId: string) {
     return { ...data, invoiceIds };
   });
 }
-
-    
