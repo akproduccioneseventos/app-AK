@@ -117,6 +117,7 @@ export default function PresupuestosPage() {
                             isAssigning={isProcessing === p.id}
                             isAssignedToCurrentFiesta={fiestaActual?.presupuestoId === p.id}
                             onToggleAssign={() => handleToggleAssign(p)}
+                            onDeleteSuccess={fetchData}
                         />
                     ))}
                 </div>

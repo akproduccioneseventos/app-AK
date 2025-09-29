@@ -2,15 +2,30 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon } from 'lucide-react'; 
+import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2 } from 'lucide-react'; 
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { deletePresupuesto } from '@/app/actions/presupuestos';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 interface PresupuestoCardProps {
   presupuesto: Presupuesto;
   isAssignedToCurrentFiesta?: boolean;
   onToggleAssign?: () => void;
   isAssigning?: boolean;
+  onDeleteSuccess?: () => void; // Callback to refresh the list
 }
 
 const formatCurrency = (amount?: number) => {
@@ -28,9 +43,32 @@ export default function PresupuestoCard({
   presupuesto, 
   isAssignedToCurrentFiesta, 
   onToggleAssign,
-  isAssigning 
+  isAssigning,
+  onDeleteSuccess
 }: PresupuestoCardProps) {
+  const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const totalFinal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const result = await deletePresupuesto(presupuesto.id);
+      if (result.success) {
+        toast({ title: "Presupuesto Eliminado", variant: "destructive" });
+        if (onDeleteSuccess) onDeleteSuccess();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error al eliminar", description: e.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+
   return (
     <Card className="shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between">
       <CardHeader>
@@ -96,6 +134,27 @@ export default function PresupuestoCard({
           <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
             <Button variant="outline" size="sm"><Edit className="mr-1"/> Editar</Button>
           </Link>
+           <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="icon" className="h-8 w-8">
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Se eliminará el presupuesto para "{presupuesto.clienteNombre}". Esta acción no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
         </div>
       </CardFooter>
     </Card>
