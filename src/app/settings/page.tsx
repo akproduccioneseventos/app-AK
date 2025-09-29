@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -48,6 +48,13 @@ const settingsCards = [
     href: "/settings/budget-display",
     icon: Wand2,
     buttonLabel: "Configurar Simulador"
+  },
+  {
+    title: "Plantillas de Tareas",
+    description: "Crea y gestiona listas de tareas predefinidas para iniciar rápidamente la planificación de un evento.",
+    href: "/settings/task-templates",
+    icon: ListChecks,
+    buttonLabel: "Gestionar Plantillas"
   },
   {
     title: "Accesos para Colaboradores",

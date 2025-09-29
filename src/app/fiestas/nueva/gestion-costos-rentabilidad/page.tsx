@@ -30,7 +30,7 @@ const COST_CATEGORIES: CostoCategoria[] = [
 ];
 
 const formatCurrency = (amount: number | undefined) => {
-  if (amount === undefined || isNaN(amount)) return "N/A";
+  if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', {
     style: 'currency',
     currency: 'UYU',
@@ -87,7 +87,13 @@ export default function GestionCostosRentabilidadPage() {
 
       let tempCostoBebidas = 0;
       fiesta.bebidas?.categorias.forEach(cat => {
-        if(cat.activada) cat.items.forEach(item => tempCostoBebidas += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0)));
+        if(cat.activada) {
+            cat.items.forEach(item => tempCostoBebidas += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0)));
+            cat.recetas?.forEach(receta => {
+                 const factorEscala = invitados / (receta.porcionesBase || 1); // Avoid division by zero
+                 tempCostoBebidas += (receta.costoTotalReceta || 0) * (isNaN(factorEscala) ? 0 : factorEscala);
+            });
+        }
       });
       setCostoTotalBebidas(tempCostoBebidas);
 
@@ -247,7 +253,7 @@ export default function GestionCostosRentabilidadPage() {
                 <div className="flex justify-between items-center p-2 border-b"><span>Costo Catering (Menú Principal):</span><span className="font-semibold">{formatCurrency(costoTotalMenu)}</span></div>
                 <div className="flex justify-between items-center p-2 border-b"><span>Costo Repostería:</span><span className="font-semibold">{formatCurrency(costoTotalReposteria)}</span></div>
                 <div className="flex justify-between items-center p-2"><span>Costo Bebidas:</span><span className="font-semibold">{formatCurrency(costoTotalBebidas)}</span></div>
-                <p className="text-xs text-muted-foreground">Estos costos se calculan y gestionan en los módulos de <Link href="/planner-costo-fiesta" className="underline">Planificador Gastronómico</Link>, <Link href="/fiestas/nueva/catering" className="underline">Catering</Link>, <Link href="/fiestas/nueva/planner-costo-fiesta/reposteria" className="underline">Repostería</Link> y <Link href="/fiestas/nueva/planner-costo-fiesta/bebidas" className="underline">Bebidas</Link>.</p>
+                <p className="text-xs text-muted-foreground">Estos costos se calculan y gestionan en los módulos de <Link href="/planner-costo-fiesta" className="underline">Planificador Gastronómico</Link>, <Link href="/fiestas/nueva/catering" className="underline">Catering</Link>, <Link href="/planner-costo-fiesta/reposteria" className="underline">Repostería</Link> y <Link href="/planner-costo-fiesta/bebidas" className="underline">Bebidas</Link>.</p>
             </AccordionContent>
         </AccordionItem>
         
@@ -268,15 +274,6 @@ export default function GestionCostosRentabilidadPage() {
         <CardContent>
           <Textarea value={gestionCostos.notasGeneralesCostos || ''} onChange={handleNotasGeneralesChange} placeholder="Observaciones sobre la rentabilidad, estrategias de precios, acuerdos especiales, etc." rows={3} disabled={isSaving}/>
         </CardContent>
-      </Card>
-
-      <Card className="shadow-lg bg-muted/20 border-dashed">
-          <CardHeader><CardTitle className="font-headline text-xl">Futuras Funcionalidades</CardTitle></CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2"><ShoppingCart className="w-4 h-4 text-primary/70"/>Lista de Compras Inteligente (Generación automática basada en menús y necesidades).</p>
-              <p className="flex items-center gap-2"><HardHat className="w-4 h-4 text-primary/70"/>Plantillas de Costos Reutilizables (Para tipos de evento comunes).</p>
-              <p className="text-xs">Integración más profunda con Inventario y Proveedores para un seguimiento de costos aún más preciso.</p>
-          </CardContent>
       </Card>
 
       <div className="flex justify-end pt-6 border-t">
