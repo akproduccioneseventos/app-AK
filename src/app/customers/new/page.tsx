@@ -229,7 +229,7 @@ export default function NewCustomerPage() {
               </div>
           </CardContent>
 
-          <CardFooter className="border-t pt-6 mt-6">
+          <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Cliente'}

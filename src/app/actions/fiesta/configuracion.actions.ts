@@ -35,5 +35,3 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
 export async function updateConfiguracion(config: ConfigEventoDataStorage) {
   return updateFiestaData(data => ({ ...data, configuracion: config }));
 }
-
-    

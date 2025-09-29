@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus, Palette, Music2, ChefHat, PackageSearch } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { getFiestaActual, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
@@ -35,6 +35,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { isToday, isWithinInterval, addDays, startOfDay, endOfDay } from 'date-fns';
+import { Separator } from '@/components/ui/separator';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -46,6 +47,13 @@ const formatDate = (dateString?: string) => {
     return "Fecha inválida";
   }
 };
+
+const moduleShortcuts = [
+    { name: 'Decoración', href: '/fiestas/nueva/decoracion', icon: Palette },
+    { name: 'Catering', href: '/fiestas/nueva/catering', icon: ChefHat },
+    { name: 'Música', href: '/fiestas/nueva/musica', icon: Music2 },
+    { name: 'Carga Operativa', href: '/fiestas/nueva/carga-operativa', icon: PackageSearch },
+];
 
 // Función para generar contenido de archivo .ics
 const generateICSContent = (reunion: Reunion, fiestaNombre: string): string => {
@@ -278,14 +286,22 @@ export default function GestionReunionesPage() {
           <p className="text-sm text-muted-foreground italic p-3 bg-background rounded-md border">No hay notas.</p>
         )}
       </CardContent>
-       {reunion.fecha && (
-        <CardFooter>
-          <Button variant="outline" size="sm" onClick={() => handleAddToCalendar(reunion)}>
-            <CalendarPlus className="w-4 h-4 mr-2" />
-            Añadir a Calendario
-          </Button>
+       <CardFooter className="flex-wrap gap-2">
+            {reunion.fecha && (
+            <Button variant="outline" size="sm" onClick={() => handleAddToCalendar(reunion)}>
+                <CalendarPlus className="w-4 h-4 mr-2" />
+                Añadir a Calendario
+            </Button>
+            )}
+            {moduleShortcuts.map(sc => (
+                <Link key={sc.href} href={sc.href} passHref>
+                    <Button variant="secondary" size="sm">
+                        <sc.icon className="w-4 h-4 mr-1.5" />
+                        {sc.name}
+                    </Button>
+                </Link>
+            ))}
         </CardFooter>
-      )}
     </Card>
   );
 
@@ -293,7 +309,7 @@ export default function GestionReunionesPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><MessageSquareText className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Reuniones</h1></div>
-        <Link href="/contabilidad/crm" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al CRM</Button></Link>
+        <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
       </div>
 
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
@@ -323,5 +339,3 @@ export default function GestionReunionesPage() {
     </div>
   );
 }
-
-    
