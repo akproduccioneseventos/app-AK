@@ -128,7 +128,7 @@ export default function PresupuestoCard({
             </Button>
           </Link>
         )}
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 pt-2 border-t">
           <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
             <Button variant="outline" size="sm"><Eye className="mr-1"/> Ver</Button>
           </Link>
@@ -137,7 +137,7 @@ export default function PresupuestoCard({
           </Link>
            <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon" className="h-8 w-8">
+                <Button variant="destructive" size="sm">
                   {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                 </Button>
               </AlertDialogTrigger>

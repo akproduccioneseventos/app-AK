@@ -125,6 +125,42 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
   }
 }
 
+export async function deleteArchivedFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  const allArchived = await getHistorialFiestas();
+  const fiestaToDelete = allArchived.find(f => f.id === fiestaId);
+  if (!fiestaToDelete) {
+    return { success: false, error: "El evento archivado no fue encontrado." };
+  }
+  
+  const datePart = fiestaToDelete.configuracion.fechaEvento ? new Date(fiestaToDelete.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
+  const namePart = fiestaToDelete.configuracion.nombreEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 20);
+  const archiveFilename = `fiesta_archivada_${datePart}_${namePart}_${fiestaToDelete.id}.json`;
+
+  try {
+    const filePath = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR, archiveFilename);
+    await fs.unlink(filePath);
+    return { success: true };
+  } catch (error: any) {
+     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      // If file doesn't exist, it might be a naming mismatch. Try finding it by ID.
+      const files = await fs.readdir(path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR));
+      const actualFile = files.find(f => f.includes(fiestaId));
+      if (actualFile) {
+        try {
+          await fs.unlink(path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR, actualFile));
+          return { success: true };
+        } catch (e: any) {
+           console.error(`Error deleting archived fiesta file (fallback) ${actualFile}:`, e);
+           return { success: false, error: `No se pudo eliminar el archivo del evento archivado (fallback). Error: ${e.message}` };
+        }
+      }
+      return { success: false, error: "El archivo del evento archivado no fue encontrado para eliminar." };
+    }
+    console.error(`Error deleting archived fiesta file ${archiveFilename}:`, error);
+    return { success: false, error: "No se pudo eliminar el archivo del evento archivado." };
+  }
+}
+
 
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
     try {
@@ -166,7 +202,7 @@ export async function createNewFiestaForCustomer(customer: Customer): Promise<{ 
   };
   
   try {
-    const filePath = path.join(FIESTAS_DIR, `fiesta_${newFiesta.id}.json`);
+    const filePath = path.join(FIESTAS_DIR, `${newFiesta.id}.json`);
     await writeData(filePath, newFiesta);
     return { success: true, fiesta: newFiesta };
   } catch (error: any) {
@@ -188,3 +224,5 @@ export async function removeInvoiceId(invoiceId: string) {
     return { ...data, invoiceIds };
   });
 }
+
+    

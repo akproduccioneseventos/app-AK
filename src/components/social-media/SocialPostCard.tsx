@@ -26,7 +26,7 @@ interface SocialPostCardProps {
   onDelete: (postId: string) => Promise<void>;
   isDeleting: boolean;
   onUpdate: () => void;
-  onDuplicate: () => void;
+  onDuplicate: (post: SocialPost) => void;
 }
 
 const formatDateTime = (dateString: string) => {
@@ -77,7 +77,7 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
         {post.link && <a href={post.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all flex items-center gap-1"><LinkIcon className="w-3 h-3"/>{post.link}</a>}
       </CardContent>
       <CardFooter className="flex justify-end gap-1 border-t pt-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onDuplicate} title="Duplicar">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDuplicate(post)} title="Duplicar">
             <Copy className="w-4 h-4"/>
         </Button>
         <NewPostDialog onPostCreated={onUpdate} postToEdit={post}>

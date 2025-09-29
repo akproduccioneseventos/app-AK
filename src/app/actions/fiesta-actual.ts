@@ -23,7 +23,8 @@ import {
     saveFiesta as saveFiestaFromModule,
     createNewFiestaForCustomer as createNewFiestaForCustomerFromModule,
     addInvoiceId,
-    removeInvoiceId
+    removeInvoiceId,
+    deleteArchivedFiesta
 } from './fiesta/fiesta.actions';
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
@@ -53,6 +54,7 @@ export const getHistorialFiestas = getHistorialFiestasFromModule;
 export const getFiestas = getFiestasFromModule;
 export const getAllFiestas = getAllFiestasFromModule;
 export const archiveFiesta = archiveFiestaFromModule;
+export const deleteFiestaArchivada = deleteArchivedFiesta;
 export const resetFiestaActual = resetFiestaActualFromModule;
 export const getFiestaById = getFiestaByIdFromModule;
 export const saveFiesta = saveFiestaFromModule;
