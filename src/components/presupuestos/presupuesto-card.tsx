@@ -3,7 +3,7 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2 } from 'lucide-react'; 
+import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 import {
