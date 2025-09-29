@@ -101,5 +101,3 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
     </Card>
   );
 }
-
-    

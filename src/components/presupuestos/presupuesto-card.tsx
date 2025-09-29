@@ -19,6 +19,7 @@ import {
 import { deletePresupuesto } from '@/app/actions/presupuestos';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { FiestaEnPlanificacion } from '@/types/fiesta';
 
 interface PresupuestoCardProps {
   presupuesto: Presupuesto;
