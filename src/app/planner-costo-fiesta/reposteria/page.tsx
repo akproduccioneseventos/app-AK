@@ -1,15 +1,17 @@
+
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Wand2, Trash2, ChevronDown, Settings, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria, ReposteriaItem, ReposteriaConsumoConfig } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria, ReposteriaItem, ReposteriaConsumoConfig, TipoAsistente } from '@/types/fiesta';
 import { getFiestaActual, updateReposteriaFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultReposteriaCategorias, defaultReposteriaConsumoConfig } from '@/lib/fiesta-defaults';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -18,10 +20,6 @@ import { Separator } from '@/components/ui/separator';
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 
 
 const formatCurrency = (amount?: number) => {
@@ -232,51 +230,12 @@ export default function GestionReposteriaPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Cake className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador de Repostería</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Repostería del Evento</h1>
         </div>
         <Link href="/planner-costo-fiesta" passHref>
           <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button>
         </Link>
       </div>
-      
-       <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><Settings className="text-primary"/>Parámetros del Cálculo</CardTitle>
-          <CardDescription>Define la cantidad de invitados para estimar el consumo de repostería.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="space-y-1"><Label htmlFor="num-adultos">Nº Adultos</Label><Input id="num-adultos" type="number" value={numAdultos} onChange={(e) => setNumAdultos(Number(e.target.value) || 0)} min="0"/></div>
-                <div className="space-y-1"><Label htmlFor="num-adolescentes">Nº Adolescentes</Label><Input id="num-adolescentes" type="number" value={numAdolescentes} onChange={(e) => setNumAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
-                <div className="space-y-1"><Label htmlFor="num-ninos">Nº Niños</Label><Input id="num-ninos" type="number" value={numNinos} onChange={(e) => setNumNinos(Number(e.target.value) || 0)} min="0"/></div>
-            </div>
-            <div className="p-3 border rounded-md bg-muted/50 text-center font-medium">
-                Total Invitados: <span className="text-primary font-bold">{totalInvitados}</span>
-            </div>
-        </CardContent>
-         <CardFooter className="flex justify-end">
-            <Sheet>
-                <SheetTrigger asChild><Button variant="secondary"><Settings className="w-4 h-4 mr-2"/>Configurar Cálculos</Button></SheetTrigger>
-                <SheetContent>
-                    <SheetHeader><SheetTitle>Configurar Estimaciones de Consumo</SheetTitle><SheetDescription>Define las porciones recomendadas por persona para cada categoría.</SheetDescription></SheetHeader>
-                    <ScrollArea className="h-[calc(100vh-12rem)] mt-4 pr-3">
-                        <div className="space-y-4 py-2">
-                        {Object.entries(consumoConfig).map(([catId, values]) => (
-                            <Card key={catId} className="p-3">
-                                <h4 className="font-semibold text-sm mb-2">{defaultReposteriaCategorias.find(c=>c.id === catId)?.nombreDisplay}</h4>
-                                <div className="grid grid-cols-2 gap-3 text-xs">
-                                    <div className="space-y-1"><Label>Adulto (porciones)</Label><Input type="number" value={values.adulto} onChange={e => handleConsumoConfigChange(catId as keyof ReposteriaConsumoConfig, 'adulto', e.target.value)} step="0.1"/></div>
-                                    <div className="space-y-1"><Label>Adolescente (porciones)</Label><Input type="number" value={values.adolescente} onChange={e => handleConsumoConfigChange(catId as keyof ReposteriaConsumoConfig, 'adolescente', e.target.value)} step="0.1"/></div>
-                                    <div className="space-y-1 col-span-2"><Label>Niño (porciones)</Label><Input type="number" value={values.nino} onChange={e => handleConsumoConfigChange(catId as keyof ReposteriaConsumoConfig, 'nino', e.target.value)} step="0.1"/></div>
-                                </div>
-                            </Card>
-                        ))}
-                        </div>
-                    </ScrollArea>
-                </SheetContent>
-            </Sheet>
-         </CardFooter>
-      </Card>
 
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">

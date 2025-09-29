@@ -17,4 +17,3 @@ export async function getBebidasDataForPlanner(): Promise<BebidasData> {
   const fiesta = await getFiestaActual();
   return fiesta.bebidas || { categorias: [], notasGenerales: '' };
 }
-

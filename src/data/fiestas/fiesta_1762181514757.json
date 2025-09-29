@@ -171,7 +171,7 @@
     "ourStoryTitle": "Nuestra Historia",
     "ourStoryText": "Un breve relato de cómo llegamos hasta aquí...",
     "ourStoryImageUrl": "",
-    "showOurStory": false,
+    "showOurStory": true,
     "eventDetailsTitle": "Detalles del Evento",
     "eventDetailsText": "Fecha, hora, lugar y más información importante.",
     "showEventDetails": true,
@@ -187,17 +187,17 @@
     "showGallery": false
   },
   "clientPortalSettings": {
-    "enabled": false,
+    "enabled": true,
     "accessKey": "",
     "checklist": {
-      "visible": false,
+      "visible": true,
       "editable": false
     },
     "itinerario": {
-      "visible": false
+      "visible": true
     },
     "musica": {
-      "visible": false,
+      "visible": true,
       "editable": false
     },
     "videoVida": {
@@ -205,13 +205,13 @@
       "editable": true
     },
     "listaRegalos": {
-      "visible": false
+      "visible": true
     },
     "documentos": {
       "visible": true
     },
     "notasCliente": {
-      "visible": false,
+      "visible": true,
       "editable": true
     },
     "invitados": {
