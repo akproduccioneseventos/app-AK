@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteArchivedFiesta } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -123,7 +123,7 @@ export default function GestorFiestasPage() {
   const handleDeleteArchived = async (fiestaId: string) => {
       setIsProcessing(fiestaId);
       try {
-        const result = await deleteArchivedFiesta(fiestaId);
+        const result = await deleteFiestaArchivada(fiestaId);
         if (result.success) {
             toast({ title: "Evento Archivado Eliminado", variant: "destructive"});
             await loadData();
@@ -288,5 +288,3 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
-
-    
