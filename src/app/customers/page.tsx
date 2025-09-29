@@ -46,37 +46,37 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
 
     return (
         <div>
-            <h2 className="text-xl font-semibold font-headline mb-3">{title} ({customers.length})</h2>
-            <div className="overflow-x-auto border rounded-lg">
+            <h2 class="text-xl font-semibold font-headline mb-3">{title} ({customers.length})</h2>
+            <div class="overflow-x-auto border rounded-lg">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="min-w-[250px]">Nombre / Empresa</TableHead>
-                    <TableHead className="min-w-[150px] flex items-center gap-1"><CalendarDays className="w-4 h-4"/>Próximo/Último Evento</TableHead>
-                    <TableHead className="text-right print:hidden min-w-[200px]">Acciones</TableHead>
+                    <TableHead class="min-w-[250px]">Nombre / Empresa</TableHead>
+                    <TableHead class="min-w-[150px] flex items-center gap-1"><CalendarDays class="w-4 h-4"/>Próximo/Último Evento</TableHead>
+                    <TableHead class="text-right print:hidden min-w-[200px]">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {customers.map((customer) => (
                     <TableRow key={customer.id}>
-                      <TableCell className="font-medium">{customer.companyName || customer.name}</TableCell>
+                      <TableCell class="font-medium">{customer.companyName || customer.name}</TableCell>
                       <TableCell>{formatDate(customer.partyDate)}</TableCell>
-                      <TableCell className="text-right print:hidden">
-                        <div className="flex items-center justify-end gap-2">
+                      <TableCell class="text-right print:hidden">
+                        <div class="flex items-center justify-end gap-2">
                           <Link href={`/customers/${customer.id}`} passHref>
                             <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${customer.companyName || customer.name}`} title="Ver Detalles">
-                              <Eye className="w-4 h-4" />
+                              <Eye class="w-4 h-4" />
                             </Button>
                           </Link>
                           <Link href={`/customers/${customer.id}/edit`} passHref>
                             <Button variant="outline" size="icon" aria-label={`Editar Cliente ${customer.companyName || customer.name}`} title="Editar Cliente">
-                              <Edit className="w-4 h-4" />
+                              <Edit class="w-4 h-4" />
                             </Button>
                           </Link>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="destructive" size="icon" aria-label={`Eliminar Cliente ${customer.companyName || customer.name}`} title="Eliminar Cliente" disabled={deletingId === customer.id}>
-                                {deletingId === customer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                {deletingId === customer.id ? <Loader2 class="w-4 h-4 animate-spin" /> : <Trash2 class="w-4 h-4" />}
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -89,7 +89,7 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
                               <AlertDialogFooter>
                                 <AlertDialogCancel disabled={!!deletingId}>Cancelar</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => onDelete(customer.id, customer.companyName || customer.name)} disabled={!!deletingId} className="bg-destructive hover:bg-destructive/90">
-                                  {deletingId === customer.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                  {deletingId === customer.id ? <Loader2 class="w-4 h-4 mr-2 animate-spin" /> : null}
                                   Sí, eliminar
                                 </AlertDialogAction>
                               </AlertDialogFooter>
@@ -216,18 +216,18 @@ export default function CustomersPage() {
   const oldCustomers = filteredCustomers.filter(c => c.estadoCliente === 'Antiguo');
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
-        <div className="flex items-center gap-3">
-          <UsersIcon className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
+        <div class="flex items-center gap-3">
+          <UsersIcon class="w-8 h-8 text-primary" />
+          <h1 class="text-3xl font-bold tracking-tight font-headline">
             Gestión de Clientes
           </h1>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div class="flex gap-2 flex-wrap">
           <Link href="/customers/new" passHref>
             <Button>
-              <UserPlus className="w-5 h-5 mr-2" />
+              <UserPlus class="w-5 h-5 mr-2" />
               Añadir Cliente
             </Button>
           </Link>
@@ -235,13 +235,13 @@ export default function CustomersPage() {
       </div>
       
       <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <CardHeader class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <CardTitle className="font-headline">Listado de Clientes ({customers.length})</CardTitle>
+              <CardTitle class="font-headline">Listado de Clientes ({customers.length})</CardTitle>
               <CardDescription>Consulta y gestiona la información de tus clientes.</CardDescription>
             </div>
-            <div className="relative flex-grow md:max-w-xs w-full">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <div class="relative flex-grow md:max-w-xs w-full">
+                <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                 type="text"
                 placeholder="Buscar por nombre o empresa..."
@@ -251,11 +251,11 @@ export default function CustomersPage() {
                 />
             </div>
         </CardHeader>
-        <CardContent className="space-y-8">
+        <CardContent class="space-y-8">
           {isLoading ? (
-            <div className="flex items-center justify-center py-10 print:hidden">
-              <Loader2 className="w-10 h-10 animate-spin text-primary" />
-              <p className="ml-3 text-muted-foreground">Cargando clientes...</p>
+            <div class="flex items-center justify-center py-10 print:hidden">
+              <Loader2 class="w-10 h-10 animate-spin text-primary" />
+              <p class="ml-3 text-muted-foreground">Cargando clientes...</p>
             </div>
           ) : filteredCustomers.length > 0 ? (
             <>
@@ -264,15 +264,15 @@ export default function CustomersPage() {
                 <CustomerTable title="Clientes Antiguos" customers={oldCustomers} deletingId={deletingId} onDelete={handleDelete} />
             </>
           ) : (
-             <div className="py-10 text-center print:hidden">
-              <UsersIcon className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground text-lg">
+             <div class="py-10 text-center print:hidden">
+              <UsersIcon class="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
+              <p class="text-muted-foreground text-lg">
                 {customers.length === 0 ? "No tienes clientes confirmados todavía." : "Ningún cliente coincide con tu búsqueda."}
               </p>
               {customers.length === 0 && (
                 <Link href="/customers/new" passHref>
-                    <Button className="mt-6">
-                    <UserPlus className="w-5 h-5 mr-2" />
+                    <Button class="mt-6">
+                    <UserPlus class="w-5 h-5 mr-2" />
                     Añadir Primer Cliente
                     </Button>
                 </Link>

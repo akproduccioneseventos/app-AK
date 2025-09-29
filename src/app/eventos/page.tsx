@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestas, archiveFiesta, getHistorialFiestas } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteArchivedFiesta } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -122,10 +122,19 @@ export default function GestorFiestasPage() {
   
   const handleDeleteArchived = async (fiestaId: string) => {
       setIsProcessing(fiestaId);
-      // Simulate deletion for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({ title: "Función no implementada", description: "La eliminación de archivos de eventos se habilitará en el futuro.", variant: "default"});
-      setIsProcessing(null);
+      try {
+        const result = await deleteArchivedFiesta(fiestaId);
+        if (result.success) {
+            toast({ title: "Evento Archivado Eliminado", variant: "destructive"});
+            await loadData();
+        } else {
+            throw new Error(result.error || "No se pudo eliminar el evento archivado.");
+        }
+      } catch (error: any) {
+        toast({title: "Error al Eliminar", description: error.message, variant: "destructive"});
+      } finally {
+        setIsProcessing(null);
+      }
   }
 
   return (
@@ -279,3 +288,5 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
+
+    
