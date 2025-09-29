@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { getFiestas, archiveFiesta, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
@@ -43,7 +43,7 @@ export default function GestorFiestasPage() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-  const [isArchiving, setIsArchiving] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -79,7 +79,7 @@ export default function GestorFiestasPage() {
   }, [loadData]);
 
   const handleArchivar = async (fiestaId: string) => {
-    setIsArchiving(fiestaId);
+    setIsProcessing(fiestaId);
     try {
       const result = await archiveFiesta(fiestaId);
       if (result.success) {
@@ -91,7 +91,7 @@ export default function GestorFiestasPage() {
     } catch (e: any) {
       toast({ title: "Error al Archivar", description: e.message, variant: "destructive" });
     } finally {
-      setIsArchiving(null);
+      setIsProcessing(null);
     }
   };
 
@@ -119,6 +119,14 @@ export default function GestorFiestasPage() {
       });
     }
   };
+  
+  const handleDeleteArchived = async (fiestaId: string) => {
+      setIsProcessing(fiestaId);
+      // Simulate deletion for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast({ title: "Función no implementada", description: "La eliminación de archivos de eventos se habilitará en el futuro.", variant: "default"});
+      setIsProcessing(null);
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 print:space-y-4">
@@ -200,8 +208,8 @@ export default function GestorFiestasPage() {
                         </Link>
                          <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={isArchiving === fiesta.id}>
-                                {isArchiving === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4"/>}
+                            <Button variant="outline" size="sm" disabled={isProcessing === fiesta.id}>
+                                {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4"/>}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -234,9 +242,28 @@ export default function GestorFiestasPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {fiestasArchivadas.map(fiesta => (
                         <Card key={fiesta.id} className="bg-muted/40 print:border print:shadow-none">
-                            <CardHeader className="p-4">
-                                <CardTitle className="text-base font-medium text-muted-foreground print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
-                                <CardDescription className="text-xs print:text-[10px]">{formatDate(fiesta.configuracion.fechaEvento)}</CardDescription>
+                            <CardHeader className="p-4 flex-row justify-between items-start">
+                                <div>
+                                    <CardTitle className="text-base font-medium text-muted-foreground print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
+                                    <CardDescription className="text-xs print:text-[10px]">{formatDate(fiesta.configuracion.fechaEvento)}</CardDescription>
+                                </div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/60 hover:bg-destructive/10 hover:text-destructive" disabled={isProcessing === fiesta.id}>
+                                            {isProcessing === fiesta.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5"/>}
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Eliminar Evento Archivado?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción eliminará permanentemente el archivo del evento "{fiesta.configuracion.nombreEvento}". No podrás recuperar sus datos.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteArchived(fiesta.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </CardHeader>
                         </Card>
                     ))}
@@ -252,4 +279,6 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
+    
+
     
