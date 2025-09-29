@@ -1,17 +1,7 @@
-
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, RsvpStatus, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
-import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
-import { readData, writeData } from '@/lib/data-service';
-import fs from 'fs/promises';
-import path from 'path';
-
-// DEPRECATED: This file is being split into smaller, modular action files
-// inside the /app/actions/fiesta/ directory.
-// The functions are temporarily re-exported from here for backward compatibility
-// during the transition. New code should import from the specific action files.
-
+import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
+import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { 
     getFiestaActual as getFiestaActualFromModule,
     getHistorialFiestas as getHistorialFiestasFromModule,
@@ -22,8 +12,8 @@ import {
     getFiestaById as getFiestaByIdFromModule,
     saveFiesta as saveFiestaFromModule,
     createNewFiestaForCustomer as createNewFiestaForCustomerFromModule,
-    addInvoiceId,
-    removeInvoiceId,
+    addInvoiceId as addInvoiceIdToFiesta,
+    removeInvoiceId as removeInvoiceIdFromFiesta,
     deleteArchivedFiesta
 } from './fiesta/fiesta.actions';
 
@@ -54,13 +44,13 @@ export const getHistorialFiestas = getHistorialFiestasFromModule;
 export const getFiestas = getFiestasFromModule;
 export const getAllFiestas = getAllFiestasFromModule;
 export const archiveFiesta = archiveFiestaFromModule;
-export const deleteFiestaArchivada = deleteArchivedFiesta;
+export const deleteFiestaArchivada = deleteArchivedFiesta; // Correct export name
 export const resetFiestaActual = resetFiestaActualFromModule;
 export const getFiestaById = getFiestaByIdFromModule;
 export const saveFiesta = saveFiestaFromModule;
 export const createNewFiestaForCustomer = createNewFiestaForCustomerFromModule;
-export const addInvoiceIdToFiestaActual = addInvoiceId;
-export const removeInvoiceIdFromFiestaActual = removeInvoiceId;
+export const addInvoiceIdToFiestaActual = addInvoiceIdToFiesta;
+export const removeInvoiceIdFromFiestaActual = removeInvoiceIdFromFiesta;
 
 // --- Configuration Actions ---
 export const updateConfiguracionFiestaActual = updateConfiguracion;
