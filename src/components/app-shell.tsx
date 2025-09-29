@@ -51,6 +51,11 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Activo Fijo';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Activo`;
   if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
+  if (pathname === '/empresa/menus') return 'Gestión de Menús';
+  if (pathname === '/empresa/menus/catalogo') return 'Catálogo de Platos';
+  if (pathname === '/empresa/menus/nuevo') return 'Crear Nuevo Menú';
+  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'menus' && pathSegments[3] === 'editar') return `Editando Menú`;
+  if (pathname === '/empresa/insumos') return 'Gestión de Insumos';
 
 
   if (pathname === '/compras') return 'Compras y Checklist';
@@ -71,11 +76,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
   if (pathname === '/portal') return 'Portal del Cliente';
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
-  if (pathname === '/fiestas/nueva/catering/nuevo-menu') return 'Crear Nuevo Menú Personalizado';
-  if (pathname === '/empresa/menus') return 'Gestión de Menús';
-  if (pathname === '/empresa/menus/catalogo') return 'Catálogo de Platos';
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
-  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'menus' && pathSegments[2] && pathSegments[3] === 'editar') return `Editando Menú`;
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
@@ -108,7 +109,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
   if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
   if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
-  if (pathname === '/empresa/insumos') return 'Gestión de Insumos';
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
