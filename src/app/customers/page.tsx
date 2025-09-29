@@ -133,7 +133,8 @@ export default function CustomersPage() {
 
           if (customerFiestas.length > 0) {
               const hasUpcomingEvent = customerFiestas.some(f => {
-                  const eventDate = new Date(f.configuracion.fechaEvento!);
+                  if (!f.configuracion.fechaEvento) return false;
+                  const eventDate = new Date(f.configuracion.fechaEvento);
                   eventDate.setHours(0, 0, 0, 0);
                   return eventDate.getTime() >= now.getTime();
               });
@@ -142,7 +143,8 @@ export default function CustomersPage() {
                   calculatedStatus = 'Actual';
                   const upcomingEvents = customerFiestas
                       .filter(f => {
-                          const eventDate = new Date(f.configuracion.fechaEvento!);
+                          if (!f.configuracion.fechaEvento) return false;
+                          const eventDate = new Date(f.configuracion.fechaEvento);
                           eventDate.setHours(0, 0, 0, 0);
                           return eventDate.getTime() >= now.getTime();
                       })

@@ -37,9 +37,6 @@ export async function addCrmLead(
   if (!leadData.name.trim()) {
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
-  if (!leadData.phone?.trim()) {
-    return { success: false, error: 'Se requiere un teléfono de contacto.' };
-  }
   const leads = await getCrmLeads();
 
   const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
@@ -112,7 +109,7 @@ export async function moveCrmLead(
     ...leads[leadIndex],
     currentStageId: newStageId,
     updatedAt: now,
-    notes: currentNotes,
+    notes: currentNotes.trim(),
     history: [
       ...(leads[leadIndex].history || []),
       { stageId: newStageId, stageName: newStageName, timestamp: now }
@@ -232,5 +229,3 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
-
-    

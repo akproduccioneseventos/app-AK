@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -100,9 +101,9 @@ export default function BackupPage() {
             throw new Error(result.error || "No se pudo eliminar el punto de restauración.");
         }
     } catch (error: any) {
-        toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
+      toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
     } finally {
-        setProcessingPointName(null);
+      setProcessingPointName(null);
     }
   };
 
