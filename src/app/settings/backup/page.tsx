@@ -185,7 +185,7 @@ export default function BackupPage() {
                                         <Button variant="outline" size="sm" disabled={!!processingPointName}><RotateCw className="w-4 h-4 mr-1.5"/>Restaurar</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>Restaurar desde este punto?</AlertDialogTitle><AlertDialogDescription>Se sobreescribirán todos los datos actuales con los del punto de restauración de <span className="font-bold">{point.displayDate}</span>. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
+                                        <AlertDialogHeader><AlertDialogTitle>¿Restaurar desde este punto?</AlertDialogTitle><AlertDialogDescription>Se sobreescribirán todos los datos actuales con los del punto de restauración de <span className="font-bold">{point.displayDate}</span>. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
                                         <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleRestoreFromPoint(point.name)}>Sí, Restaurar</AlertDialogAction></AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
@@ -194,7 +194,7 @@ export default function BackupPage() {
                                         <Button variant="destructive" size="icon" className="h-9 w-9" disabled={!!processingPointName}><Trash2 className="w-4 h-4"/></Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>Eliminar este punto?</AlertDialogTitle><AlertDialogDescription>El punto de restauración de <span className="font-bold">{point.displayDate}</span> será eliminado permanentemente.</AlertDialogDescription></AlertDialogHeader>
+                                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar este punto?</AlertDialogTitle><AlertDialogDescription>El punto de restauración de <span className="font-bold">{point.displayDate}</span> será eliminado permanentemente.</AlertDialogDescription></AlertDialogHeader>
                                         <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteRestorePoint(point.name)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
