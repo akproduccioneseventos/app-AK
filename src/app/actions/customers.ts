@@ -107,7 +107,7 @@ export async function saveCustomer(
     const newCustomerWithId = {
       ...newCustomerBase,
       id: customerId,
-      name: newCustomerBase.name || newCustomerBase.companyName, // Ensure name is set on creation
+      name: newCustomerBase.name || newCustomerBase.companyName || '', // Ensure name is set on creation
     };
     customers.push(newCustomerWithId);
     customerToSave = newCustomerWithId;

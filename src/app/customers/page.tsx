@@ -206,8 +206,8 @@ export default function CustomersPage() {
   const filteredCustomers = customers.filter(customer => {
       const lowercasedTerm = searchTerm.toLowerCase();
       return lowercasedTerm === '' ||
-        customer.name?.toLowerCase().includes(lowercasedTerm) ||
-        customer.companyName?.toLowerCase().includes(lowercasedTerm);
+        (customer.name && customer.name.toLowerCase().includes(lowercasedTerm)) ||
+        (customer.companyName && customer.companyName.toLowerCase().includes(lowercasedTerm));
   });
 
   const activeCustomers = filteredCustomers.filter(c => c.estadoCliente === 'Actual');
