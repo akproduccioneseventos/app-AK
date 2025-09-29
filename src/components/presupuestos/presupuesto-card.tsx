@@ -163,5 +163,3 @@ export default function PresupuestoCard({
     </Card>
   );
 }
-
-    
