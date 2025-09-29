@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
@@ -14,7 +15,7 @@ import {
     createNewFiestaForCustomer as createNewFiestaForCustomerFromModule,
     addInvoiceId as addInvoiceIdToFiesta,
     removeInvoiceId as removeInvoiceIdFromFiesta,
-    deleteArchivedFiesta
+    deleteArchivedFiesta as deleteArchivedFiestaFromModule // Corrected import
 } from './fiesta/fiesta.actions';
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
@@ -44,7 +45,7 @@ export const getHistorialFiestas = getHistorialFiestasFromModule;
 export const getFiestas = getFiestasFromModule;
 export const getAllFiestas = getAllFiestasFromModule;
 export const archiveFiesta = archiveFiestaFromModule;
-export const deleteFiestaArchivada = deleteArchivedFiesta; // Correct export name
+export const deleteFiestaArchivada = deleteArchivedFiestaFromModule; // Correct export name
 export const resetFiestaActual = resetFiestaActualFromModule;
 export const getFiestaById = getFiestaByIdFromModule;
 export const saveFiesta = saveFiestaFromModule;

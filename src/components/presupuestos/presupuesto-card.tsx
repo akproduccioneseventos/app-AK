@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Presupuesto } from '@/types/presupuesto';
