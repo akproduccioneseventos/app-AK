@@ -1,8 +1,10 @@
 
+'use client';
+
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2 } from 'lucide-react'; 
+import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2 } from 'lucide-react'; 
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 import {
@@ -137,7 +139,7 @@ export default function PresupuestoCard({
           </Link>
            <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
+                <Button variant="destructive" size="icon" className="h-8 w-8" disabled={isDeleting}>
                   {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                 </Button>
               </AlertDialogTrigger>
