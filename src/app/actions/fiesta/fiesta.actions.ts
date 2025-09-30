@@ -125,7 +125,7 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
   }
 }
 
-export async function deleteArchivedFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   const allArchived = await getHistorialFiestas();
   const fiestaToDelete = allArchived.find(f => f.id === fiestaId);
   if (!fiestaToDelete) {
