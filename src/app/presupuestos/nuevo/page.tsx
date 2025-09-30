@@ -20,6 +20,7 @@ import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import { Progress } from '@/components/ui/progress';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
+import { Separator } from '@/components/ui/separator';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
