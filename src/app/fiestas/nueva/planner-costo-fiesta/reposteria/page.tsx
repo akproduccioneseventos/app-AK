@@ -1,24 +1,25 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Wand2, Trash2, ChevronDown } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Cake, PlusCircle, Wand2, Trash2, ChevronDown, Settings, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria, ReposteriaItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ReposteriaData, ReposteriaCategoria, ReposteriaItem, ReposteriaConsumoConfig, TipoAsistente } from '@/types/fiesta';
 import { getFiestaActual, updateReposteriaFiestaActual } from '@/app/actions/fiesta-actual';
-import { defaultReposteriaCategorias } from '@/lib/fiesta-defaults';
-import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
+import { defaultReposteriaCategorias, defaultReposteriaConsumoConfig } from '@/lib/fiesta-defaults';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 
 const formatCurrency = (amount?: number) => {
@@ -38,21 +39,35 @@ export default function GestionReposteriaPage() {
   const [currentItem, setCurrentItem] = useState<Partial<ReposteriaItem> | null>(null);
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
 
+  const [numAdultos, setNumAdultos] = useState(0);
+  const [numAdolescentes, setNumAdolescentes] = useState(0);
+  const [numNinos, setNumNinos] = useState(0);
+  
+  const [consumoConfig, setConsumoConfig] = useState<ReposteriaConsumoConfig>(defaultReposteriaConsumoConfig);
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
-      const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
-        const savedCat = fiestaData.reposteria?.categorias?.find(sc => sc.id === defaultCat.id);
+      const config = fiestaData.configuracion;
+      setNumAdultos(Number(config.invitadosEstimados) || 0);
+      
+      const fetchedReposteriaData = fiestaData.reposteria || { categorias: [], notasGenerales: '' };
+       const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
+        const savedCat = fetchedReposteriaData.categorias?.find(sc => sc.id === defaultCat.id);
         const mergedCat = savedCat ? { ...defaultCat, ...savedCat } : { ...defaultCat };
         mergedCat.items = mergedCat.items || [];
         return mergedCat;
       });
       setReposteriaData({
+        ...fetchedReposteriaData,
         categorias: mergedCategorias,
-        notasGenerales: fiestaData.reposteria?.notasGenerales || '',
+        consumoConfig: fetchedReposteriaData.consumoConfig || defaultReposteriaConsumoConfig,
+        notasGenerales: fetchedReposteriaData.notasGenerales || '',
       });
+      setConsumoConfig(fetchedReposteriaData.consumoConfig || defaultReposteriaConsumoConfig);
+
     } catch (err: any) {
       setError("No se pudieron cargar los datos de repostería.");
       toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
@@ -64,6 +79,16 @@ export default function GestionReposteriaPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+  
+  const handleConsumoConfigChange = (categoriaId: keyof ReposteriaConsumoConfig, tipoAsistente: keyof ReposteriaConsumoConfig[keyof ReposteriaConsumoConfig], value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setConsumoConfig(prev => {
+        if (!prev) return defaultReposteriaConsumoConfig;
+        const newConfig = JSON.parse(JSON.stringify(prev));
+        newConfig[categoriaId][tipoAsistente] = numValue;
+        return newConfig;
+    });
+  };
 
   const handleCategoryChange = (
     categoryId: ReposteriaCategoria['id'],
@@ -80,7 +105,7 @@ export default function GestionReposteriaPage() {
       };
     });
   };
-  
+
   const handleNotasGeneralesChange = (value: string) => {
     setReposteriaData(prev => prev ? ({ ...prev, notasGenerales: value }) : null);
   };
@@ -144,8 +169,12 @@ export default function GestionReposteriaPage() {
     e.preventDefault();
     if (!reposteriaData) return;
     setIsSaving(true);
+    const dataToSave: ReposteriaData = {
+        ...reposteriaData,
+        consumoConfig: consumoConfig,
+    };
     try {
-      const result = await updateReposteriaFiestaActual(reposteriaData);
+      const result = await updateReposteriaFiestaActual(dataToSave);
       if (result.success && result.updatedData) {
         toast({ title: "¡Repostería Guardada!", description: "Los detalles de repostería se han actualizado." });
         const mergedCategorias = defaultReposteriaCategorias.map(defaultCat => {
@@ -154,6 +183,7 @@ export default function GestionReposteriaPage() {
         });
         setReposteriaData({
             categorias: mergedCategorias,
+            consumoConfig: result.updatedData?.consumoConfig || defaultReposteriaConsumoConfig,
             notasGenerales: result.updatedData?.notasGenerales || '',
         });
       } else {
@@ -167,24 +197,16 @@ export default function GestionReposteriaPage() {
   };
 
   if (isLoading || !reposteriaData) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Cargando datos de repostería...</p>
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
+  }
+  if (error) {
+    return <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error</h2><p className="text-muted-foreground">{error}</p><Button onClick={loadData} className="mt-4">Reintentar</Button></div>;
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Error</h2>
-        <p className="text-muted-foreground">{error}</p>
-        <Button onClick={loadData} className="mt-4">Reintentar</Button>
-      </div>
-    );
-  }
+  const costoTotalGeneral = reposteriaData.categorias.reduce((sumCat, cat) => {
+    if (!cat.activada) return sumCat;
+    return sumCat + cat.items.reduce((sumItem, item) => sumItem + (item.costoEstimado || 0) * (item.cantidad || 1), 0);
+  }, 0);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -209,7 +231,7 @@ export default function GestionReposteriaPage() {
           <Cake className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Repostería del Evento</h1>
         </div>
-        <Link href="/planner-costo-fiesta" passHref>
+        <Link href="/fiestas/nueva" passHref>
           <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button>
         </Link>
       </div>
@@ -222,15 +244,18 @@ export default function GestionReposteriaPage() {
           </CardHeader>
           <CardContent>
             <Accordion type="multiple" defaultValue={reposteriaData.categorias.filter(c=>c.activada).map(c => c.id)} className="w-full space-y-3">
-              {reposteriaData.categorias.map(cat => (
+              {reposteriaData.categorias.map(cat => {
+                const consumoAdultos = (consumoConfig[cat.id]?.adulto || 0) * numAdultos;
+                const consumoAdolescentes = (consumoConfig[cat.id]?.adolescente || 0) * numAdolescentes;
+                const consumoNinos = (consumoConfig[cat.id]?.nino || 0) * numNinos;
+                const totalPorcionesNecesarias = consumoAdultos + consumoAdolescentes + consumoNinos;
+                const costoTotalCategoria = cat.items.reduce((sum, item) => sum + (item.costoEstimado || 0) * (item.cantidad || 1), 0);
+
+                return (
                 <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm bg-card">
                   <AccordionPrimitive.Header className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
                     <AccordionPrimitive.Trigger
-                      className={cn(
-                        "flex flex-1 items-center gap-2 text-lg font-medium text-primary hover:no-underline",
-                        "[&[data-state=open]>svg:last-child]:rotate-180"
-                      )}
-                    >
+                      className={cn( "flex flex-1 items-center gap-2 text-lg font-medium text-primary hover:no-underline", "[&[data-state=open]>svg:last-child]:rotate-180" )}>
                       <Wand2 className="w-5 h-5 text-primary/80" />
                       {cat.nombreDisplay}
                       <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 ml-auto" />
@@ -265,20 +290,20 @@ export default function GestionReposteriaPage() {
                                     </li>
                                 ))}
                             </ul>
-                        ) : (
-                            <p className="text-sm text-center text-muted-foreground py-2">No hay productos en esta categoría.</p>
-                        )}
-                        <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(cat.items.reduce((sum, item) => sum + (item.costoEstimado || 0) * (item.cantidad || 1), 0))}</p>
+                        ) : (<p className="text-sm text-center text-muted-foreground py-2">No hay productos en esta categoría.</p>)}
+                        <p className="text-right font-semibold text-sm mt-2">Costo Total Categoría: {formatCurrency(costoTotalCategoria)}</p>
                       </>
                     )}
                   </AccordionContent>
                 </AccordionItem>
-              ))}
+                )
+              })}
             </Accordion>
              <div className="space-y-2 pt-6 border-t mt-6">
                 <Label htmlFor="notas-generales-reposteria">Notas Generales de Repostería</Label>
                 <Textarea id="notas-generales-reposteria" value={reposteriaData.notasGenerales || ''} onChange={(e) => handleNotasGeneralesChange(e.target.value)} placeholder="Anotaciones generales sobre el servicio de repostería, preferencias, etc." rows={3} />
             </div>
+             <div className="flex justify-end pt-4 font-bold text-lg">Costo Total General: <span className="ml-2 text-primary">{formatCurrency(costoTotalGeneral)}</span></div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>

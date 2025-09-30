@@ -132,10 +132,10 @@ export default function InventarioInsumosPage() {
                     Añadir Insumo
                 </Button>
             </Link>
-             <Link href="/planner-costo-fiesta" passHref>
+             <Link href="/empresa" passHref>
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
-                    Volver al Planificador
+                    Volver a Empresa
                 </Button>
             </Link>
         </div>

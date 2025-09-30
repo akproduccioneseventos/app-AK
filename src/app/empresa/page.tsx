@@ -1,9 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat, Calculator, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat, Calculator, ShoppingCart, GlassWater } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -42,12 +43,19 @@ const empresaHubItems: HubItem[] = [
     icon: ChefHat,
     actionLabel: 'Gestionar Menús',
   },
+   {
+    title: 'Gestión de Insumos',
+    description: 'Gestiona tu inventario de ingredientes, bebidas y otros consumibles.',
+    href: '/empresa/insumos',
+    icon: GlassWater,
+    actionLabel: 'Gestionar Insumos',
+  },
   {
-    title: 'Catálogo General de la Empresa',
-    description: 'Gestiona tu inventario de activos, insumos y servicios que ofreces.',
+    title: 'Catálogo de Activos Fijos',
+    description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
     href: '/empresa/todos-los-servicios',
     icon: Package,
-    actionLabel: 'Gestionar Catálogo',
+    actionLabel: 'Gestionar Activos',
   },
   {
     title: 'Redes Sociales y Publicaciones',

@@ -96,10 +96,10 @@ function NuevoItemInventarioContent() {
       if (result.success && result.id) {
         toast({ title: "¡Ítem Guardado!", description: `El ítem "${itemData.nombre}" ha sido añadido.` });
         
-        let redirectUrl = '/empresa';
-        if(tipoItem === 'Servicio') redirectUrl = '/empresa/servicios';
-        else if (tipoItem === 'Activo Fijo') redirectUrl = '/empresa/todos-los-servicios';
-        else if (tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') redirectUrl = '/empresa/insumos';
+        let redirectUrl = '/empresa/todos-los-servicios'; // Default fallback
+        if(tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') {
+          redirectUrl = '/empresa/insumos';
+        }
         
         router.push(redirectUrl);
       } else {
@@ -136,10 +136,10 @@ function NuevoItemInventarioContent() {
   const isReposteria = categoria === 'Servicio de repostería';
   const isServicio = tipoItem === 'Servicio';
   
-  let backUrl = '/empresa';
-  if(tipoItem === 'Servicio') backUrl = '/empresa/servicios';
-  else if (tipoItem === 'Activo Fijo') backUrl = '/empresa/todos-los-servicios';
-  else if (tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') backUrl = '/empresa/insumos';
+  let backUrl = '/empresa/todos-los-servicios';
+  if(tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') {
+    backUrl = '/empresa/insumos';
+  }
 
 
   return (

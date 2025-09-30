@@ -89,6 +89,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
+  if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return 'Planificador de Repostería';
+  if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return 'Planificador de Bebidas';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -106,9 +108,9 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
+
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
-  if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
-  if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
+
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
@@ -154,6 +156,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
+    if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return Cake;
+    if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return GlassWater;
     return PartyPopper;
   }
 
@@ -203,8 +207,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   
 
   if (pathname === '/planner-costo-fiesta') return Calculator;
-  if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
-  if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
