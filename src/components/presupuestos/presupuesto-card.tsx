@@ -130,7 +130,7 @@ export default function PresupuestoCard({
             </Button>
           </Link>
         )}
-        <div className="flex justify-end gap-2 pt-2 border-t">
+        <div className="flex justify-end gap-2 pt-2 border-t w-full">
           <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
             <Button variant="outline" size="sm"><Eye className="mr-1"/> Ver</Button>
           </Link>
