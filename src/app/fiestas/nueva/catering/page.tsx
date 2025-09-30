@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -174,8 +173,8 @@ export default function CateringEventoHubPage() {
               <div className="flex items-center gap-3">
                   <Calculator className="w-8 h-8 text-primary" />
                   <div>
-                      <CardTitle className="font-headline text-xl">Calculadora de Costos</CardTitle>
-                      <CardDescription>Estima costos y rentabilidad de la gastronomía.</CardDescription>
+                      <CardTitle className="font-headline text-xl">Planificador Gastronómico</CardTitle>
+                      <CardDescription>Estima costos y rentabilidad de repostería y bebidas.</CardDescription>
                   </div>
               </div>
           </CardHeader>
@@ -186,7 +185,7 @@ export default function CateringEventoHubPage() {
               <Link href="/planner-costo-fiesta" passHref>
                   <Button className="w-full">
                       <Calculator className="w-5 h-5 mr-2" />
-                      Ver Planificador Gastronómico
+                      Ir al Planificador Gastronómico
                   </Button>
               </Link>
           </CardContent>
@@ -228,7 +227,7 @@ export default function CateringEventoHubPage() {
                     </div>
                 </div>
                 <Link href="/empresa/menus" passHref>
-                    <Button><Edit className="w-4 h-4 mr-2"/>Gestionar Catálogo de Menús</Button>
+                    <Button><Edit className="w-4 h-4 mr-2"/>Gestionar Menús</Button>
                 </Link>
             </div>
         </CardHeader>

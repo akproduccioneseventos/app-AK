@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -36,6 +35,13 @@ const empresaHubItems: HubItem[] = [
     icon: BarChart3,
     actionLabel: 'Ir al Panel',
   },
+   {
+    title: 'Gestión de Menús de Catering',
+    description: 'Crea, edita y gestiona las plantillas de menús para tus eventos.',
+    href: '/empresa/menus',
+    icon: ChefHat,
+    actionLabel: 'Gestionar Menús',
+  },
   {
     title: 'Catálogo General de la Empresa',
     description: 'Gestiona tu inventario de activos, insumos y servicios que ofreces.',
@@ -49,13 +55,6 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/redes-sociales',
     icon: Sparkles,
     actionLabel: 'Gestionar Publicaciones',
-  },
-  {
-    title: 'Planificador Gastronómico',
-    description: 'Calcula costos y gestiona plantillas de catering, repostería y bebidas.',
-    href: '/planner-costo-fiesta',
-    icon: Calculator,
-    actionLabel: 'Abrir Planificador',
   },
 ];
 
@@ -107,4 +106,3 @@ export default function EmpresaHubPage() {
     </div>
   );
 }
-    

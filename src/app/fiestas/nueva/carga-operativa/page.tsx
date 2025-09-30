@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
@@ -9,17 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
-import type { ServicioEmpresa } from '@/types/empresa'; // Import ServicioEmpresa
+import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa'; // Import getServiciosEmpresa
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import {
   Dialog,
   DialogContent,
@@ -35,19 +32,17 @@ import {
 export default function ListaDeCargaOperativaPage() {
   const { toast } = useToast();
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa>({ categorias: [], notasGenerales: '' });
-  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]); // State for catalog items
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
   
-  // States for Add Item Modal
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [currentCategoryForAddItem, setCurrentCategoryForAddItem] = useState<CargaOperativaCategoria | null>(null);
   const [newItemFormData, setNewItemFormData] = useState<{ nombre: string; cantidad: string; unidad?: string; notas?: string; origenId?: string }>({ nombre: '', cantidad: '', unidad: '', notas: '', origenId: undefined });
 
-  // States for Select From Catalog Modal
   const [isSelectCatalogModalOpen, setIsSelectCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
@@ -59,7 +54,7 @@ export default function ListaDeCargaOperativaPage() {
     try {
       const [fiestaData, catalogoData] = await Promise.all([
         getFiestaActual(),
-        getServiciosEmpresa() // Fetch catalog items
+        getServiciosEmpresa()
       ]);
       
       const loadedLista = fiestaData.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
@@ -148,14 +143,14 @@ export default function ListaDeCargaOperativaPage() {
   };
 
   const handleCatalogItemSelected = (selectedServicio: ServicioEmpresa) => {
-    if (!categoryForCatalogSelect) return; // Should not happen
+    if (!categoryForCatalogSelect) return; 
     
-    setIsSelectCatalogModalOpen(false); // Close catalog modal
+    setIsSelectCatalogModalOpen(false); 
     openAddItemModal(categoryForCatalogSelect, {
       nombre: selectedServicio.nombre,
       unidad: selectedServicio.unidad,
       origenId: selectedServicio.id,
-      cantidad: '1' // Default quantity
+      cantidad: '1' 
     });
   };
 
@@ -330,41 +325,38 @@ export default function ListaDeCargaOperativaPage() {
               
               <ScrollArea className="h-auto max-h-[300px] rounded-md border p-2">
                 {category.items && category.items.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <ul className="space-y-2">
                       {category.items.map(item => (
-                        <Card key={item.id} className="flex flex-col justify-between bg-background hover:shadow-sm">
-                          <CardContent className="p-3">
-                              <div className="flex items-start gap-3">
-                                  <Checkbox
-                                  id={`item-cargado-${item.id}`}
-                                  checked={item.cargado}
-                                  onCheckedChange={() => toggleItemCargado(category.id, item.id)}
-                                  className="mt-1 flex-shrink-0"
-                                  aria-label={`Marcar ${item.nombre} como cargado`}
-                                  />
-                                  <div className="flex-grow">
-                                  <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
-                                  {item.origenId && <p className="text-xs text-blue-600">Origen: Catálogo</p>}
-                                  {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notas}</p>}
-                                  </div>
-                              </div>
-                          </CardContent>
-                          <CardFooter className="p-2 border-t flex items-center gap-2 bg-muted/50">
-                              <Input
+                        <li key={item.id} className="p-2 border rounded-md bg-background flex justify-between items-center">
+                          <div className="flex items-start gap-3 flex-grow">
+                            <Checkbox
+                              id={`item-cargado-${item.id}`}
+                              checked={item.cargado}
+                              onCheckedChange={() => toggleItemCargado(category.id, item.id)}
+                              className="mt-1 flex-shrink-0"
+                              aria-label={`Marcar ${item.nombre} como cargado`}
+                            />
+                            <div className="flex-grow">
+                              <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
+                              {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notas}</p>}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                            <Input
                                 type="text"
                                 value={item.cantidad}
                                 onChange={(e) => handleItemQuantityChange(category.id, item.id, e.target.value)}
-                                className="h-8 flex-1 text-center"
+                                className="h-8 w-20 text-center"
                                 placeholder="Cant."
                               />
                             <span className="text-xs text-muted-foreground">{item.unidad || 'Uds.'}</span>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => handleDeleteItem(category.id, item.id)}>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteItem(category.id, item.id)}>
                                 <Trash2 className="w-3.5 h-3.5"/>
                             </Button>
-                          </CardFooter>
-                        </Card>
+                          </div>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-3">No hay ítems en esta categoría.</p>
                 )}
@@ -374,7 +366,6 @@ export default function ListaDeCargaOperativaPage() {
         ))}
       </Accordion>
 
-      {/* Add Item Modal (for manual and prefilled from catalog) */}
       <Dialog open={isAddItemModalOpen} onOpenChange={setIsAddItemModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -408,7 +399,6 @@ export default function ListaDeCargaOperativaPage() {
         </DialogContent>
       </Dialog>
       
-      {/* Select Item From Catalog Modal */}
       <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
