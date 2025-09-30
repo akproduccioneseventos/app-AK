@@ -187,6 +187,40 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   }
 }
 
+export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+  try {
+    const fiestas = await getActivas();
+    const fiestaToDuplicate = fiestas.find(f => f.id === fiestaId);
+
+    if (!fiestaToDuplicate) {
+      return { success: false, error: 'Evento a duplicar no encontrado.' };
+    }
+
+    const newFiesta: FiestaEnPlanificacion = {
+      ...fiestaToDuplicate,
+      id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      configuracion: {
+        ...fiestaToDuplicate.configuracion,
+        nombreEvento: `[COPIA] ${fiestaToDuplicate.configuracion.nombreEvento}`,
+      },
+      // Reset financial and transactional data
+      presupuestoId: undefined,
+      invoiceIds: [],
+      pagosProveedores: [],
+    };
+    
+    const result = await saveFiesta(newFiesta);
+    if(result.success && result.fiesta) {
+        return { success: true, newFiestaId: result.fiesta.id };
+    } else {
+        throw new Error(result.error || "No se pudo guardar la fiesta duplicada.");
+    }
+  } catch (error: any) {
+    console.error("Error duplicating fiesta:", error);
+    return { success: false, error: "Error al duplicar el evento." };
+  }
+}
+
 export async function createNewFiestaForCustomer(customer: Customer): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   const newFiesta: FiestaEnPlanificacion = {
     ...initialFiestaActualData,
@@ -224,3 +258,5 @@ export async function removeInvoiceId(invoiceId: string) {
     return { ...data, invoiceIds };
   });
 }
+
+    

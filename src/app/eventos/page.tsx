@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2, Copy } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual, duplicateFiesta } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -131,6 +131,23 @@ export default function GestorFiestasPage() {
       }
   }
 
+  const handleDuplicate = async (fiestaId: string) => {
+    setIsProcessing(fiestaId);
+    try {
+      const result = await duplicateFiesta(fiestaId);
+      if (result.success) {
+        toast({ title: "Evento Duplicado", description: "Se ha creado una copia del evento." });
+        await loadData();
+      } else {
+        throw new Error(result.error || "No se pudo duplicar el evento.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Duplicar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(null);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8 print:space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
@@ -210,12 +227,15 @@ export default function GestorFiestasPage() {
                           </Button>
                         </Link>
                          <div className="flex gap-2 w-full">
-                            <Button variant="outline" size="sm" className="flex-1" disabled><Copy className="w-4 h-4 mr-2"/>Duplicar</Button>
+                            <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDuplicate(fiesta.id)} disabled={isProcessing === fiesta.id}>
+                                {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Copy className="w-4 h-4"/>}
+                                <span className="ml-2">Duplicar</span>
+                            </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
-                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4 mr-2"/>}
-                                    Borrar
+                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                                    <span className="ml-2">Borrar</span>
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
