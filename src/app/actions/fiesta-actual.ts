@@ -120,3 +120,10 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
+
+// --- DUPLICATE/DELETE ---
+// Not implemented yet, placeholder for future
+export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+    console.warn(`Function "duplicateFiesta" is a placeholder.`);
+    return { success: false, error: 'Functionality not implemented yet.' };
+}

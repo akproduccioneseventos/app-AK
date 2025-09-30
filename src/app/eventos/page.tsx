@@ -4,9 +4,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2 } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2, Copy } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -122,6 +122,23 @@ export default function GestorFiestasPage() {
     }
   };
   
+  const handleDeleteActivo = async (fiestaId: string) => {
+    setIsProcessing(fiestaId);
+    try {
+        const result = await resetFiestaActual(); // This is the action to "delete" the active one by resetting it
+        if (result.success) {
+            toast({ title: "Evento Activo Eliminado", variant: "destructive"});
+            await loadData();
+        } else {
+            throw new Error(result.error || "No se pudo eliminar el evento activo.");
+        }
+    } catch (error: any) {
+        toast({title: "Error al Eliminar", description: error.message, variant: "destructive"});
+    } finally {
+        setIsProcessing(null);
+    }
+  }
+
   const handleDeleteArchived = async (fiestaId: string) => {
       setIsProcessing(fiestaId);
       try {
@@ -211,26 +228,31 @@ export default function GestorFiestasPage() {
                         <Users className="w-3 h-3"/> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
                       </div>
                     </CardContent>
-                    <CardFooter className="p-2 border-t flex justify-end gap-2 print:hidden">
+                    <CardFooter className="p-2 border-t flex-wrap justify-end gap-2 print:hidden">
                         <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
                           <Button variant="default" size="sm" className="w-full">
                             <Edit className="w-4 h-4 mr-2"/>Planificar
                           </Button>
                         </Link>
-                         <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={isProcessing === fiesta.id}>
-                                {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4"/>}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader><AlertDialogTitle>¿Archivar Evento?</AlertDialogTitle><AlertDialogDescription>El evento "{fiesta.configuracion.nombreEvento}" se moverá al historial. Podrás verlo pero no editarlo.</AlertDialogDescription></AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleArchivar(fiesta.id)}>Archivar</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                         <div className="flex gap-2 w-full">
+                            <Button variant="outline" size="sm" className="flex-1" disabled><Copy className="w-4 h-4 mr-2"/>Duplicar</Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
+                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4 mr-2"/>}
+                                    Borrar
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader><AlertDialogTitle>¿Eliminar o Archivar Evento?</AlertDialogTitle><AlertDialogDescription>El evento "{fiesta.configuracion.nombreEvento}" puede ser archivado (movido a eventos pasados) o eliminado permanentemente si es la fiesta activa y deseas empezar de cero.</AlertDialogDescription></AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleArchivar(fiesta.id)}>Archivar Evento</AlertDialogAction>
+                                  <AlertDialogAction onClick={() => handleDeleteActivo(fiesta.id)} className="bg-destructive hover:bg-destructive/90">Eliminar Permanentemente</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                         </div>
                     </CardFooter>
                   </Card>
                 ))}
@@ -286,7 +308,6 @@ export default function GestorFiestasPage() {
                 </div>
             )}
         </div>
-
     </div>
   );
 }
