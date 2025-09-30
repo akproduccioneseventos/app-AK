@@ -327,45 +327,48 @@ export default function ListaDeCargaOperativaPage() {
                 </Button>
               </div>
               {serviciosCatalogo.length === 0 && <p className="text-xs text-muted-foreground text-center mb-2">No hay ítems en el catálogo maestro para seleccionar.</p>}
-              {category.items && category.items.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {category.items.map(item => (
-                      <Card key={item.id} className="flex flex-col justify-between bg-background hover:shadow-sm">
-                        <CardContent className="p-3">
-                            <div className="flex items-start gap-3">
-                                <Checkbox
-                                id={`item-cargado-${item.id}`}
-                                checked={item.cargado}
-                                onCheckedChange={() => toggleItemCargado(category.id, item.id)}
-                                className="mt-1 flex-shrink-0"
-                                aria-label={`Marcar ${item.nombre} como cargado`}
-                                />
-                                <div className="flex-grow">
-                                <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
-                                {item.origenId && <p className="text-xs text-blue-600">Origen: Catálogo</p>}
-                                {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notes}</p>}
-                                </div>
-                            </div>
-                        </CardContent>
-                        <CardFooter className="p-2 border-t flex items-center gap-2 bg-muted/50">
-                             <Input
-                              type="text"
-                              value={item.cantidad}
-                              onChange={(e) => handleItemQuantityChange(category.id, item.id, e.target.value)}
-                              className="h-8 flex-1 text-center"
-                              placeholder="Cant."
-                            />
-                           <span className="text-xs text-muted-foreground">{item.unidad || 'Uds.'}</span>
-                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => handleDeleteItem(category.id, item.id)}>
-                              <Trash2 className="w-3.5 h-3.5"/>
-                           </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-3">No hay ítems en esta categoría.</p>
-              )}
+              
+              <ScrollArea className="h-auto max-h-[300px] rounded-md border p-2">
+                {category.items && category.items.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {category.items.map(item => (
+                        <Card key={item.id} className="flex flex-col justify-between bg-background hover:shadow-sm">
+                          <CardContent className="p-3">
+                              <div className="flex items-start gap-3">
+                                  <Checkbox
+                                  id={`item-cargado-${item.id}`}
+                                  checked={item.cargado}
+                                  onCheckedChange={() => toggleItemCargado(category.id, item.id)}
+                                  className="mt-1 flex-shrink-0"
+                                  aria-label={`Marcar ${item.nombre} como cargado`}
+                                  />
+                                  <div className="flex-grow">
+                                  <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
+                                  {item.origenId && <p className="text-xs text-blue-600">Origen: Catálogo</p>}
+                                  {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notas}</p>}
+                                  </div>
+                              </div>
+                          </CardContent>
+                          <CardFooter className="p-2 border-t flex items-center gap-2 bg-muted/50">
+                              <Input
+                                type="text"
+                                value={item.cantidad}
+                                onChange={(e) => handleItemQuantityChange(category.id, item.id, e.target.value)}
+                                className="h-8 flex-1 text-center"
+                                placeholder="Cant."
+                              />
+                            <span className="text-xs text-muted-foreground">{item.unidad || 'Uds.'}</span>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => handleDeleteItem(category.id, item.id)}>
+                                <Trash2 className="w-3.5 h-3.5"/>
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-3">No hay ítems en esta categoría.</p>
+                )}
+              </ScrollArea>
             </AccordionContent>
           </AccordionItem>
         ))}
@@ -424,7 +427,8 @@ export default function ListaDeCargaOperativaPage() {
                 />
             </div>
             <ScrollArea className="h-[300px] border rounded-md">
-                {filteredCatalogItems.length > 0 ? (
+                {isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> :
+                 filteredCatalogItems.length > 0 ? (
                     <ul className="p-2 space-y-1">
                         {filteredCatalogItems.map(item => (
                             <li key={item.id}>
@@ -449,7 +453,7 @@ export default function ListaDeCargaOperativaPage() {
             </ScrollArea>
           </div>
            <DialogFooter>
-                <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+                <DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose>
             </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -479,5 +483,3 @@ export default function ListaDeCargaOperativaPage() {
     </div>
   );
 }
-
-    
