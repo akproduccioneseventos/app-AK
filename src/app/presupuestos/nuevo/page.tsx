@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -10,13 +11,15 @@ import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
-import { savePresupuesto } from '@/app/actions/presupuestos';
+import { savePresupuesto, deletePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
 import { getCrmStages, moveCrmLead } from '@/app/actions/crm'; // Importar acciones de CRM
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import { Progress } from '@/components/ui/progress';
+import { getPresupuestos } from '@/app/actions/presupuestos';
+import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -101,8 +104,18 @@ function NuevoPresupuestoContent() {
     const [paso, setPaso] = useState(1);
     
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
-
+    const [presupuestosGuardados, setPresupuestosGuardados] = useState<Presupuesto[]>([]);
+    
     const leadIdFromParams = searchParams.get('leadId');
+
+    const fetchGuardados = useCallback(async () => {
+        try {
+            const guardados = await getPresupuestos();
+            setPresupuestosGuardados(guardados);
+        } catch(e) {
+            toast({ title: "Error", description: "No se pudieron cargar los presupuestos guardados."});
+        }
+    }, [toast]);
 
     useEffect(() => {
         try {
@@ -126,10 +139,11 @@ function NuevoPresupuestoContent() {
         const fetchInitialData = async () => {
             setIsLoadingInitialData(true);
             try {
-                const [armadoConfig] = await Promise.all([getArmadoRapidoConfig()]);
+                const [armadoConfig, guardados] = await Promise.all([getArmadoRapidoConfig(), getPresupuestos()]);
                 await fetchServicios();
                 setPaquetesBase(armadoConfig.paquetes || []);
                 setMenusArmadoRapido(armadoConfig.menus || []);
+                setPresupuestosGuardados(guardados);
                 
                 const leadName = searchParams.get('leadName');
                 if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
@@ -171,7 +185,7 @@ function NuevoPresupuestoContent() {
           idServicioCatalogo: id,
           ...item,
           precioUnitario: item.precioUnitarioOriginal,
-          costoTotalItem: 0
+          costoTotalItem: 0 // Will be calculated in function
         };
         total += calcularCostoItem(itemDataForCalc, totalInvitados);
       });
@@ -267,7 +281,7 @@ function NuevoPresupuestoContent() {
     };
     
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="space-y-6">
              <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight font-headline">Central de Presupuestos</h1>
                 <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
@@ -301,6 +315,21 @@ function NuevoPresupuestoContent() {
                     )}
                 </CardFooter>
             </Card>
+            
+            <Separator className="my-8" />
+            
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold font-headline">Presupuestos Guardados</h2>
+              {isLoadingInitialData ? <div className="text-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> :
+                presupuestosGuardados.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {presupuestosGuardados.map(p => (
+                      <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={fetchGuardados}/>
+                    ))}
+                  </div>
+                ) : <p className="text-muted-foreground text-center py-4">No hay presupuestos guardados.</p>
+              }
+            </div>
         </div>
     );
 }
