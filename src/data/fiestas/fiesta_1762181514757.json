@@ -1,36 +1,61 @@
+
 {
   "id": "fiesta_1762181514757",
   "configuracion": {
-    "nombreEvento": "Nuevo Evento",
-    "tipoCelebracion": "Otro",
-    "fechaEvento": "",
-    "horaInicio": "",
-    "horaFin": "",
-    "nombreLugar": "",
-    "invitadosEstimados": 0,
-    "presupuestoEstimado": 0,
-    "notasAdicionales": ""
+    "nombreEvento": "Boda Ana y Juan",
+    "tipoCelebracion": "Boda",
+    "fechaEvento": "2025-11-15T00:00:00.000Z",
+    "horaInicio": "21:00",
+    "horaFin": "05:00",
+    "nombreLugar": "Salón El Paraíso",
+    "invitadosEstimados": 120,
+    "presupuestoEstimado": 850000,
+    "notasAdicionales": "Boda estilo rústico-chic."
   },
   "personalAsignado": [],
   "menuAsignadoId": null,
   "presupuestoId": null,
   "invoiceIds": [],
-  "reuniones": [],
-  "tareas": [],
+  "reuniones": [
+    {
+      "titulo": "Primera reunión con Ana y Juan",
+      "fecha": "2025-08-20T18:00:00.000Z",
+      "notas": "Definición inicial de estilo y cantidad de invitados.",
+      "id": "reunion_1758487653347"
+    }
+  ],
+  "tareas": [
+    {
+      "texto": "Enviar opciones de catering a los novios",
+      "completada": false,
+      "descripcion": "Preparar y enviar 3 propuestas de menú.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_3tsrulr"
+    },
+    {
+      "texto": "Reservar Salón El Paraíso",
+      "completada": true,
+      "descripcion": "Seña del 30% pagada.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_z5gwp9a"
+    }
+  ],
+  "clientChecklist": [],
+  "clientNotes": "",
   "decoracion": {
-    "tema": "",
+    "tema": "Rústico Chic",
     "paletaColores": {
-      "primary": "#000000",
-      "secondary": "#ffffff",
-      "accent": "#888888"
+      "primary": "#A2D2B0",
+      "secondary": "#DCDCDC",
+      "accent": "#F0E6CC"
     },
     "items": [],
     "zonasContratadas": [],
     "salonElements": []
   },
   "invitados": [],
-  "clientChecklist": [],
-  "clientNotes": "",
   "webPageSettings": {
     "showCountdown": true,
     "showRsvp": true
