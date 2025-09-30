@@ -328,7 +328,7 @@ export default function ListaDeCargaOperativaPage() {
               </div>
               {serviciosCatalogo.length === 0 && <p className="text-xs text-muted-foreground text-center mb-2">No hay ítems en el catálogo maestro para seleccionar.</p>}
               {category.items && category.items.length > 0 ? (
-                <ScrollArea className="max-h-[300px] pr-2">
+                <ScrollArea className="h-auto max-h-[300px] pr-2">
                   <ul className="space-y-2">
                     {category.items.map(item => (
                       <li key={item.id} className="flex items-start gap-3 p-2.5 border rounded-md bg-muted/30 hover:bg-muted/50">
@@ -477,5 +477,3 @@ export default function ListaDeCargaOperativaPage() {
     </div>
   );
 }
-
-    
