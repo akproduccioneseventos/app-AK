@@ -15,7 +15,8 @@ import {
     createNewFiestaForCustomer as createNewFiestaForCustomerFromModule,
     addInvoiceId as addInvoiceIdToFiesta,
     removeInvoiceId as removeInvoiceIdFromFiesta,
-    deleteFiestaArchivada as deleteFiestaArchivadaFromModule
+    deleteFiestaArchivada as deleteFiestaArchivadaFromModule,
+    duplicateFiesta as duplicateFiestaFromModule
 } from './fiesta/fiesta.actions';
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
@@ -52,6 +53,8 @@ export const saveFiesta = saveFiestaFromModule;
 export const createNewFiestaForCustomer = createNewFiestaForCustomerFromModule;
 export const addInvoiceIdToFiestaActual = addInvoiceIdToFiesta;
 export const removeInvoiceIdFromFiestaActual = removeInvoiceIdFromFiesta;
+export const duplicateFiesta = duplicateFiestaFromModule;
+
 
 // --- Configuration Actions ---
 export const updateConfiguracionFiestaActual = updateConfiguracion;
@@ -120,10 +123,3 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
-
-// --- DUPLICATE/DELETE ---
-// Not implemented yet, placeholder for future
-export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
-    console.warn(`Function "duplicateFiesta" is a placeholder.`);
-    return { success: false, error: 'Functionality not implemented yet.' };
-}
