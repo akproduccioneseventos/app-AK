@@ -62,8 +62,8 @@ export default function GestorFiestasPage() {
         throw new Error(kpiResult.error || "No se pudieron cargar los datos del panel.");
       }
       
-      // Filter out placeholder "Nuevo Evento"
-      const activasFiltradas = activas.filter(f => f.configuracion.nombreEvento && f.configuracion.nombreEvento !== 'Nuevo Evento' && f.configuracion.nombreEvento !== 'Mi Próximo Evento Increíble');
+      const placeholders = ['Nuevo Evento', 'Mi Próximo Evento Increíble'];
+      const activasFiltradas = activas.filter(f => f.configuracion.nombreEvento && !placeholders.includes(f.configuracion.nombreEvento));
       setFiestasActivas(activasFiltradas);
       setFiestasArchivadas(archivadas);
 
