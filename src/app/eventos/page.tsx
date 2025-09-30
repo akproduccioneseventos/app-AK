@@ -96,31 +96,6 @@ export default function GestorFiestasPage() {
       setIsProcessing(null);
     }
   };
-
-  const handlePrintSummary = () => {
-    window.print();
-  };
-  
-  const handleShare = async () => {
-    const shareData = {
-      title: 'Resumen de Eventos - AK Producciones',
-      text: `Resumen de eventos y planificación actual.`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
-    }
-  };
   
   const handleDeleteActivo = async (fiestaId: string) => {
     setIsProcessing(fiestaId);
@@ -228,7 +203,7 @@ export default function GestorFiestasPage() {
                         <Users className="w-3 h-3"/> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
                       </div>
                     </CardContent>
-                    <CardFooter className="p-2 border-t flex-wrap justify-end gap-2 print:hidden">
+                    <CardFooter className="p-2 border-t flex flex-col items-stretch gap-2 print:hidden">
                         <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
                           <Button variant="default" size="sm" className="w-full">
                             <Edit className="w-4 h-4 mr-2"/>Planificar
@@ -311,3 +286,5 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
+
+    
