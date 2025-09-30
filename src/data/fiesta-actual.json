@@ -1,24 +1,1304 @@
 
 {
-  "id": "fiesta_cust_future_123",
+  "id": "fiesta_1762181514757",
   "configuracion": {
-    "nombreEvento": "Boda Futura de Ejemplo",
-    "tipoCelebracion": "Boda",
-    "fechaEvento": "2025-12-31T21:00:00.000Z",
-    "horaInicio": "21:00",
-    "horaFin": "05:00",
-    "nombreLugar": "Salón Moderno",
-    "invitadosEstimados": 150,
-    "presupuestoEstimado": 97000,
-    "notasAdicionales": "Este es el evento activo para demostración.",
-    "clienteId": "cust_future_123"
+    "nombreEvento": "Mi Próximo Evento Increíble",
+    "tipoCelebracion": "Cumpleaños",
+    "fechaEvento": "2026-09-03T00:00:00.000Z",
+    "horaInicio": "19:00",
+    "horaFin": "02:00",
+    "nombreLugar": "Salón de Ensueño",
+    "invitadosEstimados": 50,
+    "presupuestoEstimado": 100000,
+    "notasAdicionales": "Planificación inicial."
   },
-  "presupuestoId": "pres_future_123",
-  "invoiceIds": [
-    "inv_future_123"
-  ],
   "personalAsignado": [],
-  "reuniones": [],
-  "tareas": [],
-  "invitados": []
+  "invoiceIds": [],
+  "reuniones": [
+    {
+      "titulo": "JUANA",
+      "fecha": "2025-09-21T15:00:00.000Z",
+      "notas": "",
+      "id": "reunion_1758487653347"
+    }
+  ],
+  "tareas": [
+    {
+      "texto": "Definir lista de invitados",
+      "completada": false,
+      "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_3tsrulr"
+    },
+    {
+      "texto": "Seleccionar catering y menú",
+      "completada": false,
+      "descripcion": "Contactar proveedores de catering, degustar opciones y definir el menú.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_z5gwp9a"
+    },
+    {
+      "texto": "Contratar DJ o música",
+      "completada": false,
+      "descripcion": "Buscar y contratar DJ, banda o sistema de sonido.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_m7ss7nt"
+    },
+    {
+      "texto": "Elegir decoración y temática",
+      "completada": false,
+      "descripcion": "Definir el estilo, colores y elementos decorativos principales.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_cjkvp49"
+    },
+    {
+      "texto": "Enviar invitaciones",
+      "completada": false,
+      "descripcion": "Diseñar, imprimir y enviar las invitaciones físicas o digitales.",
+      "esPredeterminada": false,
+      "asignadaA": "Cliente",
+      "id": "task_1756924717109_f4v86o3"
+    }
+  ],
+  "clientChecklist": [
+    {
+      "texto": "Confirmar lista final de invitados",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1756924717109_06k4mm3"
+    },
+    {
+      "texto": "Elegir el diseño de la torta",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1756924717109_1070e4w"
+    },
+    {
+      "texto": "Proporcionar lista de canciones especiales",
+      "asignadaA": "Cliente",
+      "completada": false,
+      "id": "client_task_1756924717109_hyf4sax"
+    },
+    {
+      "texto": "Revisar y aprobar el presupuesto final",
+      "asignadaA": "Organizador",
+      "completada": false,
+      "id": "client_task_1756924717109_r69danf"
+    }
+  ],
+  "clientNotes": "",
+  "decoracion": {
+    "tema": "Elegante y Moderno",
+    "paletaColores": {
+      "primary": "#D9B8FF",
+      "secondary": "#FCD3DE",
+      "accent": "#F0E6CC"
+    },
+    "moodboardImageUrl": "",
+    "colorCubremantel": "",
+    "colorGlobos": "",
+    "decoracionTorta": {
+      "descripcion": "",
+      "imageUrl": "",
+      "dataAiHint": "cake design"
+    },
+    "items": [],
+    "zonasContratadas": [
+      {
+        "id": "atras_torta",
+        "nombreDisplay": "Atrás de la torta",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "cake backdrop"
+      },
+      {
+        "id": "frente_salon",
+        "nombreDisplay": "Frente del salón / Entrada principal",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "event entrance"
+      },
+      {
+        "id": "zona_regalos",
+        "nombreDisplay": "Zona de regalos",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "gift table"
+      },
+      {
+        "id": "zona_fotografia",
+        "nombreDisplay": "Zona de fotografía / Photocall",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "photo booth"
+      },
+      {
+        "id": "centro_salon",
+        "nombreDisplay": "Centro del salón / Ambientación general",
+        "activada": false,
+        "descripcion": "",
+        "imagenReferenciaUrl": "",
+        "dataAiHint": "event hall center"
+      }
+    ],
+    "generalNotesDecoracion": "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
+    "pdfNotasAdicionales": "",
+    "salonWidth": 800,
+    "salonHeight": 600,
+    "salonPlanBackgroundImageUrl": "",
+    "salonElements": [],
+    "generalNotesSalonLayout": "Disposición estándar del salón, ajustar según necesidad.",
+    "layoutMode": "libre",
+    "guestNameStyle": "full",
+    "guestIconStyle": "color",
+    "layoutTemplateName": ""
+  },
+  "invitados": [],
+  "webPageSettings": {
+    "pageTitle": "Mi Evento Especial",
+    "heroSubtitle": "¡Una celebración inolvidable!",
+    "welcomeMessage": "¡Bienvenidos a la celebración de nuestro evento!",
+    "coverImageUrl": "",
+    "galleryImageUrls": [],
+    "showCountdown": true,
+    "ourStoryTitle": "Nuestra Historia",
+    "ourStoryText": "Un breve relato de cómo llegamos hasta aquí...",
+    "ourStoryImageUrl": "",
+    "showOurStory": false,
+    "eventDetailsTitle": "Detalles del Evento",
+    "eventDetailsText": "Fecha, hora, lugar y más información importante.",
+    "showEventDetails": true,
+    "dressCodeText": "Elegante Sport",
+    "showDressCode": false,
+    "giftRegistryTitle": "Lista de Regalos",
+    "giftRegistryText": "Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...",
+    "showGiftRegistry": false,
+    "giftRegistry": [],
+    "showRsvp": true,
+    "showPrograma": false,
+    "musicaEspecialText": "",
+    "showGallery": false
+  },
+  "clientPortalSettings": {
+    "enabled": true,
+    "accessKey": "",
+    "checklist": {
+      "visible": true,
+      "editable": false
+    },
+    "itinerario": {
+      "visible": true
+    },
+    "musica": {
+      "visible": true,
+      "editable": false
+    },
+    "videoVida": {
+      "visible": true,
+      "editable": true
+    },
+    "listaRegalos": {
+      "visible": true
+    },
+    "documentos": {
+      "visible": true
+    },
+    "notasCliente": {
+      "visible": true,
+      "editable": true
+    },
+    "invitados": {
+      "visible": true
+    },
+    "paginaPublica": {
+      "visible": true
+    },
+    "fotografiaYFilmacion": {
+      "visible": true
+    }
+  },
+  "socialGallerySettings": {
+    "enabled": false,
+    "allowLikes": true,
+    "allowComments": true,
+    "uploadsActive": true
+  },
+  "musica": {
+    "cancionEntrada": "",
+    "cancionVals": "",
+    "cancionesTortaBrindis": [],
+    "playlistFiesta": "",
+    "listaNoReproducir": ""
+  },
+  "reposteria": {
+    "categorias": [
+      {
+        "id": "tortas_personalizadas",
+        "nombreDisplay": "Tortas Personalizadas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Diseño y sabores a medida.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "cupcakes_minitortas",
+        "nombreDisplay": "Cupcakes / Mini Tortas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Pequeñas delicias individuales.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "candy_bar",
+        "nombreDisplay": "Candy Bar Temático",
+        "activada": false,
+        "items": [],
+        "descripcion": "Mesa de dulces y golosinas variadas.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "fuente_chocolate",
+        "nombreDisplay": "Fuente de Chocolate",
+        "activada": false,
+        "items": [],
+        "descripcion": "Con frutas, malvaviscos y más.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "mesa_dulce_tradicional",
+        "nombreDisplay": "Mesa Dulce Tradicional",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de postres clásicos.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "mesa_helada",
+        "nombreDisplay": "Mesa Helada",
+        "activada": false,
+        "items": [],
+        "descripcion": "Selección de helados y toppings.",
+        "cantidadEstimadaPersonas": 0
+      },
+      {
+        "id": "postres_individuales",
+        "nombreDisplay": "Postres Individuales",
+        "activada": false,
+        "items": [],
+        "descripcion": "Porciones individuales de postres variados.",
+        "cantidadEstimadaPersonas": 0
+      }
+    ],
+    "consumoConfig": {
+      "tortas_personalizadas": {
+        "adulto": 0.1,
+        "adolescente": 0.1,
+        "nino": 0.08
+      },
+      "cupcakes_minitortas": {
+        "adulto": 1.5,
+        "adolescente": 2,
+        "nino": 1
+      },
+      "candy_bar": {
+        "adulto": 1,
+        "adolescente": 1.5,
+        "nino": 2
+      },
+      "fuente_chocolate": {
+        "adulto": 1,
+        "adolescente": 1,
+        "nino": 1
+      },
+      "mesa_dulce_tradicional": {
+        "adulto": 2,
+        "adolescente": 2,
+        "nino": 1.5
+      },
+      "mesa_helada": {
+        "adulto": 1,
+        "adolescente": 1.5,
+        "nino": 1.5
+      },
+      "postres_individuales": {
+        "adulto": 1.5,
+        "adolescente": 1.5,
+        "nino": 1
+      }
+    },
+    "notasGenerales": ""
+  },
+  "bebidas": {
+    "categorias": [
+      {
+        "id": "coctel_bienvenida",
+        "nombreDisplay": "Cóctel de Bienvenida",
+        "activada": true,
+        "items": [],
+        "recetas": [
+          {
+            "id": "receta_coctel_100p",
+            "nombre": "Coctel 100 Personas - 50 Litros",
+            "capacidadBaseLt": 50,
+            "porcionesBase": 100,
+            "costoTotalReceta": 2910,
+            "ingredientes": [
+              {
+                "id": "ing_1",
+                "insumoId": "ing-jugo-naranja",
+                "nombreInsumo": "Jugo de Naranja",
+                "cantidad": 6000,
+                "unidad": "ml",
+                "costoUnitario": 0.04,
+                "costoTotal": 240
+              },
+              {
+                "id": "ing_2",
+                "insumoId": "ing-banana",
+                "nombreInsumo": "Banana",
+                "cantidad": 5000,
+                "unidad": "g",
+                "costoUnitario": 0.05,
+                "costoTotal": 250
+              },
+              {
+                "id": "ing_3",
+                "insumoId": "ing-fruta-mix",
+                "nombreInsumo": "Otra fruta (mix)",
+                "cantidad": 2000,
+                "unidad": "g",
+                "costoUnitario": 0.07,
+                "costoTotal": 140
+              },
+              {
+                "id": "ing_4",
+                "insumoId": "ing-agua",
+                "nombreInsumo": "Agua",
+                "cantidad": 25000,
+                "unidad": "ml",
+                "costoUnitario": 0,
+                "costoTotal": 0
+              },
+              {
+                "id": "ing_5",
+                "insumoId": "ing-durazno-lata",
+                "nombreInsumo": "Durazno en lata",
+                "cantidad": 4,
+                "unidad": "lata",
+                "costoUnitario": 100,
+                "costoTotal": 400
+              },
+              {
+                "id": "ing_6",
+                "insumoId": "ing-anana-lata",
+                "nombreInsumo": "Ananá en lata",
+                "cantidad": 2,
+                "unidad": "lata",
+                "costoUnitario": 140,
+                "costoTotal": 280
+              },
+              {
+                "id": "ing_7",
+                "insumoId": "ing-vino-rosado-dulce",
+                "nombreInsumo": "Vino rosado dulce",
+                "cantidad": 3,
+                "unidad": "botella",
+                "costoUnitario": 100,
+                "costoTotal": 300
+              },
+              {
+                "id": "ing_8",
+                "insumoId": "ing-vino-blanco-dulce",
+                "nombreInsumo": "Vino blanco dulce",
+                "cantidad": 3,
+                "unidad": "botella",
+                "costoUnitario": 130,
+                "costoTotal": 390
+              },
+              {
+                "id": "ing_9",
+                "insumoId": "ing-jugo-rinde2",
+                "nombreInsumo": "Jugo rinde 2",
+                "cantidad": 6,
+                "unidad": "sobre",
+                "costoUnitario": 18,
+                "costoTotal": 108
+              },
+              {
+                "id": "ing_10",
+                "insumoId": "ing-azucar",
+                "nombreInsumo": "Azúcar",
+                "cantidad": 3,
+                "unidad": "kg",
+                "costoUnitario": 65,
+                "costoTotal": 195
+              },
+              {
+                "id": "ing_11",
+                "insumoId": "ing-sidra-750ml",
+                "nombreInsumo": "Sidra 750ml",
+                "cantidad": 3,
+                "unidad": "botella",
+                "costoUnitario": 69,
+                "costoTotal": 207
+              },
+              {
+                "id": "ing_12",
+                "insumoId": "ing-licor-frutilla",
+                "nombreInsumo": "Licor de Frutilla",
+                "cantidad": 0.5,
+                "unidad": "lt",
+                "costoUnitario": 400,
+                "costoTotal": 200
+              },
+              {
+                "id": "ing_13",
+                "insumoId": "ing-licor-durazno",
+                "nombreInsumo": "Licor de Durazno",
+                "cantidad": 0.5,
+                "unidad": "lt",
+                "costoUnitario": 400,
+                "costoTotal": 200
+              }
+            ]
+          }
+        ],
+        "descripcion": "El cóctel especial que se sirve al recibir a los invitados."
+      },
+      {
+        "id": "refrescos_gaseosas",
+        "nombreDisplay": "Refrescos / Gaseosas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de bebidas carbonatadas.",
+        "recetas": []
+      },
+      {
+        "id": "jugos",
+        "nombreDisplay": "Mesa de jugos naturales",
+        "activada": false,
+        "items": [],
+        "descripcion": "Opciones frutales y refrescantes.",
+        "recetas": []
+      },
+      {
+        "id": "aguas_saborizadas",
+        "nombreDisplay": "Aguas Saborizadas y Minerales",
+        "activada": false,
+        "items": [],
+        "descripcion": "Con y sin gas, opciones saborizadas.",
+        "recetas": []
+      },
+      {
+        "id": "cervezas",
+        "nombreDisplay": "Cervezas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de cervezas nacionales e importadas.",
+        "recetas": []
+      },
+      {
+        "id": "vinos_espumantes",
+        "nombreDisplay": "Vinos y Espumantes",
+        "activada": false,
+        "items": [],
+        "descripcion": "Selección de tintos, blancos, rosados y espumosos.",
+        "recetas": []
+      },
+      {
+        "id": "barra_tragos",
+        "nombreDisplay": "Barra de Tragos",
+        "activada": false,
+        "items": [
+          {
+            "id": "bebidaItem_1766023348169",
+            "nombre": "Licor de Frutilla",
+            "cantidadNecesaria": 2,
+            "costoUnitario": 300,
+            "costoTotal": 600,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023405785",
+            "nombre": "Licor de Durazno",
+            "cantidadNecesaria": 2,
+            "costoUnitario": 300,
+            "costoTotal": 600,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023429388",
+            "nombre": "Jugo de Durazno",
+            "cantidadNecesaria": 2,
+            "costoUnitario": 50,
+            "costoTotal": 100,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023450917",
+            "nombre": "Licor blue",
+            "cantidadNecesaria": 2,
+            "costoUnitario": 300,
+            "costoTotal": 600,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023472064",
+            "nombre": "Fernet",
+            "cantidadNecesaria": 4,
+            "costoUnitario": 400,
+            "costoTotal": 1600,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023508496",
+            "nombre": "Granadina",
+            "cantidadNecesaria": 1,
+            "costoUnitario": 220,
+            "costoTotal": 220,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023531478",
+            "nombre": "Lata durazno",
+            "cantidadNecesaria": 3,
+            "costoUnitario": 80,
+            "costoTotal": 240,
+            "unidadCantidad": "Unidades"
+          },
+          {
+            "id": "bebidaItem_1766023554162",
+            "nombre": "lata anana",
+            "cantidadNecesaria": 5,
+            "costoUnitario": 117,
+            "costoTotal": 585,
+            "unidadCantidad": "Unidades"
+          },
+          {
+            "id": "bebidaItem_1766023573215",
+            "nombre": "Pepsi",
+            "cantidadNecesaria": 14,
+            "costoUnitario": 90,
+            "costoTotal": 1260,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023604323",
+            "nombre": "vasos y sorvitos",
+            "cantidadNecesaria": 300,
+            "costoUnitario": 2,
+            "costoTotal": 600,
+            "unidadCantidad": "Unidades"
+          },
+          {
+            "id": "bebidaItem_1766023631580",
+            "nombre": "Refresco lima barato",
+            "cantidadNecesaria": 2,
+            "costoUnitario": 65,
+            "costoTotal": 130,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023652876",
+            "nombre": "Vodka",
+            "cantidadNecesaria": 3,
+            "costoUnitario": 280,
+            "costoTotal": 840,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023671231",
+            "nombre": "Ron",
+            "cantidadNecesaria": 2,
+            "costoUnitario": 300,
+            "costoTotal": 600,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023689622",
+            "nombre": "Limon",
+            "cantidadNecesaria": 2000,
+            "costoUnitario": 0.07,
+            "costoTotal": 140,
+            "unidadCantidad": "Gramos"
+          },
+          {
+            "id": "bebidaItem_1766023712852",
+            "nombre": "Frutilla",
+            "cantidadNecesaria": 2000,
+            "costoUnitario": 0.12,
+            "costoTotal": 240,
+            "unidadCantidad": "Gramos"
+          },
+          {
+            "id": "bebidaItem_1766023733074",
+            "nombre": "Azucar",
+            "cantidadNecesaria": 2000,
+            "costoUnitario": 0.07,
+            "costoTotal": 140,
+            "unidadCantidad": "Gramos"
+          },
+          {
+            "id": "bebidaItem_1766023751717",
+            "nombre": "Caña",
+            "cantidadNecesaria": 2,
+            "costoUnitario": 300,
+            "costoTotal": 600,
+            "unidadCantidad": "Litros"
+          },
+          {
+            "id": "bebidaItem_1766023770470",
+            "nombre": "Jugo de naranja",
+            "cantidadNecesaria": 10,
+            "costoUnitario": 35,
+            "costoTotal": 350,
+            "unidadCantidad": "Litros"
+          }
+        ],
+        "descripcion": "Bebidas blancas y licores para la barra.",
+        "recetas": []
+      },
+      {
+        "id": "cafeteria",
+        "nombreDisplay": "Servicio de Cafetería",
+        "activada": false,
+        "items": [],
+        "descripcion": "Café, té, infusiones.",
+        "recetas": []
+      }
+    ],
+    "consumoConfig": {
+      "coctel_bienvenida": {
+        "adulto": 0.5,
+        "adolescente": 0.5,
+        "nino": 0.3
+      },
+      "refrescos_gaseosas": {
+        "adulto": 0.2,
+        "adolescente": 0.3,
+        "nino": 0.25
+      },
+      "jugos": {
+        "adulto": 0.1,
+        "adolescente": 0.15,
+        "nino": 0.15
+      },
+      "aguas_saborizadas": {
+        "adulto": 0.15,
+        "adolescente": 0.1,
+        "nino": 0.1
+      },
+      "cervezas": {
+        "adulto": 0.4,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "vinos_espumantes": {
+        "adulto": 0.3,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "barra_tragos": {
+        "adulto": 0.2,
+        "adolescente": 0,
+        "nino": 0
+      },
+      "cafeteria": {
+        "adulto": 0.05,
+        "adolescente": 0,
+        "nino": 0
+      }
+    },
+    "notasGenerales": ""
+  },
+  "listaDeCargaOperativa": {
+    "categorias": [
+      {
+        "id": "cat_vajilla_1",
+        "nombre": "Vajilla y Cocina",
+        "items": [
+          {
+            "id": "lc_1",
+            "nombre": "Platos de Sitio",
+            "cantidad": "80",
+            "cargado": false
+          },
+          {
+            "id": "lc_2",
+            "nombre": "Platos Grandes",
+            "cantidad": "80",
+            "cargado": false
+          },
+          {
+            "id": "lc_3",
+            "nombre": "Platos Chicos",
+            "cantidad": "80",
+            "cargado": false
+          },
+          {
+            "id": "lc_4",
+            "nombre": "Cucharitas",
+            "cantidad": "80",
+            "cargado": false
+          },
+          {
+            "id": "lc_5",
+            "nombre": "Tenedores",
+            "cantidad": "80",
+            "cargado": false
+          },
+          {
+            "id": "lc_6",
+            "nombre": "Cuchillos",
+            "cantidad": "80",
+            "cargado": false
+          },
+          {
+            "id": "lc_7",
+            "nombre": "Espátula de Torta",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_8",
+            "nombre": "Jarras Chicas",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_9",
+            "nombre": "Jarras Grandes",
+            "cantidad": "3 Cajas",
+            "cargado": false
+          },
+          {
+            "id": "lc_10",
+            "nombre": "Vasos",
+            "cantidad": "2 Cajas",
+            "cargado": false
+          },
+          {
+            "id": "lc_11",
+            "nombre": "Copas de Brindis",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_12",
+            "nombre": "Hieleras Grandes",
+            "cantidad": "4",
+            "cargado": false
+          },
+          {
+            "id": "lc_13",
+            "nombre": "Hieleras Chicas",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_14",
+            "nombre": "Bandejas de Horno",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_15",
+            "nombre": "Cocina",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_16",
+            "nombre": "Hornallas de la Cocina",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_17",
+            "nombre": "Garrafa de Gas",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_18",
+            "nombre": "Pinzas de Hieleras",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_19",
+            "nombre": "Espátulas, Cuchillos de Cocina",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_20",
+            "nombre": "Escarbadientes y Saleros",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_21",
+            "nombre": "Tablas de Pizzas",
+            "cantidad": "10",
+            "cargado": false
+          },
+          {
+            "id": "lc_22",
+            "nombre": "Tablas Redondas",
+            "cantidad": "10",
+            "cargado": false
+          },
+          {
+            "id": "lc_23",
+            "nombre": "Platinas",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_24",
+            "nombre": "Freidora",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_25",
+            "nombre": "Pinzas de Ensaladas",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_26",
+            "nombre": "Alcohol y Guantes",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_27",
+            "nombre": "Repasadores",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_28",
+            "nombre": "Servilletas de Papel para Torta",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_29",
+            "nombre": "Rollo Servilletas de Papel",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_30",
+            "nombre": "Aderezos",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_31",
+            "nombre": "Jabón y Esponjas",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_32",
+            "nombre": "Escurridor de Fregar",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_33",
+            "nombre": "Jarra Eléctrica",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_34",
+            "nombre": "Papeleras",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_35",
+            "nombre": "Bolsas Negras de Residuos",
+            "cantidad": "1 Caja",
+            "cargado": false
+          },
+          {
+            "id": "lc_36",
+            "nombre": "Bolsas Negras para Manteleria",
+            "cantidad": "2 Cajas",
+            "cargado": false
+          },
+          {
+            "id": "lc_37",
+            "nombre": "Canastas Paneras Marrones",
+            "cantidad": "6",
+            "cargado": false
+          },
+          {
+            "id": "lc_38",
+            "nombre": "Platos Rectangulares Lisos",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_39",
+            "nombre": "4 Tipos de Tarros para Salsa",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_40",
+            "nombre": "Copas Lacradas",
+            "cantidad": "6 Cajas",
+            "cargado": false
+          }
+        ]
+      },
+      {
+        "id": "cat_manteleria_1",
+        "nombre": "Mantelería",
+        "items": [
+          {
+            "id": "lc_41",
+            "nombre": "Servilletas Negras de Tela",
+            "cantidad": "80",
+            "cargado": false
+          },
+          {
+            "id": "lc_42",
+            "nombre": "Delantales y Gorros Cocina",
+            "cantidad": "10",
+            "cargado": false
+          },
+          {
+            "id": "lc_43",
+            "nombre": "Manteles Negros de Cocina",
+            "cantidad": "10",
+            "cargado": false
+          },
+          {
+            "id": "lc_44",
+            "nombre": "Manteles y Cubre Blancos",
+            "cantidad": "10",
+            "cargado": false
+          },
+          {
+            "id": "lc_45",
+            "nombre": "Cubre Azul",
+            "cantidad": "10",
+            "cargado": false
+          }
+        ]
+      },
+      {
+        "id": "cat_decoracion_1",
+        "nombre": "Decoración",
+        "items": [
+          {
+            "id": "lc_46",
+            "nombre": "Tul Blanco",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_47",
+            "nombre": "Estructura Rectangular",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_48",
+            "nombre": "Aro",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_49",
+            "nombre": "Letras Chicas",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_50",
+            "nombre": "Plancha a Vapor",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_51",
+            "nombre": "Alfombra Grande",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_52",
+            "nombre": "Caja de Herramientas Deco",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_53",
+            "nombre": "Faroles Grandes",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_54",
+            "nombre": "Faroles Chicos",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_55",
+            "nombre": "Cilindros",
+            "cantidad": "3",
+            "cargado": false
+          },
+          {
+            "id": "lc_56",
+            "nombre": "Cartel Neon",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_57",
+            "nombre": "Aerosol de Globos",
+            "cantidad": "1",
+            "cargado": false
+          }
+        ]
+      },
+      {
+        "id": "cat_discoteca_1",
+        "nombre": "Discoteca",
+        "items": [
+          {
+            "id": "lc_58",
+            "nombre": "Cajas Activas",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_59",
+            "nombre": "Caja de Consula y Potencia",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_60",
+            "nombre": "Controlador DJ Gonza",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_61",
+            "nombre": "Controlador de Luces",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_62",
+            "nombre": "Controlador DMX Luces Pendrive",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_63",
+            "nombre": "Notebook DJ Gonza",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_64",
+            "nombre": "Notebook de Luces",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_65",
+            "nombre": "Microfonos Inalambricos y Pilas",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_66",
+            "nombre": "Barras de Bolas de Espejos",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_67",
+            "nombre": "Bolas de Espejo",
+            "cantidad": "15",
+            "cargado": false
+          },
+          {
+            "id": "lc_68",
+            "nombre": "Cerchas de Luces",
+            "cantidad": "3",
+            "cargado": false
+          },
+          {
+            "id": "lc_69",
+            "nombre": "Caja de Herramientas",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_70",
+            "nombre": "Pie de Luces y T de Arriba",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_71",
+            "nombre": "Barra DJ (Fierros y Tabla)",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_72",
+            "nombre": "Tela de Barra DJ",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_73",
+            "nombre": "Cartel de Barra DJ",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_74",
+            "nombre": "Caja de Cables",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_75",
+            "nombre": "Cabezal Movil 10W",
+            "cantidad": "2",
+            "cargado": false
+          },
+          {
+            "id": "lc_76",
+            "nombre": "Cabezal Movil 30W",
+            "cantidad": "4",
+            "cargado": false
+          },
+          {
+            "id": "lc_77",
+            "nombre": "Laser",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_78",
+            "nombre": "Maquina de Humo",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_79",
+            "nombre": "Liquido de Humo",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_80",
+            "nombre": "Mesa de DJ para Luces",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_81",
+            "nombre": "Cartel Lona Rollup",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_82",
+            "nombre": "Tornillos Cercha",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "lc_83",
+            "nombre": "Pantalla y Proyector",
+            "cantidad": "1",
+            "cargado": false
+          }
+        ]
+      }
+    ],
+    "notasGenerales": ""
+  },
+  "gestionCostos": {
+    "costosItems": [],
+    "ingresosTotalesEstimados": 0,
+    "notasGeneralesCostos": ""
+  },
+  "videoVida": {
+    "galleryEnabled": true,
+    "photosUploaded": false,
+    "songSuggestion": "",
+    "customText": "",
+    "photoCount": 53
+  },
+  "programa": [
+    {
+      "id": "prog_1756924717109_6tbgwfi",
+      "hora": "20:00",
+      "titulo": "Recepción de Invitados",
+      "descripcion": "Música suave y cóctel de bienvenida.",
+      "icono": "GlassWater"
+    },
+    {
+      "id": "prog_1756924717109_uxjl4rk",
+      "hora": "21:00",
+      "titulo": "Entrada Principal",
+      "descripcion": "Entrada de los agasajados al salón.",
+      "icono": "Sparkles"
+    },
+    {
+      "id": "prog_1756924717109_ola7hxt",
+      "hora": "21:30",
+      "titulo": "Cena",
+      "descripcion": "Servicio de plato principal.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1756924717109_roq1h75",
+      "hora": "23:00",
+      "titulo": "¡A Bailar!",
+      "descripcion": "Se abre la pista de baile.",
+      "icono": "Music"
+    },
+    {
+      "id": "prog_1756924717109_16mlzjs",
+      "hora": "00:30",
+      "titulo": "Corte de Torta y Brindis",
+      "descripcion": "Momento especial con la torta y el brindis.",
+      "icono": "CakeSlice"
+    }
+  ],
+  "fotografiaYFilmacion": {
+    "estadoEntrega": "Pendiente",
+    "recibidoPorCliente": false
+  },
+  "otrosDocumentos": [],
+  "pagosProveedores": []
 }
