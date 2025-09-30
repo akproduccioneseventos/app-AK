@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,12 +13,12 @@ import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Plus, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { format as formatDateFn, differenceInCalendarDays, differenceInHours, differenceInMinutes, formatDistanceToNowStrict } from 'date-fns';
+import { format as formatDateFn, formatDistanceToNowStrict } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import type { Tarea } from '@/types/fiesta';
+import type { Tarea, ItineraryTemplate as TaskTemplate } from '@/types/fiesta';
 import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';
-// tareasPredeterminadasEjemplo import has been removed
+import { getTaskTemplates, deleteTaskTemplate } from '@/app/actions/task-templates';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,6 +30,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 
 
@@ -46,6 +57,13 @@ export default function TareasEventoPage() {
   const [newTaskReminder, setNewTaskReminder] = useState('');
   const [newTaskAssignedTo, setNewTaskAssignedTo] = useState('');
   const [newIsDefaultTask, setNewIsDefaultTask] = useState(false); // UI only
+
+  // Template States
+  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [templates, setTemplates] = useState<TaskTemplate[]>([]);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+  const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
+
 
   const loadTareas = useCallback(async () => {
     setIsLoading(true);
@@ -65,6 +83,19 @@ export default function TareasEventoPage() {
   useEffect(() => {
     loadTareas();
   }, [loadTareas]);
+
+  const handleOpenLoadTemplateModal = async () => {
+    setIsLoadingTemplates(true);
+    setIsLoadTemplateModalOpen(true);
+    try {
+        const fetchedTemplates = await getTaskTemplates();
+        setTemplates(fetchedTemplates);
+    } catch(e) {
+        toast({title: "Error", description: "No se pudieron cargar las plantillas", variant: "destructive"});
+    } finally {
+        setIsLoadingTemplates(false);
+    }
+  };
 
   const handleSaveChanges = async (updatedTareas: Tarea[]) => {
     setIsSaving(true);
@@ -98,7 +129,7 @@ export default function TareasEventoPage() {
       horaVencimiento: newTaskDueTime.trim() || undefined,
       recordatorio: newTaskReminder.trim() || undefined,
       asignadaA: newTaskAssignedTo.trim() || undefined,
-      esPredeterminada: newIsDefaultTask, // UI state, no backend logic yet
+      esPredeterminada: newIsDefaultTask,
     };
     const updatedTareas = [newTask, ...tareas];
     setTareas(updatedTareas);
@@ -112,6 +143,31 @@ export default function TareasEventoPage() {
     setNewTaskAssignedTo('');
     setNewIsDefaultTask(false);
     toast({ title: "Tarea Añadida", description: `"${newTask.texto}" ha sido añadida.` });
+  };
+  
+   const handleLoadTemplate = (template: TaskTemplate) => {
+    const newTasksFromTemplate = template.tasks.map(taskTemplate => ({
+      ...taskTemplate,
+      id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+      completada: false,
+    }));
+    const updatedTareas = [...tareas, ...newTasksFromTemplate];
+    setTareas(updatedTareas);
+    handleSaveChanges(updatedTareas); // Save immediately
+    toast({title: "Plantilla de Tareas Cargada", description: `Se añadieron ${newTasksFromTemplate.length} tareas.`});
+    setIsLoadTemplateModalOpen(false);
+  };
+  
+  const handleDeleteTemplate = async (id: string) => {
+    setDeletingTemplateId(id);
+    const result = await deleteTaskTemplate(id);
+    if (result.success) {
+      toast({ title: "Plantilla eliminada" });
+      setTemplates(prev => prev.filter(t => t.id !== id));
+    } else {
+      toast({ title: "Error al eliminar", description: result.error, variant: "destructive" });
+    }
+    setDeletingTemplateId(null);
   };
 
   const toggleTaskCompletion = async (taskId: string) => {
@@ -131,8 +187,6 @@ export default function TareasEventoPage() {
         toast({ title: "Tarea Eliminada", description: `"${tareaAEliminar.texto}" ha sido eliminada.`, variant: "destructive" });
     }
   };
-  
-  // handleUsePredeterminadaTask is removed as predefined tasks are removed.
 
   const formatDateDisplay = (dateString?: string, timeString?: string): string => {
     if (!dateString) return 'Sin fecha';
@@ -157,7 +211,7 @@ export default function TareasEventoPage() {
           const [hours, minutes] = task.horaVencimiento.split(':');
           dueDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
         } else {
-          dueDateTime.setHours(23, 59, 59, 999); // End of day if no time specified
+          dueDateTime.setHours(23, 59, 59, 999);
         }
         return { ...task, dueDateTime };
       })
@@ -166,7 +220,7 @@ export default function TareasEventoPage() {
 
     if (upcomingTasks.length > 0) {
       const nextTask = upcomingTasks[0];
-      return `Próxima tarea: "${nextTask.texto.substring(0,25)}..." vence en ${formatDistanceToNowStrict(nextTask.dueDateTime, { locale: es, addSuffix: true })}`;
+      return `Próxima tarea: "${nextTask.texto.substring(0,25)}..." vence ${formatDistanceToNowStrict(nextTask.dueDateTime, { locale: es, addSuffix: true })}`;
     }
     return "No hay tareas pendientes con fecha límite próxima.";
   };
@@ -180,6 +234,26 @@ export default function TareasEventoPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Cargar Tareas desde Plantilla</DialogTitle></DialogHeader>
+          {isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> :
+            templates.length > 0 ? (
+              <ul className="space-y-2 max-h-64 overflow-y-auto">
+                {templates.map(t => (
+                  <li key={t.id} className="flex items-center justify-between p-2 border rounded-md">
+                    <span>{t.name} ({t.tasks.length} tareas)</span>
+                    <div className="flex gap-1">
+                      <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
+                      <Button size="icon" variant="destructive" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>{deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ListChecks className="w-8 h-8 text-primary" />
@@ -222,10 +296,6 @@ export default function TareasEventoPage() {
                 <Input id="task-assigned" value={newTaskAssignedTo} onChange={(e) => setNewTaskAssignedTo(e.target.value)} placeholder="Ej: Juan Pérez, Equipo Decoración" disabled={isSaving} />
               </div>
             </div>
-            <div className="flex items-center space-x-2 pt-2">
-              <Checkbox id="task-isdefault" checked={newIsDefaultTask} onCheckedChange={(checked) => setNewIsDefaultTask(Boolean(checked))} disabled={isSaving} />
-              <Label htmlFor="task-isdefault" className="text-sm font-normal">Guardar como tarea predeterminada para futuras fiestas (UI only)</Label>
-            </div>
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}<Plus className="w-4 h-4 mr-2" />Añadir Tarea
             </Button>
@@ -233,8 +303,6 @@ export default function TareasEventoPage() {
         </CardContent>
       </Card>
       
-      {/* Removed predefined tasks section */}
-
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Lista de Tareas ({completedCount}/{totalCount} completadas)</CardTitle>
@@ -244,6 +312,7 @@ export default function TareasEventoPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+           <Button onClick={handleOpenLoadTemplateModal} variant="secondary" className="mb-4"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Tareas desde Plantilla</Button>
           {tareas.length > 0 ? (
             <ScrollArea className="h-[400px] pr-3">
               <ul className="space-y-3">

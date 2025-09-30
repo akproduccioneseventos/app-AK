@@ -33,10 +33,11 @@ export async function saveEmpleado(
     if (index === -1) {
       return { success: false, error: `Empleado con ID ${empleadoId} no encontrado.` };
     }
-    const dataToUpdate: Partial<Empleado> = {
+    // Explicitly handle all fields, including making rolId optional
+    const dataToUpdate: Omit<Empleado, 'id'> = {
         nombre: empleadoData.nombre,
-        cedula: empleadoData.cedula,
-        fechaNacimiento: empleadoData.fechaNacimiento,
+        cedula: empleadoData.cedula || '',
+        fechaNacimiento: empleadoData.fechaNacimiento || '',
         rolId: (empleadoData as Empleado).rolId || undefined,
     };
     empleados[index] = { ...empleados[index], ...dataToUpdate };
