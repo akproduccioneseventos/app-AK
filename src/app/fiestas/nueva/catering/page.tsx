@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -173,19 +174,22 @@ export default function CateringEventoHubPage() {
               <div className="flex items-center gap-3">
                   <Calculator className="w-8 h-8 text-primary" />
                   <div>
-                      <CardTitle className="font-headline text-xl">Planificador Gastronómico</CardTitle>
-                      <CardDescription>Estima costos y rentabilidad de repostería y bebidas.</CardDescription>
+                      <CardTitle className="font-headline text-xl">Planificadores Gastronómicos</CardTitle>
+                      <CardDescription>Calcula costos detallados de repostería y bebidas.</CardDescription>
                   </div>
               </div>
           </CardHeader>
-          <CardContent>
-              <p className="text-muted-foreground mb-4 text-sm">
-                  Utiliza el planificador para un desglose detallado de costos.
-              </p>
-              <Link href="/planner-costo-fiesta" passHref>
-                  <Button className="w-full">
+          <CardContent className="flex flex-col gap-2">
+              <Link href="/fiestas/nueva/planner-costo-fiesta/reposteria" passHref>
+                  <Button className="w-full justify-start" variant="outline">
                       <Calculator className="w-5 h-5 mr-2" />
-                      Ir al Planificador Gastronómico
+                      Planificador de Repostería
+                  </Button>
+              </Link>
+               <Link href="/fiestas/nueva/planner-costo-fiesta/bebidas" passHref>
+                  <Button className="w-full justify-start" variant="outline">
+                      <Calculator className="w-5 h-5 mr-2" />
+                      Planificador de Bebidas
                   </Button>
               </Link>
           </CardContent>

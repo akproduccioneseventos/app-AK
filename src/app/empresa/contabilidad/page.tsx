@@ -88,14 +88,14 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
    {
     title: 'Catálogo de Servicios y Precios',
     description: 'Define y gestiona los servicios que ofreces en los presupuestos.',
-    href: '/empresa/servicios',
+    href: '/empresa/todos-los-servicios',
     icon: Sparkles,
     actionLabel: 'Gestionar Catálogo',
   },
    {
     title: 'Gestión de Menús de Catering',
     description: 'Crea y edita las plantillas de menús para tus eventos.',
-    href: '/fiestas/nueva/catering/modificar-menu',
+    href: '/empresa/menus',
     icon: ChefHat,
     actionLabel: 'Gestionar Menús',
   },
@@ -293,6 +293,4 @@ export default function ContabilidadDashboardPage() {
     </div>
   );
 }
-    
-
     
