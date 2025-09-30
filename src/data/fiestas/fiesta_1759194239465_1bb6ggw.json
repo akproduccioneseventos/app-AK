@@ -1,0 +1,118 @@
+{
+  "id": "fiesta_1759194239465_1bb6ggw",
+  "configuracion": {
+    "nombreEvento": "[COPIA] Boda Ana y Juan",
+    "tipoCelebracion": "Boda",
+    "fechaEvento": "2025-11-15T00:00:00.000Z",
+    "horaInicio": "21:00",
+    "horaFin": "05:00",
+    "nombreLugar": "Salón El Paraíso",
+    "invitadosEstimados": 120,
+    "presupuestoEstimado": 850000,
+    "notasAdicionales": "Boda estilo rústico-chic."
+  },
+  "personalAsignado": [],
+  "menuAsignadoId": null,
+  "invoiceIds": [],
+  "reuniones": [
+    {
+      "titulo": "Primera reunión con Ana y Juan",
+      "fecha": "2025-08-20T18:00:00.000Z",
+      "notas": "Definición inicial de estilo y cantidad de invitados.",
+      "id": "reunion_1758487653347"
+    }
+  ],
+  "tareas": [
+    {
+      "texto": "Enviar opciones de catering a los novios",
+      "completada": false,
+      "descripcion": "Preparar y enviar 3 propuestas de menú.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_3tsrulr"
+    },
+    {
+      "texto": "Reservar Salón El Paraíso",
+      "completada": true,
+      "descripcion": "Seña del 30% pagada.",
+      "esPredeterminada": false,
+      "asignadaA": "Organizador",
+      "id": "task_1756924717109_z5gwp9a"
+    }
+  ],
+  "clientChecklist": [],
+  "clientNotes": "",
+  "decoracion": {
+    "tema": "Rústico Chic",
+    "paletaColores": {
+      "primary": "#A2D2B0",
+      "secondary": "#DCDCDC",
+      "accent": "#F0E6CC"
+    },
+    "items": [],
+    "zonasContratadas": [],
+    "salonElements": []
+  },
+  "invitados": [],
+  "webPageSettings": {
+    "showCountdown": true,
+    "showRsvp": true
+  },
+  "clientPortalSettings": {
+    "enabled": false,
+    "checklist": {
+      "visible": false,
+      "editable": false
+    },
+    "itinerario": {
+      "visible": false
+    },
+    "musica": {
+      "visible": false,
+      "editable": false
+    },
+    "videoVida": {
+      "visible": false,
+      "editable": false
+    },
+    "listaRegalos": {
+      "visible": false
+    },
+    "documentos": {
+      "visible": false
+    },
+    "notasCliente": {
+      "visible": false,
+      "editable": false
+    },
+    "invitados": {
+      "visible": false
+    },
+    "paginaPublica": {
+      "visible": false
+    },
+    "fotografiaYFilmacion": {
+      "visible": false
+    }
+  },
+  "socialGallerySettings": {},
+  "musica": {},
+  "reposteria": {
+    "categorias": []
+  },
+  "bebidas": {
+    "categorias": []
+  },
+  "listaDeCargaOperativa": {
+    "categorias": []
+  },
+  "gestionCostos": {
+    "costosItems": [],
+    "ingresosTotalesEstimados": 0
+  },
+  "videoVida": {},
+  "programa": [],
+  "fotografiaYFilmacion": {},
+  "otrosDocumentos": [],
+  "pagosProveedores": []
+}
