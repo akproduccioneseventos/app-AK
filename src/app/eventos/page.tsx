@@ -209,7 +209,7 @@ export default function GestorFiestasPage() {
                         <Users className="w-3 h-3"/> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
                       </div>
                     </CardContent>
-                     <CardFooter className="p-2 border-t flex justify-end gap-2 print:hidden">
+                    <CardFooter className="p-2 border-t flex justify-end gap-2 print:hidden">
                         <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
                           <Button variant="default" size="sm" className="w-full">
                             <Edit className="w-4 h-4 mr-2"/>Planificar
