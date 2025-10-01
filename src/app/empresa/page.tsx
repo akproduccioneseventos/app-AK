@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat, Calculator, ShoppingCart, GlassWater } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat, Calculator, ShoppingCart, GlassWater, PackageSearch } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -56,6 +56,13 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/todos-los-servicios',
     icon: Package,
     actionLabel: 'Gestionar Activos',
+  },
+   {
+    title: 'Plantillas de Carga Operativa',
+    description: 'Crea y gestiona listas de carga base para agilizar la logística de tus eventos.',
+    href: '/settings/carga-operativa-templates',
+    icon: PackageSearch,
+    actionLabel: 'Gestionar Plantillas',
   },
   {
     title: 'Redes Sociales y Publicaciones',
