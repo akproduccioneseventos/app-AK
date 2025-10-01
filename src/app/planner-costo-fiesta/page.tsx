@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Cake, GlassWater, ShoppingCart, Calculator } from 'lucide-react';
+import { ArrowLeft, Cake, GlassWater, ShoppingCart, Calculator, ChefHat } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -17,6 +17,13 @@ interface HubItem {
 
 const gastronomicHubItems: HubItem[] = [
   {
+    title: 'Gestión de Menú',
+    description: 'Asigna el menú principal y gestiona los platos para la fiesta.',
+    href: '/fiestas/nueva/catering',
+    icon: ChefHat,
+    actionLabel: 'Gestionar Menú',
+  },
+  {
     title: 'Planificador de Repostería',
     description: 'Calcula porciones y costos de tortas, postres y mesas dulces.',
     href: '/fiestas/nueva/planner-costo-fiesta/reposteria',
@@ -25,7 +32,7 @@ const gastronomicHubItems: HubItem[] = [
   },
   {
     title: 'Planificador de Bebidas',
-    description: 'Estima la cantidad y costo de bebidas según tus invitados.',
+    description: 'Estima la cantidad y costo de bebidas, incluyendo la barra de tragos.',
     href: '/fiestas/nueva/planner-costo-fiesta/bebidas',
     icon: GlassWater,
     actionLabel: 'Gestionar Bebidas',
@@ -64,7 +71,7 @@ export default function PlannerCostoFiestaHubPage() {
             Desde aquí puedes acceder a todas las herramientas para planificar la comida y bebida de tu evento.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {gastronomicHubItems.map(item => (
                  <Card key={item.title} className="hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
                     <CardHeader><CardTitle className="flex items-center gap-2"><item.icon className="text-primary"/>{item.title}</CardTitle></CardHeader>
