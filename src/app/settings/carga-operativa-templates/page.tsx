@@ -9,12 +9,12 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 // This page is obsolete. Its functionality has been moved.
-// We redirect to the new central page for task templates as a fallback.
+// We redirect to the settings page as a safe fallback.
 export default function DeprecatedCargaOperativaTemplatesPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/settings/task-templates');
+        router.replace('/settings');
     }, [router]);
 
     return (
@@ -26,11 +26,11 @@ export default function DeprecatedCargaOperativaTemplatesPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        Esta página ha sido reubicada. Serás redirigido a la gestión de plantillas de tareas.
+                        Esta página ha sido reubicada.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/settings/task-templates" passHref>
+                    <Link href="/settings" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

@@ -57,13 +57,6 @@ const settingsCards = [
     buttonLabel: "Gestionar Plantillas"
   },
   {
-    title: "Plantillas de Carga Operativa",
-    description: "Gestiona tus listas base para la carga y logística de cada evento.",
-    href: "/settings/carga-operativa-templates",
-    icon: PackageSearch,
-    buttonLabel: "Gestionar Plantillas"
-  },
-  {
     title: "Accesos para Colaboradores",
     description: "Crea y gestiona enlaces de acceso para tu equipo (secretaria, DJ, etc.).",
     href: "/settings/accesos-personal",
