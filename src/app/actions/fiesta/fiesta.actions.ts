@@ -80,6 +80,19 @@ export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
   return [...activas, ...archivadas];
 }
 
+export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const filePath = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR, `${fiestaId}.json`);
+    await fs.unlink(filePath);
+    return { success: true };
+  } catch (error: any) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return { success: false, error: "El archivo del evento activo no fue encontrado para eliminar." };
+    }
+    console.error(`Error deleting active fiesta file ${fiestaId}:`, error);
+    return { success: false, error: "No se pudo eliminar el archivo del evento." };
+  }
+}
 
 export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -265,5 +278,6 @@ export async function removeInvoiceId(fiestaId: string, invoiceId: string): Prom
   }
 }
     
+
 
 

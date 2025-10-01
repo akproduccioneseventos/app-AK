@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2, Copy } from 'lucide-react';
 import Link from 'next/link';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual, duplicateFiesta } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -79,6 +79,23 @@ export default function GestorFiestasPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handleDeleteFiesta = async (fiestaId: string, nombreFiesta: string) => {
+    setIsProcessing(fiestaId);
+    try {
+      const result = await deleteFiestaAction(fiestaId);
+      if (result.success) {
+        toast({ title: "¡Evento Eliminado!", description: `El evento "${nombreFiesta}" ha sido eliminado.`, variant: "destructive" });
+        await loadData();
+      } else {
+        throw new Error(result.error || "No se pudo eliminar el evento.");
+      }
+    } catch(e: any) {
+      toast({ title: "Error al Eliminar", description: e.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(null);
+    }
+  };
 
   const handleArchivar = async (fiestaId: string) => {
     setIsProcessing(fiestaId);
@@ -252,21 +269,21 @@ export default function GestorFiestasPage() {
                             </Button>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                <Button variant="secondary" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
-                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Archive className="w-4 h-4"/>}
-                                    <span className="ml-2">Archivar</span>
+                                <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
+                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4"/>}
+                                    <span className="ml-2">Eliminar</span>
                                 </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>¿Archivar Evento?</AlertDialogTitle>
+                                        <AlertDialogTitle>¿Eliminar Evento Activo?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            El evento "{fiesta.configuracion.nombreEvento}" se moverá al historial de eventos pasados.
+                                            El evento "{fiesta.configuracion.nombreEvento}" se eliminará permanentemente. Esta acción no se puede deshacer.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleArchivar(fiesta.id)}>Archivar</AlertDialogAction>
+                                        <AlertDialogAction onClick={() => handleDeleteFiesta(fiesta.id, fiesta.configuracion.nombreEvento)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>

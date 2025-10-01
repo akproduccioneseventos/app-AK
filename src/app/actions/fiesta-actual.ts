@@ -15,6 +15,7 @@ import {
     addInvoiceId as addInvoiceIdToFiesta,
     removeInvoiceId as removeInvoiceIdFromFiesta,
     deleteFiestaArchivada as deleteFiestaArchivadaFromModule,
+    deleteFiesta as deleteFiestaFromModule,
     duplicateFiesta as duplicateFiestaFromModule,
     getHistorialFiestas as getHistorialFiestasFromModule
 } from './fiesta/fiesta.actions';
@@ -49,6 +50,7 @@ export const getFiestas = getFiestasFromModule;
 export const getAllFiestas = getAllFiestasFromModule;
 export const archiveFiesta = archiveFiestaFromModule;
 export const deleteFiestaArchivada = deleteFiestaArchivadaFromModule;
+export const deleteFiesta = deleteFiestaFromModule;
 export const resetFiestaActual = resetFiestaActualFromModule;
 export const getFiestaById = getFiestaByIdFromModule;
 export const saveFiesta = saveFiestaFromModule;
@@ -125,5 +127,6 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
+
 
 
