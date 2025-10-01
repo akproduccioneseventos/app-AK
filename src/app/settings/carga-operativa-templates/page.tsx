@@ -82,13 +82,29 @@ export default function CargaOperativaGeneralPage() {
   
   const openItemModal = (categoryId: string, item?: CargaOperativaItem) => {
     setCurrentItemCategoryId(categoryId);
-    setCurrentItem(item ? {...item} : { nombre: '', cantidad: '1', unidad: 'Unidad' });
+    setCurrentItem(item ? {...item} : { nombre: '', cantidad: '1', unidad: 'Unidad', calculationMethod: 'fijo' });
     setIsItemModalOpen(true);
   };
   
-  const handleItemFormChange = (field: keyof Omit<CargaOperativaItem, 'id' | 'cargado'>, value: string) => {
+  const handleItemFormChange = (field: keyof Omit<CargaOperativaItem, 'id' | 'cargado'>, value: string | number | undefined) => {
     setCurrentItem(prev => prev ? ({ ...prev, [field]: value }) : {});
   };
+  
+  const handleCalculationMethodChange = (value: CargaOperativaItem['calculationMethod']) => {
+    setCurrentItem(prev => {
+        if (!prev) return {};
+        const updatedItem = { ...prev, calculationMethod: value };
+        // Reset irrelevant fields when method changes
+        if (value !== 'porRatio') {
+            delete updatedItem.ratioPorInvitado;
+        }
+        if (value === 'porRatio') {
+             updatedItem.cantidad = '1';
+        }
+        return updatedItem;
+    });
+  };
+
 
   const handleItemModalSave = (e: FormEvent) => {
     e.preventDefault();
@@ -103,7 +119,9 @@ export default function CargaOperativaGeneralPage() {
       nombre: currentItem.nombre.trim(),
       cantidad: currentItem.cantidad || '1',
       unidad: currentItem.unidad || 'Unidad',
-      cargado: false,
+      cargado: false, // Default value, not used in template
+      calculationMethod: currentItem.calculationMethod || 'fijo',
+      ratioPorInvitado: currentItem.calculationMethod === 'porRatio' ? (Number(currentItem.ratioPorInvitado) || 1) : undefined
     };
 
     setMasterTemplate(prev => {
@@ -170,10 +188,32 @@ export default function CargaOperativaGeneralPage() {
             </DialogHeader>
             <form onSubmit={handleItemModalSave} className="space-y-4">
                 <div className="space-y-1"><Label htmlFor="new-item-name-modal">Nombre del Ítem*</Label><Input id="new-item-name-modal" value={currentItem.nombre || ''} onChange={(e) => handleItemFormChange('nombre', e.target.value)} placeholder="Ej: Mantel redondo blanco" required/></div>
+                
+                <div className="space-y-1">
+                    <Label htmlFor="calculation-method">Método de Cálculo de Cantidad</Label>
+                    <Select value={currentItem.calculationMethod || 'fijo'} onValueChange={(val) => handleCalculationMethodChange(val as CargaOperativaItem['calculationMethod'])}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="fijo">Fijo (Cantidad Manual)</SelectItem>
+                            <SelectItem value="porPersona">Por Persona</SelectItem>
+                            <SelectItem value="porRatio">Por Ratio de Invitados</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1"><Label htmlFor="new-item-qty-modal">Cantidad*</Label><Input id="new-item-qty-modal" value={currentItem.cantidad || '1'} onChange={(e) => handleItemFormChange('cantidad', e.target.value)} placeholder="Ej: 10, Todos, 1 Caja" required/></div>
+                    {(currentItem.calculationMethod === 'fijo') && (
+                        <div className="space-y-1"><Label htmlFor="new-item-qty-modal">Cantidad*</Label><Input id="new-item-qty-modal" value={currentItem.cantidad || '1'} onChange={(e) => handleItemFormChange('cantidad', e.target.value)} placeholder="Ej: 10, Todos, 1 Caja" required/></div>
+                    )}
+                     {(currentItem.calculationMethod === 'porPersona') && (
+                        <div className="space-y-1"><Label htmlFor="new-item-qty-pp-modal">Cant. por Persona*</Label><Input id="new-item-qty-pp-modal" type="number" value={currentItem.cantidad || '1'} onChange={(e) => handleItemFormChange('cantidad', e.target.value)} min="0.01" step="0.01" required/></div>
+                    )}
+                    {(currentItem.calculationMethod === 'porRatio') && (
+                        <div className="space-y-1"><Label htmlFor="new-item-ratio-modal">1 cada X invitados*</Label><Input id="new-item-ratio-modal" type="number" value={currentItem.ratioPorInvitado || '4'} onChange={(e) => handleItemFormChange('ratioPorInvitado', Number(e.target.value))} min="1" required/></div>
+                    )}
                     <div className="space-y-1"><Label htmlFor="new-item-unit-modal">Unidad</Label><Select value={currentItem.unidad || 'Unidad'} onValueChange={(val) => handleItemFormChange('unidad', val as UnidadServicio)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
                 </div>
+
                 <DialogFooter>
                     <DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose>
                     <Button type="submit">{currentItem.id ? 'Guardar Cambios' : 'Añadir Ítem'}</Button>
@@ -190,7 +230,7 @@ export default function CargaOperativaGeneralPage() {
       <Card>
         <CardHeader>
           <CardTitle>Inventario Maestro de Carga</CardTitle>
-          <CardDescription>Define aquí la lista completa de todos los elementos que se pueden necesitar para un evento. Esta será la lista base que podrás cargar y adaptar en cada fiesta.</CardDescription>
+          <CardDescription>Define aquí la lista completa de todos los elementos que se pueden necesitar para un evento, y cómo se debe calcular su cantidad.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={() => setIsCategoryModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nueva Categoría</Button>
@@ -219,7 +259,15 @@ export default function CargaOperativaGeneralPage() {
                   <div className="space-y-2">
                     {category.items.map(item => (
                       <div key={item.id} className="flex justify-between items-center text-sm p-1.5 border-b last:border-b-0">
-                        <span>{item.nombre} <span className="text-xs text-muted-foreground">({item.cantidad} {item.unidad || ''})</span></span>
+                        <div>
+                            <p className="font-medium">{item.nombre}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {item.calculationMethod === 'fijo' && `Cantidad Fija: ${item.cantidad}`}
+                                {item.calculationMethod === 'porPersona' && `${item.cantidad} por Persona`}
+                                {item.calculationMethod === 'porRatio' && `1 cada ${item.ratioPorInvitado} Personas`}
+                                {item.unidad && ` (${item.unidad})`}
+                            </p>
+                        </div>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => openItemModal(category.id, item)}><Edit3 className="w-3.5 h-3.5"/></Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(category.id, item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>

@@ -358,11 +358,13 @@ export interface ClientTarea {
 export interface CargaOperativaItem {
   id: string;
   nombre: string;
-  cantidad: string;
+  cantidad: string; // '1', '100', '1 por persona'
   cargado: boolean;
   notas?: string;
   origenId?: string; 
-  unidad?: UnidadServicio | string; 
+  unidad?: UnidadServicio | string;
+  calculationMethod?: 'fijo' | 'porPersona' | 'porRatio';
+  ratioPorInvitado?: number; // e.g., 4 (meaning 1 unit for every 4 guests)
 }
 
 export interface CargaOperativaCategoria {
