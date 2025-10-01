@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -38,7 +37,7 @@ export default function InvitadosEventoPage() {
 
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoContacto, setNuevoContacto] = useState('');
-  const [nuevoPartySize, setNuevoPartySize] = useState<number>(1);
+  const [nuevoNumAcompanantes, setNuevoNumAcompanantes] = useState<number>(0);
 
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -97,7 +96,7 @@ export default function InvitadosEventoPage() {
       nombre: nuevoNombre.trim(),
       contacto: nuevoContacto.trim() || undefined,
       rsvp: 'Pendiente',
-      partySize: Number(nuevoPartySize) || 1,
+      partySize: 1 + (Number(nuevoNumAcompanantes) || 0),
       notes: undefined, 
       companionNames: [],
     };
@@ -106,7 +105,7 @@ export default function InvitadosEventoPage() {
       await fetchInvitados(); 
       setNuevoNombre('');
       setNuevoContacto('');
-      setNuevoPartySize(1);
+      setNuevoNumAcompanantes(0);
       toast({ title: "Invitado Añadido", description: `${result.invitado.nombre} ha sido añadido.` });
     } else {
       toast({ title: "Error al Añadir", description: result.error || "No se pudo añadir el invitado.", variant: "destructive" });
@@ -256,7 +255,7 @@ export default function InvitadosEventoPage() {
           <form onSubmit={handleAddInvitado} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                <Label htmlFor="nombre-invitado">Nombre Completo</Label>
+                <Label htmlFor="nombre-invitado">Nombre del Invitado</Label>
                 <Input id="nombre-invitado" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} placeholder="Ej: Laura Martínez" required />
                 </div>
                 <div className="space-y-2">
@@ -266,8 +265,9 @@ export default function InvitadosEventoPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                <Label htmlFor="partysize-invitado">Nº Personas (Total, incl. invitado)</Label>
-                <Input id="partysize-invitado" type="number" value={nuevoPartySize} onChange={(e) => setNuevoPartySize(Number(e.target.value))} min="1" />
+                <Label htmlFor="num-acompanantes">Nº de Acompañantes</Label>
+                <Input id="num-acompanantes" type="number" value={nuevoNumAcompanantes} onChange={(e) => setNuevoNumAcompanantes(Number(e.target.value))} min="0" />
+                 <p className="text-xs text-muted-foreground">El total de personas será {1 + nuevoNumAcompanantes}.</p>
                 </div>
             </div>
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
@@ -448,4 +448,3 @@ export default function InvitadosEventoPage() {
     </div>
   );
 }
-
