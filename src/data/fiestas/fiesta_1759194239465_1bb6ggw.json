@@ -55,11 +55,33 @@
   },
   "invitados": [],
   "webPageSettings": {
+    "pageTitle": "Mi Evento Especial",
+    "heroSubtitle": "¡Una celebración inolvidable!",
+    "welcomeMessage": "¡Bienvenidos a la celebración de nuestro evento!",
+    "coverImageUrl": "",
+    "galleryImageUrls": [],
     "showCountdown": true,
-    "showRsvp": true
+    "ourStoryTitle": "Nuestra Historia",
+    "ourStoryText": "Un breve relato de cómo llegamos hasta aquí...",
+    "ourStoryImageUrl": "",
+    "showOurStory": false,
+    "eventDetailsTitle": "Detalles del Evento",
+    "eventDetailsText": "Fecha, hora, lugar y más información importante.",
+    "showEventDetails": true,
+    "dressCodeText": "Elegante Sport",
+    "showDressCode": false,
+    "giftRegistryTitle": "Lista de Regalos",
+    "giftRegistryText": "Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...",
+    "showGiftRegistry": false,
+    "giftRegistry": [],
+    "showRsvp": true,
+    "showPrograma": false,
+    "musicaEspecialText": "",
+    "showGallery": false
   },
   "clientPortalSettings": {
-    "enabled": false,
+    "enabled": true,
+    "accessKey": "",
     "checklist": {
       "visible": false,
       "editable": false
@@ -76,17 +98,17 @@
       "editable": false
     },
     "listaRegalos": {
-      "visible": false
+      "visible": true
     },
     "documentos": {
       "visible": false
     },
     "notasCliente": {
-      "visible": false,
+      "visible": true,
       "editable": false
     },
     "invitados": {
-      "visible": false
+      "visible": true
     },
     "paginaPublica": {
       "visible": false

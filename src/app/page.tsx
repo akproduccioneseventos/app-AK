@@ -27,7 +27,6 @@ const modules: ModuleCardProps[] = [
   { title: "Central de Presupuestos", description: "Crea, gestiona y envía presupuestos detallados a tus clientes.", href: "/presupuestos/nuevo", icon: ListChecks },
   { title: "Contabilidad y Finanzas", description: "Accede al CRM, facturas y reportes.", href: "/empresa/contabilidad", icon: BarChart3 },
   { title: "Gestión de Empresa", description: "Administra personal, proveedores, menús y tu catálogo de servicios.", href: "/empresa", icon: Building2 },
-  { title: "Bloc de Notas", description: "Un espacio para tus notas rápidas y recordatorios.", href: "/notas", icon: StickyNote },
   { title: "Configuración General", description: "Ajusta las preferencias de la aplicación y plantillas de documentos.", href: "/settings", icon: Settings },
 ];
 
