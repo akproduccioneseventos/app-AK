@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, PackageSearch, Save, BookOpen } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, PackageSearch, Save } from 'lucide-react';
 import type { CargaOperativaTemplate, CargaOperativaCategoria as CargaOperativaTemplateCategory } from '@/app/actions/carga-operativa-templates';
 import type { CargaOperativaItem } from '@/types/fiesta';
 import { getMasterCargaOperativaTemplate, saveMasterCargaOperativaTemplate } from '@/app/actions/carga-operativa-templates';
@@ -35,6 +35,11 @@ export default function CargaOperativaGeneralPage() {
   
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  
+  // State for Add Item Modal
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [currentItemCategoryId, setCurrentItemCategoryId] = useState<string | null>(null);
+  const [newItemName, setNewItemName] = useState('');
 
 
   const fetchMasterTemplate = useCallback(async () => {
@@ -76,22 +81,32 @@ export default function CargaOperativaGeneralPage() {
     }
   };
   
-  const handleAddItem = (categoryId: string) => {
-      const itemName = prompt("Nombre del nuevo ítem:");
-      if (itemName && masterTemplate) {
-          const newItem: CargaOperativaItem = {
-              id: `item_master_${Date.now()}`,
-              nombre: itemName,
-              cantidad: '1', // Default quantity
-              cargado: false,
-          };
-          setMasterTemplate(prev => prev ? ({
-              ...prev,
-              categories: prev.categories.map(cat => 
-                  cat.id === categoryId ? { ...cat, items: [...cat.items, newItem] } : cat
-              )
-          }) : null);
-      }
+  const openAddItemModal = (categoryId: string) => {
+    setCurrentItemCategoryId(categoryId);
+    setNewItemName('');
+    setIsItemModalOpen(true);
+  };
+  
+  const handleAddItem = (e: FormEvent) => {
+    e.preventDefault();
+    if (newItemName.trim() && currentItemCategoryId && masterTemplate) {
+      const newItem: CargaOperativaItem = {
+        id: `item_master_${Date.now()}`,
+        nombre: newItemName,
+        cantidad: '1', // Default quantity
+        cargado: false,
+      };
+      setMasterTemplate(prev => prev ? ({
+        ...prev,
+        categories: prev.categories.map(cat => 
+          cat.id === currentItemCategoryId ? { ...cat, items: [...cat.items, newItem] } : cat
+        )
+      }) : null);
+      setIsItemModalOpen(false);
+      toast({ title: "Ítem añadido" });
+    } else {
+      toast({ title: "Nombre requerido", variant: "destructive" });
+    }
   };
   
   const handleDeleteItem = (categoryId: string, itemId: string) => {
@@ -138,6 +153,25 @@ export default function CargaOperativaGeneralPage() {
         </DialogContent>
        </Dialog>
 
+       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Añadir Nuevo Ítem</DialogTitle>
+                <DialogDescription>Añadiendo a la categoría "{masterTemplate?.categories.find(c => c.id === currentItemCategoryId)?.nombre}"</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleAddItem} className="space-y-4">
+                <div className="space-y-1">
+                    <Label htmlFor="new-item-name-modal">Nombre del Ítem</Label>
+                    <Input id="new-item-name-modal" value={newItemName} onChange={e => setNewItemName(e.target.value)} placeholder="Ej: Mantel redondo blanco" required/>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose>
+                    <Button type="submit">Añadir Ítem</Button>
+                </DialogFooter>
+            </form>
+        </DialogContent>
+       </Dialog>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <PackageSearch className="w-8 h-8 text-primary" />
@@ -152,7 +186,7 @@ export default function CargaOperativaGeneralPage() {
           <CardDescription>Define aquí la lista completa de todos los elementos que se pueden necesitar para un evento. Esta será la lista base que podrás cargar y adaptar en cada fiesta.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => { setNewCategoryName(''); setIsCategoryModalOpen(true); }}>
+          <Button onClick={() => setIsCategoryModalOpen(true)}>
             <PlusCircle className="w-4 h-4 mr-2"/>Añadir Nueva Categoría
           </Button>
         </CardContent>
@@ -178,7 +212,7 @@ export default function CargaOperativaGeneralPage() {
                         </Button>
                       </div>
                     ))}
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => handleAddItem(category.id)}>+ Añadir ítem</Button>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => openAddItemModal(category.id)}>+ Añadir ítem</Button>
                   </div>
                 </AccordionContent>
               </AccordionItem>
