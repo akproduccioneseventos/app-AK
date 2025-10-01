@@ -109,7 +109,7 @@ export const updateGestionCostosFiestaActual = updateGestionCostos;
 export const updateFotografiaYFilmacionFiestaActual = updateFotografiaYFilmacionFromModule;
 
 // --- Documentos Actions ---
-export const uploadDocumentoFiesta = uploadDocument;
+export const uploadDocumentoFiesta = uploadDocumento;
 export const deleteDocumentoFiesta = deleteDocumento;
 
 // --- Pagos Proveedores Actions ---
@@ -125,3 +125,4 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
+
