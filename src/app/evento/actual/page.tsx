@@ -21,6 +21,7 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import QRCodeStylized from 'qrcode.react';
 import { defaultWebPageSettings } from '@/lib/fiesta-defaults';
+import { merge, cloneDeep } from 'lodash';
 
 const platformIcons: Record<string, React.ElementType> = {
     Facebook: Facebook,
@@ -247,7 +248,8 @@ export default function EventoPublicoPage() {
       ]);
       setFiesta(data);
       // Correctly merge settings with defaults
-      setWebSettings({ ...defaultWebPageSettings, ...(data.webPageSettings || {}) });
+      const mergedWebSettings = merge(cloneDeep(defaultWebPageSettings), data.webPageSettings || {});
+      setWebSettings(mergedWebSettings);
       setPaletaColores(data.decoracion?.paletaColores || null);
       setSocialLinks(connections.filter(c => c.isConnected && c.profileUrl));
     } catch (err: any) {
