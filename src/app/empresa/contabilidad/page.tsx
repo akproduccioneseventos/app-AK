@@ -65,11 +65,11 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     actionLabel: 'Ir al CRM',
   },
   {
-    title: 'Crear Presupuestos',
+    title: 'Central de Presupuestos',
     description: 'Crea, gestiona y envía presupuestos detallados a tus clientes.',
     href: '/presupuestos/nuevo',
     icon: ListChecks,
-    actionLabel: 'Crear Nuevo Presupuesto',
+    actionLabel: 'Ir a Presupuestos',
   },
   {
     title: 'Gestión de Facturas',
