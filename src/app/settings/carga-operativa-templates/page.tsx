@@ -18,13 +18,13 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
+  AlertDialogDescription as AlertDialogDescriptionConfirm,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription } from "@/components/ui/dialog";
 
 
 export default function CargaOperativaGeneralPage() {
@@ -157,7 +157,7 @@ export default function CargaOperativaGeneralPage() {
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Añadir Nuevo Ítem</DialogTitle>
-                <DialogDescription>Añadiendo a la categoría "{masterTemplate?.categories.find(c => c.id === currentItemCategoryId)?.nombre}"</DialogDescription>
+                <DialogDescription>Añadiendo a la categoría "{masterTemplate?.categories.find(c => c.id === currentItemCategoryId)?.name}"</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddItem} className="space-y-4">
                 <div className="space-y-1">
@@ -200,7 +200,15 @@ export default function CargaOperativaGeneralPage() {
               <AccordionItem key={category.id} value={category.id} className="border rounded-lg shadow-sm bg-card">
                 <div className="flex items-center p-3">
                   <AccordionTrigger className="hover:no-underline flex-1 text-left font-semibold text-primary">{category.nombre} ({category.items.length})</AccordionTrigger>
-                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteCategory(category.id)}><Trash2 className="w-4 h-4"/></Button>
+                   <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => e.stopPropagation()}><Trash2 className="w-4 h-4"/></Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Categoría?</AlertDialogTitle><AlertDialogDescriptionConfirm>Esto eliminará "{category.nombre}" y todos sus ítems de la lista maestra.</AlertDialogDescriptionConfirm></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleDeleteCategory(category.id)}>Eliminar</AlertDialogAction></AlertDialogFooter>
+                      </AlertDialogContent>
+                   </AlertDialog>
                 </div>
                 <AccordionContent className="p-3 border-t">
                   <div className="space-y-2">
