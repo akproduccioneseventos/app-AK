@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useEffect } from 'react';
@@ -8,13 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// This page is now obsolete. Its functionality is integrated into the event's "Costos y Rentabilidad" module.
-// We redirect to the main "Empresa" hub as a neutral ground.
+// This page is now obsolete. Its functionality is integrated into the event planner.
+// We redirect to the new central page for this functionality.
 export default function DeprecatedPlannerCostoFiestaPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/empresa/contabilidad');
+        router.replace('/fiestas/nueva/planner-costo-fiesta/reposteria');
     }, [router]);
 
     return (
@@ -26,11 +27,11 @@ export default function DeprecatedPlannerCostoFiestaPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        La planificación de costos ahora se gestiona directamente en el módulo "Costos y Rentabilidad" de cada evento o en el "Panel Contable". Serás redirigido.
+                        El planificador gastronómico ahora es parte del Planificador de Fiestas. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/empresa/contabilidad" passHref>
+                    <Link href="/fiestas/nueva/planner-costo-fiesta/reposteria" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
