@@ -81,28 +81,37 @@ export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
   try {
-    const filePath = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR, `${fiestaId}.json`);
-    await fs.unlink(filePath);
-    return { success: true };
-  } catch (error: any) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      // Fallback: try finding file by partial name if direct match fails
-      const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-      try {
-        const files = await fs.readdir(dataDir);
-        const fileToDelete = files.find(file => file.includes(fiestaId));
-        if (fileToDelete) {
-          await fs.unlink(path.join(dataDir, fileToDelete));
-          return { success: true };
+    const files = await fs.readdir(dataDir);
+    let fileToDelete: string | null = null;
+
+    for (const file of files) {
+        if (file.endsWith('.json')) {
+            const filePath = path.join(dataDir, file);
+            try {
+                const content = await fs.readFile(filePath, 'utf-8');
+                const fiestaData = JSON.parse(content) as FiestaEnPlanificacion;
+                if (fiestaData.id === fiestaId) {
+                    fileToDelete = file;
+                    break;
+                }
+            } catch (e) {
+                console.warn(`Could not read or parse file ${file}, skipping.`);
+            }
         }
-        return { success: false, error: "El archivo del evento activo no fue encontrado para eliminar." };
-      } catch (fallbackError: any) {
-        return { success: false, error: `Error al intentar eliminar el evento: ${fallbackError.message}` };
-      }
     }
-    console.error(`Error deleting active fiesta file ${fiestaId}:`, error);
-    return { success: false, error: "No se pudo eliminar el archivo del evento." };
+
+    if (fileToDelete) {
+        await fs.unlink(path.join(dataDir, fileToDelete));
+        return { success: true };
+    }
+
+    return { success: false, error: "El archivo del evento activo no fue encontrado para eliminar." };
+
+  } catch (error: any) {
+    console.error(`Error deleting active fiesta file for ID ${fiestaId}:`, error);
+    return { success: false, error: `No se pudo eliminar el archivo del evento. Error: ${error.message}` };
   }
 }
 
@@ -294,3 +303,4 @@ export async function removeInvoiceId(fiestaId: string, invoiceId: string): Prom
 
 
   
+
