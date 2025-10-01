@@ -19,7 +19,7 @@ import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getCargaOperativaTemplates, saveCargaOperativaTemplate, deleteCargaOperativaTemplate, type CargaOperativaTemplate } from '@/app/actions/carga-operativa-templates';
+import { getCargaOperativaTemplates, saveCargaOperativaTemplate, type CargaOperativaTemplate } from '@/app/actions/carga-operativa-templates';
 
 import {
   Dialog,
@@ -103,7 +103,6 @@ export default function ListaDeCargaOperativaPage() {
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<CargaOperativaTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
-  const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
   
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -245,18 +244,6 @@ export default function ListaDeCargaOperativaPage() {
     setIsLoadTemplateModalOpen(false);
   };
 
-  const handleDeleteTemplate = async (id: string) => {
-    setDeletingTemplateId(id);
-    const result = await deleteCargaOperativaTemplate(id);
-    if(result.success) {
-      toast({title: "Plantilla eliminada", variant: "destructive"});
-      setTemplates(prev => prev.filter(t => t.id !== id));
-    } else {
-      toast({title: "Error al eliminar", description: result.error, variant: "destructive"});
-    }
-    setDeletingTemplateId(null);
-  };
-
   const openAddItemModal = (category: CargaOperativaCategoria, prefillData?: Partial<typeof newItemFormData>) => {
     setCurrentCategoryForAddItem(category);
     setNewItemFormData({ 
@@ -319,7 +306,7 @@ export default function ListaDeCargaOperativaPage() {
       ...prev,
       categorias: prev.categorias.map(cat =>
         cat.id === categoryId
-          ? { ...cat, items: cat.items.map(item => item.id === itemId ? { ...item, cargado: !item.cargado } : item) }
+          ? { ...cat, items: cat.items.map(item => item.id === itemId ? { ...item, cargado: !item.completada } : item) }
           : cat
       ),
     }));
@@ -404,7 +391,7 @@ export default function ListaDeCargaOperativaPage() {
       <Dialog open={isAddItemModalOpen} onOpenChange={setIsAddItemModalOpen}><DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle className="font-headline">Añadir Ítem a "{currentCategoryForAddItem?.nombre}"</DialogTitle></DialogHeader><form onSubmit={handleAddItemToCategory} className="space-y-3 py-2"><div className="space-y-1"><Label htmlFor="item-nombre-modal">Nombre del Ítem *</Label><Input id="item-nombre-modal" value={newItemFormData.nombre} onChange={(e) => setNewItemFormData(p => ({ ...p, nombre: e.target.value }))} required /></div><div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="item-cantidad-modal">Cantidad *</Label><Input id="item-cantidad-modal" value={newItemFormData.cantidad} onChange={(e) => setNewItemFormData(p => ({ ...p, cantidad: e.target.value }))} placeholder="Ej: 10, 1 caja" required /></div><div className="space-y-1"><Label htmlFor="item-unidad-modal">Unidad (Opcional)</Label><Input id="item-unidad-modal" value={newItemFormData.unidad || ''} onChange={(e) => setNewItemFormData(p => ({ ...p, unidad: e.target.value }))} placeholder="Ej: unidades, kg" /></div></div><Input type="hidden" value={newItemFormData.origenId || ''} /> <div className="space-y-1"><Label htmlFor="item-notas-modal">Notas (Opcional)</Label><Textarea id="item-notas-modal" value={newItemFormData.notas || ''} onChange={(e) => setNewItemFormData(p => ({ ...p, notas: e.target.value }))} rows={2} /></div><DialogFooter className="pt-3"><DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose><Button type="submit">Añadir Ítem</Button></DialogFooter></form></DialogContent></Dialog>
       <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Ítem del Catálogo Maestro</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar ítem por nombre o categoría..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Cat: {item.categoria} | Un: {item.unidad || 'N/A'}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo maestro está vacío o no tiene ítems."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
       <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Guardar Lista como Plantilla</DialogTitle></DialogHeader><form onSubmit={handleSaveTemplate}><div className="py-2 space-y-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Carga Básica Boda, Lista DJ Completa"/></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Guardar Plantilla</Button></DialogFooter></form></DialogContent></Dialog>
-      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Cargar Lista desde Plantilla</DialogTitle><DialogDescription>Esto añadirá todas las categorías y elementos de la plantilla a tu lista actual.</DialogDescription></DialogHeader>{isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length > 0 ? (<ul className="space-y-2 max-h-64 overflow-y-auto pr-2">{templates.map(t => (<li key={t.id} className="flex items-center justify-between p-2 border rounded-md"><span className="text-sm font-medium">{t.name}</span><div className="flex gap-1"><Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button><Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>{deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button></div></li>))}</ul>) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}<DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Cargar Lista desde Plantilla</DialogTitle><DialogDescription>Esto añadirá todas las categorías y elementos de la plantilla a tu lista actual.</DialogDescription></DialogHeader>{isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length > 0 ? (<ul className="space-y-2 max-h-64 overflow-y-auto pr-2">{templates.map(t => (<li key={t.id} className="flex items-center justify-between p-2 border rounded-md"><span className="text-sm font-medium">{t.name}</span><div className="flex gap-1"><Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button></div></li>))}</ul>) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}<DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
