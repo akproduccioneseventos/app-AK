@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -58,11 +57,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Activos',
   },
    {
-    title: 'Plantillas de Carga Operativa',
-    description: 'Crea y gestiona listas de carga base para agilizar la logística de tus eventos.',
+    title: 'Carga Operativa General',
+    description: 'Gestiona el inventario maestro de todo lo necesario para la logística de tus eventos.',
     href: '/settings/carga-operativa-templates',
     icon: PackageSearch,
-    actionLabel: 'Gestionar Plantillas',
+    actionLabel: 'Gestionar Carga',
   },
   {
     title: 'Redes Sociales y Publicaciones',
