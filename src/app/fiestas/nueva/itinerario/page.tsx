@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
 import { getFiestaActual, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -28,6 +28,17 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { defaultPrograma } from '@/lib/fiesta-defaults';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -80,7 +91,7 @@ export default function ItinerarioEventoPage() {
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
-  const [templates, setTemplates] = useState<ItineraryTemplate[]>([]);
+  const [templates, setTemplates] = useState<TaskTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
 
@@ -138,7 +149,7 @@ export default function ItinerarioEventoPage() {
     setIsSaving(false);
   };
 
-  const handleLoadTemplate = (template: ItineraryTemplate) => {
+  const handleLoadTemplate = (template: TaskTemplate) => {
     setPrograma(template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`})));
     toast({title: "Plantilla cargada", description: `Se cargó el cronograma "${template.name}".`});
     setIsLoadTemplateModalOpen(false);
@@ -218,16 +229,7 @@ export default function ItinerarioEventoPage() {
     toast({description: "El cronograma por defecto ha sido cargado."});
   };
 
-  const handlePrint = () => { window.print(); };
-
-  const handleShare = () => {
-    const url = window.location.href;
-    const text = `Te comparto el cronograma del evento: ${url}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-  };
-
-
-  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /> <p className="ml-2">Cargando cronograma...</p></div>;
   if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
   return (
@@ -257,7 +259,7 @@ export default function ItinerarioEventoPage() {
       <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
         <DialogContent><DialogHeader><DialogTitle>Guardar Cronograma como Plantilla</DialogTitle></DialogHeader>
           <div className="py-2 space-y-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Cronograma Boda Clásica"/></div>
-          <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveTemplate} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : "Guardar"}</Button></DialogFooter>
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveTemplate} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : "Guardar"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
@@ -268,7 +270,7 @@ export default function ItinerarioEventoPage() {
               <ul className="space-y-2 max-h-64 overflow-y-auto">
                 {templates.map(t => (
                   <li key={t.id} className="flex items-center justify-between p-2 border rounded-md">
-                    <span>{t.name}</span>
+                    <span>{t.name} ({t.items.length} tareas)</span>
                     <div className="flex gap-1">
                       <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
                       <Button size="icon" variant="destructive" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>{deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button>
@@ -287,8 +289,9 @@ export default function ItinerarioEventoPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
         </div>
         <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
-            <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
+            <Link href="/fiestas/nueva/itinerario/pdf" passHref>
+              <Button variant="secondary" size="sm"><Eye className="w-4 h-4 mr-2"/>Vista Previa / PDF</Button>
+            </Link>
             <Link href="/fiestas/nueva" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
