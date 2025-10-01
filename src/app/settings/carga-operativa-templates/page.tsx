@@ -169,6 +169,16 @@ export default function CargaOperativaGeneralPage() {
     setIsProcessing(false);
   };
 
+  const getCalculationLabel = (item: CargaOperativaItem): string => {
+    switch (item.calculationMethod) {
+      case 'porPersona': return `${item.cantidad} por Persona`;
+      case 'porRatio': return `1 cada ${item.ratioPorInvitado} Personas`;
+      case 'fijo':
+      default: return `Cantidad Fija: ${item.cantidad}`;
+    }
+  };
+
+
   return (
     <div className="space-y-6">
        <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
@@ -262,12 +272,7 @@ export default function CargaOperativaGeneralPage() {
                       <div key={item.id} className="flex justify-between items-center text-sm p-1.5 border-b last:border-b-0">
                         <div>
                             <p className="font-medium">{item.nombre}</p>
-                            <p className="text-xs text-muted-foreground">
-                                {item.calculationMethod === 'fijo' && `Cantidad Fija: ${item.cantidad}`}
-                                {item.calculationMethod === 'porPersona' && `${item.cantidad} por Persona`}
-                                {item.calculationMethod === 'porRatio' && `1 cada ${item.ratioPorInvitado} Personas`}
-                                {item.unidad && ` (${item.unidad})`}
-                            </p>
+                            <p className="text-xs text-muted-foreground">{getCalculationLabel(item)}{item.unidad && ` (${item.unidad})`}</p>
                         </div>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => openItemModal(category.id, item)}><Edit3 className="w-3.5 h-3.5"/></Button>
