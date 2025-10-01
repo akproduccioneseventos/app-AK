@@ -180,8 +180,7 @@
     "showGallery": false
   },
   "clientPortalSettings": {
-    "enabled": false,
-    "accessKey": "",
+    "enabled": true,
     "checklist": {
       "visible": false,
       "editable": false
@@ -194,27 +193,27 @@
       "editable": false
     },
     "videoVida": {
-      "visible": true,
-      "editable": true
+      "visible": false,
+      "editable": false
     },
     "listaRegalos": {
       "visible": false
     },
     "documentos": {
-      "visible": true
+      "visible": false
     },
     "notasCliente": {
       "visible": false,
-      "editable": true
+      "editable": false
     },
     "invitados": {
-      "visible": true
+      "visible": false
     },
     "paginaPublica": {
       "visible": true
     },
     "fotografiaYFilmacion": {
-      "visible": true
+      "visible": false
     }
   },
   "socialGallerySettings": {

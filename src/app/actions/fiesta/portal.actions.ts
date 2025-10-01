@@ -58,7 +58,6 @@ export async function updatePortalSettings(clientSettings: ClientPortalSettings,
           ...data, 
           clientPortalSettings: clientSettings,
           webPageSettings: {
-            ...data.webPageSettings,
             ...webSettings,
             galleryImageUrls: (webSettings.galleryImageUrls || []).filter(url => url && url.trim() !== '')
           },
