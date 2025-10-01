@@ -31,6 +31,17 @@ import {
   DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -401,7 +412,7 @@ export default function ListaDeCargaOperativaPage() {
                               <Trash2 className="w-4 h-4"/>
                           </Button>
                       </AlertDialogTrigger>
-                      <DialogContent>
+                      <AlertDialogContent>
                           <AlertDialogHeader>
                               <AlertDialogTitle>¿Eliminar Categoría?</AlertDialogTitle>
                               <AlertDialogDescription>
@@ -412,7 +423,7 @@ export default function ListaDeCargaOperativaPage() {
                               <AlertDialogCancel>Cancelar</AlertDialogCancel>
                               <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
                           </AlertDialogFooter>
-                      </DialogContent>
+                      </AlertDialogContent>
                   </AlertDialog>
               </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t" data-category-id={category.id}>
