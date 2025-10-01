@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 const formatCurrency = (amount?: number) => {
