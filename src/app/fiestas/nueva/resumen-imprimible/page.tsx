@@ -143,10 +143,10 @@ export default function ResumenImprimiblePage() {
         </section>
 
         <section className="mb-4 print:mb-2 print:break-inside-avoid">
-            <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Clock className="w-5 h-5"/>Itinerario</h2>
+            <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Clock className="w-5 h-5"/>Cronograma</h2>
             {fiesta.programa && fiesta.programa.length > 0 ? (
                 <ul className="space-y-1 text-sm print:text-xs">{fiesta.programa.map(p => <li key={p.id}><span className="font-bold">{p.hora}</span> - {p.titulo} {p.descripcion && `(${p.descripcion})`}</li>)}</ul>
-            ) : <p className="text-sm text-muted-foreground italic">No hay itinerario definido.</p>}
+            ) : <p className="text-sm text-muted-foreground italic">No hay cronograma definido.</p>}
         </section>
 
         <section className="mb-4 print:mb-2 print:break-inside-avoid">
@@ -212,5 +212,3 @@ export default function ResumenImprimiblePage() {
     </div>
   );
 }
-
-    

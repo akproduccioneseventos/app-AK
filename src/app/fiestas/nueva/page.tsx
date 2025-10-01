@@ -40,7 +40,7 @@ const internalModules: PlanningModule[] = [
   { title: "Configuración del Evento", description: "Datos técnicos: fecha, tipo, lugar, invitados.", icon: Settings2, href: "/fiestas/nueva/configuracion", status: "Disponible", actionLabel: "Configurar Evento" },
   { title: "Planificador Gastronómico", description: "Calcula costos de repostería y bebidas.", icon: Calculator, href: "/planner-costo-fiesta", status: "Disponible", actionLabel: "Abrir Planificador" },
   { title: "Lista de Tareas (Interna)", description: "Organización interna del equipo.", icon: ListChecks, href: "/fiestas/nueva/tareas", status: "Disponible", actionLabel: "Gestionar Tareas" },
-  { title: "Itinerario del Evento", description: "Define el cronograma y los momentos clave de la fiesta.", icon: Clock, href: "/fiestas/nueva/itinerario", status: "Disponible", actionLabel: "Crear Itinerario" },
+  { title: "Cronograma de la Fiesta", description: "Define el cronograma y los momentos clave de la fiesta.", icon: Clock, href: "/fiestas/nueva/itinerario", status: "Disponible", actionLabel: "Crear Cronograma" },
   { title: "Gestión de Invitados", description: "Listado de invitados, RSVP y diseño de mesas.", icon: Users, href: "/fiestas/nueva/invitados", status: "Disponible", actionLabel: "Gestionar Invitados" },
   { title: "Gestión de Personal", description: "Asignación y costos de personal.", icon: UserCheck, href: "/fiestas/nueva/personal", status: "Disponible", actionLabel: "Asignar Personal" },
   { title: "Lista de Carga Operativa", description: "Elementos que deben trasladarse al evento.", icon: PackageSearch, href: "/fiestas/nueva/carga-operativa", status: "Disponible", actionLabel: "Gestionar Carga" },
@@ -247,7 +247,7 @@ export default function PlanificarFiestaHubPage() {
              />
              <ModuleCard 
                 title="Resumen Imprimible del Evento"
-                description="Genera un PDF con la información clave del evento: itinerario, menús, etc."
+                description="Genera un PDF con toda la información clave del evento: cronograma, menús, etc."
                 href="/fiestas/nueva/resumen-imprimible"
                 icon={Printer}
                 actionLabel="Ver Resumen"

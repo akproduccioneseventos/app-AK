@@ -69,7 +69,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
   if (pathname === '/fiestas/nueva/invitados/layout') return 'Diseño de Mesas y Salón';
-  if (pathname === '/fiestas/nueva/itinerario') return 'Itinerario del Evento';
+  if (pathname === '/fiestas/nueva/itinerario') return 'Cronograma de la Fiesta';
   if (pathname === '/fiestas/nueva/servicios-contratados') return 'Servicios Contratados';
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
@@ -110,6 +110,9 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
+  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
+
+  
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
   if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
@@ -138,6 +141,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
+    if (pathname === '/portal') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/musica/pdf') return Printer;
     if (pathname === '/fiestas/nueva/fotografia') return Film;
@@ -205,6 +209,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/accesos-personal') return UserCog;
   
   if (pathname === '/simulador-de-presupuesto') return Wand2;
+  
+
+  if (pathname === '/planner-costo-fiesta') return Calculator;
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
