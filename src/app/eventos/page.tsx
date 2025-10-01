@@ -97,22 +97,22 @@ export default function GestorFiestasPage() {
     }
   };
   
-  const handleDeleteActivo = async (fiestaId: string) => {
-    setIsProcessing(fiestaId);
+  const handleReset = async () => {
+    setIsProcessing('reset-fiesta');
     try {
-        const result = await resetFiestaActual(); // This is the action to "delete" the active one by resetting it
+        const result = await resetFiestaActual(); 
         if (result.success) {
-            toast({ title: "Evento Activo Eliminado", variant: "destructive"});
+            toast({ title: "¡Nueva Planificación Creada!", description: "Se ha archivado el evento anterior y puedes empezar a organizar uno nuevo." });
             await loadData();
         } else {
-            throw new Error(result.error || "No se pudo eliminar el evento activo.");
+            throw new Error(result.error || "No se pudo crear el nuevo evento.");
         }
     } catch (error: any) {
-        toast({title: "Error al Eliminar", description: error.message, variant: "destructive"});
+        toast({title: "Error al Crear", description: error.message, variant: "destructive"});
     } finally {
         setIsProcessing(null);
     }
-  }
+  };
 
   const handleDeleteArchived = async (fiestaId: string) => {
       setIsProcessing(fiestaId);
@@ -158,6 +158,25 @@ export default function GestorFiestasPage() {
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
+           <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Evento Manual
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                  <AlertDialogHeader>
+                      <AlertDialogTitle>¿Crear Nuevo Evento?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                          Esta acción archivará el evento que estás planificando actualmente y creará una nueva planificación en blanco. ¿Deseas continuar?
+                      </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                      <AlertDialogCancel>No, cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleReset}>Sí, crear nuevo evento</AlertDialogAction>
+                  </AlertDialogFooter>
+              </AlertDialogContent>
+           </AlertDialog>
            <Link href="/calendario" passHref>
               <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario General</Button>
            </Link>
@@ -234,16 +253,15 @@ export default function GestorFiestasPage() {
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
-                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
-                                    <span className="ml-2">Borrar</span>
+                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4"/>}
+                                    <span className="ml-2">Archivar</span>
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
-                                <AlertDialogHeader><AlertDialogTitle>¿Eliminar o Archivar Evento?</AlertDialogTitle><AlertDialogDescription>El evento "{fiesta.configuracion.nombreEvento}" puede ser archivado (movido a eventos pasados) o eliminado permanentemente si es la fiesta activa y deseas empezar de cero.</AlertDialogDescription></AlertDialogHeader>
+                                <AlertDialogHeader><AlertDialogTitle>¿Archivar Evento?</AlertDialogTitle><AlertDialogDescription>El evento "{fiesta.configuracion.nombreEvento}" se moverá al historial de eventos pasados. Podrás consultarlo pero no planificarlo activamente.</AlertDialogDescription></AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleArchivar(fiesta.id)}>Archivar Evento</AlertDialogAction>
-                                  <AlertDialogAction onClick={() => handleDeleteActivo(fiesta.id)} className="bg-destructive hover:bg-destructive/90">Eliminar Permanentemente</AlertDialogAction>
+                                  <AlertDialogAction onClick={() => handleArchivar(fiesta.id)}>Sí, Archivar</AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
@@ -255,7 +273,7 @@ export default function GestorFiestasPage() {
             ) : (
               <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
                 <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>No hay fiestas activas. Crea un nuevo cliente para empezar a planificar.</p>
+                <p>No hay fiestas activas. Crea un nuevo cliente o un evento manual para empezar a planificar.</p>
               </div>
             )}
         </div>
@@ -306,5 +324,3 @@ export default function GestorFiestasPage() {
     </div>
   );
 }
-
-    
