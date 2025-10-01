@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, PlusCircle, Trash2, Loader2, PackageSearch, Save, BookOpen } from 'lucide-react';
-import type { CargaOperativaTemplate, CargaOperativaTemplateCategory } from '@/app/actions/carga-operativa-templates';
+import type { CargaOperativaTemplate, CargaOperativaCategoria as CargaOperativaTemplateCategory } from '@/app/actions/carga-operativa-templates';
 import type { CargaOperativaItem } from '@/types/fiesta';
 import { getMasterCargaOperativaTemplate, saveMasterCargaOperativaTemplate } from '@/app/actions/carga-operativa-templates';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 
 
 export default function CargaOperativaGeneralPage() {
@@ -31,6 +32,10 @@ export default function CargaOperativaGeneralPage() {
   const [masterTemplate, setMasterTemplate] = useState<CargaOperativaTemplate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
 
   const fetchMasterTemplate = useCallback(async () => {
     setIsLoading(true);
@@ -48,15 +53,20 @@ export default function CargaOperativaGeneralPage() {
     fetchMasterTemplate();
   }, [fetchMasterTemplate]);
 
-  const handleAddCategory = () => {
-    const newCategoryName = prompt("Nombre de la nueva categoría:");
-    if (newCategoryName && masterTemplate) {
-      const newCategory: CargaOperativaCategoria = {
+  const handleAddCategory = (e: FormEvent) => {
+    e.preventDefault();
+    if (newCategoryName.trim() && masterTemplate) {
+      const newCategory: CargaOperativaTemplateCategory = {
         id: `cat_master_${Date.now()}`,
-        nombre: newCategoryName,
+        name: newCategoryName,
         items: []
       };
       setMasterTemplate(prev => prev ? ({ ...prev, categories: [...prev.categories, newCategory] }) : null);
+      setNewCategoryName('');
+      setIsCategoryModalOpen(false);
+      toast({ title: "Categoría Añadida"});
+    } else {
+        toast({title: "Nombre requerido", variant: "destructive"});
     }
   };
 
@@ -110,6 +120,24 @@ export default function CargaOperativaGeneralPage() {
 
   return (
     <div className="space-y-6">
+       <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Añadir Nueva Categoría</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddCategory} className="space-y-4">
+                <div className="space-y-1">
+                    <Label htmlFor="new-category-name-modal">Nombre de la Categoría</Label>
+                    <Input id="new-category-name-modal" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} placeholder="Ej: Electrónica, Bebidas..." required/>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild><Button variant="outline" type="button">Cancelar</Button></DialogClose>
+                    <Button type="submit">Añadir</Button>
+                </DialogFooter>
+            </form>
+        </DialogContent>
+       </Dialog>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <PackageSearch className="w-8 h-8 text-primary" />
@@ -124,7 +152,9 @@ export default function CargaOperativaGeneralPage() {
           <CardDescription>Define aquí la lista completa de todos los elementos que se pueden necesitar para un evento. Esta será la lista base que podrás cargar y adaptar en cada fiesta.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={handleAddCategory}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nueva Categoría</Button>
+          <Button onClick={() => { setNewCategoryName(''); setIsCategoryModalOpen(true); }}>
+            <PlusCircle className="w-4 h-4 mr-2"/>Añadir Nueva Categoría
+          </Button>
         </CardContent>
       </Card>
       
