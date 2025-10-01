@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -27,7 +27,53 @@ import {
   DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
+
+function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDelete }: {
+    item: CargaOperativaItem;
+    categoryId: string;
+    onToggle: (categoryId: string, itemId: string) => void;
+    onQuantityChange: (categoryId: string, itemId: string, quantity: string) => void;
+    onDelete: (categoryId: string, itemId: string) => void;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
+    const style = { transform: CSS.Transform.toString(transform), transition };
+
+    return (
+        <li ref={setNodeRef} style={style} className="p-2 border rounded-md bg-background flex justify-between items-center">
+            <div className="flex items-start gap-3 flex-grow">
+                <div {...attributes} {...listeners} className="cursor-grab pt-1 text-muted-foreground"><GripVertical className="w-5 h-5"/></div>
+                <Checkbox
+                  id={`item-cargado-${item.id}`}
+                  checked={item.cargado}
+                  onCheckedChange={() => onToggle(categoryId, item.id)}
+                  className="mt-1 flex-shrink-0"
+                  aria-label={`Marcar ${item.nombre} como cargado`}
+                />
+                <div className="flex-grow">
+                  <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
+                  {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notas}</p>}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                <Input
+                    type="text"
+                    value={item.cantidad}
+                    onChange={(e) => onQuantityChange(categoryId, item.id, e.target.value)}
+                    className="h-8 w-20 text-center"
+                    placeholder="Cant."
+                  />
+                <span className="text-xs text-muted-foreground">{item.unidad || 'Uds.'}</span>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => onDelete(categoryId, item.id)}>
+                    <Trash2 className="w-3.5 h-3.5"/>
+                </Button>
+              </div>
+        </li>
+    );
+}
 
 export default function ListaDeCargaOperativaPage() {
   const { toast } = useToast();
@@ -46,6 +92,8 @@ export default function ListaDeCargaOperativaPage() {
   const [isSelectCatalogModalOpen, setIsSelectCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
+  
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
 
   const loadData = useCallback(async () => {
@@ -218,6 +266,25 @@ export default function ListaDeCargaOperativaPage() {
     setListaDeCarga(prev => ({ ...prev, notasGenerales: e.target.value }));
   };
   
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over, activatorEvent } = event;
+    const categoryId = (activatorEvent.target as HTMLElement).closest('[data-category-id]')?.getAttribute('data-category-id');
+
+    if (categoryId && over && active.id !== over.id) {
+        setListaDeCarga(prev => {
+            const newCategorias = prev.categorias.map(cat => {
+                if (cat.id === categoryId) {
+                    const oldIndex = cat.items.findIndex(item => item.id === active.id);
+                    const newIndex = cat.items.findIndex(item => item.id === over.id);
+                    return { ...cat, items: arrayMove(cat.items, oldIndex, newIndex) };
+                }
+                return cat;
+            });
+            return { ...prev, categorias: newCategorias };
+        });
+    }
+  };
+  
   const filteredCatalogItems = useMemo(() => {
     if (!catalogSearchTerm) return serviciosCatalogo;
     const lowerSearch = catalogSearchTerm.toLowerCase();
@@ -312,7 +379,7 @@ export default function ListaDeCargaOperativaPage() {
                       </DialogContent>
                   </Dialog>
               </div>
-            <AccordionContent className="px-4 pt-2 pb-4 border-t">
+            <AccordionContent className="px-4 pt-2 pb-4 border-t" data-category-id={category.id}>
               <div className="flex flex-col sm:flex-row justify-end gap-2 mb-3">
                 <Button variant="outline" size="sm" onClick={() => openAddItemModal(category)}>
                   <PlusCircle className="w-4 h-4 mr-1.5"/> Añadir Ítem Manualmente
@@ -325,38 +392,22 @@ export default function ListaDeCargaOperativaPage() {
               
               <ScrollArea className="h-auto max-h-[300px] rounded-md border p-2">
                 {category.items && category.items.length > 0 ? (
-                  <ul className="space-y-2">
-                      {category.items.map(item => (
-                        <li key={item.id} className="p-2 border rounded-md bg-background flex justify-between items-center">
-                          <div className="flex items-start gap-3 flex-grow">
-                            <Checkbox
-                              id={`item-cargado-${item.id}`}
-                              checked={item.cargado}
-                              onCheckedChange={() => toggleItemCargado(category.id, item.id)}
-                              className="mt-1 flex-shrink-0"
-                              aria-label={`Marcar ${item.nombre} como cargado`}
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={category.items.map(item => item.id)} strategy={verticalListSortingStrategy}>
+                        <ul className="space-y-2">
+                          {category.items.map(item => (
+                            <SortableCargaItem
+                                key={item.id}
+                                item={item}
+                                categoryId={category.id}
+                                onToggle={toggleItemCargado}
+                                onQuantityChange={handleItemQuantityChange}
+                                onDelete={handleDeleteItem}
                             />
-                            <div className="flex-grow">
-                              <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
-                              {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notas}</p>}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                            <Input
-                                type="text"
-                                value={item.cantidad}
-                                onChange={(e) => handleItemQuantityChange(category.id, item.id, e.target.value)}
-                                className="h-8 w-20 text-center"
-                                placeholder="Cant."
-                              />
-                            <span className="text-xs text-muted-foreground">{item.unidad || 'Uds.'}</span>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteItem(category.id, item.id)}>
-                                <Trash2 className="w-3.5 h-3.5"/>
-                            </Button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                          ))}
+                        </ul>
+                    </SortableContext>
+                  </DndContext>
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-3">No hay ítems en esta categoría.</p>
                 )}
