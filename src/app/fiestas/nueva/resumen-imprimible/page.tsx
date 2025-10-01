@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Info, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Info, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2, ListChecks } from 'lucide-react';
 import type { FiestaEnPlanificacion, Tarea, ProgramaEventoItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { FullMenu } from '@/types/catering';
@@ -19,8 +19,13 @@ import { getEmpleados } from '@/app/actions/empleados';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
-  try { return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); }
-  catch (e) { return "Fecha inválida"; }
+  try {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+  } catch (e) {
+    return "Fecha inválida";
+  }
 };
 
 export default function ResumenImprimiblePage() {
@@ -39,7 +44,7 @@ export default function ResumenImprimiblePage() {
       const fiestaData = await getFiestaActual();
       setFiesta(fiestaData);
 
-      const dataPromises = [];
+      const dataPromises: Promise<any>[] = [];
       if (fiestaData.configuracion.clienteId) {
         dataPromises.push(getCustomerById(fiestaData.configuracion.clienteId));
       } else { dataPromises.push(Promise.resolve(null)); }
@@ -63,9 +68,9 @@ export default function ResumenImprimiblePage() {
 
       if (empleadosData.length > 0) {
         const personalDetallado = fiestaData.personalAsignado.map(pa => {
-          const empleado = empleadosData.find(e => e.id === pa.empleadoId);
+          const empleado = empleadosData.find((e:any) => e.id === pa.empleadoId);
           if (!empleado) return null;
-          const rol = empleado.rolId ? rolesData.find(r => r.id === empleado.rolId) : undefined;
+          const rol = empleado.rolId ? rolesData.find((r:any) => r.id === empleado.rolId) : undefined;
           return { nombre: empleado.nombre, rol: rol?.nombre || 'Sin rol', pago: pa.eventSalary };
         }).filter(Boolean);
         setPersonal(personalDetallado);
@@ -95,12 +100,25 @@ export default function ResumenImprimiblePage() {
       else { throw new Error(); }
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
-      toast({ title: "Enlace Copiado", description: "El enlace a esta página ha sido copiado a tu portapapeles." });
+      toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
     }
   };
 
+  const platosAgrupados = React.useMemo(() => {
+    if (!menu) return {};
+    return menu.items.reduce((acc, item) => {
+        const categoria = item.type || 'Otros';
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+    }, {} as Record<string, typeof menu.items>);
+  }, [menu]);
+
   if (isLoading) return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>;
   if (error || !fiesta) return <div className="p-8 max-w-3xl mx-auto bg-white text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error || 'No se encontró la fiesta'}</p></div>;
+
+  const { configuracion, decoracion, tareas } = fiesta;
+  const tareasPendientes = tareas?.filter(t => !t.completada) || [];
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
@@ -115,13 +133,13 @@ export default function ResumenImprimiblePage() {
 
         <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
           <h1 className="text-xl font-bold text-primary print:text-lg">Resumen Operativo del Evento</h1>
-          <p className="text-md text-gray-700 print:text-sm mt-1">{fiesta.configuracion.nombreEvento}</p>
+          <p className="text-md text-gray-700 print:text-sm mt-1">{configuracion.nombreEvento}</p>
         </header>
 
         <section className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm print:text-xs mb-4">
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><CalendarDays className="w-4 h-4 text-primary"/><span>{formatDate(fiesta.configuracion.fechaEvento)}</span></div>
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><Users className="w-4 h-4 text-primary"/><span>{fiesta.configuracion.invitadosEstimados} Invitados</span></div>
-            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md col-span-2 md:col-span-1"><MapPin className="w-4 h-4 text-primary"/><span>{fiesta.configuracion.nombreLugar}</span></div>
+            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><CalendarDays className="w-4 h-4 text-primary"/><span>{formatDate(configuracion.fechaEvento)}</span></div>
+            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><Users className="w-4 h-4 text-primary"/><span>{configuracion.invitadosEstimados} Invitados</span></div>
+            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md col-span-2 md:col-span-1"><MapPin className="w-4 h-4 text-primary"/><span>{configuracion.nombreLugar}</span></div>
         </section>
 
         <section className="mb-4 print:mb-2 print:break-inside-avoid">
@@ -133,18 +151,42 @@ export default function ResumenImprimiblePage() {
 
         <section className="mb-4 print:mb-2 print:break-inside-avoid">
             <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><ChefHat className="w-5 h-5"/>Catering</h2>
-            {menu ? <p className="text-sm">Menú Asignado: <span className="font-medium">{menu.name}</span></p> : <p className="text-sm text-muted-foreground italic">No hay menú asignado.</p>}
+            {menu ? (
+                <div className="text-sm space-y-2">
+                    <p>Menú Asignado: <span className="font-medium">{menu.name}</span></p>
+                    {Object.keys(platosAgrupados).length > 0 && (
+                        <div className="pl-4">
+                            {Object.entries(platosAgrupados).map(([categoria, platos]) => (
+                                <div key={categoria} className="mt-1">
+                                    <h4 className="font-semibold text-xs uppercase text-muted-foreground">{categoria}</h4>
+                                    <ul className="list-disc list-inside pl-2">
+                                        {platos.map(p => <li key={p.id}>{p.name}</li>)}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ) : <p className="text-sm text-muted-foreground italic">No hay menú asignado.</p>}
         </section>
         
         <section className="mb-4 print:mb-2 print:break-inside-avoid">
             <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Palette className="w-5 h-5"/>Decoración</h2>
-            <p className="text-sm">Tema: <span className="font-medium">{fiesta.decoracion?.tema || 'No definido'}</span></p>
+            <p className="text-sm">Tema: <span className="font-medium">{decoracion?.tema || 'No definido'}</span></p>
             <div className="flex items-center gap-2 text-sm">
                 Paleta de Colores:
-                <div className="w-4 h-4 rounded-full border" style={{backgroundColor: fiesta.decoracion?.paletaColores?.primary}}></div>
-                <div className="w-4 h-4 rounded-full border" style={{backgroundColor: fiesta.decoracion?.paletaColores?.secondary}}></div>
-                <div className="w-4 h-4 rounded-full border" style={{backgroundColor: fiesta.decoracion?.paletaColores?.accent}}></div>
+                <div className="w-4 h-4 rounded-full border" style={{backgroundColor: decoracion?.paletaColores?.primary}}></div>
+                <div className="w-4 h-4 rounded-full border" style={{backgroundColor: decoracion?.paletaColores?.secondary}}></div>
+                <div className="w-4 h-4 rounded-full border" style={{backgroundColor: decoracion?.paletaColores?.accent}}></div>
             </div>
+             {decoracion?.items && decoracion.items.length > 0 && (
+                <div className="mt-2 text-sm">
+                    <h4 className="font-semibold text-xs uppercase text-muted-foreground">Elementos Específicos:</h4>
+                    <ul className="list-disc list-inside pl-2 text-xs">
+                        {decoracion.items.map(item => <li key={item.id}>{item.name} (x{item.quantity})</li>)}
+                    </ul>
+                </div>
+            )}
         </section>
 
          <section className="mb-4 print:mb-2 print:break-inside-avoid">
@@ -154,6 +196,15 @@ export default function ResumenImprimiblePage() {
             ) : <p className="text-sm text-muted-foreground italic">No hay personal asignado.</p>}
         </section>
         
+        <section className="mb-4 print:mb-2 print:break-before-page print:break-inside-avoid">
+            <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><ListChecks className="w-5 h-5"/>Tareas Pendientes</h2>
+            {tareasPendientes.length > 0 ? (
+                <ul className="space-y-1 text-sm print:text-xs list-disc list-inside">
+                    {tareasPendientes.map(t => <li key={t.id}>{t.texto}{t.asignadaA && ` - (${t.asignadaA})`}</li>)}
+                </ul>
+            ) : <p className="text-sm text-muted-foreground italic">No hay tareas pendientes.</p>}
+        </section>
+        
         <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300">
           <p>Documento generado el: {new Date().toLocaleString('es-ES')}</p>
         </footer>
@@ -161,3 +212,5 @@ export default function ResumenImprimiblePage() {
     </div>
   );
 }
+
+    
