@@ -139,9 +139,17 @@ export default function DashboardPage() {
           </h2>
           <p className="text-lg text-muted-foreground">Servicio integral de fiestas</p>
         </div>
-        <Button onClick={handleLogoutClick} variant="outline" size="lg" className="rounded-full px-6 py-5 text-base shadow-sm w-full sm:w-auto">
-            <LogOut className="w-5 h-5 mr-2" /> Cerrar Sesión
-        </Button>
+        <div className="flex w-full sm:w-auto gap-2">
+            <Link href="/presupuestos/nuevo" passHref className="flex-1">
+                <Button size="lg" className="w-full h-full text-base py-3">
+                    <PlusCircle className="w-5 h-5 mr-2" />
+                    Crear Nuevo Presupuesto
+                </Button>
+            </Link>
+            <Button onClick={handleLogoutClick} variant="outline" size="lg" className="h-full py-3 text-base">
+                <LogOut className="w-5 h-5 mr-2" />
+            </Button>
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
