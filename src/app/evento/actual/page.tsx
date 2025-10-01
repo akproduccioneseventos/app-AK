@@ -315,7 +315,7 @@ export default function EventoPublicoPage() {
   const heroTextStyle = webSettings.coverImageUrl ? 'text-white' : 'text-primary-foreground';
   const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
   const mapUrl = mapQuery ? `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${mapQuery}` : '';
-  const qrCodeUrl = isClient ? `${window.location.origin}/evento/actual` : '';
+  const qrCodeUrl = isClient ? `${window.location.origin}/evento/actual` : 'placeholder';
 
 
   return (
@@ -531,13 +531,13 @@ export default function EventoPublicoPage() {
         <section id="qr-code" className="text-center py-8">
             <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Acceso Rápido al Evento</h2>
              <div className="flex flex-col items-center p-6 bg-muted/50 rounded-lg">
-                {isClient ? (
-                    <QRCodeStylized value={qrCodeUrl} size={160} fgColor="hsl(var(--foreground))" bgColor="transparent" />
-                ) : (
-                    <div className="w-[160px] h-[160px] flex items-center justify-center bg-gray-200 rounded-lg">
-                        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    </div>
-                )}
+                <div className={cn("w-[160px] h-[160px] flex items-center justify-center bg-gray-200 rounded-lg", isClient ? 'bg-transparent' : '')}>
+                  {isClient ? (
+                      <QRCodeStylized value={qrCodeUrl} size={160} fgColor="hsl(var(--foreground))" bgColor="transparent" />
+                  ) : (
+                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  )}
+                </div>
                 <p className="mt-4 text-muted-foreground">Escanea este código para acceder fácilmente a esta página en cualquier momento.</p>
              </div>
         </section>
