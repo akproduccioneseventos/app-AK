@@ -5,7 +5,7 @@
   "categories": [
     {
       "id": "cat_vajilla_1",
-      "nombre": "Vajilla y Cocina",
+      "name": "Vajilla y Cocina",
       "items": [
         {
           "id": "lc_1",
@@ -347,7 +347,7 @@
     },
     {
       "id": "cat_manteleria_1",
-      "nombre": "Mantelería",
+      "name": "Mantelería",
       "items": [
         {
           "id": "lc_41",
@@ -413,7 +413,7 @@
     },
     {
       "id": "cat_mobiliario_1",
-      "nombre": "Mobiliario",
+      "name": "Mobiliario",
       "items": [
         {
           "id": "lc_113",
@@ -437,7 +437,7 @@
     },
     {
       "id": "cat_decoracion_1",
-      "nombre": "Decoración",
+      "name": "Decoración",
       "items": [
         {
           "id": "lc_46",
@@ -515,7 +515,7 @@
     },
     {
       "id": "cat_discoteca_1",
-      "nombre": "Discoteca",
+      "name": "Discoteca",
       "items": [
         {
           "id": "lc_100",
@@ -707,7 +707,7 @@
     },
     {
       "id": "cat_barra_tragos_1",
-      "nombre": "Barra de Tragos",
+      "name": "Barra de Tragos",
       "items": [
         {
           "id": "lc_bt_1",
