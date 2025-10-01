@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -194,7 +195,7 @@ export default function CargaOperativaGeneralPage() {
                     <Select value={currentItem.calculationMethod || 'fijo'} onValueChange={(val) => handleCalculationMethodChange(val as CargaOperativaItem['calculationMethod'])}>
                         <SelectTrigger><SelectValue/></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="fijo">Fijo (Cantidad Manual)</SelectItem>
+                            <SelectItem value="fijo">Cantidad Fija (Ignora invitados)</SelectItem>
                             <SelectItem value="porPersona">Por Persona</SelectItem>
                             <SelectItem value="porRatio">Por Ratio de Invitados</SelectItem>
                         </SelectContent>
