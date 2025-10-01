@@ -18,6 +18,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Textarea } from '@/components/ui/textarea';
 import NextImage from 'next/image';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { cloneDeep, merge } from 'lodash';
+
 
 type PortalModule = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>;
 
@@ -62,10 +64,15 @@ export default function PortalClienteSettingsPage() {
         try {
             const fiestaData = await getFiestaActual();
             setFiesta(fiestaData);
-            setClientSettings(fiestaData.clientPortalSettings || defaultClientPortalSettings);
-            const fetchedWebSettings = fiestaData.webPageSettings || defaultWebPageSettings;
-            setWebSettings(fetchedWebSettings);
-            setGalleryImageFiles(fetchedWebSettings.galleryImageUrls || []);
+            
+            // Deep merge saved settings with defaults to ensure all keys are present
+            const mergedClientSettings = merge(cloneDeep(defaultClientPortalSettings), fiestaData.clientPortalSettings || {});
+            const mergedWebSettings = merge(cloneDeep(defaultWebPageSettings), fiestaData.webPageSettings || {});
+
+            setClientSettings(mergedClientSettings);
+            setWebSettings(mergedWebSettings);
+            
+            setGalleryImageFiles(mergedWebSettings.galleryImageUrls || []);
         } catch (err: any) {
             setError("No se pudo cargar la configuración.");
             toast({ title: "Error al Cargar", variant: "destructive" });
@@ -74,19 +81,20 @@ export default function PortalClienteSettingsPage() {
         }
     }, [toast]);
 
+
     useEffect(() => {
         loadData();
     }, [loadData]);
     
     const handleClientSettingToggle = (module: PortalModule, field: 'visible' | 'editable', value: boolean) => {
         setClientSettings(prev => {
-        const newSettings = {...prev};
-        const currentModuleState = newSettings[module] || { visible: false, editable: false };
-        const updatedModuleState = { ...currentModuleState, [field]: value };
-        if (field === 'visible' && !value) {
-            updatedModuleState.editable = false;
-        }
-        return { ...newSettings, [module]: updatedModuleState };
+            const newSettings = {...prev};
+            const currentModuleState = newSettings[module] || { visible: false, editable: false };
+            const updatedModuleState = { ...currentModuleState, [field]: value };
+            if (field === 'visible' && !value) {
+                updatedModuleState.editable = false;
+            }
+            return { ...newSettings, [module]: updatedModuleState };
         });
     };
     
@@ -242,3 +250,4 @@ export default function PortalClienteSettingsPage() {
         </div>
     );
 }
+    

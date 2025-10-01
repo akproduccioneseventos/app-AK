@@ -157,30 +157,32 @@
   "webPageSettings": {
     "showCountdown": true,
     "showRsvp": true,
+    "showEventDetails": true,
+    "showGallery": true,
     "galleryImageUrls": []
   },
   "clientPortalSettings": {
     "enabled": true,
     "checklist": {
-      "visible": true,
+      "visible": false,
       "editable": false
     },
     "itinerario": {
       "visible": false
     },
     "musica": {
-      "visible": false,
+      "visible": true,
       "editable": false
     },
     "videoVida": {
-      "visible": false,
+      "visible": true,
       "editable": false
     },
     "listaRegalos": {
       "visible": false
     },
     "documentos": {
-      "visible": true
+      "visible": false
     },
     "notasCliente": {
       "visible": false,
