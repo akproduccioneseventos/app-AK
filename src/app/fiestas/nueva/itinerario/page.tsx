@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
 import { getFiestaActual, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -128,7 +128,7 @@ export default function ItinerarioEventoPage() {
       return;
     }
     setIsSaving(true);
-    const result = await saveItineraryTemplate(templateName, programa);
+    const result = await saveTaskTemplate(templateName, programa);
     if (result.success) {
       toast({title: "Plantilla Guardada"});
       setIsSaveTemplateModalOpen(false);
@@ -218,6 +218,14 @@ export default function ItinerarioEventoPage() {
     toast({description: "El cronograma por defecto ha sido cargado."});
   };
 
+  const handlePrint = () => { window.print(); };
+
+  const handleShare = () => {
+    const url = window.location.href;
+    const text = `Te comparto el cronograma del evento: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
@@ -278,7 +286,11 @@ export default function ItinerarioEventoPage() {
           <Clock className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
         </div>
-        <Link href="/fiestas/nueva" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
+            <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
+            <Link href="/fiestas/nueva" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        </div>
       </div>
       <Card>
         <CardHeader>
@@ -310,6 +322,13 @@ export default function ItinerarioEventoPage() {
           </Button>
         </CardFooter>
       </Card>
+
+      <style jsx global>{`
+        @media print {
+          body { font-size: 10pt; }
+          .print-hidden { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
