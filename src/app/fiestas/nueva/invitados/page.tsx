@@ -253,8 +253,8 @@ export default function InvitadosEventoPage() {
                 <Input id="nombre-invitado" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} placeholder="Ej: Laura Martínez" required />
                 </div>
                 <div className="space-y-2">
-                <Label htmlFor="contacto-invitado">Email o Teléfono (Opcional)</Label>
-                <Input id="contacto-invitado" value={nuevoContacto} onChange={(e) => setNuevoContacto(e.target.value)} placeholder="laura@ejemplo.com o 600..." />
+                <Label htmlFor="contacto-invitado">Teléfono (Opcional)</Label>
+                <Input id="contacto-invitado" value={nuevoContacto} onChange={(e) => setNuevoContacto(e.target.value)} placeholder="099..." />
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
