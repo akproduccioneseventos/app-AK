@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -6,179 +7,109 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, ListChecks, PackageSearch, Save, BookOpen, Search } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, PackageSearch, Save, BookOpen } from 'lucide-react';
 import type { CargaOperativaTemplate, CargaOperativaTemplateCategory } from '@/app/actions/carga-operativa-templates';
-import type { ServicioEmpresa } from '@/types/empresa';
-import { getCargaOperativaTemplates, saveCargaOperativaTemplate, deleteCargaOperativaTemplate } from '@/app/actions/carga-operativa-templates';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import type { CargaOperativaItem } from '@/types/fiesta';
+import { getMasterCargaOperativaTemplate, saveMasterCargaOperativaTemplate } from '@/app/actions/carga-operativa-templates';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 export default function CargaOperativaGeneralPage() {
   const { toast } = useToast();
-  const [templates, setTemplates] = useState<CargaOperativaTemplate[]>([]);
-  const [catalogo, setCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [masterTemplate, setMasterTemplate] = useState<CargaOperativaTemplate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<CargaOperativaTemplate | null>(null);
-  
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<{name: string, quantity: string, unit?: string} | null>(null);
-  const [currentCategory, setCurrentCategory] = useState<{templateId: string, categoryName: string} | null>(null);
-
-  const fetchAllData = useCallback(async () => {
+  const fetchMasterTemplate = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [templatesData, catalogoData] = await Promise.all([
-        getCargaOperativaTemplates(),
-        getServiciosEmpresa()
-      ]);
-      setTemplates(templatesData);
-      setCatalogo(catalogoData);
+      const data = await getMasterCargaOperativaTemplate();
+      setMasterTemplate(data);
     } catch (error) {
-      toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
+      toast({ title: "Error", description: "No se pudo cargar la lista de carga operativa general.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   }, [toast]);
 
   useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+    fetchMasterTemplate();
+  }, [fetchMasterTemplate]);
 
-  const openTemplateModal = (template?: CargaOperativaTemplate) => {
-    setEditingTemplate(template || { id: `new_${Date.now()}`, name: '', categories: [] });
-    setIsTemplateModalOpen(true);
+  const handleAddCategory = () => {
+    const newCategoryName = prompt("Nombre de la nueva categoría:");
+    if (newCategoryName && masterTemplate) {
+      const newCategory: CargaOperativaCategoria = {
+        id: `cat_master_${Date.now()}`,
+        nombre: newCategoryName,
+        items: []
+      };
+      setMasterTemplate(prev => prev ? ({ ...prev, categories: [...prev.categories, newCategory] }) : null);
+    }
   };
 
-  const handleSaveTemplate = async (templateToSave: CargaOperativaTemplate) => {
-    if (!templateToSave.name.trim()) {
-      toast({ title: "Nombre requerido", variant: "destructive" });
-      return;
+  const handleDeleteCategory = (categoryId: string) => {
+    if (masterTemplate) {
+      setMasterTemplate(prev => prev ? ({ ...prev, categories: prev.categories.filter(c => c.id !== categoryId) }) : null);
     }
-    setIsProcessing(templateToSave.id);
-    const result = await saveCargaOperativaTemplate(templateToSave);
+  };
+  
+  const handleAddItem = (categoryId: string) => {
+      const itemName = prompt("Nombre del nuevo ítem:");
+      if (itemName && masterTemplate) {
+          const newItem: CargaOperativaItem = {
+              id: `item_master_${Date.now()}`,
+              nombre: itemName,
+              cantidad: '1', // Default quantity
+              cargado: false,
+          };
+          setMasterTemplate(prev => prev ? ({
+              ...prev,
+              categories: prev.categories.map(cat => 
+                  cat.id === categoryId ? { ...cat, items: [...cat.items, newItem] } : cat
+              )
+          }) : null);
+      }
+  };
+  
+  const handleDeleteItem = (categoryId: string, itemId: string) => {
+      if (masterTemplate) {
+          setMasterTemplate(prev => prev ? ({
+              ...prev,
+              categories: prev.categories.map(cat => 
+                  cat.id === categoryId ? { ...cat, items: cat.items.filter(item => item.id !== itemId) } : cat
+              )
+          }) : null);
+      }
+  };
+
+  const handleSaveMasterTemplate = async () => {
+    if (!masterTemplate) return;
+    setIsProcessing(true);
+    const result = await saveMasterCargaOperativaTemplate(masterTemplate);
     if (result.success) {
-      toast({ title: "Plantilla Guardada" });
-      setIsTemplateModalOpen(false);
-      setEditingTemplate(null);
-      await fetchAllData();
+      toast({ title: "Lista Maestra Guardada" });
+      await fetchMasterTemplate();
     } else {
       toast({ title: "Error al guardar", description: result.error, variant: "destructive" });
     }
-    setIsProcessing(null);
+    setIsProcessing(false);
   };
-
-  const handleDeleteTemplate = async (id: string) => {
-    setIsProcessing(id);
-    const result = await deleteCargaOperativaTemplate(id);
-    if (result.success) {
-      toast({ title: "Plantilla Eliminada", variant: "destructive" });
-      await fetchAllData();
-    } else {
-      toast({ title: "Error al eliminar", description: result.error, variant: "destructive" });
-    }
-    setIsProcessing(null);
-  };
-
-  // Category and Item modifications inside the modal
-  const addCategoryToTemplate = () => {
-    const newCategoryName = prompt("Nombre de la nueva categoría:");
-    if (newCategoryName && editingTemplate) {
-      setEditingTemplate({
-        ...editingTemplate,
-        categories: [...editingTemplate.categories, { name: newCategoryName, items: [] }]
-      });
-    }
-  };
-
-  const deleteCategoryFromTemplate = (categoryName: string) => {
-    if (editingTemplate) {
-      setEditingTemplate({
-        ...editingTemplate,
-        categories: editingTemplate.categories.filter(c => c.name !== categoryName)
-      });
-    }
-  };
-  
-  const addItemToCategory = (templateId: string, categoryName: string, item: { name: string, quantity: string, unit?: string}) => {
-    setTemplates(prev => prev.map(t => {
-      if (t.id === templateId) {
-        return {
-          ...t,
-          categories: t.categories.map(c => {
-            if (c.name === categoryName) {
-              return { ...c, items: [...c.items, item] };
-            }
-            return c;
-          })
-        };
-      }
-      return t;
-    }));
-  };
-  
-  const removeItemFromCategory = (templateId: string, categoryName: string, itemName: string) => {
-     setTemplates(prev => prev.map(t => {
-      if (t.id === templateId) {
-        return {
-          ...t,
-          categories: t.categories.map(c => {
-            if (c.name === categoryName) {
-              return { ...c, items: c.items.filter(i => i.name !== itemName) };
-            }
-            return c;
-          })
-        };
-      }
-      return t;
-    }));
-  }
 
   return (
     <div className="space-y-6">
-       {/* Modal para editar/crear plantillas */}
-      <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle className="font-headline">{editingTemplate?.id.startsWith('new_') ? 'Crear' : 'Editar'} Plantilla de Carga</DialogTitle>
-          </DialogHeader>
-          {editingTemplate && (
-            <div className="space-y-4 py-2">
-              <div className="space-y-1">
-                <Label htmlFor="template-name">Nombre de la Plantilla</Label>
-                <Input id="template-name" value={editingTemplate.name} onChange={e => setEditingTemplate(t => t ? {...t, name: e.target.value} : null)} />
-              </div>
-              <Button type="button" size="sm" variant="outline" onClick={addCategoryToTemplate}>+ Añadir Categoría</Button>
-              <ScrollArea className="h-64 border rounded-md p-2">
-                {editingTemplate.categories.map((cat, catIndex) => (
-                  <div key={catIndex} className="p-2 my-1 border rounded-md">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="font-semibold text-sm">{cat.name}</p>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => deleteCategoryFromTemplate(cat.name)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                    </div>
-                    <ul className="space-y-1 text-xs">
-                      {cat.items.map((item, itemIndex) => <li key={itemIndex} className="flex justify-between items-center"><span>- {item.name} ({item.quantity} {item.unit})</span> <Button variant="ghost" size="icon" className="h-5 w-5 opacity-50" onClick={() => {/* Future edit item */}}><Trash2 className="w-3 h-3"/></Button></li>)}
-                    </ul>
-                    {/* Add Item button would go here */}
-                  </div>
-                ))}
-              </ScrollArea>
-            </div>
-          )}
-          <DialogFooter>
-            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-            <Button onClick={() => editingTemplate && handleSaveTemplate(editingTemplate)} disabled={isProcessing === editingTemplate?.id}>
-              {isProcessing && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Guardar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <PackageSearch className="w-8 h-8 text-primary" />
@@ -190,58 +121,51 @@ export default function CargaOperativaGeneralPage() {
       <Card>
         <CardHeader>
           <CardTitle>Inventario Maestro de Carga</CardTitle>
-          <CardDescription>Crea y edita tus listas de carga base para reutilizar en los eventos. Estas listas se podrán cargar desde el planificador de cada fiesta.</CardDescription>
+          <CardDescription>Define aquí la lista completa de todos los elementos que se pueden necesitar para un evento. Esta será la lista base que podrás cargar y adaptar en cada fiesta.</CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-2">
-           <Button onClick={() => openTemplateModal()}><PlusCircle className="w-4 h-4 mr-2"/>Crear Plantilla</Button>
-           <Link href="/empresa/todos-los-servicios/nuevo?type=Activo Fijo" passHref><Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nuevo Activo al Catálogo</Button></Link>
+        <CardContent>
+          <Button onClick={handleAddCategory}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Nueva Categoría</Button>
         </CardContent>
       </Card>
-
-       <div className="space-y-4">
+      
+      <div className="space-y-4">
         {isLoading ? <div className="text-center p-8"><Loader2 className="w-8 h-8 animate-spin mx-auto"/></div> :
-         templates.length > 0 ? (
-          templates.map(template => (
-            <Card key={template.id}>
-              <CardHeader className="flex-row justify-between items-center">
-                <CardTitle className="font-headline">{template.name}</CardTitle>
-                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => openTemplateModal(template)}>Editar</Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" disabled={isProcessing === template.id}>Eliminar</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>Confirmar</AlertDialogTitle><AlertDialogDescription>¿Eliminar la plantilla "{template.name}"?</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>No</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteTemplate(template.id)}>Sí, eliminar</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-              </CardHeader>
-              <CardContent>
-                  <Accordion type="multiple" className="w-full">
-                    {template.categories.map(category => (
-                        <AccordionItem value={category.name} key={category.name}>
-                            <AccordionTrigger>{category.name} ({category.items.length} ítems)</AccordionTrigger>
-                            <AccordionContent className="p-2 space-y-2">
-                                <ul className="text-sm list-disc pl-5">
-                                    {category.items.map((item, index) => <li key={index}>{item.name} ({item.quantity} {item.unit})</li>)}
-                                </ul>
-                            </AccordionContent>
-                        </AccordionItem>
+         masterTemplate && masterTemplate.categories.length > 0 ? (
+          <Accordion type="multiple" defaultValue={masterTemplate.categories.map(c => c.id)} className="w-full space-y-3">
+            {masterTemplate.categories.map(category => (
+              <AccordionItem key={category.id} value={category.id} className="border rounded-lg shadow-sm bg-card">
+                <div className="flex items-center p-3">
+                  <AccordionTrigger className="hover:no-underline flex-1 text-left font-semibold text-primary">{category.nombre} ({category.items.length})</AccordionTrigger>
+                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteCategory(category.id)}><Trash2 className="w-4 h-4"/></Button>
+                </div>
+                <AccordionContent className="p-3 border-t">
+                  <div className="space-y-2">
+                    {category.items.map(item => (
+                      <div key={item.id} className="flex justify-between items-center text-sm p-1.5 border-b last:border-b-0">
+                        <span>{item.nombre}</span>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteItem(category.id, item.id)}>
+                            <Trash2 className="w-3.5 h-3.5"/>
+                        </Button>
+                      </div>
                     ))}
-                  </Accordion>
-              </CardContent>
-            </Card>
-          ))
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => handleAddItem(category.id)}>+ Añadir ítem</Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
          ) : (
-          <Card><CardContent className="p-8 text-center text-muted-foreground">No hay plantillas creadas.</CardContent></Card>
+          <Card><CardContent className="p-8 text-center text-muted-foreground">No hay categorías en la lista maestra.</CardContent></Card>
          )
         }
        </div>
+       
+        <div className="flex justify-end mt-6">
+            <Button onClick={handleSaveMasterTemplate} disabled={isProcessing}>
+                {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                Guardar Lista Maestra
+            </Button>
+        </div>
     </div>
   );
 }

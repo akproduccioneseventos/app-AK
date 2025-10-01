@@ -4,52 +4,30 @@
 import type { CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 
-export interface CargaOperativaTemplateItem {
-  name: string;
-  quantity: string;
-  unit?: string;
-}
-
-export interface CargaOperativaTemplateCategory {
-  name: string;
-  items: CargaOperativaTemplateItem[];
-}
-
+// This file now manages a SINGLE master template object, not an array of templates.
 export interface CargaOperativaTemplate {
-  id: string;
+  id: 'master';
   name: string;
-  categories: CargaOperativaTemplateCategory[];
+  categories: CargaOperativaCategoria[];
 }
 
-const TEMPLATES_FILE = 'carga-operativa-templates.json';
+const TEMPLATE_FILE = 'carga-operativa-master-template.json';
+const defaultMasterTemplate: CargaOperativaTemplate = {
+    id: 'master',
+    name: 'Plantilla Maestra de Carga Operativa',
+    categories: [],
+};
 
-export async function getCargaOperativaTemplates(): Promise<CargaOperativaTemplate[]> {
-  return readData<CargaOperativaTemplate[]>(TEMPLATES_FILE, []);
+export async function getMasterCargaOperativaTemplate(): Promise<CargaOperativaTemplate> {
+  return readData<CargaOperativaTemplate>(TEMPLATE_FILE, defaultMasterTemplate);
 }
 
-export async function saveCargaOperativaTemplate(
-    templateData: Omit<CargaOperativaTemplate, 'id'>
+export async function saveMasterCargaOperativaTemplate(
+    templateData: CargaOperativaTemplate
 ): Promise<{ success: boolean; template?: CargaOperativaTemplate; error?: string }> {
-  if (!templateData.name.trim()) {
-    return { success: false, error: "El nombre de la plantilla es obligatorio." };
+  if (templateData.id !== 'master') {
+    return { success: false, error: "Solo se puede guardar la plantilla maestra." };
   }
-  const templates = await getCargaOperativaTemplates();
-  const newTemplate: CargaOperativaTemplate = {
-    id: `tpl_carga_${Date.now()}`,
-    ...templateData
-  };
-  templates.push(newTemplate);
-  await writeData(TEMPLATES_FILE, templates, (a, b) => a.name.localeCompare(b.name));
-  return { success: true, template: newTemplate };
-}
-
-export async function deleteCargaOperativaTemplate(id: string): Promise<{ success: boolean; error?: string }> {
-  let templates = await getCargaOperativaTemplates();
-  const initialLength = templates.length;
-  templates = templates.filter(t => t.id !== id);
-  if (templates.length === initialLength) {
-    return { success: false, error: "Plantilla no encontrada." };
-  }
-  await writeData(TEMPLATES_FILE, templates);
-  return { success: true };
+  await writeData(TEMPLATE_FILE, templateData);
+  return { success: true, template: templateData };
 }
