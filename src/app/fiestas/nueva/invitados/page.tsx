@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookText, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -146,6 +146,10 @@ export default function InvitadosEventoPage() {
       toast({ title: "Error al Eliminar", description: result.error || "No se pudo eliminar el invitado.", variant: "destructive" });
     }
   };
+  
+  const handlePrint = () => {
+    window.print();
+  };
 
   const openEditModal = (invitado: Invitado) => {
     const partySize = invitado.partySize || 1;
@@ -193,7 +197,7 @@ export default function InvitadosEventoPage() {
   if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6" id="guest-management-page">
       <Dialog open={!!qrCodeData} onOpenChange={(open) => !open && setQrCodeData(null)}>
         <DialogContent>
             <DialogHeader>
@@ -208,19 +212,22 @@ export default function InvitadosEventoPage() {
             )}
         </DialogContent>
       </Dialog>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Gestión de Invitados
         </h1>
-        <Link href="/fiestas/nueva" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Planificador
-          </Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir Lista</Button>
+            <Link href="/fiestas/nueva" passHref>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver al Planificador
+              </Button>
+            </Link>
+        </div>
       </div>
 
-       <Card className="shadow-md bg-primary/5 border-primary/20">
+       <Card className="shadow-md bg-primary/5 border-primary/20 print:hidden">
         <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
           <div className="p-3 bg-primary/10 rounded-lg">
             <LayoutDashboard className="w-7 h-7 text-primary" />
@@ -241,7 +248,7 @@ export default function InvitadosEventoPage() {
         </CardFooter>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-lg print:hidden">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Añadir Nuevo Invitado</CardTitle>
         </CardHeader>
@@ -271,43 +278,43 @@ export default function InvitadosEventoPage() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-lg print:shadow-none print:border-none" id="guest-list-section">
         <CardHeader>
           <CardTitle className="font-headline text-xl flex items-center gap-2">
             <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.TotalInvitaciones || 0} invitaciones / {rsvpCounts.TotalPersonas || 0} personas)
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="print:hidden">
             Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Asigna una mesa a cada invitado confirmado.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {invitados.length > 0 ? (
-            <ScrollArea className="h-auto max-h-[500px] pr-1">
+            <ScrollArea className="h-auto max-h-[500px] pr-1 print:max-h-none print:pr-0">
               <div className="space-y-3">
                 {invitados.map((invitado) => (
-                  <Card key={invitado.id} className="p-3 hover:shadow-md transition-shadow bg-muted/30">
+                  <Card key={invitado.id} className="p-3 hover:shadow-md transition-shadow bg-muted/30 print:border-none print:shadow-none print:p-0 print:bg-transparent print:border-b">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                       <div className="flex-grow space-y-1">
-                        <p className="font-semibold text-foreground flex items-center gap-2">
+                        <p className="font-semibold text-foreground flex items-center gap-2 print:text-sm">
                            {invitado.nombre}
-                           {invitado.checkedIn && <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100 text-xs"><UserCheck className="w-3 h-3 mr-1"/>Presente</Badge>}
+                           {invitado.checkedIn && <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100 text-xs print:hidden"><UserCheck className="w-3 h-3 mr-1"/>Presente</Badge>}
                         </p>
                         {invitado.companionNames && invitado.companionNames.length > 0 && (
-                            <p className="text-xs text-muted-foreground pl-2">
+                            <p className="text-xs text-muted-foreground pl-2 print:hidden">
                                 <span className="font-medium">Acompañantes:</span> {invitado.companionNames.join(', ')}
                             </p>
                         )}
                         {invitado.contacto && (
-                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                          <div className="text-xs text-muted-foreground flex items-center gap-1 print:hidden">
                             {invitado.contacto.includes('@') ? <Mail className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
                             {invitado.contacto}
                           </div>
                         )}
                         <p className="text-xs text-muted-foreground">Personas: {invitado.partySize || 1}</p>
-                        {invitado.notes && <p className="text-xs text-muted-foreground italic">Notas: {invitado.notes}</p>}
+                        {invitado.notes && <p className="text-xs text-muted-foreground italic print:hidden">Notas: {invitado.notes}</p>}
                       </div>
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
-                        <div className="flex-1 sm:flex-none sm:w-[120px]">
+                        <div className="flex-1 sm:flex-none sm:w-[120px] print:hidden">
                             <Label htmlFor={`rsvp-${invitado.id}`} className="sr-only">RSVP</Label>
                             <Select value={invitado.rsvp} onValueChange={(value: RsvpStatus) => handleFieldChange(invitado.id, 'rsvp', value)}>
                                 <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs"><SelectValue /></SelectTrigger>
@@ -320,21 +327,25 @@ export default function InvitadosEventoPage() {
                         </div>
                          <div className="flex-1 sm:flex-none sm:w-[120px]">
                            <Label htmlFor={`table-${invitado.id}`} className="sr-only">Número de Mesa</Label>
-                           <Input
-                              id={`table-${invitado.id}`}
-                              placeholder="Nº Mesa"
-                              title="Número de Mesa"
-                              value={invitado.tableNumber || ''}
-                              onChange={(e) => handleFieldChange(invitado.id, 'tableNumber', e.target.value)}
-                              className="h-9 text-sm"
-                              disabled={invitado.rsvp !== 'Confirmado'}
-                            />
+                           <div className="flex items-center gap-1">
+                                <span className="print:inline hidden text-xs">Mesa:</span>
+                                <Input
+                                  id={`table-${invitado.id}`}
+                                  placeholder="Nº Mesa"
+                                  title="Número de Mesa"
+                                  value={invitado.tableNumber || ''}
+                                  onChange={(e) => handleFieldChange(invitado.id, 'tableNumber', e.target.value)}
+                                  className="h-9 text-sm print:border-none print:p-0 print:h-auto print:text-xs print:font-semibold"
+                                  disabled={invitado.rsvp !== 'Confirmado'}
+                                />
+                           </div>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 print:hidden">
                             <Button variant="ghost" size="icon" onClick={() => setQrCodeData({ id: invitado.id, name: invitado.nombre })} className="h-8 w-8 text-primary" title="Mostrar QR"><QrCode className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteInvitado(invitado.id)} className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
                         </div>
+                        <div className="hidden print:inline-block border-2 border-gray-400 w-8 h-8 ml-4"></div>
                       </div>
                     </div>
                   </Card>
@@ -343,13 +354,13 @@ export default function InvitadosEventoPage() {
             </ScrollArea>
           ) : (
             <div className="text-center py-8">
-              <NotebookText className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+              <NotebookTextIcon className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground">Aún no has añadido ningún invitado.</p>
             </div>
           )}
         </CardContent>
          {invitados.length > 0 && (
-            <CardFooter className="text-xs text-muted-foreground border-t pt-3">
+            <CardFooter className="text-xs text-muted-foreground border-t pt-3 print:hidden">
                 <Ticket className="w-4 h-4 mr-2 shrink-0"/> Asigna un número de mesa a los invitados confirmados. Este número se mostrará cuando el invitado escanee su código QR.
             </CardFooter>
         )}
@@ -419,7 +430,22 @@ export default function InvitadosEventoPage() {
           )}
         </DialogContent>
       </Dialog>
-
+      
+      <style jsx global>{`
+        @media print {
+            body {
+                background-color: white;
+            }
+            #guest-management-page > *:not(#guest-list-section) {
+                display: none;
+            }
+            #guest-list-section {
+                box-shadow: none;
+                border: none;
+            }
+        }
+      `}</style>
     </div>
   );
 }
+
