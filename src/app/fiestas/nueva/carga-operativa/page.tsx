@@ -195,9 +195,9 @@ export default function ListaDeCargaOperativaPage() {
             nombre: catTemplate.name,
             items: catTemplate.items.map(itemTemplate => ({
                 id: `item_${Date.now()}_${Math.random()}`,
-                nombre: itemTemplate.name,
-                cantidad: itemTemplate.quantity,
-                unidad: itemTemplate.unit,
+                nombre: itemTemplate.nombre,
+                cantidad: itemTemplate.cantidad,
+                unidad: itemTemplate.unidad,
                 cargado: false,
             }))
         }));
@@ -399,7 +399,7 @@ export default function ListaDeCargaOperativaPage() {
         </CardContent>
       </Card>
 
-      <Accordion type="multiple" defaultValue={listaDeCarga.categorias.map(c => c.id)} className="w-full space-y-3">
+      <Accordion type="multiple" defaultValue={(listaDeCarga.categorias || []).map(c => c.id)} className="w-full space-y-3">
         {(listaDeCarga.categorias || []).map(category => (
           <AccordionItem key={category.id} value={category.id} className="border rounded-lg shadow-sm bg-card">
               <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
