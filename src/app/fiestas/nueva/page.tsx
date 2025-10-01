@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -49,6 +50,7 @@ const internalModules: PlanningModule[] = [
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" },
   { title: "Video de Vida", description: "Gestiona las fotos para el video emotivo.", icon: Camera, href: "/fiestas/nueva/video-vida", status: "Disponible", actionLabel: "Gestionar Fotos" },
   { title: "Fotografía y Filmación", description: "Gestiona la entrega del material fotográfico y de video.", icon: Film, href: "/fiestas/nueva/fotografia", status: "Disponible", actionLabel: "Gestionar Entrega" },
+  { title: "Gestión Documental", description: "Centraliza contratos, facturas y otros archivos importantes.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Ver Documentos" },
   { title: "Accesos para Colaboradores", description: "Genera enlaces únicos para que tu equipo vea la información que necesita.", icon: UserCog, href: "/settings/accesos-personal", status: "Disponible", actionLabel: "Gestionar Accesos" }
 ];
 
@@ -259,3 +261,5 @@ export default function PlanificarFiestaHubPage() {
     </div>
   );
 }
+
+  

@@ -87,12 +87,25 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
     return { success: true };
   } catch (error: any) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return { success: false, error: "El archivo del evento activo no fue encontrado para eliminar." };
+      // Fallback: try finding file by partial name if direct match fails
+      const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
+      try {
+        const files = await fs.readdir(dataDir);
+        const fileToDelete = files.find(file => file.includes(fiestaId));
+        if (fileToDelete) {
+          await fs.unlink(path.join(dataDir, fileToDelete));
+          return { success: true };
+        }
+        return { success: false, error: "El archivo del evento activo no fue encontrado para eliminar." };
+      } catch (fallbackError: any) {
+        return { success: false, error: `Error al intentar eliminar el evento: ${fallbackError.message}` };
+      }
     }
     console.error(`Error deleting active fiesta file ${fiestaId}:`, error);
     return { success: false, error: "No se pudo eliminar el archivo del evento." };
   }
 }
+
 
 export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -107,8 +120,7 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
     
     await writeData(path.join(ARCHIVE_FILE_PATH_PREFIX, archiveFilename), fiestaActual);
     
-    const oldFilePath = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR, `${fiestaId}.json`);
-    await fs.unlink(oldFilePath);
+    await deleteFiesta(fiestaId);
     
     return { success: true };
   } catch (error: any) {
@@ -156,13 +168,11 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
 
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
     try {
-        const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-        const files = await fs.readdir(dataDir);
-        for (const file of files) {
-          if (file.startsWith('fiesta_')) {
-            await fs.unlink(path.join(dataDir, file));
-          }
+        const activas = await getActivas();
+        for (const fiesta of activas) {
+            await archiveFiesta(fiesta.id);
         }
+        
         const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
         const newFilePath = path.join(FIESTAS_DIR, `${newFiesta.id}.json`);
         await writeData(newFilePath, newFiesta);
@@ -281,3 +291,6 @@ export async function removeInvoiceId(fiestaId: string, invoiceId: string): Prom
 
 
 
+
+
+  
