@@ -250,21 +250,6 @@ export default function GestorFiestasPage() {
                                 {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Copy className="w-4 h-4"/>}
                                 <span className="ml-2">Duplicar</span>
                             </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
-                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4"/>}
-                                    <span className="ml-2">Archivar</span>
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader><AlertDialogTitle>¿Archivar Evento?</AlertDialogTitle><AlertDialogDescription>El evento "{fiesta.configuracion.nombreEvento}" se moverá al historial de eventos pasados. Podrás consultarlo pero no planificarlo activamente.</AlertDialogDescription></AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleArchivar(fiesta.id)}>Sí, Archivar</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
                          </div>
                     </CardFooter>
                   </Card>
