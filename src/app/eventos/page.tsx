@@ -62,9 +62,7 @@ export default function GestorFiestasPage() {
         throw new Error(kpiResult.error || "No se pudieron cargar los datos del panel.");
       }
       
-      const placeholders = ['Nuevo Evento', 'Mi Próximo Evento Increíble'];
-      const activasFiltradas = activas.filter(f => f.configuracion.nombreEvento && !placeholders.includes(f.configuracion.nombreEvento));
-      setFiestasActivas(activasFiltradas);
+      setFiestasActivas(activas);
       setFiestasArchivadas(archivadas);
 
     } catch (e: any) {
@@ -317,7 +315,7 @@ export default function GestorFiestasPage() {
                                 </div>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/60 hover:bg-destructive/10 hover:text-destructive" disabled={isProcessing === fiesta.id}>
+                                        <Button variant="destructive" size="icon" className="h-7 w-7" disabled={isProcessing === fiesta.id}>
                                             {isProcessing === fiesta.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5"/>}
                                         </Button>
                                     </AlertDialogTrigger>

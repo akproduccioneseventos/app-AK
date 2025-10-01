@@ -1,9 +1,9 @@
 {
-  "id": "fiesta_1759195849045",
+  "id": "fiesta_1759353979300",
   "configuracion": {
     "nombreEvento": "Mi Próximo Evento Increíble",
     "tipoCelebracion": "Cumpleaños",
-    "fechaEvento": "2026-09-30T00:00:00.000Z",
+    "fechaEvento": "2026-10-01T00:00:00.000Z",
     "horaInicio": "19:00",
     "horaFin": "02:00",
     "nombreLugar": "Salón de Ensueño",
@@ -21,7 +21,7 @@
       "descripcion": "Crear borrador inicial de la lista de invitados y estimar cantidad final.",
       "esPredeterminada": false,
       "asignadaA": "Organizador",
-      "id": "task_1759195849045_52jrf1z"
+      "id": "task_1759349825742_2uce8gl"
     },
     {
       "texto": "Seleccionar catering y menú",
@@ -29,7 +29,7 @@
       "descripcion": "Contactar proveedores de catering, degustar opciones y definir el menú.",
       "esPredeterminada": false,
       "asignadaA": "Organizador",
-      "id": "task_1759195849045_49yoctr"
+      "id": "task_1759349825742_q1u7oqy"
     },
     {
       "texto": "Contratar DJ o música",
@@ -37,7 +37,7 @@
       "descripcion": "Buscar y contratar DJ, banda o sistema de sonido.",
       "esPredeterminada": false,
       "asignadaA": "Organizador",
-      "id": "task_1759195849045_ghwv78x"
+      "id": "task_1759349825742_nhr62l0"
     },
     {
       "texto": "Elegir decoración y temática",
@@ -45,7 +45,7 @@
       "descripcion": "Definir el estilo, colores y elementos decorativos principales.",
       "esPredeterminada": false,
       "asignadaA": "Organizador",
-      "id": "task_1759195849046_ksvfn63"
+      "id": "task_1759349825742_u704gl4"
     },
     {
       "texto": "Enviar invitaciones",
@@ -53,7 +53,7 @@
       "descripcion": "Diseñar, imprimir y enviar las invitaciones físicas o digitales.",
       "esPredeterminada": false,
       "asignadaA": "Cliente",
-      "id": "task_1759195849046_3cj2yy8"
+      "id": "task_1759349825742_7u3nt6v"
     }
   ],
   "clientChecklist": [
@@ -61,25 +61,25 @@
       "texto": "Confirmar lista final de invitados",
       "asignadaA": "Cliente",
       "completada": false,
-      "id": "client_task_1759195849046_9c40gib"
+      "id": "client_task_1759349825742_skuucbc"
     },
     {
       "texto": "Elegir el diseño de la torta",
       "asignadaA": "Cliente",
       "completada": false,
-      "id": "client_task_1759195849046_g3aq7gt"
+      "id": "client_task_1759349825742_s6v8avg"
     },
     {
       "texto": "Proporcionar lista de canciones especiales",
       "asignadaA": "Cliente",
       "completada": false,
-      "id": "client_task_1759195849046_59i2m7w"
+      "id": "client_task_1759349825742_x5chbwo"
     },
     {
       "texto": "Revisar y aprobar el presupuesto final",
       "asignadaA": "Organizador",
       "completada": false,
-      "id": "client_task_1759195849046_472la8x"
+      "id": "client_task_1759349825742_eh3xdgn"
     }
   ],
   "clientNotes": "",
@@ -155,14 +155,33 @@
   },
   "invitados": [],
   "webPageSettings": {
+    "pageTitle": "Mi Evento Especial",
+    "heroSubtitle": "¡Una celebración inolvidable!",
+    "welcomeMessage": "¡Bienvenidos a la celebración de nuestro evento!",
+    "coverImageUrl": "",
+    "galleryImageUrls": [],
     "showCountdown": true,
-    "showRsvp": true,
+    "ourStoryTitle": "Nuestra Historia",
+    "ourStoryText": "Un breve relato de cómo llegamos hasta aquí...",
+    "ourStoryImageUrl": "",
+    "showOurStory": false,
+    "eventDetailsTitle": "Detalles del Evento",
+    "eventDetailsText": "Fecha, hora, lugar y más información importante.",
     "showEventDetails": true,
-    "showGallery": true,
-    "galleryImageUrls": []
+    "dressCodeText": "Elegante Sport",
+    "showDressCode": false,
+    "giftRegistryTitle": "Lista de Regalos",
+    "giftRegistryText": "Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...",
+    "showGiftRegistry": false,
+    "giftRegistry": [],
+    "showRsvp": true,
+    "showPrograma": false,
+    "musicaEspecialText": "",
+    "showGallery": false
   },
   "clientPortalSettings": {
-    "enabled": true,
+    "enabled": false,
+    "accessKey": "",
     "checklist": {
       "visible": false,
       "editable": false
@@ -171,31 +190,31 @@
       "visible": false
     },
     "musica": {
-      "visible": true,
+      "visible": false,
       "editable": false
     },
     "videoVida": {
       "visible": true,
-      "editable": false
+      "editable": true
     },
     "listaRegalos": {
       "visible": false
     },
     "documentos": {
-      "visible": false
+      "visible": true
     },
     "notasCliente": {
       "visible": false,
-      "editable": false
+      "editable": true
     },
     "invitados": {
-      "visible": false
+      "visible": true
     },
     "paginaPublica": {
-      "visible": false
+      "visible": true
     },
     "fotografiaYFilmacion": {
-      "visible": false
+      "visible": true
     }
   },
   "socialGallerySettings": {
@@ -1419,91 +1438,91 @@
   },
   "programa": [
     {
-      "id": "prog_1759195849046_ujen7km",
+      "id": "prog_1759349825743_coy4wha",
       "hora": "22:00",
       "titulo": "Comienzo",
       "descripcion": "Recepción de invitados con música suave.",
       "icono": "PartyPopper"
     },
     {
-      "id": "prog_1759195849046_qeu9dbj",
+      "id": "prog_1759349825743_rw9cy90",
       "hora": "22:15",
       "titulo": "Servicio de Entrada 1",
       "descripcion": "Se sirve la primera tanda de bocaditos.",
       "icono": "Utensils"
     },
     {
-      "id": "prog_1759195849046_vlltru4",
+      "id": "prog_1759349825743_b15x3zr",
       "hora": "22:30",
       "titulo": "Entrada de la Quinceañera y Vals",
       "descripcion": "Momento emotivo principal.",
       "icono": "Diamond"
     },
     {
-      "id": "prog_1759195849046_x6rxkx6",
+      "id": "prog_1759349825743_sbvxnd1",
       "hora": "22:45",
       "titulo": "Servicio de Entrada 2",
       "descripcion": "Segunda tanda de bocaditos.",
       "icono": "Utensils"
     },
     {
-      "id": "prog_1759195849046_m8jlw5u",
+      "id": "prog_1759349825743_etn50z2",
       "hora": "00:00",
       "titulo": "¡A Bailar!",
       "descripcion": "Se abre la pista de baile.",
       "icono": "Music"
     },
     {
-      "id": "prog_1759195849046_i9fxe56",
+      "id": "prog_1759349825743_m93znkw",
       "hora": "01:00",
       "titulo": "Cena / Cierre de Barra",
       "descripcion": "Se sirve el plato principal. La barra se cierra temporalmente.",
       "icono": "Utensils"
     },
     {
-      "id": "prog_1759195849046_f3j7e0p",
+      "id": "prog_1759349825743_nwi4anq",
       "hora": "01:45",
       "titulo": "Video de Vida",
       "descripcion": "Proyección del video emotivo.",
       "icono": "Camera"
     },
     {
-      "id": "prog_1759195849046_fysp49i",
+      "id": "prog_1759349825743_zj0gbsz",
       "hora": "02:00",
       "titulo": "Reapertura de Barra y Baile",
       "descripcion": "Continúa la fiesta.",
       "icono": "GlassWater"
     },
     {
-      "id": "prog_1759195849046_i7i7w5y",
+      "id": "prog_1759349825743_frty8u1",
       "hora": "02:30",
       "titulo": "Plataforma 360 / Fotocabina",
       "descripcion": "Activación de entretenimiento fotográfico.",
       "icono": "Camera"
     },
     {
-      "id": "prog_1759195849046_jddw303",
+      "id": "prog_1759349825743_73gjymw",
       "hora": "03:00",
       "titulo": "Cotillón",
       "descripcion": "Reparto de cotillón para el carnaval carioca.",
       "icono": "Sparkles"
     },
     {
-      "id": "prog_1759195849046_e9zvt4h",
+      "id": "prog_1759349825743_en241sc",
       "hora": "03:45",
       "titulo": "Fuente de Chocolate",
       "descripcion": "Se habilita la mesa de postres o fuente de chocolate.",
       "icono": "CakeSlice"
     },
     {
-      "id": "prog_1759195849046_jmsmmgg",
+      "id": "prog_1759349825743_s8s8rzl",
       "hora": "04:00",
       "titulo": "Apagado de Velas y Torta",
       "descripcion": "Momento de cantar y cortar la torta.",
       "icono": "CakeSlice"
     },
     {
-      "id": "prog_1759195849046_ji14uw3",
+      "id": "prog_1759349825743_4vm7em7",
       "hora": "05:00",
       "titulo": "Final de la Fiesta",
       "descripcion": "Cierre del evento.",
