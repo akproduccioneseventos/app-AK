@@ -39,7 +39,7 @@ interface PlanningModule {
 
 const internalModules: PlanningModule[] = [
   { title: "Configuración del Evento", description: "Datos técnicos: fecha, tipo, lugar, invitados.", icon: Settings2, href: "/fiestas/nueva/configuracion", status: "Disponible", actionLabel: "Configurar Evento" },
-  { title: "Planificador Gastronómico", description: "Calcula costos de repostería y bebidas.", icon: Calculator, href: "/planner-costo-fiesta", status: "Disponible", actionLabel: "Abrir Calculadora" },
+  { title: "Planificador Gastronómico", description: "Calcula costos de repostería y bebidas.", icon: Calculator, href: "/planner-costo-fiesta", status: "Disponible", actionLabel: "Abrir Planificador" },
   { title: "Lista de Tareas (Interna)", description: "Organización interna del equipo.", icon: ListChecks, href: "/fiestas/nueva/tareas", status: "Disponible", actionLabel: "Gestionar Tareas" },
   { title: "Gestión de Invitados", description: "Listado de invitados, RSVP y diseño de mesas.", icon: Users, href: "/fiestas/nueva/invitados", status: "Disponible", actionLabel: "Gestionar Invitados" },
   { title: "Gestión de Personal", description: "Asignación y costos de personal.", icon: UserCheck, href: "/fiestas/nueva/personal", status: "Disponible", actionLabel: "Asignar Personal" },

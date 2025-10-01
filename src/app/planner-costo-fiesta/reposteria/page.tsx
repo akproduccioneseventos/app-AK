@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect } from 'react';
@@ -14,7 +13,7 @@ export default function DeprecatedReposteriaPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/fiestas/nueva/planner-costo-fiesta/reposteria');
+        router.replace('/planner-costo-fiesta');
     }, [router]);
 
     return (
@@ -26,11 +25,11 @@ export default function DeprecatedReposteriaPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        La gestión de Repostería ahora es parte del Planificador de Fiestas. Serás redirigido.
+                        La gestión de Repostería ahora es parte del Planificador Gastronómico Integral. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/fiestas/nueva/planner-costo-fiesta/reposteria" passHref>
+                    <Link href="/planner-costo-fiesta" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

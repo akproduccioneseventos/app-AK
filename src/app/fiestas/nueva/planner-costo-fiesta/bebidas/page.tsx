@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 // This page is obsolete. Its functionality has been moved to the event planner itself.
 // We redirect to the new central page for this functionality.
-export default function DeprecatedReposteriaRedirectPage() {
+export default function DeprecatedBebidasRedirectPage() {
     const router = useRouter();
 
     useEffect(() => {
