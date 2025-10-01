@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Bot, User, Loader2, Send } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { assistant } from '@/ai/flows/assistant-flow';
 
 
 interface Message {
@@ -21,20 +22,12 @@ export function AkAssistant() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    if (scrollAreaRef.current) {
-        // We need to access the underlying viewport element to scroll it
-        const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (viewport) {
-            viewport.scrollTop = viewport.scrollHeight;
-        }
-    }
-  };
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollToBottom();
+    if (scrollViewportRef.current) {
+        scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -47,12 +40,7 @@ export function AkAssistant() {
     setIsLoading(true);
 
     try {
-      // In a real implementation, you would call your AI flow here.
-      // const result = await assistant({ query: input });
-      // For now, we simulate a response.
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const result = { response: `Esto es una respuesta simulada para: "${input}". La integración con el flujo de IA está pendiente.` };
-      
+      const result = await assistant({ query: input });
       const assistantMessage: Message = { role: 'assistant', content: result.response };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err: any) {
@@ -61,7 +49,6 @@ export function AkAssistant() {
         description: err.message || "No se pudo obtener una respuesta.",
         variant: "destructive",
       });
-      // Optionally remove the user's message on error or add an error message
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +63,7 @@ export function AkAssistant() {
         <CardDescription>Tu asistente de IA para ayudarte con la planificación.</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
-        <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
+        <ScrollArea className="flex-1 pr-4" viewportRef={scrollViewportRef}>
           <div className="space-y-4">
             {messages.map((message, index) => (
               <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>

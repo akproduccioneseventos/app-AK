@@ -1,11 +1,10 @@
 
+
 'use server';
 
 import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { 
-    getFiestaActual as getFiestaActualFromModule,
-    getHistorialFiestas as getHistorialFiestasFromModule,
     getFiestas as getFiestasFromModule,
     getAllFiestas as getAllFiestasFromModule,
     archiveFiesta as archiveFiestaFromModule,
@@ -16,8 +15,11 @@ import {
     addInvoiceId as addInvoiceIdToFiesta,
     removeInvoiceId as removeInvoiceIdFromFiesta,
     deleteFiestaArchivada as deleteFiestaArchivadaFromModule,
-    duplicateFiesta as duplicateFiestaFromModule
+    duplicateFiesta as duplicateFiestaFromModule,
+    getHistorialFiestas as getHistorialFiestasFromModule
 } from './fiesta/fiesta.actions';
+import { getFiestaActual as getFiestaData } from './fiesta/configuracion.actions';
+
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
 import { updateTareas } from './fiesta/tareas.actions';
@@ -41,7 +43,7 @@ import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './
 
 
 // --- General Fiesta Actions ---
-export const getFiestaActual = getFiestaActualFromModule;
+export const getFiestaActual = getFiestaData;
 export const getHistorialFiestas = getHistorialFiestasFromModule;
 export const getFiestas = getFiestasFromModule;
 export const getAllFiestas = getAllFiestasFromModule;
@@ -107,7 +109,7 @@ export const updateGestionCostosFiestaActual = updateGestionCostos;
 export const updateFotografiaYFilmacionFiestaActual = updateFotografiaYFilmacionFromModule;
 
 // --- Documentos Actions ---
-export const uploadDocumentoFiesta = uploadDocumento;
+export const uploadDocumentoFiesta = uploadDocument;
 export const deleteDocumentoFiesta = deleteDocumento;
 
 // --- Pagos Proveedores Actions ---

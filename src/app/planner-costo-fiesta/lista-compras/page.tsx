@@ -5,16 +5,18 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Info, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ListaComprasObsoletoPage() {
+// This page is obsolete. Its functionality has been moved to the event planner itself.
+// We redirect to the new central page for this functionality.
+export default function DeprecatedListaComprasPage() {
     const router = useRouter();
 
     useEffect(() => {
         router.replace('/fiestas/nueva/catering/lista-compras');
     }, [router]);
-    
+
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
             <Card className="max-w-xl text-center">

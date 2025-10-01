@@ -81,6 +81,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
   if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
+  if (pathname === '/fiestas/nueva/musica/pdf') return 'PDF de Música';
   if (pathname === '/fiestas/nueva/fotografia') return 'Fotografía y Filmación';
   if (pathname === '/fiestas/nueva/gestion-documental') return 'Gestión Documental y Financiera';
   if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
@@ -89,6 +90,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
+  if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
+  if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return 'Planificador de Repostería';
+  if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return 'Planificador de Bebidas';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -105,10 +109,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
-  
-  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
-  if (pathname === '/planner-costo-fiesta/reposteria') return 'Gestión de Repostería';
-  if (pathname === '/planner-costo-fiesta/bebidas') return 'Gestión de Bebidas';
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
@@ -138,15 +138,15 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
-    if (pathname === '/portal') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
+    if (pathname === '/fiestas/nueva/musica/pdf') return Printer;
     if (pathname === '/fiestas/nueva/fotografia') return Film;
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
     if (pathname === '/fiestas/nueva/itinerario') return Clock;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
-    if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardListIcon;
+    if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardCheck;
     if (pathname === '/fiestas/nueva/gestion-documental') return Archive;
     if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
@@ -154,6 +154,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
+    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
+    if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return Cake;
+    if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return GlassWater;
     return PartyPopper;
   }
 
@@ -189,7 +192,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/templates') return Palette;
-  if (pathname === '/settings/budget-display') return SettingsIcon;
+  if (pathname === '/settings/budget-display') return Wand2;
   if (pathname === '/settings/company') return Building2;
   if (pathname === '/settings/social-connections') return LinkIcon;
   if (pathname === '/settings/notifications') return BellRing;
@@ -198,13 +201,10 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/settings/task-templates') return ListChecks;
+  if (pathname === '/settings/accesos-personal') return UserCog;
   
   if (pathname === '/simulador-de-presupuesto') return Wand2;
-  
-
-  if (pathname === '/planner-costo-fiesta') return Calculator;
-  if (pathname === '/planner-costo-fiesta/reposteria') return Cake;
-  if (pathname === '/planner-costo-fiesta/bebidas') return GlassWater;
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;

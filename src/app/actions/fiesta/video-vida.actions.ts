@@ -4,7 +4,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
-import { getFiestaActual, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const VIDEO_VIDA_DIR = path.join(DATA_DIR, 'video-vida-photos');
