@@ -304,6 +304,10 @@ export default function ArmadoRapidoPage() {
     };
 
     const handleGenerateLeadAndProceed = async () => {
+        if (!clienteNombre.trim() || !clienteContacto.trim()) {
+            toast({ title: "Datos incompletos", description: "Por favor, ingresa tu nombre y celular para continuar.", variant: "destructive" });
+            return;
+        }
         setIsGeneratingLead(true);
         const data = {
             clienteNombre,
@@ -319,7 +323,7 @@ export default function ArmadoRapidoPage() {
             const result = await generateLeadFromQuickBudget(data);
             if(result.success) {
                 toast({ title: "Presupuesto registrado", description: "Tu estimación ha sido enviada al equipo de ventas."});
-                setStep(4);
+                setStep(5); // Change to a dedicated success step
             } else { throw new Error(result.error); }
         } catch(e: any) {
              toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
@@ -329,12 +333,25 @@ export default function ArmadoRapidoPage() {
     }
     
     const nextStep = () => {
-        if (step === 3) {
+        if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
+            toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
+            return;
+        }
+        if (step === 2 && !selectedPrincipal) {
+            toast({ title: "Plato Principal Requerido", description: "Por favor, elige un plato principal para continuar.", variant: "destructive" });
+            return;
+        }
+        if (step === 3 && !selectedPaqueteId) {
+            toast({ title: "Paquete Requerido", description: "Por favor, elige un paquete de servicios para continuar.", variant: "destructive" });
+            return;
+        }
+        if (step === 4) {
             handleGenerateLeadAndProceed();
         } else {
             setStep(s => s < 4 ? s + 1 : s);
         }
     };
+
 
     const prevStep = () => setStep(s => s > 1 ? s - 1 : s);
     
@@ -360,7 +377,7 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Elije tu menú gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen y Contacto'][step-1]}</CardDescription>
                     <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                 </CardHeader>
                 <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
@@ -525,7 +542,7 @@ export default function ArmadoRapidoPage() {
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                             <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
-                              <p className="text-red-600 font-bold text-lg">Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.</p>
+                              <p className="text-red-600 font-bold text-lg">{BUDGET_DEPOSIT_NOTE_PDF}</p>
                             </footer>
                         </div>
                     )}
@@ -535,9 +552,8 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={(step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && !selectedPrincipal) || (step === 3 && !selectedPaqueteId) || isGeneratingLead}>
-                            {isGeneratingLead ? <Loader2 className="w-4 h-4 animate-spin"/> : <ArrowRight className="w-4 h-4 ml-2"/>}
-                            {isGeneratingLead ? 'Registrando...' : 'Siguiente'}
+                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && !selectedPrincipal) || (step === 3 && !selectedPaqueteId) }>
+                            Siguiente <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                     ) : (
                         <div className="flex flex-col sm:flex-row gap-2">
@@ -551,3 +567,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    

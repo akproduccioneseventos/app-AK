@@ -180,7 +180,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
             </div>
 
         <Separator/>
-
+        
         <div className="space-y-2">
             <h3 className="text-lg font-medium font-headline text-primary">Resumen Final</h3>
             <div className="p-4 border rounded-lg bg-primary/5 space-y-2">
@@ -199,3 +199,5 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     </div>
   );
 }
+
+    

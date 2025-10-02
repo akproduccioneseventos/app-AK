@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save, Loader2, PlusCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,7 @@ import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/action
 import { getCrmStages, moveCrmLead } from '@/app/actions/crm'; // Importar acciones de CRM
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
+import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
 import { Progress } from '@/components/ui/progress';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
@@ -166,7 +167,7 @@ function NuevoPresupuestoContent() {
                  return;
              }
         }
-        if (paso < 2) {
+        if (paso < 3) {
             setPaso(p => p + 1);
         }
     };
@@ -289,14 +290,15 @@ function NuevoPresupuestoContent() {
             </div>
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Paso {paso} de 2: {['Datos del Evento', 'Selección de Servicios y Resumen'][paso-1]}</CardTitle>
-                    <Progress value={(paso / 2) * 100} className="w-full h-2 mt-2" />
+                    <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {['Datos del Evento', 'Selección de Servicios', 'Resumen y Descuentos'][paso-1]}</CardTitle>
+                    <Progress value={(paso / 3) * 100} className="w-full h-2 mt-2" />
                 </CardHeader>
                 <CardContent>
                     {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
                             {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} menusArmadoRapido={menusArmadoRapido} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} totalCalculado={totalCalculado} />}
+                            {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} />}
                         </>
                     )}
                 </CardContent>
@@ -304,7 +306,7 @@ function NuevoPresupuestoContent() {
                     <Button variant="outline" onClick={handlePrev} disabled={paso === 1 || isSaving}>
                         <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
                     </Button>
-                    {paso < 2 ? (
+                    {paso < 3 ? (
                          <Button onClick={handleNext} disabled={isSaving}>
                             Siguiente <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
@@ -342,3 +344,5 @@ export default function NuevoPresupuestoPage() {
         </Suspense>
     )
 }
+
+    
