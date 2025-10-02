@@ -121,12 +121,20 @@ export default function BudgetDisplaySettingsPage() {
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
 
   const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
-    const allItems = allMenus.flatMap(m => m.items);
-    return {
-      entradas: allItems.filter(item => item.type === 'Entrada'),
-      platosPrincipales: allItems.filter(item => item.type === 'Plato Principal'),
-      menusInfantiles: allItems.filter(item => item.type === 'Menú Infantil'),
+    const menuEntradas = allMenus.find(m => m.name === 'Menú de Entradas');
+    const menuPrincipales = allMenus.find(m => m.name === 'Menú de Platos Principales');
+
+    const entradas = menuEntradas ? menuEntradas.items : [];
+    
+    let principales: MenuItem[] = [];
+    let infantiles: MenuItem[] = [];
+
+    if (menuPrincipales) {
+      principales = menuPrincipales.items.filter(item => item.type === 'Plato Principal');
+      infantiles = menuPrincipales.items.filter(item => item.type === 'Menú Infantil');
     }
+    
+    return { entradas, platosPrincipales: principales, menusInfantiles: infantiles };
   }, [allMenus]);
 
   const loadData = useCallback(async () => {
