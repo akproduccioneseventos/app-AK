@@ -251,7 +251,7 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 3000,
-    "precioVenta": 4000,
+    "precioVenta": 8000,
     "calculationMethod": "fijo"
   },
   {
@@ -1045,8 +1045,7 @@
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 60,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 70,
-    "tramosDePrecio": []
+    "precioPorPersona": 70
   },
   {
     "id": "ing-mayonesa",
