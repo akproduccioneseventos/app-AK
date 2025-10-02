@@ -1,3 +1,4 @@
+
 import type { ServicioEmpresa } from './empresa';
 
 export interface ServicioIncluidoArmadoRapido {
