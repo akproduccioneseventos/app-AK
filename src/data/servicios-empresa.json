@@ -1252,5 +1252,216 @@
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Verduras",
     "unidad": "Gramos"
+  },
+  {
+    "id": "item_1756940568854_u5m4prf",
+    "nombre": "Servicio de discoteca",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "valorUnitarioEstimado": 16000,
+    "precioVenta": 20000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757177422000_4ru2piy",
+    "nombre": "Fotografía",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 15000,
+    "precioVenta": 20000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757282105396_39i6zkn",
+    "nombre": "Decoración",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 20000,
+    "precioVenta": 30000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_invitaciones_digitales",
+    "nombre": "Invitaciones Digitales",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 2000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757258361278_fs8ba4x",
+    "nombre": "Servicio de Catering",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 250,
+    "precioPorPersona": 300,
+    "calculationMethod": "porPersona"
+  },
+  {
+    "id": "item_1757258437308_s0lgq1z",
+    "nombre": "Filmación",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 15000,
+    "precioVenta": 20000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_mozos",
+    "nombre": "Servicio de Mozos",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 1800,
+    "precioBase": 2500,
+    "invitadosPorUnidad": 20,
+    "calculationMethod": "ratio"
+  },
+  {
+    "id": "serv_mozo_cocina",
+    "nombre": "Personal de Cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2000,
+    "precioBase": 2800,
+    "invitadosPorUnidad": 50,
+    "calculationMethod": "ratio"
+  },
+  {
+    "id": "item_1757281980225_3x3nbzo",
+    "nombre": "Coordinador de Evento",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 8000,
+    "precioVenta": 10000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757280489194_y9qozwm",
+    "nombre": "Portero/Seguridad",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_pantalla_proyector",
+    "nombre": "Pantalla y Proyector",
+    "tipoItem": "Servicio",
+    "categoria": "Equipamiento",
+    "valorUnitarioEstimado": 3000,
+    "precioVenta": 4000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_video_vida",
+    "nombre": "Video de Vida",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 4000,
+    "precioVenta": 5000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757284889281_ioj7571",
+    "nombre": "Plataforma 360",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 6000,
+    "precioVenta": 8000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757284864269_4d9w4ml",
+    "nombre": "Fotocabina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 6000,
+    "precioVenta": 8000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757285027582_71oyrff",
+    "nombre": "Barra de Tragos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 200,
+    "precioPorPersona": 250,
+    "calculationMethod": "porPersona"
+  },
+  {
+    "id": "serv_1752489600086_barlib",
+    "nombre": "Barra Libre de Bebidas sin Alcohol",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 200,
+    "precioPorPersona": 250,
+    "calculationMethod": "porPersona"
+  },
+  {
+    "id": "item_1757539461884_w7kfwsm",
+    "nombre": "Mesa de postres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 150,
+    "precioPorPersona": 200,
+    "calculationMethod": "porPersona"
+  },
+  {
+    "id": "item_1757539236109_vtqfjaz",
+    "nombre": "Torta Principal",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 4000,
+    "precioVenta": 6000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1758320726157_k2ts7sy",
+    "nombre": "Show en vivo (Banda)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 20000,
+    "precioVenta": 30000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1758319656786_6sjl431",
+    "nombre": "Vajilla Completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 80,
+    "precioPorPersona": 100,
+    "calculationMethod": "porPersona"
+  },
+  {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería Completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 300,
+    "precioBase": 400,
+    "invitadosPorUnidad": 10,
+    "calculationMethod": "ratio"
+  },
+  {
+    "id": "item_1758320278460_yqzpq1h",
+    "nombre": "Centros de mesa florales",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 500,
+    "precioBase": 700,
+    "invitadosPorUnidad": 10,
+    "calculationMethod": "ratio"
+  },
+  {
+    "id": "item_1757456683585_bb9tztm",
+    "nombre": "Candy Bar Temático",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 100,
+    "precioPorPersona": 150,
+    "calculationMethod": "porPersona"
   }
 ]
