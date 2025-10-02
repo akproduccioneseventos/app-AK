@@ -16,6 +16,12 @@ interface PlatoConMenu extends MenuItem {
   menuName: string;
 }
 
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
+
+
 export default function CatalogoPlatosPage() {
   const { toast } = useToast();
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
@@ -98,9 +104,12 @@ export default function CatalogoPlatosPage() {
                             <AccordionContent className="p-2">
                                 <ul className="space-y-1">
                                 {platosAgrupados[categoria].map(plato => (
-                                    <li key={plato.id} className="p-2 border-b text-sm">
+                                    <li key={plato.id} className="p-2 border-b text-sm flex justify-between items-center">
+                                      <div>
                                         <p className="font-medium">{plato.name}</p>
                                         <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
+                                      </div>
+                                      <p className="font-semibold text-primary">{formatCurrency(plato.totalDishCost)}</p>
                                     </li>
                                 ))}
                                 </ul>
