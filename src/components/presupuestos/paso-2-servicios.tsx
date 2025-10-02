@@ -256,9 +256,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <Select value={formData.selectedMenuId} onValueChange={(val) => handleMenuSelect(val)}>
                         <SelectTrigger><SelectValue placeholder="Seleccionar un menú completo..." /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Ninguno / Personalizado</SelectItem>
+                            <SelectItem value="none">Ninguno / Personalizado</SelectItem>
                             {allMenus.map(menu => (
-                                <SelectItem key={menu.id} value={menu.id}>{menu.name}</SelectItem>
+                                <SelectItem key={menu.id} value={menu.id}>{menu.nombre}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
