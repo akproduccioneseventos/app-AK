@@ -5,17 +5,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Info, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2, ListChecks } from 'lucide-react';
-import type { FiestaEnPlanificacion, Tarea, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, ProgramaEventoItem, DecorationItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { FullMenu } from '@/types/catering';
+import type { Empleado } from '@/types/empleado';
+import type { Rol } from '@/types/rol';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getMenuById } from '@/app/actions/menus-catering';
-import { getRoles } from '@/app/actions/roles';
 import { getEmpleados } from '@/app/actions/empleados';
+import { getRoles } from '@/app/actions/roles';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import Image from 'next/image';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -28,12 +32,15 @@ const formatDate = (dateString?: string) => {
   }
 };
 
+const companyName = "AK Producciones";
+
 export default function ResumenImprimiblePage() {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [menu, setMenu] = useState<FullMenu | null>(null);
   const [personal, setPersonal] = useState<any[]>([]);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,8 +48,12 @@ export default function ResumenImprimiblePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const [fiestaData, templateSettings] = await Promise.all([
+        getFiestaActual(),
+        getInvoiceTemplateSettings()
+      ]);
       setFiesta(fiestaData);
+      setLogoUrl(templateSettings.logoUrl);
 
       const dataPromises: Promise<any>[] = [];
       if (fiestaData.configuracion.clienteId) {
@@ -114,6 +125,16 @@ export default function ResumenImprimiblePage() {
     }, {} as Record<string, typeof menu.items>);
   }, [menu]);
 
+  const itemsDecoracionAgrupados = React.useMemo(() => 
+    (fiesta?.decoracion?.items || []).reduce((acc, item) => {
+        const categoria = item.category || 'Otros';
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+    }, {} as Record<string, DecorationItem[]>), 
+  [fiesta?.decoracion?.items]);
+
+
   if (isLoading) return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>;
   if (error || !fiesta) return <div className="p-8 max-w-3xl mx-auto bg-white text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error || 'No se encontró la fiesta'}</p></div>;
 
@@ -127,11 +148,16 @@ export default function ResumenImprimiblePage() {
           <Link href="/fiestas/nueva" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
           <div className="flex gap-2">
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
-            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
+            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
           </div>
         </div>
 
         <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
+           {logoUrl && (
+                <div className="w-24 h-24 mx-auto mb-2 print:w-20 print:h-20">
+                    <Image src={logoUrl} alt={`${companyName} Logo`} width={96} height={96} className="object-contain" data-ai-hint="company logo"/>
+                </div>
+            )}
           <h1 className="text-xl font-bold text-primary print:text-lg">Resumen Operativo del Evento</h1>
           <p className="text-md text-gray-700 print:text-sm mt-1">{configuracion.nombreEvento}</p>
         </header>
@@ -183,7 +209,9 @@ export default function ResumenImprimiblePage() {
                 <div className="mt-2 text-sm">
                     <h4 className="font-semibold text-xs uppercase text-muted-foreground">Elementos Específicos:</h4>
                     <ul className="list-disc list-inside pl-2 text-xs">
-                        {decoracion.items.map(item => <li key={item.id}>{item.name} (x{item.quantity})</li>)}
+                        {Object.entries(itemsDecoracionAgrupados).map(([categoria, items]) => (
+                            <li key={categoria} className="font-medium">{categoria}: <span className="font-normal">{items.map(i => `${i.name} (x${i.quantity})`).join(', ')}</span></li>
+                        ))}
                     </ul>
                 </div>
             )}
