@@ -158,11 +158,11 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     const bruto = presupuesto.costoTotalEstimado;
     const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
-    const totalDescuento = presupuesto.totalConDescuento ?? bruto;
+    const totalDescuentoCalculado = presupuesto.totalConDescuento ?? bruto;
 
     let ajustes: { anio: number; monto: number; totalAcumulado: number }[] = [];
-    let montoAjustable = totalDescuento;
-    let totalAjustado = totalDescuento;
+    let montoAjustable = totalDescuentoCalculado;
+    let totalAjustado = totalDescuentoCalculado;
 
     if (presupuesto.ajusteAnualActivo && presupuesto.eventoFecha && displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0) {
         const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
@@ -176,11 +176,11 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     }
     
     return {
-      itemsAgrupados,
+      itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),
-      totalConDescuento: totalDescuento,
+      totalConDescuento: totalDescuentoCalculado,
       ajustesAnuales: ajustes,
       totalFinal: totalAjustado,
     };
