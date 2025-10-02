@@ -146,10 +146,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
 
-        // First, remove any services that might be part of ANY menu, to avoid conflicts
-        const allMenuServiceIds = new Set(allMenus.flatMap(m => m.items.map(item => item.id))); // Assuming MenuItem ID is the service ID. Adjust if not.
+        // Define a set of categories that are considered "gastronomic" to be cleared
+        const gastronomicCategories: string[] = ['Servicio de catering'];
+
+        // Remove only services belonging to gastronomic categories
         prev.serviciosSeleccionados.forEach((val, key) => {
-            if (allMenuServiceIds.has(key)) {
+            if (val.categoriaServicio && gastronomicCategories.includes(val.categoriaServicio)) {
                 newSelected.delete(key);
             }
         });
@@ -157,20 +159,33 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         // Then, add services from the selected menu
         if (menu) {
             menu.items.forEach(item => {
-                const servicioCompleto = serviciosCatalogo.find(s => s.nombre.toLowerCase() === item.name.toLowerCase()); // Match by name if no ID
-                 if (servicioCompleto) {
-                    newSelected.set(servicioCompleto.id, {
-                        cantidad: 1,
-                        precioUnitarioOriginal: servicioCompleto.precioPorPersona || 0,
-                        precioUnitarioPresupuesto: servicioCompleto.precioPorPersona || 0,
-                        nombreServicio: servicioCompleto.nombre,
-                        unidad: servicioCompleto.unidad,
-                        categoriaServicio: servicioCompleto.categoria,
-                        esRegalo: false,
-                        calculationMethod: 'porPersona',
-                        precioPorPersona: servicioCompleto.precioPorPersona,
-                    });
-                }
+                const costoPorPersona = item.totalDishCost || 0;
+                
+                const pseudoServicio: ItemPresupuestado = {
+                    idServicioCatalogo: item.id,
+                    nombreServicio: item.name,
+                    cantidad: totalInvitados,
+                    unidad: 'persona',
+                    precioUnitario: costoPorPersona,
+                    precioUnitarioPresupuesto: costoPorPersona,
+                    costoTotalItem: costoPorPersona * totalInvitados,
+                    esRegalo: false,
+                    categoriaServicio: 'Servicio de catering',
+                    calculationMethod: 'porPersona',
+                    precioPorPersona: costoPorPersona,
+                };
+                
+                 newSelected.set(item.id, {
+                    cantidad: 1, // Will be handled by porPersona
+                    precioUnitarioOriginal: costoPorPersona,
+                    precioUnitarioPresupuesto: costoPorPersona,
+                    nombreServicio: item.name,
+                    unidad: 'Por Persona',
+                    categoriaServicio: 'Servicio de catering',
+                    esRegalo: false,
+                    calculationMethod: 'porPersona',
+                    precioPorPersona: costoPorPersona,
+                 });
             });
         }
         return { ...prev, serviciosSeleccionados: newSelected, selectedMenuId: menuId };
@@ -253,7 +268,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             <div className="p-4 border rounded-md bg-muted/30 space-y-6">
                 <div className="space-y-2">
                     <Label className="font-semibold">Menú de Catering</Label>
-                    <Select value={formData.selectedMenuId} onValueChange={(val) => handleMenuSelect(val)}>
+                    <Select value={formData.selectedMenuId || "none"} onValueChange={(val) => handleMenuSelect(val)}>
                         <SelectTrigger><SelectValue placeholder="Seleccionar un menú completo..." /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="none">Ninguno / Personalizado</SelectItem>
@@ -310,9 +325,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             ) : (
                 <div className="text-center py-6">
                     <p className="text-muted-foreground">Selecciona un paquete base o añade servicios manualmente.</p>
-                    <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => setIsCatalogModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
                 </div>
             )}
+            <Button type="button" variant="outline" size="sm" className="mt-3 w-full" onClick={() => setIsCatalogModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio Manualmente</Button>
           </CardContent>
         </Card>
       </div>

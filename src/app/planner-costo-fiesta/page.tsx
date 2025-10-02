@@ -119,13 +119,13 @@ export default function PlannerCostoFiestaHubPage() {
        <GestionReposteria 
         initialData={reposteriaData} 
         onDataChange={setReposteriaData} 
-        invitados={{adultos: Number(adultos), ninos: Number(ninos)}} 
+        invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: 0}} 
        />
        
        <GestionBebidas 
         initialData={bebidasData} 
         onDataChange={setBebidasData}
-        invitados={{adultos: Number(adultos), ninos: Number(ninos)}}
+        invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: 0}}
        />
        
        <div className="flex justify-end mt-6">
