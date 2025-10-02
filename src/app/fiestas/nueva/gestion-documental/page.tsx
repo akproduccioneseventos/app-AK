@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -190,6 +191,15 @@ export default function GestionDocumentalPage() {
           <CardTitle>Documentos de la Fiesta</CardTitle>
           <CardDescription>
             <div className="flex flex-wrap gap-2 mt-2">
+                {fiesta.presupuestoId ? (
+                   <Link href={`/presupuestos/${fiesta.presupuestoId}/ver`} passHref>
+                     <Button variant="secondary" size="sm"><FileText className="w-4 h-4 mr-1.5"/>Ver Presupuesto</Button>
+                   </Link>
+                ) : (
+                   <Link href="/presupuestos/nuevo" passHref>
+                     <Button variant="secondary" size="sm"><ListChecks className="w-4 h-4 mr-1.5"/>Crear Presupuesto</Button>
+                   </Link>
+                )}
                 <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio`} passHref>
                   <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Servicio</Button>
                 </Link>
