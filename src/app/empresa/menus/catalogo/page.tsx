@@ -109,7 +109,7 @@ export default function CatalogoPlatosPage() {
                                         <p className="font-medium">{plato.name}</p>
                                         <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
                                       </div>
-                                      <p className="font-semibold text-primary">{formatCurrency(plato.totalDishCost)}</p>
+                                      <p className="font-semibold text-primary">{formatCurrency((plato.totalDishCost || 0) * 2)}</p>
                                     </li>
                                 ))}
                                 </ul>
