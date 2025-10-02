@@ -5,18 +5,18 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Info, Globe, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function PaginaWebObsoletoPage() {
+// This page is obsolete. Its functionality has been moved to a central module.
+export default function DeprecatedPortalClientePage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Redirect to the new page immediately
-        router.replace('/fiestas/nueva/pagina-web');
+        // Redirect to the new central hub for client collaboration
+        router.replace('/fiestas/nueva/reuniones');
     }, [router]);
 
-    // Render a loading/redirecting state to avoid a blank page flash
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
             <Card className="max-w-xl text-center">
@@ -25,12 +25,12 @@ export default function PaginaWebObsoletoPage() {
                     <CardTitle className="font-headline text-2xl mt-4">Redirigiendo...</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">
-                        Esta sección ha sido movida. Serás redirigido a la nueva página de "Página Pública del Evento".
+                     <p className="text-muted-foreground">
+                        El Portal del Cliente ahora está integrado en la sección de Reuniones. Serás redirigido.
                     </p>
                 </CardContent>
-                <CardFooter className="justify-center">
-                    <Link href="/fiestas/nueva/pagina-web" passHref>
+                 <CardFooter className="justify-center">
+                    <Link href="/fiestas/nueva/reuniones" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

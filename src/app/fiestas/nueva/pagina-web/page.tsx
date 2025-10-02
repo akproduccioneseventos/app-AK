@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -117,8 +116,8 @@ export default function PaginaWebSettingsPage() {
             finalWebSettings.galleryImageUrls = newGalleryUrls;
             
             // Pass the existing client settings to avoid overwriting them
-            const currentClientSettings = fiesta.clientPortalSettings || {};
-            const result = await updatePortalSettings(currentClientSettings, finalWebSettings);
+            const currentClientPortalSettings = fiesta.clientPortalSettings || {};
+            const result = await updatePortalSettings(currentClientPortalSettings, finalWebSettings);
             if (result.success) {
                 toast({ title: "¡Configuración Guardada!", description: "La configuración ha sido actualizada." });
                 await loadData();
