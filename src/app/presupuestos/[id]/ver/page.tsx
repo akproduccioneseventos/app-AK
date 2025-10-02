@@ -111,7 +111,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
       document.body.innerHTML = printContents;
       window.print();
       document.body.innerHTML = originalContents;
-      // Use reload to ensure styles and scripts are reloaded correctly after print
       window.location.reload(); 
     }
   };
@@ -157,8 +156,18 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     const bruto = presupuesto.costoTotalEstimado;
-    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
-    const totalDescuentoCalculado = presupuesto.totalConDescuento ?? bruto;
+    
+    let descAplicado = 0;
+    if (presupuesto.descuentoValor && presupuesto.descuentoValor > 0) {
+      descAplicado = presupuesto.descuentoTipo === 'porcentaje'
+        ? (bruto * presupuesto.descuentoValor) / 100
+        : presupuesto.descuentoValor;
+    } else if (armadoRapidoConfig?.descuentoGeneral) {
+      // Apply "ficticio" discount from simulator config if budget has none
+      descAplicado = (bruto * armadoRapidoConfig.descuentoGeneral) / 100;
+    }
+
+    const totalDescuentoCalculado = bruto - descAplicado;
 
     let ajustes: { anio: number; monto: number; totalAcumulado: number }[] = [];
     let montoAjustable = totalDescuentoCalculado;
@@ -179,13 +188,13 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
-      descuentoPromocional: Math.max(0, descPromo),
+      descuentoPromocional: Math.max(0, descAplicado),
       totalConDescuento: totalDescuentoCalculado,
       ajustesAnuales: ajustes,
       totalFinal: totalAjustado,
     };
 
-  }, [presupuesto, displaySettings]);
+  }, [presupuesto, displaySettings, armadoRapidoConfig]);
   
   const getDisplayQuantity = (item: ItemPresupuestado, invitados: number): string => {
     switch (item.calculationMethod) {
@@ -215,11 +224,12 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
     
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
+  const showAnnualAdjustmentLegend = ajustesAnuales.length > 0;
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
       <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
-        <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+        <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
         <div className="flex gap-2 flex-wrap justify-end">
           <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
           <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
@@ -228,6 +238,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
             presupuesto.invoiceId ? 
             (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
             (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
+           <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
         </div>
       </div>
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
@@ -335,7 +346,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
               </div>
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : (armadoRapidoConfig?.descuentoGeneral ? ` (${armadoRapidoConfig.descuentoGeneral}%)` : '')}:</span>
                     <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
               )}
@@ -367,9 +378,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
         <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
           <p className="text-red-600 font-bold text-sm">{BUDGET_DEPOSIT_NOTE_PDF}</p>
           {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-          {presupuesto.ajusteAnualActivo && displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && (
-            <p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: El importe total incluye un ajuste anual del {displaySettings.annualAdjustmentPercentage}% por cada año hasta la fecha del evento.</p>
-          )}
+          {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: El importe total incluye un ajuste anual del {displaySettings.annualAdjustmentPercentage}% por cada año hasta la fecha del evento.</p>)}
         </footer>
       </div>
     </div>
