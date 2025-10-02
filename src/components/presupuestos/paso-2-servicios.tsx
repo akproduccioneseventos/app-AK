@@ -20,14 +20,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-
+import type { FullMenu } from '@/types/catering';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
   serviciosCatalogo: ServicioEmpresa[];
   paquetesBase: PaqueteArmadoRapido[];
-  menusArmadoRapido: MenuArmadoRapido[];
+  allMenus: FullMenu[];
   onCatalogUpdate: () => Promise<void>;
   totalInvitados: number;
 }
@@ -72,70 +72,9 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
 }
 
 
-export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, menusArmadoRapido, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
+export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
-    if (!menusArmadoRapido.length || !serviciosCatalogo.length) return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
-    const menuCatering = menusArmadoRapido.find(m => m.id === 'menu_catering');
-    if (!menuCatering) return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
-    
-    const serviciosDelMenu = menuCatering.serviciosIncluidos.map(s => serviciosCatalogo.find(sc => sc.id === s.id)).filter(Boolean) as ServicioEmpresa[];
-    
-    const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
-
-    return {
-      entradasDisponibles: serviciosDelMenu.filter(s => s.subcategoria === 'Entrada').sort(sortByPrice),
-      principalesDisponibles: serviciosDelMenu.filter(s => s.subcategoria === 'Plato Principal').sort(sortByPrice),
-      menusNinoDisponibles: serviciosDelMenu.filter(s => s.subcategoria === 'Menú Niños/Adolescentes').sort(sortByPrice),
-    };
-  }, [menusArmadoRapido, serviciosCatalogo]);
-  
-  const updateServiciosFromGastronomia = useCallback(() => {
-    setFormData(prev => {
-        const newSelected = new Map(prev.serviciosSeleccionados);
-        const allGastronomyIds = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles].map(s => s.id);
-        
-        // Remove all previous gastronomy items to reflect new choices
-        allGastronomyIds.forEach(id => newSelected.delete(id));
-        
-        const addServicio = (id?: string) => {
-            if (!id) return;
-            const servicio = serviciosCatalogo.find(s => s.id === id);
-            if (servicio) {
-                newSelected.set(id, {
-                    cantidad: 1, // Quantity will be adjusted by calculation method
-                    precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-                    precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-                    nombreServicio: servicio.nombre,
-                    categoriaServicio: servicio.categoria,
-                    unidad: servicio.unidad,
-                    esRegalo: false,
-                    calculationMethod: servicio.calculationMethod,
-                    precioBase: servicio.precioBase,
-                    precioPorPersona: servicio.precioPorPersona,
-                    invitadosPorUnidad: servicio.invitadosPorUnidad,
-                    tramosDePrecio: servicio.tramosDePrecio,
-                });
-            }
-        };
-
-        (prev.selectedEntradas || []).forEach(addServicio);
-        addServicio(prev.selectedPrincipal);
-        if ((prev.invitadosNinos || 0) > 0 && prev.selectedMenuNino) {
-            addServicio(prev.selectedMenuNino);
-        }
-
-        return { ...prev, serviciosSeleccionados: newSelected };
-    });
-}, [setFormData, serviciosCatalogo, entradasDisponibles, principalesDisponibles, menusNinoDisponibles]);
-
-
-  useEffect(() => {
-    updateServiciosFromGastronomia();
-  }, [formData.selectedEntradas, formData.selectedPrincipal, formData.selectedMenuNino, formData.invitadosNinos, updateServiciosFromGastronomia]);
-
 
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
     setFormData(prev => {
@@ -195,16 +134,48 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             }
         });
     }
-    // Al seleccionar un paquete, también reseteamos la selección gastronómica manual
-    // para evitar conflictos. El usuario puede volver a añadirla si lo desea.
     setFormData(prev => ({ 
         ...prev, 
         serviciosSeleccionados: newSelected,
-        selectedEntradas: [],
-        selectedPrincipal: '',
-        selectedMenuNino: '',
+        selectedMenuId: '',
     }));
   };
+
+  const handleMenuSelect = (menuId: string) => {
+    const menu = allMenus.find(m => m.id === menuId);
+    setFormData(prev => {
+        const newSelected = new Map(prev.serviciosSeleccionados);
+
+        // First, remove any services that might be part of ANY menu, to avoid conflicts
+        const allMenuServiceIds = new Set(allMenus.flatMap(m => m.items.map(item => item.id))); // Assuming MenuItem ID is the service ID. Adjust if not.
+        prev.serviciosSeleccionados.forEach((val, key) => {
+            if (allMenuServiceIds.has(key)) {
+                newSelected.delete(key);
+            }
+        });
+        
+        // Then, add services from the selected menu
+        if (menu) {
+            menu.items.forEach(item => {
+                const servicioCompleto = serviciosCatalogo.find(s => s.nombre.toLowerCase() === item.name.toLowerCase()); // Match by name if no ID
+                 if (servicioCompleto) {
+                    newSelected.set(servicioCompleto.id, {
+                        cantidad: 1,
+                        precioUnitarioOriginal: servicioCompleto.precioPorPersona || 0,
+                        precioUnitarioPresupuesto: servicioCompleto.precioPorPersona || 0,
+                        nombreServicio: servicioCompleto.nombre,
+                        unidad: servicioCompleto.unidad,
+                        categoriaServicio: servicioCompleto.categoria,
+                        esRegalo: false,
+                        calculationMethod: 'porPersona',
+                        precioPorPersona: servicioCompleto.precioPorPersona,
+                    });
+                }
+            });
+        }
+        return { ...prev, serviciosSeleccionados: newSelected, selectedMenuId: menuId };
+    });
+  }
   
   const serviciosFiltrados = useMemo(() => {
     return serviciosCatalogo.filter(s => 
@@ -280,23 +251,19 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           </AccordionTrigger>
           <AccordionContent className="pt-2">
             <div className="p-4 border rounded-md bg-muted/30 space-y-6">
-                {/* Entradas */}
                 <div className="space-y-2">
-                    <Label className="font-semibold">Entradas (Elige hasta 2)</Label>
-                    <div className="grid grid-cols-2 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md bg-background"><Checkbox id={`ent-${s.id}`} checked={formData.selectedEntradas?.includes(s.id)} onCheckedChange={(checked) => setFormData(p => ({...p, selectedEntradas: checked ? [...(p.selectedEntradas || []), s.id].slice(0,2) : (p.selectedEntradas || []).filter(id => id !== s.id)}))}/><Label htmlFor={`ent-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0)})</span></Label></div>))}</div>
+                    <Label className="font-semibold">Menú de Catering</Label>
+                    <Select value={formData.selectedMenuId} onValueChange={(val) => handleMenuSelect(val)}>
+                        <SelectTrigger><SelectValue placeholder="Seleccionar un menú completo..." /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Ninguno / Personalizado</SelectItem>
+                            {allMenus.map(menu => (
+                                <SelectItem key={menu.id} value={menu.id}>{menu.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">Seleccionar un menú de catering reemplazará los servicios gastronómicos actuales de este presupuesto.</p>
                 </div>
-                {/* Principal */}
-                <div className="space-y-2">
-                    <Label className="font-semibold">Plato Principal (Elige 1)</Label>
-                    <RadioGroup value={formData.selectedPrincipal} onValueChange={(val) => setFormData(p => ({...p, selectedPrincipal: val}))} className="grid grid-cols-2 gap-2">{principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md bg-background"><RadioGroupItem value={s.id} id={`p-${s.id}`} /><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>)}</RadioGroup>
-                </div>
-                {/* Menu Niño */}
-                {(formData.invitadosNinos ?? 0) > 0 && (
-                    <div className="space-y-2">
-                        <Label className="font-semibold">Menú Niños/Adolescentes (Elige 1)</Label>
-                        <Select value={formData.selectedMenuNino} onValueChange={(val) => setFormData(p => ({...p, selectedMenuNino: val}))}><SelectTrigger><SelectValue placeholder={(formData.invitadosNinos || 0) > 0 ? "Selecciona un menú..." : "Añade niños en Paso 1"}/></SelectTrigger><SelectContent>{menusNinoDisponibles.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</SelectItem>)}</SelectContent></Select>
-                    </div>
-                )}
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -326,9 +293,10 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
                     const item: ItemPresupuestado = {
                         idServicioCatalogo: id, ...servicio, 
-                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0
+                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
                     };
                     const costoItem = calcularCostoItem(item, totalInvitados);
+
                     return (
                         <div key={id} className="flex justify-between items-center p-2 border-b last:border-b-0">
                            <div className="flex-grow">

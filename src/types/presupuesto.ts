@@ -88,9 +88,7 @@ export interface PresupuestoFormData {
   }>;
   
   // Gastronomic selections
-  selectedEntradas?: string[];
-  selectedPrincipal?: string;
-  selectedMenuNino?: string;
+  selectedMenuId?: string;
 
   nombrePromocion?: string;
   descuentoTipo?: 'porcentaje' | 'fijo';

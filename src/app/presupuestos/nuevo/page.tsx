@@ -22,6 +22,8 @@ import { Progress } from '@/components/ui/progress';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import { Separator } from '@/components/ui/separator';
+import { getMenus } from '@/app/actions/menus-catering';
+import type { FullMenu } from '@/types/catering';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -38,9 +40,7 @@ const initialFormData: PresupuestoFormData = {
   protagonista2Nombre: '',
   nombreEmpresa: '',
   serviciosSeleccionados: new Map(),
-  selectedEntradas: [],
-  selectedPrincipal: '',
-  selectedMenuNino: '',
+  selectedMenuId: '', // Changed from gastronomic selections
   nombrePromocion: '',
   descuentoTipo: undefined,
   descuentoValor: '',
@@ -102,7 +102,7 @@ function NuevoPresupuestoContent() {
     const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [paquetesBase, setPaquetesBase] = useState<PaqueteArmadoRapido[]>([]);
-    const [menusArmadoRapido, setMenusArmadoRapido] = useState<MenuArmadoRapido[]>([]);
+    const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
     const [paso, setPaso] = useState(1);
     
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
@@ -141,10 +141,10 @@ function NuevoPresupuestoContent() {
         const fetchInitialData = async () => {
             setIsLoadingInitialData(true);
             try {
-                const [armadoConfig, guardados] = await Promise.all([getArmadoRapidoConfig(), getPresupuestos()]);
+                const [armadoConfig, guardados, menuData] = await Promise.all([getArmadoRapidoConfig(), getPresupuestos(), getMenus()]);
                 await fetchServicios();
                 setPaquetesBase(armadoConfig.paquetes || []);
-                setMenusArmadoRapido(armadoConfig.menus || []);
+                setAllMenus(menuData || []);
                 setPresupuestosGuardados(guardados);
                 
                 const leadName = searchParams.get('leadName');
@@ -174,7 +174,7 @@ function NuevoPresupuestoContent() {
     
     const handlePrev = () => {
         if (paso > 1) {
-            setPaso(p => p - 1);
+            setPaso(p => p + 1);
         }
     };
 
@@ -297,7 +297,7 @@ function NuevoPresupuestoContent() {
                     {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
-                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} menusArmadoRapido={menusArmadoRapido} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} totalCalculado={totalCalculado} />}
+                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} allMenus={allMenus} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} />}
                             {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} />}
                         </>
                     )}
@@ -344,5 +344,3 @@ export default function NuevoPresupuestoPage() {
         </Suspense>
     )
 }
-
-    
