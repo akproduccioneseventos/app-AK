@@ -123,7 +123,7 @@ export default function MusicaPdfPage() {
           </div>
         </div>
 
-        <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
+        <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
             {logoUrl && (
                 <div className="w-24 h-24 mx-auto mb-2 print:w-20 print:h-20">
                     <Image src={logoUrl} alt={`${companyName} Logo`} width={96} height={96} className="object-contain" data-ai-hint="company logo"/>
@@ -159,7 +159,7 @@ export default function MusicaPdfPage() {
             </section>
 
              <section>
-                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><PartyPopper className="w-5 h-5"/>Playlist General / Sugerencias del Cliente</h2>
+                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2">Playlist General / Sugerencias del Cliente</h2>
                 <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-gray-50 p-2 rounded-md">{musica.playlistFiesta || 'No hay sugerencias generales.'}</p>
             </section>
             

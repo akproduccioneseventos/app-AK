@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -12,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate as TaskTemplate } from '@/types/fiesta';
 import { getFiestaActual, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
@@ -139,7 +138,7 @@ export default function ItinerarioEventoPage() {
       return;
     }
     setIsSaving(true);
-    const result = await saveTaskTemplate(templateName, programa);
+    const result = await saveItineraryTemplate(templateName, programa);
     if (result.success) {
       toast({title: "Plantilla Guardada"});
       setIsSaveTemplateModalOpen(false);
@@ -270,7 +269,7 @@ export default function ItinerarioEventoPage() {
               <ul className="space-y-2 max-h-64 overflow-y-auto">
                 {templates.map(t => (
                   <li key={t.id} className="flex items-center justify-between p-2 border rounded-md">
-                    <span>{t.name} ({t.items.length} tareas)</span>
+                    <span>{t.name} ({t.items.length} momentos)</span>
                     <div className="flex gap-1">
                       <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
                       <Button size="icon" variant="destructive" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>{deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button>
