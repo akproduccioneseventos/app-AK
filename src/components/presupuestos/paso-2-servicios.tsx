@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, PackageSearch, PlusCircle, Search, Trash2, ChefHat } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
 import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
@@ -91,22 +91,21 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       menusNinoDisponibles: serviciosDelMenu.filter(s => s.subcategoria === 'Menú Niños/Adolescentes').sort(sortByPrice),
     };
   }, [menusArmadoRapido, serviciosCatalogo]);
-
-  const updateServiciosFromGastronomia = () => {
+  
+  const updateServiciosFromGastronomia = useCallback(() => {
     setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
-
-        // Remove all current gastronomy items to avoid duplicates
         const allGastronomyIds = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles].map(s => s.id);
+        
+        // Remove all previous gastronomy items to reflect new choices
         allGastronomyIds.forEach(id => newSelected.delete(id));
         
-        // Add back selected items
         const addServicio = (id?: string) => {
             if (!id) return;
             const servicio = serviciosCatalogo.find(s => s.id === id);
             if (servicio) {
                 newSelected.set(id, {
-                    cantidad: 1, // Will be adjusted by calculation method
+                    cantidad: 1, // Quantity will be adjusted by calculation method
                     precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
                     precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
                     nombreServicio: servicio.nombre,
@@ -124,17 +123,18 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
         (prev.selectedEntradas || []).forEach(addServicio);
         addServicio(prev.selectedPrincipal);
-        if ((prev.invitadosNinos || 0) > 0) {
+        if ((prev.invitadosNinos || 0) > 0 && prev.selectedMenuNino) {
             addServicio(prev.selectedMenuNino);
         }
 
         return { ...prev, serviciosSeleccionados: newSelected };
     });
-  };
+}, [setFormData, serviciosCatalogo, entradasDisponibles, principalesDisponibles, menusNinoDisponibles]);
+
 
   useEffect(() => {
     updateServiciosFromGastronomia();
-  }, [formData.selectedEntradas, formData.selectedPrincipal, formData.selectedMenuNino, formData.invitadosNinos, serviciosCatalogo]);
+  }, [formData.selectedEntradas, formData.selectedPrincipal, formData.selectedMenuNino, formData.invitadosNinos, updateServiciosFromGastronomia]);
 
 
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
@@ -195,7 +195,15 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             }
         });
     }
-    setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
+    // Al seleccionar un paquete, también reseteamos la selección gastronómica manual
+    // para evitar conflictos. El usuario puede volver a añadirla si lo desea.
+    setFormData(prev => ({ 
+        ...prev, 
+        serviciosSeleccionados: newSelected,
+        selectedEntradas: [],
+        selectedPrincipal: '',
+        selectedMenuNino: '',
+    }));
   };
   
   const serviciosFiltrados = useMemo(() => {
@@ -213,8 +221,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
   }, [serviciosFiltrados]);
-
-  const totalCalculado = useMemo(() => {
+  
+   const totalCalculado = useMemo(() => {
       let total = 0;
       formData.serviciosSeleccionados.forEach((item, id) => {
         const itemDataForCalc: ItemPresupuestado = {
@@ -299,17 +307,26 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       <div>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium font-headline text-primary">Servicios Seleccionados</h3>
-          <Button type="button" onClick={() => setIsCatalogModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio desde Catálogo</Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button type="button" variant="secondary"><Sparkles className="w-4 h-4 mr-2"/>Editar Catálogo</Button>
+            </SheetTrigger>
+            <SheetContent className="w-full max-w-none sm:max-w-lg">
+                <SheetHeader>
+                    <SheetTitle>Catálogo Maestro de Servicios</SheetTitle>
+                    <SheetDescription>Añade o edita los servicios que ofreces. Los cambios se reflejarán aquí al recargar.</SheetDescription>
+                </SheetHeader>
+                <EditServicioForm onCatalogUpdate={onCatalogUpdate} />
+            </SheetContent>
+          </Sheet>
         </div>
         <Card>
           <CardContent className="p-4 space-y-2">
             {formData.serviciosSeleccionados.size > 0 ? (
                 Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
-                    const servicioOriginal = serviciosCatalogo.find(s => s.id === id);
-                    if (!servicioOriginal) return null;
                     const item: ItemPresupuestado = {
                         idServicioCatalogo: id, ...servicio, 
-                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
+                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0
                     };
                     const costoItem = calcularCostoItem(item, totalInvitados);
                     return (
@@ -323,7 +340,10 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     );
                 })
             ) : (
-                <p className="text-center text-muted-foreground py-4">No hay servicios seleccionados.</p>
+                <div className="text-center py-6">
+                    <p className="text-muted-foreground">Selecciona un paquete base o añade servicios manualmente.</p>
+                    <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => setIsCatalogModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
+                </div>
             )}
           </CardContent>
         </Card>
