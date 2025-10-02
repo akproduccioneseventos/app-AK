@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -209,13 +208,15 @@ export default function InvitadosEventoPage() {
       <Dialog open={!!qrCodeData} onOpenChange={(open) => !open && setQrCodeData(null)}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Código QR para {qrCodeData?.name}</DialogTitle>
-                <DialogDescription>Este es el QR personal para el check-in. El invitado puede mostrar esto al ingresar.</DialogDescription>
+                <DialogTitle>Enlace y QR para {qrCodeData?.name}</DialogTitle>
+                <DialogDescription>Comparte este enlace único o el QR con tu invitado para que pueda acceder a la página de su invitación y confirmar su asistencia.</DialogDescription>
             </DialogHeader>
             {qrCodeData && (
-                <div className="flex flex-col items-center justify-center p-4">
-                    <QRCodeStylized value={`${window.location.origin}/evento/actual/checkin?guestId=${qrCodeData.id}`} size={256} />
-                    <p className="text-sm mt-4 text-muted-foreground">ID: {qrCodeData.id}</p>
+                <div className="flex flex-col items-center justify-center p-4 gap-4">
+                    <div className="bg-white p-4 rounded-lg border">
+                        <QRCodeStylized value={`${window.location.origin}/evento/actual/mesa?guestId=${qrCodeData.id}`} size={200} />
+                    </div>
+                    <Input value={`${window.location.origin}/evento/actual/mesa?guestId=${qrCodeData.id}`} readOnly/>
                 </div>
             )}
         </DialogContent>
