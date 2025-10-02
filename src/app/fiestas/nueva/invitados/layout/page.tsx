@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building, Expand, Minimize } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building, Expand, Minimize, Sprout, Tent, Sparkle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, LayoutElement, Invitado } from '@/types/fiesta';
@@ -50,6 +50,9 @@ export const PALETTE_ITEMS: { category: string; label: string; icon: React.Eleme
     { category: 'Cabina de DJ', label: 'Cabina de DJ', icon: Music, default: { width: 100, height: 50 } },
     { category: 'Barra de Tragos', label: 'Barra de Tragos', icon: RectangleHorizontal, default: { width: 180, height: 60 } },
     { category: 'Mobiliario (Sillón)', label: 'Sillón / Living', icon: Sofa, default: { width: 120, height: 60 } },
+    { category: 'Estructura (Toldo/Truss)', label: 'Estructura', icon: Tent, default: { width: 200, height: 200 } },
+    { category: 'Planta/Arreglo Floral', label: 'Planta', icon: Sprout, default: { width: 40, height: 40 } },
+    { category: 'Elemento Decorativo', label: 'Decoración', icon: Sparkle, default: { width: 30, height: 30 } },
 ];
 
 
@@ -583,6 +586,10 @@ export default function SalonLayoutPage() {
                     {PALETTE_ITEMS.map(item => (
                         <Button key={item.category} variant="outline" className="h-auto flex-col p-2 gap-1" onClick={() => addElementFromPalette(item.category, item.default)}><item.icon className="w-5 h-5"/><span className="text-xs text-center">{item.label}</span></Button>
                     ))}
+                    <Button variant="outline" className="h-auto flex-col p-2 gap-1 border-dashed" onClick={() => openElementSheet()}>
+                        <PlusCircle className="w-5 h-5"/>
+                        <span className="text-xs text-center">+ Otro</span>
+                    </Button>
                 </CardContent>
             </Card>
         </div>
