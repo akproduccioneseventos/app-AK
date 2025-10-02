@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, PlatoVisible } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
 import { Separator } from '@/components/ui/separator';
@@ -25,7 +25,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { MultiSelect } from '@/components/ui/multi-select';
+import { MultiSelect } from '@/components/ui/multi-select'; 
 
 
 const formatCurrency = (amount?: number) => {
@@ -135,7 +135,7 @@ export default function BudgetDisplaySettingsPage() {
     }
     
     return { entradas, platosPrincipales: principales, menusInfantiles: infantiles };
-  }, [allMenus]);
+}, [allMenus]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -251,12 +251,68 @@ export default function BudgetDisplaySettingsPage() {
       return prev;
     });
   };
-  
+
   const handleRegaloChange = (servicioId: string, esRegalo: boolean) => {
      setCurrentItem(prev => {
       if(!prev) return null;
       return { ...prev, serviciosIncluidos: (prev.serviciosIncluidos || []).map(s => s.id === servicioId ? {...s, esRegalo} : s) };
     });
+  };
+  
+  const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
+    setCurrentItem(prev => {
+        if(!prev) return null;
+        
+        const newServiciosIncluidos = prev.serviciosIncluidos ? [...prev.serviciosIncluidos] : [];
+        const itemsToUpdate = type === 'entradas' ? entradas : type === 'principal' ? platosPrincipales : menusInfantiles;
+
+        // Remove all items of this type first
+        const cleanedServicios = newServiciosIncluidos.filter(s => !itemsToUpdate.some(item => item.id === s.id));
+
+        // Add the new selections
+        const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
+        idsToAdd.forEach(id => {
+            if (!cleanedServicios.some(s => s.id === id)) {
+                cleanedServicios.push({ id, esRegalo: false });
+            }
+        });
+        
+        return { ...prev, serviciosIncluidos: cleanedServicios };
+    });
+  };
+  
+  const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
+    if (!config) return;
+
+    const newPlatosVisibles = [...(config.platosVisibles || [])];
+    const existingIndex = newPlatosVisibles.findIndex(p => p.id === platoId);
+
+    if (existingIndex > -1) {
+        newPlatosVisibles[existingIndex] = { id: platoId, visible };
+    } else {
+        newPlatosVisibles.push({ id: platoId, visible });
+    }
+
+    const newConfig = { ...config, platosVisibles: newPlatosVisibles };
+    
+    // Optimistic UI update
+    setConfig(newConfig);
+
+    try {
+        await saveArmadoRapidoConfig(newConfig);
+    } catch (err: any) {
+        toast({ title: "Error", description: "No se pudo guardar el cambio de visibilidad.", variant: "destructive" });
+        loadData(); // Revert on error
+    }
+  };
+
+  const isPlatoVisible = (platoId: string) => {
+    const setting = config?.platosVisibles?.find(p => p.id === platoId);
+    return setting ? setting.visible : true; // Default to visible if not set
+  };
+
+  const getVisibleDishes = (dishList: MenuItem[]): MenuItem[] => {
+    return dishList.filter(d => isPlatoVisible(d.id));
   };
   
   const serviciosFiltrados = useMemo(() => {
@@ -323,7 +379,7 @@ export default function BudgetDisplaySettingsPage() {
                     {modalType === 'paquete' ? 'Define el nombre y los servicios que se incluirán en este paquete.' : 'Define un nombre y selecciona los platos que conformarán este menú para el simulador.'}
                 </DialogDescription>
             </DialogHeader>
-            <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
+                <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
                 <SheetContent className="w-full max-w-none sm:max-w-lg">
                   <SheetHeader>
                     <SheetTitle>Editar Servicio</SheetTitle>
@@ -412,9 +468,9 @@ export default function BudgetDisplaySettingsPage() {
                                <div className='space-y-2'>
                                   <Label>Entradas (Selección múltiple)</Label>
                                   <MultiSelect
-                                    options={entradas.map(e => ({ value: e.id, label: e.name }))}
-                                    selected={(currentItem.serviciosIncluidos || []).filter(s => entradas.some(e => e.id === s.id)).map(s => s.id)}
-                                    onChange={(selectedIds) => handleGastronomicSelectionChange('entradas', selectedIds)}
+                                    options={getVisibleDishes(entradas).map(e => ({ value: e.id, label: e.name }))}
+                                    selected={(currentItem.serviciosIncluidos || []).map(s => s.id)}
+                                    onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
                                     placeholder="Selecciona las entradas..."
                                     className="w-full"
                                   />
@@ -427,7 +483,7 @@ export default function BudgetDisplaySettingsPage() {
                                     >
                                         <SelectTrigger><SelectValue placeholder="Selecciona un plato principal..."/></SelectTrigger>
                                         <SelectContent>
-                                            {platosPrincipales.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                            {getVisibleDishes(platosPrincipales).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -439,7 +495,7 @@ export default function BudgetDisplaySettingsPage() {
                                   >
                                     <SelectTrigger><SelectValue placeholder="Selecciona un menú..."/></SelectTrigger>
                                     <SelectContent>
-                                      {menusInfantiles.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
+                                      {getVisibleDishes(menusInfantiles).map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
                                     </SelectContent>
                                   </Select>
                                 </div>
@@ -459,6 +515,26 @@ export default function BudgetDisplaySettingsPage() {
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
         <Link href="/settings" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
+
+        <Card className="shadow-lg">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><Eye className="text-primary"/>Gestionar Visibilidad de Platos en el Simulador</CardTitle>
+                <CardDescription>Activa o desactiva los platos que aparecerán como opciones en el simulador para tus clientes.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
+                    <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
+                    </AccordionContent></AccordionItem>
+                    <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
+                    </AccordionContent></AccordionItem>
+                    <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
+                    </AccordionContent></AccordionItem>
+                </Accordion>
+            </CardContent>
+        </Card>
       
        <Card className="shadow-lg">
           <CardHeader>
@@ -534,5 +610,3 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
-
-    

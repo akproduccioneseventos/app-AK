@@ -21,11 +21,17 @@ export interface MenuArmadoRapido {
 }
 
 
+export interface PlatoVisible {
+  id: string; // ID del MenuItem
+  visible: boolean;
+}
+
 export interface ArmadoRapidoConfig {
   menus: MenuArmadoRapido[];
   paquetes: PaqueteArmadoRapido[];
   descuentoGeneral?: number; 
   mostrarPrecios?: boolean;
+  platosVisibles?: PlatoVisible[]; // NEW: To control simulator dish visibility
 }
 
 export interface LeadFromQuickBudget {

@@ -10,6 +10,7 @@ const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 0,
   paquetes: [],
   menus: [],
+  platosVisibles: [], // Initialize with an empty array
 };
 
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
@@ -34,7 +35,8 @@ export async function saveArmadoRapidoConfig(
         nombre: menu.nombre,
         descripcion: menu.descripcion,
         serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
-      }))
+      })),
+      platosVisibles: newConfigData.platosVisibles || [], // Ensure this is saved
     };
     await writeData(CONFIG_FILE, sanitizedConfig);
     return { success: true };
