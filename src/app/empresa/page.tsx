@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -47,7 +48,7 @@ const empresaHubItems: HubItem[] = [
     description: 'Gestiona tu inventario de ingredientes, bebidas y otros consumibles.',
     href: '/empresa/insumos',
     icon: GlassWater,
-    actionLabel: 'Gestionar Insumos',
+    actionLabel: 'Gestionar Catálogo',
   },
   {
     title: 'Catálogo de Activos Fijos',
