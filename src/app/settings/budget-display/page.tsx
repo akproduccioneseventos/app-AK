@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -23,6 +23,9 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getMenus } from '@/app/actions/menus-catering';
+import type { FullMenu, MenuItem } from '@/types/catering';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 
 const formatCurrency = (amount?: number) => {
@@ -115,16 +118,28 @@ export default function BudgetDisplaySettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [servicioSearchTerm, setServicioSearchTerm] = useState('');
+  const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
+
+  const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
+    const allItems = allMenus.flatMap(m => m.items);
+    return {
+      entradas: allItems.filter(item => item.type === 'Entrada'),
+      platosPrincipales: allItems.filter(item => item.type === 'Plato Principal'),
+      menusInfantiles: allItems.filter(item => item.type === 'Menú Infantil'),
+    }
+  }, [allMenus]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [armadoConfig, serviciosData] = await Promise.all([
+      const [armadoConfig, serviciosData, menuData] = await Promise.all([
         getArmadoRapidoConfig(),
-        getServiciosEmpresa()
+        getServiciosEmpresa(),
+        getMenus()
       ]);
       setConfig(armadoConfig);
       setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
+      setAllMenus(menuData);
     } catch(e: any) {
       setError("No se pudieron cargar los datos de configuración.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -259,21 +274,6 @@ export default function BudgetDisplaySettingsPage() {
 
   const categoriasOrdenadasParaPaquetes = useMemo(() => Object.keys(serviciosAgrupadosParaPaquetes).sort(), [serviciosAgrupadosParaPaquetes]);
 
-  const serviciosAgrupadosParaMenus = useMemo(() => {
-    const serviciosDeCatering = serviciosFiltrados.filter(s => s.categoria === 'Servicio de catering');
-    return serviciosDeCatering.reduce((acc, servicio) => {
-        const subcategoria = servicio.subcategoria || 'General';
-        if (!acc[subcategoria]) {
-            acc[subcategoria] = [];
-        }
-        acc[subcategoria].push(servicio);
-        return acc;
-    }, {} as Record<string, ServicioEmpresa[]>);
-  }, [serviciosFiltrados]);
-
-  const categoriasOrdenadasParaMenus = useMemo(() => Object.keys(serviciosAgrupadosParaMenus).sort(), [serviciosAgrupadosParaMenus]);
-
-
   if (isLoading || !config) {
     return <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
   }
@@ -312,7 +312,7 @@ export default function BudgetDisplaySettingsPage() {
            <DialogHeader>
                 <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
                 <DialogDescription>
-                    Define el nombre y los servicios que se incluirán.
+                    {modalType === 'paquete' ? 'Define el nombre y los servicios que se incluirán en este paquete.' : 'Define un nombre y selecciona los platos que conformarán este menú para el simulador.'}
                 </DialogDescription>
             </DialogHeader>
             <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
@@ -337,60 +337,114 @@ export default function BudgetDisplaySettingsPage() {
                 {currentItem && (
                     <form onSubmit={handleSaveItem}>
                     <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
-                        <div className="space-y-1"><Label htmlFor="item-name">Nombre</Label><Input id="item-name" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
+                        <div className="space-y-1"><Label htmlFor="item-name">Nombre del {modalType === 'paquete' ? 'Paquete' : 'Menú'}</Label><Input id="item-name" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
                         <Separator/>
                         <Label>Servicios Incluidos</Label>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                            <Input 
-                                placeholder="Buscar servicios..."
-                                value={servicioSearchTerm}
-                                onChange={(e) => setServicioSearchTerm(e.target.value)}
-                                className="pl-9"
-                            />
-                        </div>
-                        <Accordion type="multiple" className="w-full space-y-2" defaultValue={modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus}>
-                            { (modalType === 'paquete' ? categoriasOrdenadasParaPaquetes : categoriasOrdenadasParaMenus).map(categoria => {
-                                const itemsToShow = modalType === 'paquete' ? serviciosAgrupadosParaPaquetes[categoria] : serviciosAgrupadosParaMenus[categoria];
-                                if (!itemsToShow || itemsToShow.length === 0) return null;
-                                
-                                return (
-                                <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
-                                    <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
-                                    <AccordionContent className="px-3 pt-0 pb-2">
-                                        <div className="space-y-2 pt-2 border-t">
-                                        {itemsToShow.map(servicio => {
-                                            const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
-                                            const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
-                                            return (
-                                                <div key={servicio.id} className="p-2 border rounded-md bg-background">
-                                                    <div className="flex items-start justify-between">
-                                                        <div className="flex items-start gap-3">
-                                                            <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)} className="mt-1"/>
-                                                            <div>
-                                                                <Label htmlFor={`serv-${servicio.id}`} className="font-normal">{servicio.nombre}</Label>
-                                                                <p className="text-xs text-muted-foreground">{getCalculationMethodLabel(servicio.calculationMethod)}: {formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)}</p>
+                        
+                        {modalType === 'menu' ? (
+                            <div className="p-3 border rounded-md space-y-4">
+                               <div className='space-y-2'>
+                                  <Label>Entradas (Selección múltiple)</Label>
+                                  <MultiSelect
+                                    options={entradas.map(e => ({ value: e.id, label: e.name }))}
+                                    selected={(currentItem.serviciosIncluidos || []).map(s => s.id)}
+                                    onValueChange={(selected) => {
+                                        const currentNonEntradas = (currentItem.serviciosIncluidos || []).filter(s => !entradas.some(e => e.id === s.id));
+                                        const newServicios = [...currentNonEntradas, ...selected.map(id => ({id, esRegalo: false}))];
+                                        setCurrentItem(p => p ? {...p, serviciosIncluidos: newServicios} : null);
+                                    }}
+                                    placeholder="Selecciona las entradas..."
+                                    className="w-full"
+                                  />
+                                </div>
+                                <div className='space-y-2'>
+                                  <Label>Plato Principal (Selección única)</Label>
+                                   <Select
+                                        onValueChange={(value) => {
+                                          const currentNonPrincipales = (currentItem.serviciosIncluidos || []).filter(s => !platosPrincipales.some(p => p.id === s.id));
+                                          const newServicios = value ? [...currentNonPrincipales, { id: value, esRegalo: false }] : currentNonPrincipales;
+                                          setCurrentItem(p => p ? {...p, serviciosIncluidos: newServicios} : null);
+                                        }}
+                                        value={(currentItem.serviciosIncluidos || []).find(s => platosPrincipales.some(p => p.id === s.id))?.id || ''}
+                                    >
+                                        <SelectTrigger><SelectValue placeholder="Selecciona un plato principal..."/></SelectTrigger>
+                                        <SelectContent>
+                                            {platosPrincipales.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                 <div className='space-y-2'>
+                                  <Label>Menú Infantil/Adolescente</Label>
+                                   <Select
+                                        onValueChange={(value) => {
+                                          const currentNonInfantiles = (currentItem.serviciosIncluidos || []).filter(s => !menusInfantiles.some(m => m.id === s.id));
+                                          const newServicios = value ? [...currentNonInfantiles, { id: value, esRegalo: false }] : currentNonInfantiles;
+                                          setCurrentItem(p => p ? {...p, serviciosIncluidos: newServicios} : null);
+                                        }}
+                                        value={(currentItem.serviciosIncluidos || []).find(s => menusInfantiles.some(m => m.id === s.id))?.id || ''}
+                                  >
+                                    <SelectTrigger><SelectValue placeholder="Selecciona un menú..."/></SelectTrigger>
+                                    <SelectContent>
+                                      {menusInfantiles.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                                    <Input 
+                                        placeholder="Buscar servicios..."
+                                        value={servicioSearchTerm}
+                                        onChange={(e) => setServicioSearchTerm(e.target.value)}
+                                        className="pl-9"
+                                    />
+                                </div>
+                                <Accordion type="multiple" className="w-full space-y-2" defaultValue={categoriasOrdenadasParaPaquetes}>
+                                    {categoriasOrdenadasParaPaquetes.map(categoria => {
+                                        const itemsToShow = serviciosAgrupadosParaPaquetes[categoria];
+                                        if (!itemsToShow || itemsToShow.length === 0) return null;
+                                        
+                                        return (
+                                        <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
+                                            <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
+                                            <AccordionContent className="px-3 pt-0 pb-2">
+                                                <div className="space-y-2 pt-2 border-t">
+                                                {itemsToShow.map(servicio => {
+                                                    const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
+                                                    const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
+                                                    return (
+                                                        <div key={servicio.id} className="p-2 border rounded-md bg-background">
+                                                            <div className="flex items-start justify-between">
+                                                                <div className="flex items-start gap-3">
+                                                                    <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)} className="mt-1"/>
+                                                                    <div>
+                                                                        <Label htmlFor={`serv-${servicio.id}`} className="font-normal">{servicio.nombre}</Label>
+                                                                        <p className="text-xs text-muted-foreground">{getCalculationMethodLabel(servicio.calculationMethod)}: {formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <Button variant="ghost" size="icon" className="h-7 w-7" type="button" onClick={() => setEditingServicioId(servicio.id)}>
+                                                                    <Edit className="w-3.5 h-3.5"/>
+                                                                </Button>
                                                             </div>
+                                                            {isInItem && (
+                                                              <div className="flex items-center gap-2 pl-7 pt-2 mt-2 border-t">
+                                                                <Switch id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)}/>
+                                                                <Label htmlFor={`gift-${servicio.id}`} className="text-xs text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
+                                                              </div>
+                                                            )}
                                                         </div>
-                                                        <Button variant="ghost" size="icon" className="h-7 w-7" type="button" onClick={() => setEditingServicioId(servicio.id)}>
-                                                            <Edit className="w-3.5 h-3.5"/>
-                                                        </Button>
-                                                    </div>
-                                                    {isInItem && modalType === 'paquete' && (
-                                                      <div className="flex items-center gap-2 pl-7 pt-2 mt-2 border-t">
-                                                        <Switch id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)}/>
-                                                        <Label htmlFor={`gift-${servicio.id}`} className="text-xs text-green-600 font-medium flex items-center gap-1"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
-                                                      </div>
-                                                    )}
+                                                    )
+                                                })}
                                                 </div>
-                                            )
-                                        })}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                                );
-                            })}
-                        </Accordion>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        );
+                                    })}
+                                </Accordion>
+                            </>
+                        )}
                     </div>
                     <DialogFooter>
                         <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
@@ -468,19 +522,9 @@ export default function BudgetDisplaySettingsPage() {
                         </div>
                     </div>
                     <AccordionContent className="p-3 border-t">
-                      {renderServiciosList((menu.serviciosIncluidos || []).filter(s => !s.esRegalo))}
-                      {(menu.serviciosIncluidos || []).some(s => s.esRegalo) && (
-                        <>
-                          <Separator className="my-2"/>
-                          <h5 className="font-semibold text-xs uppercase text-green-600 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>Regalos</h5>
-                          <ul className="text-xs text-green-700 list-disc pl-5 space-y-1 mt-1">
-                            {(menu.serviciosIncluidos || []).filter(s => s.esRegalo).map(servicio => {
-                                const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return <li key={servicio.id} className="font-medium">{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
-                            })}
-                          </ul>
-                        </>
-                      )}
+                      <p className="text-xs text-muted-foreground">{menu.descripcion || 'Sin descripción'}</p>
+                      <Separator className="my-2"/>
+                      {renderServiciosList((menu.serviciosIncluidos || []))}
                     </AccordionContent>
                 </AccordionItem>
               ))}
