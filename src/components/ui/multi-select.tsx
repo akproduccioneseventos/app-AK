@@ -2,11 +2,15 @@
 
 import * as React from "react"
 import { Check, X, ChevronDown } from "lucide-react"
-import * as PopoverPrimitive from "@radix-ui/react-popover"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Command,
   CommandEmpty,
@@ -24,7 +28,7 @@ export interface OptionType {
 interface MultiSelectProps {
   options: OptionType[]
   selected: string[]
-  onChange: React.Dispatch<React.SetStateAction<string[]>>
+  onValueChange: (selected: string[]) => void
   className?: string
   placeholder?: string
 }
@@ -32,11 +36,11 @@ interface MultiSelectProps {
 const MultiSelect = React.forwardRef<
   HTMLButtonElement,
   MultiSelectProps
->(({ options, selected, onChange, className, placeholder = 'Select...', ...props }, ref) => {
+>(({ options, selected, onValueChange, className, placeholder = 'Select...', ...props }, ref) => {
   const [open, setOpen] = React.useState(false)
 
   const handleUnselect = (value: string) => {
-    onChange(selected.filter((s) => s !== value))
+    onValueChange(selected.filter((s) => s !== value))
   }
 
   return (
@@ -87,7 +91,7 @@ const MultiSelect = React.forwardRef<
                 <CommandItem
                     key={option.value}
                     onSelect={() => {
-                    onChange(
+                    onValueChange(
                         selected.includes(option.value)
                         ? selected.filter((item) => item !== option.value)
                         : [...selected, option.value]
