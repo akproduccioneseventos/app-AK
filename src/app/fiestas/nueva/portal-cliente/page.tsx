@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -57,6 +58,8 @@ export default function PortalClienteSettingsPage() {
 
 
     const publicPageUrl = typeof window !== 'undefined' && fiesta ? `${window.location.origin}/evento/actual` : '';
+    const clientPortalUrl = typeof window !== 'undefined' && fiesta ? `${window.location.origin}/portal` : '';
+
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
@@ -188,9 +191,17 @@ export default function PortalClienteSettingsPage() {
             
             {fiesta.clientPortalSettings?.paginaPublica?.visible && (
                 <Card className="shadow-md bg-green-50 border-green-200">
-                    <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LinkIcon className="text-green-600"/>Enlace a la Página Pública</CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LinkIcon className="text-green-600"/>Enlace a la Página Pública (para Invitados)</CardTitle></CardHeader>
                     <CardContent><div className="flex gap-2"><Input value={publicPageUrl} readOnly /><Button type="button" size="icon" onClick={() => handleCopyToClipboard(publicPageUrl)}><ClipboardCopy className="w-4 h-4"/></Button></div></CardContent>
                     <CardFooter><p className="text-xs text-muted-foreground">Comparte este enlace con tus invitados. Solo estará activa si la opción "Página Pública del Evento" está habilitada.</p></CardFooter>
+                </Card>
+            )}
+
+            {clientSettings.enabled && (
+                <Card className="shadow-md bg-blue-50 border-blue-200">
+                    <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Lock className="text-blue-600"/>Enlace al Portal del Cliente (Privado)</CardTitle></CardHeader>
+                    <CardContent><div className="flex gap-2"><Input value={clientPortalUrl} readOnly /><Button type="button" size="icon" onClick={() => handleCopyToClipboard(clientPortalUrl)}><ClipboardCopy className="w-4 h-4"/></Button></div></CardContent>
+                    <CardFooter><p className="text-xs text-muted-foreground">Este es el enlace privado para tu cliente. Recuerda proporcionarle la contraseña si has configurado una.</p></CardFooter>
                 </Card>
             )}
 
@@ -223,7 +234,10 @@ export default function PortalClienteSettingsPage() {
                     <AccordionItem value="portal" className="border rounded-lg shadow-sm">
                          <AccordionTrigger className="p-4 text-lg font-headline text-primary hover:no-underline"><div className="flex items-center gap-2"><Lock className="w-5 h-5"/>Configuración del Portal del Cliente</div></AccordionTrigger>
                          <AccordionContent className="p-4 border-t space-y-6">
-                            <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/40"><Label htmlFor="portal-enabled" className="text-base font-medium">Activar Portal del Cliente</Label><Switch id="portal-enabled" checked={clientSettings.enabled} onCheckedChange={(val) => setClientSettings(p => ({...p, enabled: val}))} /></div>
+                            <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/40">
+                                <Label htmlFor="portal-enabled" className="text-base font-medium">Activar Portal del Cliente</Label>
+                                <Switch id="portal-enabled" checked={clientSettings.enabled} onCheckedChange={(val) => setClientSettings(p => ({...p, enabled: val}))} />
+                            </div>
                             {clientSettings.enabled && (<div className="space-y-2 animate-in fade-in-50"><Label htmlFor="portal-key">Contraseña de Acceso (Opcional)</Label><Input id="portal-key" type="text" value={clientSettings.accessKey || ''} onChange={(e) => setClientSettings(p => ({...p, accessKey: e.target.value}))} placeholder="Dejar vacío para acceso libre"/></div>)}
                             <Separator/>
                             <h4 className="font-medium text-muted-foreground">Visibilidad de Módulos en el Portal</h4>
@@ -250,4 +264,3 @@ export default function PortalClienteSettingsPage() {
         </div>
     );
 }
-    
