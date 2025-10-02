@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -20,7 +21,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { MultiSelect } from '@/components/ui/multi-select'; // Assuming a multi-select component exists
+import { MultiSelect } from '@/components/ui/multi-select'; 
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -87,6 +88,7 @@ const menuItemToServicioSeleccionado = (item: MenuItem, invitados: number): Serv
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
     const allItems = allMenus.flatMap(m => m.items);
@@ -267,7 +269,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                   <MultiSelect
                     options={entradas.map(e => ({ value: e.id, label: `${e.name} (${formatCurrency(e.totalDishCost * totalInvitados)})` }))}
                     selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => entradas.some(e => e.id === id))}
-                    onChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
+                    onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
                     placeholder="Selecciona las entradas..."
                   />
                 </div>
@@ -335,7 +337,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                   .map(([id, servicio]) => {
                     const item: ItemPresupuestado = {
                         idServicioCatalogo: id, ...servicio, 
-                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0
+                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
                     };
                     const costoItem = calcularCostoItem(item, totalInvitados);
 
@@ -365,3 +367,4 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
+
