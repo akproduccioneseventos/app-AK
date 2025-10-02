@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -349,18 +349,72 @@ export default function BudgetDisplaySettingsPage() {
                         <Separator/>
                         <Label>Servicios Incluidos</Label>
                         
-                        {modalType === 'menu' ? (
-                            <div className="p-3 border rounded-md space-y-4">
+                        {modalType === 'paquete' ? (
+                            <>
+                                { (currentItem.serviciosIncluidos || []).length > 0 && (
+                                    <div className="p-3 border rounded-md space-y-3">
+                                        <h4 className="text-sm font-medium">Servicios en este paquete</h4>
+                                        { (currentItem.serviciosIncluidos || []).map(servicioInfo => {
+                                            const servicio = serviciosCatalogo.find(s => s.id === servicioInfo.id);
+                                            if (!servicio) return null;
+                                            return (
+                                                <div key={servicio.id} className="flex items-center justify-between text-sm p-2 border-b last:border-b-0">
+                                                    <div>
+                                                        <p className="font-medium">{servicio.nombre}</p>
+                                                        <p className="text-xs text-muted-foreground">{servicio.categoria}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-1.5"><Checkbox id={`gift-${servicio.id}`} checked={servicioInfo.esRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)} /><Label htmlFor={`gift-${servicio.id}`} className="text-xs">Regalo</Label></div>
+                                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleServicioChange(servicio.id, false)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium">Añadir servicios desde el catálogo</h4>
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                                        <Input 
+                                            placeholder="Buscar servicios..."
+                                            value={servicioSearchTerm}
+                                            onChange={(e) => setServicioSearchTerm(e.target.value)}
+                                            className="pl-9"
+                                        />
+                                    </div>
+                                    <ScrollArea className="h-64 border rounded-md p-2">
+                                        <div className="space-y-2">
+                                            {categoriasOrdenadasParaPaquetes.map(categoria => {
+                                                const itemsToShow = serviciosAgrupadosParaPaquetes[categoria];
+                                                if (!itemsToShow || itemsToShow.length === 0) return null;
+                                                return (
+                                                    <div key={categoria} className="space-y-1">
+                                                        <h5 className="font-semibold text-xs uppercase text-muted-foreground">{categoria}</h5>
+                                                        {itemsToShow.map(servicio => {
+                                                            const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
+                                                            return (
+                                                                <div key={servicio.id} className="flex items-center space-x-2 py-1">
+                                                                    <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)} />
+                                                                    <Label htmlFor={`serv-${servicio.id}`} className="text-sm font-normal flex-grow cursor-pointer">{servicio.nombre}</Label>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </ScrollArea>
+                                </div>
+                            </>
+                        ) : (
+                             <div className="p-3 border rounded-md space-y-4">
                                <div className='space-y-2'>
                                   <Label>Entradas (Selección múltiple)</Label>
                                   <MultiSelect
                                     options={entradas.map(e => ({ value: e.id, label: e.name }))}
-                                    selected={(currentItem.serviciosIncluidos || []).map(s => s.id)}
-                                    onValueChange={(selected) => {
-                                        const currentNonEntradas = (currentItem.serviciosIncluidos || []).filter(s => !entradas.some(e => e.id === s.id));
-                                        const newServicios = [...currentNonEntradas, ...selected.map(id => ({id, esRegalo: false}))];
-                                        setCurrentItem(p => p ? {...p, serviciosIncluidos: newServicios} : null);
-                                    }}
+                                    selected={(currentItem.serviciosIncluidos || []).filter(s => entradas.some(e => e.id === s.id)).map(s => s.id)}
+                                    onChange={(selectedIds) => handleGastronomicSelectionChange('entradas', selectedIds)}
                                     placeholder="Selecciona las entradas..."
                                     className="w-full"
                                   />
@@ -368,11 +422,7 @@ export default function BudgetDisplaySettingsPage() {
                                 <div className='space-y-2'>
                                   <Label>Plato Principal (Selección única)</Label>
                                    <Select
-                                        onValueChange={(value) => {
-                                          const currentNonPrincipales = (currentItem.serviciosIncluidos || []).filter(s => !platosPrincipales.some(p => p.id === s.id));
-                                          const newServicios = value ? [...currentNonPrincipales, { id: value, esRegalo: false }] : currentNonPrincipales;
-                                          setCurrentItem(p => p ? {...p, serviciosIncluidos: newServicios} : null);
-                                        }}
+                                        onValueChange={(value) => handleGastronomicSelectionChange('principal', value)}
                                         value={(currentItem.serviciosIncluidos || []).find(s => platosPrincipales.some(p => p.id === s.id))?.id || ''}
                                     >
                                         <SelectTrigger><SelectValue placeholder="Selecciona un plato principal..."/></SelectTrigger>
@@ -384,11 +434,7 @@ export default function BudgetDisplaySettingsPage() {
                                  <div className='space-y-2'>
                                   <Label>Menú Infantil/Adolescente</Label>
                                    <Select
-                                        onValueChange={(value) => {
-                                          const currentNonInfantiles = (currentItem.serviciosIncluidos || []).filter(s => !menusInfantiles.some(m => m.id === s.id));
-                                          const newServicios = value ? [...currentNonInfantiles, { id: value, esRegalo: false }] : currentNonInfantiles;
-                                          setCurrentItem(p => p ? {...p, serviciosIncluidos: newServicios} : null);
-                                        }}
+                                        onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
                                         value={(currentItem.serviciosIncluidos || []).find(s => menusInfantiles.some(m => m.id === s.id))?.id || ''}
                                   >
                                     <SelectTrigger><SelectValue placeholder="Selecciona un menú..."/></SelectTrigger>
@@ -398,60 +444,6 @@ export default function BudgetDisplaySettingsPage() {
                                   </Select>
                                 </div>
                             </div>
-                        ) : (
-                            <>
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                                    <Input 
-                                        placeholder="Buscar servicios..."
-                                        value={servicioSearchTerm}
-                                        onChange={(e) => setServicioSearchTerm(e.target.value)}
-                                        className="pl-9"
-                                    />
-                                </div>
-                                <Accordion type="multiple" className="w-full space-y-2" defaultValue={categoriasOrdenadasParaPaquetes}>
-                                    {categoriasOrdenadasParaPaquetes.map(categoria => {
-                                        const itemsToShow = serviciosAgrupadosParaPaquetes[categoria];
-                                        if (!itemsToShow || itemsToShow.length === 0) return null;
-                                        
-                                        return (
-                                        <AccordionItem key={categoria} value={categoria} className="border rounded-md shadow-sm bg-muted/20">
-                                            <AccordionTrigger className="px-3 py-2 text-sm font-medium hover:bg-muted/50 hover:no-underline">{categoria}</AccordionTrigger>
-                                            <AccordionContent className="px-3 pt-0 pb-2">
-                                                <div className="space-y-2 pt-2 border-t">
-                                                {itemsToShow.map(servicio => {
-                                                    const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
-                                                    const isRegalo = currentItem.serviciosIncluidos?.find(s => s.id === servicio.id)?.esRegalo || false;
-                                                    return (
-                                                        <div key={servicio.id} className="p-2 border rounded-md bg-background">
-                                                            <div className="flex items-start justify-between">
-                                                                <div className="flex items-start gap-3">
-                                                                    <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)} className="mt-1"/>
-                                                                    <div>
-                                                                        <Label htmlFor={`serv-${servicio.id}`} className="font-normal">{servicio.nombre}</Label>
-                                                                        <p className="text-xs text-muted-foreground">{getCalculationMethodLabel(servicio.calculationMethod)}: {formatCurrency(servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase)}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <Button variant="ghost" size="icon" className="h-7 w-7" type="button" onClick={() => setEditingServicioId(servicio.id)}>
-                                                                    <Edit className="w-3.5 h-3.5"/>
-                                                                </Button>
-                                                            </div>
-                                                            {isInItem && (
-                                                              <div className="flex items-center gap-2 pl-7 pt-2 mt-2 border-t">
-                                                                <Switch id={`gift-${servicio.id}`} checked={isRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)}/>
-                                                                <Label htmlFor={`gift-${servicio.id}`} className="text-xs text-green-600 font-medium flex items-center gap-1.5"><Gift className="w-3 h-3"/>Marcar como Regalo</Label>
-                                                              </div>
-                                                            )}
-                                                        </div>
-                                                    )
-                                                })}
-                                                </div>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                        );
-                                    })}
-                                </Accordion>
-                            </>
                         )}
                     </div>
                     <DialogFooter>
@@ -464,7 +456,7 @@ export default function BudgetDisplaySettingsPage() {
         </DialogContent>
       </Dialog>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><SettingsIcon className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración de Paquetes y Simulador</h1></div>
+        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
         <Link href="/settings" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
       
@@ -493,7 +485,7 @@ export default function BudgetDisplaySettingsPage() {
                       {renderServiciosList(serviciosNormales)}
                       {serviciosRegalo.length > 0 && (
                         <>
-                          <Separator className="my-2" />
+                          <Separator className="my-2"/>
                           <h5 className="font-semibold text-xs uppercase text-green-600 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>Regalos</h5>
                           <ul className="text-xs text-green-700 list-disc pl-5 space-y-1 mt-1">
                             {serviciosRegalo.map(servicio => {
@@ -513,7 +505,7 @@ export default function BudgetDisplaySettingsPage() {
 
       <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Menús para Simulador</CardTitle>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús para Simulador</CardTitle>
             <CardDescription>Configura los menús que aparecerán como opción en el simulador de presupuesto para clientes.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -542,3 +534,5 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
+
+    
