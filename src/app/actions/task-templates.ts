@@ -21,14 +21,27 @@ export async function saveTaskTemplate(name: string, tasks: Omit<Tarea, 'id' | '
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
   }
   const templates = await getTaskTemplates();
-  const newTemplate: TaskTemplate = {
-    id: `tpl_task_${Date.now()}`,
-    name: name.trim(),
-    tasks: tasks
-  };
-  templates.push(newTemplate);
+  const existingTemplateIndex = templates.findIndex(t => t.name === name.trim());
+  
+  let savedTemplate: TaskTemplate;
+
+  if (existingTemplateIndex > -1) {
+    // Update existing template
+    templates[existingTemplateIndex].tasks = tasks;
+    savedTemplate = templates[existingTemplateIndex];
+  } else {
+    // Create new template
+    const newTemplate: TaskTemplate = {
+      id: `tpl_task_${Date.now()}`,
+      name: name.trim(),
+      tasks: tasks
+    };
+    templates.push(newTemplate);
+    savedTemplate = newTemplate;
+  }
+
   await writeData(TEMPLATES_FILE, templates, (a, b) => a.name.localeCompare(b.name));
-  return { success: true, template: newTemplate };
+  return { success: true, template: savedTemplate };
 }
 
 export async function deleteTaskTemplate(id: string): Promise<{ success: boolean; error?: string }> {

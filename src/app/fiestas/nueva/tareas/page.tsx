@@ -18,7 +18,7 @@ import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Tarea, ItineraryTemplate as TaskTemplate } from '@/types/fiesta';
 import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';
-import { getTaskTemplates, deleteTaskTemplate } from '@/app/actions/task-templates';
+import { getTaskTemplates, deleteTaskTemplate, saveTaskTemplate } from '@/app/actions/task-templates';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,7 +56,7 @@ export default function TareasEventoPage() {
   const [newTaskDueTime, setNewTaskDueTime] = useState<string>(''); // HH:mm
   const [newTaskReminder, setNewTaskReminder] = useState('');
   const [newTaskAssignedTo, setNewTaskAssignedTo] = useState('');
-  const [newIsDefaultTask, setNewIsDefaultTask] = useState(false); // UI only
+  const [newIsDefaultTask, setNewIsDefaultTask] = useState(false); 
 
   // Template States
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
@@ -120,6 +120,7 @@ export default function TareasEventoPage() {
         toast({ title: "Título Requerido", description: "El título de la tarea no puede estar vacío.", variant: "destructive" });
         return;
     }
+
     const newTask: Tarea = {
       id: `task_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       texto: newTaskText.trim(),
@@ -131,10 +132,37 @@ export default function TareasEventoPage() {
       asignadaA: newTaskAssignedTo.trim() || undefined,
       esPredeterminada: newIsDefaultTask,
     };
+    
+    setIsSaving(true);
+    
+    // Add to current event's tasks
     const updatedTareas = [newTask, ...tareas];
     setTareas(updatedTareas);
     await handleSaveChanges(updatedTareas);
 
+    // If checkbox is checked, add to default template
+    if (newIsDefaultTask) {
+        try {
+            const defaultTemplate = (await getTaskTemplates()).find(t => t.name === 'Plantilla por Defecto');
+            const newTaskForTemplate = { ...newTask };
+            delete (newTaskForTemplate as any).id; 
+            delete (newTaskForTemplate as any).completada;
+
+            if (defaultTemplate) {
+                const updatedTasksForTemplate = [...defaultTemplate.tasks, newTaskForTemplate];
+                await saveTaskTemplate(defaultTemplate.name, updatedTasksForTemplate);
+            } else {
+                await saveTaskTemplate('Plantilla por Defecto', [newTaskForTemplate]);
+            }
+            toast({ title: "Tarea Añadida", description: `"${newTask.texto}" ha sido añadida al evento y a la plantilla por defecto.` });
+        } catch (templateError: any) {
+            toast({ title: "Error en Plantilla", description: `La tarea se añadió al evento, pero no se pudo guardar en la plantilla: ${templateError.message}`, variant: "destructive" });
+        }
+    } else {
+        toast({ title: "Tarea Añadida", description: `"${newTask.texto}" ha sido añadida al evento.` });
+    }
+
+    // Reset form
     setNewTaskText('');
     setNewTaskDescription('');
     setNewTaskDueDate(undefined);
@@ -142,7 +170,7 @@ export default function TareasEventoPage() {
     setNewTaskReminder('');
     setNewTaskAssignedTo('');
     setNewIsDefaultTask(false);
-    toast({ title: "Tarea Añadida", description: `"${newTask.texto}" ha sido añadida.` });
+    setIsSaving(false);
   };
   
    const handleLoadTemplate = (template: TaskTemplate) => {
@@ -295,6 +323,12 @@ export default function TareasEventoPage() {
                 <Label htmlFor="task-assigned">Asignar a (Opcional)</Label>
                 <Input id="task-assigned" value={newTaskAssignedTo} onChange={(e) => setNewTaskAssignedTo(e.target.value)} placeholder="Ej: Juan Pérez, Equipo Decoración" disabled={isSaving} />
               </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox id="is-default-task" checked={newIsDefaultTask} onCheckedChange={(checked) => setNewIsDefaultTask(!!checked)} disabled={isSaving}/>
+              <Label htmlFor="is-default-task" className="text-sm font-normal">
+                Añadir a la plantilla de tareas por defecto
+              </Label>
             </div>
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}<Plus className="w-4 h-4 mr-2" />Añadir Tarea
