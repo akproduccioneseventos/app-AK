@@ -1192,7 +1192,7 @@
     "nombre": "Decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 12000,
+    "valorUnitarioEstimado": 20000,
     "precioVenta": 14500,
     "calculationMethod": "fijo"
   },
