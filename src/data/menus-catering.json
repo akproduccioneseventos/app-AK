@@ -2165,8 +2165,7 @@
             "name": "guarnición",
             "quantityPerPerson": "1",
             "unit": "Unidad",
-            "cost": 40,
-            "proveedor": ""
+            "cost": 40
           }
         ]
       },
@@ -3184,7 +3183,7 @@
       {
         "id": "dish_child_1",
         "name": "Panchos Medio Metro C/ Fritas",
-        "type": "Plato Principal",
+        "type": "Menú Infantil",
         "totalDishCost": 164.3,
         "ingredients": [
           {
@@ -3255,7 +3254,7 @@
       {
         "id": "dish_child_2",
         "name": "Panchos C/ Fritas",
-        "type": "Plato Principal",
+        "type": "Menú Infantil",
         "totalDishCost": 93.2,
         "ingredients": [
           {
@@ -3310,7 +3309,7 @@
       {
         "id": "dish_child_3",
         "name": "Hamburguesa C/ Fritas",
-        "type": "Plato Principal",
+        "type": "Menú Infantil",
         "totalDishCost": 134.3,
         "ingredients": [
           {
@@ -3397,5 +3396,3 @@
     ]
   }
 ]
-
-    
