@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -31,7 +30,7 @@ const moduleLabels: Record<PortalModule, { title: string, desc: string, edit?: b
     itinerario: { title: 'Itinerario del Evento', desc: 'Permite al cliente ver el cronograma del evento.' },
     musica: { title: 'Preferencias Musicales', desc: 'Permite al cliente ver y/o editar las canciones.', edit: true },
     videoVida: { title: 'Carga para Video de Vida', desc: 'Activa la página para que el cliente suba fotos.', edit: true },
-    listaRegalos: { title: 'Lista de Regalos', desc: 'Permite al cliente ver y gestionar su lista de regalos.' },
+    listaRegalos: { title: 'Lista de Regalos', desc: 'Permite al cliente ver y gestionar su lista de regalos.', edit: true },
     notasCliente: { title: 'Notas y Preferencias', desc: 'Permite al cliente ver y/o añadir notas generales.', edit: true },
     invitados: { title: 'Gestión de Invitados', desc: 'Permite al cliente ver su lista de invitados.' },
     fotografiaYFilmacion: { title: 'Fotografía y Filmación', desc: 'Permite al cliente ver el estado de la entrega del material.' },
@@ -189,7 +188,7 @@ export default function PortalClienteSettingsPage() {
                 <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
             
-            {fiesta.clientPortalSettings?.paginaPublica?.visible && (
+            {clientPortalSettings.paginaPublica?.visible && (
                 <Card className="shadow-md bg-green-50 border-green-200">
                     <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><LinkIcon className="text-green-600"/>Enlace a la Página Pública (para Invitados)</CardTitle></CardHeader>
                     <CardContent><div className="flex gap-2"><Input value={publicPageUrl} readOnly /><Button type="button" size="icon" onClick={() => handleCopyToClipboard(publicPageUrl)}><ClipboardCopy className="w-4 h-4"/></Button></div></CardContent>

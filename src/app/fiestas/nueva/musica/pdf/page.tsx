@@ -1,14 +1,14 @@
-
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Music, Ban, PartyPopper, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { Separator } from '@/components/ui/separator';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
 
@@ -21,9 +21,13 @@ const formatDate = (dateString?: string) => {
   } catch (e) { return "Fecha inválida"; }
 };
 
+const companyName = "AK Producciones";
+
+
 export default function MusicaPdfPage() {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,8 +35,12 @@ export default function MusicaPdfPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const [fiestaData, templateSettings] = await Promise.all([
+        getFiestaActual(),
+        getInvoiceTemplateSettings()
+      ]);
       setFiesta(fiestaData);
+      setLogoUrl(templateSettings.logoUrl);
     } catch (err: any) {
       setError("No se pudieron cargar los datos para el PDF de música.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -116,6 +124,11 @@ export default function MusicaPdfPage() {
         </div>
 
         <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
+            {logoUrl && (
+                <div className="w-24 h-24 mx-auto mb-2 print:w-20 print:h-20">
+                    <Image src={logoUrl} alt={`${companyName} Logo`} width={96} height={96} className="object-contain" data-ai-hint="company logo"/>
+                </div>
+            )}
           <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
             <Music className="w-6 h-6 print:w-5 print:h-5" /> Preferencias Musicales para el DJ
           </h1>
@@ -141,13 +154,18 @@ export default function MusicaPdfPage() {
             </section>
 
              <section>
-                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><PartyPopper className="w-5 h-5"/>Playlist General / Sugerencias</h2>
-                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-2 rounded-md">{musica.playlistFiesta || 'No hay sugerencias generales.'}</p>
+                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><PartyPopper className="w-5 h-5"/>Sugerencias de los Invitados</h2>
+                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-blue-50 p-2 rounded-md">{musica.sugerenciasInvitados || 'No hay sugerencias de los invitados.'}</p>
+            </section>
+
+             <section>
+                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><PartyPopper className="w-5 h-5"/>Playlist General / Sugerencias del Cliente</h2>
+                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-gray-50 p-2 rounded-md">{musica.playlistFiesta || 'No hay sugerencias generales.'}</p>
             </section>
             
             <section>
                 <h2 className="text-lg font-semibold text-red-600 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Ban className="w-5 h-5"/>Lista de "NO Reproducir"</h2>
-                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-wrap bg-red-50 p-2 rounded-md">{musica.listaNoReproducir || 'No hay canciones o artistas en la lista de exclusión.'}</p>
+                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-red-50 p-2 rounded-md">{musica.listaNoReproducir || 'No hay canciones o artistas en la lista de exclusión.'}</p>
             </section>
         </div>
 

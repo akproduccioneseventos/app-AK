@@ -1,4 +1,3 @@
-
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -193,7 +192,7 @@ export interface ClientPortalSettings {
   itinerario: PortalViewOnlyModuleSettings;
   musica: PortalModuleSettings;
   videoVida: PortalModuleSettings;
-  listaRegalos: PortalViewOnlyModuleSettings;
+  listaRegalos: PortalModuleSettings; // Now editable
   documentos: PortalViewOnlyModuleSettings;
   notasCliente: PortalModuleSettings;
   invitados: PortalViewOnlyModuleSettings;
@@ -215,6 +214,7 @@ export interface MusicaFiesta {
   cancionesTortaBrindis?: string[]; 
   playlistFiesta?: string;
   listaNoReproducir?: string;
+  sugerenciasInvitados?: string; // New field for guest suggestions
 }
 
 export interface ReposteriaItem {

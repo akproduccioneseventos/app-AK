@@ -13,6 +13,7 @@ import type { MusicaFiesta } from '@/types/fiesta';
 import { getFiestaActual, updateMusicaFiestaActual } from '@/app/actions/fiesta-actual';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge'; // Para mostrar las canciones
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const cancionesSugeridasTortaBrindis = [
   "Llego la hora de cortar la torta",
@@ -30,6 +31,7 @@ export default function MusicaFiestaPage() {
     cancionesTortaBrindis: [],
     playlistFiesta: '',
     listaNoReproducir: '',
+    sugerenciasInvitados: '',
   });
   const [nuevaCancionTorta, setNuevaCancionTorta] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -53,6 +55,7 @@ export default function MusicaFiestaPage() {
           cancionesTortaBrindis: [],
           playlistFiesta: '',
           listaNoReproducir: '',
+          sugerenciasInvitados: '',
         });
       }
     } catch (err: any) {
@@ -257,6 +260,20 @@ export default function MusicaFiestaPage() {
             </div>
 
             <Separator />
+
+            <div className="space-y-2">
+                <Label htmlFor="sugerencias-invitados" className="text-base flex items-center gap-2">
+                <ListMusic className="w-5 h-5 text-primary/80" /> Sugerencias de Invitados
+                </Label>
+                <Textarea
+                id="sugerencias-invitados"
+                value={musicaData.sugerenciasInvitados || ''}
+                readOnly
+                placeholder="Las sugerencias de los invitados aparecerán aquí automáticamente."
+                rows={4}
+                className="text-sm p-3 bg-muted/70"
+                />
+            </div>
             
             <div className="space-y-2">
               <Label htmlFor="playlist-fiesta" className="text-base flex items-center gap-2">
