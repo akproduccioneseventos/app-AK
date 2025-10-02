@@ -459,7 +459,7 @@
     "id": "ing-palta",
     "nombre": "Palta",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
+    "categoria": "Frutas",
     "unidad": "Unidad"
   },
   {
@@ -1276,8 +1276,8 @@
     "nombre": "Decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 20000,
-    "precioVenta": 30000,
+    "valorUnitarioEstimado": 12000,
+    "precioVenta": 14500,
     "calculationMethod": "fijo"
   },
   {
@@ -1440,10 +1440,9 @@
     "nombre": "Mantelería Completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 300,
-    "precioBase": 400,
-    "invitadosPorUnidad": 10,
-    "calculationMethod": "ratio"
+    "valorUnitarioEstimado": 60,
+    "precioPorPersona": 70,
+    "calculationMethod": "porPersona"
   },
   {
     "id": "item_1758320278460_yqzpq1h",
