@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { MultiSelect } from '@/components/ui/multi-select'; 
+import { useToast } from '@/hooks/use-toast';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -271,6 +272,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => entradas.some(e => e.id === id))}
                     onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
                     placeholder="Selecciona las entradas..."
+                    className="w-full"
                   />
                 </div>
                  <div className='space-y-2'>
@@ -367,4 +369,3 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
-
