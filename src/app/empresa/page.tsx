@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -23,7 +22,7 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Empleados',
   },
   {
-    title: 'Proveedores y Servicios',
+    title: 'Proveedores',
     description: 'Mantén un registro de tus proveedores y sus servicios.',
     href: '/proveedores',
     icon: Briefcase,
