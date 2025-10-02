@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
-import { getInvitadosFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,7 @@ import QRCodeStylized from 'qrcode.react';
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
   const [invitados, setInvitados] = useState<Invitado[]>([]);
+  const [tableNames, setTableNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false); 
   const [error, setError] = useState<string |null>(null);
@@ -48,8 +49,13 @@ export default function InvitadosEventoPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getInvitadosFiestaActual();
-      setInvitados(data.sort((a,b) => a.nombre.localeCompare(b.nombre)));
+      const fiestaData = await getFiestaActual();
+      setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
+      const tables = (fiestaData.decoracion?.salonElements || [])
+        .filter(el => el.category?.toLowerCase().includes('mesa'))
+        .map(el => el.name)
+        .sort();
+      setTableNames(tables);
     } catch (e: any) {
       setError("No se pudieron cargar los invitados.");
       toast({ title: "Error al cargar invitados", description: e.message, variant: "destructive"});
@@ -122,8 +128,10 @@ export default function InvitadosEventoPage() {
     );
     
     const invitadoActualizado = { ...invitadoOriginal, [field]: value };
-     if (field === 'partySize' || field === 'tableNumber') {
-        invitadoActualizado[field] = value === '' ? undefined : Number(value) || (field === 'partySize' ? 1 : undefined);
+     if (field === 'partySize') {
+        invitadoActualizado[field] = value === '' ? undefined : Number(value) || 1;
+     } else if (field === 'tableNumber' && value === 'sin-mesa') {
+       invitadoActualizado[field] = undefined;
      }
     
     const result = await updateInvitadoFiestaActual(invitadoActualizado);
@@ -169,6 +177,7 @@ export default function InvitadosEventoPage() {
     setIsSaving(true);
     const dataToSave = {
       ...editingInvitado,
+      tableNumber: editingInvitado.tableNumber === 'sin-mesa' ? undefined : editingInvitado.tableNumber,
       companionNames: (editingInvitado.companionNames || []).filter(name => name.trim() !== '')
     };
     const result = await updateInvitadoFiestaActual(dataToSave);
@@ -326,18 +335,18 @@ export default function InvitadosEventoPage() {
                             </Select>
                         </div>
                          <div className="flex-1 sm:flex-none sm:w-[120px]">
-                           <Label htmlFor={`table-${invitado.id}`} className="sr-only">Número de Mesa</Label>
-                           <div className="flex items-center gap-1">
-                                <span className="print:inline hidden text-xs">Mesa:</span>
-                                <Input
-                                  id={`table-${invitado.id}`}
-                                  placeholder="Nº Mesa"
-                                  title="Número de Mesa"
-                                  value={invitado.tableNumber || ''}
-                                  onChange={(e) => handleFieldChange(invitado.id, 'tableNumber', e.target.value)}
-                                  className="h-9 text-sm print:border-none print:p-0 print:h-auto print:text-xs print:font-semibold"
-                                  disabled={invitado.rsvp !== 'Confirmado'}
-                                />
+                           <Label htmlFor={`table-${invitado.id}`} className="sr-only">Mesa</Label>
+                            <div className="flex items-center gap-1">
+                               <span className="print:inline hidden text-xs">Mesa:</span>
+                               <Select value={invitado.tableNumber || 'sin-mesa'} onValueChange={(value) => handleFieldChange(invitado.id, 'tableNumber', value)} disabled={invitado.rsvp !== 'Confirmado'}>
+                                   <SelectTrigger id={`table-${invitado.id}`} className="h-9 text-sm print:border-none print:p-0 print:h-auto print:text-xs print:font-semibold">
+                                       <SelectValue placeholder="Mesa..." />
+                                   </SelectTrigger>
+                                   <SelectContent>
+                                        <SelectItem value="sin-mesa">Sin Asignar</SelectItem>
+                                        {tableNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+                                   </SelectContent>
+                               </Select>
                            </div>
                         </div>
                         <div className="flex gap-1 print:hidden">
@@ -412,8 +421,14 @@ export default function InvitadosEventoPage() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="edit-tableNumber">Nº Mesa</Label>
-                <Input id="edit-tableNumber" value={editingInvitado.tableNumber || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, tableNumber: e.target.value} : null)} disabled={editingInvitado.rsvp !== 'Confirmado'}/>
+                <Label htmlFor="edit-tableNumber">Mesa Asignada</Label>
+                 <Select value={editingInvitado.tableNumber || 'sin-mesa'} onValueChange={(value) => setEditingInvitado(p => p ? {...p, tableNumber: value} : null)} disabled={editingInvitado.rsvp !== 'Confirmado'}>
+                    <SelectTrigger id="edit-tableNumber"><SelectValue placeholder="Asignar mesa..."/></SelectTrigger>
+                    <SelectContent>
+                         <SelectItem value="sin-mesa">Sin Asignar</SelectItem>
+                         {tableNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+                    </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="edit-notes">Notas</Label>
