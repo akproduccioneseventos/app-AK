@@ -475,3 +475,9 @@ export interface FiestaEnPlanificacion {
   // New provider payment tracking
   pagosProveedores?: PagoProveedor[];
 }
+
+export interface RestorePoint {
+  name: string;
+  timestamp: string;
+  displayDate: string;
+}

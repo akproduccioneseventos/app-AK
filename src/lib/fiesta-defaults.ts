@@ -95,12 +95,12 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   pageTitle: 'Mi Evento Especial',
   heroSubtitle: '¡Una celebración inolvidable!',
   welcomeMessage: '¡Bienvenidos a la celebración de nuestro evento!',
-  coverImageUrl: '',
-  galleryImageUrls: [],
+  coverImageUrl: '', // Data URI or URL
+  galleryImageUrls: [], // Array of Data URIs or URLs
   showCountdown: true,
   ourStoryTitle: 'Nuestra Historia',
   ourStoryText: 'Un breve relato de cómo llegamos hasta aquí...',
-  ourStoryImageUrl: '',
+  ourStoryImageUrl: '', // Data URI or URL
   showOurStory: false, // Default OFF
   eventDetailsTitle: 'Detalles del Evento',
   eventDetailsText: 'Fecha, hora, lugar y más información importante.',
