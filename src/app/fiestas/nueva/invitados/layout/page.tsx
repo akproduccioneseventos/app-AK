@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -11,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building, Expand, Minimize } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, LayoutElement, Invitado } from '@/types/fiesta';
@@ -36,6 +35,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { cn } from '@/lib/utils';
 
 
 export const ALL_LAYOUT_ELEMENT_CATEGORIES = [
@@ -191,7 +191,7 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
         for(let i = 0; i < seatsBottom; i++) {
             const guest = seatOccupants[seatsTop + i];
             const xPosPercent = (100 / (seatsBottom + 1)) * (i + 1);
-            const style: React.CSSProperties = { left: `${xPosPercent}%`, top: `${element.height}px`, transform: 'translateX(-50%)' };
+            const style: React.CSSProperties = { left: `${element.height}px`, top: `${element.height}px`, transform: 'translateX(-50%)' };
             seats.push(<GuestSeat key={`bottom-${i}`} seatNumber={seatsTop + i + 1} guest={guest} style={style} {...config} />);
         }
     }
@@ -275,6 +275,9 @@ export default function SalonLayoutPage() {
   const [generateGuestCount, setGenerateGuestCount] = useState<number>(0);
   const [seatsPerTable, setSeatsPerTable] = useState<number>(8);
   const [confirmGenerateOpen, setConfirmGenerateOpen] = useState(false);
+  
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -434,6 +437,32 @@ export default function SalonLayoutPage() {
     });
   };
 
+  const DesignerCanvas = ({ isFullscreen }: { isFullscreen: boolean }) => (
+    <div
+      className={cn(
+        "relative flex-1 w-full border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background",
+        isFullscreen ? "h-full" : "h-[600px]"
+      )}
+      style={{
+        width: isFullscreen ? '100%' : `${decoracionData.salonWidth || 800}px`,
+        height: isFullscreen ? '100%' : `${decoracionData.salonHeight || 600}px`,
+      }}
+    >
+      {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
+        <NextImage src={decoracionData.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))} data-ai-hint="event floor plan"/>
+      )}
+      {(decoracionData.salonElements || []).map(element => (
+        <DraggableLayoutElement key={element.id} element={{...element}} invitados={invitados} onDragStop={handleDragStop} onDoubleClick={openElementSheet}
+            config={{
+                guestNameStyle: decoracionData.guestNameStyle || 'full',
+                guestIconStyle: decoracionData.guestIconStyle || 'color',
+                layoutMode: decoracionData.layoutMode || 'libre'
+            }}
+        />
+      ))}
+    </div>
+  );
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando diseñador...</p></div>;
   }
@@ -491,16 +520,17 @@ export default function SalonLayoutPage() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-            <LayoutDashboard className="w-8 h-8 text-primary" />
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño del Salón y Mesas</h1>
-              {fiesta?.configuracion.nombreLugar && <p className="text-muted-foreground flex items-center gap-1.5 text-sm"><Building className="w-4 h-4"/>{fiesta.configuracion.nombreLugar}</p>}
+      <div className={cn("space-y-6", isFullscreen && "hidden")}>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+                <LayoutDashboard className="w-8 h-8 text-primary" />
+                <div>
+                  <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño del Salón y Mesas</h1>
+                  {fiesta?.configuracion.nombreLugar && <p className="text-muted-foreground flex items-center gap-1.5 text-sm"><Building className="w-4 h-4"/>{fiesta.configuracion.nombreLugar}</p>}
+                </div>
             </div>
+            <Link href="/fiestas/nueva/invitados" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
         </div>
-        <Link href="/fiestas/nueva/invitados" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
-      </div>
       
        <div className="flex flex-col md:flex-row gap-6">
         <div className="flex-grow space-y-6">
@@ -517,24 +547,12 @@ export default function SalonLayoutPage() {
             </Card>
 
             <Card className="shadow-lg">
-                <CardHeader>
+                <CardHeader className="flex flex-row justify-between items-center">
                     <CardTitle className="font-headline text-xl">Diseñador del Salón</CardTitle>
+                    <Button variant="ghost" size="icon" onClick={() => setIsFullscreen(true)} title="Pantalla Completa"><Expand className="w-5 h-5"/></Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="relative flex-1 w-full h-[600px] border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background">
-                        {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
-                            <NextImage src={decoracionData.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))} data-ai-hint="event floor plan"/>
-                        )}
-                        {(decoracionData.salonElements || []).map(element => (
-                            <DraggableLayoutElement key={element.id} element={{...element}} invitados={invitados} onDragStop={handleDragStop} onDoubleClick={openElementSheet}
-                                config={{
-                                    guestNameStyle: decoracionData.guestNameStyle || 'full',
-                                    guestIconStyle: decoracionData.guestIconStyle || 'color',
-                                    layoutMode: decoracionData.layoutMode || 'libre'
-                                }}
-                            />
-                        ))}
-                    </div>
+                    <DesignerCanvas isFullscreen={false} />
                     <div className="flex justify-between items-start pt-2 gap-2 flex-wrap">
                         <Link href="/fiestas/nueva/decoracion/pdf?layout=true" passHref><Button type="button" variant="secondary" size="sm"><Printer className="w-4 h-4 mr-1.5"/>Imprimir Plano con Nombres</Button></Link>
                         <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Pointer className="w-3.5 h-3.5"/> Haz doble clic en un elemento para editarlo.</p>
@@ -568,15 +586,28 @@ export default function SalonLayoutPage() {
                 </CardContent>
             </Card>
         </div>
-
       </div>
-
-      <div className="flex justify-end pt-6 border-t">
+       <div className={cn("flex justify-end pt-6 border-t", isFullscreen && "hidden")}>
         <Button onClick={handleSaveLayout} disabled={isSaving || isLoading} size="lg">
           {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
           {isSaving ? 'Guardando Diseño...' : 'Guardar Diseño del Salón'}
         </Button>
       </div>
+      </div>
+
+       {isFullscreen && (
+        <div className="fixed inset-0 z-50 bg-background p-4 flex flex-col">
+            <div className="flex justify-between items-center mb-4 flex-shrink-0">
+                <h2 className="text-lg font-bold">Modo Pantalla Completa</h2>
+                <Button variant="outline" size="icon" onClick={() => setIsFullscreen(false)} title="Salir de pantalla completa">
+                    <Minimize className="w-5 h-5"/>
+                </Button>
+            </div>
+            <div className="flex-grow relative">
+                 <DesignerCanvas isFullscreen={true} />
+            </div>
+        </div>
+      )}
     </div>
   );
 }
