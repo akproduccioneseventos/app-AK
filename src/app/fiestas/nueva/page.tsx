@@ -44,7 +44,7 @@ const internalModules: PlanningModule[] = [
   { title: "Gestión de Invitados", description: "Listado de invitados, RSVP y diseño de mesas.", icon: Users, href: "/fiestas/nueva/invitados", status: "Disponible", actionLabel: "Gestionar Invitados" },
   { title: "Gestión de Personal", description: "Asignación y costos de personal.", icon: UserCheck, href: "/fiestas/nueva/personal", status: "Disponible", actionLabel: "Asignar Personal" },
   { title: "Lista de Carga Operativa", description: "Elementos que deben trasladarse al evento.", icon: PackageSearch, href: "/fiestas/nueva/carga-operativa", status: "Disponible", actionLabel: "Gestionar Carga" },
-  { title: "Reuniones con Cliente", description: "Registro privado de reuniones y acuerdos.", icon: MessageSquareText, href: "/fiestas/nueva/reuniones", status: "Disponible", actionLabel: "Gestionar Reuniones" },
+  { title: "Reuniones y Portal Cliente", description: "Registro de reuniones y configuración del portal privado.", icon: MessageSquareText, href: "/fiestas/nueva/reuniones", status: "Disponible", actionLabel: "Gestionar Reuniones" },
   { title: "Música de la Fiesta", description: "Define la banda sonora del evento, desde la entrada hasta el final.", icon: Music2, href: "/fiestas/nueva/musica", status: "Disponible", actionLabel: "Definir Música" },
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
   { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
@@ -52,7 +52,8 @@ const internalModules: PlanningModule[] = [
   { title: "Video de Vida", description: "Gestiona las fotos para el video emotivo.", icon: Camera, href: "/fiestas/nueva/video-vida", status: "Disponible", actionLabel: "Gestionar Fotos" },
   { title: "Fotografía y Filmación", description: "Gestiona la entrega del material fotográfico y de video.", icon: Film, href: "/fiestas/nueva/fotografia", status: "Disponible", actionLabel: "Gestionar Entrega" },
   { title: "Gestión Documental", description: "Centraliza contratos, facturas y otros archivos importantes.", icon: Archive, href: "/fiestas/nueva/gestion-documental", status: "Disponible", actionLabel: "Ver Documentos" },
-  { title: "Accesos para Colaboradores", description: "Genera enlaces únicos para que tu equipo vea la información que necesita.", icon: UserCog, href: "/settings/accesos-personal", status: "Disponible", actionLabel: "Gestionar Accesos" }
+  { title: "Accesos para Colaboradores", description: "Genera enlaces únicos para que tu equipo vea la información que necesita.", icon: UserCog, href: "/settings/accesos-personal", status: "Disponible", actionLabel: "Gestionar Accesos" },
+  { title: "Página Pública del Evento", description: "Configura lo que ven los invitados (RSVP, Galería, etc.).", icon: Globe, href: "/fiestas/nueva/pagina-web", status: "Disponible", actionLabel: "Gestionar Página Pública" },
 ];
 
 
@@ -239,13 +240,6 @@ export default function PlanificarFiestaHubPage() {
           </Card>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             <ModuleCard 
-                title="Página Pública y Portal"
-                description="Gestiona lo que ven el cliente y los invitados (Checklist, RSVP, etc.)."
-                href="/fiestas/nueva/portal-cliente"
-                icon={Globe}
-                actionLabel="Gestionar Visibilidad"
-             />
              <ModuleCard 
                 title="Resumen Imprimible del Evento"
                 description="Genera un PDF con toda la información clave del evento: cronograma, menús, etc."

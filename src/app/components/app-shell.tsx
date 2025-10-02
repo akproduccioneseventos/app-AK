@@ -69,7 +69,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
   if (pathname === '/fiestas/nueva/invitados/layout') return 'Diseño de Mesas y Salón';
-  if (pathname === '/fiestas/nueva/itinerario') return 'Itinerario del Evento';
+  if (pathname === '/fiestas/nueva/itinerario') return 'Cronograma de la Fiesta';
   if (pathname === '/fiestas/nueva/servicios-contratados') return 'Servicios Contratados';
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
@@ -79,8 +79,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
-  if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
+  if (pathname === '/fiestas/nueva/reuniones') return 'Reuniones y Portal Cliente';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
+  if (pathname === '/fiestas/nueva/musica/pdf') return 'PDF de Música';
   if (pathname === '/fiestas/nueva/fotografia') return 'Fotografía y Filmación';
   if (pathname === '/fiestas/nueva/gestion-documental') return 'Gestión Documental y Financiera';
   if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return 'Costos y Rentabilidad del Evento';
@@ -89,6 +90,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
+  if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
   if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return 'Planificador de Repostería';
   if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return 'Planificador de Bebidas';
 
@@ -141,6 +143,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
     if (pathname === '/portal') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
+    if (pathname === '/fiestas/nueva/musica/pdf') return Printer;
     if (pathname === '/fiestas/nueva/fotografia') return Film;
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
@@ -155,6 +158,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
+    if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return Cake;
     if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return GlassWater;
     return PartyPopper;
