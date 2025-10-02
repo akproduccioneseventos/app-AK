@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -44,11 +43,18 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Menús',
   },
    {
+    title: 'Catálogo de Servicios',
+    description: 'Define y gestiona los servicios que ofreces en los presupuestos.',
+    href: '/empresa/servicios',
+    icon: Sparkles,
+    actionLabel: 'Gestionar Catálogo',
+  },
+   {
     title: 'Gestión de Insumos',
     description: 'Gestiona tu inventario de ingredientes, bebidas y otros consumibles.',
     href: '/empresa/insumos',
     icon: GlassWater,
-    actionLabel: 'Gestionar Catálogo',
+    actionLabel: 'Gestionar Insumos',
   },
   {
     title: 'Catálogo de Activos Fijos',
