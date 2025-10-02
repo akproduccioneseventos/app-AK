@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Eye, Lock, FileText, Banknote, Music2, Gift, Camera, StickyNote, ClipboardCheck, Clock } from 'lucide-react';
-import type { FiestaEnPlanificacion, ClientTarea, TareaAsignadaA } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, TareaAsignadaA, ServicioFotografia, EntregaMaterialEstado } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
 import Link from 'next/link';
@@ -47,6 +47,14 @@ const SectionCard: React.FC<SectionCardProps> = ({ title, description, icon: Ico
         </CardFooter>
     </Card>
 );
+
+const estadoColores: Record<EntregaMaterialEstado, string> = {
+    'Pendiente': 'text-yellow-600 bg-yellow-100',
+    'En edición': 'text-blue-600 bg-blue-100',
+    'En revisión': 'text-indigo-600 bg-indigo-100',
+    'Entregado parcial': 'text-purple-600 bg-purple-100',
+    'Entregado completo': 'text-green-600 bg-green-100',
+};
 
 export default function ClientPortalPage() {
     const { toast } = useToast();
@@ -239,6 +247,33 @@ export default function ClientPortalPage() {
                                     ))}
                                 </ul>
                             </ScrollArea>
+                        </CardContent>
+                    </Card>
+                )}
+
+                 {clientPortalSettings.fotografiaYFilmacion.visible && (
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="font-headline text-xl flex items-center gap-2"><Camera className="text-primary"/>Estado de Fotografía y Video</CardTitle>
+                            <CardDescription>Sigue el progreso de la entrega de tu material audiovisual.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           {fiesta.fotografiaYFilmacion && fiesta.fotografiaYFilmacion.servicios.length > 0 ? (
+                               <ul className="space-y-3">
+                                   {fiesta.fotografiaYFilmacion.servicios.map(servicio => (
+                                       <li key={servicio.id} className="p-3 border rounded-md">
+                                           <div className="flex justify-between items-center">
+                                                <span className="font-medium">{servicio.nombre}</span>
+                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${estadoColores[servicio.estado]}`}>{servicio.estado}</span>
+                                           </div>
+                                           {servicio.fechaEntregaEstimada && <p className="text-xs text-muted-foreground mt-1">Fecha Est.: {formatDate(servicio.fechaEntregaEstimada)}</p>}
+                                           {servicio.linkEntrega && <Button asChild size="sm" variant="link" className="px-0 h-auto"><a href={servicio.linkEntrega} target="_blank" rel="noopener noreferrer">Ver Entrega</a></Button>}
+                                       </li>
+                                   ))}
+                               </ul>
+                           ) : (
+                               <p className="text-muted-foreground text-sm text-center py-4">Aún no se han cargado los detalles del servicio de fotografía y video.</p>
+                           )}
                         </CardContent>
                     </Card>
                 )}

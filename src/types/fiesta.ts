@@ -192,7 +192,7 @@ export interface ClientPortalSettings {
   itinerario: PortalViewOnlyModuleSettings;
   musica: PortalModuleSettings;
   videoVida: PortalModuleSettings;
-  listaRegalos: PortalModuleSettings; // Now editable
+  listaRegalos: PortalModuleSettings;
   documentos: PortalViewOnlyModuleSettings;
   notasCliente: PortalModuleSettings;
   invitados: PortalViewOnlyModuleSettings;
@@ -414,15 +414,17 @@ export interface GestionCostosData {
 
 export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
 
+export interface ServicioFotografia {
+    id: string;
+    nombre: string;
+    estado: EntregaMaterialEstado;
+    fechaEntregaEstimada?: string; // ISO String
+    linkEntrega?: string;
+}
+
 export interface FotografiaYFilmacionData {
-    fechaEstimadaEntregaFotos?: string; // ISO String
-    fechaEstimadaEntregaVideo?: string; // ISO String
-    fechaEntregaFinal?: string; // ISO String
-    estadoEntrega: EntregaMaterialEstado;
-    linkDescargaFotos?: string;
-    linkDescargaVideo?: string;
-    recibidoPorCliente: boolean;
-    notasEntrega?: string;
+    servicios: ServicioFotografia[];
+    notasGenerales?: string;
 }
 
 export interface VideoVidaData {

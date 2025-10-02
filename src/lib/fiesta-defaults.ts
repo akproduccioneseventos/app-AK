@@ -124,7 +124,7 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
   itinerario: { visible: false },
   musica: { visible: false, editable: false },
   videoVida: { visible: true, editable: true },
-  listaRegalos: { visible: false },
+  listaRegalos: { visible: false, editable: true },
   documentos: { visible: true },
   notasCliente: { visible: false, editable: true },
   invitados: { visible: true },
@@ -246,8 +246,8 @@ export const defaultVideoVidaData: VideoVidaData = {
 };
 
 export const defaultFotografiaYFilmacionData: FotografiaYFilmacionData = {
-    estadoEntrega: 'Pendiente',
-    recibidoPorCliente: false,
+    servicios: [],
+    notasGenerales: '',
 };
 
 

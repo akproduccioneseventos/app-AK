@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -8,13 +7,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Film, Calendar, Link as LinkIcon, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Film, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateFotografiaYFilmacionFiestaActual as updateFotografia } from '@/app/actions/fiesta-actual';
-import type { FotografiaYFilmacionData, EntregaMaterialEstado } from '@/types/fiesta';
+import type { FotografiaYFilmacionData, ServicioFotografia, EntregaMaterialEstado } from '@/types/fiesta';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 const ALL_ESTADOS_ENTREGA: EntregaMaterialEstado[] = ['Pendiente', 'En edición', 'En revisión', 'Entregado parcial', 'Entregado completo'];
 
@@ -24,11 +32,15 @@ export default function FotografiaPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentItem, setCurrentItem] = useState<Partial<ServicioFotografia> | null>(null);
+
     const loadData = useCallback(async () => {
         setIsLoading(true);
         try {
             const fiesta = await getFiestaActual();
-            setFormData(fiesta.fotografiaYFilmacion || { estadoEntrega: 'Pendiente', recibidoPorCliente: false });
+            setFormData(fiesta.fotografiaYFilmacion || { servicios: [], notasGenerales: '' });
         } catch (e) {
             toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
         } finally {
@@ -40,16 +52,7 @@ export default function FotografiaPage() {
         loadData();
     }, [loadData]);
     
-    const handleFormChange = (field: keyof FotografiaYFilmacionData, value: any) => {
-        setFormData(prev => prev ? ({ ...prev, [field]: value }) : null);
-    };
-
-    const handleDateChange = (field: 'fechaEstimadaEntregaFotos' | 'fechaEstimadaEntregaVideo' | 'fechaEntregaFinal', date?: Date) => {
-        handleFormChange(field, date ? date.toISOString() : undefined);
-    };
-    
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
+    const handleSave = async () => {
         if (!formData) return;
         setIsSaving(true);
         try {
@@ -65,7 +68,46 @@ export default function FotografiaPage() {
         } finally {
             setIsSaving(false);
         }
-    }
+    };
+
+    const openItemModal = (item?: ServicioFotografia) => {
+        setCurrentItem(item || { nombre: '', estado: 'Pendiente' });
+        setIsModalOpen(true);
+    };
+
+    const handleItemSave = () => {
+        if (!currentItem || !currentItem.nombre) {
+            toast({title: "Nombre requerido", variant: "destructive"});
+            return;
+        }
+
+        const itemToSave: ServicioFotografia = {
+            ...currentItem,
+            id: currentItem.id || `serv_foto_${Date.now()}`,
+            nombre: currentItem.nombre,
+            estado: currentItem.estado || 'Pendiente',
+            fechaEntregaEstimada: currentItem.fechaEntregaEstimada,
+            linkEntrega: currentItem.linkEntrega
+        };
+
+        setFormData(prev => {
+            if (!prev) return null;
+            const existing = prev.servicios.find(s => s.id === itemToSave.id);
+            if (existing) {
+                return { ...prev, servicios: prev.servicios.map(s => s.id === itemToSave.id ? itemToSave : s) };
+            } else {
+                return { ...prev, servicios: [...prev.servicios, itemToSave] };
+            }
+        });
+
+        setIsModalOpen(false);
+        setCurrentItem(null);
+    };
+    
+    const handleDeleteItem = (itemId: string) => {
+        setFormData(prev => prev ? { ...prev, servicios: prev.servicios.filter(s => s.id !== itemId) } : null);
+    };
+
 
     if (isLoading || !formData) {
         return <div className="p-8 max-w-2xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>
@@ -73,6 +115,41 @@ export default function FotografiaPage() {
 
     return (
         <div className="max-w-2xl mx-auto space-y-6">
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{currentItem?.id ? 'Editar' : 'Añadir'} Servicio</DialogTitle>
+                    </DialogHeader>
+                    {currentItem && (
+                        <div className="space-y-4 py-2">
+                           <div className="space-y-1">
+                                <Label htmlFor="item-nombre">Nombre del Servicio*</Label>
+                                <Input id="item-nombre" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} placeholder="Ej: Fotografía de Fiesta, Sesión Exterior"/>
+                           </div>
+                           <div className="space-y-1">
+                                <Label htmlFor="item-estado">Estado</Label>
+                                <Select value={currentItem.estado} onValueChange={(v) => setCurrentItem(p => p ? {...p, estado: v as EntregaMaterialEstado} : null)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>{ALL_ESTADOS_ENTREGA.map(s=><SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                                </Select>
+                           </div>
+                            <div className="space-y-1">
+                                <Label htmlFor="item-fecha">Fecha Estimada Entrega</Label>
+                                <DatePickerDemo selectedDate={currentItem.fechaEntregaEstimada ? new Date(currentItem.fechaEntregaEstimada) : undefined} onDateChange={(date) => setCurrentItem(p => p ? {...p, fechaEntregaEstimada: date?.toISOString()} : null)}/>
+                           </div>
+                            <div className="space-y-1">
+                                <Label htmlFor="item-link">Enlace de Entrega</Label>
+                                <Input id="item-link" type="url" value={currentItem.linkEntrega || ''} onChange={e => setCurrentItem(p => p ? {...p, linkEntrega: e.target.value} : null)}/>
+                           </div>
+                        </div>
+                    )}
+                    <DialogFooter>
+                         <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                         <Button onClick={handleItemSave}>Guardar Servicio</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Film className="w-8 h-8 text-primary" />
@@ -81,67 +158,47 @@ export default function FotografiaPage() {
                 <Link href="/fiestas/nueva" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
             
-            <form onSubmit={handleSubmit}>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Estado de la Entrega</CardTitle>
-                        <CardDescription>Gestiona el proceso de entrega del material fotográfico y de video al cliente.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="estado-entrega">Estado General de la Entrega</Label>
-                            <Select value={formData.estadoEntrega} onValueChange={(v) => handleFormChange('estadoEntrega', v as EntregaMaterialEstado)}>
-                                <SelectTrigger id="estado-entrega"><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    {ALL_ESTADOS_ENTREGA.map(estado => <SelectItem key={estado} value={estado}>{estado}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/40">
-                             <Label htmlFor="recibido-cliente" className="text-base font-medium">Material Recibido por el Cliente</Label>
-                             <Switch id="recibido-cliente" checked={formData.recibidoPorCliente} onCheckedChange={(val) => handleFormChange('recibidoPorCliente', val)} />
-                        </div>
-                         {formData.recibidoPorCliente && formData.fechaEntregaFinal && (
-                             <p className="text-sm text-green-600 flex items-center gap-2"><CheckCircle className="w-4 h-4"/> Confirmado el: {new Date(formData.fechaEntregaFinal).toLocaleDateString('es-ES')}</p>
-                         )}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Servicios Contratados</CardTitle>
+                    <CardDescription>Añade y gestiona el estado de cada servicio de fotografía y video para este evento.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <Button onClick={() => openItemModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
+                     <div className="space-y-3">
+                        {formData.servicios.map(servicio => (
+                            <Card key={servicio.id} className="p-3 bg-muted/30">
+                               <div className="flex justify-between items-start gap-2">
+                                  <div>
+                                      <p className="font-semibold">{servicio.nombre}</p>
+                                      <p className="text-sm text-muted-foreground">Estado: <span className="font-medium text-primary">{servicio.estado}</span></p>
+                                      {servicio.fechaEntregaEstimada && <p className="text-xs text-muted-foreground">Entrega Est: {new Date(servicio.fechaEntregaEstimada).toLocaleDateString()}</p>}
+                                  </div>
+                                  <div className="flex gap-1">
+                                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openItemModal(servicio)}>Editar</Button>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteItem(servicio.id)}><Trash2 className="w-4 h-4"/></Button>
+                                  </div>
+                               </div>
+                            </Card>
+                        ))}
+                         {formData.servicios.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">No hay servicios de fotografía/video añadidos.</p>}
+                     </div>
+                </CardContent>
+            </Card>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="fecha-fotos">Fecha Estimada Entrega Fotos</Label>
-                                <DatePickerDemo selectedDate={formData.fechaEstimadaEntregaFotos ? new Date(formData.fechaEstimadaEntregaFotos) : undefined} onDateChange={(d) => handleDateChange('fechaEstimadaEntregaFotos', d)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="fecha-video">Fecha Estimada Entrega Video</Label>
-                                <DatePickerDemo selectedDate={formData.fechaEstimadaEntregaVideo ? new Date(formData.fechaEstimadaEntregaVideo) : undefined} onDateChange={(d) => handleDateChange('fechaEstimadaEntregaVideo', d)} />
-                            </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                           <Label htmlFor="link-fotos">Enlace de Descarga de Fotos (Ej: WeTransfer, Drive)</Label>
-                           <Input id="link-fotos" type="url" value={formData.linkDescargaFotos || ''} onChange={(e) => handleFormChange('linkDescargaFotos', e.target.value)} placeholder="https://..."/>
-                        </div>
-                        <div className="space-y-2">
-                           <Label htmlFor="link-video">Enlace de Descarga de Video</Label>
-                           <Input id="link-video" type="url" value={formData.linkDescargaVideo || ''} onChange={(e) => handleFormChange('linkDescargaVideo', e.target.value)} placeholder="https://..."/>
-                        </div>
-                         <div className="space-y-2">
-                           <Label htmlFor="fecha-final">Fecha de Entrega Final (se completa al marcar como recibido)</Label>
-                           <DatePickerDemo selectedDate={formData.fechaEntregaFinal ? new Date(formData.fechaEntregaFinal) : undefined} onDateChange={(d) => handleDateChange('fechaEntregaFinal', d)} />
-                        </div>
-                        <div className="space-y-2">
-                           <Label htmlFor="notas-entrega">Notas Adicionales</Label>
-                           <Textarea id="notas-entrega" value={formData.notasEntrega || ''} onChange={(e) => handleFormChange('notasEntrega', e.target.value)} placeholder="Detalles sobre la entrega, feedback, etc." rows={3}/>
-                        </div>
+            <Card>
+                <CardHeader><CardTitle>Notas Generales</CardTitle></CardHeader>
+                <CardContent>
+                    <Textarea value={formData.notasGenerales || ''} onChange={(e) => setFormData(p => p ? {...p, notasGenerales: e.target.value} : null)} placeholder="Anotaciones sobre proveedores, contacto, etc."/>
+                </CardContent>
+            </Card>
 
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit" disabled={isSaving}>
-                            {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                            Guardar Cambios
-                        </Button>
-                    </CardFooter>
-                </Card>
-            </form>
+            <div className="flex justify-end pt-4 border-t">
+                <Button onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                    Guardar Cambios
+                </Button>
+            </div>
         </div>
     );
 }
