@@ -1599,7 +1599,7 @@
             "quantityPerPerson": "100",
             "unit": "ml",
             "cost": 6,
-            "proveedor": "DK MAYORISTA"
+            "proveedor": "DK MOYORISTA"
           },
           {
             "id": "ing_21_11",
@@ -3175,7 +3175,7 @@
   },
   {
     "id": "menu_infantil_predisenado",
-    "name": "Menú Infantil",
+    "name": "Menú Infantil y Adolescente",
     "description": "Opciones divertidas y deliciosas para los más chicos.",
     "templateType": "Menú para Niños",
     "createdAt": "2025-07-28T10:00:00.000Z",
