@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Plus, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format as formatDateFn, formatDistanceToNowStrict } from 'date-fns';
@@ -40,7 +40,6 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Separator } from '@/components/ui/separator';
 
 
 export default function TareasEventoPage() {
@@ -59,6 +58,8 @@ export default function TareasEventoPage() {
   const [newIsDefaultTask, setNewIsDefaultTask] = useState(false); 
 
   // Template States
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [templateName, setTemplateName] = useState('');
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<TaskTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
@@ -95,6 +96,52 @@ export default function TareasEventoPage() {
     } finally {
         setIsLoadingTemplates(false);
     }
+  };
+
+  const handleOpenSaveTemplateModal = () => {
+    setTemplateName(''); // Reset name
+    setIsSaveTemplateModalOpen(true);
+  };
+  
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast({title: "Nombre requerido", variant: "destructive"});
+      return;
+    }
+    setIsSaving(true);
+    const result = await saveTaskTemplate(templateName, tareas);
+    if (result.success) {
+      toast({title: "Plantilla Guardada"});
+      setIsSaveTemplateModalOpen(false);
+    } else {
+      toast({title: "Error al guardar plantilla", description: result.error, variant: "destructive"});
+    }
+    setIsSaving(false);
+  };
+
+  const handleLoadTemplate = (template: TaskTemplate) => {
+    const newTasksFromTemplate = template.tasks.map(taskTemplate => ({
+      ...taskTemplate,
+      id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+      completada: false,
+    }));
+    const updatedTareas = [...tareas, ...newTasksFromTemplate];
+    setTareas(updatedTareas);
+    handleSaveChanges(updatedTareas); // Save immediately
+    toast({title: "Plantilla de Tareas Cargada", description: `Se añadieron ${newTasksFromTemplate.length} tareas.`});
+    setIsLoadTemplateModalOpen(false);
+  };
+  
+  const handleDeleteTemplate = async (id: string) => {
+    setDeletingTemplateId(id);
+    const result = await deleteTaskTemplate(id);
+    if (result.success) {
+      toast({ title: "Plantilla eliminada" });
+      setTemplates(prev => prev.filter(t => t.id !== id));
+    } else {
+      toast({ title: "Error al eliminar", description: result.error, variant: "destructive" });
+    }
+    setDeletingTemplateId(null);
   };
 
   const handleSaveChanges = async (updatedTareas: Tarea[]) => {
@@ -172,31 +219,6 @@ export default function TareasEventoPage() {
     setNewIsDefaultTask(false);
     setIsSaving(false);
   };
-  
-   const handleLoadTemplate = (template: TaskTemplate) => {
-    const newTasksFromTemplate = template.tasks.map(taskTemplate => ({
-      ...taskTemplate,
-      id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-      completada: false,
-    }));
-    const updatedTareas = [...tareas, ...newTasksFromTemplate];
-    setTareas(updatedTareas);
-    handleSaveChanges(updatedTareas); // Save immediately
-    toast({title: "Plantilla de Tareas Cargada", description: `Se añadieron ${newTasksFromTemplate.length} tareas.`});
-    setIsLoadTemplateModalOpen(false);
-  };
-  
-  const handleDeleteTemplate = async (id: string) => {
-    setDeletingTemplateId(id);
-    const result = await deleteTaskTemplate(id);
-    if (result.success) {
-      toast({ title: "Plantilla eliminada" });
-      setTemplates(prev => prev.filter(t => t.id !== id));
-    } else {
-      toast({ title: "Error al eliminar", description: result.error, variant: "destructive" });
-    }
-    setDeletingTemplateId(null);
-  };
 
   const toggleTaskCompletion = async (taskId: string) => {
     const updatedTareas = tareas.map(task =>
@@ -262,7 +284,7 @@ export default function TareasEventoPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+       <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>Cargar Tareas desde Plantilla</DialogTitle></DialogHeader>
           {isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> :
@@ -282,6 +304,22 @@ export default function TareasEventoPage() {
           <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Guardar Lista Actual como Plantilla</DialogTitle></DialogHeader>
+          <div className="py-2 space-y-2">
+            <Label htmlFor="template-name">Nombre de la Plantilla</Label>
+            <Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Plantilla Boda Completa"/>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+            <Button onClick={handleSaveTemplate} disabled={isSaving}>
+              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Plantilla
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ListChecks className="w-8 h-8 text-primary" />
@@ -346,7 +384,10 @@ export default function TareasEventoPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-           <Button onClick={handleOpenLoadTemplateModal} variant="secondary" className="mb-4"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Tareas desde Plantilla</Button>
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Button onClick={handleOpenLoadTemplateModal} variant="secondary"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Tareas desde Plantilla</Button>
+            <Button onClick={handleOpenSaveTemplateModal} variant="secondary"><Save className="w-4 h-4 mr-2"/>Guardar Lista como Plantilla</Button>
+          </div>
           {tareas.length > 0 ? (
             <ScrollArea className="h-[400px] pr-3">
               <ul className="space-y-3">
