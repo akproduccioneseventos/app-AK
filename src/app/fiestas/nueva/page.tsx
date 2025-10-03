@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera, Calculator, Film, Music2, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera, Calculator, Film, Music2, Clock, PartyPopper } from 'lucide-react';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Tarea, Reunion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -38,6 +38,7 @@ interface PlanningModule {
 
 const internalModules: PlanningModule[] = [
   { title: "Configuración del Evento", description: "Datos técnicos: fecha, tipo, lugar, invitados.", icon: Settings2, href: "/fiestas/nueva/configuracion", status: "Disponible", actionLabel: "Configurar Evento" },
+  { title: "Análisis de Evento (IA)", description: "Obtén un reporte del estado de la planificación de tu evento actual.", icon: PartyPopper, href: "/admin/aaiff-fiesta", status: "Disponible", actionLabel: "Analizar Evento" },
   { title: "Planificador Gastronómico", description: "Calcula costos de repostería y bebidas.", icon: Calculator, href: "/planner-costo-fiesta", status: "Disponible", actionLabel: "Abrir Planificador" },
   { title: "Lista de Tareas (Interna)", description: "Organización interna del equipo.", icon: ListChecks, href: "/fiestas/nueva/tareas", status: "Disponible", actionLabel: "Gestionar Tareas" },
   { title: "Cronograma de la Fiesta", description: "Define el cronograma y los momentos clave de la fiesta.", icon: Clock, href: "/fiestas/nueva/itinerario", status: "Disponible", actionLabel: "Crear Cronograma" },
@@ -47,7 +48,7 @@ const internalModules: PlanningModule[] = [
   { title: "Reuniones y Portal Cliente", description: "Registro de reuniones y configuración del portal privado.", icon: MessageSquareText, href: "/fiestas/nueva/reuniones", status: "Disponible", actionLabel: "Gestionar Reuniones" },
   { title: "Música de la Fiesta", description: "Define la banda sonora del evento, desde la entrada hasta el final.", icon: Music2, href: "/fiestas/nueva/musica", status: "Disponible", actionLabel: "Definir Música" },
   { title: "Costos y Rentabilidad", description: "Análisis financiero del evento.", icon: BarChart3, href: "/fiestas/nueva/gestion-costos-rentabilidad", status: "Disponible", actionLabel: "Analizar Rentabilidad" },
-  { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/fiestas/nueva/catering", status: "Disponible", actionLabel: "Gestionar Menús" },
+  { title: "Catering y Menú", description: "Planificación gastronómica completa.", icon: ChefHat, href: "/empresa/menus", status: "Disponible", actionLabel: "Gestionar Menús" },
   { title: "Decoración y Diseño", description: "Planificación estética y funcional.", icon: Palette, href: "/fiestas/nueva/decoracion", status: "Disponible", actionLabel: "Definir Diseño" },
   { title: "Video de Vida", description: "Gestiona las fotos para el video emotivo.", icon: Camera, href: "/fiestas/nueva/video-vida", status: "Disponible", actionLabel: "Gestionar Fotos" },
   { title: "Fotografía y Filmación", description: "Gestiona la entrega del material fotográfico y de video.", icon: Film, href: "/fiestas/nueva/fotografia", status: "Disponible", actionLabel: "Gestionar Entrega" },

@@ -36,13 +36,6 @@ const settingsCards = [
     buttonLabel: "Analizar Código"
   },
   {
-    title: "Análisis de Evento (IA)",
-    description: "Obtén un reporte del estado de la planificación de tu evento actual.",
-    href: "/admin/aaiff-fiesta",
-    icon: PartyPopper,
-    buttonLabel: "Analizar Evento"
-  },
-  {
     title: "Accesos para Colaboradores",
     description: "Crea y gestiona enlaces de acceso para tu equipo (secretaria, DJ, etc.).",
     href: "/settings/accesos-personal",
