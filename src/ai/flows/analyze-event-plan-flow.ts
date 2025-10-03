@@ -18,7 +18,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeEventPlanPrompt',
   input: { schema: AnalyzeEventPlanInputSchema },
   output: { schema: AnalyzeEventPlanOutputSchema },
-  model: 'googleai/gemini-1.5-flash-latest',
+  model: 'googleai/gemini-1.5-flash-preview-0514',
   prompt: `Eres un asistente experto en planificación de eventos para una empresa llamada AK Producciones. Tu tarea es analizar de forma exhaustiva el plan de un evento, identificar áreas incompletas, señalar posibles problemas y ofrecer sugerencias útiles.
 
 Analiza el siguiente objeto JSON que contiene todos los datos del evento en planificación. Para cada módulo principal, determina su estado y proporciona detalles.

@@ -88,7 +88,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeCodebasePrompt',
   input: {schema: AnalyzeCodebaseInputSchema},
   output: {schema: AnalyzeCodebaseOutputSchema},
-  model: 'googleai/gemini-1.5-flash-latest',
+  model: 'googleai/gemini-1.5-flash-preview-0514',
   prompt: `You are an expert and exceptionally thorough software architect AI for Firebase Studio. Your primary task is to conduct an exhaustive and rigorous analysis of the provided codebase structure against the user's functional specification. Your analysis must be meticulous, identifying not just major discrepancies but also subtle issues, potential bugs, and deviations from best practices **within the established architectural constraints**.
 
 **Crucial Architectural Constraints (DO NOT CRITICIZE OR SUGGEST CHANGING THESE):**
