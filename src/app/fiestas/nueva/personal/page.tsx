@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -17,6 +17,7 @@ import type { Rol } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
+import { Badge } from '@/components/ui/badge';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
@@ -25,9 +26,9 @@ const formatCurrency = (amount: number) => {
 
 interface AssignedStaffUIDetail {
   empleado: Empleado;
-  rol?: Rol;
-  eventSalary: number; // Pago total para el empleado para este evento específico
-  employerContribution: number; // Aportes patronales calculados sobre eventSalary
+  rol?: Rol; // The primary role for salary calculation
+  eventSalary: number; 
+  employerContribution: number;
 }
 
 export default function AsignarPersonalEventoPage() {
@@ -57,7 +58,9 @@ export default function AsignarPersonalEventoPage() {
         fiestaActualData.personalAsignado.forEach(assigned => {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
           if (empleadoDetail) {
-            const rolDetail = empleadoDetail.rolId ? rolesData.find(r => r.id === empleadoDetail.rolId) : undefined;
+            // Find the primary role for salary calculation (e.g., the first one)
+            const primaryRolId = empleadoDetail.rolIds?.[0];
+            const rolDetail = primaryRolId ? rolesData.find(r => r.id === primaryRolId) : undefined;
             const aportes = (assigned.eventSalary * (rolDetail?.porcentajeAportesPatronales ?? 0)) / 100;
             initialAssignedMap.set(assigned.empleadoId, {
               empleado: empleadoDetail,
@@ -86,7 +89,8 @@ export default function AsignarPersonalEventoPage() {
     setAssignedStaff(prev => {
       const newMap = new Map(prev);
       if (isAssigned) {
-        const rol = empleado.rolId ? allRoles.find(r => r.id === empleado.rolId) : undefined;
+        const primaryRolId = empleado.rolIds?.[0];
+        const rol = primaryRolId ? allRoles.find(r => r.id === primaryRolId) : undefined;
         const eventSalary = rol?.sueldoPorEvento ?? 0;
         const employerContribution = (eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
         newMap.set(empleado.id, { empleado, rol, eventSalary, employerContribution });
@@ -218,7 +222,7 @@ export default function AsignarPersonalEventoPage() {
                   <TableRow>
                     <TableHead className="w-[50px] text-center">Asignar</TableHead>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Rol (Base)</TableHead>
+                    <TableHead>Roles</TableHead>
                     <TableHead className="text-right">Pago Evento (UYU)</TableHead>
                     <TableHead className="text-right">Aportes Patronales</TableHead>
                   </TableRow>
@@ -227,6 +231,9 @@ export default function AsignarPersonalEventoPage() {
                   {allEmpleados.map((empleado) => {
                     const isAssigned = assignedStaff.has(empleado.id);
                     const currentAssignment = assignedStaff.get(empleado.id);
+                    const empleadoRoles = (empleado.rolIds || [])
+                      .map(rolId => allRoles.find(r => r.id === rolId)?.nombre)
+                      .filter(Boolean);
 
                     return (
                       <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
@@ -239,7 +246,15 @@ export default function AsignarPersonalEventoPage() {
                           />
                         </TableCell>
                         <TableCell className="font-medium min-w-[150px]">{empleado.nombre}</TableCell>
-                        <TableCell className="min-w-[120px]">{currentAssignment?.rol?.nombre || <span className="italic text-muted-foreground">Sin rol</span>}</TableCell>
+                        <TableCell className="min-w-[120px]">
+                            <div className="flex flex-wrap gap-1">
+                                {empleadoRoles.length > 0 ? (
+                                    empleadoRoles.map(rolName => <Badge key={rolName} variant="secondary">{rolName}</Badge>)
+                                ) : (
+                                    <span className="italic text-muted-foreground text-xs">Sin rol</span>
+                                )}
+                            </div>
+                        </TableCell>
                         <TableCell className="text-right">
                           {isAssigned ? (
                             <Input

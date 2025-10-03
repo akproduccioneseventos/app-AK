@@ -33,12 +33,11 @@ export async function saveEmpleado(
     if (index === -1) {
       return { success: false, error: `Empleado con ID ${empleadoId} no encontrado.` };
     }
-    // Explicitly handle all fields, including making rolId optional
     const dataToUpdate: Omit<Empleado, 'id'> = {
         nombre: empleadoData.nombre,
         cedula: empleadoData.cedula || '',
         fechaNacimiento: empleadoData.fechaNacimiento || '',
-        rolId: (empleadoData as Empleado).rolId || undefined,
+        rolIds: (empleadoData as Empleado).rolIds || [],
     };
     empleados[index] = { ...empleados[index], ...dataToUpdate };
     finalEmpleadoData = empleados[index];
@@ -56,7 +55,7 @@ export async function saveEmpleado(
       nombre: newEmpleadoData.nombre,
       cedula: newEmpleadoData.cedula || '',
       fechaNacimiento: newEmpleadoData.fechaNacimiento || '',
-      rolId: newEmpleadoData.rolId,
+      rolIds: newEmpleadoData.rolIds || [],
     };
     empleados.push(finalEmpleadoData);
   }

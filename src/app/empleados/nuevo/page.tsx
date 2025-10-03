@@ -15,7 +15,7 @@ import type { NuevoEmpleadoFormData } from '@/types/empleado';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getRoles } from '@/app/actions/roles';
 import type { Rol } from '@/types/rol';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 export default function NuevoEmpleadoPage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function NuevoEmpleadoPage() {
   const [nombre, setNombre] = useState('');
   const [cedula, setCedula] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
-  const [rolId, setRolId] = useState<string | undefined>(undefined);
+  const [rolIds, setRolIds] = useState<string[]>([]);
   const [rolesDisponibles, setRolesDisponibles] = useState<Rol[]>([]);
   const [isLoadingRoles, setIsLoadingRoles] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -55,7 +55,7 @@ export default function NuevoEmpleadoPage() {
       nombre: nombre.trim(),
       cedula: cedula.trim() || undefined,
       fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString() : undefined,
-      rolId: rolId === "sin-rol" ? undefined : rolId,
+      rolIds: rolIds,
     };
 
     try {
@@ -72,6 +72,8 @@ export default function NuevoEmpleadoPage() {
       setIsSaving(false);
     }
   };
+  
+  const roleOptions = rolesDisponibles.map(r => ({ value: r.id, label: r.nombre }));
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
@@ -93,7 +95,7 @@ export default function NuevoEmpleadoPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Información del Empleado</CardTitle>
-          <CardDescription>Completa los datos personales y asigna un rol si lo deseas.</CardDescription>
+          <CardDescription>Completa los datos personales y asigna uno o más roles.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
@@ -110,22 +112,14 @@ export default function NuevoEmpleadoPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="empleado-rol" className="text-base">Rol Asignado (Opcional)</Label>
-              <Select 
-                value={rolId || "sin-rol"} 
-                onValueChange={(value) => setRolId(value === "sin-rol" ? undefined : value)} 
-                disabled={isSaving || isLoadingRoles || rolesDisponibles.length === 0}
-              >
-                <SelectTrigger id="empleado-rol" className="text-base p-3 h-auto">
-                  <SelectValue placeholder={isLoadingRoles ? "Cargando roles..." : (rolesDisponibles.length === 0 ? "No hay roles definidos" : "Seleccionar un rol...")}/>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sin-rol" className="text-base text-muted-foreground">Sin Rol Asignado</SelectItem>
-                  {rolesDisponibles.map(rol => (
-                      <SelectItem key={rol.id} value={rol.id} className="text-base">{rol.nombre}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="empleado-roles" className="text-base">Roles Asignados</Label>
+              <MultiSelect
+                options={roleOptions}
+                selected={rolIds}
+                onValueChange={setRolIds}
+                placeholder={isLoadingRoles ? "Cargando roles..." : (rolesDisponibles.length === 0 ? "No hay roles definidos" : "Seleccionar roles...")}
+                className="w-full"
+              />
               {rolesDisponibles.length === 0 && !isLoadingRoles && (
                   <p className="text-xs text-muted-foreground">No hay roles creados. <Link href="/empleados/roles" className="underline text-primary">Configurar Roles</Link>.</p>
               )}

@@ -8,13 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getEmpleadoById, saveEmpleado, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
-import { getRoles } from '@/app/actions/roles'; // Para cargar roles
+import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
-import type { Rol } from '@/types/rol'; // Tipo Rol
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { Rol } from '@/types/rol';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import {
   AlertDialog,
@@ -27,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { MultiSelect } from '@/components/ui/multi-select';
 
 export default function EditarEmpleadoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
@@ -40,7 +40,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
   const [nombre, setNombre] = useState('');
   const [cedula, setCedula] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
-  const [rolId, setRolId] = useState<string | undefined>(undefined);
+  const [rolIds, setRolIds] = useState<string[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -63,7 +63,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
         setNombre(loadedEmpleado.nombre);
         setCedula(loadedEmpleado.cedula);
         setFechaNacimiento(loadedEmpleado.fechaNacimiento ? new Date(loadedEmpleado.fechaNacimiento) : undefined);
-        setRolId(loadedEmpleado.rolId);
+        setRolIds(loadedEmpleado.rolIds || []);
       } else {
         setNotFound(true);
         toast({ title: 'Error', description: `No se encontró el empleado con ID ${params.id}.`, variant: 'destructive' });
@@ -85,8 +85,8 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!empleado || !nombre.trim() || !cedula.trim() || !fechaNacimiento) {
-      toast({ title: "Campos incompletos", description: "Por favor, completa Nombre, Cédula y Fecha de Nacimiento.", variant: "destructive" });
+    if (!empleado || !nombre.trim()) {
+      toast({ title: "Campos incompletos", description: "Por favor, completa el Nombre.", variant: "destructive" });
       return;
     }
 
@@ -95,8 +95,8 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
       ...empleado,
       nombre: nombre.trim(),
       cedula: cedula.trim(),
-      fechaNacimiento: fechaNacimiento.toISOString(),
-      rolId: rolId === "sin-rol" ? undefined : rolId,
+      fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString() : '',
+      rolIds: rolIds,
     };
 
     try {
@@ -104,8 +104,8 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
       if (result.success && result.empleado) {
         toast({ title: "¡Empleado Actualizado!", description: `El empleado "${result.empleado.nombre}" ha sido actualizado.` });
         setEmpleado(result.empleado);
-        // Actualizar estado local si es necesario para reflejar cambios como rolId
-        setRolId(result.empleado.rolId);
+        setRolIds(result.empleado.rolIds || []);
+        router.push('/empleados');
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el empleado.");
       }
@@ -127,7 +127,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
       } else {
         throw new Error(result.error || 'Error desconocido al eliminar el empleado.');
       }
-    } catch (error: any) {
+    } catch (error: any) => {
       toast({ title: 'Error al Eliminar', description: error.message, variant: 'destructive' });
     } finally {
       setIsDeleting(false);
@@ -136,6 +136,8 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
   
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Empleado no encontrado. <Link href="/empleados" className="underline">Volver a empleados</Link>.</div>;
+
+  const roleOptions = rolesDisponibles.map(r => ({ value: r.id, label: r.nombre }));
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
@@ -162,29 +164,25 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
               <Input id="empleado-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="empleado-cedula" className="text-base">Cédula de Identidad *</Label>
-              <Input id="empleado-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/>
+              <Label htmlFor="empleado-roles" className="text-base">Roles Asignados</Label>
+              <MultiSelect
+                options={roleOptions}
+                selected={rolIds}
+                onValueChange={setRolIds}
+                placeholder={isLoading ? "Cargando roles..." : (rolesDisponibles.length === 0 ? "No hay roles definidos" : "Seleccionar roles...")}
+                className="w-full"
+              />
+              {rolesDisponibles.length === 0 && !isLoading && (
+                  <p className="text-xs text-muted-foreground">No hay roles creados. <Link href="/empleados/roles" className="underline text-primary">Configurar Roles</Link>.</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="empleado-fechaNacimiento" className="text-base">Fecha de Nacimiento *</Label>
+              <Label htmlFor="empleado-cedula" className="text-base">Cédula de Identidad</Label>
+              <Input id="empleado-cedula" value={cedula} onChange={(e) => setCedula(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empleado-fechaNacimiento" className="text-base">Fecha de Nacimiento</Label>
               <DatePickerDemo selectedDate={fechaNacimiento} onDateChange={setFechaNacimiento} className={isSaving || isDeleting ? "disabled:opacity-70" : ""} />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="empleado-rol" className="text-base">Rol Asignado</Label>
-                <Select value={rolId || "sin-rol"} onValueChange={(value) => setRolId(value === "sin-rol" ? undefined : value)} disabled={isSaving || isDeleting || rolesDisponibles.length === 0}>
-                    <SelectTrigger id="empleado-rol" className="text-base p-3 h-auto">
-                        <SelectValue placeholder={rolesDisponibles.length === 0 ? "No hay roles definidos" : "Seleccionar rol..."}/>
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="sin-rol" className="text-base text-muted-foreground">Sin Rol Asignado</SelectItem>
-                        {rolesDisponibles.map(rol => (
-                            <SelectItem key={rol.id} value={rol.id} className="text-base">{rol.nombre}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                {rolesDisponibles.length === 0 && (
-                     <p className="text-xs text-muted-foreground">No hay roles creados. <Link href="/empleados/roles" className="underline text-primary">Configurar Roles</Link>.</p>
-                )}
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">

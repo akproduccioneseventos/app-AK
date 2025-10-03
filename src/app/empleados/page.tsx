@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "N/A";
@@ -80,10 +81,12 @@ export default function EmpleadosPage() {
     }
   };
 
-  const getRolName = (rolId?: string): string => {
-    if (!rolId) return 'Sin Rol Asignado';
-    const rol = roles.find(r => r.id === rolId);
-    return rol ? rol.nombre : 'Rol Desconocido';
+  const getRolNames = (rolIds?: string[]): string => {
+    if (!rolIds || rolIds.length === 0) return 'Sin Rol Asignado';
+    return rolIds
+      .map(rolId => roles.find(r => r.id === rolId)?.nombre)
+      .filter(Boolean)
+      .join(', ');
   };
 
   return (
@@ -135,8 +138,7 @@ export default function EmpleadosPage() {
                   <TableRow>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Cédula</TableHead>
-                    <TableHead>Fecha Nacimiento</TableHead>
-                    <TableHead>Rol Asignado</TableHead>
+                    <TableHead>Roles Asignados</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -145,8 +147,14 @@ export default function EmpleadosPage() {
                     <TableRow key={empleado.id}>
                       <TableCell className="font-medium min-w-[180px]">{empleado.nombre}</TableCell>
                       <TableCell className="min-w-[120px]">{empleado.cedula}</TableCell>
-                      <TableCell className="min-w-[140px]">{formatDate(empleado.fechaNacimiento)}</TableCell>
-                      <TableCell className="min-w-[150px]">{getRolName(empleado.rolId)}</TableCell>
+                      <TableCell className="min-w-[150px]">
+                        <div className="flex flex-wrap gap-1">
+                           {(empleado.rolIds && empleado.rolIds.length > 0) ? empleado.rolIds.map(rolId => {
+                               const rol = roles.find(r => r.id === rolId);
+                               return rol ? <Badge key={rolId} variant="secondary">{rol.nombre}</Badge> : null;
+                           }) : <span className="text-xs text-muted-foreground">Sin Rol</span>}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right min-w-[120px]">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/empleados/${empleado.id}/editar`} passHref>
