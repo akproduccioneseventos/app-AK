@@ -43,13 +43,6 @@ const settingsCards = [
     buttonLabel: "Analizar Evento"
   },
   {
-    title: "Configuración de Paquetes (Simulador)",
-    description: "Define los paquetes y precios para el simulador de presupuesto de clientes.",
-    href: "/settings/budget-display",
-    icon: Wand2,
-    buttonLabel: "Configurar Simulador"
-  },
-  {
     title: "Plantillas de Tareas",
     description: "Crea y gestiona listas de tareas predefinidas para iniciar rápidamente la planificación de un evento.",
     href: "/settings/task-templates",

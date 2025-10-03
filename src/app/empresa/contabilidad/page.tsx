@@ -99,6 +99,13 @@ const accesosDirectosItems: AccesoDirectoItem[] = [
     icon: ChefHat,
     actionLabel: 'Gestionar Menús',
   },
+  {
+    title: 'Configuración de Paquetes (Simulador)',
+    description: 'Define los paquetes y precios para el simulador de presupuesto de clientes.',
+    href: '/settings/budget-display',
+    icon: Wand2,
+    actionLabel: 'Configurar Simulador'
+  },
 ];
 
 
@@ -281,7 +288,6 @@ export default function ContabilidadDashboardPage() {
                       </Link>
                   </Button>
                   <div className="flex gap-2 w-full">
-                    <Link href="/settings/budget-display" passHref className="flex-1"><Button variant="secondary" className="w-full">Configurar</Button></Link>
                     <ShareLinkDialog relativePath="/simulador-de-presupuesto" title="Compartir Simulador" description="Comparte este enlace para que tus clientes puedan generar un presupuesto estimado.">
                         <Button variant="outline" className="w-full">Compartir</Button>
                     </ShareLinkDialog>
