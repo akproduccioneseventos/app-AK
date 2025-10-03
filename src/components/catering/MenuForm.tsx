@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -34,9 +34,20 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const [currentItemIdForCatalog, setCurrentItemIdForCatalog] = useState<string | null>(null);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
+  const calculatePrices = (item: MenuItem): MenuItem => {
+    const totalDishCost = (item.ingredients || []).reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
+    const profitMargin = item.profitMargin === undefined ? 100 : item.profitMargin;
+    const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
+    return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
+  };
+
   useEffect(() => {
     if (existingMenu) {
-      setMenu(existingMenu);
+      const menuWithCalculatedPrices = {
+        ...existingMenu,
+        items: (existingMenu.items || []).map(calculatePrices)
+      };
+      setMenu(menuWithCalculatedPrices);
     }
     const fetchInsumos = async () => {
       try {
@@ -57,7 +68,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     setMenu(prev => ({
       ...prev,
       items: (prev.items || []).map(item =>
-        item.id === itemId ? { ...item, [field]: value } : item
+        item.id === itemId ? calculatePrices({ ...item, [field]: value }) : item
       ),
     }));
   };
@@ -67,18 +78,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         ...prev,
         items: (prev.items || []).map(item => {
             if (item.id === itemId) {
-                const newIngredients = (item.ingredients || []).map(ing => {
-                    if (ing.id === ingId) {
-                        const updatedIng = { ...ing, [field]: value };
-                        if (field === 'quantityPerPerson' || field === 'cost') {
-                             // This is a simplified cost update logic.
-                        }
-                        return updatedIng;
-                    }
-                    return ing;
-                });
-                 const totalDishCost = newIngredients.reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
-                return { ...item, ingredients: newIngredients, totalDishCost };
+                const newIngredients = (item.ingredients || []).map(ing => 
+                    ing.id === ingId ? { ...ing, [field]: value } : ing
+                );
+                return calculatePrices({ ...item, ingredients: newIngredients });
             }
             return item;
         }),
@@ -92,6 +95,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       type: 'Entrada',
       ingredients: [],
       totalDishCost: 0,
+      profitMargin: 100, // Default profit margin
+      suggestedSellingPrice: 0,
     };
     setMenu(prev => ({ ...prev, items: [...(prev.items || []), newItem] }));
   };
@@ -107,7 +112,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
      setMenu(prev => ({
       ...prev,
       items: (prev.items || []).map(item =>
-        item.id === itemId ? { ...item, ingredients: [...(item.ingredients || []), newIngredient] } : item
+        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newIngredient] }) : item
       ),
     }));
   }
@@ -124,7 +129,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       setMenu(prev => ({
       ...prev,
       items: (prev.items || []).map(item =>
-        item.id === itemId ? { ...item, ingredients: [...(item.ingredients || []), newIngredient] } : item
+        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newIngredient] }) : item
       ),
     }));
     toast({ description: `"${insumo.nombre}" añadido al plato.` });
@@ -143,7 +148,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     setMenu(prev => ({
         ...prev,
         items: (prev.items || []).map(item =>
-         item.id === itemId ? { ...item, ingredients: (item.ingredients || []).filter(ing => ing.id !== ingId) } : item
+         item.id === itemId ? calculatePrices({ ...item, ingredients: (item.ingredients || []).filter(ing => ing.id !== ingId) }) : item
         ),
     }))
   }
@@ -238,8 +243,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item) => (
-            <Card key={item.id} className="bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-                <CardHeader className="p-4 pb-2">
+            <Card key={item.id} className="p-4 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                            <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
@@ -248,7 +253,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive ml-2 flex-shrink-0" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
                      </div>
                 </CardHeader>
-                 <CardContent className="p-4 pt-2">
+                 <CardContent className="p-0">
                     <Label className="text-sm font-medium">Ingredientes</Label>
                     <div className="mt-2 space-y-3">
                         {item.ingredients?.map(ing => (
@@ -269,8 +274,16 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
                      </div>
                  </CardContent>
-                 <CardFooter className="p-4 pt-0 text-right">
+                 <CardFooter className="p-0 pt-4 text-right flex flex-col items-end gap-2">
                     <p className="text-sm font-semibold w-full">Costo Plato p/Persona: {formatCurrency(item.totalDishCost)}</p>
+                    <div className="flex items-center gap-2">
+                        <Label htmlFor={`profit-${item.id}`} className="text-sm">Margen de Ganancia</Label>
+                        <div className="relative w-24">
+                          <Input id={`profit-${item.id}`} type="number" value={item.profitMargin} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value))} className="pr-6"/>
+                          <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                        </div>
+                    </div>
+                    <p className="text-md font-bold text-primary w-full">Precio de Venta Sugerido: {formatCurrency(item.suggestedSellingPrice || 0)}</p>
                  </CardFooter>
             </Card>
           ))}
