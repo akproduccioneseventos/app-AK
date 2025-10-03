@@ -22,13 +22,6 @@ const settingsCards = [
     buttonLabel: "Gestionar Vínculos"
   },
   {
-    title: "Análisis de Código (IA)",
-    description: "Deja que la IA revise tu código y te dé sugerencias de mejora.",
-    href: "/admin/aaiff",
-    icon: BrainCircuit,
-    buttonLabel: "Analizar Código"
-  },
-  {
     title: "Accesos para Colaboradores",
     description: "Crea y gestiona enlaces de acceso para tu equipo (secretaria, DJ, etc.).",
     href: "/settings/accesos-personal",
