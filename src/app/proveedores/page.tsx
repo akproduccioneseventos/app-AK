@@ -176,13 +176,13 @@ export default function ProveedoresPage() {
                       <TableCell className="text-right min-w-[150px]">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/proveedores/${proveedor.id}/edit`} passHref>
-                            <Button variant="outline" size="icon" aria-label={`Editar ${proveedor.nombreEmpresa || proveedor.nombre}`}>
+                            <Button variant="outline" size="icon" aria-label={`Editar ${proveedor.nombreEmpresa || proveedor.nombre}`} title="Editar">
                               <Edit className="w-4 h-4" />
                             </Button>
                           </Link>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="icon" aria-label={`Eliminar ${proveedor.nombreEmpresa || proveedor.nombre}`} disabled={deletingId === proveedor.id}>
+                              <Button variant="destructive" size="icon" aria-label={`Eliminar ${proveedor.nombreEmpresa || proveedor.nombre}`} title="Eliminar" disabled={deletingId === proveedor.id}>
                                 {deletingId === proveedor.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                               </Button>
                             </AlertDialogTrigger>
