@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "emp_1759527696730_rjd9k",
+    "nombre": "Carlos Fagundez",
+    "cedula": "",
+    "fechaNacimiento": "",
+    "rolIds": [
+      "rol_1759527671533_wvewn"
+    ]
+  }
+]
