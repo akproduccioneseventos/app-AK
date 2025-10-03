@@ -8,6 +8,7 @@ import type { Customer } from '@/types/customer';
 import { createNewFiestaForCustomer } from '@/app/actions/fiesta/fiesta.actions';
 import { activateAnnualAdjustmentForBudget } from './presupuestos';
 import { addReunion } from './fiesta/reuniones.actions';
+import { createNotification } from './notifications';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -74,6 +75,14 @@ export async function addCrmLead(
   };
   leads.push(newLead);
   await writeData(LEADS_FILE, leads);
+  
+  // Create a notification for the new lead
+  await createNotification({
+    mensaje: `Nuevo prospecto añadido: ${newLead.name}`,
+    href: '/contabilidad/crm',
+    icono: 'KanbanSquare',
+  });
+
   return { success: true, lead: newLead };
 }
 

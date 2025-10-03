@@ -3,6 +3,17 @@ import type { Invitado } from './invitado';
 import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
 
+// --- NOTIFICACIONES ---
+export interface Notificacion {
+  id: string;
+  mensaje: string;
+  href?: string; // Link a la página relevante
+  fecha: string; // ISO String
+  leida: boolean;
+  icono?: string; // Nombre de un icono de lucide-react
+}
+
+
 // --- CONFIGURACIÓN DEL ASISTENTE AK ---
 export interface AsistentePasoOpcion {
   id: string;
