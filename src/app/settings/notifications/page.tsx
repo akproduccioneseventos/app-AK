@@ -108,8 +108,8 @@ export default function NotificationsSettingsPage() {
     { id: "eventReminders", title: "Recordatorios de Eventos", description: "Alertas sobre próximos eventos, cambios de fecha, etc." },
     { id: "taskUpdates", title: "Actualizaciones de Tareas", description: "Notificaciones sobre tareas asignadas, vencimientos o completadas." },
     { id: "crmUpdates", title: "Actualizaciones del CRM", description: "Alertas sobre nuevos prospectos, cambios de etapa, etc." },
-    { id: "clientMessages", title: "Mensajes de Clientes (Próximamente)", description: "Avisos cuando un cliente envía un mensaje o responde.", isDisabled: true },
-    { id: "systemAlerts", title: "Alertas del Sistema (Próximamente)", description: "Notificaciones importantes sobre tu cuenta o el sistema.", isDisabled: true },
+    { id: "clientMessages", title: "Mensajes de Clientes", description: "Avisos cuando un cliente envía un mensaje o responde.", isDisabled: false },
+    { id: "systemAlerts", title: "Alertas del Sistema", description: "Notificaciones importantes sobre tu cuenta o el sistema.", isDisabled: false },
   ];
   
   if (isLoading || !preferences) {
@@ -197,7 +197,7 @@ export default function NotificationsSettingsPage() {
         </form>
       </Card>
        <p className="text-xs text-muted-foreground text-center">
-        Ten en cuenta que las opciones marcadas como "(Próximamente)" y el envío real de notificaciones aún están en desarrollo.
+        Ten en cuenta que el envío real de notificaciones (emails, push) aún está en desarrollo.
       </p>
     </div>
   );
