@@ -387,6 +387,9 @@ export default function TareasEventoPage() {
           <div className="flex flex-wrap gap-2 mb-4">
             <Button onClick={handleOpenLoadTemplateModal} variant="secondary"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Tareas desde Plantilla</Button>
             <Button onClick={handleOpenSaveTemplateModal} variant="secondary"><Save className="w-4 h-4 mr-2"/>Guardar Lista como Plantilla</Button>
+            <Link href="/settings/task-templates" passHref>
+              <Button variant="outline">Gestionar Plantillas</Button>
+            </Link>
           </div>
           {tareas.length > 0 ? (
             <ScrollArea className="h-[400px] pr-3">

@@ -43,13 +43,6 @@ const settingsCards = [
     buttonLabel: "Analizar Evento"
   },
   {
-    title: "Plantillas de Tareas",
-    description: "Crea y gestiona listas de tareas predefinidas para iniciar rápidamente la planificación de un evento.",
-    href: "/settings/task-templates",
-    icon: ListChecks,
-    buttonLabel: "Gestionar Plantillas"
-  },
-  {
     title: "Accesos para Colaboradores",
     description: "Crea y gestiona enlaces de acceso para tu equipo (secretaria, DJ, etc.).",
     href: "/settings/accesos-personal",
