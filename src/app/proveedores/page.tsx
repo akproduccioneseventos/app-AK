@@ -160,7 +160,6 @@ export default function ProveedoresPage() {
                     <TableHead>Nombre / Empresa / Servicio</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Servicio Principal/Categoría</TableHead>
-                    <TableHead>Contacto</TableHead>
                     <TableHead>Teléfono</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
@@ -171,7 +170,6 @@ export default function ProveedoresPage() {
                       <TableCell className="font-medium min-w-[200px]">{proveedor.nombreEmpresa || proveedor.nombre}</TableCell>
                       <TableCell><Badge variant={proveedor.tipo === 'Proveedor' ? 'secondary' : 'outline'}>{proveedor.tipo}</Badge></TableCell>
                       <TableCell className="min-w-[180px]">{proveedor.servicioPrincipal}</TableCell>
-                      <TableCell className="min-w-[180px]">{proveedor.nombre || '-'}</TableCell>
                       <TableCell className="min-w-[130px]">{proveedor.telefono || '-'}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
