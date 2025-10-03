@@ -28,6 +28,7 @@ const prompt = ai.definePrompt({
   name: 'assistantPrompt',
   input: {schema: AssistantInputSchema},
   output: {schema: AssistantOutputSchema},
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are a helpful assistant. Respond to the user's query.
 
 Query: {{{query}}}`,
@@ -47,3 +48,5 @@ const assistantFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
