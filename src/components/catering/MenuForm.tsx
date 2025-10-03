@@ -156,7 +156,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item) => (
-            <Card key={item.id} className="p-4 bg-muted/40">
+            <Card key={item.id} className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
                 <div className="flex justify-end mb-2">
                    <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
                 </div>
@@ -168,7 +168,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                      <Label className="text-sm font-medium">Ingredientes</Label>
                      <div className="space-y-3">
                      {item.ingredients?.map(ing => (
-                        <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-l-4 border-primary/50 rounded-r-md bg-muted/50 shadow-sm">
+                        <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-l-4 border-primary/50 rounded-r-md bg-background shadow-sm">
                             <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
                             <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
                             <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
