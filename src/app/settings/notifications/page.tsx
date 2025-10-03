@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, type FormEvent } from 'react';
+import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -27,48 +27,98 @@ const initialPreferences: NotificationPreferences = {
   crmUpdates: { email: true, app: false },
 };
 
+// Simulate API calls for now
+async function getNotificationPreferences(): Promise<NotificationPreferences> {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const stored = typeof window !== 'undefined' ? localStorage.getItem('notification_prefs') : null;
+  return stored ? JSON.parse(stored) : initialPreferences;
+}
+
+async function saveNotificationPreferences(prefs: NotificationPreferences): Promise<void> {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('notification_prefs', JSON.stringify(prefs));
+  }
+}
+
+
 export default function NotificationsSettingsPage() {
   const { toast } = useToast();
-  const [preferences, setPreferences] = useState<NotificationPreferences>(initialPreferences);
+  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadPreferences = useCallback(async () => {
+    setIsLoading(true);
+    try {
+        const data = await getNotificationPreferences();
+        setPreferences(data);
+    } catch (e) {
+        toast({ title: "Error", description: "No se pudieron cargar las preferencias."});
+    } finally {
+        setIsLoading(false);
+    }
+  }, [toast]);
+  
+  useEffect(() => {
+    loadPreferences();
+  }, [loadPreferences]);
+
 
   const handlePreferenceChange = (
     category: keyof NotificationPreferences,
     type: 'email' | 'app',
     value: boolean
   ) => {
-    setPreferences(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [type]: value,
-      },
-    }));
+    setPreferences(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            [category]: {
+                ...prev[category],
+                [type]: value,
+            },
+        };
+    });
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!preferences) return;
     setIsSaving(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast({
-      title: "Preferencias Guardadas (Simulado)",
-      description: "Tus configuraciones de notificación han sido actualizadas.",
-    });
-    setIsSaving(false);
+    try {
+      await saveNotificationPreferences(preferences);
+      toast({
+        title: "Preferencias Guardadas",
+        description: "Tus configuraciones de notificación han sido actualizadas.",
+      });
+    } catch(e) {
+      toast({ title: "Error", description: "No se pudieron guardar las preferencias.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const notificationSections: {
     id: keyof NotificationPreferences;
     title: string;
     description: string;
+    isDisabled?: boolean;
   }[] = [
     { id: "eventReminders", title: "Recordatorios de Eventos", description: "Alertas sobre próximos eventos, cambios de fecha, etc." },
     { id: "taskUpdates", title: "Actualizaciones de Tareas", description: "Notificaciones sobre tareas asignadas, vencimientos o completadas." },
     { id: "crmUpdates", title: "Actualizaciones del CRM", description: "Alertas sobre nuevos prospectos, cambios de etapa, etc." },
-    { id: "clientMessages", title: "Mensajes de Clientes (Próximamente)", description: "Avisos cuando un cliente envía un mensaje o responde." },
-    { id: "systemAlerts", title: "Alertas del Sistema (Próximamente)", description: "Notificaciones importantes sobre tu cuenta o el sistema." },
+    { id: "clientMessages", title: "Mensajes de Clientes (Próximamente)", description: "Avisos cuando un cliente envía un mensaje o responde.", isDisabled: true },
+    { id: "systemAlerts", title: "Alertas del Sistema (Próximamente)", description: "Notificaciones importantes sobre tu cuenta o el sistema.", isDisabled: true },
   ];
+  
+  if (isLoading || !preferences) {
+      return (
+        <div className="flex items-center justify-center p-8">
+            <Loader2 className="w-8 h-8 animate-spin text-primary"/>
+        </div>
+      )
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -116,21 +166,21 @@ export default function NotificationsSettingsPage() {
                         id={`${section.id}-email`}
                         checked={preferences[section.id].email}
                         onCheckedChange={(value) => handlePreferenceChange(section.id, 'email', value)}
-                        disabled={isSaving || section.title.includes("(Próximamente)")}
+                        disabled={isSaving || section.isDisabled}
                       />
                     </div>
                     <div className="flex items-center justify-between">
                       <Label htmlFor={`${section.id}-app`} className="flex flex-col space-y-1">
                         <span>Notificación en App</span>
                         <span className="font-normal leading-snug text-muted-foreground text-xs">
-                          Mostrar dentro de la aplicación (si está habilitado).
+                          Mostrar dentro de la aplicación.
                         </span>
                       </Label>
                       <Switch
                         id={`${section.id}-app`}
                         checked={preferences[section.id].app}
                         onCheckedChange={(value) => handlePreferenceChange(section.id, 'app', value)}
-                        disabled={isSaving || section.title.includes("(Próximamente)")}
+                        disabled={isSaving || section.isDisabled}
                       />
                     </div>
                   </div>
