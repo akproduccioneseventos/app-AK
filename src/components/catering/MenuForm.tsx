@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -161,21 +162,24 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
-                    <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil">Menú Infantil</SelectItem></SelectContent></Select></div>
                  </div>
                  <div className="mt-4 space-y-2">
                      <Label className="text-sm font-medium">Ingredientes</Label>
+                     <div className="space-y-3">
                      {item.ingredients?.map(ing => (
-                        <div key={ing.id} className="grid grid-cols-2 md:grid-cols-4 gap-2 items-end p-2 border rounded">
-                             <div className="space-y-1"><Label className="text-xs">Nombre</Label><Input value={ing.name} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)}/></div>
-                             <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)}/></div>
-                             <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)}/></div>
-                             <div className="flex items-center gap-1">
-                                <div className="space-y-1 flex-grow"><Label className="text-xs">Costo ($)</Label><Input type="number" value={ing.cost} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))}/></div>
-                                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                             </div>
+                        <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border rounded-md bg-background shadow-sm">
+                            <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
+                            <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
+                            <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
+                            <div className="space-y-1"><Label className="text-xs">Proveedor</Label><Input value={ing.proveedor || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'proveedor', e.target.value)} className="h-8"/></div>
+                            <div className="space-y-1"><Label className="text-xs">Costo ($)</Label><Input type="number" value={ing.cost} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} className="h-8"/></div>
+                            <div className="lg:col-span-5 flex justify-end">
+                              <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                            </div>
                         </div>
                      ))}
+                     </div>
                      <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}>+ Añadir Ingrediente</Button>
                  </div>
                  <p className="text-right text-sm font-semibold mt-2">Costo Plato p/Persona: {formatCurrency(item.totalDishCost)}</p>

@@ -1,20 +1,9 @@
-
 [
   {
     "id": "prov_1753733075249_u2dax7",
     "tipo": "Proveedor",
     "nombre": "CALSAL",
     "nombreEmpresa": "CALSAL",
-    "servicioPrincipal": "Insumos Varios",
-    "telefono": "",
-    "email": "",
-    "notas": "Generado automáticamente desde importación."
-  },
-  {
-    "id": "prov_1753733075249_9fjezu",
-    "tipo": "Proveedor",
-    "nombre": "MONTEVIDEO",
-    "nombreEmpresa": "MONTEVIDEO",
     "servicioPrincipal": "Insumos Varios",
     "telefono": "",
     "email": "",
