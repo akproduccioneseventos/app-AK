@@ -141,7 +141,7 @@ export default function NotificationsSettingsPage() {
         <CardHeader>
           <CardTitle className="font-headline text-xl">Gestionar Preferencias</CardTitle>
           <CardDescription>
-            Elige qué notificaciones deseas recibir y por qué canales. La funcionalidad real de envío de notificaciones está en desarrollo.
+            Elige qué notificaciones deseas recibir y por qué canales.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -196,9 +196,6 @@ export default function NotificationsSettingsPage() {
           </CardFooter>
         </form>
       </Card>
-       <p className="text-xs text-muted-foreground text-center">
-        Ten en cuenta que el envío real de notificaciones (emails, push) aún está en desarrollo.
-      </p>
     </div>
   );
 }
