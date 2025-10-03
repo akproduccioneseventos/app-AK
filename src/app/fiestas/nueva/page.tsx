@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera, Calculator, Film, Music2, Clock, PartyPopper } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListChecks, Users, Palette, Settings2, Globe, CalendarDays, Loader2, AlertTriangle, MessageSquareText, ChefHat, UserCheck, ClipboardList, Archive, PackageSearch, BarChart3, Printer, LayoutDashboard, FileSignature, UserCog, Camera, Calculator, Film, Music2, Clock, PartyPopper, Star } from 'lucide-react';
 import { getFiestaActual, resetFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Tarea, Reunion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -39,6 +39,7 @@ interface PlanningModule {
 const internalModules: PlanningModule[] = [
   { title: "Configuración del Evento", description: "Datos técnicos: fecha, tipo, lugar, invitados.", icon: Settings2, href: "/fiestas/nueva/configuracion", status: "Disponible", actionLabel: "Configurar Evento" },
   { title: "Análisis de Evento (IA)", description: "Obtén un reporte del estado de la planificación de tu evento actual.", icon: PartyPopper, href: "/admin/aaiff-fiesta", status: "Disponible", actionLabel: "Analizar Evento" },
+  { title: "Feedback y Testimonios", description: "Gestiona las encuestas de clientes y genera testimonios con IA.", href: "/settings/feedback", icon: Star, status: "Disponible", actionLabel: "Gestionar Feedback" },
   { title: "Planificador Gastronómico", description: "Calcula costos de repostería y bebidas.", icon: Calculator, href: "/planner-costo-fiesta", status: "Disponible", actionLabel: "Abrir Planificador" },
   { title: "Lista de Tareas (Interna)", description: "Organización interna del equipo.", icon: ListChecks, href: "/fiestas/nueva/tareas", status: "Disponible", actionLabel: "Gestionar Tareas" },
   { title: "Cronograma de la Fiesta", description: "Define el cronograma y los momentos clave de la fiesta.", icon: Clock, href: "/fiestas/nueva/itinerario", status: "Disponible", actionLabel: "Crear Cronograma" },

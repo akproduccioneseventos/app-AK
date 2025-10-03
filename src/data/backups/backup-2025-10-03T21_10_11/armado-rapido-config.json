@@ -1,0 +1,353 @@
+{
+  "descuentoGeneral": 15,
+  "paquetes": [
+    {
+      "id": "new_paquete_1757286785711",
+      "nombre": "Paquete Básico",
+      "serviciosIncluidos": [
+        {
+          "id": "item_1756940568854_u5m4prf",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757282105396_39i6zkn",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757258361278_fs8ba4x",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757281980225_3x3nbzo",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757280489194_y9qozwm",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758319049180_rrpf3lf",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758319656786_6sjl431",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        }
+      ]
+    },
+    {
+      "id": "new_paquete_1757290579034",
+      "nombre": "Paquete Intermedio",
+      "serviciosIncluidos": [
+        {
+          "id": "item_1756940568854_u5m4prf",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757177422000_4ru2piy",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757282105396_39i6zkn",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757258361278_fs8ba4x",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757281980225_3x3nbzo",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757280489194_y9qozwm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_pantalla_proyector",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_video_vida",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757284864269_4d9w4ml",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757285027582_71oyrff",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600086_barlib",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757539461884_w7kfwsm",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758319656786_6sjl431",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758320278460_yqzpq1h",
+          "esRegalo": false
+        }
+      ]
+    },
+    {
+      "id": "new_paquete_1757733251670",
+      "nombre": "Paquete Premium",
+      "serviciosIncluidos": [
+        {
+          "id": "item_1756940568854_u5m4prf",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757177422000_4ru2piy",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757282105396_39i6zkn",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757258361278_fs8ba4x",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757281980225_3x3nbzo",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757280489194_y9qozwm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_pantalla_proyector",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_video_vida",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1757284889281_ioj7571",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757284864269_4d9w4ml",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757285027582_71oyrff",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600086_barlib",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757539461884_w7kfwsm",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757539236109_vtqfjaz",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1758320726157_k2ts7sy",
+          "esRegalo": true
+        },
+        {
+          "id": "item_1758319656786_6sjl431",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1758320278460_yqzpq1h",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757456683585_bb9tztm",
+          "esRegalo": false
+        }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "id": "menu_catering",
+      "nombre": "Opciones de Catering",
+      "descripcion": "Lista de todos los servicios de catering disponibles para el Simulador de Presupuesto.",
+      "serviciosIncluidos": [
+        {
+          "id": "serv_1752489600027_arrprim",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600023_asadocom",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600021_bifech",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600029_plancal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600036_calzita",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_cerdo_relleno",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600006_chivit",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600022_cordero",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600033_empcas",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600039_minibro",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600009_noquis",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600040_piccal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_picada_fiambres",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600028_picsna",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600007_pollarr",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600010_raviol",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600032_salpoll",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600044_sansal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600013_sorren",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600019_strogon",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600045_shushi",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600037_tacmex",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600005_hambur",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600054_menninpanm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_menu_ninos_panchos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600034_minichiv",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1752489600056_showpiz",
+          "esRegalo": false
+        }
+      ]
+    }
+  ],
+  "mostrarPrecios": true
+}

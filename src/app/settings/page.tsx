@@ -22,13 +22,6 @@ const settingsCards = [
     buttonLabel: "Gestionar Vínculos"
   },
   {
-    title: "Feedback y Testimonios",
-    description: "Gestiona las encuestas de clientes y genera testimonios con IA.",
-    href: "/settings/feedback",
-    icon: Star,
-    buttonLabel: "Gestionar Feedback"
-  },
-   {
     title: "Análisis de Código (IA)",
     description: "Deja que la IA revise tu código y te dé sugerencias de mejora.",
     href: "/admin/aaiff",

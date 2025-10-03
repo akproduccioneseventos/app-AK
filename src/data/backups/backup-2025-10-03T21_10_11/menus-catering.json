@@ -1,0 +1,3397 @@
+
+[
+  {
+    "id": "menu_entradas_predisenado",
+    "name": "Menú de Entradas",
+    "description": "Una selección de entradas frías y calientes para comenzar el evento.",
+    "templateType": "Menú de Entradas",
+    "createdAt": "2025-07-28T10:00:00.000Z",
+    "updatedAt": "2025-07-28T10:00:00.000Z",
+    "items": [
+      {
+        "id": "dish_entrada_1",
+        "name": "Buñuelos de Algas",
+        "type": "Entrada",
+        "totalDishCost": 45.2,
+        "ingredients": [
+          {
+            "id": "ing_1_1",
+            "name": "Harina",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 7.2,
+            "proveedor": "CALSAL"
+          },
+          {
+            "id": "ing_1_2",
+            "name": "Algas",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "MONTEVIDEO"
+          },
+          {
+            "id": "ing_1_3",
+            "name": "Salsa de soja",
+            "quantityPerPerson": "10",
+            "unit": "ml",
+            "cost": 5,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_1_4",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 7,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_1_5",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          },
+          {
+            "id": "ing_1_6",
+            "name": "Huevo",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "cost": 1,
+            "proveedor": "VERDULERIA"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_2",
+        "name": "Arrolladitos Primavera",
+        "type": "Entrada",
+        "totalDishCost": 40,
+        "ingredients": [
+          {
+            "id": "ing_2_1",
+            "name": "Salsa de soja",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_2_2",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 7,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_2_3",
+            "name": "Arrolladitos primavera",
+            "quantityPerPerson": "5",
+            "unit": "Unidad",
+            "cost": 30,
+            "proveedor": "DOPACA"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_3",
+        "name": "Tapas Saborizadas",
+        "type": "Entrada",
+        "totalDishCost": 48.4,
+        "ingredients": [
+          {
+            "id": "ing_3_1",
+            "name": "Tostaditas",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 19.5,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_3_2",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "cost": 4,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_3_3",
+            "name": "Hongos",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 4.2,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_3_4",
+            "name": "Picles",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_3_5",
+            "name": "Pate",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_3_6",
+            "name": "Salsa",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 5.4,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_3_7",
+            "name": "Aceitunas rodajas",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 2.7,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_3_8",
+            "name": "Salsas",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 3.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_3_9",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "VERDULERIA"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_4",
+        "name": "Planchas Calientes",
+        "type": "Entrada",
+        "totalDishCost": 54.2,
+        "ingredients": [
+          {
+            "id": "ing_4_1",
+            "name": "Jamon",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 7.2,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_4_2",
+            "name": "Manteca",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_4_3",
+            "name": "Muzzarella",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 13.2,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_4_4",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          },
+          {
+            "id": "ing_4_5",
+            "name": "Pan de Sandwiches",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 22.8,
+            "proveedor": "DON DIEGO"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_5",
+        "name": "Picada Snack",
+        "type": "Entrada",
+        "totalDishCost": 45.5,
+        "ingredients": [
+          {
+            "id": "ing_5_1",
+            "name": "Aceitunas",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "cost": 5.5,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_5_2",
+            "name": "Palitos salados",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "cost": 5,
+            "proveedor": "BAGASHOPING"
+          },
+          {
+            "id": "ing_5_3",
+            "name": "Mani",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "cost": 5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_5_4",
+            "name": "Papas Chips",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_5_5",
+            "name": "Doritos",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "DK MAYORISTA"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_7",
+        "name": "Picada de Fiambres",
+        "type": "Entrada",
+        "totalDishCost": 40.352,
+        "ingredients": [
+          {
+            "id": "ing_7_1",
+            "name": "Paleta",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.08,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_2",
+            "name": "Queso Dambo",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 2.58,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_3",
+            "name": "Salame",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 2.58,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_4",
+            "name": "Queso muzzarella",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 2.04,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_5",
+            "name": "Queso de cerdo",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 2.28,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_6",
+            "name": "Queso alpa",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.68,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_7",
+            "name": "Leonesa primavera",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.932,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_8",
+            "name": "Salsas",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 1.62,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_7_9",
+            "name": "Aceitunas s/ carozo",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_7_10",
+            "name": "Grisines chicos",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2.96,
+            "proveedor": "BISIO"
+          },
+          {
+            "id": "ing_7_11",
+            "name": "Galletas malteadas sin sal",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2.16,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_7_12",
+            "name": "Tostadas baguet saborizadas",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 5.08,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_7_13",
+            "name": "Catalan 20g con sesamo de remolacha",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2.72,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_7_14",
+            "name": "Catalan 20g con sesamo verde",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2.72,
+            "proveedor": "DON DIEGO"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_8",
+        "name": "Kebabs",
+        "type": "Entrada",
+        "totalDishCost": 76,
+        "ingredients": [
+          {
+            "id": "ing_8_1",
+            "name": "Picada de carne",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 33,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_8_2",
+            "name": "Manteca",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 12,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_8_3",
+            "name": "Aderezos",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 9,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_8_4",
+            "name": "Perejil y ajo natural",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_8_5",
+            "name": "Cebollas",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_8_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_9",
+        "name": "Salpicón de Pollo",
+        "type": "Entrada",
+        "totalDishCost": 71.2,
+        "ingredients": [
+          {
+            "id": "ing_9_1",
+            "name": "Pollo",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 30,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_9_2",
+            "name": "Papa",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 1.8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_9_3",
+            "name": "Zanahoria",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 3.6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_9_4",
+            "name": "Arbejas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 15,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_9_5",
+            "name": "Mayonesa",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 4.8,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_9_6",
+            "name": "Condimentos",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_9_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_10",
+        "name": "Empanadas",
+        "type": "Entrada",
+        "totalDishCost": 57.2,
+        "ingredients": [
+          {
+            "id": "ing_10_1",
+            "name": "Tapa",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "cost": 12,
+            "proveedor": "PASTAS LULU"
+          },
+          {
+            "id": "ing_10_2",
+            "name": "Huevos",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 2,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_10_3",
+            "name": "Cebolla",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_10_4",
+            "name": "Morron",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 7.2,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_10_5",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          },
+          {
+            "id": "ing_10_6",
+            "name": "Carne picada",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 25,
+            "proveedor": "CARNICERIA"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_11",
+        "name": "Mini Chivitos",
+        "type": "Entrada",
+        "totalDishCost": 80,
+        "ingredients": [
+          {
+            "id": "ing_11_1",
+            "name": "Pan",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "cost": 12,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_11_2",
+            "name": "lechuga",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "cost": 5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_11_3",
+            "name": "Huevos",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 2,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_11_4",
+            "name": "Carne",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 22.8,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_11_5",
+            "name": "Tomate",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_11_6",
+            "name": "Jamon",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 13.2,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_11_7",
+            "name": "queso",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 16,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_11_8",
+            "name": "Gas",
+            "quantityPerPerson": "3",
+            "unit": "min",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_12",
+        "name": "Cono Pizza",
+        "type": "Entrada",
+        "totalDishCost": 78.312,
+        "ingredients": [
+          {
+            "id": "ing_12_1",
+            "name": "Choclo",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.56,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_12_2",
+            "name": "Papas pay",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 2.7,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_12_3",
+            "name": "Aceitunas",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.326,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_12_4",
+            "name": "Jamón",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.08,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_12_5",
+            "name": "Palmitos",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.2,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_12_6",
+            "name": "Panchos",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 1.2,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_12_7",
+            "name": "Salame",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 2.52,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_12_8",
+            "name": "Panceta",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "cost": 2.526,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_12_9",
+            "name": "Muzzarella",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 27.2,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_12_10",
+            "name": "Conos",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 25,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_12_11",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.08",
+            "unit": "g",
+            "cost": 4,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_12_12",
+            "name": "Huevo",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "cost": 1,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_12_13",
+            "name": "Gas",
+            "quantityPerPerson": "7",
+            "unit": "min",
+            "cost": 4
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_13",
+        "name": "Show de Pizzas",
+        "type": "Entrada",
+        "totalDishCost": 89.616,
+        "ingredients": [
+          {
+            "id": "ing_13_1",
+            "name": "Choclo",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2.08,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_13_2",
+            "name": "Papas pay",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 3.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_13_3",
+            "name": "Aceitunas",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 1.768,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_13_4",
+            "name": "Jamón",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 1.44,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_13_5",
+            "name": "Palmitos",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 1.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_13_6",
+            "name": "Panchos",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 1.6,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_13_7",
+            "name": "Salame",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 3.36,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_13_8",
+            "name": "Panceta",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 3.368,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_13_9",
+            "name": "Muzzarella",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 27.2,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_13_10",
+            "name": "Pizzas",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "cost": 30,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_13_11",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.08",
+            "unit": "g",
+            "cost": 4,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_13_12",
+            "name": "Huevo",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "cost": 1,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_13_13",
+            "name": "Tomate Cherry",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 1.6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_13_14",
+            "name": "Gas",
+            "quantityPerPerson": "7",
+            "unit": "min",
+            "cost": 4
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_14",
+        "name": "Arepas",
+        "type": "Entrada",
+        "totalDishCost": 84.8,
+        "ingredients": [
+          {
+            "id": "ing_14_1",
+            "name": "Cebolla",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 2,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_14_2",
+            "name": "Morron rojo",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_14_3",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.25",
+            "unit": "Unidad",
+            "cost": 10,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_14_4",
+            "name": "Tomate",
+            "quantityPerPerson": "35",
+            "unit": "g",
+            "cost": 5.25,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_14_5",
+            "name": "Condimentos",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_14_6",
+            "name": "Carne picada",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 25,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_14_7",
+            "name": "Muzzarella",
+            "quantityPerPerson": "35",
+            "unit": "g",
+            "cost": 11.55,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_14_8",
+            "name": "Harina de maiz blanco",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 12,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_14_9",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_15",
+        "name": "Calzonne",
+        "type": "Entrada",
+        "totalDishCost": 96,
+        "ingredients": [
+          {
+            "id": "ing_15_1",
+            "name": "Aceitunas",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 11,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_15_2",
+            "name": "Jamon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 9,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_15_3",
+            "name": "Muzarella",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 16.5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_15_4",
+            "name": "Tomate",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_15_5",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 12,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_15_6",
+            "name": "Huevo",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "cost": 5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_15_7",
+            "name": "Tapas de hojaldre",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "cost": 32.5,
+            "proveedor": "PASTAS LULU"
+          },
+          {
+            "id": "ing_15_8",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_16",
+        "name": "Tacos Mexicanos",
+        "type": "Entrada",
+        "totalDishCost": 92.45,
+        "ingredients": [
+          {
+            "id": "ing_16_1",
+            "name": "Salsa picante",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_16_2",
+            "name": "Condimentos",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 2.7,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_16_3",
+            "name": "Cebolla",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 1.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_16_4",
+            "name": "Morrón rojo",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 2.7,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_16_5",
+            "name": "Morrón verde",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 1.8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_16_6",
+            "name": "Tomate",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_16_7",
+            "name": "Huevo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 2,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_16_8",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_16_9",
+            "name": "Palta",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_16_10",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          },
+          {
+            "id": "ing_16_11",
+            "name": "Carne picada",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "cost": 30,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_16_12",
+            "name": "Muzzarella para rallar",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "cost": 8.25,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_16_13",
+            "name": "Tapas de hojaldre",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 7,
+            "proveedor": "PASTAS LULU"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_17",
+        "name": "Empanaditas y Pizzetitas",
+        "type": "Entrada",
+        "totalDishCost": 89,
+        "ingredients": [
+          {
+            "id": "ing_17_1",
+            "name": "Enpanaditas copetin",
+            "quantityPerPerson": "3",
+            "unit": "Unidad",
+            "cost": 39,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_17_2",
+            "name": "pizzetitas con muzzarella",
+            "quantityPerPerson": "3",
+            "unit": "Unidad",
+            "cost": 45,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_17_3",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_18",
+        "name": "Picada Premium",
+        "type": "Entrada",
+        "totalDishCost": 91.566,
+        "ingredients": [
+          {
+            "id": "ing_18_1",
+            "name": "Paleta",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 7.2,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_2",
+            "name": "Queso",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 12.6,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_3",
+            "name": "Salame",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 12.6,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_4",
+            "name": "Salsas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_18_5",
+            "name": "Papas Chips",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 12,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_18_6",
+            "name": "Palitos salados",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "BAGASHOPING"
+          },
+          {
+            "id": "ing_18_7",
+            "name": "Mani",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_8",
+            "name": "Paleta",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 1.62,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_9",
+            "name": "Queso",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 3.78,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_10",
+            "name": "Salame",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 3.78,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_11",
+            "name": "Queso muzzarela",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 2.25,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_12",
+            "name": "Queso de cerdo",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 2.43,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_13",
+            "name": "Leonesa primavera",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 2.898,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_18_14",
+            "name": "Aceitunas s/ carozo",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 1.98,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_18_15",
+            "name": "Grisines chicos",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 3.33,
+            "proveedor": "BISIO"
+          },
+          {
+            "id": "ing_18_16",
+            "name": "Galletas malteadas sin sal",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 2.25,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_18_17",
+            "name": "Tostadas baguet saborizadas",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "cost": 3.6,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_18_18",
+            "name": "Catalan 20g con sesamo de remolacha",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2.12,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_18_19",
+            "name": "Catalan 20g con sesamo verde",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "cost": 2.128,
+            "proveedor": "DON DIEGO"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_19",
+        "name": "Picada Caliente",
+        "type": "Entrada",
+        "totalDishCost": 98.48,
+        "ingredients": [
+          {
+            "id": "ing_19_1",
+            "name": "Nugget de pollo",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 8.49,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_19_2",
+            "name": "Aros de cebolla",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.59,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_19_3",
+            "name": "Papas fritas",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 7.8,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_19_4",
+            "name": "Arrolladitos primavera",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.83,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_19_5",
+            "name": "Croquetas de papa",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.5,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_19_6",
+            "name": "Noisettes",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_19_7",
+            "name": "Formitas de merluza",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.17,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_19_8",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_19_9",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          },
+          {
+            "id": "ing_19_10",
+            "name": "Milanesa de carne",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 9.6,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_19_11",
+            "name": "Milanesa de pollo",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.5,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_19_12",
+            "name": "Galletas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6.6,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_19_13",
+            "name": "Grisines",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_19_14",
+            "name": "Salsas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 5.4,
+            "proveedor": "UNIPLAS"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_20",
+        "name": "Picada Criolla",
+        "type": "Entrada",
+        "totalDishCost": 102.119,
+        "ingredients": [
+          {
+            "id": "ing_20_1",
+            "name": "Aceitunas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_20_2",
+            "name": "Salsa criolla",
+            "quantityPerPerson": "53",
+            "unit": "g",
+            "cost": 10.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_20_3",
+            "name": "Queso colonia",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 5.4,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_20_4",
+            "name": "Ravioles Fritos",
+            "quantityPerPerson": "51",
+            "unit": "g",
+            "cost": 10.659,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_20_5",
+            "name": "Papas rústicas",
+            "quantityPerPerson": "52",
+            "unit": "g",
+            "cost": 9.36,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_20_6",
+            "name": "Chorizos",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 12.5,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_20_7",
+            "name": "Morcilla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 18,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_20_8",
+            "name": "Pan de campo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 24,
+            "proveedor": "PANONO"
+          },
+          {
+            "id": "ing_20_9",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_21",
+        "name": "Picada de Mar",
+        "type": "Entrada",
+        "totalDishCost": 100.22,
+        "ingredients": [
+          {
+            "id": "ing_21_1",
+            "name": "Formitas de merluza",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.17,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_21_2",
+            "name": "Aros de cebolla",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.59,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_21_3",
+            "name": "Milanesa de pescado",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 12,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_21_4",
+            "name": "Rabas rebozadas de calamar",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 12.45,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_21_5",
+            "name": "Papas fritas",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 15.36,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_21_6",
+            "name": "Bastones de muzarella",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 10.95,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_21_7",
+            "name": "Tostadas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 11.7,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_21_8",
+            "name": "Grisines",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_21_9",
+            "name": "Salsas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 5.4,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_21_10",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 6,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_21_11",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_22",
+        "name": "Sushi",
+        "type": "Entrada",
+        "totalDishCost": 99.8,
+        "ingredients": [
+          {
+            "id": "ing_22_1",
+            "name": "Salmon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 50,
+            "proveedor": "FERRANDO"
+          },
+          {
+            "id": "ing_22_2",
+            "name": "Arroz de Shushi",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 13.5,
+            "proveedor": "TATA"
+          },
+          {
+            "id": "ing_22_3",
+            "name": "condimentos",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 3.6,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_22_4",
+            "name": "Queso crema",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 12,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_22_5",
+            "name": "Pepino",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 2.7,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_22_6",
+            "name": "Palta",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_22_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_23",
+        "name": "Sandwiches y Saladitos",
+        "type": "Entrada",
+        "totalDishCost": 74.8,
+        "ingredients": [
+          {
+            "id": "ing_23_1",
+            "name": "Sandwiches pan blanco",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "cost": 7.5,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_23_2",
+            "name": "Pebetes",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3.3,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_23_3",
+            "name": "Arrolladitos de hojaldre",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3.3,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_23_4",
+            "name": "Enpanaditas copetin",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "cost": 5.5,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_23_5",
+            "name": "Pizzetitas con muzzarella",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 11,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_23_6",
+            "name": "Medialunas",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "cost": 7.5,
+            "proveedor": "VALENTIN"
+          },
+          {
+            "id": "ing_23_7",
+            "name": "Cañoncitos",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3.75,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_8",
+            "name": "Palmitas",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 2.4,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_9",
+            "name": "Tarteletas",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 7.5,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_10",
+            "name": "Arrolladitos",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 2.1,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_11",
+            "name": "Jesuitas",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3.15,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_12",
+            "name": "Sandwiches pan negro",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "cost": 6.5,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_13",
+            "name": "Vulevanes",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3.6,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_14",
+            "name": "Escones de queso con sesamo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 2.2,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_15",
+            "name": "Chipa",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "cost": 2.2,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_16",
+            "name": "Queso con cereza",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3.3,
+            "proveedor": "EL TROPERO"
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_24",
+        "name": "Tabla de Fiambre Gourmet",
+        "type": "Entrada",
+        "totalDishCost": 118.905,
+        "ingredients": [
+          {
+            "id": "ing_24_1",
+            "name": "Lomito ahumado (bordenave)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 7.665,
+            "proveedor": "BORDENAVE"
+          },
+          {
+            "id": "ing_24_2",
+            "name": "Mortadela (tropero)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 4.905,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_24_3",
+            "name": "Jamon crudo (Fenix)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 26.985,
+            "proveedor": "FENIX"
+          },
+          {
+            "id": "ing_24_4",
+            "name": "Queso Dambo (tropero)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 6.3,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_24_5",
+            "name": "Queso Muzzarella (tropero)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_24_6",
+            "name": "Queso colonial (tropero)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 6.3,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_24_7",
+            "name": "Bondiola cocida ahumada (bordenave)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 7.2,
+            "proveedor": "BORDENAVE"
+          },
+          {
+            "id": "ing_24_8",
+            "name": "Salame (tropero)",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 5.85,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_24_9",
+            "name": "Salsas",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 9,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_24_10",
+            "name": "Tomate Cherry",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "cost": 1.8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_24_11",
+            "name": "Cerezas verde",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_24_12",
+            "name": "Cerezas roja",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_24_13",
+            "name": "Aceitunas",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 4.4,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_24_14",
+            "name": "Aceitunas negras",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_24_15",
+            "name": "galletitas",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 4.4,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_24_16",
+            "name": "Grisines",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 4.4,
+            "proveedor": "DON DIEGO"
+          }
+        ]
+      },
+      {
+        "id": "dish_papas_cheddar",
+        "name": "Papas fritas con Cheddar",
+        "type": "Entrada",
+        "totalDishCost": 50,
+        "ingredients": [
+          {
+            "id": "ing_pc_1",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 26,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_pc_2",
+            "name": "Queso Cheddar",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 17,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_pc_3",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 7,
+            "proveedor": "DK MAYORISTA"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "menu_platos_principales_predisenado",
+    "name": "Menú de Platos Principales",
+    "description": "Una selección de platos fuertes para el evento.",
+    "templateType": "Menú de Platos Principales",
+    "createdAt": "2025-07-28T10:00:00.000Z",
+    "updatedAt": "2025-07-28T10:00:00.000Z",
+    "items": [
+      {
+        "id": "dish_main_1",
+        "name": "Mini Brochetas",
+        "type": "Plato Principal",
+        "totalDishCost": 57.2,
+        "ingredients": [
+          {
+            "id": "ing_m1_1",
+            "name": "Carnes",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 22.8,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m1_2",
+            "name": "Panceta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m1_3",
+            "name": "Morron rojo",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m1_4",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m1_5",
+            "name": "Morron verde",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m1_6",
+            "name": "Cebollas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 2.4,
+            "proveedor": "VERDULERIA"
+          }
+        ]
+      },
+      {
+        "id": "dish_main_2",
+        "name": "Chivito C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 153.146,
+        "ingredients": [
+          {
+            "id": "ing_m2_1",
+            "name": "Huevo duro",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m2_2",
+            "name": "Tortuga",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 16,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_m2_3",
+            "name": "Emboltorio",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m2_4",
+            "name": "Jamon",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m2_5",
+            "name": "Lechuga",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 2.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m2_6",
+            "name": "Tomate",
+            "quantityPerPerson": "150",
+            "unit": "g",
+            "cost": 13.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m2_7",
+            "name": "Aderezos",
+            "quantityPerPerson": "101",
+            "unit": "g",
+            "cost": 4.646,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m2_8",
+            "name": "Carne",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "cost": 48,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m2_9",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 6,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_m2_10",
+            "name": "Queso Muzzarella",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m2_11",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 24,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m2_12",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_main_3",
+        "name": "Pollo Arrollado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 140,
+        "ingredients": [
+          {
+            "id": "ing_m3_1",
+            "name": "Pollo arrollado",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 100,
+            "proveedor": "NICO"
+          },
+          {
+            "id": "ing_m3_2",
+            "name": "guarnición",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_4",
+        "name": "Cerdo Braseado a la Mostaza C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 146.7,
+        "ingredients": [
+          {
+            "id": "ing_m4_1",
+            "name": "Bondiola",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 47.5,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m4_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "cost": 16,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m4_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 9.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m4_4",
+            "name": "miel",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 3.6,
+            "proveedor": "CASA DE LA MIEL"
+          },
+          {
+            "id": "ing_m4_5",
+            "name": "mostaza",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m4_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          },
+          {
+            "id": "ing_m4_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_5",
+        "name": "Cerdo Braseado a la Barbacoa C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 102.1,
+        "ingredients": [
+          {
+            "id": "ing_m5_1",
+            "name": "bondiola",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 47.5,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m5_2",
+            "name": "Salsa Barbacoa",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 24,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m5_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 9.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m5_4",
+            "name": "Cebolla",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m5_5",
+            "name": "ajo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m5_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          },
+          {
+            "id": "ing_m5_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_6",
+        "name": "Ravioles a la Crema",
+        "type": "Plato Principal",
+        "totalDishCost": 105.5,
+        "ingredients": [
+          {
+            "id": "ing_m6_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "130",
+            "unit": "ml",
+            "cost": 26,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m6_2",
+            "name": "paleta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m6_3",
+            "name": "queso dambo",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m6_4",
+            "name": "ravioles",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 55,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m6_5",
+            "name": "Queso rallado",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m6_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_7",
+        "name": "Ñoquis al Queso",
+        "type": "Plato Principal",
+        "totalDishCost": 145.5,
+        "ingredients": [
+          {
+            "id": "ing_m7_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "50",
+            "unit": "ml",
+            "cost": 9.5,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m7_2",
+            "name": "Noquis congelados",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 32,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m7_3",
+            "name": "Queso colonial",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 21,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m7_4",
+            "name": "Queso rallado",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m7_5",
+            "name": "Queso crema",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 25,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m7_6",
+            "name": "Manteca",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 25,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m7_7",
+            "name": "Queso muzzarella",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 15.5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m7_8",
+            "name": "condimentos",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 7.5,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m7_9",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_8",
+        "name": "Cerdo Arrollado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 300,
+        "ingredients": [
+          {
+            "id": "ing_m8_1",
+            "name": "Cerdo arrollado",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 110,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m8_2",
+            "name": "guarnición",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_9",
+        "name": "Pollo a la Crema C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 155.6,
+        "ingredients": [
+          {
+            "id": "ing_m9_1",
+            "name": "Muslos",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 70,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m9_2",
+            "name": "guarnición",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          },
+          {
+            "id": "ing_m9_3",
+            "name": "Crema de leche",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m9_4",
+            "name": "paleta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 9,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m9_5",
+            "name": "queso dambo",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "cost": 7.6,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m9_6",
+            "name": "Cebolla",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 9,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m9_7",
+            "name": "Gas",
+            "quantityPerPerson": "20",
+            "unit": "min",
+            "cost": 20
+          }
+        ]
+      },
+      {
+        "id": "dish_main_10",
+        "name": "Sorrentinos C/ Salsa Rosa",
+        "type": "Plato Principal",
+        "totalDishCost": 160.75,
+        "ingredients": [
+          {
+            "id": "ing_m10_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 20,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m10_2",
+            "name": "ketchup",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m10_3",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m10_4",
+            "name": "sorrentinos",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 115.75,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m10_5",
+            "name": "Queso rallado",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m10_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_11",
+        "name": "Brochetas C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 178.8,
+        "ingredients": [
+          {
+            "id": "ing_m11_1",
+            "name": "Carne",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 30.4,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m11_2",
+            "name": "Suprema de pollo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 24,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m11_3",
+            "name": "Bondiola",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 15.2,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m11_4",
+            "name": "Panceta",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 32,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m11_5",
+            "name": "Morron rojo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 12,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m11_6",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 12,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m11_7",
+            "name": "Papas para freir",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 24,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m11_8",
+            "name": "aceite",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "cost": 4.8,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_m11_9",
+            "name": "Morron verde",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m11_10",
+            "name": "Cebollas",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 6.4,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m11_11",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_12",
+        "name": "Napolitana C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 163.2,
+        "ingredients": [
+          {
+            "id": "ing_m12_1",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 9,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m12_2",
+            "name": "Milanesa",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 87.5,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m12_3",
+            "name": "Tomate",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m12_4",
+            "name": "Jamon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m12_5",
+            "name": "Queso",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 16,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m12_6",
+            "name": "Salsa",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "cost": 4.2,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m12_7",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 24,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m12_8",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 6,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_m12_9",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_main_13",
+        "name": "Bauru C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 159.5,
+        "ingredients": [
+          {
+            "id": "ing_m13_1",
+            "name": "Huevo duro",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m13_2",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 9,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m13_3",
+            "name": "Tortugas",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 30,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_m13_4",
+            "name": "Carne picada",
+            "quantityPerPerson": "180",
+            "unit": "g",
+            "cost": 45,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m13_5",
+            "name": "Tomate",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m13_6",
+            "name": "Jamon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m13_7",
+            "name": "Queso",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 16,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m13_8",
+            "name": "choclo",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m13_9",
+            "name": "Aderesos",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m13_10",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 24,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m13_11",
+            "name": "aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 12.1,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_m13_12",
+            "name": "Gas",
+            "quantityPerPerson": "8",
+            "unit": "min",
+            "cost": 8
+          }
+        ]
+      },
+      {
+        "id": "dish_main_14",
+        "name": "Strogonoff de Pollo C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 186.1,
+        "ingredients": [
+          {
+            "id": "ing_m14_1",
+            "name": "pollo",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 56,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m14_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 16,
+            "proveedor": ""
+          },
+          {
+            "id": "ing_m14_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 9.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m14_4",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m14_5",
+            "name": "Champiñon",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 50,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m14_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          },
+          {
+            "id": "ing_m14_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_15",
+        "name": "Merluza a la Crema C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 147.35,
+        "ingredients": [
+          {
+            "id": "ing_m15_1",
+            "name": "merluza",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 86.25,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m15_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 18,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m15_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 9.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m15_4",
+            "name": "Queso dambo",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m15_5",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m15_6",
+            "name": "paleta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 9,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m15_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          },
+          {
+            "id": "ing_m15_8",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_16",
+        "name": "Sushi C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 152.35,
+        "ingredients": [
+          {
+            "id": "ing_m16_1",
+            "name": "Palta",
+            "quantityPerPerson": "0.35",
+            "unit": "Unidad",
+            "cost": 14,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m16_2",
+            "name": "Salmon",
+            "quantityPerPerson": "90",
+            "unit": "g",
+            "cost": 90,
+            "proveedor": "FERRANDO"
+          },
+          {
+            "id": "ing_m16_3",
+            "name": "Arroz de Shushi",
+            "quantityPerPerson": "150",
+            "unit": "g",
+            "cost": 20.25,
+            "proveedor": "TATA"
+          },
+          {
+            "id": "ing_m16_4",
+            "name": "condimentos",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "cost": 3.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m16_5",
+            "name": "Queso crema",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 20,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_m16_6",
+            "name": "Pepino",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m16_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          },
+          {
+            "id": "ing_m16_8",
+            "name": "guarnicion verde",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_17",
+        "name": "Bife al Champiñon C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 185.1,
+        "ingredients": [
+          {
+            "id": "ing_m17_1",
+            "name": "Bife",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "cost": 95,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m17_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "cost": 16,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_m17_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "cost": 9.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m17_4",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_m17_5",
+            "name": "Champiñon",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 50,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m17_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          },
+          {
+            "id": "ing_m17_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_18",
+        "name": "Cordero Asado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 255,
+        "ingredients": [
+          {
+            "id": "ing_m18_1",
+            "name": "Cordero crudo",
+            "quantityPerPerson": "700",
+            "unit": "g",
+            "cost": 210,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_m18_2",
+            "name": "Guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 45
+          }
+        ]
+      },
+      {
+        "id": "dish_main_19",
+        "name": "Asado Completo C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 279.88,
+        "ingredients": [
+          {
+            "id": "ing_m19_1",
+            "name": "Asado vacio",
+            "quantityPerPerson": "500",
+            "unit": "g",
+            "cost": 185,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m19_2",
+            "name": "Chorizo",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "cost": 35.88,
+            "proveedor": ""
+          },
+          {
+            "id": "ing_m19_3",
+            "name": "Morcilla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "cost": 19,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_m19_4",
+            "name": "Guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 40
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "menu_infantil_predisenado",
+    "name": "Menú Infantil y Adolescente",
+    "description": "Opciones divertidas y deliciosas para los más chicos.",
+    "templateType": "Menú para Niños",
+    "createdAt": "2025-07-28T10:00:00.000Z",
+    "updatedAt": "2025-07-28T10:00:00.000Z",
+    "items": [
+      {
+        "id": "dish_child_1",
+        "name": "Panchos Medio Metro C/ Fritas",
+        "type": "Menú Infantil",
+        "totalDishCost": 164.3,
+        "ingredients": [
+          {
+            "id": "ing_c1_1",
+            "name": "Panchos medio metro",
+            "quantityPerPerson": "190",
+            "unit": "g",
+            "cost": 51.3,
+            "proveedor": "BORDENAVE"
+          },
+          {
+            "id": "ing_c1_2",
+            "name": "Papas pai",
+            "quantityPerPerson": "3",
+            "unit": "g",
+            "cost": 3,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_c1_3",
+            "name": "Aderezos",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "cost": 8,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_c1_4",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 6,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_c1_5",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 30,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_c1_6",
+            "name": "Porta pancho medio metro",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 15,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_c1_7",
+            "name": "Pan de panchos medio metro",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 48,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_c1_8",
+            "name": "Gas",
+            "quantityPerPerson": "3",
+            "unit": "min",
+            "cost": 3
+          }
+        ]
+      },
+      {
+        "id": "dish_child_2",
+        "name": "Panchos C/ Fritas",
+        "type": "Menú Infantil",
+        "totalDishCost": 93.2,
+        "ingredients": [
+          {
+            "id": "ing_c2_1",
+            "name": "Panchos",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "cost": 31.2,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_c2_2",
+            "name": "Aderezos",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "cost": 8,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_c2_3",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "cost": 6,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_c2_4",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 30,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_c2_5",
+            "name": "Pan de panchos",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 13,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_c2_6",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "cost": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_child_3",
+        "name": "Hamburguesa C/ Fritas",
+        "type": "Menú Infantil",
+        "totalDishCost": 134.3,
+        "ingredients": [
+          {
+            "id": "ing_c3_1",
+            "name": "Hamburguesas",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 35,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_c3_2",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 9,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_c3_3",
+            "name": "Huevo frito",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "cost": 3,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_c3_4",
+            "name": "Tortugas brioche 70 gramos",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "cost": 20,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_c3_5",
+            "name": "Tomate",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 6,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_c3_6",
+            "name": "Queso Cheddar",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 13.6,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_c3_7",
+            "name": "Jamon",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "cost": 7.2,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_c3_8",
+            "name": "Aderesos",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "cost": 4.5,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_c3_9",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "cost": 26,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_c3_10",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "cost": 10
+          }
+        ]
+      }
+    ]
+  }
+]

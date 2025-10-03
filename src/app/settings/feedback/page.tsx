@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { getFeedback, getTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial } from '@/app/actions/feedback';
@@ -24,6 +24,8 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { Input } from '@/components/ui/input';
 
 const formatDate = (dateString: string) => new Date(dateString).toLocaleString('es-ES');
 
@@ -32,6 +34,7 @@ export default function FeedbackPage() {
   const [feedbackList, setFeedbackList] = useState<FeedbackSubmission[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fiestaIdActual, setFiestaIdActual] = useState<string>('');
   
   // State for AI generation modal
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
@@ -43,9 +46,10 @@ export default function FeedbackPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [feedbackData, testimonialsData] = await Promise.all([getFeedback(), getTestimonials()]);
+      const [feedbackData, testimonialsData, fiestaActual] = await Promise.all([getFeedback(), getTestimonials(), getFiestaActual()]);
       setFeedbackList(feedbackData);
       setTestimonials(testimonialsData);
+      if(fiestaActual) setFiestaIdActual(fiestaActual.id);
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos de feedback.", variant: "destructive" });
     } finally {
@@ -56,6 +60,11 @@ export default function FeedbackPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+  
+  const handleCopyToClipboard = (url: string) => {
+    navigator.clipboard.writeText(url);
+    toast({ title: "Enlace Copiado" });
+  };
 
   const openAIGenerator = async (feedback: FeedbackSubmission) => {
     setCurrentFeedback(feedback);
@@ -114,6 +123,8 @@ export default function FeedbackPage() {
   }
   
   const feedbackSinTestimonio = feedbackList.filter(fb => !testimonials.some(t => t.feedbackId === fb.id));
+  
+  const feedbackLink = typeof window !== 'undefined' && fiestaIdActual ? `${window.location.origin}/feedback/${fiestaIdActual}` : '';
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -146,10 +157,27 @@ export default function FeedbackPage() {
           <Star className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Feedback y Testimonios</h1>
         </div>
-        <Link href="/settings" passHref>
-          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
+        <Link href="/fiestas/nueva" passHref>
+          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
         </Link>
       </div>
+      
+      <Card className="shadow-md bg-blue-50 border-blue-200">
+        <CardHeader>
+            <CardTitle className="text-blue-800 text-lg flex items-center gap-2"><Info className="w-5 h-5"/>¿Cómo funciona?</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-blue-700 space-y-2">
+            <p>1. Después de un evento, comparte el siguiente enlace de encuesta único con tu cliente.</p>
+             <div className="flex items-center space-x-2 pt-2">
+                <Input id="feedback-link" value={feedbackLink} readOnly disabled={!feedbackLink}/>
+                <Button type="button" size="sm" onClick={() => handleCopyToClipboard(feedbackLink)} disabled={!feedbackLink}>
+                    <ClipboardCopy className="h-4 w-4" />
+                </Button>
+            </div>
+            <p>2. El feedback del cliente aparecerá automáticamente en la sección "Feedback Recibido".</p>
+            <p>3. Usa el botón "Generar Testimonio" para que la IA cree un texto de marketing que podrás aprobar y usar en tus redes sociales.</p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -208,17 +236,6 @@ export default function FeedbackPage() {
           }
         </CardContent>
       </Card>
-       <Card className="bg-blue-50 border-blue-200">
-        <CardHeader>
-            <CardTitle className="text-blue-800 text-lg flex items-center gap-2"><Info className="w-5 h-5"/>¿Cómo funciona?</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-blue-700 space-y-2">
-            <p>1. Cuando una fiesta termina, ve a la sección "Configuración de la Empresa" y obtén el enlace único de la encuesta.</p>
-            <p>2. Envía ese enlace a tu cliente.</p>
-            <p>3. El feedback aparecerá aquí, listo para que la IA cree un testimonio para tu marketing.</p>
-            <p>4. Los testimonios aprobados estarán disponibles al crear contenido en el módulo de <Link href="/empresa/redes-sociales" className="underline font-semibold">Redes Sociales</Link>.</p>
-        </CardContent>
-       </Card>
     </div>
   );
 }

@@ -1,0 +1,213 @@
+
+[
+  {
+    "id": "prov_1753733075249_u2dax7",
+    "tipo": "Proveedor",
+    "nombre": "CALSAL",
+    "nombreEmpresa": "CALSAL",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075249_9fjezu",
+    "tipo": "Proveedor",
+    "nombre": "MONTEVIDEO",
+    "nombreEmpresa": "MONTEVIDEO",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_r491f",
+    "tipo": "Proveedor",
+    "nombre": "UNIPLAS",
+    "nombreEmpresa": "UNIPLAS",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_7g22c8",
+    "tipo": "Proveedor",
+    "nombre": "DK MAYORISTA",
+    "nombreEmpresa": "DK MAYORISTA",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_48s9h",
+    "tipo": "Proveedor",
+    "nombre": "VERDULERIA",
+    "nombreEmpresa": "VERDULERIA",
+    "servicioPrincipal": "Frutas y Verduras",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_x8g5k",
+    "tipo": "Proveedor",
+    "nombre": "DOPACA",
+    "nombreEmpresa": "DOPACA",
+    "servicioPrincipal": "Congelados",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_g9f93m",
+    "tipo": "Proveedor",
+    "nombre": "DON DIEGO",
+    "nombreEmpresa": "DON DIEGO",
+    "servicioPrincipal": "Panificados",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_4c59d",
+    "tipo": "Proveedor",
+    "nombre": "EL TROPERO",
+    "nombreEmpresa": "EL TROPERO",
+    "servicioPrincipal": "Fiambres y Lácteos",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_1qf7ae",
+    "tipo": "Proveedor",
+    "nombre": "BAGASHOPING",
+    "nombreEmpresa": "BAGASHOPING",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075250_w3t7vj",
+    "tipo": "Proveedor",
+    "nombre": "BISIO",
+    "nombreEmpresa": "BISIO",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_3h59d",
+    "tipo": "Proveedor",
+    "nombre": "CARNICERIA",
+    "nombreEmpresa": "CARNICERIA",
+    "servicioPrincipal": "Carnes",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_p8w1h",
+    "tipo": "Proveedor",
+    "nombre": "PASTAS LULU",
+    "nombreEmpresa": "PASTAS LULU",
+    "servicioPrincipal": "Pastas",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_y72qf",
+    "tipo": "Proveedor",
+    "nombre": "LA AVENIDA",
+    "nombreEmpresa": "LA AVENIDA",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_5q2d4",
+    "tipo": "Proveedor",
+    "nombre": "VALENTIN",
+    "nombreEmpresa": "VALENTIN",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_9d1f5",
+    "tipo": "Proveedor",
+    "nombre": "BORDENAVE",
+    "nombreEmpresa": "BORDENAVE",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_k1j2l",
+    "tipo": "Proveedor",
+    "nombre": "FENIX",
+    "nombreEmpresa": "FENIX",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_b6v4b",
+    "tipo": "Proveedor",
+    "nombre": "PANONO",
+    "nombreEmpresa": "PANONO",
+    "servicioPrincipal": "Panificados",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_4g6h8",
+    "tipo": "Proveedor",
+    "nombre": "FERRANDO",
+    "nombreEmpresa": "FERRANDO",
+    "servicioPrincipal": "Pescados y Mariscos",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_7c2b5",
+    "tipo": "Proveedor",
+    "nombre": "TATA",
+    "nombreEmpresa": "TATA",
+    "servicioPrincipal": "Supermercado",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_k9f1d",
+    "tipo": "Proveedor",
+    "nombre": "NICO",
+    "nombreEmpresa": "NICO",
+    "servicioPrincipal": "Carnes",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  },
+  {
+    "id": "prov_1753733075251_s5v9n",
+    "tipo": "Proveedor",
+    "nombre": "CASA DE LA MIEL",
+    "nombreEmpresa": "CASA DE LA MIEL",
+    "servicioPrincipal": "Insumos Varios",
+    "telefono": "",
+    "email": "",
+    "notas": "Generado automáticamente desde importación."
+  }
+]
