@@ -173,7 +173,7 @@ export default function ProveedoresPage() {
                       <TableCell className="min-w-[180px]">{proveedor.servicioPrincipal}</TableCell>
                       <TableCell className="min-w-[180px]">{proveedor.nombre || '-'}</TableCell>
                       <TableCell className="min-w-[130px]">{proveedor.telefono || '-'}</TableCell>
-                      <TableCell className="text-right min-w-[150px]">
+                      <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/proveedores/${proveedor.id}/edit`} passHref>
                             <Button variant="outline" size="icon" aria-label={`Editar ${proveedor.nombreEmpresa || proveedor.nombre}`} title="Editar">
