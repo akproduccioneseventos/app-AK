@@ -13,6 +13,7 @@ import { triggerAppLogout } from '@/components/auth-guard';
 import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
 import { getDashboardKpiData } from '@/app/actions/dashboard'; 
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { checkAndCreateTaskReminders } from '@/app/actions/notifications';
 import type { FiestaEnPlanificacion, Tarea, Reunion } from '@/types/fiesta';
 
 interface ModuleCardProps {
@@ -86,6 +87,9 @@ export default function DashboardPage() {
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
+      // Check for task reminders first, but don't block the UI for it
+      checkAndCreateTaskReminders().catch(err => console.warn("Failed to check task reminders:", err));
+
       const [kpiResult, fiestaActual] = await Promise.all([
         getDashboardKpiData(),
         getFiestaActual()

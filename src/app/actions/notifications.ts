@@ -3,6 +3,8 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { Notificacion } from '@/types/fiesta';
+import { getFiestaActual } from './fiesta-actual';
+import { differenceInDays, isToday, startOfToday } from 'date-fns';
 
 const NOTIFICATIONS_FILE = 'notifications.json';
 
@@ -17,6 +19,15 @@ export async function createNotification(
 ): Promise<{ success: boolean; notification?: Notificacion; error?: string }> {
   try {
     const notifications = await getNotifications();
+    
+    // Prevent duplicate notifications for the same message in a short time frame
+    const existingNotification = notifications.find(
+      n => n.mensaje === data.mensaje && new Date(n.fecha) > new Date(Date.now() - 60 * 60 * 1000) // 1 hour window
+    );
+    if (existingNotification) {
+        return { success: true, notification: existingNotification };
+    }
+
     const newNotification: Notificacion = {
       ...data,
       id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -73,5 +84,47 @@ export async function deleteNotification(
         return { success: true };
     } catch (e: any) {
         return { success: false, error: "No se pudo eliminar la notificación." };
+    }
+}
+
+
+export async function checkAndCreateTaskReminders(): Promise<{ success: boolean; created: number }> {
+    try {
+        const fiesta = await getFiestaActual();
+        if (!fiesta || !fiesta.tareas) {
+            return { success: true, created: 0 };
+        }
+
+        const today = startOfToday();
+        let createdCount = 0;
+
+        for (const tarea of fiesta.tareas) {
+            if (tarea.completada || !tarea.fechaLimite) continue;
+            
+            const dueDate = new Date(tarea.fechaLimite);
+            const daysUntilDue = differenceInDays(dueDate, today);
+
+            if (daysUntilDue >= 0 && daysUntilDue <= 2) {
+                let mensaje = '';
+                if(isToday(dueDate)) {
+                    mensaje = `Recordatorio: La tarea "${tarea.texto}" vence HOY.`;
+                } else {
+                    mensaje = `Recordatorio: La tarea "${tarea.texto}" vence en ${daysUntilDue + 1} día(s).`;
+                }
+                
+                const result = await createNotification({
+                    mensaje,
+                    href: '/fiestas/nueva/tareas',
+                    icono: 'ListChecks',
+                });
+                if(result.success && result.notification?.id.startsWith('notif_')) { // Check if it's a newly created one
+                  createdCount++;
+                }
+            }
+        }
+        return { success: true, created: createdCount };
+    } catch(e) {
+        console.error("Failed to check and create task reminders:", e);
+        return { success: false, created: 0 };
     }
 }
