@@ -53,14 +53,6 @@ export async function saveServicioEmpresa(
     notas: (itemData as any).notas?.trim() || undefined,
   };
 
-  const numberFields: (keyof ServicioEmpresa)[] = ['valorUnitarioEstimado', 'cantidadDisponible', 'precioVenta', 'precioBase', 'precioPorPersona', 'invitadosPorUnidad'];
-  numberFields.forEach(field => {
-      const value = dataWithParsedNumbers[field] as number | undefined;
-      if (value === undefined || isNaN(value)) {
-          delete dataWithParsedNumbers[field];
-      }
-  });
-
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del ítem es obligatorio." };
   if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
   if (!dataWithParsedNumbers.unidad && dataWithParsedNumbers.tipoItem !== 'Servicio') return { success: false, error: "La unidad es obligatoria para Insumos y Activos." };
@@ -70,6 +62,15 @@ export async function saveServicioEmpresa(
     itemId = dataWithParsedNumbers.id;
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) return { success: false, error: `Ítem con ID ${itemId} no encontrado.` };
+    
+    // Ensure that numeric fields that are empty/NaN become undefined, not 0
+    const numberFields: (keyof ServicioEmpresa)[] = ['valorUnitarioEstimado', 'cantidadDisponible', 'precioVenta', 'precioBase', 'precioPorPersona', 'invitadosPorUnidad'];
+    numberFields.forEach(field => {
+        if (dataWithParsedNumbers[field] !== undefined && isNaN(Number(dataWithParsedNumbers[field]))) {
+            dataWithParsedNumbers[field] = undefined;
+        }
+    });
+
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {

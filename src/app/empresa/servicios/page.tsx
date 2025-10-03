@@ -171,7 +171,7 @@ export default function CatalogoServiciosPage() {
                           </CardHeader>
                           <CardContent className="px-3 pb-3 text-sm space-y-1">
                              <div><span className="text-muted-foreground">Cálculo: </span><Badge variant="secondary">{getCalculationMethodLabel(item.calculationMethod)}</Badge></div>
-                             <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-semibold text-primary/90">{formatCurrency(item.precioVenta || item.precioPorPersona || item.precioBase)}</span></p>
+                             <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-semibold text-primary/90">{formatCurrency(item.precioVenta ?? item.precioPorPersona ?? item.precioBase)}</span></p>
                              <p><span className="text-muted-foreground">Costo Est.: </span><span className="font-semibold">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
                           </CardContent>
                         </Card>
