@@ -9,10 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
+import type { ServicioEmpresa } from '@/types/empresa';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
@@ -25,12 +29,25 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     existingMenu || { name: '', description: '', items: [] }
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+  const [currentItemIdForCatalog, setCurrentItemIdForCatalog] = useState<string | null>(null);
+  const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
   useEffect(() => {
     if (existingMenu) {
       setMenu(existingMenu);
     }
-  }, [existingMenu]);
+    const fetchInsumos = async () => {
+      try {
+        const insumos = await getServiciosEmpresa();
+        setCatalogoInsumos(insumos.filter(i => i.tipoItem === 'Insumo/Ingrediente' || i.tipoItem === 'Bebida (Insumo)'));
+      } catch (e) {
+        toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos."});
+      }
+    };
+    fetchInsumos();
+  }, [existingMenu, toast]);
 
   const handleMenuChange = (field: keyof FullMenu, value: string) => {
     setMenu(prev => ({ ...prev, [field]: value }));
@@ -55,7 +72,6 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         const updatedIng = { ...ing, [field]: value };
                         if (field === 'quantityPerPerson' || field === 'cost') {
                              // This is a simplified cost update logic.
-                             // A more robust solution might need to re-evaluate the total.
                         }
                         return updatedIng;
                     }
@@ -73,7 +89,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     const newItem: MenuItem = {
       id: `new_item_${Date.now()}`,
       name: '',
-      type: '',
+      type: 'Entrada',
       ingredients: [],
       totalDishCost: 0,
     };
@@ -95,6 +111,29 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       ),
     }));
   }
+
+  const addIngredientFromCatalog = (itemId: string, insumo: ServicioEmpresa) => {
+      const newIngredient: Ingredient = {
+        id: `new_ing_${Date.now()}_${insumo.id}`,
+        name: insumo.nombre,
+        quantityPerPerson: '1',
+        unit: insumo.unidad || 'g',
+        cost: insumo.valorUnitarioEstimado || 0,
+        proveedor: insumo.contactoPrincipal || '', // Placeholder
+      };
+      setMenu(prev => ({
+      ...prev,
+      items: (prev.items || []).map(item =>
+        item.id === itemId ? { ...item, ingredients: [...(item.ingredients || []), newIngredient] } : item
+      ),
+    }));
+    toast({ description: `"${insumo.nombre}" añadido al plato.` });
+  };
+  
+  const openCatalogModal = (itemId: string) => {
+    setCurrentItemIdForCatalog(itemId);
+    setIsCatalogModalOpen(true);
+  };
 
   const deleteItem = (itemId: string) => {
     setMenu(prev => ({ ...prev, items: (prev.items || []).filter(item => item.id !== itemId) }));
@@ -131,8 +170,51 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     }
   };
 
+  const filteredInsumos = useMemo(() => {
+    if (!catalogSearchTerm) return catalogoInsumos;
+    return catalogoInsumos.filter(i => i.nombre.toLowerCase().includes(catalogSearchTerm.toLowerCase()));
+  }, [catalogSearchTerm, catalogoInsumos]);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Seleccionar Ingrediente del Catálogo</DialogTitle>
+            </DialogHeader>
+            <div className="py-2 space-y-2">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
+                    <Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/>
+                </div>
+                <ScrollArea className="h-72 border rounded-md">
+                    {filteredInsumos.length > 0 ? (
+                        <ul className="p-2 space-y-1">
+                            {filteredInsumos.map(insumo => (
+                                <li key={insumo.id}>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        className="w-full justify-start text-left h-auto"
+                                        onClick={() => {
+                                            if (currentItemIdForCatalog) {
+                                                addIngredientFromCatalog(currentItemIdForCatalog, insumo);
+                                            }
+                                        }}
+                                    >
+                                        <div>
+                                            <p className="font-medium">{insumo.nombre}</p>
+                                            <p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p>
+                                        </div>
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : <p className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos.</p>}
+                </ScrollArea>
+            </div>
+        </DialogContent>
+       </Dialog>
       <Card>
         <CardHeader>
           <CardTitle>Información del Menú</CardTitle>
@@ -156,13 +238,13 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item) => (
-            <Card key={item.id} className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+            <Card key={item.id} className="p-4 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
                 <div className="flex justify-end mb-2">
                    <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
-                    <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Niños/Adolescentes">Menú para niños y adolescentes</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú para niños y adolescentes">Menú para niños y adolescentes</SelectItem></SelectContent></Select></div>
                  </div>
                  <div className="mt-4 space-y-2">
                      <Label className="text-sm font-medium">Ingredientes</Label>
@@ -180,7 +262,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         </div>
                      ))}
                      </div>
-                     <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}>+ Añadir Ingrediente</Button>
+                     <div className="flex gap-2 mt-2">
+                        <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Ingrediente</Button>
+                        <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
+                     </div>
                  </div>
                  <p className="text-right text-sm font-semibold mt-2">Costo Plato p/Persona: {formatCurrency(item.totalDishCost)}</p>
             </Card>
