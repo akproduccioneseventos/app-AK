@@ -19,7 +19,6 @@ const prompt = ai.definePrompt({
   name: 'generateSocialPostPrompt',
   input: { schema: GenerateSocialPostInputSchema },
   output: { schema: GenerateSocialPostOutputSchema },
-  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `Eres un experto en marketing de redes sociales para una empresa de planificación de eventos. Tu tarea es escribir un post para redes sociales (Facebook, Instagram, TikTok) que sea atractivo y profesional.
 
 El estilo del post debe ser: {{{style}}}.
@@ -45,5 +44,3 @@ const generateSocialPostFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
