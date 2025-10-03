@@ -79,7 +79,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         items: (prev.items || []).map(item => {
             if (item.id === itemId) {
                 const newIngredients = (item.ingredients || []).map(ing => 
-                    ing.id === ingId ? { ...ing, [field]: value } : ing
+                    ing.id === ingId ? { ...ing, [field]: value, origenId: undefined } : ing // Unlink from catalog if manually edited
                 );
                 return calculatePrices({ ...item, ingredients: newIngredients });
             }
@@ -120,11 +120,12 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const addIngredientFromCatalog = (itemId: string, insumo: ServicioEmpresa) => {
       const newIngredient: Ingredient = {
         id: `new_ing_${Date.now()}_${insumo.id}`,
+        origenId: insumo.id, // Link to catalog
         name: insumo.nombre,
         quantityPerPerson: '1',
-        unit: insumo.unidad || 'g',
+        unit: insumo.unidad || 'Unidad',
         cost: insumo.valorUnitarioEstimado || 0,
-        proveedor: insumo.contactoPrincipal || '', // Placeholder
+        proveedor: insumo.contactoPrincipal || '', 
       };
       setMenu(prev => ({
       ...prev,
@@ -160,8 +161,26 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       return;
     }
     setIsSaving(true);
+
+    // Sync costs before saving
+    const menuToSave = { ...menu };
+    if (menuToSave.items) {
+      menuToSave.items = menuToSave.items.map(item => {
+        const syncedIngredients = (item.ingredients || []).map(ing => {
+          if (ing.origenId) {
+            const catalogItem = catalogoInsumos.find(ci => ci.id === ing.origenId);
+            if (catalogItem) {
+              return { ...ing, cost: catalogItem.valorUnitarioEstimado || 0, name: catalogItem.nombre, unit: catalogItem.unidad || ing.unit };
+            }
+          }
+          return ing;
+        });
+        return calculatePrices({ ...item, ingredients: syncedIngredients });
+      });
+    }
+
     try {
-      const result = await saveMenu(menu as FullMenu);
+      const result = await saveMenu(menuToSave as FullMenu);
       if (result.success) {
         toast({ title: '¡Menú Guardado!', description: `El menú "${menu.name}" ha sido guardado.` });
         router.push('/empresa/menus');

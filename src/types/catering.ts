@@ -1,6 +1,7 @@
 
 export interface Ingredient {
   id: string;
+  origenId?: string; // Link to the 'ServicioEmpresa' item ID in the main catalog
   name: string;
   quantityPerPerson: string; // Cantidad por persona para esta receta (ej: "100", "0.5")
   unit: string; // Unidad de la cantidad (ej: gr, ml, ud)
@@ -8,8 +9,6 @@ export interface Ingredient {
   proveedor?: string; // Nombre del proveedor (manual por ahora)
   marca?: string;
   fecha_actualizacion?: string; // ISO date string
-  // preferredSupplierId?: string; // For future linking to a supplier entity
-  // supplierNotes?: string; // Notes specific to sourcing this ingredient
 }
 
 export interface MenuItem { // Representa un Plato
@@ -37,6 +36,3 @@ export interface FullMenu { // Representa un Menú completo guardado
 
 // Para el formulario, antes de tener un ID de FullMenu
 export type NewMenuFormData = Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>;
-
-
-

@@ -2,6 +2,8 @@
 'use server';
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
+import type { ServicioEmpresa } from '@/types/empresa';
+import { getServiciosEmpresa } from './servicios-empresa';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -40,6 +42,7 @@ async function readMenusFile(): Promise<FullMenu[]> {
           proveedor: ingredient.proveedor || undefined,
           marca: ingredient.marca || undefined,
           fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
+          origenId: ingredient.origenId || undefined,
         })),
         totalDishCost: Number(item.totalDishCost) || 0,
       }))
@@ -74,7 +77,8 @@ async function initializeLocalMenusFile() {
           !('proveedor' in ing) || 
           !('marca' in ing) ||
           !('fecha_actualizacion' in ing) ||
-          !('quantityPerPerson' in ing)
+          !('quantityPerPerson' in ing) ||
+          !('origenId' in ing)
         ) ||
         (item as any).hasOwnProperty('basePortions') ||
         (item as any).hasOwnProperty('costPerPortion')
@@ -96,6 +100,7 @@ async function initializeLocalMenusFile() {
               proveedor: ingredient.proveedor || undefined,
               marca: ingredient.marca || undefined,
               fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
+              origenId: ingredient.origenId || undefined,
             })),
             totalDishCost: Number(item.totalDishCost) || 0,
           };
@@ -122,18 +127,31 @@ function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
   return ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
 }
 
-function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): FullMenu {
+async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): Promise<FullMenu> {
+  const catalogoInsumos = await getServiciosEmpresa();
+
   const processedItems = menuData.items.map(item => {
-    const ingredients = item.ingredients.map(ing => ({
-      ...ing,
-      name: ing.name.trim(),
-      quantityPerPerson: ing.quantityPerPerson.trim() || '0', // Ensure it's a string
-      unit: ing.unit.trim(),
-      cost: Number(ing.cost) || 0,
-      proveedor: ing.proveedor?.trim() || undefined,
-      marca: ing.marca?.trim() || undefined,
-      fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
-    }));
+    const ingredients = item.ingredients.map(ing => {
+      // If linked to catalog, sync price, name, and unit
+      if (ing.origenId) {
+        const catalogItem = catalogoInsumos.find(ci => ci.id === ing.origenId);
+        if (catalogItem) {
+          ing.cost = catalogItem.valorUnitarioEstimado || 0;
+          ing.name = catalogItem.nombre;
+          ing.unit = catalogItem.unidad || ing.unit;
+        }
+      }
+      return {
+        ...ing,
+        name: ing.name.trim(),
+        quantityPerPerson: ing.quantityPerPerson?.toString().trim() || '0', // Ensure it's a string
+        unit: ing.unit.trim(),
+        cost: Number(ing.cost) || 0,
+        proveedor: ing.proveedor?.trim() || undefined,
+        marca: ing.marca?.trim() || undefined,
+        fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
+      };
+    });
     // totalDishCost is now cost per person for the dish
     const totalDishCost = calculateDishCostPerPerson(ingredients);
     
@@ -144,7 +162,8 @@ function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updat
       totalDishCost, // This is now the cost per person for the dish
       allergens: item.allergens?.trim() || undefined,
       notes: item.notes?.trim() || undefined,
-      // basePortions and costPerPortion are no longer part of MenuItem
+      profitMargin: item.profitMargin !== undefined ? Number(item.profitMargin) : 100, // Default to 100%
+      suggestedSellingPrice: totalDishCost * (1 + (item.profitMargin !== undefined ? Number(item.profitMargin) : 100) / 100),
     };
   });
 
@@ -164,7 +183,7 @@ export async function saveMenu(
   let finalMenuData: FullMenu;
   let menuId: string;
 
-  const processedInput = processMenuForSave(menuDataInput);
+  const processedInput = await processMenuForSave(menuDataInput);
 
   if ('id' in processedInput && processedInput.id) {
     menuId = processedInput.id;
