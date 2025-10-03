@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
+import { NotificationsHub } from '@/components/notifications-hub';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -79,7 +80,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
-  if (pathname === '/fiestas/nueva/reuniones') return 'Gestión de Reuniones';
+  if (pathname === '/fiestas/nueva/reuniones') return 'Reuniones y Portal Cliente';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
   if (pathname === '/fiestas/nueva/musica/pdf') return 'PDF de Música';
   if (pathname === '/fiestas/nueva/fotografia') return 'Fotografía y Filmación';
@@ -90,7 +91,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/video-vida') return 'Video de Vida';
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
-  if (pathname === '/fiestas/nueva/portal-cliente') return 'Página Pública y Portal';
+  if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
   if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return 'Planificador de Repostería';
   if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return 'Planificador de Bebidas';
 
@@ -158,7 +159,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
-    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
+    if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return Cake;
     if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return GlassWater;
     return PartyPopper;
@@ -283,6 +284,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <h1 className="text-lg md:text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <div className="flex items-center gap-4">
+          <NotificationsHub />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
