@@ -238,36 +238,40 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item) => (
-            <Card key={item.id} className="p-4 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-                <div className="flex justify-end mb-2">
-                   <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
-                </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
-                    <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú para niños y adolescentes">Menú para niños y adolescentes</SelectItem></SelectContent></Select></div>
-                 </div>
-                 <div className="mt-4 space-y-2">
-                     <Label className="text-sm font-medium">Ingredientes</Label>
-                     <div className="space-y-3">
-                     {item.ingredients?.map(ing => (
-                        <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-l-4 border-primary/50 rounded-r-md bg-background shadow-sm">
-                            <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
-                            <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
-                            <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
-                            <div className="space-y-1"><Label className="text-xs">Proveedor</Label><Input value={ing.proveedor || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'proveedor', e.target.value)} className="h-8"/></div>
-                            <div className="space-y-1"><Label className="text-xs">Costo ($)</Label><Input type="number" value={ing.cost} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} className="h-8"/></div>
-                            <div className="lg:col-span-5 flex justify-end">
-                              <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                            </div>
+            <Card key={item.id} className="bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <CardHeader className="p-4 pb-2">
+                     <div className="flex justify-between items-start">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                           <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
+                           <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú para niños y adolescentes">Menú para niños y adolescentes</SelectItem></SelectContent></Select></div>
                         </div>
-                     ))}
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive ml-2 flex-shrink-0" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
                      </div>
-                     <div className="flex gap-2 mt-2">
+                </CardHeader>
+                 <CardContent className="p-4 pt-2">
+                    <Label className="text-sm font-medium">Ingredientes</Label>
+                    <div className="mt-2 space-y-3">
+                        {item.ingredients?.map(ing => (
+                            <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-l-4 border-primary/50 rounded-r-md bg-background shadow-sm">
+                                <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Proveedor</Label><Input value={ing.proveedor || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'proveedor', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Costo ($)</Label><Input type="number" value={ing.cost} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} className="h-8"/></div>
+                                <div className="lg:col-span-5 flex justify-end">
+                                <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                     <div className="flex gap-2 mt-3">
                         <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Ingrediente</Button>
                         <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
                      </div>
-                 </div>
-                 <p className="text-right text-sm font-semibold mt-2">Costo Plato p/Persona: {formatCurrency(item.totalDishCost)}</p>
+                 </CardContent>
+                 <CardFooter className="p-4 pt-0 text-right">
+                    <p className="text-sm font-semibold w-full">Costo Plato p/Persona: {formatCurrency(item.totalDishCost)}</p>
+                 </CardFooter>
             </Card>
           ))}
           <Button type="button" variant="secondary" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Plato</Button>
