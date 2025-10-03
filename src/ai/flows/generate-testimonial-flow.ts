@@ -19,7 +19,7 @@ const prompt = ai.definePrompt({
   name: 'generateTestimonialPrompt',
   input: { schema: GenerateTestimonialInputSchema },
   output: { schema: GenerateTestimonialOutputSchema },
-  model: 'googleai/gemini-1.5-flash-preview-0514',
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `Eres un experto en marketing para una empresa de planificación de eventos de primer nivel. Tu tarea es convertir el feedback de un cliente en un testimonio cálido, profesional y auténtico que se pueda usar en redes sociales o en la web.
 
 El testimonio debe:

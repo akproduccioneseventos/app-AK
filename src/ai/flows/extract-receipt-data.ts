@@ -38,7 +38,7 @@ const prompt = ai.definePrompt({
   name: 'extractReceiptDataPrompt',
   input: {schema: ExtractReceiptDataInputSchema},
   output: {schema: ExtractReceiptDataOutputSchema},
-  model: 'googleai/gemini-1.5-flash-preview-0514',
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are an expert in extracting information from receipts.
 
 You will be provided with an image of a receipt. Extract the date, total amount, and vendor name from the receipt. Respond ONLY with the JSON.

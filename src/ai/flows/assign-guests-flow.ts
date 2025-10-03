@@ -20,7 +20,7 @@ const prompt = ai.definePrompt({
   name: 'assignGuestsPrompt',
   input: { schema: AssignGuestsInputSchema },
   output: { schema: AssignGuestsOutputSchema },
-  model: 'googleai/gemini-1.5-flash-preview-0514',
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are an expert event planner specializing in seating arrangements. You will receive a list of guest groups (some might be individuals, others parties of 2, 3, etc.) and a list of available tables with their respective seating capacities.
 
 Your primary goal is to assign every guest to a table, respecting the following rules in order of importance:
