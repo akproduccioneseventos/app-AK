@@ -41,30 +41,26 @@ export async function saveServicioEmpresa(
 
   const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
     ...itemData,
-    valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined ? Number(itemData.valorUnitarioEstimado) : undefined,
-    cantidadDisponible: itemData.cantidadDisponible !== undefined ? Number(itemData.cantidadDisponible) : undefined,
-    precioVenta: itemData.precioVenta !== undefined ? Number(itemData.precioVenta) : undefined,
-    precioBase: itemData.precioBase !== undefined ? Number(itemData.precioBase) : undefined,
-    precioPorPersona: itemData.precioPorPersona !== undefined ? Number(itemData.precioPorPersona) : undefined,
-    invitadosPorUnidad: itemData.invitadosPorUnidad !== undefined ? Number(itemData.invitadosPorUnidad) : undefined,
+    valorUnitarioEstimado: itemData.valorUnitarioEstimado === undefined || itemData.valorUnitarioEstimado === null || isNaN(Number(itemData.valorUnitarioEstimado)) ? undefined : Number(itemData.valorUnitarioEstimado),
+    cantidadDisponible: itemData.cantidadDisponible === undefined || itemData.cantidadDisponible === null || isNaN(Number(itemData.cantidadDisponible)) ? undefined : Number(itemData.cantidadDisponible),
+    precioVenta: itemData.precioVenta === undefined || itemData.precioVenta === null || isNaN(Number(itemData.precioVenta)) ? undefined : Number(itemData.precioVenta),
+    precioBase: itemData.precioBase === undefined || itemData.precioBase === null || isNaN(Number(itemData.precioBase)) ? undefined : Number(itemData.precioBase),
+    precioPorPersona: itemData.precioPorPersona === undefined || itemData.precioPorPersona === null || isNaN(Number(itemData.precioPorPersona)) ? undefined : Number(itemData.precioPorPersona),
+    invitadosPorUnidad: itemData.invitadosPorUnidad === undefined || itemData.invitadosPorUnidad === null || isNaN(Number(itemData.invitadosPorUnidad)) ? undefined : Number(itemData.invitadosPorUnidad),
     tramosDePrecio: itemData.tramosDePrecio || undefined,
     tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
     subcategoria: itemData.subcategoria?.trim() || undefined,
     notas: (itemData as any).notas?.trim() || undefined,
   };
-  
-  // Ensure that numeric fields that are empty/NaN become undefined, not 0
-  const numberFields: (keyof ServicioEmpresa)[] = ['valorUnitarioEstimado', 'cantidadDisponible', 'precioVenta', 'precioBase', 'precioPorPersona', 'invitadosPorUnidad'];
-  numberFields.forEach(field => {
-      if (dataWithParsedNumbers[field] !== undefined && isNaN(Number(dataWithParsedNumbers[field]))) {
-          dataWithParsedNumbers[field] = undefined;
-      }
-  });
 
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del ítem es obligatorio." };
   if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
-  if (!dataWithParsedNumbers.unidad && dataWithParsedNumbers.tipoItem !== 'Servicio') return { success: false, error: "La unidad es obligatoria para Insumos y Activos." };
   if (!dataWithParsedNumbers.tipoItem) return { success: false, error: "El tipo de ítem es obligatorio." };
+  // La unidad es obligatoria para insumos y activos, pero opcional para servicios
+  if (dataWithParsedNumbers.tipoItem !== 'Servicio' && !dataWithParsedNumbers.unidad) {
+    return { success: false, error: "La unidad es obligatoria para Insumos y Activos." };
+  }
+
 
   if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
     itemId = dataWithParsedNumbers.id;
