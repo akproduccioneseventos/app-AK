@@ -1,35 +1,19 @@
+
 {
   "categorias": [
     {
-      "id": "tortas_personalizadas",
-      "nombreDisplay": "Tortas Personalizadas",
+      "id": "mesa_postres",
+      "nombreDisplay": "Mesa de Postres",
       "activada": false,
       "items": [],
-      "descripcion": "Diseño y sabores a medida.",
-      "cantidadEstimadaPersonas": 0
-    },
-    {
-      "id": "cupcakes_minitortas",
-      "nombreDisplay": "Cupcakes / Mini Tortas",
-      "activada": false,
-      "items": [],
-      "descripcion": "Pequeñas delicias individuales.",
+      "descripcion": "Variedad de postres clásicos y modernos.",
       "cantidadEstimadaPersonas": 0
     },
     {
       "id": "candy_bar",
       "nombreDisplay": "Candy Bar Temático",
       "activada": false,
-      "items": [
-        {
-          "id": "item_1757456683585_bb9tztm",
-          "nombre": "Candy Bar Temático",
-          "costoEstimado": 100,
-          "precioSugerido": 150,
-          "unidad": "unidad",
-          "cantidad": 1
-        }
-      ],
+      "items": [],
       "descripcion": "Mesa de dulces y golosinas variadas.",
       "cantidadEstimadaPersonas": 0
     },
@@ -42,66 +26,19 @@
       "cantidadEstimadaPersonas": 0
     },
     {
-      "id": "mesa_dulce_tradicional",
-      "nombreDisplay": "Mesa Dulce Tradicional",
-      "activada": false,
-      "items": [],
-      "descripcion": "Variedad de postres clásicos.",
-      "cantidadEstimadaPersonas": 0
-    },
-    {
       "id": "mesa_helada",
       "nombreDisplay": "Mesa Helada",
       "activada": false,
       "items": [],
       "descripcion": "Selección de helados y toppings.",
       "cantidadEstimadaPersonas": 0
-    },
-    {
-      "id": "postres_individuales",
-      "nombreDisplay": "Postres Individuales",
-      "activada": false,
-      "items": [],
-      "descripcion": "Porciones individuales de postres variados.",
-      "cantidadEstimadaPersonas": 0
     }
   ],
   "consumoConfig": {
-    "tortas_personalizadas": {
-      "adulto": 0.1,
-      "adolescente": 0.1,
-      "nino": 0.08
-    },
-    "cupcakes_minitortas": {
-      "adulto": 1.5,
-      "adolescente": 2,
-      "nino": 1
-    },
-    "candy_bar": {
-      "adulto": 1,
-      "adolescente": 1.5,
-      "nino": 2
-    },
-    "fuente_chocolate": {
-      "adulto": 1,
-      "adolescente": 1,
-      "nino": 1
-    },
-    "mesa_dulce_tradicional": {
-      "adulto": 2,
-      "adolescente": 2,
-      "nino": 1.5
-    },
-    "mesa_helada": {
-      "adulto": 1.5,
-      "adolescente": 1.5,
-      "nino": 1.5
-    },
-    "postres_individuales": {
-      "adulto": 1.5,
-      "adolescente": 1.5,
-      "nino": 1
-    }
+    "mesa_postres": { "adulto": 2, "adolescente": 2, "nino": 1.5 },
+    "candy_bar": { "adulto": 1, "adolescente": 1.5, "nino": 2 },
+    "fuente_chocolate": { "adulto": 1, "adolescente": 1, "nino": 1 },
+    "mesa_helada": { "adulto": 1.5, "adolescente": 1.5, "nino": 1.5 }
   },
   "notasGenerales": ""
 }
