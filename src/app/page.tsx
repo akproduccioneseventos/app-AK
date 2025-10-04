@@ -27,7 +27,6 @@ const modules: ModuleCardProps[] = [
   { title: "Gestor de Eventos", description: "Organiza tus eventos, el actual y los pasados. Accede al Calendario General.", href: "/eventos", icon: CalendarClock },
   { title: "Contabilidad y Finanzas", description: "Accede al CRM, facturas y reportes.", href: "/empresa/contabilidad", icon: BarChart3 },
   { title: "Gestión de Empresa", description: "Administra personal, proveedores, menús y tu catálogo de servicios.", href: "/empresa", icon: Building2 },
-  { title: "Asistente de Marketing IA", description: "Genera estrategias, ideas, textos e imágenes para tus redes sociales.", href: "/admin/asistente-ak", icon: Bot },
   { title: "Configuración General", description: "Ajusta las preferencias de la aplicación y plantillas de documentos.", href: "/settings", icon: Settings },
 ];
 
