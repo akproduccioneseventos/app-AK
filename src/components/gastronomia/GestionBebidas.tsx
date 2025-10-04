@@ -57,7 +57,15 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
         if (!prevCat) return null;
         return {
             ...prevCat,
-            items: prevCat.items.map(item => item.id === itemId ? {...item, [field]: value} : item)
+            items: prevCat.items.map(item => {
+              if (item.id !== itemId) return item;
+              const updatedItem = { ...item, [field]: value };
+              // Recalculate costoTotal if related fields change
+              if (field === 'cantidadNecesaria' || field === 'costoUnitario') {
+                updatedItem.costoTotal = (updatedItem.cantidadNecesaria || 0) * (updatedItem.costoUnitario || 0);
+              }
+              return updatedItem;
+            })
         };
     });
   };
@@ -66,7 +74,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     if (!editingCategory) return;
     const newItem: BebidaItem = {
         id: `beb-item-${Date.now()}`,
-        nombre: 'Nuevo Ítem',
+        nombre: 'Nueva Bebida',
         cantidadNecesaria: 1,
         unidadCantidad: 'Botellas',
         costoUnitario: 0,

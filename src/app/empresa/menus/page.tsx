@@ -81,14 +81,17 @@ export default function GestionMenusPage() {
         <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>
       ) : (
         <div className="space-y-4">
-             <Accordion type="multiple" defaultValue={['menus']} className="w-full space-y-4">
+             <Accordion type="multiple" defaultValue={['menus', 'reposteria', 'bebidas']} className="w-full space-y-4">
                 <AccordionItem value="menus" className="border-none">
-                    <AccordionTrigger className="text-xl font-semibold font-headline p-0 hover:no-underline">Plantillas de Menú Guardadas</AccordionTrigger>
-                    <AccordionContent className="pt-2">
+                    <Card className="shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="font-headline text-xl">Plantillas de Menú de Platos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
                         {menus.length > 0 ? (
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {menus.map((menu) => (
-                                <Card key={menu.id} className="shadow-sm hover:shadow-md transition-shadow">
+                                <Card key={menu.id} className="shadow-sm hover:shadow-md transition-shadow bg-muted/30">
                                     <CardHeader className="pb-2">
                                         <div className="flex justify-between items-start">
                                         <CardTitle className="text-lg">{menu.name}</CardTitle>
@@ -114,14 +117,13 @@ export default function GestionMenusPage() {
                         ) : (
                              <Card className="text-center py-10"><CardContent><Info className="w-10 h-10 mx-auto text-muted-foreground mb-3"/><p className="text-muted-foreground">No has creado ninguna plantilla de menú todavía.</p></CardContent></Card>
                         )}
-                    </AccordionContent>
+                    </CardContent>
+                    </Card>
                 </AccordionItem>
                 
                 {reposteriaTemplate && (
                   <AccordionItem value="reposteria" className="border-none">
-                    <AccordionTrigger className="text-xl font-semibold font-headline p-0 hover:no-underline"></AccordionTrigger>
-                    <AccordionContent className="pt-2">
-                        <GestionReposteria 
+                     <GestionReposteria 
                             initialData={reposteriaTemplate} 
                             onDataChange={(newData) => {
                                 setReposteriaTemplate(newData);
@@ -130,24 +132,20 @@ export default function GestionMenusPage() {
                             invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder for calculations
                             isTemplateMode={true}
                         />
-                    </AccordionContent>
                   </AccordionItem>
                 )}
 
                 {bebidasTemplate && (
                   <AccordionItem value="bebidas" className="border-none">
-                    <AccordionTrigger className="text-xl font-semibold font-headline p-0 hover:no-underline"></AccordionTrigger>
-                    <AccordionContent className="pt-2">
-                        <GestionBebidas 
-                            initialData={bebidasTemplate} 
-                            onDataChange={(newData) => {
-                                setBebidasTemplate(newData);
-                                saveBebidasMasterTemplate(newData); // Save on change
-                            }}
-                            invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder
-                            isTemplateMode={true}
-                        />
-                    </AccordionContent>
+                    <GestionBebidas 
+                        initialData={bebidasTemplate} 
+                        onDataChange={(newData) => {
+                            setBebidasTemplate(newData);
+                            saveBebidasMasterTemplate(newData); // Save on change
+                        }}
+                        invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder
+                        isTemplateMode={true}
+                    />
                   </AccordionItem>
                 )}
             </Accordion>
