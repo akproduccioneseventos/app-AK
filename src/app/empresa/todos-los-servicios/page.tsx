@@ -1,16 +1,16 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2 } from 'lucide-react';
-import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Input } from '@/components/ui/input';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,26 +88,6 @@ export default function InventarioActivosPage() {
     window.print();
   };
   
-  const handleShare = async () => {
-    const shareData = {
-      title: 'Inventario de Activos Fijos - AK Producciones',
-      text: `Resumen de activos fijos de la empresa.`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
-    }
-  };
 
   const itemsAgrupadosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
@@ -142,8 +122,11 @@ export default function InventarioActivosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
-            <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
+            <Link href="/empresa/todos-los-servicios/reporte" passHref>
+                <Button variant="secondary">
+                    <Printer className="w-4 h-4 mr-2"/>Ver Reporte de Stock
+                </Button>
+            </Link>
             <Link href="/empresa/todos-los-servicios/nuevo?type=Activo Fijo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
@@ -153,7 +136,7 @@ export default function InventarioActivosPage() {
              <Link href="/empresa" passHref>
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
-                    Volver
+                    Volver a Empresa
                 </Button>
             </Link>
         </div>
