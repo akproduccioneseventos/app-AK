@@ -40,7 +40,7 @@ const internalModules: PlanningModule[] = [
   { title: "Configuración del Evento", description: "Datos técnicos: fecha, tipo, lugar, invitados.", icon: Settings2, href: "/fiestas/nueva/configuracion", status: "Disponible", actionLabel: "Configurar Evento" },
   { title: "Análisis de Evento (IA)", description: "Obtén un reporte del estado de la planificación de tu evento actual.", icon: PartyPopper, href: "/admin/aaiff-fiesta", status: "Disponible", actionLabel: "Analizar Evento" },
   { title: "Feedback y Testimonios", description: "Gestiona las encuestas de clientes y genera testimonios con IA.", href: "/settings/feedback", icon: Star, status: "Disponible", actionLabel: "Gestionar Feedback" },
-  { title: "Planificador Gastronómico", description: "Calcula costos de menús, repostería y bebidas.", icon: Calculator, href: "/empresa/menus", status: "Disponible", actionLabel: "Abrir Planificador" },
+  { title: "Planificador Gastronómico", description: "Calcula costos de menús, repostería y bebidas para este evento.", icon: Calculator, href: "/fiestas/nueva/gastronomia", status: "Disponible", actionLabel: "Abrir Planificador" },
   { title: "Lista de Tareas (Interna)", description: "Organización interna del equipo.", icon: ListChecks, href: "/fiestas/nueva/tareas", status: "Disponible", actionLabel: "Gestionar Tareas" },
   { title: "Cronograma de la Fiesta", description: "Define el cronograma y los momentos clave de la fiesta.", icon: Clock, href: "/fiestas/nueva/itinerario", status: "Disponible", actionLabel: "Crear Cronograma" },
   { title: "Gestión de Invitados", description: "Listado de invitados, RSVP y diseño de mesas.", icon: Users, href: "/fiestas/nueva/invitados", status: "Disponible", actionLabel: "Gestionar Invitados" },

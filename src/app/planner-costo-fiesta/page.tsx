@@ -9,12 +9,11 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 // This page is obsolete. Its functionality has been moved to a central module.
-// We redirect to the new central page for this functionality.
 export default function DeprecatedPlannerHubPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/empresa/menus');
+        router.replace('/fiestas/nueva/gastronomia');
     }, [router]);
 
     return (
@@ -26,11 +25,11 @@ export default function DeprecatedPlannerHubPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        El Planificador Gastronómico ahora está centralizado. Serás redirigido al nuevo módulo.
+                        El Planificador Gastronómico ahora está centralizado. Serás redirigido al nuevo módulo del evento.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/empresa/menus" passHref>
+                    <Link href="/fiestas/nueva/gastronomia" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
