@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getInsumos, deleteInsumo } from '@/app/actions/insumos';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,16 +28,6 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-const getCalculationMethodLabel = (method?: string): string => {
-    switch (method) {
-        case 'fijo': return 'Precio Fijo';
-        case 'porPersona': return 'Por Persona';
-        case 'ratio': return 'Por Ratio de Invitados';
-        case 'tramos': return 'Por Tramos de Invitados';
-        default: return 'No definido';
-    }
-}
-
 export default function DynamicCatalogPage({ params: paramsProp }: { params: { slugs: string[] } }) {
   const params = React.use(paramsProp);
   const { toast } = useToast();
@@ -54,16 +44,14 @@ export default function DynamicCatalogPage({ params: paramsProp }: { params: { s
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getServiciosEmpresa();
-      const relevantServices = data.filter(s => 
-        s.tipoItem === 'Servicio' && 
-        s.categoria === categoria &&
+      const data = await getInsumos();
+      const relevantItems = data.filter(s => 
         s.subcategoria === subcategoria
       );
-      setAllItems(relevantServices);
-      setFilteredItems(relevantServices);
+      setAllItems(relevantItems);
+      setFilteredItems(relevantItems);
     } catch (err: any) {
-      setError("No se pudo cargar el catálogo de servicios.");
+      setError("No se pudo cargar el catálogo de insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -85,9 +73,9 @@ export default function DynamicCatalogPage({ params: paramsProp }: { params: { s
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
     try {
-      const result = await deleteServicioEmpresa(id);
+      const result = await deleteInsumo(id);
       if (result.success) {
-        toast({ title: "Servicio Eliminado", description: `El servicio "${nombreItem || id}" ha sido eliminado.` });
+        toast({ title: "Insumo Eliminado", description: `El ítem "${nombreItem || id}" ha sido eliminado.` });
         fetchItems(); 
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
@@ -112,7 +100,7 @@ export default function DynamicCatalogPage({ params: paramsProp }: { params: { s
           </div>
         </div>
          <div className="flex gap-2 flex-wrap">
-            <Link href={`/empresa/servicios/nuevo?categoria=${encodeURIComponent(categoria)}&subcategoria=${encodeURIComponent(subcategoria)}`} passHref>
+            <Link href={`/empresa/insumos/nuevo?categoria=${encodeURIComponent(categoria)}&subcategoria=${encodeURIComponent(subcategoria)}`} passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
                     Añadir a {subcategoria}
@@ -147,28 +135,26 @@ export default function DynamicCatalogPage({ params: paramsProp }: { params: { s
                         <div className="flex justify-between items-start">
                           <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                           <div className="flex gap-1">
-                              <Link href={`/empresa/servicios/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
+                              <Link href={`/empresa/insumos/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
-                                <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El servicio "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                                <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El insumo "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                               </AlertDialog>
                           </div>
                         </div>
                       </CardHeader>
                       <CardContent className="px-3 pb-3 text-sm space-y-1">
-                         <div><span className="text-muted-foreground">Cálculo: </span><Badge variant="secondary">{getCalculationMethodLabel(item.calculationMethod)}</Badge></div>
-                         <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-semibold text-primary/90">{formatCurrency(item.precioVenta ?? item.precioPorPersona ?? item.precioBase)}</span></p>
-                         <p><span className="text-muted-foreground">Costo Est.: </span><span className="font-semibold">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
+                         <p><span className="text-muted-foreground">Unidad: </span><Badge variant="secondary">{item.unidad}</Badge></p>
+                         <p><span className="text-muted-foreground">Costo: </span><span className="font-semibold text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
                       </CardContent>
                     </Card>
                 ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-4">No hay servicios en esta categoría.</p>
+            <p className="text-muted-foreground text-center py-4">No hay insumos en esta categoría.</p>
           )}
         </CardContent>
       </Card>
     </div>
   );
 }
-

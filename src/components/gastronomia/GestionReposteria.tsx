@@ -2,7 +2,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
-import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,11 +11,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { ReposteriaData, ReposteriaCategoria, ReposteriaItem } from '@/types/fiesta';
-import { Cake, Edit, Trash2, PlusCircle, BookOpen } from 'lucide-react';
+import { Cake, Edit, Trash2, PlusCircle, BookOpen, Search } from 'lucide-react';
 import { defaultReposteriaData } from '@/lib/fiesta-defaults';
 import { useToast } from '@/hooks/use-toast';
 import { ALL_UNIDADES_SERVICIO, type UnidadServicio, type ServicioEmpresa } from '@/types/empresa';
 import { getInsumos } from '@/app/actions/insumos';
+import { ScrollArea } from '../ui/scroll-area';
+import Link from 'next/link';
+import { saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
+
 
 interface GestionReposteriaProps {
   initialData: ReposteriaData | null;
@@ -34,24 +37,28 @@ const formatCurrency = (amount?: number) => {
 export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialData, onDataChange, onSave, invitados, isTemplateMode = false }) => {
   const { toast } = useToast();
   const [reposteria, setReposteria] = useState<ReposteriaData>(initialData || defaultReposteriaData);
-  const [catalogoReposteria, setCatalogoReposteria] = useState<ServicioEmpresa[]>([]);
+  const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
   
-  // State for manual item modal
+  // State for modals
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ReposteriaCategoria | null>(null);
   const [currentItem, setCurrentItem] = useState<Partial<ReposteriaItem>>({});
+  const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
   useEffect(() => {
     onDataChange(reposteria);
   }, [reposteria, onDataChange]);
 
   const fetchCatalogo = useCallback(async () => {
-    const todosLosInsumos = await getInsumos();
-    const insumosDeReposteria = todosLosInsumos.filter(
-      s => s.categoria === 'Insumo/Ingrediente'
-    );
-    setCatalogoReposteria(insumosDeReposteria);
-  }, []);
+    try {
+        const todosLosInsumos = await getInsumos();
+        setCatalogoInsumos(todosLosInsumos);
+    } catch(e) {
+        console.error("Failed to load insumos catalog:", e);
+        toast({title: "Error", description: "No se pudo cargar el catálogo de insumos.", variant: "destructive"});
+    }
+  }, [toast]);
 
   useEffect(() => {
     fetchCatalogo();
@@ -70,6 +77,12 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
     setIsItemModalOpen(true);
   };
   
+  const openCatalogModal = (category: ReposteriaCategoria) => {
+    setEditingCategory(category);
+    setCatalogSearchTerm('');
+    setIsCatalogModalOpen(true);
+  };
+
   const handleItemChange = (field: keyof ReposteriaItem, value: any) => {
     setCurrentItem(prev => (prev ? { ...prev, [field]: value } : {}));
   };
@@ -106,6 +119,25 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
     
     setIsItemModalOpen(false);
   };
+  
+  const handleAddFromCatalog = (insumo: ServicioEmpresa) => {
+      if (!editingCategory) return;
+      const newItem: ReposteriaItem = {
+          id: `item_cat_${insumo.id}_${Date.now()}`,
+          origenId: insumo.id,
+          nombre: insumo.nombre,
+          cantidad: 1,
+          unidad: insumo.unidad || 'unidad',
+          costoEstimado: insumo.valorUnitarioEstimado || 0,
+      };
+      setReposteria(prev => ({
+        ...prev,
+        categorias: prev.categorias.map(cat => 
+          cat.id === editingCategory.id ? {...cat, items: [...cat.items, newItem]} : cat
+        )
+      }));
+      toast({description: `"${insumo.nombre}" añadido a ${editingCategory.nombreDisplay}.`});
+  };
 
   const handleDeleteItem = (categoryId: string, itemId: string) => {
      setReposteria(prev => ({
@@ -120,31 +152,49 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
     let total = 0;
     reposteria.categorias.forEach(cat => {
       if (isTemplateMode || cat.activada) {
-        const itemsDeCatalogo = catalogoReposteria.filter(s => s.subcategoria === cat.nombreDisplay);
-        const allItems = [...cat.items, ...itemsDeCatalogo];
-        allItems.forEach(item => {
-          total += (item.costoEstimado || item.valorUnitarioEstimado || 0) * (item.cantidad || 1);
+        cat.items.forEach(item => {
+          total += (item.costoEstimado || 0) * (item.cantidad || 1);
         });
       }
     });
     return total;
-  }, [reposteria, isTemplateMode, catalogoReposteria]);
+  }, [reposteria, isTemplateMode]);
+
+  const filteredInsumos = useMemo(() => {
+    if (!catalogSearchTerm) return catalogoInsumos;
+    const lowerSearch = catalogSearchTerm.toLowerCase();
+    return catalogoInsumos.filter(i => 
+      i.nombre.toLowerCase().includes(lowerSearch) ||
+      i.categoria?.toLowerCase().includes(lowerSearch)
+    );
+  }, [catalogoInsumos, catalogSearchTerm]);
 
   return (
     <>
       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Añadir Ítem de Compra para {editingCategory?.nombreDisplay}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Añadir Ítem Manual para {editingCategory?.nombreDisplay}</DialogTitle></DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-1"><Label htmlFor="item-nombre-manual">Nombre Ítem</Label><Input id="item-nombre-manual" value={currentItem.nombre || ''} onChange={e => handleItemChange('nombre', e.target.value)} /></div>
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-1"><Label htmlFor="item-qty-manual">Cantidad</Label><Input id="item-qty-manual" type="number" value={currentItem.cantidad || 1} onChange={e => handleItemChange('cantidad', e.target.value)} /></div>
-              <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={(v: UnidadServicio) => handleItemChange('unidad', v)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
+              <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={(v) => handleItemChange('unidad', v)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
               <div className="space-y-1"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', e.target.value)} /></div>
             </div>
             <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notas || ''} onChange={e => handleItemChange('notas', e.target.value)} /></div>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveItem}>Añadir Ítem</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader><DialogTitle>Seleccionar del Catálogo de Insumos</DialogTitle><DialogDescription>Añadiendo a: {editingCategory?.nombreDisplay}</DialogDescription></DialogHeader>
+            <div className="py-2 space-y-2">
+                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
+                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => handleAddFromCatalog(insumo)}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))}</ul></ScrollArea>
+            </div>
+             <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -154,7 +204,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
           <div>
             <CardTitle className="font-headline text-2xl">Repostería</CardTitle>
             <CardDescription>
-              {isTemplateMode ? "Gestiona las opciones de repostería disponibles en el simulador y presupuestos." : "Activa y configura las mesas dulces y postres para el evento."}
+              {isTemplateMode ? "Define los ítems base para cada categoría de repostería." : "Activa y configura las mesas dulces y postres para el evento."}
             </CardDescription>
           </div>
           {!isTemplateMode && (
@@ -166,58 +216,39 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
         </CardHeader>
         <CardContent>
           <Accordion type="multiple" className="w-full space-y-3" defaultValue={isTemplateMode ? reposteria.categorias.map(c => c.id) : reposteria.categorias.filter(c=>c.activada).map(c=>c.id)}>
-            {reposteria.categorias.map(cat => {
-              const itemsDeCatalogo = catalogoReposteria.filter(s => s.subcategoria === cat.nombreDisplay);
-              
-              return (
+            {reposteria.categorias.map(cat => (
               <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm">
                 <div className="flex items-center p-3">
-                  <AccordionTrigger className="hover:no-underline flex-1">
-                    <span className="font-semibold text-primary">{cat.nombreDisplay}</span>
-                  </AccordionTrigger>
-                  {!isTemplateMode && (
-                    <Switch
-                      checked={cat.activada}
-                      onCheckedChange={(checked) => handleCategoryActivation(cat.id, checked)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
+                  <AccordionTrigger className="hover:no-underline flex-1"><span className="font-semibold text-primary">{cat.nombreDisplay}</span></AccordionTrigger>
+                  {!isTemplateMode && (<Switch checked={cat.activada} onCheckedChange={(checked) => handleCategoryActivation(cat.id, checked)} onClick={(e) => e.stopPropagation()}/>)}
                 </div>
                 <AccordionContent className="px-4 pb-4 border-t">
                   <div className="space-y-4 pt-3">
                     <p className="text-sm text-muted-foreground">{cat.descripcion}</p>
-                    
-                    {[...itemsDeCatalogo, ...cat.items].length > 0 ? (
+                    {cat.items.length > 0 ? (
                       <div className="space-y-2">
-                          <h4 className="text-sm font-medium">Ítems Incluidos:</h4>
+                          <h4 className="text-sm font-medium">Ítems Añadidos:</h4>
                           <ul className="list-disc pl-5 text-sm text-muted-foreground">
-                              {itemsDeCatalogo.map(item => <li key={item.id}>{item.nombre} - {formatCurrency(item.valorUnitarioEstimado)}</li>)}
                               {cat.items.map(item => (
                                 <li key={item.id} className="flex items-center justify-between">
                                   <span>{item.nombre} ({item.cantidad} {item.unidad}) - {formatCurrency(item.costoEstimado)}</span>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                  <div>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openItemModal(cat, item)}><Edit className="w-3 h-3"/></Button>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3 h-3"/></Button>
+                                  </div>
                                 </li>
                               ))}
                           </ul>
                       </div>
-                    ) : (
-                        <p className="text-sm text-muted-foreground italic text-center py-2">No hay ítems para esta categoría.</p>
-                    )}
-                    
+                    ) : ( <p className="text-sm text-muted-foreground italic text-center py-2">No hay ítems manuales para esta categoría.</p> )}
                     <div className="flex justify-end pt-2 gap-2">
-                        <Button variant="outline" size="sm" onClick={() => openItemModal(cat)}>
-                            <PlusCircle className="w-3 h-3 mr-2"/>Añadir Ítem Manual
-                        </Button>
-                        <Link href={`/empresa/insumos?categoria=${encodeURIComponent('Servicio de repostería')}&subcategoria=${encodeURIComponent(cat.nombreDisplay)}`} passHref>
-                           <Button variant="outline" size="sm">
-                               <Edit className="w-3 h-3 mr-2" /> Gestionar en Catálogo
-                           </Button>
-                        </Link>
+                        <Button variant="outline" size="sm" onClick={() => openItemModal(cat)}><PlusCircle className="w-3 h-3 mr-2"/>Añadir Ítem Manual</Button>
+                        <Button variant="outline" size="sm" onClick={() => openCatalogModal(cat)}><BookOpen className="w-3 h-3 mr-2"/>Añadir desde Catálogo</Button>
                     </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
-            )})}
+            ))}
           </Accordion>
         </CardContent>
       </Card>
