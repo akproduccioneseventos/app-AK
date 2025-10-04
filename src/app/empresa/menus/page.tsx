@@ -11,11 +11,6 @@ import type { FullMenu } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const formatCurrency = (amount?: number) => {
-    if (amount === undefined || isNaN(amount)) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-};
-
 export default function GestionMenusPage() {
   const { toast } = useToast();
   const [menus, setMenus] = useState<FullMenu[]>([]);
@@ -85,9 +80,9 @@ export default function GestionMenusPage() {
                   <CardDescription>{menu.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm font-semibold text-green-700 mb-2">Costo p/Persona: {formatCurrency((menu.items || []).reduce((sum, item) => sum + (item.totalDishCost || 0), 0))}</p>
                   {(menu.items || []).length > 0 && (
                     <ScrollArea className="h-20 text-xs text-muted-foreground border-t pt-2">
+                      <p className="font-semibold text-xs mb-1">Platos Incluidos:</p>
                       <ul className="list-disc pl-4 space-y-0.5">
                         {menu.items.map(item => <li key={item.id}>{item.name}</li>)}
                       </ul>
