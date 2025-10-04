@@ -3,7 +3,7 @@
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa } from './servicios-empresa';
+import { getInsumos } from './insumos';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -128,7 +128,7 @@ function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
 }
 
 async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): Promise<FullMenu> {
-  const catalogoInsumos = await getServiciosEmpresa();
+  const catalogoInsumos = await getInsumos();
 
   const processedItems = menuData.items.map(item => {
     const ingredients = item.ingredients.map(ing => {
@@ -152,7 +152,7 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
         fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
       };
     });
-    // totalDishCost is now cost per person for the dish
+    // totalDishCost is now the cost per person for the dish
     const totalDishCost = calculateDishCostPerPerson(ingredients);
     const profitMargin = item.profitMargin === undefined ? 100 : item.profitMargin;
     

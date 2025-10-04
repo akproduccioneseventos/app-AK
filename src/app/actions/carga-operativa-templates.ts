@@ -1,9 +1,9 @@
 
 'use server';
+
 // This file is now obsolete and its functionality has been merged into
-// the main services catalog management (`servicios-empresa.ts`).
-// The content is kept temporarily to avoid build errors from existing imports,
-// but it should be considered deprecated and removed in a future cleanup.
+// `activos-fijos.ts`. The content is kept temporarily to avoid build errors from
+// existing imports, but it should be considered deprecated and removed in a future cleanup.
 // All logic now points to using "Activo Fijo" type items from the main catalog.
 
 export interface CargaOperativaItem {
