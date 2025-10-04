@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -42,7 +41,7 @@ export default function GestionMenusPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ChefHat className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Menús de Catering</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Menús y Catering</h1>
         </div>
         <Link href="/empresa" passHref>
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
@@ -51,12 +50,12 @@ export default function GestionMenusPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Plantillas de Menú</CardTitle>
-          <CardDescription>Crea, edita y organiza tus plantillas de menús para reutilizarlas en diferentes eventos.</CardDescription>
+          <CardTitle>Catálogo Maestro de Gastronomía</CardTitle>
+          <CardDescription>Este es tu centro de control para todo lo relacionado con la comida. Define tus menús, platos, e ingredientes base aquí. Luego, úsalos en el "Planificador Gastronómico" de cada evento.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
            <Link href="/empresa/menus/nuevo" passHref>
-            <Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Menú</Button>
+            <Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Plantilla de Menú</Button>
            </Link>
            <Link href="/empresa/menus/catalogo" passHref>
             <Button variant="secondary"><List className="w-4 h-4 mr-2"/>Ver Catálogo de Platos</Button>
@@ -77,7 +76,7 @@ export default function GestionMenusPage() {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">{menu.name}</CardTitle>
                     <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref>
-                        <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
+                        <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar Plantilla</Button>
                     </Link>
                   </div>
                   <CardDescription>{menu.description}</CardDescription>

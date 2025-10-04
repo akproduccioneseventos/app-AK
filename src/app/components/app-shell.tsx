@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
@@ -20,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
+import { NotificationsHub } from '@/components/notifications-hub';
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -51,7 +51,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Activo Fijo';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Activo`;
   if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
-  if (pathname === '/empresa/menus') return 'Gestión de Menús';
+  if (pathname === '/empresa/menus') return 'Gestión de Menús y Catering';
   if (pathname === '/empresa/menus/catalogo') return 'Catálogo de Platos';
   if (pathname === '/empresa/menus/nuevo') return 'Crear Nuevo Menú';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'menus' && pathSegments[3] === 'editar') return `Editando Menú`;
@@ -91,8 +91,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
-  if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return 'Planificador de Repostería';
-  if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return 'Planificador de Bebidas';
+  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -110,7 +109,7 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
-  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
+  
 
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
@@ -159,8 +158,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
-    if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return Cake;
-    if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return GlassWater;
+    if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }
 
@@ -210,8 +208,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   
   if (pathname === '/simulador-de-presupuesto') return Wand2;
   
+  
 
-  if (pathname === '/planner-costo-fiesta') return Calculator;
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
@@ -283,6 +281,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <h1 className="text-lg md:text-xl font-semibold text-foreground">{pageTitle}</h1>
         </div>
         <div className="flex items-center gap-4">
+          <NotificationsHub />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
