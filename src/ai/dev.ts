@@ -2,10 +2,13 @@
 import '@/ai/flows/extract-receipt-data.ts';
 import '@/ai/flows/suggest-palette-flow.ts';
 import '@/ai/flows/generate-social-post-flow.ts';
+import '@/ai/flows/analyze-codebase-flow.ts';
 import '@/ai/flows/generate-testimonial-flow.ts';
 import '@/ai/flows/assign-guests-flow.ts';
 import '@/ai/flows/analyze-event-plan-flow.ts';
 import '@/ai/flows/assistant-flow.ts';
+import '@/ai/flows/generate-image-flow.ts';
+import '@/ai/flows/generate-marketing-plan-flow.ts';
 
 
 // AI Type definitions - These don't need to be loaded by genkit start
