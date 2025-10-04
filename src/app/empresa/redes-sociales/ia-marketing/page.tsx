@@ -1,172 +1,138 @@
-
 'use client';
 
-import React, { useState, useCallback, type FormEvent } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
+import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Wand2, Loader2, AlertTriangle, Lightbulb, Zap, Rocket, ClipboardCopy } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Bot, User, Loader2, Send, Wand2 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { generateMarketingPlan, type MarketingPlanInput, type MarketingPlanOutput } from '@/ai/flows/generate-marketing-plan-flow';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { assistant, type AssistantOutput } from '@/ai/flows/assistant-flow';
+import ReactMarkdown from 'react-markdown';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  imageUrl?: string;
+}
 
-export default function MarketingAIPage() {
+export function AkAssistant() {
   const { toast } = useToast();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [planResult, setPlanResult] = useState<MarketingPlanOutput | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Form state for brand identity
-  const [brandInfo, setBrandInfo] = useState<MarketingPlanInput>({
-    brandName: 'AK Producciones',
-    targetAudience: 'Personas y empresas en Salto que buscan organizar eventos memorables, desde fiestas de 15 y bodas hasta eventos corporativos. Valoran la experiencia, la calidad y un servicio integral.',
-    keyServices: 'Organización integral de fiestas, servicio de catering, discoteca, decoración, barra de tragos, personal para eventos.',
-    toneOfVoice: 'Cercano y Amistoso',
-    mainGoal: 'Generar leads para fiestas de fin de año',
-  });
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
 
-  const handleInputChange = (field: keyof MarketingPlanInput, value: string) => {
-    setBrandInfo(prev => ({...prev, [field]: value}));
-  };
+  useEffect(() => {
+    if (scrollViewportRef.current) {
+        scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight;
+    }
+  }, [messages]);
 
-  const handleGeneratePlan = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsGenerating(true);
-    setError(null);
-    setPlanResult(null);
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
 
     try {
-      const result = await generateMarketingPlan(brandInfo);
-      setPlanResult(result);
-      toast({ title: "¡Plan de Marketing Generado!", description: "La IA ha creado una estrategia semanal para ti." });
+      const result = await assistant({ query: input });
+      const assistantMessage: Message = { 
+        role: 'assistant', 
+        content: result.response,
+        imageUrl: result.imageUrl,
+      };
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (err: any) {
-      console.error("Error generating marketing plan:", err);
-      setError(err.message || "Ocurrió un error inesperado durante la generación del plan.");
-      toast({ title: "Error de IA", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error de Asistente de IA",
+        description: err.message || "No se pudo obtener una respuesta. Inténtalo de nuevo.",
+        variant: "destructive",
+      });
+      // Optionally add an error message to the chat
+      setMessages(prev => [...prev, { role: 'assistant', content: "Lo siento, tuve un problema para procesar tu solicitud." }]);
     } finally {
-      setIsGenerating(false);
+      setIsLoading(false);
     }
-  };
-  
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({ title: "Copiado al portapapeles" });
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Wand2 className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Asesor de Marketing IA</h1>
-        </div>
-        <Link href="/empresa/redes-sociales" passHref>
-          <Button variant="outline" disabled={isGenerating}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
-        </Link>
-      </div>
-      <p className="text-lg text-muted-foreground">
-        Define la identidad de tu marca y deja que la IA cree un plan de contenido semanal estratégico para tus redes sociales.
-      </p>
+    <Card className="w-full shadow-2xl flex flex-col h-[calc(100vh-220px)] border-primary/20">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+          <Wand2 className="text-primary w-8 h-8" /> Asistente de Marketing AK
+        </CardTitle>
+        <CardDescription>
+          Tu experto en marketing para AK Producciones. Pide ideas, textos para redes sociales, o la creación de imágenes.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col min-h-0">
+        <ScrollArea className="flex-1 pr-4">
+          <div className="space-y-6" ref={scrollViewportRef}>
+            <Alert>
+                <Bot className="h-4 w-4" />
+                <AlertTitle>¡Hola! Soy tu asistente de marketing.</AlertTitle>
+                <AlertDescription>
+                    Tengo conocimiento de tus servicios, menús y paquetes. Puedes pedirme ideas como:
+                    <ul className="list-disc pl-5 mt-2 text-xs">
+                        <li>"Crea un post para Instagram promocionando el Paquete Premium."</li>
+                        <li>"Dame 3 ideas para hacerme viral en TikTok mostrando nuestro servicio de catering."</li>
+                        <li>"Genera una imagen de una boda elegante en un salón de fiestas."</li>
+                    </ul>
+                </AlertDescription>
+            </Alert>
 
-      <Card className="shadow-lg">
-        <form onSubmit={handleGeneratePlan}>
-          <CardHeader>
-            <CardTitle className="font-headline text-xl">1. Define tu Marca y Objetivos</CardTitle>
-            <CardDescription>Proporciona a la IA el contexto que necesita para crear una estrategia relevante.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="brandName">Nombre de tu Marca</Label>
-                <Input id="brandName" value={brandInfo.brandName} onChange={e => handleInputChange('brandName', e.target.value)} />
+            {messages.map((message, index) => (
+            <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {message.role === 'assistant' && <Bot className="w-6 h-6 text-primary flex-shrink-0" />}
+                <div className={`rounded-lg px-4 py-2 max-w-lg ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
+                  {message.imageUrl && (
+                    <div className="mt-2">
+                      <NextImage src={message.imageUrl} alt="Imagen generada por IA" width={400} height={400} className="rounded-md border"/>
+                    </div>
+                  )}
+                </div>
+                {message.role === 'user' && <User className="w-6 h-6 text-muted-foreground flex-shrink-0" />}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="targetAudience">Público Objetivo</Label>
-                    <Textarea id="targetAudience" value={brandInfo.targetAudience} onChange={e => handleInputChange('targetAudience', e.target.value)} rows={3}/>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="keyServices">Servicios Clave</Label>
-                    <Textarea id="keyServices" value={brandInfo.keyServices} onChange={e => handleInputChange('keyServices', e.target.value)} rows={3}/>
+            ))}
+            {isLoading && (
+            <div className="flex items-start gap-3 justify-start">
+                <Bot className="w-6 h-6 text-primary flex-shrink-0" />
+                <div className="rounded-lg px-4 py-2 max-w-sm bg-muted flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin"/>
+                    <span className="text-sm text-muted-foreground">Pensando...</span>
                 </div>
             </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="toneOfVoice">Tono de Voz</Label>
-                    <Select value={brandInfo.toneOfVoice} onValueChange={(val) => handleInputChange('toneOfVoice', val)}>
-                        <SelectTrigger id="toneOfVoice"><SelectValue/></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Profesional y Corporativo">Profesional y Corporativo</SelectItem>
-                            <SelectItem value="Cercano y Amistoso">Cercano y Amistoso</SelectItem>
-                            <SelectItem value="Moderno y Divertido">Moderno y Divertido</SelectItem>
-                            <SelectItem value="Lujoso y Exclusivo">Lujoso y Exclusivo</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="mainGoal">Objetivo Principal de la Semana</Label>
-                    <Input id="mainGoal" value={brandInfo.mainGoal} onChange={e => handleInputChange('mainGoal', e.target.value)} placeholder="Ej: Generar leads, crear contenido viral..."/>
-                </div>
-             </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" disabled={isGenerating}>
-              {isGenerating ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Zap className="w-5 h-5 mr-2"/>}
-              {isGenerating ? 'Creando Estrategia...' : 'Generar Plan de Marketing Semanal'}
-            </Button>
-          </CardFooter>
+            )}
+        </div>
+        </ScrollArea>
+      </CardContent>
+      <CardFooter className="pt-4 border-t">
+        <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2">
+        <Input
+            id="message"
+            placeholder="Pídele algo a tu asistente de marketing..."
+            className="flex-1"
+            autoComplete="off"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={isLoading}
+        />
+        <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+            <Send className="h-4 w-4" />
+            <span className="sr-only">Enviar mensaje</span>
+        </Button>
         </form>
-      </Card>
-
-      {isGenerating && (
-        <div className="text-center py-10">
-            <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary"/>
-            <p className="mt-4 text-muted-foreground">La IA está diseñando tu plan estratégico...</p>
-        </div>
-      )}
-
-      {error && (
-        <Card className="border-destructive"><CardHeader><CardTitle className="text-destructive flex items-center gap-2"><AlertTriangle/>Error al Generar Plan</CardTitle></CardHeader><CardContent><p>{error}</p></CardContent></Card>
-      )}
-
-      {planResult && (
-        <div className="space-y-6">
-            <Card className="bg-primary/5 border-primary/20">
-                <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Rocket className="text-primary"/>Resumen de la Estrategia Semanal</CardTitle></CardHeader>
-                <CardContent><p className="text-muted-foreground">{planResult.weeklySummary}</p></CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Lightbulb className="text-primary"/>Ideas de Contenido Diario</CardTitle></CardHeader>
-                <CardContent>
-                    <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
-                        {planResult.dailyPlan.map((post, index) => (
-                             <AccordionItem key={index} value={`item-${index}`} className="border-b">
-                                <AccordionTrigger className="text-md font-semibold hover:no-underline">{post.day}: <span className="text-primary ml-2">{post.theme}</span></AccordionTrigger>
-                                <AccordionContent className="pt-2 pb-4 space-y-3">
-                                    <p className="text-muted-foreground whitespace-pre-line">{post.contentIdea}</p>
-                                    <div className="flex justify-between items-center">
-                                       <p className="text-xs font-mono bg-muted p-1.5 rounded">{post.suggestedHashtags}</p>
-                                       <Button size="sm" variant="ghost" onClick={() => handleCopyToClipboard(post.contentIdea)}><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Idea</Button>
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
-                </CardContent>
-            </Card>
-        </div>
-      )}
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
-
