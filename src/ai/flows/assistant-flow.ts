@@ -3,7 +3,7 @@
  * @fileOverview A comprehensive AI assistant for marketing and event planning.
  * This assistant is designed to have knowledge of the company's services,
  * menus, and packages to provide contextual advice and generate content.
- * It can also use tools, such as an image generator.
+ * It can also use tools, such as an image generator and web search.
  */
 
 import { ai } from '@/ai/genkit';
