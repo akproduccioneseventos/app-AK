@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Filter, Printer, BarChart3, Tag, DollarSign, StickyNote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa, CategoriaInsumo } from '@/types/empresa';
 import { getInsumos, deleteInsumo } from '@/app/actions/insumos';
@@ -23,10 +23,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || amount === null || isNaN(amount)) return '$ 0';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 export default function InventarioInsumosPage() {
@@ -52,7 +53,6 @@ export default function InventarioInsumosPage() {
       const data = await getInsumos();
       setAllItems(data);
       
-      // Initialize category filter only once after data is fetched
       if (Object.keys(categoryFilter).length === 0 && data.length > 0) {
         const initialCategories = Array.from(new Set(data.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat as string]: true}), {});
         setCategoryFilter(initialCategories);
@@ -85,7 +85,6 @@ export default function InventarioInsumosPage() {
     setFilteredItems(filteredData);
   }, [searchTerm, allItems, categoryFilter, ALL_CATEGORIES]);
 
-  
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
     try {
@@ -102,10 +101,10 @@ export default function InventarioInsumosPage() {
       setDeletingId(null);
     }
   };
-  
+
   const insumosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
-      const categoria = item.categoria || 'Otros';
+      const categoria = item.categoria || 'Otros Insumos';
       if (!acc[categoria]) acc[categoria] = [];
       acc[categoria].push(item);
       return acc;
@@ -113,6 +112,18 @@ export default function InventarioInsumosPage() {
   }, [filteredItems]);
 
   const categoriasOrdenadas = Object.keys(insumosPorCategoria).sort();
+
+  const capitalPorCategoria = useMemo(() => {
+    return categoriasOrdenadas.map(categoria => {
+      const totalCategoria = insumosPorCategoria[categoria].reduce((sum, item) => {
+        const valorItem = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+        return sum + valorItem;
+      }, 0);
+      return { nombre: categoria, total: totalCategoria };
+    });
+  }, [categoriasOrdenadas, insumosPorCategoria]);
+
+  const capitalTotalGeneral = useMemo(() => capitalPorCategoria.reduce((sum, cat) => sum + cat.total, 0), [capitalPorCategoria]);
 
   return (
     <div className="space-y-6">
@@ -145,6 +156,30 @@ export default function InventarioInsumosPage() {
       </div>
       <CardDescription>Gestiona tu inventario de consumibles (ingredientes, bebidas, etc.) que se usarán en los menús.</CardDescription>
       
+       <Card className="shadow-lg print:shadow-none print:border-none">
+        <CardHeader className="border-b print:border-b-2 print:border-gray-200">
+          <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Capital en Insumos</CardTitle>
+          <CardDescription>Resumen del valor total de tu inventario de consumibles.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-3 print:p-2">
+          {capitalPorCategoria.map(cat => (
+            cat.total > 0 && <Card key={cat.nombre} className="bg-muted/50 print:border print:border-gray-200 print:shadow-none">
+              <CardHeader className="pb-2 pt-3 px-4"><CardTitle className="text-sm font-medium text-muted-foreground flex items-center print:text-xs"><Tag className="w-3.5 h-3.5 mr-1.5"/> {cat.nombre}</CardTitle></CardHeader>
+              <CardContent className="px-4 pb-3"><p className="text-2xl font-bold text-primary print:text-lg">{formatCurrency(cat.total)}</p></CardContent>
+            </Card>
+          ))}
+        </CardContent>
+        <CardFooter className="border-t p-4 bg-muted/30 print:border-t-2 print:border-gray-200">
+          <div className="flex justify-end items-center w-full gap-2">
+            <BarChart3 className="w-5 h-5 text-primary"/>
+            <span className="text-lg font-semibold print:text-base">Capital Total en Insumos:</span>
+            <span className="text-2xl font-bold text-primary print:text-xl">{formatCurrency(capitalTotalGeneral)}</span>
+          </div>
+        </CardFooter>
+      </Card>
+      
+      <Separator className="my-6 print:hidden" />
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Catálogo de Insumos ({filteredItems.length})</CardTitle>
@@ -189,29 +224,34 @@ export default function InventarioInsumosPage() {
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pt-0 pb-3">
                     <div className="space-y-3 mt-2">
-                      {insumosPorCategoria[categoria]?.map((item) => (
-                        <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
-                          <CardHeader className="pb-2 pt-3 px-3">
-                            <div className="flex justify-between items-start">
-                              <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
-                              <div className="flex gap-1">
-                                  <Link href={`/empresa/insumos/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
-                                    <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
-                                  </AlertDialog>
+                      {insumosPorCategoria[categoria]?.map((item) => {
+                        const itemTotalValue = (item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0);
+                        return (
+                          <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
+                            <CardHeader className="pb-2 pt-3 px-3">
+                              <div className="flex justify-between items-start">
+                                <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
+                                <div className="flex gap-1">
+                                    <Link href={`/empresa/insumos/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
+                                      <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
                               </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="px-3 pb-3 text-sm space-y-1">
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1">
-                              <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
-                              <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
-                              <p className="font-semibold text-primary/90"><span className="text-muted-foreground">Costo: </span>{formatCurrency(item.valorUnitarioEstimado)}</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                            </CardHeader>
+                            <CardContent className="px-3 pb-3 text-sm space-y-1">
+                               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1">
+                                  <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
+                                  <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
+                                  <p><span className="text-muted-foreground">Costo Unit: </span><span className="font-medium text-primary/90">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
+                                  <p className="font-semibold col-span-full md:col-span-1 md:text-right"><span className="text-muted-foreground">Valor Total Stock: </span>{formatCurrency(itemTotalValue)}</p>
+                                </div>
+                                {item.notas && <p className="text-xs mt-2 pt-1 border-t border-dashed flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5 flex-shrink-0"/>{item.notas}</p>}
+                            </CardContent>
+                          </Card>
+                        )
+                      })}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
