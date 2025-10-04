@@ -31,8 +31,8 @@ import { updatePersonal } from './fiesta/personal.actions';
 import { updateClientChecklist, updateClientNotes, updatePortalSettings } from './fiesta/portal.actions';
 import { updateMusica } from './fiesta/musica.actions';
 import { updateGiftRegistry, claimGift } from './fiesta/regalos.actions';
-import { updateReposteria } from './fiesta/reposteria.actions';
-import { updateBebidas } from './fiesta/bebidas.actions';
+import { updateReposteria as updateReposteriaForFiesta } from './reposteria.actions';
+import { updateBebidas as updateBebidasForFiesta } from './bebidas.actions';
 import { updateListaDeCargaOperativa } from './fiesta/carga-operativa.actions';
 import { updateGestionCostos } from './fiesta/costos.actions';
 import { updateFotografiaYFilmacion as updateFotografiaYFilmacionFromModule } from './fiesta/fotografia.actions';
@@ -96,10 +96,10 @@ export const updateGiftRegistryFiestaActual = updateGiftRegistry;
 export const claimGiftFiestaActual = claimGift;
 
 // --- Reposteria Actions ---
-export const updateReposteriaFiestaActual = updateReposteria;
+export const updateReposteriaFiestaActual = updateReposteriaForFiesta;
 
 // --- Bebidas Actions ---
-export const updateBebidasFiestaActual = updateBebidas;
+export const updateBebidasFiestaActual = updateBebidasForFiesta;
 
 // --- Carga Operativa Actions ---
 export const updateListaDeCargaOperativaFiestaActual = updateListaDeCargaOperativa;
@@ -127,7 +127,3 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
-
-
-
-
