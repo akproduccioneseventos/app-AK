@@ -175,7 +175,7 @@
     "id": "lc_66",
     "nombre": "Barras de Bolas de Espejos",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
@@ -184,7 +184,7 @@
     "id": "lc_67",
     "nombre": "Bolas de Espejo",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Discoteca",
     "cantidadDisponible": 15,
     "valorUnitarioEstimado": 300,
     "unidad": "Unidad"
@@ -193,7 +193,7 @@
     "id": "lc_73",
     "nombre": "Cartel de Barra DJ",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1000,
     "unidad": "Unidad"
@@ -518,7 +518,7 @@
     "nombre": "Servilletas Negras de Tela",
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
@@ -572,7 +572,7 @@
     "nombre": "Cubre Sillas",
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
@@ -725,7 +725,7 @@
     "nombre": "Platos de Sitio",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
@@ -734,7 +734,7 @@
     "nombre": "Platos Grandes",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 120,
     "unidad": "Unidad"
   },
@@ -743,7 +743,7 @@
     "nombre": "Platos Chicos",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 80,
     "unidad": "Unidad"
   },
@@ -752,7 +752,7 @@
     "nombre": "Cucharitas",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 40,
     "unidad": "Unidad"
   },
@@ -761,7 +761,7 @@
     "nombre": "Tenedores",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
@@ -770,7 +770,7 @@
     "nombre": "Cuchillos",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 60,
     "unidad": "Unidad"
   },
@@ -779,7 +779,7 @@
     "nombre": "Cucharas de Postre",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 45,
     "unidad": "Unidad"
   },
@@ -788,7 +788,7 @@
     "nombre": "Tenedores de Postre",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 45,
     "unidad": "Unidad"
   },
@@ -797,7 +797,7 @@
     "nombre": "Cuchillos de Postre",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
@@ -806,7 +806,7 @@
     "nombre": "Tazas de Café",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 70,
     "unidad": "Unidad"
   },
@@ -815,7 +815,7 @@
     "nombre": "Platillos de Café",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
@@ -824,7 +824,7 @@
     "nombre": "Cucharitas de Café",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 30,
     "unidad": "Unidad"
   },
@@ -860,7 +860,7 @@
     "nombre": "Vasos",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 150,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 80,
     "unidad": "Unidad"
   },
@@ -869,7 +869,7 @@
     "nombre": "Copas de Agua",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
   },
@@ -878,7 +878,7 @@
     "nombre": "Copas de Vino",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 110,
     "unidad": "Unidad"
   },
@@ -887,7 +887,7 @@
     "nombre": "Copas de Champagne",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
+    "cantidadDisponible": 200,
     "valorUnitarioEstimado": 110,
     "unidad": "Unidad"
   },
